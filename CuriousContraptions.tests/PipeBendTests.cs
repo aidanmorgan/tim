@@ -8,6 +8,109 @@ namespace CuriousContraptions.Tests;
 public class PipeBendTests(HeadlessFixture godot, ITestOutputHelper output)
 {
     [Theory]
+    [InlineData("pipe", 6f)]
+    [InlineData("pipe", 40f)]
+    [InlineData("pipe_bend_90", 6f)]
+    [InlineData("pipe_bend_90", 40f)]
+    public void FastBallsCrossJoinedBendSeams(string upstreamKind, float speed)
+    {
+        var world = new MachineWorld { Gravity = 0, Pressure = 0 };
+        godot.Tree.Root.AddChild(world);
+        try
+        {
+            var bend = (PipeBendPart)world.AddPart(new() { Id = "bend", Kind = "pipe_bend_90", Position = [0,8,0], Rotation = [20,30,40] });
+            var pipe = world.AddPart(new() { Id = "pipe", Kind = upstreamKind });
+            var inlet = bend.Mouths.Single(m => m.Id == TubeMouthId.Start);
+            var pipeEnd = ((ITubePart)pipe).Mouths.Single(m => m.Id == TubeMouthId.End);
+            pipe.GlobalBasis = bend.GlobalBasis * new Basis(new Quaternion(pipeEnd.Outward, -inlet.Outward));
+            pipe.GlobalPosition = bend.GlobalTransform * inlet.Position - pipe.GlobalBasis * pipeEnd.Position;
+            var ball = world.AddPart(new() { Id = "ball", Kind = "ball" });
+            var entry = ((ITubePart)pipe).Mouths.Single(m => m.Id == TubeMouthId.Start);
+            ball.GlobalPosition = pipe.GlobalTransform * (entry.Position + entry.Outward * .8f);
+            world.Start();
+            ball.Velocity = pipe.GlobalBasis * -entry.Outward * speed;
+            var outlet = bend.Mouths.Single(m => m.Id == TubeMouthId.End);
+            var exited = false;
+            for (var tick = 0; tick < 600; tick++)
+            {
+                var previous = ball.Position;
+                world.Step();
+                Assert.True(ball.Position.DistanceTo(previous) <= speed * MachineWorld.Tick + .002f);
+                Assert.InRange(ball.Velocity.Length(), 0, speed + .002f);
+                var local = bend.Transform.AffineInverse() * ball.Position;
+                var fromOutlet = local - outlet.Position;
+                var along = fromOutlet.Dot(outlet.Outward);
+                if (along > .5f && (fromOutlet - outlet.Outward * along).Length() < PipePart.BoreRadius)
+                {
+                    Assert.True((bend.Basis.Inverse() * ball.Velocity).Normalized().Dot(outlet.Outward) > .8f);
+                    exited = true;
+                    break;
+                }
+            }
+            Assert.True(exited);
+        }
+        finally { world.Free(); }
+    }
+
+    [Theory]
+    [InlineData(0f, .48f, true)]
+    [InlineData(.45f, .48f, true)]
+    [InlineData(1f, .48f, false)]
+    [InlineData(0f, .58f, true)]
+    [InlineData(.45f, .58f, false)]
+    [InlineData(1f, .58f, false)]
+    public void JoinedRouteUsesAuthoredWindowsNotEditorSnapDuringRun(float precision, float error, bool expected)
+    {
+        var world = new MachineWorld { Precision = precision };
+        godot.Tree.Root.AddChild(world);
+        try
+        {
+            var puzzle = MachineCodec.ReadPuzzles(Godot.FileAccess.GetFileAsString("res://content/puzzles.json"))
+                .Single(p => p.Id == "joined_pipe");
+            var data = MachineCodec.Clone(puzzle.CreateMachine());
+            foreach (var part in data.Parts) part.Difficulty.Clear();
+            data.Parts.AddRange(puzzle.Solution);
+            data.Parts.Single(p => p.Id == "pipe_1").Position[2] += error;
+            world.LoadMachine(data);
+            world.Start();
+            for (var tick = 0; tick < 3600 && world.Running; tick++) world.Step();
+            output.WriteLine($"error {error}, precision {precision}: won {world.Won}, Z {world.FindPart("pipe_1")!.Position.Z}");
+            Assert.Equal(expected, world.Won);
+            Assert.Equal(expected ? 0 : error, world.FindPart("pipe_1")!.Position.Z, 4);
+        }
+        finally { world.Free(); }
+    }
+
+    [Fact]
+    public void JoinedGravityRouteCarriesTheBallAcrossItsSeam()
+    {
+        var world = new MachineWorld();
+        godot.Tree.Root.AddChild(world);
+        try
+        {
+            var bend = (PipeBendPart)world.AddPart(new() { Id = "bend", Kind = "pipe_bend_90", Position = [1,3.5f,0], Rotation = [0,0,-45] });
+            var pipe = (PipePart)world.AddPart(new() { Id = "pipe", Kind = "pipe", Rotation = [0,0,-45],
+                Properties = new() { [PipeParameters.Length] = 2 } });
+            var inlet = bend.Mouths.Single(m => m.Id == TubeMouthId.Start);
+            var end = pipe.Mouths.Single(m => m.Id == TubeMouthId.End);
+            pipe.Position = bend.Transform * inlet.Position - pipe.Basis * end.Position;
+            var entry = pipe.Mouths.Single(m => m.Id == TubeMouthId.Start);
+            var ball = world.AddPart(new() { Id = "ball", Kind = "ball" });
+            ball.Position = pipe.Transform * entry.Position + Vector3.Up * 1.6f;
+            output.WriteLine($"pipe {pipe.Position}; ball {ball.Position}");
+            world.Start();
+            for (var tick = 0; tick < 600 && ball.Position.Y > 1.2f; tick++) world.Step();
+            output.WriteLine($"landing {ball.Position}; velocity {ball.Velocity}");
+            Assert.True(ball.Position.Y <= 1.2f);
+            var outlet = bend.Mouths.Single(m => m.Id == TubeMouthId.End);
+            var normal = bend.Basis * outlet.Outward;
+            Assert.True((ball.Position - bend.Transform * outlet.Position).Dot(normal) > .3f);
+            Assert.True(ball.Velocity.Normalized().Dot(normal) > .9f);
+        }
+        finally { world.Free(); }
+    }
+
+    [Theory]
     [InlineData("pipe_bend_45", 0, 0, 0)]
     [InlineData("pipe_bend_90", 0, 0, 0)]
     [InlineData("pipe_bend_45", 30, 40, 50)]

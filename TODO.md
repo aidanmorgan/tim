@@ -6,13 +6,13 @@ Delivery policy: commit and push each implemented, verified feature batch; docum
 
 ## Current objective — revised 27 September 2026
 
-Prioritise implementing the outstanding puzzle-solving mechanics and rebuilding/expanding the campaign to **75 included levels**, rather than finishing exhaustive testing of the old 40-level campaign first. This replaces the previous 40-level target; it does not claim that 75 levels or the new mechanics already exist.
+**Component coverage first.** Implement the outstanding component families in the backlog before resuming exhaustive difficulty/nudging testing. Add focused introductory levels as useful, retaining the **75-level campaign** target; the full difficulty matrix and comprehensive campaign balancing come after the components are implemented. This supersedes the previous emphasis on running repeated difficulty sweeps as each piece lands.
 
 - Add the requested solution types: movable/three-axis-rotatable/resizable walls, pinball bumpers, batteries, solar panels, wires and circuits, electric motors, chains/belts, weights, ropes and pulleys. Identify complementary items from the existing TIM research where they add distinct puzzle possibilities, not just cosmetic variants.
 - Rework existing levels as well as adding new ones. Introduce each new piece in a simple, focused puzzle before requiring combinations; gradually increase sequencing, timing, spatial reasoning and the number of interacting mechanisms. Support alternative solutions instead of only rewarding an exact reference layout.
 - Keep the extensible scene-graph architecture, Godot C# wherever possible, browser delivery and DESIGN.md's approved visual style. Mechanisms need understandable, fluid activation animation and reliable Reset behaviour.
-- Retain author-controlled, non-user-exposed placement/physics nudging across difficulties. Test forgiving placement ranges without turning difficulty into only a global physics relaxation.
-- Play every final level through real UI controls with Playwright, including repeated attempts across difficulties. Continue targeted regression tests as mechanics land; do not treat historical 40-level results as verification of the rewritten campaign.
+- Retain author-controlled, non-user-exposed placement/physics nudging across difficulties. Defer expanded tolerance sweeps and cross-difficulty tuning until component coverage is complete; do not replace the authored system with global physics relaxation.
+- Ultimately play every final level through real UI controls with Playwright, including repeated attempts across difficulties. For now, use focused behaviour/build/Reset tests and browser smoke checks per component; preserve existing evidence and defer the full difficulty matrix. Historical 40-level results do not verify the rewritten campaign.
 - Physics research/calibration and mobile support remain tracked requirements, but implementing the new solution systems and progressively teaching them across 75 levels is the immediate focus.
 
 ### Implementation and campaign sequence
@@ -37,6 +37,9 @@ Prioritise implementing the outstanding puzzle-solving mechanics and rebuilding/
 - [ ] Verify 75 distinct, playable levels with an intentional difficulty ramp and no unintroduced required mechanism. Expand the baseline matrix to 75 × 3 difficulties × 4 placement variants = 900 cases, plus repeatability and mechanism-specific probes; preserve failed attempts and evidence versions.
 
 ## In-flight work and handoff
+
+- [x] Add joined-route lesson 28, “Meet in the middle”: resize and align a straight tube with a fixed 90° bend. **58 draft levels** now exist toward 75. Native references and missing-tube controls pass; actual UI resize/rotation/final-move snapping is verified. The already-running twelve-case browser batch has finished; no further difficulty sweeps are scheduled until component coverage is complete.
+- [ ] Investigate the retained `L28-balanced-reference-joined-v1` unexpected Run event during construction. Its isolated retry and subsequent reference/error runs complete correctly, but the original cause is unknown; do not count the failed record as a successful attempt.
 
 - [x] Add 45°/90° clear pipe bends with typed angles/mouths, continuous hollow-curve contact in the existing solver, matching collars/rails and original icons. Straight-to-bend and bend-to-bend snapping use the same typed opening geometry. Add lessons 26–27 after the straight-pipe lesson: **57 draft levels** toward 75.
 - [x] Verify the first bend lessons: 315 native tests pass; 13 current-version UI-only runs/audits cover six references, six matched depth errors and one repeat with motion frames. The 90° depth error succeeds on Forgiving/Balanced and times out on Precise; 45° also has a legitimate precise success. Author-specific alignment windows correct smoothly within 0.6/0.5 units and 5°/2°, leaving strict physics unchanged. Reviewed frames show entry, curved passage and exit.

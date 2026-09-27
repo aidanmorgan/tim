@@ -1,5 +1,16 @@
 # Browser campaign playtest
 
+## Joined tubes — 58-level draft; difficulty work now deferred
+
+Campaign hash: `a800fa3f065bee0ac9de85183125d8bee37b06ca7d281892b78c01e5b2d7df56`. Lesson 28, “Meet in the middle”, requires a shortened straight tube feeding a fixed 90° bend. The adapter supports validated final axis-handle moves after rotation/resizing, so the join is made through an ordinary mouse gesture. These are editor actions, not runtime nudging controls.
+
+The initial `L28-balanced-reference-joined-v1.json` is failed evidence: Run appeared during construction before the script requested it. Its cause remains unknown. The isolated v2 retry and the subsequent eleven v2 cases completed with zero browser errors and full Run/result/Reset. Reference wins are Balanced 250, Forgiving 237 and Precise 265 ticks. The snapped pipe has measured length approximately 2.0073; its position aligns the actual collar face rather than forcing the nominal length-2 centre, and Reset preserves it.
+
+At approximately 0.48 Z error, Forgiving/Balanced win and Precise times out. At approximately 0.58, only Forgiving wins. Missing-tube cases time out at all three settings. Native fixtures remove receiver assistance and reproduce the two distinct authored windows. These runs were already in flight when the user redirected priority to component coverage; further difficulty sweeps are deferred until the component set is implemented.
+
+The native suite passes 326 tests, including straight-to-bend and bend-to-bend passage at 6 and 40 units/s with bounded displacement and no added energy, plus gravity-driven joined passage. An initial landing estimate was corrected from the measured trajectory; the two-bend test's exit check was strengthened to require proximity to the outlet axis, because a half-plane alone also included the inlet. Adapter unit tests pass 37. Broader multi-ball queues, blocked outlets, all orientations/speeds and continuous frame-rate checks remain unfinished.
+
+
 ## 45° and 90° bends — 57-level draft
 
 Current campaign hash: `0ae028b3a743782143bb95a9c6a7ffbcf68bd508edaa39b2bf61b411d4f42edc`. Lessons 26–27 introduce a gentle bend and a quarter turn after the straight-pipe lesson. Typed angles and opening IDs, a continuous hollow circular collision surface, common-bore collars, transparent cyan artwork and angle-specific icons extend the existing C# scene graph and sphere solver. Native tests align both bends with straight tubes and with each other in rotated 3D poses. There is no hidden path-following, added speed or automatic transport-network connection.

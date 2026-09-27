@@ -29,11 +29,11 @@ Run adapter-only tests with `node --test tools/Playtest/direct-ui.test.cjs`. The
 
 Generate the full matrix with `dotnet run --project tools/Playtest`; optionally filter by level, difficulty and variant, e.g. `dotnet run --project tools/Playtest -- 1 balanced near-positive`. This C# tool produces recipes only and has no connection to the game. Each recipe records the puzzle-data SHA-256.
 
-Each part has `slot`, `kind`, `position`, `rotation`, optional `offset` and `rotationOffset`. The adapter reads only rendered UI geometry while building. `CCRUN`, `CCFRAME` and `CCRESULT` are evidence captured after ordinary UI actions.
+Each part has `slot`, `kind`, `position`, `rotation`, optional `offset`, `rotationOffset`, `dimensions`, and `finalMoves`. Final moves are an ordered array of `{axis: 0|1|2, amount: number}` handle drags performed after resizing/rotation; use them to test an ordinary move-release snap, not to change simulation variables. The adapter reads only rendered UI geometry while building. `CCRUN`, `CCFRAME` and `CCRESULT` are evidence captured after ordinary UI actions.
 
 ## Required matrix
 
-The revised final target is 75 levels × Forgiving (0), Balanced (0.45), Precise (1) × at least four attempts = **900 planned runs**, plus repeatability probes. The current draft has 57 levels. Historical 40-level/480-case counts below describe the pre-expansion campaign, not completion of the revised target:
+The revised final target is 75 levels × Forgiving (0), Balanced (0.45), Precise (1) × at least four attempts = **900 planned runs**, plus repeatability probes. The current draft has 58 levels. Historical 40-level/480-case counts below describe the pre-expansion campaign, not completion of the revised target:
 
 1. Reference placement through direct handles.
 2. Small positive placement/orientation error on a chosen part.

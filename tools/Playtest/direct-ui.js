@@ -9,6 +9,9 @@ async function directUiAttempt(page, attempt) {
     if (![0, 0.45, 1].includes(attempt.precision))
         throw new Error("Use Forgiving, Balanced or Precise");
     for (const part of attempt.parts ?? []) {
+        if (part.finalMoves != null && (!Array.isArray(part.finalMoves) || part.finalMoves.some(m =>
+            !m || ![0,1,2].includes(m.axis) || !Number.isFinite(m.amount) || Math.abs(m.amount) > 14)))
+            throw new Error("Final moves require a valid axis and finite bounded distance");
         if (part.dimensions == null) continue;
         const bounds = {
             wall: { min: [.4,.4,.12], max: [8,6,2] },
@@ -205,6 +208,12 @@ async function directUiAttempt(page, attempt) {
                 if (Math.abs(part.dimensions[axis] - ui.dimensions[axis]) >= .03)
                     throw new Error("Resize did not reach requested dimension on axis " + axis);
             }
+        }
+        for (const part of attempt.parts ?? []) {
+            if (!part.finalMoves?.length) continue;
+            const id = placed.get(part.slot);
+            if (ui.selected !== id) await click(ui.parts.find(p => p.id === id).screen, "select part for final movement");
+            for (const adjustment of part.finalMoves) await move(adjustment.axis, adjustment.amount);
         }
         for (const link of attempt.connections ?? []) {
             await page.keyboard.press("Escape");

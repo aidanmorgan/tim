@@ -15,6 +15,13 @@ for (const [kind, dimensions] of [["ramp",[3,2,.25]], ["wall",[0,2,.25]],
         await assert.rejects(fn({}, {level:1,precision:.45,parts:[{kind,dimensions}]}), /Resize dimensions/);
     });
 }
+for (const finalMoves of ["invalid", [null], [{axis:3,amount:1}], [{axis:"x",amount:1}],
+    [{axis:0,amount:Infinity}], [{axis:0,amount:15}]]) {
+    test("reject invalid final movement " + JSON.stringify(finalMoves), async () => {
+        const fn = runInNewContext("(" + source + ")");
+        await assert.rejects(fn({}, {level:1,precision:.45,parts:[{kind:"pipe",finalMoves}]}), /Final moves/);
+    });
+}
 for (const link of [
     {from:"a",to:"b",type:"rope",from_port:"tie",to_port:"tie"},
     {from:"a",to:"b",type:"rope",from_port:"tie",to_port:"tie",rope_length:-1},

@@ -7255,9 +7255,261 @@
     "solution_connections": []
   },
   {
+    "id": "joined_pipe",
+    "title": "Meet in the middle",
+    "subtitle": "28 / Joined routes",
+    "description": "Join a short straight tube to the fixed bend so the falling ball reaches the receiver.",
+    "hint": "Shorten the tube to fit, turn it downhill, then bring its lower mouth near the bend\u0027s upper mouth. A small move aligns the openings; the ball needs a continuous route.",
+    "inventory": {
+      "pipe": 1
+    },
+    "parts": [
+      {
+        "id": "ball",
+        "kind": "ball",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 3,
+            "rotation_window": 100,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.2
+          },
+          {
+            "precision": 0.45,
+            "position_window": 1.5,
+            "rotation_window": 45,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.47
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": true,
+        "position": [
+          -1.3081,
+          8.402188,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "properties": {}
+      },
+      {
+        "id": "bend",
+        "kind": "pipe_bend_90",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 3,
+            "rotation_window": 100,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.2
+          },
+          {
+            "precision": 0.45,
+            "position_window": 1.5,
+            "rotation_window": 45,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.47
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": true,
+        "position": [
+          1,
+          3.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -45
+        ],
+        "properties": {}
+      },
+      {
+        "id": "receiver",
+        "kind": "basket",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 3,
+            "rotation_window": 100,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 12,
+            "trigger_threshold": 0.2
+          },
+          {
+            "precision": 0.45,
+            "position_window": 1.5,
+            "rotation_window": 45,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 6.6,
+            "trigger_threshold": 0.47
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": true,
+        "position": [
+          -0.2,
+          0.6,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "properties": {}
+      }
+    ],
+    "goals": [
+      {
+        "type": "captured",
+        "target": "receiver",
+        "body": "ball"
+      }
+    ],
+    "solution": [
+      {
+        "id": "pipe_1",
+        "kind": "pipe",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 0.6,
+            "rotation_window": 5,
+            "max_position_correction": 0.6,
+            "max_rotation_correction": 5,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.2
+          },
+          {
+            "precision": 0.45,
+            "position_window": 0.5,
+            "rotation_window": 2,
+            "max_position_correction": 0.5,
+            "max_rotation_correction": 2,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.47
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": false,
+        "position": [
+          -0.5373,
+          6.031442,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -45
+        ],
+        "properties": {
+          "length": 2
+        }
+      }
+    ],
+    "solution_connections": []
+  },
+  {
     "id": "two_deliveries",
     "title": "Two deliveries",
-    "subtitle": "28 / Parallel machines",
+    "subtitle": "29 / Parallel machines",
     "description": "Catch both balls, one with ramps and one with air. The receivers are in separate depth planes.",
     "hint": "Work on one depth plane at a time; both goals must finish in the same run.",
     "inventory": {
@@ -7684,7 +7936,7 @@
   {
     "id": "bounce_and_roll",
     "title": "Bounce and roll",
-    "subtitle": "29 / Parallel machines",
+    "subtitle": "30 / Parallel machines",
     "description": "Complete the ramp route and the elevated spring catch.",
     "hint": "The spring route and ramp route use different heights and depth planes.",
     "inventory": {
@@ -8111,7 +8363,7 @@
   {
     "id": "air_and_belt",
     "title": "Air and belt",
-    "subtitle": "30 / Parallel machines",
+    "subtitle": "31 / Parallel machines",
     "description": "Deliver one ball with air and carry the other on a conveyor.",
     "hint": "The fan acts at a distance; the conveyor only transports a ball touching its top.",
     "inventory": {
@@ -8610,7 +8862,7 @@
   {
     "id": "catch_and_signal",
     "title": "Catch and signal",
-    "subtitle": "31 / Parallel machines",
+    "subtitle": "32 / Parallel machines",
     "description": "Catch the orange ball and activate the lamp in the other plane.",
     "hint": "Use two ramps for the catch; place and wire the switch under the bowling ball.",
     "inventory": {
@@ -9045,7 +9297,7 @@
   {
     "id": "wind_and_dominoes",
     "title": "Wind and dominoes",
-    "subtitle": "32 / Parallel machines",
+    "subtitle": "33 / Parallel machines",
     "description": "Catch the tennis ball and topple the end domino.",
     "hint": "The four dominoes bridge one plane while the fan works in the other.",
     "inventory": {
@@ -9586,7 +9838,7 @@
   {
     "id": "powered_post",
     "title": "Powered post",
-    "subtitle": "33 / Dependencies",
+    "subtitle": "34 / Dependencies",
     "description": "Start the cold fan, deliver its ball, and complete the separate ramp route.",
     "hint": "Place the power switch near its trigger ball so air is ready in time.",
     "inventory": {
@@ -10142,7 +10394,7 @@
   {
     "id": "spring_and_chain",
     "title": "Spring and chain",
-    "subtitle": "34 / Dependencies",
+    "subtitle": "35 / Dependencies",
     "description": "Land the spring-launched ball and finish the domino chain.",
     "hint": "The spring needs a tilt; the dominoes need close spacing.",
     "inventory": {
@@ -10683,7 +10935,7 @@
   {
     "id": "two_signals",
     "title": "Two signals",
-    "subtitle": "35 / Dependencies",
+    "subtitle": "36 / Dependencies",
     "description": "Light both lamps, using a ramp path and a spring path.",
     "hint": "Every fixed switch must be wired to a lamp; completing only one is not enough.",
     "inventory": {
@@ -11239,7 +11491,7 @@
   {
     "id": "mixed_signals",
     "title": "Belt and signal",
-    "subtitle": "36 / Dependencies",
+    "subtitle": "37 / Dependencies",
     "description": "Deliver the conveyor ball while air drives the other ball onto a switch.",
     "hint": "Separate capture from activation: one goal needs a settled ball, the other an impact.",
     "inventory": {
@@ -11802,7 +12054,7 @@
   {
     "id": "start_and_topple",
     "title": "Start and topple",
-    "subtitle": "37 / Dependencies",
+    "subtitle": "38 / Dependencies",
     "description": "Power the cold fan, catch its ball, and finish the domino chain.",
     "hint": "The fan needs a wire; the dominoes propagate through proximity, without wires.",
     "inventory": {
@@ -12472,7 +12724,7 @@
   {
     "id": "deep_routes",
     "title": "Deep routes",
-    "subtitle": "38 / Spatial reasoning",
+    "subtitle": "39 / Spatial reasoning",
     "description": "Guide two balls along depth-oriented ramp routes.",
     "hint": "Orbit the camera. Turn the ramps 90 degrees, then tilt them along their local slope.",
     "inventory": {
@@ -12955,7 +13207,7 @@
   {
     "id": "cross_breezes",
     "title": "Cross breezes",
-    "subtitle": "39 / Spatial reasoning",
+    "subtitle": "40 / Spatial reasoning",
     "description": "Two fans must send their balls in opposite depth directions.",
     "hint": "Use the green rotation ring to turn each fan. Keep each gust in its own X lane.",
     "inventory": {
@@ -13324,7 +13576,7 @@
   {
     "id": "deep_springs",
     "title": "Deep springs",
-    "subtitle": "40 / Spatial reasoning",
+    "subtitle": "41 / Spatial reasoning",
     "description": "Launch two balls through depth into elevated receivers.",
     "hint": "Rotate each spring around Y, then use the rotation rings to set its launch tilt.",
     "inventory": {
@@ -13693,7 +13945,7 @@
   {
     "id": "spatial_signals",
     "title": "Spatial signals",
-    "subtitle": "41 / Spatial reasoning",
+    "subtitle": "42 / Spatial reasoning",
     "description": "Send a rolling ball and an airborne ball onto switches in depth-oriented lanes.",
     "hint": "Both switches need wiring. Watch the goal positions while orbiting.",
     "inventory": {
@@ -14249,7 +14501,7 @@
   {
     "id": "three_deliveries",
     "title": "Three deliveries",
-    "subtitle": "42 / Three-stage workshop",
+    "subtitle": "43 / Three-stage workshop",
     "description": "Complete three captures with ramps, air, and a spring.",
     "hint": "Use depth planes -3, 0, and \u002B3; tune each route before combining the run.",
     "inventory": {
@@ -14853,7 +15105,7 @@
   {
     "id": "triple_signal",
     "title": "Triple signal",
-    "subtitle": "43 / Three-stage workshop",
+    "subtitle": "44 / Three-stage workshop",
     "description": "Light three lamps using ramps, a spring, and air.",
     "hint": "Each fixed switch needs a cable. The ball paths occupy three depth planes.",
     "inventory": {
@@ -15650,7 +15902,7 @@
   {
     "id": "cold_front",
     "title": "Cold front",
-    "subtitle": "44 / Three-stage workshop",
+    "subtitle": "45 / Three-stage workshop",
     "description": "Start a cold fan while a ramp route and a spring route deliver their balls.",
     "hint": "The powered lane has two required events: activation and capture.",
     "inventory": {
@@ -16383,7 +16635,7 @@
   {
     "id": "chain_mail",
     "title": "Chain mail",
-    "subtitle": "45 / Three-stage workshop",
+    "subtitle": "46 / Three-stage workshop",
     "description": "Catch the wind-driven ball, deliver the conveyor ball, and topple the end domino.",
     "hint": "Dominoes need a continuous bridge; the other parts belong to the two delivery lanes.",
     "inventory": {
@@ -17230,7 +17482,7 @@
   {
     "id": "bounce_mail",
     "title": "Bounce mail",
-    "subtitle": "46 / Three-stage workshop",
+    "subtitle": "47 / Three-stage workshop",
     "description": "Combine a spring catch, a wind-triggered lamp, and a domino chain.",
     "hint": "The three goals use capture, electrical activation, and physical propagation.",
     "inventory": {
@@ -18013,7 +18265,7 @@
   {
     "id": "relay_workshop",
     "title": "Relay workshop",
-    "subtitle": "47 / Three-stage workshop",
+    "subtitle": "48 / Three-stage workshop",
     "description": "Start the cold fan, light the ramp-triggered lamp, and complete the chain.",
     "hint": "Solve the early power trigger first, then the ramp geometry, then domino spacing.",
     "inventory": {
@@ -18981,7 +19233,7 @@
   {
     "id": "double_cold_start",
     "title": "Double cold start",
-    "subtitle": "48 / Master workshop",
+    "subtitle": "49 / Master workshop",
     "description": "Start a stopped conveyor and a cold fan, then finish a spring catch in a third lane.",
     "hint": "Wire one trigger switch to the belt and another to the fan. The fan needs power before its ball falls past.",
     "inventory": {
@@ -19910,7 +20162,7 @@
   {
     "id": "triple_chain",
     "title": "Triple chain",
-    "subtitle": "49 / Master workshop",
+    "subtitle": "50 / Master workshop",
     "description": "Finish three separate domino chains with twelve movable dominoes.",
     "hint": "Keep every gap below one metre and keep the three chains in their own depth planes.",
     "inventory": {
@@ -20968,7 +21220,7 @@
   {
     "id": "signals_and_chain",
     "title": "Signals and chain",
-    "subtitle": "50 / Master workshop",
+    "subtitle": "51 / Master workshop",
     "description": "Light the ramp and spring lamps while a third lane topples its end domino.",
     "hint": "Do not confuse the fixed switches with receivers: impact is enough, but wiring is required.",
     "inventory": {
@@ -21872,7 +22124,7 @@
   {
     "id": "cold_signals",
     "title": "Cold signals",
-    "subtitle": "51 / Master workshop",
+    "subtitle": "52 / Master workshop",
     "description": "Power the fan and capture its ball, then light both motion-triggered lamps.",
     "hint": "The fan must start early; the other cables may be connected before running.",
     "inventory": {
@@ -22733,7 +22985,7 @@
   {
     "id": "depth_delivery",
     "title": "Depth delivery office",
-    "subtitle": "52 / Master workshop",
+    "subtitle": "53 / Master workshop",
     "description": "Complete three differently powered deliveries along depth-oriented lanes.",
     "hint": "Use X lanes -3, 0, and \u002B3. Part positions differ in depth even where the front view overlaps.",
     "inventory": {
@@ -23466,7 +23718,7 @@
   {
     "id": "depth_telegraph",
     "title": "Depth telegraph",
-    "subtitle": "53 / Final workshop",
+    "subtitle": "54 / Final workshop",
     "description": "Light three lamps using depth-oriented rolling, spring, and wind routes.",
     "hint": "Orbit before placing; use the switch positions as the ends of each route.",
     "inventory": {
@@ -24263,7 +24515,7 @@
   {
     "id": "double_bridge",
     "title": "Double bridge",
-    "subtitle": "54 / Final workshop",
+    "subtitle": "55 / Final workshop",
     "description": "Build two domino bridges and complete the central conveyor delivery.",
     "hint": "Allocate four dominoes to each outside lane and the conveyor to the centre.",
     "inventory": {
@@ -25280,7 +25532,7 @@
   {
     "id": "bridges_and_signal",
     "title": "Bridges and signal",
-    "subtitle": "55 / Final workshop",
+    "subtitle": "56 / Final workshop",
     "description": "Complete two domino bridges and light the central spring-triggered lamp.",
     "hint": "The lamp needs the fixed switch wired; the bridges need physical continuity.",
     "inventory": {
@@ -26233,7 +26485,7 @@
   {
     "id": "cold_bridges",
     "title": "Cold bridges",
-    "subtitle": "56 / Final workshop",
+    "subtitle": "57 / Final workshop",
     "description": "Two domino chains frame a cold-start fan delivery. Complete all four objectives.",
     "hint": "Start the fan with the nearby trigger ball, then use the eight dominoes to bridge both outside gaps.",
     "inventory": {
@@ -27250,7 +27502,7 @@
   {
     "id": "grand_contraption",
     "title": "The grand contraption",
-    "subtitle": "57 / Final workshop",
+    "subtitle": "58 / Final workshop",
     "description": "Complete the ramp signal, conveyor signal, and domino chain; all three must succeed in one run.",
     "hint": "Build and test each lane. The final machine needs two slopes, a conveyor delivery, four dominoes, and both signal wires.",
     "inventory": {

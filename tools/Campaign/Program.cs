@@ -304,6 +304,20 @@ foreach (var angle in Enum.GetValues<TubeBendAngle>())
     };
 }
 
+// A descending straight inlet must join the fixed bend; a vertical fall misses the receiver.
+modules["joined_pipe"] = new PuzzleData
+{
+    Parts = [
+        new() { Id = "ball", Kind = "ball", Locked = true, Position = [-1.308076f, 8.402188f, 0] },
+        new() { Id = "bend", Kind = "pipe_bend_90", Locked = true, Position = [1, 3.5f, 0], Rotation = [0, 0, -45] },
+        new() { Id = "receiver", Kind = "basket", Locked = true, Position = [-.2f, .6f, 0] }
+    ],
+    Inventory = new() { ["pipe"] = 1 },
+    Solution = [new() { Id = "pipe_1", Kind = "pipe", Position = [-.5373296f, 6.031442f, 0], Rotation = [0, 0, -45],
+        Properties = new() { [PipeParameters.Length] = 2 } }],
+    Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
+};
+
 var campaign = source.Select(Copy).ToList();
 void Add(string id, string title, string chapter, string description, string hint,
          params (string Kind, float X, float Z, float Yaw)[] layout)
@@ -422,6 +436,10 @@ Add("quarter_bend", "Around the corner", "Hollow routes",
     "Use a 90-degree bend to turn a vertical fall into a sideways delivery.",
     "Point one mouth upward and the other toward the left-hand basket. The curve redirects motion, but does not add speed.", ("pipe_bend_90", 0, 0, 0));
 
+Add("joined_pipe", "Meet in the middle", "Joined routes",
+    "Join a short straight tube to the fixed bend so the falling ball reaches the receiver.",
+    "Shorten the tube to fit, turn it downhill, then bring its lower mouth near the bend's upper mouth. A small move aligns the openings; the ball needs a continuous route.", ("joined_pipe", 0, 0, 0));
+
 // Chapters 3 and 4: independent goals, mixed mechanisms, and power dependencies.
 Add("two_deliveries", "Two deliveries", "Parallel machines",
     "Catch both balls, one with ramps and one with air. The receivers are in separate depth planes.",
@@ -517,7 +535,7 @@ Add("cold_bridges", "Cold bridges", "Final workshop",
 Add("grand_contraption", "The grand contraption", "Final workshop",
     "Complete the ramp signal, conveyor signal, and domino chain; all three must succeed in one run.",
     "Build and test each lane. The final machine needs two slopes, a conveyor delivery, four dominoes, and both signal wires.", ("ramps_signal", 0, -3, 0), ("domino", 0, 0, 0), ("conveyor_signal", 0, 3, 0));
-if (campaign.Count != 57) throw new InvalidDataException($"Expected 57 authored levels in this expansion stage, authored {campaign.Count}.");
+if (campaign.Count != 58) throw new InvalidDataException($"Expected 58 authored levels in this expansion stage, authored {campaign.Count}.");
 // Every authored instance owns its difficulty curve; catalog defaults do not decide puzzle help.
 foreach (var puzzle in campaign)
 foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
@@ -542,7 +560,8 @@ foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
             TriggerThreshold = part.Kind == "domino" ? .3075f : .47f },
         new() { Precision = 1, TriggerThreshold = part.Kind == "domino" ? .5f : .8f }
     ];
-    if (part.Kind is "pipe_bend_45" or "pipe_bend_90")
+    if (!part.Locked && (part.Kind is "pipe_bend_45" or "pipe_bend_90" ||
+        puzzle.Id == "joined_pipe" && part.Kind == "pipe"))
     {
         // Curved outlets amplify residual lateral error. Bound eligibility and correction together:
         // align fully inside a small authored window, never move a more distant bend.
