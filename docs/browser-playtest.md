@@ -1,5 +1,15 @@
 # Browser campaign playtest
 
+## Pulley rim artwork — 54-level draft
+
+Campaign hash remains `2691ed54858909a421ef9b89f0c45596f7051f7bb07d19f1a8c84a2b3348e371`. Rope presentation now uses tangent entry/exit legs and 32-segment contact arcs outside each intervening pulley rim. Adjacent-wheel tangencies are iterated, endpoint knots remain, and the former pulley knots are hidden. Winding is retained during motion and chosen to favour the wheel's local upper side.
+
+The first six `rim-v1` UI captures all won, but screenshot review found an unwanted almost-full loop on the right pulley: its nearby starting weight selected the underside. Those records remain unchanged. The winding selection was corrected and a close-starting-weight native regression was added.
+
+All six `L{19,20}-{forgiving,balanced,precise}-reference-rim-v2.json` cases win with zero browser errors and complete Run/result/Reset. Level 19 wins at tick 93 for all three; level 20 wins at 92/92/93. Reviewed Balanced screenshots show both same-plane and depth-separated ropes using the outer rims without the extra loop. All audits pass, but their sampled transform coverage is zero parts for L19 and one static pulley for L20; they do not measure weight trajectories or arc motion. Native tests cover those geometry and simulation-isolation concerns separately.
+
+All 270 native tests pass. New coverage includes three-axis rotation, depth-offset tangency, rim clearance, symmetric upper threading, retained winding under small motion, reversed traversal, close starting loads and finite artwork during both campaign simulations. The dynamics still use ideal fixed point guides: finite-radius displayed length is not reconciled with the rope constraint, and projections inside the rim use radial contact rather than true groove tangency. Slack/wheel-travel reconciliation, near-axis routes, close-up continuous animation and performance remain unfinished; this stage does not complete finite-wheel rope physics.
+
 ## Spring activation feedback — 54-level draft
 
 Campaign hash remains `2691ed54858909a421ef9b89f0c45596f7051f7bb07d19f1a8c84a2b3348e371`. The spring now has a continuous silver helix and a moving gold plate, with bounded compression/rebound and settling on each accepted impact. It retains the original instantaneous launch and collision proxy. Presentation runs independently of simulation so it can settle after success; Reset reconstructs the resting spring.
