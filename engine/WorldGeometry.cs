@@ -19,7 +19,7 @@ public static class WorldGeometry
     /// <summary>Nearest finite-radius contact against all visible solid proxies and the workbench.
     /// Equal-distance contacts use workbench first, then ordinal part ID and proxy declaration order.
     /// Initial overlaps take priority over touching contacts. Both ignored parts are excluded entirely.
-    /// ExcludeBodies omits dynamic sphere bodies only; their declared solid proxies remain queryable.
+    /// ExcludeBodies omits dynamic spheres and hinged boxes; other declared solid proxies remain queryable.
     /// Penetration is the nonnegative separation depth along the returned world-space normal.</summary>
     public static WorldSweepResult Sweep(MachineWorld world, Vector3 origin, float radius,
         Vector3 displacement, MachinePart? ignoredOwner = null, MachinePart? ignoredBody = null,
@@ -46,6 +46,10 @@ public static class WorldGeometry
             var pose = part.Transform;
             foreach (var box in part.Boxes)
                 snapshot.Add(pose,p=>SphereSweep.BoxSurface(p-box.At,box.Half),SweepObstacleKind.Part,part,SweepSurfaceKind.Box);
+            if (bodies == SweepBodyMode.IncludeBodies)
+                foreach (var hinge in part.HingedBodies)
+                    snapshot.Add(hinge.Pose, p=>SphereSweep.BoxSurface(p,hinge.Half),
+                        SweepObstacleKind.Part,part,SweepSurfaceKind.Box);
             foreach (var sphere in part.Spheres)
                 snapshot.Add(pose,p=>SphereSweep.SphereSurface(p-sphere.At,sphere.Radius),SweepObstacleKind.Part,part,SweepSurfaceKind.Sphere);
             foreach (var tube in part.Tubes)
@@ -116,6 +120,11 @@ public static class WorldGeometry
             var ray = inverse.Basis * direction;
             foreach (var box in part.Boxes.Where(b => medium==TraceMedium.Air || b.Opaque))
                 closest = BoxDistance(local - box.At, ray, box.Half, closest);
+            foreach (var hinge in part.HingedBodies)
+            {
+                var hingeInverse = hinge.Pose.AffineInverse();
+                closest = BoxDistance(hingeInverse * origin, hingeInverse.Basis * direction, hinge.Half, closest);
+            }
             foreach (var sphere in part.Spheres)
                 closest = SphereDistance(local - sphere.At, ray, sphere.Radius, closest);
             foreach (var tube in part.Tubes.Where(t => medium==TraceMedium.Air || t.Opaque))

@@ -493,6 +493,12 @@ public partial class MachineWorld : Node3D
             foreach (var value in new[] { part.Position.X, part.Position.Y, part.Position.Z, part.Velocity.X, part.Velocity.Y, part.Velocity.Z })
                 state.Append(':').Append(value.ToString("R", CultureInfo.InvariantCulture));
         }
+        foreach (var part in Parts)
+            foreach (var hinge in part.HingedBodies.OrderBy(h => h.Role))
+                // Explicit invariant diagnostic/hash boundary, never a behaviour selector.
+                state.Append('|').Append(part.Uid).Append(':').Append((int)hinge.Role)
+                    .Append(':').Append(hinge.Joint.Angle.ToString("R", CultureInfo.InvariantCulture))
+                    .Append(':').Append(hinge.Joint.AngularVelocity.ToString("R", CultureInfo.InvariantCulture));
         foreach (var pair in Events) state.Append('|').Append(pair.Key).Append(':').Append(pair.Value);
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(state.ToString())));
     }

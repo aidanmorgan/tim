@@ -14,7 +14,7 @@ public class RevoluteContactTests
         var joint = new RevoluteJoint(Vector3.Back, 2, -.6, .6);
         var offset = new Vector3(arm, 0, 0);
         var velocity = new Vector3(1, -5, .4f);
-        var result = RevoluteContact.Resolve(joint, offset, velocity, mass, Vector3.Up, restitution);
+        var result = RevoluteContact.Resolve(joint, offset, velocity, 1 / (double)mass, Vector3.Up, restitution);
         var before = .5 * mass * velocity.LengthSquared();
         var after = .5 * mass * result.Velocity.LengthSquared() + joint.Energy;
         Assert.InRange(after, 0, before + .00002);
@@ -125,7 +125,7 @@ public class RevoluteContactTests
             var offset = new Vector3(random.NextSingle() * 4 - 2, .1f, .3f);
             var velocity = new Vector3(.4f, random.NextSingle() * 20 - 10, -.3f);
             var before = .5 * mass * velocity.LengthSquared() + joint.Energy;
-            var result = RevoluteContact.Resolve(joint, offset, velocity, mass, Vector3.Up, random.NextSingle());
+            var result = RevoluteContact.Resolve(joint, offset, velocity, 1 / (double)mass, Vector3.Up, random.NextSingle());
             var after = .5 * mass * result.Velocity.LengthSquared() + joint.Energy;
             Assert.InRange(after, 0, before + .0001);
             Assert.True(result.Impulse >= 0);
@@ -135,10 +135,21 @@ public class RevoluteContactTests
     }
 
     [Fact]
+    public void ConstrainedNormalResponseDoesNotMoveTheBody()
+    {
+        var joint = new RevoluteJoint(Vector3.Back, 2, -.6, .6);
+        joint.ApplyAngularImpulse(2);
+        var result = RevoluteContact.Resolve(joint, Vector3.Right, Vector3.Zero, 0, Vector3.Up, .5f);
+        Assert.Equal(Vector3.Zero,result.Velocity);
+        Assert.Equal(-.5,joint.AngularVelocity,10);
+        Assert.Equal(.25,joint.Energy,10);
+    }
+
+    [Fact]
     public void InvalidContactDoesNotMutateHinge()
     {
         var joint = new RevoluteJoint(Vector3.Back, 2, -.6, .6);
-        Assert.Throws<ArgumentOutOfRangeException>(() => RevoluteContact.Resolve(joint, Vector3.Right, Vector3.Down, 0, Vector3.Up, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => RevoluteContact.Resolve(joint, Vector3.Right, Vector3.Down, -1, Vector3.Up, 1));
         Assert.Throws<ArgumentOutOfRangeException>(() => RevoluteContact.Resolve(joint, Vector3.Right, Vector3.Down, 1, Vector3.Up, 2));
         Assert.Throws<ArgumentException>(() => RevoluteContact.Resolve(joint, Vector3.Right, Vector3.Down, 1, Vector3.Up * 2, 1));
         Assert.Equal(0, joint.Energy);

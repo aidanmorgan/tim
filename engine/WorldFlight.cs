@@ -7,7 +7,7 @@ namespace CuriousContraptions;
 
 public partial class MachineWorld
 {
-    private enum FlightContactKind { None, Surface, Body, MotionLimit }
+    private enum FlightContactKind { None, Surface, Body, MotionLimit, Hinge, HingeLimit }
     // Only overlapping bodies need positional repair; touching bodies must not
     // gain an artificial outward displacement on every gravity-driven contact.
     private const float FlightSeparation = .00001f;
@@ -37,6 +37,8 @@ public partial class MachineWorld
     private void AdvanceBodies(float duration)
     {
         var bodies = Bodies.OrderBy(body => body.Uid, StringComparer.Ordinal).ToArray();
+        var hinges = Parts.Where(p => p.Visible).OrderBy(p => p.Uid, StringComparer.Ordinal)
+            .SelectMany(p => p.HingedBodies.OrderBy(h => h.Role)).ToArray();
         double remaining = duration;
         var contacts = 0;
         var geometry = new Dictionary<MachinePart, WorldGeometry.SweepSnapshot>();
@@ -45,11 +47,13 @@ public partial class MachineWorld
         while (remaining > 0)
         {
             var interval = (float)remaining;
-            var time = interval;
+            double time = interval;
             var kind = FlightContactKind.None;
             MachinePart? first = null, second = null;
             WorldSweepResult surface = default;
             MovingSphereHit pair = default;
+            HingedBody? hinge = null;
+            RotatingBoxHit hingeHit = default;
             foreach (var body in bodies)
             {
                 if (!body.Visible || !body.FreeMotion) continue;
@@ -72,6 +76,23 @@ public partial class MachineWorld
                 first = body;
                 surface = hit;
                 kind = FlightContactKind.Surface;
+            }
+            foreach (var candidateHinge in hinges)
+            {
+                var stop = candidateHinge.Joint.TimeToLimit;
+                if (stop <= time)
+                {
+                    time = stop; hinge = candidateHinge; first = null; kind = FlightContactKind.HingeLimit;
+                }
+                foreach (var body in bodies)
+                {
+                    if (!body.Visible || body.PhysicsOwner == candidateHinge.Owner) continue;
+                    var hit = candidateHinge.Sweep(body, interval);
+                    if (hit.Status == SphereSweepStatus.Clear ||
+                        (kind != FlightContactKind.None && hit.Time >= time)) continue;
+                    time = hit.Time; first = body; hinge = candidateHinge; hingeHit = hit;
+                    kind = FlightContactKind.Hinge;
+                }
             }
             for (var i = 0; i < bodies.Length; i++)
             for (var j = i + 1; j < bodies.Length; j++)
@@ -97,7 +118,8 @@ public partial class MachineWorld
                 _bodyContactConvergence.Clear();
                 geometry.Clear();
                 foreach (var body in bodies)
-                    if (body.Visible) body.Position += body.Velocity * time;
+                    if (body.Visible) body.Position += body.Velocity * (float)time;
+                foreach (var movingHinge in hinges) movingHinge.Joint.Advance(time);
             }
             remaining -= time;
             if (kind == FlightContactKind.None) return;
@@ -135,6 +157,16 @@ public partial class MachineWorld
                     if (pair.Penetration > 0) geometry.Clear();
                     BodyContact.Resolve(target, other, pair.Normal, pair.Penetration,
                         Mathf.Min(target.Bounce, other.Bounce));
+                    break;
+                case FlightContactKind.Hinge:
+                    geometry.Clear();
+                    var hingeApproach = -(target.Velocity - hinge!.PointVelocity(hingeHit.Point)).Dot(hingeHit.Normal);
+                    hinge.Resolve(target, hingeHit, remaining);
+                    hinge.Owner.OnContact(target, Math.Max(0, hingeApproach), this);
+                    break;
+                case FlightContactKind.HingeLimit:
+                    hinge!.Joint.Advance(0); // Also resolve a rounded, zero-time arrival at the stop.
+                    geometry.Clear();
                     break;
                 case FlightContactKind.MotionLimit:
                     geometry.Clear();

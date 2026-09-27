@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/impact_lever.tscn" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "impact_lever"
+Title = "Impact lever"
+Category = "Motion"
+Description = "A passive hinged beam. A falling load turns one end and can lift a lighter load at the other. Gold marks show the lever arms; fixed stops limit its swing. No power or automatic launch."
+Scene = ExtResource("2")
+Color = Color(0.4, 0.72, 0.79, 1)
+Parameters = {"beam_mass": 2.0, "initial_angle": 0.0}

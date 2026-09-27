@@ -32,6 +32,7 @@ public static class WorkshopIcons
             WoundSpringPart.CatalogId => "<path d='M5 3h14M5 21h14M12 3v3l-5 3 10 4-10 4 5 2v2M20 6v9'/><circle cx='4' cy='14' r='3'/>",
             CannonPart.CatalogId => "<path d='M3 15 17 5l4 5-14 10zM3 21h16M4 14l4 5'/><circle cx='12' cy='19' r='3'/>",
             LinearPusherPart.CatalogId => "<rect x='2' y='7' width='10' height='10' rx='2'/><path d='M12 11h7v2h-7M20 7v10M4 4h5m-5 16h5'/><circle cx='20' cy='12' r='2'/>",
+            ImpactLeverPart.CatalogId => "<path d='M2 10l20-4M8 21l4-9 4 9z'/><circle cx='5' cy='5' r='2'/><circle cx='19' cy='3' r='1.5'/>",
             TrampolinePart.CatalogId => "<path d='M3 9h18M4 9v10m16-10v10M5 9q7 7 14 0M8 19h8'/><circle cx='12' cy='4' r='2'/>",
             "clutch" => "<path d='M2 12h5M17 12h5M7 5v14m10-14v14M10 7v10m4-10v10M12 2v3m-2 16h4'/><circle cx='12' cy='3' r='1'/>",
             "bellows" => "<path d='M3 5h14v3H3zM3 8l2 3-2 3 2 3-2 3h14l-2-3 2-3-2-3 2-3M17 14h5v3h-5M7 2h6'/>",

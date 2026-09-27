@@ -74,6 +74,11 @@ public partial class Workshop
                 StoredEnergy = p.StoredEnergy, ReleasedEnergy = p.ReleasedEnergy,
                 PayloadId = p.LastPayload?.Uid, RecoilOffset = p.RecoilOffset
             }).ToList(),
+            Hinges = World.Parts.SelectMany(p => p.HingedBodies.Select(h => new PlaytestHinge
+            {
+                Id = p.Uid, Role = h.Role, Limit = h.Joint.Limit, Angle = h.Joint.Angle,
+                AngularVelocity = h.Joint.AngularVelocity, Energy = h.Joint.Energy
+            })).ToList(),
             WoundSprings = World.Parts.OfType<WoundSpringPart>().Select(p => new PlaytestWoundSpring
             {
                 Id = p.Uid, Phase = p.Phase, LastTrigger = p.LastTrigger, ReleaseCount = p.ReleaseCount,
@@ -292,8 +297,22 @@ public sealed class PlaytestMechanical
     public double Torque { get; set; }
     public double WorkAvailable { get; set; }
 }
+public sealed class PlaytestHingeRoleConverter : ExactPlaytestEnumConverter<HingeRole>;
+public sealed class PlaytestHingeLimitConverter : ExactPlaytestEnumConverter<HingeLimit>;
+public sealed class PlaytestHinge
+{
+    public string Id { get; set; } = "";
+    [JsonConverter(typeof(PlaytestHingeRoleConverter))]
+    public HingeRole Role { get; set; }
+    [JsonConverter(typeof(PlaytestHingeLimitConverter))]
+    public HingeLimit Limit { get; set; }
+    public double Angle { get; set; }
+    public double AngularVelocity { get; set; }
+    public double Energy { get; set; }
+}
 public sealed class PlaytestFrame
 {
+    public List<PlaytestHinge> Hinges { get; set; } = new();
     public List<PlaytestMechanical> Mechanical { get; set; } = new();
     public List<PlaytestBody> Bodies { get; set; } = new();
     public List<PlaytestCannon> Cannons { get; set; } = new();

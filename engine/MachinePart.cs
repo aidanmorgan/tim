@@ -19,6 +19,7 @@ public partial class MachinePart : Node3D
     public PartDifficulty Assistance(float precision) => PartAssistance.Evaluate(Difficulty, precision);
     public Vector3 Velocity { get; set; }
     public virtual IReadOnlyList<MachinePart> InternalBodies => [];
+    public virtual IReadOnlyList<HingedBody> HingedBodies => [];
     // Declared before _Ready so instance validation can be atomic before construction.
     public virtual IReadOnlyList<InternalBodyRole> InternalBodyRoles => [];
     public string InternalBodyId(InternalBodyRole role)

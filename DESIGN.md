@@ -76,6 +76,10 @@ Use a cream rectangular frame, cyan membrane, restrained gold corner supports an
 
 The cyan mesh follows the simulated contact indentation and returns as the load leaves. Its profile stays below the contacting sphere, including deep off-centre loads. The rigid frame/back do not perform a decorative bounce. This part returns impact energy through contact springs; it does not impose the springboard's launch velocity. Preserve the palette and restrained toy geometry. Spread off-centre sag toward the available interior fabric using direction-aware support bounded by the fixed frame; avoid a tiny circular pocket that makes the ball appear to sink through a flat sheet. A focused continuous 25-fps desktop review verifies compression/recovery readability, not all camera angles or a 60-fps guarantee. The independent-contact approximation is not a cloth-wave simulation; sustained/mobile fluidity remains a review task.
 
+## Impact lever — initial implementation
+
+Use a cream beam with a cyan upper inset, four restrained gold lever-arm marks, a gold pivot and visible gold end stops above a navy foot. Keep the original navy outline seesaw pictogram and the existing move/rotate controls; no new inspector or toolbar. The child beam follows the simulated hinge angle, without a canned flip or decorative easing that changes its contact pose. The current scoped desktop recording shows continuous tilt and payload release at 25 fps, and the exported toolbox icon is readable. Rope sockets, fixture-blocking/fulcrum collision coverage and mobile review remain implementation work; this visual record does not certify the whole component.
+
 ## Reloadable toy cannon
 
 Use a fixed navy base, cream breech and open collars, transparent cyan annular jacket and a visible physical payload. The gold charge bar and small ready flag distinguish charging from loaded/ready; separate supply and trigger sockets use the existing contextual wiring UI. Keep the original navy cannon pictogram and current palette.

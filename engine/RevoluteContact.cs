@@ -14,12 +14,13 @@ public readonly record struct RevoluteContactResult(Vector3 Velocity, double Imp
 /// </summary>
 public static class RevoluteContact
 {
+    /// <param name="inverseMass">Sphere/guide response along the unit contact normal; zero is constrained.</param>
     public static RevoluteContactResult Resolve(RevoluteJoint joint, Vector3 offset,
-        Vector3 velocity, float mass, Vector3 normal, float restitution)
+        Vector3 velocity, double inverseMass, Vector3 normal, float restitution)
     {
         ArgumentNullException.ThrowIfNull(joint);
         if (!velocity.IsFinite()) throw new ArgumentOutOfRangeException(nameof(velocity));
-        if (!float.IsFinite(mass) || mass <= 0) throw new ArgumentOutOfRangeException(nameof(mass));
+        if (!double.IsFinite(inverseMass) || inverseMass < 0) throw new ArgumentOutOfRangeException(nameof(inverseMass));
         if (!float.IsFinite(restitution) || restitution < 0 || restitution > 1)
             throw new ArgumentOutOfRangeException(nameof(restitution));
         var inverse = joint.FreeInverseMassAlong(offset, normal); // validates geometry
@@ -29,10 +30,11 @@ public static class RevoluteContact
         var blocked = joint.AngularVelocity == 0 &&
             ((joint.Limit == HingeLimit.Lower && arm > 0) || (joint.Limit == HingeLimit.Upper && arm < 0));
         if (blocked) inverse = 0;
-        var impulse = -(1 + restitution) * approach / (1 / (double)mass + inverse);
+        if (inverseMass + inverse <= 0) throw new InvalidOperationException("Contact has no permitted motion response.");
+        var impulse = -(1 + restitution) * approach / (inverseMass + inverse);
         var angularImpulse = -arm * impulse;
         var freeAngularVelocity = joint.AngularVelocity + angularImpulse / joint.Inertia;
-        var nextVelocity = AddNormalImpulse(velocity, normal, impulse / mass);
+        var nextVelocity = AddNormalImpulse(velocity, normal, impulse * inverseMass);
         // ApplyAngularImpulse validates finite energy before mutation.
         joint.ApplyAngularImpulse(angularImpulse);
         var stopped = !blocked && joint.AngularVelocity != freeAngularVelocity;
@@ -45,8 +47,9 @@ public static class RevoluteContact
             var residual = Dot(nextVelocity, normal);
             if (residual < 0)
             {
-                var correction = -residual * mass;
-                nextVelocity = AddNormalImpulse(nextVelocity, normal, correction / mass);
+                if (inverseMass == 0) throw new InvalidOperationException("An immovable contact has residual approach.");
+                var correction = -residual / inverseMass;
+                nextVelocity = AddNormalImpulse(nextVelocity, normal, correction * inverseMass);
                 impulse += correction;
             }
         }

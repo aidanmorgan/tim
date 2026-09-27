@@ -139,6 +139,20 @@ public class RevoluteJointTests
     }
 
     [Fact]
+    public void RoundedArrivalAtAStopCanBeResolvedWithoutAdvancingTime()
+    {
+        var hinge = Joint(initial: Math.BitDecrement(.6));
+        hinge.ApplyAngularImpulse(2);
+        hinge.Advance(hinge.TimeToLimit * .75);
+        Assert.Equal(.6,hinge.Angle);
+        Assert.Equal(0,hinge.TimeToLimit);
+        var stop = hinge.Advance(0);
+        Assert.Equal(HingeLimit.Upper,stop.Reached);
+        Assert.Equal(1,stop.DissipatedEnergy);
+        Assert.Equal(0,hinge.AngularVelocity);
+    }
+
+    [Fact]
     public void InvalidInputsAreRejectedWithoutChangingState()
     {
         Assert.Throws<ArgumentException>(() => new RevoluteJoint(Vector3.Zero, 1, -1, 1));

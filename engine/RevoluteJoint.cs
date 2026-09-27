@@ -90,7 +90,7 @@ public sealed class RevoluteJoint
     public HingeAdvance Advance(double duration)
     {
         if (!double.IsFinite(duration) || duration < 0) throw new ArgumentOutOfRangeException(nameof(duration));
-        if (duration == 0 || AngularVelocity == 0) return new(HingeLimit.None, 0);
+        if (AngularVelocity == 0) return new(HingeLimit.None, 0);
         if (duration >= TimeToLimit)
         {
             var reached = AngularVelocity > 0 ? HingeLimit.Upper : HingeLimit.Lower;
