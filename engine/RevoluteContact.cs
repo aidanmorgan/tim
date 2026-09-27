@@ -27,8 +27,7 @@ public static class RevoluteContact
         var arm = joint.Moment(offset, normal);
         var approach = Dot(velocity, normal) - arm * joint.AngularVelocity;
         if (approach >= 0) return new(velocity, 0, 0);
-        var blocked = joint.AngularVelocity == 0 &&
-            ((joint.Limit == HingeLimit.Lower && arm > 0) || (joint.Limit == HingeLimit.Upper && arm < 0));
+        var blocked = joint.AngularVelocity == 0 && joint.Blocks(-arm);
         if (blocked) inverse = 0;
         if (inverseMass + inverse <= 0) throw new InvalidOperationException("Contact has no permitted motion response.");
         var impulse = -(1 + restitution) * approach / (inverseMass + inverse);

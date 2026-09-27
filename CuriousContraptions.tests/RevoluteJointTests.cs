@@ -4,6 +4,29 @@ namespace CuriousContraptions.Tests;
 
 public class RevoluteJointTests
 {
+    [Theory]
+    [InlineData(AngularBlock.Negative, -1)]
+    [InlineData(AngularBlock.Positive, 1)]
+    public void ContactStopsSpendEnergyAndReleaseOnInwardMotion(AngularBlock block, int sign)
+    {
+        var joint = new RevoluteJoint(Vector3.Back, 2, -1, 1);
+        joint.ApplyAngularImpulse(sign * 4);
+        Assert.Equal(4,joint.Block(block));
+        Assert.Equal(0,joint.AngularVelocity);
+        joint.ApplyAngularImpulse(sign * 20);
+        Assert.Equal(0,joint.AngularVelocity);
+        joint.ApplyAngularImpulse(-sign * 2);
+        Assert.Equal(-sign,joint.AngularVelocity);
+        joint.Advance(.1);
+        Assert.Equal(AngularBlock.None,joint.ContactBlock);
+        joint.Block(AngularBlock.Both);
+        Assert.Equal(0,joint.AngularVelocity);
+        Assert.Throws<ArgumentOutOfRangeException>(() => joint.Block((AngularBlock)4));
+        joint.Reset();
+        Assert.Equal(AngularBlock.None,joint.ContactBlock);
+        Assert.Equal(0,joint.Angle);
+    }
+
     private static RevoluteJoint Joint(double inertia = 2, double initial = 0) =>
         new(Vector3.Back, inertia, -.6, .6, initial);
 

@@ -674,6 +674,11 @@ public partial class Workshop : Node3D
             _status.Text = "Break the wire loop through XOR, NOR or NAND before running.";
             return;
         }
+        catch (HingeFixtureOverlapException)
+        {
+            _status.Text = "Move the lever beam clear of walls and the workbench before running.";
+            return;
+        }
         TracePlaytestStart();
         _inRun = true;
         RefreshLayerAppearance();

@@ -1,0 +1,401 @@
+{
+  "baseRevision": "e9814cde570992020799f226c5f5053a6d97704b",
+  "adapterReference": {
+    "path": "docs/impact-lever-ui-recipes.json",
+    "key": "adapter"
+  },
+  "freshContext": true,
+  "recipes": [
+    {
+      "caseId": "impact-lever-blocked-wall-v3",
+      "level": 62,
+      "precision": 0.45,
+      "parts": [
+        {
+          "slot": "lever",
+          "kind": "impact_lever",
+          "position": [
+            0,
+            3,
+            0
+          ]
+        },
+        {
+          "slot": "driver",
+          "kind": "bowling",
+          "position": [
+            -1.2,
+            6,
+            0
+          ]
+        },
+        {
+          "slot": "wall",
+          "kind": "wall",
+          "position": [
+            1.5,
+            3.6,
+            0
+          ],
+          "dimensions": [
+            0.6,
+            0.4,
+            1.4
+          ]
+        }
+      ],
+      "connections": []
+    },
+    {
+      "caseId": "impact-lever-wall-depth-miss-v1",
+      "level": 62,
+      "precision": 0.45,
+      "parts": [
+        {
+          "slot": "lever",
+          "kind": "impact_lever",
+          "position": [
+            0,
+            3,
+            0
+          ]
+        },
+        {
+          "slot": "driver",
+          "kind": "bowling",
+          "position": [
+            -1.2,
+            6,
+            0
+          ]
+        },
+        {
+          "slot": "wall",
+          "kind": "wall",
+          "position": [
+            1.5,
+            3.6,
+            2
+          ],
+          "dimensions": [
+            0.6,
+            0.4,
+            1.4
+          ]
+        }
+      ],
+      "connections": []
+    },
+    {
+      "caseId": "impact-lever-overlap-rejected-v1",
+      "level": 62,
+      "precision": 0.45,
+      "parts": [
+        {
+          "slot": "lever",
+          "kind": "impact_lever",
+          "position": [
+            0,
+            3,
+            0
+          ]
+        },
+        {
+          "slot": "wall",
+          "kind": "wall",
+          "position": [
+            1.5,
+            3,
+            0
+          ],
+          "dimensions": [
+            0.6,
+            0.4,
+            1.4
+          ]
+        }
+      ],
+      "connections": []
+    },
+    {
+      "caseId": "impact-lever-obstruction-transfer-regression-v1",
+      "level": 62,
+      "precision": 0.45,
+      "parts": [
+        {
+          "slot": "lever",
+          "kind": "impact_lever",
+          "position": [
+            0,
+            3,
+            0
+          ]
+        },
+        {
+          "slot": "driver",
+          "kind": "bowling",
+          "position": [
+            -1.2,
+            6,
+            0
+          ]
+        },
+        {
+          "slot": "payload",
+          "kind": "ball",
+          "position": [
+            1.2,
+            3.46,
+            0
+          ]
+        }
+      ],
+      "connections": []
+    },
+    {
+      "caseId": "impact-lever-blocked-motion-v1",
+      "level": 62,
+      "precision": 0.45,
+      "parts": [
+        {
+          "slot": "lever",
+          "kind": "impact_lever",
+          "position": [
+            0,
+            3,
+            0
+          ]
+        },
+        {
+          "slot": "driver",
+          "kind": "bowling",
+          "position": [
+            -1.2,
+            6,
+            0
+          ]
+        },
+        {
+          "slot": "wall",
+          "kind": "wall",
+          "position": [
+            1.5,
+            3.6,
+            0
+          ],
+          "dimensions": [
+            0.6,
+            0.4,
+            1.4
+          ]
+        }
+      ],
+      "connections": []
+    }
+  ],
+  "overlapAdapter": "// Thin JavaScript adapter required by Playwright MCP's runner.\n// Gameplay and read-only diagnostic instrumentation remain C#.\n// Use as: await (directUiAttempt source)(page, attemptRecipe).\n// This adapter never evaluates game code, edits storage, loads saves, sets transforms,\n// uses numeric placement menus, invokes game methods, or synthesizes success.\nasync function directUiAttempt(page, attempt) {\n    // Closed protocol sets mirror C# enum wire names at this external boundary.\n    const ElectricalSocket = Object.freeze({ Supply:\"supply\", PowerIn:\"power_in\", FirstIn:\"first_in\",\n        SecondIn:\"second_in\", ExtendIn:\"extend_in\", RetractIn:\"retract_in\",\n        ExtendedOut:\"extended_out\", RetractedOut:\"retracted_out\" });\n\n    if (!Number.isInteger(attempt.level) || attempt.level < 1 || attempt.level > 75)\n        throw new Error(\"Expected a campaign level in the planned range 1..75\");\n    if (![0, 0.45, 1].includes(attempt.precision))\n        throw new Error(\"Use Forgiving, Balanced or Precise\");\n    for (const part of attempt.parts ?? []) {\n        if (part.finalMoves != null && (!Array.isArray(part.finalMoves) || part.finalMoves.some(m =>\n            !m || ![0,1,2].includes(m.axis) || !Number.isFinite(m.amount) || Math.abs(m.amount) > 14)))\n            throw new Error(\"Final moves require a valid axis and finite bounded distance\");\n        if (part.dimensions == null) continue;\n        const bounds = {\n            wall: { min: [.4,.4,.12], max: [8,6,2] },\n            pipe: { min: [1,1.3,1.3], max: [8,1.3,1.3] }\n        }[part.kind];\n        if (!bounds || !Array.isArray(part.dimensions) || part.dimensions.length !== 3 ||\n            part.dimensions.some((n, axis) => !Number.isFinite(n) || n < bounds.min[axis] || n > bounds.max[axis]))\n            throw new Error(\"Resize dimensions must match the part's supported axes and limits\");\n    }\n    for (const link of attempt.connections ?? []) {\n        const activation = link.type === \"activation\" && link.from_port === \"activation_out\" &&\n            [\"activation_in\", \"set_in\", \"reset_in\"].includes(link.to_port);\n        const motorSupply = link.type === \"electrical\" && [ElectricalSocket.Supply, ElectricalSocket.ExtendedOut, ElectricalSocket.RetractedOut].includes(link.from_port) &&\n            [ElectricalSocket.PowerIn, ElectricalSocket.FirstIn, ElectricalSocket.SecondIn,\n                ElectricalSocket.ExtendIn, ElectricalSocket.RetractIn].includes(link.to_port);\n        const mechanical = link.type === \"mechanical\" && link.from_port === \"drive\" &&\n            link.to_port === \"drive_in\";\n        const rope = link.type === \"rope\" && link.from_port === \"tie\" && link.to_port === \"tie\" &&\n            Number.isFinite(link.rope_length) && link.rope_length >= .05 && link.rope_length <= 200;\n        if ((link.type !== \"rope\" && link.rope_length != null) ||\n            (!activation && !motorSupply && !mechanical && !rope))\n            throw new Error(\"UI driver requires explicit supported connection sockets\");\n    }\n    const evidence = { caseId: attempt.caseId, level: attempt.level, precision: attempt.precision,\n        method: \"palette-and-3d-handles\", recipe: attempt, actions: [], frames: [], errors: [] };\n    if (!/^[a-zA-Z0-9_-]+$/.test(attempt.caseId)) throw new Error(\"Invalid case ID\");\n    let ui, run, outcome, reset, observerFailure;\n    let phase = \"building\";\n    evidence.lifecycle = [];\n    const checkObserver = () => {\n        if (observerFailure) throw new Error(observerFailure);\n    };\n    const onConsole = message => {\n        const text = message.text();\n        if (message.type() === \"error\") evidence.errors.push(text);\n        try {\n            if (text.startsWith(\"CCUI \")) ui = JSON.parse(text.slice(5));\n            if (text.startsWith(\"CCFRAME \")) evidence.frames.push(JSON.parse(text.slice(8)));\n            for (const [prefix, kind] of [[\"CCRUN \", \"run\"], [\"CCRESULT \", \"result\"], [\"CCRESET \", \"reset\"]]) {\n                if (!text.startsWith(prefix)) continue;\n                const value = JSON.parse(text.slice(prefix.length));\n                evidence.lifecycle.push({ kind, phase, value });\n                const expected = kind === \"run\" ? phase === \"running\" && !run :\n                    kind === \"result\" ? phase === \"running\" && run && !outcome :\n                    phase === \"resetting\" && run && !reset;\n                if (!expected) {\n                    observerFailure ??= \"Unexpected \" + kind + \" event during \" + phase;\n                    continue; // Preserve the first run rather than overwriting its identity.\n                }\n                if (kind === \"run\") run = value;\n                if (kind === \"result\") outcome = value;\n                if (kind === \"reset\") reset = value;\n            }\n        } catch (error) {\n            observerFailure ??= \"Invalid diagnostic event: \" + error.message;\n        }\n    };\n    const waitFor = async (predicate, description, timeout = 12000) => {\n        const end = Date.now() + timeout;\n        while (true) {\n            checkObserver();\n            if (predicate()) return;\n            if (Date.now() >= end) throw new Error(\"Timed out: \" + description);\n            await page.waitForTimeout(40);\n        }\n    };\n    const click = async (at, label) => {\n        evidence.actions.push({ type: \"click\", label, at });\n        await page.mouse.move(...at);\n        await page.waitForTimeout(250);\n        await page.mouse.down();\n        await page.waitForTimeout(180);\n        await page.mouse.up();\n        await page.waitForTimeout(120);\n    };\n    const action = async label => {\n        await waitFor(() => ui?.buttons.some(b => b.action === label && b.enabled && !b.clipped), label);\n        await click(ui.buttons.find(b => b.action === label && b.enabled && !b.clipped).screen, label);\n    };\n    const dragPath = async (points, label, snap = false) => {\n        evidence.actions.push({ type: \"drag\", label, points, snap });\n        evidence.dragChecks ??= [];\n        const check={label,selected:ui.selected,before:ui.center,handles:ui.handles};\n        evidence.dragChecks.push(check);\n        if(ui.selected?.startsWith(\"fan_\")) {\n            check.beforeImage=\".playwright-mcp/\"+attempt.caseId+\"-fan-before.png\";\n            await page.screenshot({path:check.beforeImage});\n        }\n        await page.mouse.move(...points[0]);\n        await page.waitForTimeout(100);\n        if (snap) await page.keyboard.down(\"Shift\");\n        try {\n            await page.mouse.down();\n            await page.waitForTimeout(65);\n            for (const point of points.slice(1)) {\n                await page.mouse.move(...point);\n                await page.waitForTimeout(20);\n            }\n            await page.mouse.up();\n        } finally {\n            if (snap) await page.keyboard.up(\"Shift\");\n        }\n        await page.waitForTimeout(150);\n        check.after=ui.center;check.afterSelected=ui.selected;\n        if(check.selected?.startsWith(\"fan_\")) {\n            check.afterImage=\".playwright-mcp/\"+attempt.caseId+\"-fan-after.png\";\n            await page.screenshot({path:check.afterImage});\n        }\n    };\n    const project = ([x,y,z]) => [\n        720 + (x*Math.cos(.6) - z*Math.sin(.6))*900/13.8,\n        450 - ((y-3.6)*Math.cos(.48) - (x*Math.sin(.6)+z*Math.cos(.6))*Math.sin(.48))*900/13.8\n    ];\n    const move = async (axis, amount) => {\n        if (Math.abs(amount) < 0.00001) return;\n        await action(\"Move mode\");\n        await waitFor(() => ui.mode === \"move\" && ui.handles.length === 3, \"move handles\");\n        const h = ui.handles.find(handle => handle.axis === axis);\n        const points = Array.from({length: 17}, (_, i) => [\n            h.screen[0]+h.unit[0]*amount*i/16, h.screen[1]+h.unit[1]*amount*i/16\n        ]);\n        await dragPath(points, \"move axis \" + axis + \" by \" + amount, attempt.snapMovement === true);\n    };\n    const rotate = async (axis, degrees) => {\n        if (Math.abs(degrees) < 0.00001) return;\n        await action(\"Rotate mode\");\n        await waitFor(() => ui.mode === \"rotate\" && ui.handles.length === 3, \"rotation handles\");\n        const h = ui.handles.find(handle => handle.axis === axis), center = ui.center;\n        const steps = Math.max(12, Math.ceil(Math.abs(degrees)/5));\n        const points = Array.from({length: steps+1}, (_, i) => {\n            const angle = degrees*Math.PI/180*i/steps;\n            return [0,1].map(k => center[k]+(h.screen[k]-center[k])*Math.cos(angle)+\n                (h.quarter[k]-center[k])*Math.sin(angle));\n        });\n        await dragPath(points, \"rotate axis \" + axis + \" by \" + degrees,\n            Math.abs(degrees/15-Math.round(degrees/15)) < 0.0001);\n    };\n    page.on(\"console\", onConsole);\n    try {\n        await page.setViewportSize({ width: 1440, height: 900 });\n        await page.goto(\"http://127.0.0.1:8060\");\n        await waitFor(() => ui?.buttons.length > 0, \"rendered workshop\");\n        await page.waitForTimeout(1500);\n        await click([700,47], \"puzzle selector\");\n        await page.waitForTimeout(500);\n        await page.keyboard.press(\"Home\", { delay: 120 });\n        // The popup initially has no keyboard-focused item; first Down focuses row 1.\n        for (let i=0;i<attempt.level;i++) {\n            await page.keyboard.press(\"ArrowDown\", { delay: 120 });\n            await page.waitForTimeout(100);\n        }\n        await page.keyboard.press(\"Enter\", { delay: 120 });\n        await waitFor(() => ui.level === attempt.level, \"requested puzzle\");\n        if (attempt.precision !== 0.45) {\n            await action(\"Menu\");\n            await waitFor(() => ui.menuOpen, \"difficulty menu\");\n            await click(attempt.precision === 0 ? ui.difficultyLeft : ui.difficultyRight, \"difficulty slider\");\n            await waitFor(() => Math.abs(ui.precision-attempt.precision) < 0.001, \"difficulty value\");\n            await action(\"Menu\");\n        }\n        const placed = new Map();\n        for (const part of attempt.parts) {\n            const before = new Set(ui.parts.map(p=>p.id));\n            // Scroll the actual inventory, never set its value or the game's inventory.\n            for (let tries=0;tries<40;tries++) {\n                const target = ui.buttons.find(b=>b.kind===part.kind && b.enabled);\n                if (target && !target.clipped) { await click(target.screen, \"palette \"+part.kind); break; }\n                if (!target || tries === 39) throw new Error(\"Palette part unavailable: \"+part.kind);\n                await page.mouse.move(130,190);\n                await page.waitForTimeout(100);\n                await page.mouse.wheel(0,target.screen[1]<190 ? -120 : 120);\n                await page.waitForTimeout(120);\n            }\n            // Pixel rounding can put an exact boundary click outside the build area.\n            // Stage just inside, then use the real arrows for the remaining displacement.\n            const stageX = Math.max(-6.9, Math.min(6.9, part.position[0]));\n            const stageZ = Math.max(-3.9, Math.min(3.9, part.position[2]));\n            await click(project([stageX,3,stageZ]), \"place \"+part.slot);\n            await waitFor(() => ui.parts.some(p=>!before.has(p.id)), \"placed part\");\n            const created = ui.parts.find(p=>!before.has(p.id));\n            placed.set(part.slot, created.id);\n            await waitFor(() => ui.selected === created.id && ui.handles.length===3, \"selected part handles\");\n            const offset = part.offset ?? [0,0,0];\n            await move(1, part.position[1]-3+offset[1]);\n            await move(0, part.position[0]-stageX+offset[0]);\n            await move(2, part.position[2]-stageZ+offset[2]);\n            const rotation = part.rotation ?? [0,0,0], error = part.rotationOffset ?? [0,0,0];\n            // Godot uses Y-X-Z Euler composition: apply world Z, X, then Y.\n            for (const axis of [2,0,1]) await rotate(axis,rotation[axis]+error[axis]);\n        }\n        for (const part of attempt.parts ?? []) {\n            if (!part.dimensions) continue;\n            const id = placed.get(part.slot);\n            if (ui.selected !== id) await click(ui.parts.find(p => p.id === id).screen, \"select part to resize\");\n            await action(\"Resize mode\");\n            await waitFor(() => ui.selected === id && ui.mode === \"resize\" && ui.dimensions?.length === 3, \"part resize handles\");\n            for (const axis of [0,1,2]) {\n                // Read rendered handle geometry and drag; never set game dimensions.\n                for (let pass = 0; pass < 3; pass++) {\n                    const difference = part.dimensions[axis] - ui.dimensions[axis];\n                    if (Math.abs(difference) < .03) break;\n                    const h = ui.handles.find(handle => handle.axis === axis);\n                    const points = Array.from({length:17}, (_,i) => [\n                        h.screen[0] + h.unit[0] * difference * .5 * i/16,\n                        h.screen[1] + h.unit[1] * difference * .5 * i/16]);\n                    await dragPath(points, \"resize local axis \" + axis + \" toward \" + part.dimensions[axis]);\n                }\n                if (Math.abs(part.dimensions[axis] - ui.dimensions[axis]) >= .03)\n                    throw new Error(\"Resize did not reach requested dimension on axis \" + axis);\n            }\n        }\n        for (const part of attempt.parts ?? []) {\n            if (!part.finalMoves?.length) continue;\n            const id = placed.get(part.slot);\n            if (ui.selected !== id) await click(ui.parts.find(p => p.id === id).screen, \"select part for final movement\");\n            for (const adjustment of part.finalMoves) await move(adjustment.axis, adjustment.amount);\n        }\n        for (const link of attempt.connections ?? []) {\n            await page.keyboard.press(\"Escape\");\n            await page.waitForTimeout(120);\n            const from = placed.get(link.from) ?? link.from, to = placed.get(link.to) ?? link.to;\n            const source = ui.parts.find(p=>p.id===from), target = ui.parts.find(p=>p.id===to);\n            if (!source || !target) throw new Error(\"Missing visible wiring endpoint\");\n            await click(source.screen, \"select wire source \"+from);\n            await waitFor(() => ui.selected===from, \"wire source selection\");\n            await action(\"Connect\");\n            await click(target.screen, \"connect to \"+to);\n            if (link.to_port===\"first_in\") {\n                evidence.socketChoiceScreenshot=\".playwright-mcp/\"+attempt.caseId+\"-socket-choice.png\";\n                await page.screenshot({path:evidence.socketChoiceScreenshot});\n            }\n            let choice = {activation: {activation_in:\"Connect activation\", set_in:\"Connect set\", reset_in:\"Connect reset\"}[link.to_port],electrical:{[ElectricalSocket.PowerIn]:\"Connect electricity\",[ElectricalSocket.FirstIn]:\"Connect first input\",\n                [ElectricalSocket.SecondIn]:\"Connect second input\",[ElectricalSocket.ExtendIn]:\"Connect extend\",\n                [ElectricalSocket.RetractIn]:\"Connect retract\"}[link.to_port],\n                mechanical:\"Connect drive\",rope:\"Connect rope\"}[link.type];\n            if (link.from_port === ElectricalSocket.ExtendedOut) choice = \"Extended → \" + choice;\n            if (link.from_port === ElectricalSocket.RetractedOut) choice = \"Retracted → \" + choice;\n            if (ui.buttons.some(b => b.action === choice && b.enabled && !b.clipped))\n                await action(choice);\n        }\n        phase = \"running\";\n        await action(\"▶  Run machine\");\n        await page.waitForTimeout(800);\n        evidence.rejectedBeforeRun = !run && ui.running === false;\n        evidence.ui = ui;\n        evidence.outcomeScreenshot = \".playwright-mcp/\" + attempt.caseId + \"-outcome.png\";\n        await page.screenshot({path:evidence.outcomeScreenshot});\n        if (!evidence.rejectedBeforeRun) throw new Error(\"Overlapping beam was allowed to run\");\n        return evidence;\n    } catch (error) {\n        evidence.failure = { phase, message: error.message };\n        evidence.run = run;\n        evidence.outcome = outcome;\n        evidence.reset = reset;\n        evidence.ui = ui;\n        evidence.failureScreenshot = \".playwright-mcp/\" + attempt.caseId + \"-failure.png\";\n        try { await page.screenshot({ path: evidence.failureScreenshot }); }\n        catch (captureError) { evidence.errors.push(\"Failure screenshot: \" + captureError.message); }\n        return evidence; // Callers must persist failures and stop the batch.\n    } finally {\n        page.off(\"console\", onConsole);\n        try { await page.mouse.up(); }\n        catch (error) { evidence.errors.push(\"Release mouse: \" + error.message); }\n        try { await page.keyboard.up(\"Shift\"); }\n        catch (error) { evidence.errors.push(\"Release Shift: \" + error.message); }\n    }\n}\n",
+  "captureSource": "async(page)=>{\nconst context=await page.context().browser().newContext({viewport:{width:1440,height:900},recordVideo:{dir:\".playwright-mcp\",size:{width:1440,height:900}}});\nconst testPage=await context.newPage(), start=Date.now(), timing=[];\ntestPage.on(\"console\",message=>{const t=message.text();if(t.startsWith(\"CCRUN \")||t.startsWith(\"CCRESET \"))timing.push({ms:Date.now()-start,event:t});if(t.startsWith(\"CCFRAME \")){const f=JSON.parse(t.slice(8));timing.push({ms:Date.now()-start,tick:f.tick});}});\nlet result;\ntry{result=await (// Thin JavaScript adapter required by Playwright MCP's runner.\n// Gameplay and read-only diagnostic instrumentation remain C#.\n// Use as: await (directUiAttempt source)(page, attemptRecipe).\n// This adapter never evaluates game code, edits storage, loads saves, sets transforms,\n// uses numeric placement menus, invokes game methods, or synthesizes success.\nasync function directUiAttempt(page, attempt) {\n    // Closed protocol sets mirror C# enum wire names at this external boundary.\n    const ElectricalSocket = Object.freeze({ Supply:\"supply\", PowerIn:\"power_in\", FirstIn:\"first_in\",\n        SecondIn:\"second_in\", ExtendIn:\"extend_in\", RetractIn:\"retract_in\",\n        ExtendedOut:\"extended_out\", RetractedOut:\"retracted_out\" });\n\n    if (!Number.isInteger(attempt.level) || attempt.level < 1 || attempt.level > 75)\n        throw new Error(\"Expected a campaign level in the planned range 1..75\");\n    if (![0, 0.45, 1].includes(attempt.precision))\n        throw new Error(\"Use Forgiving, Balanced or Precise\");\n    for (const part of attempt.parts ?? []) {\n        if (part.finalMoves != null && (!Array.isArray(part.finalMoves) || part.finalMoves.some(m =>\n            !m || ![0,1,2].includes(m.axis) || !Number.isFinite(m.amount) || Math.abs(m.amount) > 14)))\n            throw new Error(\"Final moves require a valid axis and finite bounded distance\");\n        if (part.dimensions == null) continue;\n        const bounds = {\n            wall: { min: [.4,.4,.12], max: [8,6,2] },\n            pipe: { min: [1,1.3,1.3], max: [8,1.3,1.3] }\n        }[part.kind];\n        if (!bounds || !Array.isArray(part.dimensions) || part.dimensions.length !== 3 ||\n            part.dimensions.some((n, axis) => !Number.isFinite(n) || n < bounds.min[axis] || n > bounds.max[axis]))\n            throw new Error(\"Resize dimensions must match the part's supported axes and limits\");\n    }\n    for (const link of attempt.connections ?? []) {\n        const activation = link.type === \"activation\" && link.from_port === \"activation_out\" &&\n            [\"activation_in\", \"set_in\", \"reset_in\"].includes(link.to_port);\n        const motorSupply = link.type === \"electrical\" && [ElectricalSocket.Supply, ElectricalSocket.ExtendedOut, ElectricalSocket.RetractedOut].includes(link.from_port) &&\n            [ElectricalSocket.PowerIn, ElectricalSocket.FirstIn, ElectricalSocket.SecondIn,\n                ElectricalSocket.ExtendIn, ElectricalSocket.RetractIn].includes(link.to_port);\n        const mechanical = link.type === \"mechanical\" && link.from_port === \"drive\" &&\n            link.to_port === \"drive_in\";\n        const rope = link.type === \"rope\" && link.from_port === \"tie\" && link.to_port === \"tie\" &&\n            Number.isFinite(link.rope_length) && link.rope_length >= .05 && link.rope_length <= 200;\n        if ((link.type !== \"rope\" && link.rope_length != null) ||\n            (!activation && !motorSupply && !mechanical && !rope))\n            throw new Error(\"UI driver requires explicit supported connection sockets\");\n    }\n    const evidence = { caseId: attempt.caseId, level: attempt.level, precision: attempt.precision,\n        method: \"palette-and-3d-handles\", recipe: attempt, actions: [], frames: [], errors: [] };\n    if (!/^[a-zA-Z0-9_-]+$/.test(attempt.caseId)) throw new Error(\"Invalid case ID\");\n    let ui, run, outcome, reset, observerFailure;\n    let phase = \"building\";\n    evidence.lifecycle = [];\n    const checkObserver = () => {\n        if (observerFailure) throw new Error(observerFailure);\n    };\n    const onConsole = message => {\n        const text = message.text();\n        if (message.type() === \"error\") evidence.errors.push(text);\n        try {\n            if (text.startsWith(\"CCUI \")) ui = JSON.parse(text.slice(5));\n            if (text.startsWith(\"CCFRAME \")) evidence.frames.push(JSON.parse(text.slice(8)));\n            for (const [prefix, kind] of [[\"CCRUN \", \"run\"], [\"CCRESULT \", \"result\"], [\"CCRESET \", \"reset\"]]) {\n                if (!text.startsWith(prefix)) continue;\n                const value = JSON.parse(text.slice(prefix.length));\n                evidence.lifecycle.push({ kind, phase, value });\n                const expected = kind === \"run\" ? phase === \"running\" && !run :\n                    kind === \"result\" ? phase === \"running\" && run && !outcome :\n                    phase === \"resetting\" && run && !reset;\n                if (!expected) {\n                    observerFailure ??= \"Unexpected \" + kind + \" event during \" + phase;\n                    continue; // Preserve the first run rather than overwriting its identity.\n                }\n                if (kind === \"run\") run = value;\n                if (kind === \"result\") outcome = value;\n                if (kind === \"reset\") reset = value;\n            }\n        } catch (error) {\n            observerFailure ??= \"Invalid diagnostic event: \" + error.message;\n        }\n    };\n    const waitFor = async (predicate, description, timeout = 12000) => {\n        const end = Date.now() + timeout;\n        while (true) {\n            checkObserver();\n            if (predicate()) return;\n            if (Date.now() >= end) throw new Error(\"Timed out: \" + description);\n            await page.waitForTimeout(40);\n        }\n    };\n    const click = async (at, label) => {\n        evidence.actions.push({ type: \"click\", label, at });\n        await page.mouse.move(...at);\n        await page.waitForTimeout(250);\n        await page.mouse.down();\n        await page.waitForTimeout(180);\n        await page.mouse.up();\n        await page.waitForTimeout(120);\n    };\n    const action = async label => {\n        await waitFor(() => ui?.buttons.some(b => b.action === label && b.enabled && !b.clipped), label);\n        await click(ui.buttons.find(b => b.action === label && b.enabled && !b.clipped).screen, label);\n    };\n    const dragPath = async (points, label, snap = false) => {\n        evidence.actions.push({ type: \"drag\", label, points, snap });\n        evidence.dragChecks ??= [];\n        const check={label,selected:ui.selected,before:ui.center,handles:ui.handles};\n        evidence.dragChecks.push(check);\n        if(ui.selected?.startsWith(\"fan_\")) {\n            check.beforeImage=\".playwright-mcp/\"+attempt.caseId+\"-fan-before.png\";\n            await page.screenshot({path:check.beforeImage});\n        }\n        await page.mouse.move(...points[0]);\n        await page.waitForTimeout(100);\n        if (snap) await page.keyboard.down(\"Shift\");\n        try {\n            await page.mouse.down();\n            await page.waitForTimeout(65);\n            for (const point of points.slice(1)) {\n                await page.mouse.move(...point);\n                await page.waitForTimeout(20);\n            }\n            await page.mouse.up();\n        } finally {\n            if (snap) await page.keyboard.up(\"Shift\");\n        }\n        await page.waitForTimeout(150);\n        check.after=ui.center;check.afterSelected=ui.selected;\n        if(check.selected?.startsWith(\"fan_\")) {\n            check.afterImage=\".playwright-mcp/\"+attempt.caseId+\"-fan-after.png\";\n            await page.screenshot({path:check.afterImage});\n        }\n    };\n    const project = ([x,y,z]) => [\n        720 + (x*Math.cos(.6) - z*Math.sin(.6))*900/13.8,\n        450 - ((y-3.6)*Math.cos(.48) - (x*Math.sin(.6)+z*Math.cos(.6))*Math.sin(.48))*900/13.8\n    ];\n    const move = async (axis, amount) => {\n        if (Math.abs(amount) < 0.00001) return;\n        await action(\"Move mode\");\n        await waitFor(() => ui.mode === \"move\" && ui.handles.length === 3, \"move handles\");\n        const h = ui.handles.find(handle => handle.axis === axis);\n        const points = Array.from({length: 17}, (_, i) => [\n            h.screen[0]+h.unit[0]*amount*i/16, h.screen[1]+h.unit[1]*amount*i/16\n        ]);\n        await dragPath(points, \"move axis \" + axis + \" by \" + amount, attempt.snapMovement === true);\n    };\n    const rotate = async (axis, degrees) => {\n        if (Math.abs(degrees) < 0.00001) return;\n        await action(\"Rotate mode\");\n        await waitFor(() => ui.mode === \"rotate\" && ui.handles.length === 3, \"rotation handles\");\n        const h = ui.handles.find(handle => handle.axis === axis), center = ui.center;\n        const steps = Math.max(12, Math.ceil(Math.abs(degrees)/5));\n        const points = Array.from({length: steps+1}, (_, i) => {\n            const angle = degrees*Math.PI/180*i/steps;\n            return [0,1].map(k => center[k]+(h.screen[k]-center[k])*Math.cos(angle)+\n                (h.quarter[k]-center[k])*Math.sin(angle));\n        });\n        await dragPath(points, \"rotate axis \" + axis + \" by \" + degrees,\n            Math.abs(degrees/15-Math.round(degrees/15)) < 0.0001);\n    };\n    page.on(\"console\", onConsole);\n    try {\n        await page.setViewportSize({ width: 1440, height: 900 });\n        await page.goto(\"http://127.0.0.1:8060\");\n        await waitFor(() => ui?.buttons.length > 0, \"rendered workshop\");\n        await page.waitForTimeout(1500);\n        await click([700,47], \"puzzle selector\");\n        await page.waitForTimeout(500);\n        await page.keyboard.press(\"Home\", { delay: 120 });\n        // The popup initially has no keyboard-focused item; first Down focuses row 1.\n        for (let i=0;i<attempt.level;i++) {\n            await page.keyboard.press(\"ArrowDown\", { delay: 120 });\n            await page.waitForTimeout(100);\n        }\n        await page.keyboard.press(\"Enter\", { delay: 120 });\n        await waitFor(() => ui.level === attempt.level, \"requested puzzle\");\n        if (attempt.precision !== 0.45) {\n            await action(\"Menu\");\n            await waitFor(() => ui.menuOpen, \"difficulty menu\");\n            await click(attempt.precision === 0 ? ui.difficultyLeft : ui.difficultyRight, \"difficulty slider\");\n            await waitFor(() => Math.abs(ui.precision-attempt.precision) < 0.001, \"difficulty value\");\n            await action(\"Menu\");\n        }\n        const placed = new Map();\n        for (const part of attempt.parts) {\n            const before = new Set(ui.parts.map(p=>p.id));\n            // Scroll the actual inventory, never set its value or the game's inventory.\n            for (let tries=0;tries<40;tries++) {\n                const target = ui.buttons.find(b=>b.kind===part.kind && b.enabled);\n                if (target && !target.clipped) { await click(target.screen, \"palette \"+part.kind); break; }\n                if (!target || tries === 39) throw new Error(\"Palette part unavailable: \"+part.kind);\n                await page.mouse.move(130,190);\n                await page.waitForTimeout(100);\n                await page.mouse.wheel(0,target.screen[1]<190 ? -120 : 120);\n                await page.waitForTimeout(120);\n            }\n            // Pixel rounding can put an exact boundary click outside the build area.\n            // Stage just inside, then use the real arrows for the remaining displacement.\n            const stageX = Math.max(-6.9, Math.min(6.9, part.position[0]));\n            const stageZ = Math.max(-3.9, Math.min(3.9, part.position[2]));\n            await click(project([stageX,3,stageZ]), \"place \"+part.slot);\n            await waitFor(() => ui.parts.some(p=>!before.has(p.id)), \"placed part\");\n            const created = ui.parts.find(p=>!before.has(p.id));\n            placed.set(part.slot, created.id);\n            await waitFor(() => ui.selected === created.id && ui.handles.length===3, \"selected part handles\");\n            const offset = part.offset ?? [0,0,0];\n            await move(1, part.position[1]-3+offset[1]);\n            await move(0, part.position[0]-stageX+offset[0]);\n            await move(2, part.position[2]-stageZ+offset[2]);\n            const rotation = part.rotation ?? [0,0,0], error = part.rotationOffset ?? [0,0,0];\n            // Godot uses Y-X-Z Euler composition: apply world Z, X, then Y.\n            for (const axis of [2,0,1]) await rotate(axis,rotation[axis]+error[axis]);\n        }\n        for (const part of attempt.parts ?? []) {\n            if (!part.dimensions) continue;\n            const id = placed.get(part.slot);\n            if (ui.selected !== id) await click(ui.parts.find(p => p.id === id).screen, \"select part to resize\");\n            await action(\"Resize mode\");\n            await waitFor(() => ui.selected === id && ui.mode === \"resize\" && ui.dimensions?.length === 3, \"part resize handles\");\n            for (const axis of [0,1,2]) {\n                // Read rendered handle geometry and drag; never set game dimensions.\n                for (let pass = 0; pass < 3; pass++) {\n                    const difference = part.dimensions[axis] - ui.dimensions[axis];\n                    if (Math.abs(difference) < .03) break;\n                    const h = ui.handles.find(handle => handle.axis === axis);\n                    const points = Array.from({length:17}, (_,i) => [\n                        h.screen[0] + h.unit[0] * difference * .5 * i/16,\n                        h.screen[1] + h.unit[1] * difference * .5 * i/16]);\n                    await dragPath(points, \"resize local axis \" + axis + \" toward \" + part.dimensions[axis]);\n                }\n                if (Math.abs(part.dimensions[axis] - ui.dimensions[axis]) >= .03)\n                    throw new Error(\"Resize did not reach requested dimension on axis \" + axis);\n            }\n        }\n        for (const part of attempt.parts ?? []) {\n            if (!part.finalMoves?.length) continue;\n            const id = placed.get(part.slot);\n            if (ui.selected !== id) await click(ui.parts.find(p => p.id === id).screen, \"select part for final movement\");\n            for (const adjustment of part.finalMoves) await move(adjustment.axis, adjustment.amount);\n        }\n        for (const link of attempt.connections ?? []) {\n            await page.keyboard.press(\"Escape\");\n            await page.waitForTimeout(120);\n            const from = placed.get(link.from) ?? link.from, to = placed.get(link.to) ?? link.to;\n            const source = ui.parts.find(p=>p.id===from), target = ui.parts.find(p=>p.id===to);\n            if (!source || !target) throw new Error(\"Missing visible wiring endpoint\");\n            await click(source.screen, \"select wire source \"+from);\n            await waitFor(() => ui.selected===from, \"wire source selection\");\n            await action(\"Connect\");\n            await click(target.screen, \"connect to \"+to);\n            if (link.to_port===\"first_in\") {\n                evidence.socketChoiceScreenshot=\".playwright-mcp/\"+attempt.caseId+\"-socket-choice.png\";\n                await page.screenshot({path:evidence.socketChoiceScreenshot});\n            }\n            let choice = {activation: {activation_in:\"Connect activation\", set_in:\"Connect set\", reset_in:\"Connect reset\"}[link.to_port],electrical:{[ElectricalSocket.PowerIn]:\"Connect electricity\",[ElectricalSocket.FirstIn]:\"Connect first input\",\n                [ElectricalSocket.SecondIn]:\"Connect second input\",[ElectricalSocket.ExtendIn]:\"Connect extend\",\n                [ElectricalSocket.RetractIn]:\"Connect retract\"}[link.to_port],\n                mechanical:\"Connect drive\",rope:\"Connect rope\"}[link.type];\n            if (link.from_port === ElectricalSocket.ExtendedOut) choice = \"Extended → \" + choice;\n            if (link.from_port === ElectricalSocket.RetractedOut) choice = \"Retracted → \" + choice;\n            if (ui.buttons.some(b => b.action === choice && b.enabled && !b.clipped))\n                await action(choice);\n        }\n        await page.keyboard.press(\"Escape\");\n        for (let tries=0;tries<40;tries++) {\n            const target=ui.buttons.find(b=>b.kind===attempt.parts[0].kind);\n            if (!target) throw new Error(\"Primary palette part missing\");\n            if (!target.clipped) break;\n            await page.mouse.move(130,190);\n            await page.mouse.wheel(0,target.screen[1]<190 ? -120 : 120);\n            await page.waitForTimeout(120);\n        }\n        await page.mouse.move(900,550);\n        for(let step=0;step<6;step++){await page.mouse.wheel(0,-120);await page.waitForTimeout(100);}\n        evidence.actions.push({type:\"camera\",zoomWheelSteps:6});\n        evidence.buildScreenshot=\".playwright-mcp/\"+attempt.caseId+\"-build.png\";\n        await page.screenshot({path:evidence.buildScreenshot});\n        phase = \"running\";\n        await action(\"▶  Run machine\");\n        await waitFor(() => run, \"run start diagnostics\");\n        if (run.level !== attempt.level || Math.abs(run.precision-attempt.precision)>0.001)\n            throw new Error(\"Run started with the wrong level or difficulty\");\n        for(const link of attempt.connections??[]) {\n const from=placed.get(link.from)??link.from,to=placed.get(link.to)??link.to;\n if(!run.connections.some(c=>c.from===from&&c.to===to&&c.type===link.type&&c.fromPort===link.from_port&&c.toPort===link.to_port))\n throw new Error(\"Required UI connection missing: \"+from+\" -> \"+to);\n}\nevidence.motionScreenshots=[];\n        for(const delay of [450,500,500,300,100,100,100,100,100,100,300,500]) {\n            await page.waitForTimeout(delay);\n            const path=\".playwright-mcp/\"+attempt.caseId+\"-motion-\"+evidence.motionScreenshots.length+\".png\";\n            await page.screenshot({path});evidence.motionScreenshots.push(path);\n        }\n        await page.waitForTimeout(450);\n        evidence.holdingScreenshot=\".playwright-mcp/\"+attempt.caseId+\"-holding.png\";\n        await page.screenshot({path:evidence.holdingScreenshot});\n        await page.waitForTimeout(2600);\n        await page.waitForTimeout(150);\n        evidence.slots = Object.fromEntries(placed);\n        evidence.run = run;\n        evidence.outcome = outcome;\n        evidence.ui = ui;\n        evidence.outcomeScreenshot = \".playwright-mcp/\" + attempt.caseId + \"-outcome.png\";\n        await page.screenshot({ path: evidence.outcomeScreenshot });\n        await page.waitForTimeout(450);\n        evidence.settledScreenshot=\".playwright-mcp/\"+attempt.caseId+\"-settled.png\";\n        await page.screenshot({path:evidence.settledScreenshot});\n        checkObserver();\n        phase = \"resetting\";\n        await action(outcome?.outcome === \"won\" ? \"↶  Build again\" : \"■  Back to building\");\n        await waitFor(() => reset && ui && !ui.running, \"reset to building\");\n        evidence.reset = reset;\n        evidence.resetUi = ui;\n        return evidence;\n    } catch (error) {\n        evidence.failure = { phase, message: error.message };\n        evidence.run = run;\n        evidence.outcome = outcome;\n        evidence.reset = reset;\n        evidence.ui = ui;\n        evidence.failureScreenshot = \".playwright-mcp/\" + attempt.caseId + \"-failure.png\";\n        try { await page.screenshot({ path: evidence.failureScreenshot }); }\n        catch (captureError) { evidence.errors.push(\"Failure screenshot: \" + captureError.message); }\n        return evidence; // Callers must persist failures and stop the batch.\n    } finally {\n        page.off(\"console\", onConsole);\n        try { await page.mouse.up(); }\n        catch (error) { evidence.errors.push(\"Release mouse: \" + error.message); }\n        try { await page.keyboard.up(\"Shift\"); }\n        catch (error) { evidence.errors.push(\"Release Shift: \" + error.message); }\n    }\n}\n)(testPage,{\"caseId\":\"impact-lever-blocked-motion-v1\",\"level\":62,\"precision\":0.45,\"parts\":[{\"slot\":\"lever\",\"kind\":\"impact_lever\",\"position\":[0,3,0]},{\"slot\":\"driver\",\"kind\":\"bowling\",\"position\":[-1.2,6,0]},{\"slot\":\"wall\",\"kind\":\"wall\",\"position\":[1.5,3.6,0],\"dimensions\":[0.6,0.4,1.4]}],\"connections\":[]});}finally{await context.close();}\nconst video=\".playwright-mcp/impact-lever-blocked-motion-v1.webm\";\nawait testPage.video().saveAs(video);\nreturn {result,timing,video};\n}",
+  "audits": [
+    {
+      "caseId": "impact-lever-blocked-wall-v3",
+      "frames": 100,
+      "run": {
+        "connections": [],
+        "level": 62,
+        "precision": 0.45,
+        "parts": [
+          {
+            "properties": {
+              "mass": 4,
+              "bounce": 0.14,
+              "radius": 0.38
+            },
+            "id": "bowling_2",
+            "kind": "bowling",
+            "locked": false,
+            "dynamic": true,
+            "position": [
+              -1.2,
+              5.988797,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "width": 0.6139894,
+              "height": 0.4,
+              "thickness": 1.4113392
+            },
+            "id": "wall_3",
+            "kind": "wall",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3.5960987,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      "resetExact": true,
+      "maxAngle": 0.1547911108253363,
+      "finalHinge": {
+        "id": "impact_lever_1",
+        "role": "beam",
+        "limit": "none",
+        "angle": 0.1547911108253363,
+        "angularVelocity": 0,
+        "energy": 0
+      }
+    },
+    {
+      "caseId": "impact-lever-wall-depth-miss-v1",
+      "frames": 101,
+      "run": {
+        "connections": [],
+        "level": 62,
+        "precision": 0.45,
+        "parts": [
+          {
+            "properties": {
+              "mass": 4,
+              "bounce": 0.14,
+              "radius": 0.38
+            },
+            "id": "bowling_2",
+            "kind": "bowling",
+            "locked": false,
+            "dynamic": true,
+            "position": [
+              -1.2,
+              5.988797,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "width": 0.61316776,
+              "height": 0.4,
+              "thickness": 1.4089025
+            },
+            "id": "wall_3",
+            "kind": "wall",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3.5837967,
+              2
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      "resetExact": true,
+      "maxAngle": 0.5235987755982988,
+      "finalHinge": {
+        "id": "impact_lever_1",
+        "role": "beam",
+        "limit": "upper",
+        "angle": 0.5235987755982988,
+        "angularVelocity": 0,
+        "energy": 0
+      }
+    }
+  ],
+  "regression": {
+    "caseId": "impact-lever-obstruction-transfer-regression-v1",
+    "sharedExactFrames": 101,
+    "frames": 104,
+    "resetExact": true
+  },
+  "motion": {
+    "caseId": "impact-lever-blocked-motion-v1",
+    "frames": 100,
+    "sharedExactFrames": 100,
+    "resetExact": true,
+    "video": ".playwright-mcp/impact-lever-blocked-motion-v1.webm",
+    "sha256": "9a5719e3f9021499610e0d3c16d1b0c5f31cce04af3b51cfe18b50170a04ce50",
+    "reviewedSeconds": [
+      32.65,
+      33.65
+    ],
+    "wallSeconds": 7.863,
+    "simSeconds": 7.9
+  },
+  "sourceSha256": {
+    "engine/RotatingBoxObstacleSweep.cs": "bab4bc86089a439df8d6b28b7b1cb447b8d03961051ac5401577b2e8fe37bdda",
+    "engine/WorldHinges.cs": "1b623505f29ff85c925f361730a4581e173067b6035a27e32addadacb7d79261",
+    "engine/WorldFlight.cs": "685870676f2e39e6eb40ae794139b3dc2c78cdb05829aab606ec573f8d5bbf58",
+    "engine/RevoluteJoint.cs": "6fe3389bcd27e3b189ac06c2df01a83be3a407c99d054d2f1790a17eeec11240",
+    "engine/RevoluteContact.cs": "386ff6a9984006c65bfe57c75f2c9346c9e8e83bd7bbaf840ca14376fbc622b5",
+    "engine/MachineWorld.cs": "215f635d586c6c8ac80503b175897daa16637f9af89f754f68ad3fb5dd36334a",
+    "ui/Workshop.cs": "d90be4cd202e9fedc09175dec0d7b745b63b7a2804a6c864a6f44d33a8f9c521"
+  }
+}

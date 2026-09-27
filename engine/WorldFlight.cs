@@ -7,7 +7,7 @@ namespace CuriousContraptions;
 
 public partial class MachineWorld
 {
-    private enum FlightContactKind { None, Surface, Body, MotionLimit, Hinge, HingeLimit }
+    private enum FlightContactKind { None, Surface, Body, MotionLimit, Hinge, HingeLimit, HingeObstacle }
     // Only overlapping bodies need positional repair; touching bodies must not
     // gain an artificial outward displacement on every gravity-driven contact.
     private const float FlightSeparation = .00001f;
@@ -39,6 +39,7 @@ public partial class MachineWorld
         var bodies = Bodies.OrderBy(body => body.Uid, StringComparer.Ordinal).ToArray();
         var hinges = Parts.Where(p => p.Visible).OrderBy(p => p.Uid, StringComparer.Ordinal)
             .SelectMany(p => p.HingedBodies.OrderBy(h => h.Role)).ToArray();
+        PrepareHingeContacts(hinges);
         double remaining = duration;
         var contacts = 0;
         var geometry = new Dictionary<MachinePart, WorldGeometry.SweepSnapshot>();
@@ -54,6 +55,7 @@ public partial class MachineWorld
             MovingSphereHit pair = default;
             HingedBody? hinge = null;
             RotatingBoxHit hingeHit = default;
+            var obstacleDirection = AngularBlock.None;
             foreach (var body in bodies)
             {
                 if (!body.Visible || !body.FreeMotion) continue;
@@ -83,6 +85,19 @@ public partial class MachineWorld
                 if (stop <= time)
                 {
                     time = stop; hinge = candidateHinge; first = null; kind = FlightContactKind.HingeLimit;
+                }
+                if (candidateHinge.Joint.AngularVelocity != 0)
+                foreach (var box in HingeObstacles(candidateHinge))
+                {
+                    var hit = SweepHingeBox(candidateHinge, box, candidateHinge.Joint.AngularVelocity,
+                        Math.Min(interval, candidateHinge.Joint.TimeToLimit));
+                    if (hit.Status == SphereSweepStatus.Overlapping)
+                        throw new HingeFixtureOverlapException(candidateHinge.Owner.Uid);
+                    if (hit.Status == SphereSweepStatus.Clear ||
+                        (kind != FlightContactKind.None && hit.Time >= time)) continue;
+                    time = hit.Time; hinge = candidateHinge; first = null;
+                    obstacleDirection = candidateHinge.Joint.AngularVelocity > 0 ? AngularBlock.Positive : AngularBlock.Negative;
+                    kind = FlightContactKind.HingeObstacle;
                 }
                 foreach (var body in bodies)
                 {
@@ -163,6 +178,10 @@ public partial class MachineWorld
                     var hingeApproach = -(target.Velocity - hinge!.PointVelocity(hingeHit.Point)).Dot(hingeHit.Normal);
                     hinge.Resolve(target, hingeHit, remaining);
                     hinge.Owner.OnContact(target, Math.Max(0, hingeApproach), this);
+                    break;
+                case FlightContactKind.HingeObstacle:
+                    hinge!.Joint.Block(obstacleDirection);
+                    geometry.Clear();
                     break;
                 case FlightContactKind.HingeLimit:
                     hinge!.Joint.Advance(0); // Also resolve a rounded, zero-time arrival at the stop.

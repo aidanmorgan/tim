@@ -159,6 +159,7 @@ public partial class MachineWorld : Node3D
     });
     public void Start()
     {
+        ValidateHingePlacement();
         ElectricalNetwork.Validate(this);
         MechanicalNetwork.Validate(Parts, Connections);
         Ropes = RopeNetwork.Build(Parts, Connections);

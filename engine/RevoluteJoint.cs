@@ -4,6 +4,8 @@ using System;
 namespace CuriousContraptions;
 
 public enum HingeLimit { None, Lower, Upper }
+[Flags]
+public enum AngularBlock { None = 0, Negative = 1, Positive = 2, Both = Negative | Positive }
 public readonly record struct HingeAdvance(HingeLimit Reached, double DissipatedEnergy);
 
 /// <summary>
@@ -21,6 +23,7 @@ public sealed class RevoluteJoint
     public double InitialAngle { get; }
     public double Angle { get; private set; }
     public double AngularVelocity { get; private set; }
+    public AngularBlock ContactBlock { get; private set; }
     public double Energy => .5 * Inertia * AngularVelocity * AngularVelocity;
     public HingeLimit Limit => Angle == LowerAngle ? HingeLimit.Lower :
         Angle == UpperAngle ? HingeLimit.Upper : HingeLimit.None;
@@ -78,9 +81,25 @@ public sealed class RevoluteJoint
         var next = AngularVelocity + impulse / Inertia;
         if (!double.IsFinite(next) || !double.IsFinite(.5 * Inertia * next * next))
             throw new ArgumentOutOfRangeException(nameof(impulse), "Hinge impulse exceeds finite energy range.");
-        if ((Limit == HingeLimit.Lower && next < 0) || (Limit == HingeLimit.Upper && next > 0)) next = 0;
+        if (Blocks(next)) next = 0;
         AngularVelocity = next;
     }
+
+    public bool Blocks(double direction) =>
+        direction < 0 ? Limit == HingeLimit.Lower || ContactBlock.HasFlag(AngularBlock.Negative) :
+        direction > 0 && (Limit == HingeLimit.Upper || ContactBlock.HasFlag(AngularBlock.Positive));
+
+    /// <summary>Only the collision solver may set these ephemeral one-way constraints.</summary>
+    public double Block(AngularBlock direction)
+    {
+        if (!Enum.IsDefined(direction)) throw new ArgumentOutOfRangeException(nameof(direction));
+        var before = Energy;
+        ContactBlock |= direction;
+        if (Blocks(AngularVelocity)) AngularVelocity = 0;
+        return before - Energy;
+    }
+
+    public void ClearContactBlock() => ContactBlock = AngularBlock.None;
 
     /// <summary>
     /// Force-free angular flight. Stop impact is perfectly inelastic. Any remainder
@@ -91,6 +110,7 @@ public sealed class RevoluteJoint
     {
         if (!double.IsFinite(duration) || duration < 0) throw new ArgumentOutOfRangeException(nameof(duration));
         if (AngularVelocity == 0) return new(HingeLimit.None, 0);
+        if (duration > 0) ClearContactBlock(); // Motion away releases the old contact.
         if (duration >= TimeToLimit)
         {
             var reached = AngularVelocity > 0 ? HingeLimit.Upper : HingeLimit.Lower;
@@ -103,7 +123,7 @@ public sealed class RevoluteJoint
         return new(HingeLimit.None, 0);
     }
 
-    public void Reset() { Angle = InitialAngle; AngularVelocity = 0; }
+    public void Reset() { Angle = InitialAngle; AngularVelocity = 0; ClearContactBlock(); }
 
     private static void Finite(Vector3 value, string name)
     {
