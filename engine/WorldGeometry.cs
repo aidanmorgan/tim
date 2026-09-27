@@ -5,11 +5,66 @@ using System.Linq;
 namespace CuriousContraptions;
 
 public enum TraceMedium { Light, Sound, Air }
+public enum SweepObstacleKind { None, Part, Workbench }
+public readonly record struct WorldSweepResult(SphereSweepStatus Status, float Distance, Vector3 Normal,
+    SweepObstacleKind Kind, MachinePart? Part);
 
 /// <summary>Direct-path geometry query. Air cannot pass through transparent solid proxies.</summary>
 public static class WorldGeometry
 {
     private const float Epsilon=.0001f;
+
+    /// <summary>Nearest finite-radius contact against all visible solid proxies and the workbench.
+    /// Equal-distance contacts use workbench first, then ordinal part ID and proxy declaration order.
+    /// Initial overlaps take priority over touching contacts. The ignored owner is excluded entirely.</summary>
+    public static WorldSweepResult Sweep(MachineWorld world, Vector3 origin, float radius,
+        Vector3 displacement, MachinePart? ignoredOwner = null)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        var best = new WorldSweepResult(SphereSweepStatus.Clear, displacement.Length(), Vector3.Zero,
+            SweepObstacleKind.None, null);
+        void Candidate(Transform3D pose, Func<Vector3,(Vector3 Normal,float Distance)> surface,
+            SweepObstacleKind kind, MachinePart? part)
+        {
+            var basis = pose.Basis;
+            if (!pose.Origin.IsFinite() || !basis.X.IsFinite() || !basis.Y.IsFinite() || !basis.Z.IsFinite()
+                || Mathf.Abs(basis.X.LengthSquared()-1) > .0001f
+                || Mathf.Abs(basis.Y.LengthSquared()-1) > .0001f
+                || Mathf.Abs(basis.Z.LengthSquared()-1) > .0001f
+                || Mathf.Abs(basis.X.Dot(basis.Y)) > .0001f
+                || Mathf.Abs(basis.X.Dot(basis.Z)) > .0001f
+                || Mathf.Abs(basis.Y.Dot(basis.Z)) > .0001f)
+                throw new InvalidOperationException("Sphere sweeps require rigid proxy transforms.");
+            var inverse = pose.AffineInverse();
+            var hit = SphereSweep.Cast(inverse*origin, radius, inverse.Basis*displacement, surface);
+            if (hit.Status == SphereSweepStatus.Clear) return;
+            if (best.Status == SphereSweepStatus.Overlapping) return;
+            if (hit.Status != SphereSweepStatus.Overlapping && best.Status != SphereSweepStatus.Clear
+                && hit.Distance >= best.Distance) return;
+            best = new(hit.Status, hit.Distance, basis*hit.Normal, kind, part);
+        }
+        // Always query the workbench, including in an empty world; this also validates query inputs.
+        foreach (var box in new[] { Workbench.Deck, Workbench.Base })
+            Candidate(Transform3D.Identity, p=>SphereSweep.BoxSurface(p-box.At,box.Half),
+                SweepObstacleKind.Workbench,null);
+        foreach (var part in world.Parts.Where(p=>p.Visible && p!=ignoredOwner)
+                     .OrderBy(p=>p.Uid,StringComparer.Ordinal))
+        {
+            foreach (var box in part.Boxes)
+                Candidate(part.Transform,p=>SphereSweep.BoxSurface(p-box.At,box.Half),SweepObstacleKind.Part,part);
+            foreach (var sphere in part.Spheres)
+                Candidate(part.Transform,p=>SphereSweep.SphereSurface(p-sphere.At,sphere.Radius),SweepObstacleKind.Part,part);
+            foreach (var tube in part.Tubes)
+                Candidate(part.Transform*tube.Pose,tube.Surface,SweepObstacleKind.Part,part);
+            foreach (var bend in part.Bends)
+                Candidate(part.Transform*bend.Pose,bend.Surface,SweepObstacleKind.Part,part);
+            foreach (var frustum in part.Frustums)
+                Candidate(part.Transform*frustum.Pose,frustum.Surface,SweepObstacleKind.Part,part);
+            if (part.Dynamic)
+                Candidate(part.Transform,p=>SphereSweep.SphereSurface(p,part.Radius),SweepObstacleKind.Part,part);
+        }
+        return best;
+    }
     public static float Trace(TraceMedium medium, MachineWorld world, Vector3 origin, Vector3 direction, float range,
         MachinePart? emitter, MachinePart? receiver = null)
     {
