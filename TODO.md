@@ -2,7 +2,7 @@
 
 Development policy: **use enums for closed sets and centralized typed identifiers/constants where extensibility requires names**. Keep serialized strings at boundaries, not as runtime protocol selectors. **No fallbacks or backwards compatibility, ever; always refactor forward**. See AGENTS.md. Unsupported inputs must be rejected explicitly; do not silently substitute an implementation or downgrade behaviour. Update current code, content and tests together. Reject obsolete saves/schemas rather than adding migrations, aliases, inferred fields or fallback paths. Retain old playtest artifacts unchanged as historical evidence, not supported current input.
 
-Delivery policy: commit and push each implemented, verified feature batch; document incomplete work and retained failures rather than waiting for the whole campaign to be finished.
+Delivery policy: **Every time a new puzzle element is added and proven properly tested, commit and push it before moving on to the next element.** Verification must cover its intended behaviour, relevant failure cases, Reset, a production build and real-UI Playwright interaction—not just compilation or a passing reference setup. Record the evidence and any remaining limitations in this TODO and the playtest documentation. Keep failed attempts; do not describe unfinished or unverified elements as complete. Do not defer commits/pushes until a larger feature batch or the whole campaign is finished.
 
 ## Current objective — revised 27 September 2026
 
