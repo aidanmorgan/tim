@@ -169,7 +169,7 @@ public class DelayTests(HeadlessFixture godot)
             }
             var bypass = MachineCodec.Clone(data);
             bypass.Connections.Add(new() { From = "switch", To = id == "delayed_signal" ? "lamp" : "torch",
-                Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn });
+                Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn });
             world.LoadMachine(bypass);
             Run();
             Assert.False(world.Won);

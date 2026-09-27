@@ -23,12 +23,12 @@ public partial class ClutchPart : MachinePart
     private StandardMaterial3D _indicator=null!;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.DriveIn,ConnectionDomain.Mechanical,PortDirection.Input,new(-.65f,0,.55f)),
-        new(SocketIds.Drive,ConnectionDomain.Mechanical,PortDirection.Output,new(.65f,0,.55f)),
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,-.35f,.5f))
+        new(SocketId.DriveIn,ConnectionDomain.Mechanical,PortDirection.Input,new(-.65f,0,.55f)),
+        new(SocketId.Drive,ConnectionDomain.Mechanical,PortDirection.Output,new(.65f,0,.55f)),
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,-.35f,.5f))
     ];
     // Disabled routes remain structural edges: an open clutch cannot hide a loop or competing drive.
-    public override IEnumerable<MechanicalRoute> MechanicalRoutes=>[new(SocketIds.DriveIn,SocketIds.Drive,1,Phase==ClutchPhase.Engaged)];
+    public override IEnumerable<MechanicalRoute> MechanicalRoutes=>[new(SocketId.DriveIn,SocketId.Drive,1,Phase==ClutchPhase.Engaged)];
     public override void ValidateParameters()
     {
         var seconds=Properties[ClutchParameters.CloseSeconds];
@@ -36,7 +36,7 @@ public partial class ClutchPart : MachinePart
     }
     public override void BeforeStep(MachineWorld world,float delta)
     {
-        var supplied=HasElectricalPower(SocketIds.PowerIn);
+        var supplied=HasElectricalPower(SocketId.PowerIn);
         Closure=Mathf.MoveToward(Closure,supplied?1:0,delta/Properties[ClutchParameters.CloseSeconds]);
         Phase=supplied?(Closure==1?ClutchPhase.Engaged:ClutchPhase.Closing):(Closure==0?ClutchPhase.Open:ClutchPhase.Opening);
         Active=Phase==ClutchPhase.Engaged;
@@ -47,7 +47,7 @@ public partial class ClutchPart : MachinePart
     }
     public override void MechanicalStep(MachineWorld world,float delta)
     {
-        InputSpeed=MechanicalSpeed(SocketIds.DriveIn);OutputSpeed=MechanicalSpeed(SocketIds.Drive);
+        InputSpeed=MechanicalSpeed(SocketId.DriveIn);OutputSpeed=MechanicalSpeed(SocketId.Drive);
         InputAngle=Mathf.PosMod(InputAngle+InputSpeed*delta,Mathf.Tau);
         OutputAngle=Mathf.PosMod(OutputAngle+OutputSpeed*delta,Mathf.Tau);
         _input.Rotation=new(0,0,-InputAngle);_output.Rotation=new(0,0,-OutputAngle);

@@ -14,10 +14,10 @@ public partial class ReverseTransmissionPart : MachinePart
     public float OutputAngle { get; private set; }
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
-        new(SocketIds.DriveIn, ConnectionDomain.Mechanical, PortDirection.Input, new(-.36f, 0, .4f)),
-        new(SocketIds.Drive, ConnectionDomain.Mechanical, PortDirection.Output, new(.36f, 0, .4f))
+        new(SocketId.DriveIn, ConnectionDomain.Mechanical, PortDirection.Input, new(-.36f, 0, .4f)),
+        new(SocketId.Drive, ConnectionDomain.Mechanical, PortDirection.Output, new(.36f, 0, .4f))
     ];
-    public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketIds.DriveIn, SocketIds.Drive, -1, true)];
+    public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketId.DriveIn, SocketId.Drive, -1, true)];
 
     protected override void Build()
     {
@@ -40,8 +40,8 @@ public partial class ReverseTransmissionPart : MachinePart
     }
     public override void MechanicalStep(MachineWorld world, float delta)
     {
-        InputSpeed = MechanicalSpeed(SocketIds.DriveIn);
-        OutputSpeed = MechanicalSpeed(SocketIds.Drive);
+        InputSpeed = MechanicalSpeed(SocketId.DriveIn);
+        OutputSpeed = MechanicalSpeed(SocketId.Drive);
         Active = InputSpeed != 0;
         InputAngle = Mathf.PosMod(InputAngle + InputSpeed * delta, Mathf.Tau);
         OutputAngle = Mathf.PosMod(OutputAngle + OutputSpeed * delta, Mathf.Tau);

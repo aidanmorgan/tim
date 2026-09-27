@@ -25,16 +25,16 @@ public partial class Workshop
             {
                 ConnectionDomain.Activation => option.ToPort switch
                 {
-                    SocketIds.SetIn => "Connect set",
-                    SocketIds.ResetIn => "Connect reset",
-                    SocketIds.ActivationIn => "Connect activation",
+                    SocketId.SetIn => "Connect set",
+                    SocketId.ResetIn => "Connect reset",
+                    SocketId.ActivationIn => "Connect activation",
                     _ => throw new InvalidOperationException("Unsupported activation input.")
                 },
                 ConnectionDomain.Electrical => option.ToPort switch
                 {
-                    SocketIds.FirstIn => "Connect first input",
-                    SocketIds.SecondIn => "Connect second input",
-                    SocketIds.PowerIn => "Connect electricity",
+                    SocketId.FirstIn => "Connect first input",
+                    SocketId.SecondIn => "Connect second input",
+                    SocketId.PowerIn => "Connect electricity",
                     _ => throw new InvalidOperationException("Unsupported electrical input.")
                 },
                 ConnectionDomain.Mechanical => "Connect drive",
@@ -51,7 +51,7 @@ public partial class Workshop
     {
         if (_inRun || _linkSource == null) return;
         PushUndo();
-        var connected = World.Connect(_linkSource, option.FromPort!, target, option.ToPort!, option.Type);
+        var connected = World.Connect(_linkSource, option.FromPort!.Value, target, option.ToPort!.Value, option.Type);
         _status.Text = connected ? _linkSource.Definition.Title + " → " + target.Definition.Title
             : "Cannot connect these sockets. Choose another part or Cancel.";
         if (connected) { _linkSource = null; ClearLinkChoices(); }

@@ -31,6 +31,8 @@ The component goal is complete only when every tracked element has passed these 
 
 ### Implementation and campaign sequence
 
+- [ ] Complete the no-magic-string audit across runtime protocols, UI selectors, tests and tooling. Socket identities are now forward-refactored to the closed `SocketId` enum across simulation, serialization, UI wiring and campaign/playtest tools; 33 new cases pass (789 native total). See [socket enum verification](docs/socket-enum-verification.md). This does not declare remaining catalogue identifiers or other selectors fully audited.
+
 - [ ] Audit every catalogue part and fixture against a per-part Playwright evidence matrix: tested revision, recipe, intended behaviour, negative/control, supported modes, connections, Run/Reset, visual review and evidence paths. Mark missing or stale proof incomplete; close gaps for previously shipped parts as well as new ones. Do not infer coverage from native tests, a family representative or historical campaign success.
 
 - [ ] Build typed electrical/mechanical/rope attachment points, connection rules, simulation state and Reset/save restoration needed by the new systems.

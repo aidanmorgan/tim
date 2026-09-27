@@ -36,7 +36,7 @@ public class ColourOpticsTests(HeadlessFixture godot)
             Assert.Equal(expected,received.Power);
             receiver.ReceiveOpticalPower(new Dictionary<OpticalPortId,Vector3>{{OpticalPortId.Main,received.Power}});
             Assert.True(receiver.Active);
-            Assert.False(receiver.HasElectricalPower(SocketIds.Supply));
+            Assert.False(receiver.HasElectricalPower(SocketId.Supply));
             Assert.False(laser.Active); // Preview remains non-mutating.
             var missing=OpticalNetwork.Trace(world,laser,source with{Power=Vector3.One-OpticalColours.Mask(colour)});
             Assert.Empty(missing.Receptions);
@@ -95,7 +95,7 @@ public class ColourOpticsTests(HeadlessFixture godot)
             Assert.True(world.Connect(receiver,gate));
             world.Start();world.Activate(laser);
             for(var i=0;i<4;i++)world.Step();
-            Assert.True(receiver.Active);Assert.False(gate.HasElectricalPower(SocketIds.PowerIn));
+            Assert.True(receiver.Active);Assert.False(gate.HasElectricalPower(SocketId.PowerIn));
             Assert.False(world.Connect(battery,receiver)); // Editing is forbidden during Run.
             world.Restore();
             receiver=(LightReceiverPart)world.FindPart("receiver")!;
@@ -104,7 +104,7 @@ public class ColourOpticsTests(HeadlessFixture godot)
             Assert.True(world.Connect(world.FindPart("battery")!,receiver));
             world.Start();world.Activate(laser);
             for(var i=0;i<4;i++)world.Step();
-            Assert.True(gate.HasElectricalPower(SocketIds.PowerIn));
+            Assert.True(gate.HasElectricalPower(SocketId.PowerIn));
             world.Restore();
             receiver=(LightReceiverPart)world.FindPart("receiver")!;
             Assert.Equal(colour,receiver.Colour);

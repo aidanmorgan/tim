@@ -16,7 +16,7 @@ public partial class BallDetectorPart : MachinePart, ITubePart
     public override bool CanSendActivation => true;
     public override float SurfaceBounce => .15f;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
-        [new(SocketIds.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, new(0,1.12f,0))];
+        [new(SocketId.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, new(0,1.12f,0))];
     public IEnumerable<TubeMouth> Mouths =>
     [
         new(TubeMouthId.Start, Vector3.Left * .28f, Vector3.Left, PipePart.BoreRadius),

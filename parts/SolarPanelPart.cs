@@ -11,7 +11,7 @@ public partial class SolarPanelPart : MachinePart
     public float Irradiance { get; private set; }
     private readonly List<MeshInstance3D> _meter = new();
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
-        [new(SocketIds.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.2f, -.5f, .6f))];
+        [new(SocketId.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.2f, -.5f, .6f))];
     public override IEnumerable<LightSample> LightSamples
     {
         get
@@ -22,8 +22,8 @@ public partial class SolarPanelPart : MachinePart
         }
     }
     public override void ReceiveLight(float irradiance) => Irradiance = irradiance;
-    public override bool SuppliesElectricity(string outputPort) =>
-        outputPort == SocketIds.Supply && Irradiance >= Threshold;
+    public override bool SuppliesElectricity(SocketId outputPort) =>
+        outputPort == SocketId.Supply && Irradiance >= Threshold;
     protected override void Build()
     {
         PickRadius = 1;

@@ -23,8 +23,8 @@ public partial class ClockPart : MachinePart
     public override bool CanSendActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.78f,0,0)),
-        new(SocketIds.ActivationOut,ConnectionDomain.Activation,PortDirection.Output,new(.78f,0,0))
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.78f,0,0)),
+        new(SocketId.ActivationOut,ConnectionDomain.Activation,PortDirection.Output,new(.78f,0,0))
     ];
     public override void ValidateParameters()
     {
@@ -35,7 +35,7 @@ public partial class ClockPart : MachinePart
     {
         if(_sampledTick==world.Ticks)return;
         _sampledTick=world.Ticks;
-        if(!HasElectricalPower(SocketIds.PowerIn))
+        if(!HasElectricalPower(SocketId.PowerIn))
         {
             State=ClockState.Stopped;DueTick=-1;Progress=0;Active=false;
             return;

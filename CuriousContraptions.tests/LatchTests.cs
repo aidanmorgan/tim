@@ -30,8 +30,8 @@ public class LatchTests(HeadlessFixture godot)
             var set=world.FindPart("set")!;var reset=world.FindPart("reset")!;
             var gate=world.FindPart("gate")!;
             Assert.Null(world.SuggestedConnection(set,latch));
-            Assert.True(world.Connect(set,SocketIds.ActivationOut,latch,SocketIds.SetIn,ConnectionDomain.Activation));
-            Assert.True(world.Connect(reset,SocketIds.ActivationOut,latch,SocketIds.ResetIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(set,SocketId.ActivationOut,latch,SocketId.SetIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(reset,SocketId.ActivationOut,latch,SocketId.ResetIn,ConnectionDomain.Activation));
             Assert.True(world.Connect(world.FindPart("battery")!,latch));
             Assert.True(world.Connect(latch,gate));
             var wire=world.Connections.Single(c=>c.From=="battery");
@@ -43,19 +43,19 @@ public class LatchTests(HeadlessFixture godot)
             Assert.Equal(LatchState.Off,latch.State);
             world.Step();
             Assert.Equal(LatchState.On,latch.State);
-            Assert.Equal(supply,gate.HasElectricalPower(SocketIds.PowerIn));
+            Assert.Equal(supply,gate.HasElectricalPower(SocketId.PowerIn));
             for(var tick=0;tick<20;tick++)world.Step();
             Assert.Equal(LatchState.On,latch.State);
             // Memory survives source removal/restoration; only a real source powers the output.
             world.Connections.Remove(wire);world.Step();
-            Assert.False(gate.HasElectricalPower(SocketIds.PowerIn));
+            Assert.False(gate.HasElectricalPower(SocketId.PowerIn));
             world.Connections.Add(wire);world.Step();
-            Assert.True(gate.HasElectricalPower(SocketIds.PowerIn));
+            Assert.True(gate.HasElectricalPower(SocketId.PowerIn));
             if(reverse){world.Activate(reset);world.Activate(set);}
             else{world.Activate(set);world.Activate(reset);}
             world.Step();world.Step();
             Assert.Equal(LatchState.Off,latch.State);
-            Assert.False(gate.HasElectricalPower(SocketIds.PowerIn));
+            Assert.False(gate.HasElectricalPower(SocketId.PowerIn));
             world.Activate(set);world.Step();world.Step();
             Assert.Equal(LatchState.On,latch.State);
             world.Activate(reset);world.Step();world.Step();
@@ -79,8 +79,8 @@ public class LatchTests(HeadlessFixture godot)
         {
             var source=world.AddPart(new(){Id="source",Kind="switch"});
             var latch=(LatchPart)world.AddPart(new(){Id="latch",Kind="latch",Position=[4,4,0]});
-            Assert.True(world.Connect(source,SocketIds.ActivationOut,latch,SocketIds.SetIn,ConnectionDomain.Activation));
-            Assert.True(world.Connect(source,SocketIds.ActivationOut,latch,SocketIds.ResetIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(source,SocketId.ActivationOut,latch,SocketId.SetIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(source,SocketId.ActivationOut,latch,SocketId.ResetIn,ConnectionDomain.Activation));
             world.Start();world.Activate(source);world.Step();world.Step();
             Assert.Equal(LatchState.Off,latch.State);
         }

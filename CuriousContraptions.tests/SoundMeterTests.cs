@@ -26,18 +26,18 @@ public class SoundMeterTests(HeadlessFixture godot)
             var meter=(SoundMeterPart)world.AddPart(new(){Id=reverse?"a-meter":"z-meter",Kind="sound_meter",Position=[1,6,0]});
             var battery=world.AddPart(new(){Id="battery",Kind="battery",Position=[-4,2,3]});
             var load=world.AddPart(new(){Id="load",Kind="powered_gate",Position=[4,2,-3]});
-            Assert.True(world.Connect(meter,SocketIds.Supply,load,SocketIds.PowerIn,ConnectionDomain.Electrical));
+            Assert.True(world.Connect(meter,SocketId.Supply,load,SocketId.PowerIn,ConnectionDomain.Electrical));
             var counter=(CounterPart)world.AddPart(new(){Id="counter",Kind="counter",Position=[3,2,3]});
             Assert.True(world.Connect(battery,speaker));
             if(supply)Assert.True(world.Connect(battery,meter));
-            Assert.True(world.Connect(meter,SocketIds.ActivationOut,counter,SocketIds.ActivationIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(meter,SocketId.ActivationOut,counter,SocketId.ActivationIn,ConnectionDomain.Activation));
             if(wall)world.AddPart(new(){Id="wall",Kind="wall",Position=[-1,6,0]});
             world.Start();world.Activate(speaker);
             var maximum=0f;var supplied=false;
-            for(var i=0;i<100;i++){world.Step();maximum=Math.Max(maximum,meter.Level);supplied|=load.HasElectricalPower(SocketIds.PowerIn);}
+            for(var i=0;i<100;i++){world.Step();maximum=Math.Max(maximum,meter.Level);supplied|=load.HasElectricalPower(SocketId.PowerIn);}
             Assert.Equal(!wall&&!backwards&&supply,supplied);
             Assert.Equal(meter.TriggerCount,counter.Count);
-            Assert.False(load.HasElectricalPower(SocketIds.PowerIn));
+            Assert.False(load.HasElectricalPower(SocketId.PowerIn));
             Assert.Equal(!wall&&!backwards&&supply?1:0,meter.TriggerCount);
             Assert.Equal(!wall&&!backwards,maximum>0);
             Assert.False(meter.AboveThreshold);

@@ -51,12 +51,12 @@ public class HoldTimerTests(HeadlessFixture godot)
                 world.Activate(timer);
                 Assert.Equal(due, timer.DueTick);
                 world.Step();
-                Assert.True(gate.HasElectricalPower(SocketIds.PowerIn));
+                Assert.True(gate.HasElectricalPower(SocketId.PowerIn));
                 Assert.InRange(timer.Remaining, 0, remaining);
                 remaining = timer.Remaining;
             }
             world.Step();
-            Assert.False(gate.HasElectricalPower(SocketIds.PowerIn));
+            Assert.False(gate.HasElectricalPower(SocketId.PowerIn));
             Assert.False(timer.Active);
             Assert.Equal(HoldTimerState.Ready, timer.State);
             world.Activate(timer);
@@ -150,11 +150,11 @@ public class HoldTimerTests(HeadlessFixture godot)
             Assert.Contains(options,c=>c.Type==ConnectionDomain.Electrical);
             Assert.Null(world.SuggestedConnection(trigger,timer));
             Assert.False(world.Connect(trigger,timer));
-            Assert.True(world.Connect(trigger,SocketIds.ActivationOut,timer,SocketIds.ActivationIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(trigger,SocketId.ActivationOut,timer,SocketId.ActivationIn,ConnectionDomain.Activation));
             var saved = MachineCodec.Clone(world.Snapshot());
             world.LoadMachine(saved);
             Assert.Equal(ConnectionDomain.Activation,world.Connections.Last().Type);
-            Assert.Equal(SocketIds.ActivationIn,world.Connections.Last().ToPort);
+            Assert.Equal(SocketId.ActivationIn,world.Connections.Last().ToPort);
         }
         finally { world.Free(); }
     }

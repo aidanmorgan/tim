@@ -30,9 +30,9 @@ public partial class WindmillPart : MachinePart
     private Node3D _pulley=null!;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.Drive,ConnectionDomain.Mechanical,PortDirection.Output,new(.25f,-.1f,.52f))
+        new(SocketId.Drive,ConnectionDomain.Mechanical,PortDirection.Output,new(.25f,-.1f,.52f))
     ];
-    public override IEnumerable<MechanicalSource> MechanicalSources=>[new(SocketIds.Drive,ShaftSpeed)];
+    public override IEnumerable<MechanicalSource> MechanicalSources=>[new(SocketId.Drive,ShaftSpeed)];
     public override void ValidateParameters()
     {
         var gain=Properties[WindmillParameters.RadiansPerForce];

@@ -14,24 +14,24 @@ public partial class ElectricalLogicPart : MachinePart
     {
         if(!Enum.IsDefined(Operation))throw new ArgumentOutOfRangeException(nameof(Operation));
     }
-    public bool Truth => LogicGate.Evaluate(Operation,HasElectricalPower(SocketIds.FirstIn),HasElectricalPower(SocketIds.SecondIn));
-    public LogicInputState State=>HasElectricalPower(SocketIds.FirstIn)
-        ?HasElectricalPower(SocketIds.SecondIn)?LogicInputState.Both:LogicInputState.FirstOnly
-        :HasElectricalPower(SocketIds.SecondIn)?LogicInputState.SecondOnly:LogicInputState.Neither;
+    public bool Truth => LogicGate.Evaluate(Operation,HasElectricalPower(SocketId.FirstIn),HasElectricalPower(SocketId.SecondIn));
+    public LogicInputState State=>HasElectricalPower(SocketId.FirstIn)
+        ?HasElectricalPower(SocketId.SecondIn)?LogicInputState.Both:LogicInputState.FirstOnly
+        :HasElectricalPower(SocketId.SecondIn)?LogicInputState.SecondOnly:LogicInputState.Neither;
     private readonly List<StandardMaterial3D> _indicators=new();
     private readonly float[] _levels=new float[3];
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.FirstIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.94f,.35f,0)),
-        new(SocketIds.SecondIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.94f,-.35f,0)),
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,-.75f,.55f)),
-        new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.94f,0,0))
+        new(SocketId.FirstIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.94f,.35f,0)),
+        new(SocketId.SecondIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.94f,-.35f,0)),
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,-.75f,.55f)),
+        new(SocketId.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.94f,0,0))
     ];
     public override IEnumerable<ElectricalGate> ElectricalGates=>
-        [new(Operation,SocketIds.FirstIn,SocketIds.SecondIn,SocketIds.PowerIn,SocketIds.Supply)];
+        [new(Operation,SocketId.FirstIn,SocketId.SecondIn,SocketId.PowerIn,SocketId.Supply)];
     public override void BeforeStep(MachineWorld world,float delta)
     {
-        Active=Truth && HasElectricalPower(SocketIds.PowerIn);
+        Active=Truth && HasElectricalPower(SocketId.PowerIn);
         if(Active)world.Events.TryAdd(new(MachineEventKind.Powered,Uid),world.Ticks);
     }
     protected override void Build()
@@ -78,7 +78,7 @@ public partial class ElectricalLogicPart : MachinePart
     {
         for(var i=0;i<3;i++)
         {
-            var on=i==0?HasElectricalPower(SocketIds.FirstIn):i==1?HasElectricalPower(SocketIds.SecondIn):Active;
+            var on=i==0?HasElectricalPower(SocketId.FirstIn):i==1?HasElectricalPower(SocketId.SecondIn):Active;
             _levels[i]=Mathf.MoveToward(_levels[i],on?1:0,(float)delta*10);
             var level=_levels[i];
             _indicators[i].AlbedoColor=new Color("#556573").Lerp(new("#f7cb52"),level*level*(3-2*level));

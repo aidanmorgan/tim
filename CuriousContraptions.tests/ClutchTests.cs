@@ -108,8 +108,8 @@ public class ClutchTests(HeadlessFixture godot)
             Assert.False(world.Connect(c,b));
             Assert.True(world.Connect(c,a));
             Assert.Throws<ArgumentException>(()=>MechanicalNetwork.Validate(world.Parts,[
-                new(){From="a",To="b",Type=ConnectionDomain.Mechanical,FromPort=SocketIds.Drive,ToPort=SocketIds.DriveIn},
-                new(){From="b",To="a",Type=ConnectionDomain.Mechanical,FromPort=SocketIds.Drive,ToPort=SocketIds.DriveIn}
+                new(){From="a",To="b",Type=ConnectionDomain.Mechanical,FromPort=SocketId.Drive,ToPort=SocketId.DriveIn},
+                new(){From="b",To="a",Type=ConnectionDomain.Mechanical,FromPort=SocketId.Drive,ToPort=SocketId.DriveIn}
             ]));
         }
         finally{world.Free();}

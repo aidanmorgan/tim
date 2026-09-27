@@ -17,7 +17,7 @@ public partial class PoweredGatePart : MachinePart, ITubePart
     private static readonly Vector3 BladeHalf = new(.06f, .72f, .72f);
     public override float SurfaceBounce => .1f;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
-        [new(SocketIds.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(0, 1.65f, .92f))];
+        [new(SocketId.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(0, 1.65f, .92f))];
     public IEnumerable<TubeMouth> Mouths =>
     [
         new(TubeMouthId.Start, Vector3.Left * .49f, Vector3.Left, PipePart.BoreRadius),
@@ -48,7 +48,7 @@ public partial class PoweredGatePart : MachinePart, ITubePart
 
     public override void BeforeStep(MachineWorld world, float delta)
     {
-        var powered = HasElectricalPower(SocketIds.PowerIn);
+        var powered = HasElectricalPower(SocketId.PowerIn);
         _motion.Step(world,this,powered,delta);
         _blade.Position = _motion.Position;
         Boxes[_bladeIndex] = new(_blade.Position, BladeHalf);

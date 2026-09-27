@@ -17,11 +17,11 @@ public partial class LightReceiverPart : MachinePart
     private float _level;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,-.6f,.65f)),
-        new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(0,-.6f,-.65f))
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,-.6f,.65f)),
+        new(SocketId.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(0,-.6f,-.65f))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        [new(SocketIds.PowerIn,SocketIds.Supply,Matches)];
+        [new(SocketId.PowerIn,SocketId.Supply,Matches)];
     public override void ReceiveOpticalPower(IReadOnlyDictionary<OpticalPortId,Vector3> power){ReceivedPower=power[OpticalPortId.Main];Active=Matches;}
     public override void ValidateParameters()
     {

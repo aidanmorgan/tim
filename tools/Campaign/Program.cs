@@ -41,8 +41,8 @@ modules["conveyor"] = new()
     ],
     SolutionConnections =
     [
-        new() { From = "battery", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn },
-        new() { From = "motor", To = "conveyor_1", Type = ConnectionDomain.Mechanical, FromPort = SocketIds.Drive, ToPort = SocketIds.DriveIn }
+        new() { From = "battery", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketId.Supply, ToPort = SocketId.PowerIn },
+        new() { From = "motor", To = "conveyor_1", Type = ConnectionDomain.Mechanical, FromPort = SocketId.Drive, ToPort = SocketId.DriveIn }
     ],
     Inventory = new() { ["conveyor"] = 1 },
     Solution = [new() { Id = "conveyor_1", Kind = "conveyor", Position = [-2, 2.5f, 0] }],
@@ -57,7 +57,7 @@ foreach (var name in new[] { "ramps", "spring", "air", "conveyor" })
     if (name == "ramps") receiver.Position[0] = 3.2f;
     module.Parts.Add(new() { Id = "lamp", Kind = "lamp", Position = [4.5f, 1, 0], Locked = true });
     module.Goals = [new() { Type = GoalKind.Activated, Target = "lamp" }];
-    module.SolutionConnections.Add(new() { Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn, From = "receiver", To = "lamp" });
+    module.SolutionConnections.Add(new() { Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn, From = "receiver", To = "lamp" });
     modules[name + "_signal"] = module;
 }
 var gated = Copy(modules["air"]);
@@ -69,7 +69,7 @@ fixedFan.Properties["powered"] = 0;
 gated.Parts.Add(fixedFan);
 gated.Parts.Add(new() { Id = "trigger", Kind = "bowling", Position = [-5.8f, 2.4f, 0], Locked = true });
 gated.Solution.Add(new() { Id = "switch_1", Kind = "switch", Position = [-5.8f, 1.6f, 0] });
-gated.SolutionConnections = [new() { Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn, From = "switch_1", To = fixedFan.Id }];
+gated.SolutionConnections = [new() { Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn, From = "switch_1", To = fixedFan.Id }];
 gated.Goals.Add(new() { Type = GoalKind.Activated, Target = fixedFan.Id });
 modules["gated_air"] = gated;
 var gatedBelt = Copy(modules["conveyor"]);
@@ -82,9 +82,9 @@ gatedBelt.Parts.Add(new() { Id = "trigger", Kind = "bowling", Position = [-5.8f,
 gatedBelt.Solution.Add(new() { Id = "switch_1", Kind = "switch", Position = [-5.8f, 1.6f, 0] });
 gatedBelt.SolutionConnections =
 [
-    new() { Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn, From = "battery", To = "switch_1" },
-    new() { Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn, From = "switch_1", To = "motor" },
-    new() { Type = ConnectionDomain.Mechanical, FromPort = SocketIds.Drive, ToPort = SocketIds.DriveIn, From = "motor", To = fixedBelt.Id }
+    new() { Type = ConnectionDomain.Electrical, FromPort = SocketId.Supply, ToPort = SocketId.PowerIn, From = "battery", To = "switch_1" },
+    new() { Type = ConnectionDomain.Electrical, FromPort = SocketId.Supply, ToPort = SocketId.PowerIn, From = "switch_1", To = "motor" },
+    new() { Type = ConnectionDomain.Mechanical, FromPort = SocketId.Drive, ToPort = SocketId.DriveIn, From = "motor", To = fixedBelt.Id }
 ];
 gatedBelt.Goals.Add(new() { Type = GoalKind.PoweredAfter, Target = "motor", Body = "switch_1" });
 modules["gated_belt"] = gatedBelt;
@@ -126,7 +126,7 @@ modules["battery_motor"] = new()
     Inventory = new() { ["battery"] = 1 },
     Parts = [new() { Id = "motor", Kind = "motor", Locked = true, Position = [3, 1, 0] }],
     Solution = [new() { Id = "battery_1", Kind = "battery", Position = [-3, 1, 0] }],
-    SolutionConnections = [new() { From = "battery_1", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn }],
+    SolutionConnections = [new() { From = "battery_1", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketId.Supply, ToPort = SocketId.PowerIn }],
     Goals = [new() { Type = GoalKind.Turned, Target = "motor" }]
 };
 modules["switched_motor"] = new()
@@ -141,8 +141,8 @@ modules["switched_motor"] = new()
     Solution = [new() { Id = "switch_1", Kind = "switch", Position = [-2, 1, 0] }],
     SolutionConnections =
     [
-        new() { From = "battery", To = "switch_1", Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn },
-        new() { From = "switch_1", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn }
+        new() { From = "battery", To = "switch_1", Type = ConnectionDomain.Electrical, FromPort = SocketId.Supply, ToPort = SocketId.PowerIn },
+        new() { From = "switch_1", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketId.Supply, ToPort = SocketId.PowerIn }
     ],
     Goals = [new() { Type = GoalKind.Turned, Target = "motor" }, new() { Type = GoalKind.PoweredAfter, Target = "motor", Body = "switch_1" }]
 };
@@ -151,7 +151,7 @@ var relayBelt = Copy(modules["conveyor"]);
 relayBelt.Parts.Add(new() { Id = "relay", Kind = "conveyor", Locked = true, Position = [1, 4.5f, 0] });
 relayBelt.SolutionConnections.Single(c => c.Type == ConnectionDomain.Mechanical).To = "relay";
 relayBelt.SolutionConnections.Add(new() { From = "relay", To = "conveyor_1", Type = ConnectionDomain.Mechanical,
-    FromPort = SocketIds.Drive, ToPort = SocketIds.DriveIn });
+    FromPort = SocketId.Drive, ToPort = SocketId.DriveIn });
 modules["belt_relay"] = relayBelt;
 
 var reverseBelt = Copy(modules["conveyor"]);
@@ -164,7 +164,7 @@ reverseBelt.Inventory["reverse_transmission"] = 1;
 reverseBelt.Solution.Add(new() { Id = "reverse_1", Kind = "reverse_transmission", Position = [-.3f, 1, 0] });
 reverseBelt.SolutionConnections.Single(c => c.Type == ConnectionDomain.Mechanical).To = "reverse_1";
 reverseBelt.SolutionConnections.Add(new() { From = "reverse_1", To = "conveyor_1", Type = ConnectionDomain.Mechanical,
-    FromPort = SocketIds.Drive, ToPort = SocketIds.DriveIn });
+    FromPort = SocketId.Drive, ToPort = SocketId.DriveIn });
 modules["reverse_belt"] = reverseBelt;
 
 ConnectionSpec Rope(PuzzleData puzzle, string from, string to)
@@ -182,7 +182,7 @@ ConnectionSpec Rope(PuzzleData puzzle, string from, string to)
         var rotation = Quaternion.CreateFromYawPitchRoll(part.Rotation[1] * degrees, part.Rotation[0] * degrees, part.Rotation[2] * degrees);
         return new Vector3(part.Position[0], part.Position[1], part.Position[2]) + Vector3.Transform(local, rotation);
     }
-    return new() { From = from, To = to, Type = ConnectionDomain.Rope, FromPort = SocketIds.Tie, ToPort = SocketIds.Tie,
+    return new() { From = from, To = to, Type = ConnectionDomain.Rope, FromPort = SocketId.Tie, ToPort = SocketId.Tie,
         RopeLength = Vector3.Distance(Socket(from), Socket(to)) };
 }
 var lift = new PuzzleData
@@ -202,7 +202,7 @@ var lift = new PuzzleData
 lift.SolutionConnections =
 [
     Rope(lift, "load", "left_pulley"), Rope(lift, "left_pulley", "right_pulley"), Rope(lift, "right_pulley", "weight_1"),
-    new() { From = "switch", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }
+    new() { From = "switch", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn }
 ];
 modules["counterweight"] = lift;
 var depthLift = Copy(lift);
@@ -217,7 +217,7 @@ depthLift.Inventory["pulley"] = 1;
 depthLift.SolutionConnections =
 [
     Rope(depthLift, "load", "left_pulley"), Rope(depthLift, "left_pulley", "pulley_1"), Rope(depthLift, "pulley_1", "weight_1"),
-    new() { From = "switch", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }
+    new() { From = "switch", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn }
 ];
 modules["pulley_depth"] = depthLift;
 
@@ -232,7 +232,7 @@ var solar = new PuzzleData
     Inventory = new() { ["solar_panel"] = 1 },
     Solution = [new() { Id = "panel_1", Kind = "solar_panel", Position = [1, 3, 0] }],
     SolutionConnections = [new() { From = "panel_1", To = "motor", Type = ConnectionDomain.Electrical,
-        FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn }],
+        FromPort = SocketId.Supply, ToPort = SocketId.PowerIn }],
     Goals = [new() { Type = GoalKind.Turned, Target = "motor" }]
 };
 modules["solar_motor"] = solar;
@@ -256,8 +256,8 @@ var delay = new PuzzleData
     Solution = [new() { Id = "delay_1", Kind = "delay", Position = [0, 1, 0] }],
     SolutionConnections =
     [
-        new() { From = "switch", To = "delay_1", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn },
-        new() { From = "delay_1", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }
+        new() { From = "switch", To = "delay_1", Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn },
+        new() { From = "delay_1", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn }
     ],
     Goals = [new() { Type = GoalKind.ActivatedAfter, Target = "lamp", Body = "switch", MinimumDelaySeconds = 1 }]
 };
@@ -269,8 +269,8 @@ delayedSolar.Solution.Add(new() { Id = "delay_1", Kind = "delay", Position = [0,
 delayedSolar.Inventory["delay"] = 1;
 delayedSolar.SolutionConnections.AddRange(
 [
-    new() { From = "switch", To = "delay_1", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn },
-    new() { From = "delay_1", To = "torch", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }
+    new() { From = "switch", To = "delay_1", Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn },
+    new() { From = "delay_1", To = "torch", Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn }
 ]);
 delayedSolar.Goals.Add(new() { Type = GoalKind.PoweredAfter, Target = "motor", Body = "switch", MinimumDelaySeconds = 1 });
 modules["delayed_solar"] = delayedSolar;

@@ -24,7 +24,7 @@ internal static class Audit
     internal static void CheckResetConnections(JsonNode run, JsonNode reset,
         List<string> errors, List<string> gaps)
     {
-        HashSet<(string From, string To, ConnectionDomain Type, string FromPort, string ToPort, float? RopeLength)>? Read(JsonNode state, string label)
+        HashSet<(string From, string To, ConnectionDomain Type, SocketId FromPort, SocketId ToPort, float? RopeLength)>? Read(JsonNode state, string label)
         {
             if (state["connections"] == null)
             {
@@ -36,8 +36,8 @@ internal static class Audit
                 errors.Add(label + " connections must be an array.");
                 return null;
             }
-            var edges = new HashSet<(string From, string To, ConnectionDomain Type, string FromPort, string ToPort, float? RopeLength)>();
-            var identities = new HashSet<(string From, string To, ConnectionDomain Type, string FromPort, string ToPort)>();
+            var edges = new HashSet<(string From, string To, ConnectionDomain Type, SocketId FromPort, SocketId ToPort, float? RopeLength)>();
+            var identities = new HashSet<(string From, string To, ConnectionDomain Type, SocketId FromPort, SocketId ToPort)>();
             foreach (var node in connections)
             {
                 string? Text(string name) => node is JsonObject obj &&
@@ -63,10 +63,16 @@ internal static class Audit
                     errors.Add(label + " contains a malformed connection type.");
                     continue;
                 }
-                var fromPort = Text("fromPort");
-                var toPort = Text("toPort");
-                // Browser diagnostics use camelCase; every edge requires explicit socket identities.
-                if (string.IsNullOrWhiteSpace(fromPort) || string.IsNullOrWhiteSpace(toPort))
+                SocketId fromPort, toPort;
+                // Browser diagnostics use camelCase; every edge requires explicit current socket identities.
+                try
+                {
+                    if (node!["fromPort"] == null || node["toPort"] == null)
+                        throw new JsonException("Missing socket identity.");
+                    fromPort = JsonSerializer.Deserialize(node["fromPort"]!.ToJsonString(), MachineJson.Default.SocketId);
+                    toPort = JsonSerializer.Deserialize(node["toPort"]!.ToJsonString(), MachineJson.Default.SocketId);
+                }
+                catch (JsonException)
                 {
                     errors.Add(label + " contains a malformed connection socket.");
                     continue;

@@ -12,7 +12,7 @@ public partial class PulleyPart : MachinePart
     public override RopeAttachmentKind RopeAttachment => RopeAttachmentKind.Guide;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
-        new(SocketIds.Tie, ConnectionDomain.Rope, PortDirection.Bidirectional, new(0, WheelRadius, RopeGeometry.PulleySocketDepth))
+        new(SocketId.Tie, ConnectionDomain.Rope, PortDirection.Bidirectional, new(0, WheelRadius, RopeGeometry.PulleySocketDepth))
     ];
     protected override void Build()
     {

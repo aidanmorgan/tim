@@ -33,10 +33,10 @@ public partial class MachinePart : Node3D
     public float PickRadius { get; protected set; } = .65f;
     protected Node3D Visual = null!;
     private MeshInstance3D _highlight = null!;
-    private readonly HashSet<string> _poweredInputs = new();
-    public bool HasElectricalPower(string port) => _poweredInputs.Contains(port);
+    private readonly HashSet<SocketId> _poweredInputs = new();
+    public bool HasElectricalPower(SocketId port) => _poweredInputs.Contains(port);
     internal void ClearElectricalPower() => _poweredInputs.Clear();
-    internal void SupplyElectricalPower(string port) => _poweredInputs.Add(port);
+    internal void SupplyElectricalPower(SocketId port) => _poweredInputs.Add(port);
     public virtual AirflowEmitter? AirflowSource => null;
     public virtual IReadOnlyList<AirflowSample> AirflowSamples => [];
     public virtual void AirflowStep(MachineWorld world,Vector3 force,float delta) { }
@@ -52,18 +52,18 @@ public partial class MachinePart : Node3D
     public virtual LightEmitter? LightSource => null;
     public virtual IEnumerable<LightSample> LightSamples => [];
     public virtual void ReceiveLight(float irradiance) { }
-    public virtual bool SuppliesElectricity(string outputPort) => false;
+    public virtual bool SuppliesElectricity(SocketId outputPort) => false;
     public virtual IEnumerable<ElectricalGate> ElectricalGates => [];
     public virtual IEnumerable<ElectricalRoute> ElectricalRoutes => [];
-    private readonly Dictionary<string, float> _shaftSpeeds = new();
-    public float MechanicalSpeed(string port) => _shaftSpeeds[port];
+    private readonly Dictionary<SocketId, float> _shaftSpeeds = new();
+    public float MechanicalSpeed(SocketId port) => _shaftSpeeds[port];
     internal void ClearMechanicalDrive()
     {
         _shaftSpeeds.Clear();
         foreach (var port in ConnectionPorts)
             if (port.Domain == ConnectionDomain.Mechanical) _shaftSpeeds.Add(port.Id, 0);
     }
-    internal void SetMechanicalSpeed(string port, float speed) => _shaftSpeeds[port] = speed;
+    internal void SetMechanicalSpeed(SocketId port, float speed) => _shaftSpeeds[port] = speed;
     public virtual IEnumerable<MechanicalRoute> MechanicalRoutes => [];
     public virtual IEnumerable<MechanicalSource> MechanicalSources => [];
     public virtual void MechanicalStep(MachineWorld world, float delta) { }
@@ -86,8 +86,8 @@ public partial class MachinePart : Node3D
     {
         get
         {
-            if (CanSendActivation) yield return new(SocketIds.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, Vector3.Zero);
-            if (CanReceiveActivation) yield return new(SocketIds.ActivationIn, ConnectionDomain.Activation, PortDirection.Input, Vector3.Zero);
+            if (CanSendActivation) yield return new(SocketId.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, Vector3.Zero);
+            if (CanReceiveActivation) yield return new(SocketId.ActivationIn, ConnectionDomain.Activation, PortDirection.Input, Vector3.Zero);
         }
     }
 

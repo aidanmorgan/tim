@@ -21,8 +21,8 @@ public partial class DelayPart : MachinePart
     public override bool CanSendActivation => true;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
-        new(SocketIds.ActivationIn, ConnectionDomain.Activation, PortDirection.Input, new(-.72f, 0, 0)),
-        new(SocketIds.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, new(.72f, 0, 0))
+        new(SocketId.ActivationIn, ConnectionDomain.Activation, PortDirection.Input, new(-.72f, 0, 0)),
+        new(SocketId.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, new(.72f, 0, 0))
     ];
     public override void ValidateParameters()
     {

@@ -16,11 +16,11 @@ public partial class LaserPart : MachinePart
     public override bool CanReceiveActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.7f,0,0)),
-        new(SocketIds.ActivationIn,ConnectionDomain.Activation,PortDirection.Input,new(0,.52f,0))
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.7f,0,0)),
+        new(SocketId.ActivationIn,ConnectionDomain.Activation,PortDirection.Input,new(0,.52f,0))
     ];
     public override OpticalEmitter? OpticalPreviewSource=>new(LensPosition,Vector3.Right,Range,BeamPower);
-    public override OpticalEmitter? OpticalSource=>Enabled&&HasElectricalPower(SocketIds.PowerIn)
+    public override OpticalEmitter? OpticalSource=>Enabled&&HasElectricalPower(SocketId.PowerIn)
         ?new(LensPosition,Vector3.Right,Range,BeamPower):null;
     public override ActivationDisposition HandleActivation(MachineWorld world,ActivationCommand command)
     {

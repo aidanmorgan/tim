@@ -20,13 +20,13 @@ public partial class LatchPart : MachinePart
     public override bool CanReceiveActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.SetIn,ConnectionDomain.Activation,PortDirection.Input,new(-.45f,.72f,0),ActivationCommand.Set),
-        new(SocketIds.ResetIn,ConnectionDomain.Activation,PortDirection.Input,new(.45f,.72f,0),ActivationCommand.Reset),
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.93f,0,0)),
-        new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.93f,0,0))
+        new(SocketId.SetIn,ConnectionDomain.Activation,PortDirection.Input,new(-.45f,.72f,0),ActivationCommand.Set),
+        new(SocketId.ResetIn,ConnectionDomain.Activation,PortDirection.Input,new(.45f,.72f,0),ActivationCommand.Reset),
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.93f,0,0)),
+        new(SocketId.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.93f,0,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        [new(SocketIds.PowerIn,SocketIds.Supply,State==LatchState.On)];
+        [new(SocketId.PowerIn,SocketId.Supply,State==LatchState.On)];
     public override ActivationDisposition HandleActivation(MachineWorld world,ActivationCommand command)
     {
         var request=command switch

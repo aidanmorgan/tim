@@ -9,7 +9,7 @@ namespace CuriousContraptions;
 /// and rejected explicitly, never resolved by entity order or an arbitrary winner.</summary>
 public static class MechanicalNetwork
 {
-    private readonly record struct Socket(MachinePart Part, string Port);
+    private readonly record struct Socket(MachinePart Part, SocketId Port);
     private readonly record struct Edge(Socket Target, float Ratio, bool Enabled);
     private sealed class Graph
     {
@@ -49,7 +49,7 @@ public static class MechanicalNetwork
                     throw new ArgumentException("Invalid internal mechanical route on " + part.Uid);
                 Add(new(part, route.Input), new(part, route.Output), route.Ratio, route.Enabled);
             }
-            var sources = new HashSet<string>(StringComparer.Ordinal);
+            var sources = new HashSet<SocketId>();
             foreach (var source in part.MechanicalSources)
                 if (!sources.Add(source.Output) || !float.IsFinite(source.RadiansPerSecond)
                     || !ports[part].Any(p => p.Id == source.Output && p.Domain == ConnectionDomain.Mechanical && p.Direction == PortDirection.Output)
@@ -61,7 +61,7 @@ public static class MechanicalNetwork
             if (!byId.TryGetValue(link.From, out var from) || !byId.TryGetValue(link.To, out var to)
                 || !ConnectionRules.TryResolve(link, ports[from], ports[to], out _, out _))
                 throw new ArgumentException("Invalid mechanical belt endpoints.");
-            Add(new(from, link.FromPort!), new(to, link.ToPort!), 1, true);
+            Add(new(from, link.FromPort!.Value), new(to, link.ToPort!.Value), 1, true);
         }
         var incoming = new Dictionary<Socket, int>(graph.Incoming);
         var pending = new Queue<Socket>(incoming.Where(p => p.Value == 0).Select(p => p.Key));

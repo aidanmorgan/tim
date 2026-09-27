@@ -19,12 +19,12 @@ public partial class HoldTimerPart : MachinePart
     public override bool CanReceiveActivation => true;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
-        new(SocketIds.ActivationIn, ConnectionDomain.Activation, PortDirection.Input, new(0,.65f,.2f)),
-        new(SocketIds.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(-.78f,0,0)),
-        new(SocketIds.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.78f,0,0))
+        new(SocketId.ActivationIn, ConnectionDomain.Activation, PortDirection.Input, new(0,.65f,.2f)),
+        new(SocketId.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(-.78f,0,0)),
+        new(SocketId.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.78f,0,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes =>
-        [new(SocketIds.PowerIn, SocketIds.Supply, State == HoldTimerState.Holding)];
+        [new(SocketId.PowerIn, SocketId.Supply, State == HoldTimerState.Holding)];
     public override void ValidateParameters()
     {
         if (!float.IsFinite(Duration) || Duration < .1f || Duration > 12)

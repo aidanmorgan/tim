@@ -23,8 +23,8 @@ public partial class SpeakerPart : MachinePart
     public override bool CanReceiveActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.8f,0,0)),
-        new(SocketIds.ActivationIn,ConnectionDomain.Activation,PortDirection.Input,new(0,.85f,0))
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.8f,0,0)),
+        new(SocketId.ActivationIn,ConnectionDomain.Activation,PortDirection.Input,new(0,.85f,0))
     ];
     public override void ValidateParameters()
     {
@@ -46,7 +46,7 @@ public partial class SpeakerPart : MachinePart
         {
             _requests.Remove(_requests.Min);requested=true;
         }
-        if(requested&&HasElectricalPower(SocketIds.PowerIn)&&world.Ticks-LastPulseTick>=MinimumIntervalTicks)
+        if(requested&&HasElectricalPower(SocketId.PowerIn)&&world.Ticks-LastPulseTick>=MinimumIntervalTicks)
         {
             _pulses.Add(new(Transform*Mouth,Transform.Basis*Vector3.Right,Tone,world.Ticks,AcousticPattern.Cone,1));
             PulseCount++;LastPulseTick=world.Ticks;

@@ -12,10 +12,10 @@ public partial class MotorPart : MachinePart
     public float ShaftTravel { get; private set; }
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
-        new(SocketIds.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(-.55f, 0, 0)),
-        new(SocketIds.Drive, ConnectionDomain.Mechanical, PortDirection.Output, new(0, 0, .65f))
+        new(SocketId.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(-.55f, 0, 0)),
+        new(SocketId.Drive, ConnectionDomain.Mechanical, PortDirection.Output, new(0, 0, .65f))
     ];
-    public override IEnumerable<MechanicalSource> MechanicalSources => [new(SocketIds.Drive, ShaftSpeed)];
+    public override IEnumerable<MechanicalSource> MechanicalSources => [new(SocketId.Drive, ShaftSpeed)];
     protected override void Build()
     {
         ClearMechanicalDrive();
@@ -35,7 +35,7 @@ public partial class MotorPart : MachinePart
     }
     public override void BeforeStep(MachineWorld world, float delta)
     {
-        Active = HasElectricalPower(SocketIds.PowerIn);
+        Active = HasElectricalPower(SocketId.PowerIn);
         var target = Active ? Mathf.Clamp(Parameter("speed", 6), 0, 20) : 0;
         ShaftSpeed = Mathf.MoveToward(ShaftSpeed, target, 18 * delta);
         ShaftTravel += ShaftSpeed * delta;

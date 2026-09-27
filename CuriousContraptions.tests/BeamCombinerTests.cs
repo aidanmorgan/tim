@@ -75,7 +75,7 @@ public class BeamCombinerTests(HeadlessFixture godot)
             Assert.True(receiver.ReceivedPower.DistanceTo(expected)<.00001f);
             Assert.True(receiver.Active);
             Assert.True(combiner.OutputPower.DistanceTo(expected)<.00001f);
-            Assert.False(receiver.HasElectricalPower(SocketIds.Supply));
+            Assert.False(receiver.HasElectricalPower(SocketId.Supply));
             Assert.True(combiner.InputPower.DistanceTo(LaserPart.BeamPower)<.00001f);
             var outgoing=world.OpticalPaths.Where(s=>s.OriginPart==combiner.Uid).ToArray();
             Assert.Single(outgoing);

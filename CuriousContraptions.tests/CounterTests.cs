@@ -34,7 +34,7 @@ public class CounterTests(HeadlessFixture godot)
             if(supply)Assert.True(world.Connect(battery,counter));
             Assert.True(world.Connect(counter,gate));
             Assert.Null(world.SuggestedConnection(counter,timer));
-            Assert.True(world.Connect(counter,SocketIds.ActivationOut,timer,SocketIds.ActivationIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(counter,SocketId.ActivationOut,timer,SocketId.ActivationIn,ConnectionDomain.Activation));
             world.Start();
             for(var count=1;count<=target;count++)
             {
@@ -42,7 +42,7 @@ public class CounterTests(HeadlessFixture godot)
                 for(var tick=0;tick<4;tick++)world.Step();
                 Assert.Equal(count,counter.Count); // A held active input is not sampled as extra events.
                 Assert.Equal(count==target,counter.Active);
-                Assert.Equal(supply&&count==target,gate.HasElectricalPower(SocketIds.PowerIn));
+                Assert.Equal(supply&&count==target,gate.HasElectricalPower(SocketId.PowerIn));
                 Assert.Equal(count==target?HoldTimerState.Holding:HoldTimerState.Ready,timer.State);
             }
             var emitted=timer.StartedTick;

@@ -30,7 +30,7 @@ public class EnumContractTests
         var original = new MachineData
         {
             Connections = [new() { From = "battery", To = "motor", Type = ConnectionDomain.Electrical,
-                FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn }],
+                FromPort = SocketId.Supply, ToPort = SocketId.PowerIn }],
             Goals = [new() { Type = GoalKind.PoweredAfter, Target = "motor", Body = "switch" }]
         };
         var json = JsonSerializer.Serialize(original, MachineJson.Default.MachineData);

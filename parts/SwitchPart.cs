@@ -8,12 +8,12 @@ public partial class SwitchPart : MachinePart
     public override bool CanSendActivation => true;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
-        new(SocketIds.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, new(.45f, 0, .4f)),
-        new(SocketIds.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(-.58f, 0, 0)),
-        new(SocketIds.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.58f, 0, 0))
+        new(SocketId.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, new(.45f, 0, .4f)),
+        new(SocketId.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(-.58f, 0, 0)),
+        new(SocketId.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.58f, 0, 0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes =>
-        [new(SocketIds.PowerIn, SocketIds.Supply, Active)];
+        [new(SocketId.PowerIn, SocketId.Supply, Active)];
 
     protected override void Build()
     {

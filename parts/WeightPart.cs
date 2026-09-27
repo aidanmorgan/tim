@@ -11,7 +11,7 @@ public partial class WeightPart : MachinePart
     public override RopeAttachmentKind RopeAttachment => RopeAttachmentKind.Load;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
-        new(SocketIds.Tie, ConnectionDomain.Rope, PortDirection.Bidirectional,
+        new(SocketId.Tie, ConnectionDomain.Rope, PortDirection.Bidirectional,
             new(0, RopeGeometry.WeightTieHeight(Properties[WeightParameters.Mass]), 0))
     ];
     public override void ValidateParameters()

@@ -40,7 +40,7 @@ public class OpticalTests(HeadlessFixture godot)
             Assert.False(receiver.Active); // Optical snapshot precedes this tick's electrical solve.
             world.Step();
             Assert.Equal(enabled&&sourcePower,receiver.Active);
-            Assert.Equal(enabled&&sourcePower&&receiverPower,load.HasElectricalPower(SocketIds.PowerIn));
+            Assert.Equal(enabled&&sourcePower&&receiverPower,load.HasElectricalPower(SocketId.PowerIn));
             if(receiver.Active)
             {
                 Assert.Equal(LaserPart.BeamPower,receiver.ReceivedPower);

@@ -6,9 +6,9 @@ namespace CuriousContraptions;
 public partial class BatteryPart : MachinePart
 {
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
-        [new(SocketIds.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(0, .62f, 0))];
-    public override bool SuppliesElectricity(string outputPort) =>
-        outputPort == SocketIds.Supply && Parameter("enabled", 1) > .5f;
+        [new(SocketId.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(0, .62f, 0))];
+    public override bool SuppliesElectricity(SocketId outputPort) =>
+        outputPort == SocketId.Supply && Parameter("enabled", 1) > .5f;
     protected override void Build()
     {
         PickRadius = .8f;

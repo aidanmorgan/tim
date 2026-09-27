@@ -19,12 +19,12 @@ public partial class SoundMeterPart : MachinePart
     public override bool CanSendActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.92f,-.5f,0)),
-        new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.92f,-.5f,0)),
-        new(SocketIds.ActivationOut,ConnectionDomain.Activation,PortDirection.Output,new(.92f,.45f,0))
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.92f,-.5f,0)),
+        new(SocketId.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.92f,-.5f,0)),
+        new(SocketId.ActivationOut,ConnectionDomain.Activation,PortDirection.Output,new(.92f,.45f,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        [new(SocketIds.PowerIn,SocketIds.Supply,AboveThreshold)];
+        [new(SocketId.PowerIn,SocketId.Supply,AboveThreshold)];
     public override void ValidateParameters()
     {
         if(!float.IsFinite(Threshold)||Threshold<.05f||Threshold>1)
@@ -42,8 +42,8 @@ public partial class SoundMeterPart : MachinePart
     {
         if(_sampledTick==world.Ticks)return;
         _sampledTick=world.Ticks;
-        Active=AboveThreshold&&HasElectricalPower(SocketIds.PowerIn);
-        if(_pending&&HasElectricalPower(SocketIds.PowerIn))
+        Active=AboveThreshold&&HasElectricalPower(SocketId.PowerIn);
+        if(_pending&&HasElectricalPower(SocketId.PowerIn))
         {
             TriggerCount++;
             world.EmitActivation(this);

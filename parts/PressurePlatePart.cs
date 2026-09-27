@@ -21,11 +21,11 @@ public partial class PressurePlatePart : MachinePart
     public override float SurfaceBounce=>.1f;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-1.18f,-.08f,0)),
-        new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(1.18f,-.08f,0))
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-1.18f,-.08f,0)),
+        new(SocketId.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(1.18f,-.08f,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        [new(SocketIds.PowerIn,SocketIds.Supply,State==PressurePlateState.Pressed)];
+        [new(SocketId.PowerIn,SocketId.Supply,State==PressurePlateState.Pressed)];
     public override void ValidateParameters()
     {
         if(!float.IsFinite(MinimumMass)||MinimumMass<.1f||MinimumMass>16)

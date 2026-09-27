@@ -19,13 +19,13 @@ public partial class CounterPart : MachinePart
     public override bool CanSendActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
-        new(SocketIds.ActivationIn,ConnectionDomain.Activation,PortDirection.Input,new(0,.72f,.1f)),
-        new(SocketIds.ActivationOut,ConnectionDomain.Activation,PortDirection.Output,new(0,-.72f,.1f)),
-        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.93f,0,0)),
-        new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.93f,0,0))
+        new(SocketId.ActivationIn,ConnectionDomain.Activation,PortDirection.Input,new(0,.72f,.1f)),
+        new(SocketId.ActivationOut,ConnectionDomain.Activation,PortDirection.Output,new(0,-.72f,.1f)),
+        new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.93f,0,0)),
+        new(SocketId.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.93f,0,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        [new(SocketIds.PowerIn,SocketIds.Supply,State==CounterState.Reached)];
+        [new(SocketId.PowerIn,SocketId.Supply,State==CounterState.Reached)];
     public override void ValidateParameters()
     {
         var target=Properties[CounterParameters.Target];

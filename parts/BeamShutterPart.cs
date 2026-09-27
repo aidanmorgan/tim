@@ -16,7 +16,7 @@ public partial class BeamShutterPart : MachinePart
     private MeshInstance3D _blade=null!;
     private StandardMaterial3D _indicator=null!;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
-        [new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,1.45f,.86f))];
+        [new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,1.45f,.86f))];
     protected override void Build()
     {
         PickRadius=1.4f;
@@ -35,7 +35,7 @@ public partial class BeamShutterPart : MachinePart
     }
     public override void BeforeStep(MachineWorld world,float delta)
     {
-        var powered=HasElectricalPower(SocketIds.PowerIn);
+        var powered=HasElectricalPower(SocketId.PowerIn);
         _motion.Step(world,this,powered,delta);
         _blade.Position=_motion.Position;
         Boxes[_bladeIndex]=new(_motion.Position,BladeHalf);

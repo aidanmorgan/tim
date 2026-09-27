@@ -46,3 +46,7 @@ Local records: ignored `docs/playtest-results/` JSON files named for all five ca
 Sampled images do not establish sustained animation fluidity or mobile readability. Introductory campaign levels, full difficulty sweeps and broader component coverage remain open; the campaign still has 58 draft levels toward 75.
 
 Anvil graph access worked but provided no C# test mapping; native tests were inspected and run directly. Its pre-write gate was authentication-unavailable and permitted edits with a warning, not a passed validation.
+
+## Deployment follow-up
+
+The initial GitHub Pages run for 0af472a (36324963657) passed its build/test job but failed deployment while requesting GitHub's OIDC identity token (request timeout). The workflow already grants id-token write permission. The failed deployment job was retried without changing permissions or implementation. The rerun completed successfully, confirming deployment of 0af472a.

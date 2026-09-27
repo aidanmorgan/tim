@@ -78,7 +78,7 @@ public class AcousticTests(HeadlessFixture godot)
             world.Activate(speaker);
             world.Step();world.Step();
             Assert.Equal(0,speaker.PulseCount);
-            world.Connections.Add(new(){From=battery.Uid,To=speaker.Uid,Type=ConnectionDomain.Electrical,FromPort=SocketIds.Supply,ToPort=SocketIds.PowerIn});
+            world.Connections.Add(new(){From=battery.Uid,To=speaker.Uid,Type=ConnectionDomain.Electrical,FromPort=SocketId.Supply,ToPort=SocketId.PowerIn});
             world.Step();Assert.Equal(0,speaker.PulseCount);
             for(var tick=0;tick<240;tick++)
             {

@@ -61,12 +61,12 @@ public class BellTests(HeadlessFixture godot)
             if(wall)world.AddPart(new(){Id="wall",Kind="wall",Position=[-1,6,0]});
             if(power)Assert.True(world.Connect(battery,meter));
             Assert.True(world.Connect(battery,timer));
-            Assert.True(world.Connect(meter,SocketIds.ActivationOut,timer,SocketIds.ActivationIn,ConnectionDomain.Activation));
-            Assert.True(world.Connect(timer,SocketIds.Supply,gate,SocketIds.PowerIn,ConnectionDomain.Electrical));
+            Assert.True(world.Connect(meter,SocketId.ActivationOut,timer,SocketId.ActivationIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(timer,SocketId.Supply,gate,SocketId.PowerIn,ConnectionDomain.Electrical));
             var construction=JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData);
             world.Start();
             var received=0f;var opened=false;
-            for(var i=0;i<240;i++){world.Step();received=Math.Max(received,meter.Level);opened|=gate.HasElectricalPower(SocketIds.PowerIn);}
+            for(var i=0;i<240;i++){world.Step();received=Math.Max(received,meter.Level);opened|=gate.HasElectricalPower(SocketId.PowerIn);}
             Assert.Equal(ballPresent,bell.PulseCount>0);
             Assert.Equal(ballPresent&&!wall,received>0);
             Assert.Equal(ballPresent&&!wall&&power,opened);

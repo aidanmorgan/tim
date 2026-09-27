@@ -123,7 +123,7 @@ public class PlaytestAuditTests
     [InlineData("toPort")]
     public void ChangedSocketIdentityFails(string field)
     {
-        const string original = """{"connections":[{"from":"battery","to":"motor","type":"electrical","fromPort":"supply","toPort":"power"}]}""";
+        const string original = """{"connections":[{"from":"battery","to":"motor","type":"electrical","fromPort":"supply","toPort":"power_in"}]}""";
         var changed = JsonNode.Parse(original)!;
         changed["connections"]![0]![field] = "other";
         Assert.NotEmpty(Check(original, changed.ToJsonString()).Errors);

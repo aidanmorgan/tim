@@ -115,7 +115,7 @@ public static class RopeNetwork
         var seen = new HashSet<RopeSocket>();
         // Canonical endpoint order keeps simulation and pulley rotation independent of link direction/order.
         foreach (var endpoint in edges.Keys.Where(p => edges[p].Count == 1)
-            .OrderBy(p => p.Part.Uid, StringComparer.Ordinal).ThenBy(p => p.Port.Id, StringComparer.Ordinal))
+            .OrderBy(p => p.Part.Uid, StringComparer.Ordinal).ThenBy(p => p.Port.Id))
         {
             if (seen.Contains(endpoint)) continue;
             var path = new List<RopeSocket>();

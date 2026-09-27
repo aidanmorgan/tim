@@ -177,11 +177,11 @@ public partial class MachineWorld : Node3D
         var link = SuggestedConnection(source, target);
         if (link == null) return false;
         var output = source.ConnectionPorts.Single(p => p.Id == link.FromPort);
-        return Connect(source, link.FromPort!, target, link.ToPort!, output.Domain);
+        return Connect(source, link.FromPort!.Value, target, link.ToPort!.Value, output.Domain);
     }
 
-    public bool Connect(MachinePart source, string fromPort, MachinePart target,
-        string toPort, ConnectionDomain domain)
+    public bool Connect(MachinePart source, SocketId fromPort, MachinePart target,
+        SocketId toPort, ConnectionDomain domain)
     {
         if (Running || !Parts.Contains(source) || !Parts.Contains(target)) return false;
         var link = new ConnectionSpec

@@ -31,7 +31,7 @@ public class WindChimeTests(HeadlessFixture godot)
             var counter=(CounterPart)world.AddPart(new(){Id="counter",Kind="counter",Position=[3,2,2]});
             var battery=world.AddPart(new(){Id="battery",Kind="battery",Position=[-4,2,3]});
             Assert.True(world.Connect(battery,meter));
-            Assert.True(world.Connect(meter,SocketIds.ActivationOut,counter,SocketIds.ActivationIn,ConnectionDomain.Activation));
+            Assert.True(world.Connect(meter,SocketId.ActivationOut,counter,SocketId.ActivationIn,ConnectionDomain.Activation));
             if(wall)world.AddPart(new(){Id="wall",Kind="wall",Position=[-2.5f,5.4f,0],Rotation=[0,90,0]});
             var saved=JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData);
             world.Start();

@@ -24,12 +24,12 @@ public partial class ConveyorPart : MachinePart
     public float ShaftAngle { get; private set; }
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
-        new(SocketIds.DriveIn, ConnectionDomain.Mechanical, PortDirection.Input,
+        new(SocketId.DriveIn, ConnectionDomain.Mechanical, PortDirection.Input,
             new(-Properties[ConveyorParameters.Length] / 2 + .15f, -.07f, Properties[ConveyorParameters.Width] / 2 + .18f)),
-        new(SocketIds.Drive, ConnectionDomain.Mechanical, PortDirection.Output,
+        new(SocketId.Drive, ConnectionDomain.Mechanical, PortDirection.Output,
             new(Properties[ConveyorParameters.Length] / 2 - .15f, -.07f, Properties[ConveyorParameters.Width] / 2 + .18f))
     ];
-    public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketIds.DriveIn, SocketIds.Drive, 1, true)];
+    public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketId.DriveIn, SocketId.Drive, 1, true)];
     public override float SurfaceBounce => .05f;
 
     protected override void Build()
@@ -68,7 +68,7 @@ public partial class ConveyorPart : MachinePart
 
     public override void MechanicalStep(MachineWorld world, float delta)
     {
-        ShaftSpeed = MechanicalSpeed(SocketIds.DriveIn);
+        ShaftSpeed = MechanicalSpeed(SocketId.DriveIn);
         SurfaceSpeed = ShaftSpeed * Properties[ConveyorParameters.SurfacePerRadian];
         Active = ShaftSpeed != 0;
         ShaftAngle = Mathf.PosMod(ShaftAngle + ShaftSpeed * delta, Mathf.Tau);

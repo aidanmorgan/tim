@@ -33,7 +33,7 @@ public class PressurePlateTests(HeadlessFixture godot)
             world.Start();
             for(var i=0;i<240;i++)world.Step();
             Assert.Equal(pressed,plate.Active);
-            Assert.Equal(pressed&&supply,gate.HasElectricalPower(SocketIds.PowerIn));
+            Assert.Equal(pressed&&supply,gate.HasElectricalPower(SocketId.PowerIn));
             Assert.Equal(pressed?PressurePlateState.Pressed:PressurePlateState.Underweight,plate.State);
             var mass=world.Bodies.Sum(b=>b.Mass);
             Assert.Equal(mass,plate.SupportedMass,3);

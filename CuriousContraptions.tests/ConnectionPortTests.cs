@@ -7,11 +7,11 @@ namespace CuriousContraptions.Tests;
 [Collection<HeadlessCollection>]
 public class ConnectionPortTests(HeadlessFixture godot)
 {
-    private static ConnectionPort Output(ConnectionDomain domain) => new("out", domain, PortDirection.Output, new(1, 0, 0));
-    private static ConnectionPort Input(ConnectionDomain domain) => new("in", domain, PortDirection.Input, new(-1, 0, 0));
+    private static ConnectionPort Output(ConnectionDomain domain) => new(SocketId.Supply, domain, PortDirection.Output, new(1, 0, 0));
+    private static ConnectionPort Input(ConnectionDomain domain) => new(SocketId.PowerIn, domain, PortDirection.Input, new(-1, 0, 0));
     private static ConnectionSpec Link(ConnectionDomain domain) => new()
     {
-        From = "source", To = "target", FromPort = "out", ToPort = "in",
+        From = "source", To = "target", FromPort = SocketId.Supply, ToPort = SocketId.PowerIn,
         Type = domain, RopeLength = domain == ConnectionDomain.Rope ? 1 : null
     };
 
@@ -31,7 +31,7 @@ public class ConnectionPortTests(HeadlessFixture godot)
         Assert.False(ConnectionRules.TryResolve(link, [output], [input with { Direction = PortDirection.Output }], out _, out _));
         Assert.False(ConnectionRules.TryResolve(link, [output], [input with { Domain = ConnectionDomain.Activation }], out _, out _));
         Assert.False(ConnectionRules.TryResolve(link, [output, output], [input], out _, out _));
-        link.FromPort = "missing";
+        link.FromPort = SocketId.Drive;
         Assert.False(ConnectionRules.TryResolve(link, [output], [input], out _, out _));
         link.FromPort = null;
         link.ToPort = null;
@@ -48,16 +48,16 @@ public class ConnectionPortTests(HeadlessFixture godot)
     }
 
     [Fact]
-    public void SocketIdsSurviveIndependentMachineClone()
+    public void SocketIdSurviveIndependentMachineClone()
     {
         var original = new MachineData { Connections = [Link(ConnectionDomain.Electrical)] };
         var copy = MachineCodec.Clone(original);
         var edge = Assert.Single(copy.Connections);
         Assert.Equal(ConnectionDomain.Electrical, edge.Type);
-        Assert.Equal("out", edge.FromPort);
-        Assert.Equal("in", edge.ToPort);
-        edge.FromPort = "other";
-        Assert.Equal("out", original.Connections[0].FromPort);
+        Assert.Equal(SocketId.Supply, edge.FromPort);
+        Assert.Equal(SocketId.PowerIn, edge.ToPort);
+        edge.FromPort = SocketId.Drive;
+        Assert.Equal(SocketId.Supply, original.Connections[0].FromPort);
     }
 
     [Theory]
@@ -85,6 +85,31 @@ public class ConnectionPortTests(HeadlessFixture godot)
     }
 
     [Fact]
+    public void EveryCataloguePartUsesDefinedUniqueSocketIdentities()
+    {
+        var world = new MachineWorld();
+        godot.Tree.Root.AddChild(world);
+        try
+        {
+            foreach (var kind in world.Registry.Definitions.Keys)
+            {
+                var part = world.AddPart(new() { Id = kind, Kind = kind });
+                var ports = part.ConnectionPorts.ToArray();
+                Assert.Equal(ports.Length, ports.Select(p => p.Id).Distinct().Count());
+                Assert.All(ports, p =>
+                {
+                    Assert.True(Enum.IsDefined(p.Id), kind);
+                    Assert.True(Enum.IsDefined(p.Domain) && p.Domain != ConnectionDomain.Unknown, kind);
+                    Assert.True(Enum.IsDefined(p.Direction), kind);
+                });
+            }
+            MechanicalNetwork.Validate(world.Parts, world.Connections);
+            ElectricalNetwork.Validate(world);
+        }
+        finally { world.Free(); }
+    }
+
+    [Fact]
     public void NamedSocketsRestoreAndDuplicateConnectionsAreRejected()
     {
         var world = new MachineWorld();
@@ -94,7 +119,7 @@ public class ConnectionPortTests(HeadlessFixture godot)
             world.LoadMachine(new()
             {
                 Parts = [new() { Id = "source", Kind = "switch" }, new() { Id = "target", Kind = "lamp" }],
-                Connections = [new() { From = "source", To = "target", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }]
+                Connections = [new() { From = "source", To = "target", Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn }]
             });
             Assert.True(world.IsValidConnection(world.Connections[0]));
             Assert.False(world.Connect(world.FindPart("source")!, world.FindPart("target")!));
@@ -103,8 +128,8 @@ public class ConnectionPortTests(HeadlessFixture godot)
             Assert.True(world.FindPart("target")!.Active);
             world.Restore();
             Assert.False(world.FindPart("target")!.Active);
-            Assert.Equal(SocketIds.ActivationOut, world.Connections[0].FromPort);
-            Assert.Equal(SocketIds.ActivationIn, world.Connections[0].ToPort);
+            Assert.Equal(SocketId.ActivationOut, world.Connections[0].FromPort);
+            Assert.Equal(SocketId.ActivationIn, world.Connections[0].ToPort);
             world.RemovePart(world.FindPart("source")!);
             Assert.Empty(world.Connections);
         }
@@ -124,7 +149,7 @@ public class ConnectionPortTests(HeadlessFixture godot)
             var b = world.AddPart(new() { Id = "target", Kind = "lamp" });
             var foreign = other.AddPart(new() { Id = "source", Kind = "switch" });
             Assert.False(world.Connect(foreign, b));
-            world.Connections.Add(new() { From = "source", To = "target", Type = ConnectionDomain.Activation, FromPort = "wrong", ToPort = SocketIds.ActivationIn });
+            world.Connections.Add(new() { From = "source", To = "target", Type = ConnectionDomain.Activation, FromPort = (SocketId)999, ToPort = SocketId.ActivationIn });
             world.Activate(a);
             Assert.False(b.Active);
             world.Connections.Clear();

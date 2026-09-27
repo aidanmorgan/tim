@@ -39,7 +39,7 @@ public class ElectricalTests(HeadlessFixture godot)
             {
                 var bypass = MachineCodec.Clone(data);
                 bypass.Connections = [new() { From = "battery", To = "motor", Type = ConnectionDomain.Electrical,
-                    FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn }];
+                    FromPort = SocketId.Supply, ToPort = SocketId.PowerIn }];
                 world.LoadMachine(bypass);
                 world.Start();
                 for (var i = 0; i < 600; i++) world.Step();
@@ -55,7 +55,7 @@ public class ElectricalTests(HeadlessFixture godot)
                 world.Start();
                 for (var i = 0; i < 600 && world.Running; i++) world.Step();
                 Assert.False(world.Won);
-                Assert.False(world.FindPart("motor")!.HasElectricalPower(SocketIds.PowerIn));
+                Assert.False(world.FindPart("motor")!.HasElectricalPower(SocketId.PowerIn));
             }
         }
         finally { world.Free(); }
@@ -80,21 +80,21 @@ public class ElectricalTests(HeadlessFixture godot)
                 Assert.True(world.Connect(battery, motor));
                 var link = Assert.Single(world.Connections);
                 Assert.Equal(ConnectionDomain.Electrical, link.Type);
-                Assert.Equal(SocketIds.Supply, link.FromPort);
-                Assert.Equal(SocketIds.PowerIn, link.ToPort);
+                Assert.Equal(SocketId.Supply, link.FromPort);
+                Assert.Equal(SocketId.PowerIn, link.ToPort);
             }
             Assert.False(world.Connect(motor, battery));
             world.Start();
             world.Activate(battery); // A command must not create supply from a disabled source.
             for (var i = 0; i < 120; i++) world.Step();
             Assert.Equal(connected && enabled, motor.Active);
-            Assert.Equal(connected && enabled, motor.HasElectricalPower(SocketIds.PowerIn));
+            Assert.Equal(connected && enabled, motor.HasElectricalPower(SocketId.PowerIn));
             Assert.Equal(connected && enabled, motor.ShaftSpeed > 0);
             Assert.Equal(connected && enabled, world.Events.ContainsKey(new MachineEvent(MachineEventKind.Powered, "motor")));
             world.Restore();
             motor = (MotorPart)world.FindPart("motor")!;
             Assert.False(motor.Active);
-            Assert.False(motor.HasElectricalPower(SocketIds.PowerIn));
+            Assert.False(motor.HasElectricalPower(SocketId.PowerIn));
             Assert.Equal(0, motor.ShaftAngle);
             Assert.Equal(0, motor.ShaftSpeed);
             Assert.Equal(connected ? 1 : 0, world.Connections.Count);
@@ -122,11 +122,11 @@ public class ElectricalTests(HeadlessFixture godot)
             if (reverseIds) world.Connections.Reverse();
             world.Start();
             world.Step();
-            Assert.True(first.HasElectricalPower(SocketIds.PowerIn));
+            Assert.True(first.HasElectricalPower(SocketId.PowerIn));
             Assert.False(motor.Active);
             world.Activate(first);
             world.Step();
-            Assert.True(second.HasElectricalPower(SocketIds.PowerIn));
+            Assert.True(second.HasElectricalPower(SocketId.PowerIn));
             Assert.False(motor.Active);
             world.Activate(second);
             world.Step();
@@ -134,8 +134,8 @@ public class ElectricalTests(HeadlessFixture godot)
             battery.Properties["enabled"] = 0;
             world.Step();
             Assert.False(motor.Active);
-            Assert.False(first.HasElectricalPower(SocketIds.PowerIn));
-            Assert.False(second.HasElectricalPower(SocketIds.PowerIn));
+            Assert.False(first.HasElectricalPower(SocketId.PowerIn));
+            Assert.False(second.HasElectricalPower(SocketId.PowerIn));
             battery.Properties["enabled"] = 1;
             world.Step();
             Assert.True(motor.Active);
@@ -178,7 +178,7 @@ public class ElectricalTests(HeadlessFixture godot)
             Assert.True(motor.ShaftSpeed > 0);
             world.Connections.Clear();
             world.Step();
-            Assert.False(motor.HasElectricalPower(SocketIds.PowerIn));
+            Assert.False(motor.HasElectricalPower(SocketId.PowerIn));
             Assert.False(motor.Active);
         }
         finally { world.Free(); }

@@ -13,16 +13,16 @@ public enum RopeState { Open, Slack, Taut }
 
 /// <summary>Stable local socket identity; positions follow the part's transform.</summary>
 public readonly record struct ConnectionPort(
-    string Id, ConnectionDomain Domain, PortDirection Direction, Vector3 LocalPosition,
+    SocketId Id, ConnectionDomain Domain, PortDirection Direction, Vector3 LocalPosition,
     ActivationCommand Command = ActivationCommand.Trigger);
 
-public readonly record struct ElectricalGate(LogicGateKind Operation, string First, string Second, string Supply, string Output);
+public readonly record struct ElectricalGate(LogicGateKind Operation, SocketId First, SocketId Second, SocketId Supply, SocketId Output);
 
-public readonly record struct ElectricalRoute(string Input, string Output, bool Closed);
+public readonly record struct ElectricalRoute(SocketId Input, SocketId Output, bool Closed);
 
 /// <summary>Signed shaft ratio; negative ratios reverse the local shaft direction.</summary>
-public readonly record struct MechanicalRoute(string Input, string Output, float Ratio, bool Enabled);
-public readonly record struct MechanicalSource(string Output, float RadiansPerSecond);
+public readonly record struct MechanicalRoute(SocketId Input, SocketId Output, float Ratio, bool Enabled);
+public readonly record struct MechanicalSource(SocketId Output, float RadiansPerSecond);
 
 public static class ConnectionRules
 {
@@ -40,7 +40,8 @@ public static class ConnectionRules
             || link.From == link.To) return false;
         var fromId = link.FromPort;
         var toId = link.ToPort;
-        if (string.IsNullOrWhiteSpace(fromId) || string.IsNullOrWhiteSpace(toId)) return false;
+        if (fromId is not { } fromSocket || toId is not { } toSocket
+            || !Enum.IsDefined(fromSocket) || !Enum.IsDefined(toSocket)) return false;
         var from = sources.Where(p => p.Id == fromId).ToArray();
         var to = targets.Where(p => p.Id == toId).ToArray();
         if (from.Length != 1 || to.Length != 1) return false;

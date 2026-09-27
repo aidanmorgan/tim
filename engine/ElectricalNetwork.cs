@@ -9,7 +9,7 @@ public sealed class ElectricalFeedbackException(string message) : InvalidOperati
 
 public static class ElectricalNetwork
 {
-    private readonly record struct Socket(MachinePart Part,string Port);
+    private readonly record struct Socket(MachinePart Part,SocketId Port);
     private sealed class Equation
     {
         public bool Source;
@@ -71,7 +71,7 @@ public static class ElectricalNetwork
                 equations.Add(new(part,port.Id),new(){Source=port.Direction==PortDirection.Output && part.SuppliesElectricity(port.Id)});
         foreach(var part in world.Parts)
         {
-            bool Has(string id,PortDirection direction)=>ports[part].Any(p=>
+            bool Has(SocketId id,PortDirection direction)=>ports[part].Any(p=>
                 p.Id==id && p.Domain==ConnectionDomain.Electrical && p.Direction==direction);
             foreach(var route in part.ElectricalRoutes)
             {
@@ -92,7 +92,7 @@ public static class ElectricalNetwork
         foreach(var link in world.Connections.Where(l=>l.Type==ConnectionDomain.Electrical))
         {
             if(!world.IsValidConnection(link))throw new InvalidOperationException("Invalid electrical wire.");
-            equations[new(world.FindPart(link.To)!,link.ToPort!)].Wires.Add(new(world.FindPart(link.From)!,link.FromPort!));
+            equations[new(world.FindPart(link.To)!,link.ToPort!.Value)].Wires.Add(new(world.FindPart(link.From)!,link.FromPort!.Value));
         }
         return equations;
     }

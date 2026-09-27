@@ -90,19 +90,40 @@ public static class RopeGeometry
     public static float WeightTieHeight(float mass) => WeightRadius(mass) + .08f;
 }
 
-public static class SocketIds
+[JsonConverter(typeof(SocketIdJsonConverter))]
+public enum SocketId
 {
-    public const string ActivationOut = "activation_out";
-    public const string SetIn = "set_in";
-    public const string ResetIn = "reset_in";
-    public const string ActivationIn = "activation_in";
-    public const string FirstIn = "first_in";
-    public const string SecondIn = "second_in";
-    public const string Supply = "supply";
-    public const string PowerIn = "power_in";
-    public const string Drive = "drive";
-    public const string DriveIn = "drive_in";
-    public const string Tie = "tie";
+    ActivationOut = 1, SetIn, ResetIn, ActivationIn, FirstIn, SecondIn,
+    Supply, PowerIn, Drive, DriveIn, Tie
+}
+
+/// <summary>Exact current wire names only; no aliases, numeric values or case folding.</summary>
+public sealed class SocketIdJsonConverter : JsonConverter<SocketId>
+{
+    private static readonly Dictionary<string, SocketId> FromWire = new(StringComparer.Ordinal);
+    private static readonly Dictionary<SocketId, string> ToWire = new();
+    static SocketIdJsonConverter()
+    {
+        foreach (var value in Enum.GetValues<SocketId>())
+        {
+            var name = JsonNamingPolicy.SnakeCaseLower.ConvertName(value.ToString());
+            FromWire.Add(name, value);
+            ToWire.Add(value, name);
+        }
+    }
+    public override SocketId Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.String ||
+            !FromWire.TryGetValue(reader.GetString()!, out var value))
+            throw new JsonException("Unknown socket identity.");
+        return value;
+    }
+    public override void Write(Utf8JsonWriter writer, SocketId value, JsonSerializerOptions options)
+    {
+        if (!ToWire.TryGetValue(value, out var name))
+            throw new JsonException("Unknown socket identity.");
+        writer.WriteStringValue(name);
+    }
 }
 
 public sealed class ConnectionSpec
@@ -111,9 +132,9 @@ public sealed class ConnectionSpec
     public string To { get; set; } = "";
     public ConnectionDomain Type { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? FromPort { get; set; }
+    public SocketId? FromPort { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? ToPort { get; set; }
+    public SocketId? ToPort { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public float? RopeLength { get; set; }
 }
@@ -179,6 +200,7 @@ public static class CampaignProgress
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true)]
 [JsonSerializable(typeof(ConnectionDomain))]
+[JsonSerializable(typeof(SocketId))]
 [JsonSerializable(typeof(MachineData))]
 [JsonSerializable(typeof(SavedMachine))]
 [JsonSerializable(typeof(List<PuzzleData>))]
