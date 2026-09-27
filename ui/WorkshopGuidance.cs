@@ -422,7 +422,7 @@ public partial class Workshop
         {
             if (mouse.ButtonIndex == MouseButton.Left)
             {
-                if (_dragging || _lifting) SnapTube(_preview ?? _selected);
+                if ((_dragging && _dragMoved) || _lifting) SnapTube(_preview ?? _selected);
                 _dragging = _lifting = false;
             }
             if (mouse.ButtonIndex == MouseButton.Right) _orbiting = false;

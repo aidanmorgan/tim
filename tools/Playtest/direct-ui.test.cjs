@@ -44,6 +44,11 @@ async function attemptWith(mode) {
     let now = 0, listener, pointer, releaseShift = 0;
     const screenshots = [], wheels = [];
     const scrollCase = mode === "scroll-above" || mode === "scroll-below";
+    const connectionCase = mode.startsWith("connection-");
+    const ropeCase = mode.includes("rope");
+    const link = ropeCase
+        ? { from:"a",to:"b",type:"rope",from_port:"tie",to_port:"tie",rope_length:2 }
+        : { from:"a",to:"b",type:"mechanical",from_port:"drive",to_port:"drive_in" };
     const ui = { level: 1, precision: .45, running: false, parts: [],
         buttons: [
             { action: "▶  Run machine", enabled: true, screen: [10,10] },
@@ -51,6 +56,10 @@ async function attemptWith(mode) {
         ] };
     if (scrollCase) ui.buttons.push({kind:"ramp",enabled:true,clipped:true,
         screen:[130,mode === "scroll-above" ? 106 : 1900]});
+    if (connectionCase) {
+        ui.parts = [{id:"a",screen:[30,30]},{id:"b",screen:[40,40]}];
+        ui.buttons.push({action:"Connect",enabled:true,screen:[50,50]});
+    }
     const state = { level: 1, precision: .45, parts: [], connections: [] };
     const emit = (prefix, value) => listener?.({
         text: () => prefix + JSON.stringify(value), type: () => "log"
@@ -78,6 +87,18 @@ async function attemptWith(mode) {
                 if (!listener) return;
                 if (scrollCase && pointer?.[0] === 130 && pointer?.[1] === 250)
                     throw new Error("palette reached");
+                if (connectionCase && pointer?.[0] === 30) { ui.selected="a"; emit("CCUI ",ui); }
+                if (connectionCase && pointer?.[0] === 40 && mode !== "connection-missing") {
+                    const actual = {from:"a",to:"b",type:link.type,fromPort:link.from_port,toPort:link.to_port};
+                    if (ropeCase) actual.ropeLength=2;
+                    if (mode === "connection-type") actual.type="activation";
+                    if (mode === "connection-endpoint") actual.to="c";
+                    if (mode === "connection-from-port") actual.fromPort="wrong";
+                    if (mode === "connection-to-port") actual.toPort="wrong";
+                    if (mode === "connection-rope-length") actual.ropeLength=3;
+                    if (mode === "connection-rope-missing-length") delete actual.ropeLength;
+                    state.connections=[actual];
+                }
                 if (pointer?.[0] === 10) {
                     if (mode === "missing-run" || mode === "capture-error") return;
                     emit("CCRUN ", state);
@@ -100,7 +121,7 @@ async function attemptWith(mode) {
     const fn = runInNewContext("(" + source + ")", { Date: { now: () => now } });
     const result = await fn(page, { caseId: "unit-" + mode, level: 1,
         precision: .45, parts: mode === "construction-failure" || scrollCase ? [{ kind: "ramp" }] : [],
-        connections: [] });
+        connections: connectionCase ? [link] : [] });
     assert.equal(listener, undefined, "listener must be detached on every path");
     assert.equal(releaseShift, 1, "Shift must be released");
     return { result, screenshots, wheels };
@@ -143,5 +164,23 @@ for (const [mode,direction] of [["scroll-above",-120],["scroll-below",120]]) {
         assert.deepEqual(wheels,[direction]);
         assert.equal(result.failure.message,"palette reached");
         assert.equal(result.actions.at(-1).label,"palette ramp");
+    });
+}
+
+for (const mode of ["connection-correct","connection-rope-correct"]) {
+    test(mode+" verifies actual typed endpoints",async()=>{
+        const {result}=await attemptWith(mode);
+        assert.equal(result.failure,undefined);
+        assert.equal(result.run.connections.length,1);
+        assert.ok(result.reset);
+    });
+}
+for (const mode of ["connection-missing","connection-type","connection-endpoint",
+    "connection-from-port","connection-to-port","connection-rope-length","connection-rope-missing-length"]) {
+    test(mode+" rejects an incomplete or wrong UI construction",async()=>{
+        const {result}=await attemptWith(mode);
+        assert.match(result.failure.message,/Required UI connection missing or incorrect/);
+        assert.ok(result.run,"retain actual construction as failure evidence");
+        assert.equal(result.reset,undefined,"do not call failed construction a verified lifecycle");
     });
 }

@@ -29,7 +29,9 @@ public partial class Workshop : Node3D
     private CheckButton _friction = null!;
     private MachinePart? _selected, _linkSource;
     private string _tool = "";
-    private bool _dragging, _orbiting, _sandbox, _inRun;
+    private bool _dragging, _dragMoved, _orbiting, _sandbox, _inRun;
+    private Vector2 _dragPressScreen;
+    private const float PartDragThresholdPixels = 6;
     private float _depth, _azimuth, _elevation, _zoom = 13.8f;
     private List<PuzzleData> _puzzles = new();
     private int _currentLevel, _nextId = 1;
@@ -435,6 +437,12 @@ public partial class Workshop : Node3D
             }
             else if (_dragging && _selected is { Locked: false } && !_inRun)
             {
+                if (!_dragMoved)
+                {
+                    if (motion.Position.DistanceTo(_dragPressScreen) < PartDragThresholdPixels) return;
+                    PushUndo();
+                    _dragMoved = true;
+                }
                 var point = WorkPoint(motion.Position, _buildView ? _selected.Position.Z : _selected.Position.Y);
                 if (point is { } at)
                 {
@@ -525,8 +533,9 @@ public partial class Workshop : Node3D
             Select(Pick(screen));
             if (_selected is { Locked: false })
             {
-                PushUndo();
                 _dragging = true;
+                _dragMoved = false;
+                _dragPressScreen = screen;
                 _grabOffset = WorkPoint(screen, _buildView ? _selected.Position.Z : _selected.Position.Y) is { } grabbed ? _selected.Position - grabbed : Vector3.Zero;
                 _depth = _selected.Position.Z;
                 ChangeDepth(0);

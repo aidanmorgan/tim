@@ -235,6 +235,13 @@ for (let tries=0;tries<40;tries++) {
         await waitFor(() => run, "run start diagnostics");
         if (run.level !== attempt.level || Math.abs(run.precision-attempt.precision)>0.001)
             throw new Error("Run started with the wrong level or difficulty");
+        for (const link of attempt.connections ?? []) {
+            const from = placed.get(link.from) ?? link.from, to = placed.get(link.to) ?? link.to;
+            if (!run.connections.some(c => c.from === from && c.to === to &&
+                c.type === link.type && c.fromPort === link.from_port && c.toPort === link.to_port &&
+                (link.type !== "rope" || Math.abs(c.ropeLength - link.rope_length) < .0001)))
+                throw new Error("Required UI connection missing or incorrect: " + from + " -> " + to);
+        }
         await waitFor(() => outcome, "win or simulation timeout", 55000);
         await page.waitForTimeout(150);
         evidence.slots = Object.fromEntries(placed);

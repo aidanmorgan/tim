@@ -118,6 +118,30 @@ public class WorkshopInteractionTests(HeadlessFixture godot)
         finally { scene.Free(); }
     }
 
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(1f)]
+    [InlineData(-1f)]
+    public void SelectionAndSmallPointerJitterDoNotMovePartOrConsumeUndo(float jitter)
+    {
+        var scene=Scene();
+        try
+        {
+            var ramp=PlaceRamp(scene,new(-2,3,0));
+            ramp.Position=new(-2.037f,3,.031f);
+            var original=ramp.Position;
+            Press(scene,"Cancel / deselect");
+            var pointer=Camera(scene).UnprojectPosition(original);
+            scene._UnhandledInput(new InputEventMouseButton {ButtonIndex=MouseButton.Left,Pressed=true,Position=pointer});
+            scene._UnhandledInput(new InputEventMouseMotion {Position=pointer+new Vector2(jitter,jitter)});
+            scene._Input(new InputEventMouseButton {ButtonIndex=MouseButton.Left,Pressed=false,Position=pointer});
+            Assert.Equal(original,ramp.Position);
+            Press(scene,"↺ Undo");
+            Assert.DoesNotContain(scene.World.Parts,p=>!p.Locked);
+        }
+        finally{scene.Free();}
+    }
+
     [Fact]
     public void RunningDisablesLayerEditingAndResetRestoresIt()
     {
