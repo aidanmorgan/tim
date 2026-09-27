@@ -3,7 +3,7 @@ using System;
 namespace CuriousContraptions;
 
 public enum SpringLatchState { Latched, Releasing, Spent }
-public enum SpringWindStatus { Wound, Stationary, Reverse, Full, TorqueLimited, Blocked, Unlatched, PrecisionLimited }
+public enum SpringWindStatus { Wound, Stationary, Reverse, Full, TorqueLimited, WorkLimited, Blocked, Unlatched, PrecisionLimited }
 public enum SpringTriggerResult { Released, Empty, AlreadyReleased }
 public enum SpringLatchResult { Latched, AlreadyLatched, StillCompressed }
 public readonly record struct SpringWinding(SpringWindStatus Status, double CompressionTravel, double ShaftTravel, double Work);
@@ -45,11 +45,12 @@ public sealed class LatchedSpringStore
     /// cannot unwind the latch. Torque is an ideal quasistatic input bound; it is
     /// never inferred from nonzero shaft speed. Clearance limits actual compression.
     /// </summary>
-    public SpringWinding Wind(float shaftTravel, float availableTorque, float clearance)
+    public SpringWinding Wind(float shaftTravel, float availableTorque, float clearance, double availableWork)
     {
         if (!float.IsFinite(shaftTravel)) throw new ArgumentOutOfRangeException(nameof(shaftTravel));
         Nonnegative(availableTorque, nameof(availableTorque));
         Nonnegative(clearance, nameof(clearance));
+        if (!double.IsFinite(availableWork) || availableWork < 0) throw new ArgumentOutOfRangeException(nameof(availableWork));
         SpringWinding Stop(SpringWindStatus status) => new(status, 0, 0, 0);
         if (State != SpringLatchState.Latched) return Stop(SpringWindStatus.Unlatched);
         if (shaftTravel == 0) return Stop(SpringWindStatus.Stationary);
@@ -59,9 +60,17 @@ public sealed class LatchedSpringStore
 
         var torqueLimit = Math.Min(MaximumCompression, availableTorque / (Stiffness * Lead));
         if (torqueLimit <= Compression) return Stop(SpringWindStatus.TorqueLimited);
+        if (availableWork == 0) return Stop(SpringWindStatus.WorkLimited);
+        var energyLimit = Math.Sqrt(Compression * Compression + 2 * (availableWork / Stiffness));
         var requested = Math.Min((double)shaftTravel * Lead, clearance);
-        var next = Math.Min(torqueLimit, Compression + requested);
+        var next = Math.Min(energyLimit, Math.Min(torqueLimit, Compression + requested));
         var work = Potential(next) - Energy;
+        if (work > availableWork)
+        {
+            next = Math.BitDecrement(next);
+            work = Potential(next) - Energy;
+        }
+        if (work > availableWork) throw new InvalidOperationException("Spring rounding exceeded the work allowance.");
         if (next <= Compression || work <= 0) return Stop(SpringWindStatus.PrecisionLimited);
         var travel = next - Compression;
         Compression = next;

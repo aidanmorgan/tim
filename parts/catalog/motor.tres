@@ -11,4 +11,4 @@ Category = "Power"
 Description = "Electricity turns its shaft. The drive socket is for mechanical connections."
 Scene = ExtResource("2")
 Color = Color(0.40, 0.72, 0.79, 1)
-Parameters = {"speed": 6.0}
+Parameters = {"speed": 6.0, "torque": 20.0}

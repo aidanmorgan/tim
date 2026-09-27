@@ -52,7 +52,10 @@ public class WindmillTests(HeadlessFixture godot)
             Assert.InRange(Math.Abs(Mathf.AngleDifference(-windmill.ShaftAngle,windmill.GetNode<Node3D>("Visual/OutputPulley").Rotation.Z)),0,.00001f);
             var speed=windmill.ShaftSpeed;var angle=windmill.ShaftAngle;
             windmill._Process(.2);Assert.Equal(speed,windmill.ShaftSpeed);Assert.Equal(angle,windmill.ShaftAngle);
+            Assert.True(first.MechanicalWorkAvailable(SocketId.DriveIn)>0);
             fan.Active=false;world.Step();
+            Assert.Equal(0,first.MechanicalWorkAvailable(SocketId.DriveIn));
+            Assert.Equal(0,last.MechanicalTorque(SocketId.DriveIn));
             Assert.InRange(windmill.ShaftSpeed*windSign,5.8f,5.9f); // coast, no instant stop
             for(var i=0;i<120;i++)world.Step();
             Assert.Equal(0,windmill.ShaftSpeed);Assert.Equal(0,last.SurfaceSpeed);Assert.False(windmill.Active);
@@ -168,7 +171,7 @@ public class WindmillTests(HeadlessFixture godot)
         try
         {
             world.AddPart(new(){Id="fan",Kind="fan",Position=[-4,6,0],Properties=new(){[FanParameters.Force]=40}});
-            var windmill=(WindmillPart)world.AddPart(new(){Id="windmill",Kind="windmill",Position=[-1,6,0],Properties=new(){[WindmillParameters.RadiansPerForce]=4}});
+            var windmill=(WindmillPart)world.AddPart(new(){Id="windmill",Kind="windmill",Position=[-1,6,0],Properties=new(){[PartParameterName.Of(WindmillParameter.RadiansPerForce)]=4}});
             var belt=world.AddPart(new(){Id="belt",Kind="conveyor",Position=[2,2,0]});
             var motor=world.AddPart(new(){Id="motor",Kind="motor",Position=[-4,2,2]});
             Assert.True(world.Connect(windmill,belt));Assert.False(world.Connect(motor,belt));
@@ -176,7 +179,7 @@ public class WindmillTests(HeadlessFixture godot)
             world.Start();for(var i=0;i<240;i++)world.Step();
             Assert.Equal(WindmillPart.MaximumSpeed,windmill.ShaftSpeed);
             foreach(var value in new[]{0f,5f,float.NaN})
-                Assert.Throws<ArgumentException>(()=>world.AddPart(new(){Id="invalid",Kind="windmill",Properties=new(){[WindmillParameters.RadiansPerForce]=value}}));
+                Assert.Throws<ArgumentException>(()=>world.AddPart(new(){Id="invalid",Kind="windmill",Properties=new(){[PartParameterName.Of(WindmillParameter.RadiansPerForce)]=value}}));
         }
         finally{world.Free();}
     }

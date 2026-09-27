@@ -30,6 +30,8 @@ public partial class MachinePart : Node3D
     public List<SphereProxy> Spheres { get; } = new();
     public bool Active { get; set; }
     public Dictionary<string, float> Properties { get; private set; } = new();
+    public float ReadParameter<TParameter>(TParameter parameter) where TParameter : struct, System.Enum =>
+        Properties[PartParameterName.Of(parameter)];
     public float PickRadius { get; protected set; } = .65f;
     protected Node3D Visual = null!;
     private MeshInstance3D _highlight = null!;
@@ -58,14 +60,36 @@ public partial class MachinePart : Node3D
     public virtual IEnumerable<ElectricalGate> ElectricalGates => [];
     public virtual IEnumerable<ElectricalRoute> ElectricalRoutes => [];
     private readonly Dictionary<SocketId, float> _shaftSpeeds = new();
+    private readonly Dictionary<SocketId, double> _shaftTorques = new();
+    private readonly Dictionary<SocketId, double> _shaftWork = new();
+    public double MechanicalTorque(SocketId port) => _shaftTorques[port];
+    public double MechanicalWorkAvailable(SocketId port) => _shaftWork[port];
+    public void ConsumeMechanicalWork(SocketId port, double work)
+    {
+        if (!double.IsFinite(work) || work < 0 || work > _shaftWork[port])
+            throw new System.ArgumentOutOfRangeException(nameof(work));
+        _shaftWork[port] -= work;
+    }
     public float MechanicalSpeed(SocketId port) => _shaftSpeeds[port];
     internal void ClearMechanicalDrive()
     {
-        _shaftSpeeds.Clear();
+        _shaftSpeeds.Clear(); _shaftTorques.Clear(); _shaftWork.Clear();
         foreach (var port in ConnectionPorts)
-            if (port.Domain == ConnectionDomain.Mechanical) _shaftSpeeds.Add(port.Id, 0);
+            if (port.Domain == ConnectionDomain.Mechanical)
+            {
+                _shaftSpeeds.Add(port.Id, 0);
+                _shaftTorques.Add(port.Id, 0);
+                _shaftWork.Add(port.Id, 0);
+            }
     }
-    internal void SetMechanicalSpeed(SocketId port, float speed) => _shaftSpeeds[port] = speed;
+    internal void SetMechanicalDrive(SocketId port, float speed, double torque, double work)
+    {
+        _shaftSpeeds[port] = speed;
+        _shaftTorques[port] = torque;
+        _shaftWork[port] = work;
+    }
+    /// <summary>Inputs that consume work, rather than merely relay shaft motion.</summary>
+    public virtual IEnumerable<SocketId> MechanicalLoads => [];
     public virtual IEnumerable<MechanicalRoute> MechanicalRoutes => [];
     public virtual IEnumerable<MechanicalSource> MechanicalSources => [];
     public virtual void MechanicalStep(MachineWorld world, float delta) { }

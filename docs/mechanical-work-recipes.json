@@ -1,0 +1,621 @@
+[
+  {
+    "caseId": "mechanical-work-clutch-powered-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clutch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "mechanical-work-clutch-unpowered-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "mechanical-work-clutch-reversed-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          2,
+          4.5,
+          0
+        ]
+      },
+      {
+        "slot": "reverse",
+        "kind": "reverse_transmission",
+        "position": [
+          -4,
+          3,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clutch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "motor",
+        "to": "reverse",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "reverse",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "mechanical-work-windmill-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "windmill",
+        "kind": "windmill",
+        "position": [
+          -1,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "fan",
+        "kind": "fan",
+        "position": [
+          -4,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "windmill",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "mechanical-work-windmill-blocked-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "windmill",
+        "kind": "windmill",
+        "position": [
+          -1,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "fan",
+        "kind": "fan",
+        "position": [
+          -4,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      },
+      {
+        "slot": "wall",
+        "kind": "wall",
+        "position": [
+          -2.5,
+          6,
+          0
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "windmill",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "mechanical-work-motor-coast-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          2,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          6,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "clutch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "mechanical-work-motor-coast-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          2,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          6,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "clutch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  }
+]

@@ -61,6 +61,13 @@ public partial class Workshop
             {
                 Id = p.Uid, Visible = p.Visible, Position = Point(p.Position), Velocity = Point(p.Velocity)
             }).ToList(),
+            Mechanical = World.Parts.SelectMany(p => p.ConnectionPorts
+                .Where(port => port.Domain == ConnectionDomain.Mechanical)
+                .Select(port => new PlaytestMechanical
+                {
+                    Id = p.Uid, Port = port.Id, Speed = p.MechanicalSpeed(port.Id),
+                    Torque = p.MechanicalTorque(port.Id), WorkAvailable = p.MechanicalWorkAvailable(port.Id)
+                })).ToList(),
             Cannons = World.Parts.OfType<CannonPart>().Select(p => new PlaytestCannon
             {
                 Id = p.Uid, Phase = p.Phase, LastShot = p.LastShot, ShotCount = p.ShotCount,
@@ -227,8 +234,17 @@ public sealed class PlaytestCannon
     public string? PayloadId { get; set; }
     public float RecoilOffset { get; set; }
 }
+public sealed class PlaytestMechanical
+{
+    public string Id { get; set; } = "";
+    public SocketId Port { get; set; }
+    public float Speed { get; set; }
+    public double Torque { get; set; }
+    public double WorkAvailable { get; set; }
+}
 public sealed class PlaytestFrame
 {
+    public List<PlaytestMechanical> Mechanical { get; set; } = new();
     public List<PlaytestBody> Bodies { get; set; } = new();
     public List<PlaytestCannon> Cannons { get; set; } = new();
     public int Tick { get; set; }

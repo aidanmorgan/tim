@@ -22,7 +22,7 @@ public readonly record struct ElectricalRoute(SocketId Input, SocketId Output, b
 
 /// <summary>Signed shaft ratio; negative ratios reverse the local shaft direction.</summary>
 public readonly record struct MechanicalRoute(SocketId Input, SocketId Output, float Ratio, bool Enabled);
-public readonly record struct MechanicalSource(SocketId Output, float RadiansPerSecond);
+public readonly record struct MechanicalSource(SocketId Output, float RadiansPerSecond, float TorqueLimit);
 
 public static class ConnectionRules
 {

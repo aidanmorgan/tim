@@ -274,7 +274,7 @@ public partial class MachineWorld : Node3D
             foreach (var correction in _corrections) correction.Apply(_assistanceTime);
             foreach (var part in Parts) part.BeforeStep(this, delta);
             AirflowNetwork.Step(this,delta);
-            MechanicalNetwork.Solve(this);
+            MechanicalNetwork.Solve(this, delta);
             foreach (var part in Parts) part.MechanicalStep(this, delta);
             var guideDistances = Ropes.Select(r => r.GuideDistances()).ToArray();
             foreach (var body in Bodies)

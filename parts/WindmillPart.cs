@@ -4,17 +4,16 @@ using System.Collections.Generic;
 
 namespace CuriousContraptions;
 
-public static class WindmillParameters
-{
-    public const string RadiansPerForce="radians_per_force";
-}
+public enum WindmillParameter { RadiansPerForce }
 
-/// <summary>Air-to-shaft transducer for the existing ideal speed network, not a torque/load model.</summary>
+/// <summary>Air-to-shaft transducer for the regulated speed network. Air force bounds drive torque; coast motion supplies no work.</summary>
 public partial class WindmillPart : MachinePart
 {
     public const float MaximumSpeed=12;
     public const float Acceleration=18;
     public const float CutInForce=.05f;
+    public const float TorqueArm=.4f;
+    public float AvailableTorque=>Mathf.Abs(AxialForce)>=CutInForce && AxialForce*ShaftSpeed>0 ? Mathf.Abs(AxialForce)*TorqueArm : 0;
     private static readonly Vector3 RotorAt=new(-.12f,0,0);
     private static readonly AirflowSample[] RotorSamples=
     [
@@ -32,16 +31,16 @@ public partial class WindmillPart : MachinePart
     [
         new(SocketId.Drive,ConnectionDomain.Mechanical,PortDirection.Output,new(.25f,-.1f,.52f))
     ];
-    public override IEnumerable<MechanicalSource> MechanicalSources=>[new(SocketId.Drive,ShaftSpeed)];
+    public override IEnumerable<MechanicalSource> MechanicalSources=>[new(SocketId.Drive,ShaftSpeed,AvailableTorque)];
     public override void ValidateParameters()
     {
-        var gain=Properties[WindmillParameters.RadiansPerForce];
+        var gain=ReadParameter(WindmillParameter.RadiansPerForce);
         if(!float.IsFinite(gain)||gain<.1f||gain>4)throw new ArgumentException("Windmill response must be between 0.1 and 4 radians per unit force.");
     }
     public override void AirflowStep(MachineWorld world,Vector3 force,float delta)
     {
         AxialForce=force.Dot(Basis.X.Normalized());
-        var target=Mathf.Abs(AxialForce)<CutInForce?0:Mathf.Clamp(AxialForce*Properties[WindmillParameters.RadiansPerForce],-MaximumSpeed,MaximumSpeed);
+        var target=Mathf.Abs(AxialForce)<CutInForce?0:Mathf.Clamp(AxialForce*ReadParameter(WindmillParameter.RadiansPerForce),-MaximumSpeed,MaximumSpeed);
         ShaftSpeed=Mathf.MoveToward(ShaftSpeed,target,Acceleration*delta);
         ShaftTravel+=Mathf.Abs(ShaftSpeed)*delta;
         ShaftAngle=Mathf.PosMod(ShaftAngle+ShaftSpeed*delta,Mathf.Tau);

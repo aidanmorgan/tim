@@ -1,7 +1,10 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 namespace CuriousContraptions;
+
+public enum MotorParameter { Speed, Torque }
 
 public partial class MotorPart : MachinePart
 {
@@ -15,7 +18,16 @@ public partial class MotorPart : MachinePart
         new(SocketId.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(-.55f, 0, 0)),
         new(SocketId.Drive, ConnectionDomain.Mechanical, PortDirection.Output, new(0, 0, .65f))
     ];
-    public override IEnumerable<MechanicalSource> MechanicalSources => [new(SocketId.Drive, ShaftSpeed)];
+    public override IEnumerable<MechanicalSource> MechanicalSources => [new(SocketId.Drive, ShaftSpeed, Active ? ReadParameter(MotorParameter.Torque) : 0)];
+    public override void ValidateParameters()
+    {
+        var speed = ReadParameter(MotorParameter.Speed);
+        var torque = ReadParameter(MotorParameter.Torque);
+        if (!float.IsFinite(speed) || speed < 0 || speed > 20)
+            throw new ArgumentException("Motor speed must be between 0 and 20.");
+        if (!float.IsFinite(torque) || torque <= 0 || torque > 100)
+            throw new ArgumentException("Motor torque must be greater than zero and at most 100.");
+    }
     protected override void Build()
     {
         ClearMechanicalDrive();
@@ -36,7 +48,7 @@ public partial class MotorPart : MachinePart
     public override void BeforeStep(MachineWorld world, float delta)
     {
         Active = HasElectricalPower(SocketId.PowerIn);
-        var target = Active ? Mathf.Clamp(Parameter("speed", 6), 0, 20) : 0;
+        var target = Active ? ReadParameter(MotorParameter.Speed) : 0;
         ShaftSpeed = Mathf.MoveToward(ShaftSpeed, target, 18 * delta);
         ShaftTravel += ShaftSpeed * delta;
         ShaftAngle = Mathf.PosMod(ShaftTravel, Mathf.Tau);

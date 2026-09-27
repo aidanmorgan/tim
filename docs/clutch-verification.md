@@ -1,5 +1,7 @@
 # Electrically controlled clutch verification
 
+Update, 28 September 2026: the speed-only network described in this historical verification has been forward-refactored to shared torque/work allowances. See [current mechanical verification](mechanical-work-verification.md) for native and real-UI regressions; dynamic inertia/slip and broader aerodynamic modelling remain unfinished.
+
 Local verification, 27 September 2026, based on revision 8f136a4 plus the clutch implementation committed with this document. Core component behaviour is verified below; this does not complete campaign integration or the broader component goal.
 
 ## Contract

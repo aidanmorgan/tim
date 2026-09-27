@@ -34,16 +34,16 @@ changes. Double internal calculations keep products of finite float inputs
 representable. Sub-precision movement adds/releases no work.
 
 This is **not** a collision solver, dynamic screw/gear model, motor inertia
-simulation or shared torque/power allocator. The existing mechanical network
-propagates ideal signed shaft speed and has no source torque budget. Before
-the part can claim belt-work conservation, its integration must explicitly
-define where available torque comes from and how accepted work is supplied.
-Do not infer energy from an arbitrary nonzero speed or silently add a torque
-fallback. Broader source sharing/load feedback remains a separate network task.
+simulation or shared torque/power allocator. The mechanical network now supplies explicit torque and per-substep work
+allowances shared across live branches; see [mechanical work verification](mechanical-work-verification.md).
+Winding requires the allocated work explicitly and cannot exceed it. The physical
+part must debit actual accepted work from its typed mechanical input. Do not
+infer energy from nonzero speed or add a torque fallback. Shaft inertia, dynamic
+load feedback and motor stall curves remain separate unfinished work.
 
 ## Native verification
 
-26 focused cases cover:
+Initial groundwork: 26 focused cases cover:
 
 - Rising work/force with compression, stroke limits and collision-clearance limits.
 - Zero/insufficient torque, capped winding and accepted work versus input torque/travel.
@@ -62,7 +62,7 @@ for a completed puzzle element. No gameplay caller has changed in this groundwor
 
 ## Remaining implementation and acceptance
 
-- Define an explicit mechanically supplied winding drive; keep source torque/work limits honest.
+- Integrate the supplied winding drive with the new mechanical work allowance; debit accepted work and keep its physical shaft/plunger poses honest.
 - Add a finite-mass plunger with collision-swept movement and real payload contact.
   Account released work into plunger/load kinetic energy, gravity and dissipation;
   blocked geometry must never grant a free impulse. Payload mass must matter.

@@ -1,15 +1,10 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 namespace CuriousContraptions;
 
-public static class ConveyorParameters
-{
-    public const string Length = "length";
-    public const string Width = "width";
-    public const string SurfacePerRadian = "surface_per_radian";
-    public const string Traction = "traction";
-}
+public enum ConveyorParameter { Length, Width, SurfacePerRadian, Traction }
 
 /// <summary>Mechanically driven, finite-width conveyor. Traction acts only on bodies contacting its top.</summary>
 public partial class ConveyorPart : MachinePart
@@ -18,6 +13,9 @@ public partial class ConveyorPart : MachinePart
     private Node3D _directionArrow = null!;
     private float _phase;
     private float _length;
+    private double _remainingImpulse;
+    public double DeliveredWork { get; private set; }
+    public override IEnumerable<SocketId> MechanicalLoads => [SocketId.DriveIn];
     private readonly List<Node3D> _pulleys = new();
     public float ShaftSpeed { get; private set; }
     public float SurfaceSpeed { get; private set; }
@@ -25,17 +23,27 @@ public partial class ConveyorPart : MachinePart
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
         new(SocketId.DriveIn, ConnectionDomain.Mechanical, PortDirection.Input,
-            new(-Properties[ConveyorParameters.Length] / 2 + .15f, -.07f, Properties[ConveyorParameters.Width] / 2 + .18f)),
+            new(-ReadParameter(ConveyorParameter.Length) / 2 + .15f, -.07f, ReadParameter(ConveyorParameter.Width) / 2 + .18f)),
         new(SocketId.Drive, ConnectionDomain.Mechanical, PortDirection.Output,
-            new(Properties[ConveyorParameters.Length] / 2 - .15f, -.07f, Properties[ConveyorParameters.Width] / 2 + .18f))
+            new(ReadParameter(ConveyorParameter.Length) / 2 - .15f, -.07f, ReadParameter(ConveyorParameter.Width) / 2 + .18f))
     ];
     public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketId.DriveIn, SocketId.Drive, 1, true)];
     public override float SurfaceBounce => .05f;
 
+    public override void ValidateParameters()
+    {
+        foreach (var key in new[] { ConveyorParameter.Length, ConveyorParameter.Width, ConveyorParameter.Traction })
+            if (!float.IsFinite(ReadParameter(key)) || ReadParameter(key) <= 0)
+                throw new ArgumentException("Conveyor dimensions and traction must be finite and positive.");
+        var ratio = ReadParameter(ConveyorParameter.SurfacePerRadian);
+        if (!float.IsFinite(ratio) || ratio == 0)
+            throw new ArgumentException("Conveyor surface travel per radian must be finite and nonzero.");
+    }
+
     protected override void Build()
     {
-        _length = Properties[ConveyorParameters.Length];
-        var width = Properties[ConveyorParameters.Width];
+        _length = ReadParameter(ConveyorParameter.Length);
+        var width = ReadParameter(ConveyorParameter.Width);
         ClearMechanicalDrive();
         PickRadius = .85f;
         AddBox(Vector3.Zero, new(_length, .24f, width), new("#273744"));
@@ -69,7 +77,10 @@ public partial class ConveyorPart : MachinePart
     public override void MechanicalStep(MachineWorld world, float delta)
     {
         ShaftSpeed = MechanicalSpeed(SocketId.DriveIn);
-        SurfaceSpeed = ShaftSpeed * Properties[ConveyorParameters.SurfacePerRadian];
+        SurfaceSpeed = ShaftSpeed * ReadParameter(ConveyorParameter.SurfacePerRadian);
+        var force = Math.Min(ReadParameter(ConveyorParameter.Traction),
+            MechanicalTorque(SocketId.DriveIn) / Math.Abs(ReadParameter(ConveyorParameter.SurfacePerRadian)));
+        _remainingImpulse = force * delta;
         Active = ShaftSpeed != 0;
         ShaftAngle = Mathf.PosMod(ShaftAngle + ShaftSpeed * delta, Mathf.Tau);
         foreach (var pulley in _pulleys) pulley.Rotation = new(0, 0, -ShaftAngle);
@@ -87,9 +98,13 @@ public partial class ConveyorPart : MachinePart
         if (local.Y < .12f + body.Radius * .8f || Mathf.Abs(local.X) > _length / 2) return;
         var direction = Basis.X.Normalized();
         var along = body.Velocity.Dot(direction);
-        var traction = Properties[ConveyorParameters.Traction] / body.Mass;
-        var driven = Mathf.MoveToward(along, SurfaceSpeed, traction * MachineWorld.Tick / MachineWorld.Substeps);
-        body.Velocity += direction * (driven - along);
+        var result = MechanicalTraction.Apply(along, SurfaceSpeed, body.Mass,
+            _remainingImpulse, MechanicalWorkAvailable(SocketId.DriveIn));
+        if (result.Impulse == 0) return;
+        ConsumeMechanicalWork(SocketId.DriveIn, result.Work);
+        _remainingImpulse = Math.Max(0, _remainingImpulse - result.Impulse);
+        DeliveredWork += result.Work;
+        body.Velocity += direction * (result.Speed - along);
         world.Events.TryAdd(new MachineEvent(MachineEventKind.Transported, Uid, body.Uid), world.Ticks);
     }
 }

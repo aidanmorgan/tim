@@ -58,7 +58,11 @@ The press plate and its collision proxy descend together while folds compress, t
 
 Use cream bearing blocks and pulleys on a navy foot, two gold sliding coupling plates and a cyan coil ring. Gold pulley spokes expose rotation on each side independently. A small slate/cyan/gold lamp supplements the visible plate gap; do not rely on colour alone to distinguish open, closing and engaged states. Its original navy toolbox pictogram shows two separated plates between shafts.
 
-Plate travel follows the simulated closing fraction. Input and output spokes follow their respective signed shaft speeds: an open clutch can show a turning input and stationary output. Electricity closes the gap but cannot generate rotation without an upstream drive. Power loss immediately disconnects the ideal speed route while plates separate smoothly; do not animate fictitious freewheel inertia or claim torque/slip physics. Preserve the approved palette and add no permanent controls.
+Plate travel follows the simulated closing fraction. Input and output spokes follow their respective signed shaft speeds: an open clutch can show a turning input and stationary output. Electricity closes the gap but cannot generate rotation without an upstream drive. Power loss immediately disconnects the speed/work route while plates separate smoothly; do not animate fictitious freewheel inertia or claim dynamic torque/slip physics. Preserve the approved palette and add no permanent controls.
+
+## Mechanical work feedback
+
+Mechanical sources and belt branches now have bounded torque/work allowances. Keep the existing artwork and palette: motor/windmill/conveyor shaft angles still follow their regulated speeds. Smooth cosmetic coast-down is not an energy source, and no new torque inspector or floating status panel is introduced. The electrical motor's existing lamp indicates active supply. This work-sharing model does not simulate elastic belts, flywheel inertia or motor stall curves.
 
 ## Passive trampoline
 
