@@ -27,7 +27,7 @@
   - Public source: https://github.com/aidanmorgan/tim; play: https://aidanmorgan.github.io/tim/.
   - GitHub Actions tests the C# game and publishes/deploys the production WebAssembly bundle on pushes to `main`.
   - Verified repository-subpath assets, actual Chrome rendering and UI-only level-2 win, diagnostics disabled, and deep-link fallback to the app root. Deployment/rollback is documented in README.
-- [ ] Verify Save/Load persistence across a fresh page load at the actual GitHub Pages origin (deployment and in-session play are verified; persistent storage is a separate check).
+- [x] Verify Save/Load persistence across a fresh page load at the actual GitHub Pages origin: Chrome, same browser profile, Save then reload then Load restored the placed ramp and inventory. Other browsers/devices and cleared/private storage are not covered.
 - [x] Complete and document direct-UI Balanced reference playthroughs of all 40 levels; see [browser playtest](docs/browser-playtest.md).
 - [ ] Complete the full direct-UI difficulty/placement-error matrix for all 40 levels, including correction bounds/easing and browser Reset audits.
 - [ ] Improve dense 3D scene readability: occluded deeper parts, clipped scrolled palette rows, boundary placement rounding, and abrupt mid-animation success freeze; see playtest observations.
