@@ -74,7 +74,7 @@ The helix and index follow the physical plunger; never ease them independently t
 
 Use a cream rectangular frame, cyan membrane, restrained gold corner supports and a navy back plate. Keep the exposed gap deep enough to make compression readable. The original navy pictogram shows a ball above a sagging bed; do not reuse the springboard icon.
 
-The cyan mesh follows the simulated contact indentation and returns as the load leaves. Its profile stays below the contacting sphere, including deep off-centre loads. The rigid frame/back do not perform a decorative bounce. This part returns impact energy through contact springs; it does not impose the springboard's launch velocity. Preserve the palette and restrained toy geometry. The independent-contact approximation is not a cloth-wave simulation; sustained/mobile fluidity remains a review task.
+The cyan mesh follows the simulated contact indentation and returns as the load leaves. Its profile stays below the contacting sphere, including deep off-centre loads. The rigid frame/back do not perform a decorative bounce. This part returns impact energy through contact springs; it does not impose the springboard's launch velocity. Preserve the palette and restrained toy geometry. Spread off-centre sag toward the available interior fabric using direction-aware support bounded by the fixed frame; avoid a tiny circular pocket that makes the ball appear to sink through a flat sheet. A focused continuous 25-fps desktop review verifies compression/recovery readability, not all camera angles or a 60-fps guarantee. The independent-contact approximation is not a cloth-wave simulation; sustained/mobile fluidity remains a review task.
 
 ## Reloadable toy cannon
 

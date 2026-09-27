@@ -106,3 +106,30 @@ Three native enum-driven route cases on `ed19b88` plus tests/evidence only prove
 - Both actual configurations contain the three expected kinds at positions within 0.025 units of the recipe, no links, zero errors and exact Run/Reset equality. Full ignored logs retain recipes, actions, configurations, frames and image paths under `docs/playtest-results/<caseId>.json`.
 
 This closes the focused straight-pipe combination check, not a completed campaign puzzle: the workshop construction has no receiver goal. A follow-on lesson, broader routes/loads, sustained motion and mobile review remain open. Historical evidence is unchanged.
+
+### Continuous off-centre review — readability gate remains open
+
+At `7fc4bf9`, two real-UI cases refresh off-centre and rigid-rim behaviour. Both have the expected two parts, no links, zero errors and exact Reset:
+
+- `trampoline-off-centre-motion-v1`: ball at (0.8,6.9886303,0), bed at (0,3,0). The ball compresses the membrane and rebounds with sampled upward speed 5.3307495. 100 diagnostic frames. A fresh browser context records 35.92 seconds at 1440×900, VP8, 25 fps. Video SHA-256 `a2cbb12118f3692cbd53607ca8237db9eb304179996330dc3aaa30614cbe83ad`; file `.playwright-mcp/trampoline-off-centre-motion-v1.webm`. Diagnostic arrivals span 7.873 wall-clock seconds for 7.9 simulated seconds (ratio 0.99658); this is a focused desktop pacing observation, not a universal frame-rate guarantee.
+- `trampoline-rigid-rim-v1`: ball at (1.3000001,6.9972334,0) rests on the fixed cream rim at (1.300003,3.5400085,0), zero velocity, tick 948. No positive vertical velocity occurs in the 100 sampled frames. The rigid rim does not become an elastic launcher.
+
+**Visual review not passed.** Consecutive 25-fps frames from video seconds 27.4–28.4, including a full-resolution close view from 27.76–28.0, show the rebound but make the off-centre depression hard to read. The ball can appear to sink through a flat cyan sheet. This is a presentation-readability observation, not proof of collision penetration: native skin-envelope tests remain passing, and part of the sphere may be correctly occluded by the near slope.
+
+Inspection identifies the current rendered patch's circular support radius as the minimum distance to any frame edge. At X=0.8, that limits the dent's support to 0.4 units in every direction, even though more fabric lies toward the centre. Investigate a frame-bounded, direction-aware visual profile that makes the sag readable while preserving contact clearance, fixed edges, palette and unchanged physical forces. Do not mark the component's motion gate complete until a new continuous review passes. Native/render bounds and force-independent rendering tests must accompany any correction.
+
+[Reproduction, camera actions and capture source](trampoline-motion-review.json) retain this failed visual review. Full local diagnostic logs are `docs/playtest-results/<caseId>.json`; original recording remains unchanged. No runtime code changed during this review.
+
+### Off-centre visual correction (28 September 2026)
+
+The rendered contact patch now reaches the fixed frame along each sample's direction, rather than using the nearest edge's distance in every direction. This lets an edge impact pull the available interior fabric down. The sphere-clearance envelope, neighbouring-contact limit, physical forces, energy model and palette are unchanged.
+
+Five new enum-driven native cases first failed against the old narrow profile and now pass. They cover mirrored edge/corner contacts, appreciable interior sag, fixed frame edges, bounded surface heights, exact flat restoration and rendering that cannot change body position, velocity or stored energy. The retained failure is `docs/playtest-results/trampoline-skin-spread-v1-failure.txt`. All **56 focused trampoline cases and 1,193 native tests pass**. Diagnostic and production Release publishes pass.
+
+[Correction recipes, exact UI/capture source and comparisons](trampoline-motion-correction.json) retain the repeated actual-UI checks:
+
+- `trampoline-off-centre-motion-v2`: identical construction and all 100 shared body-state frames equal to v1, zero browser errors and exact Reset. Continuous 1440×900 VP8 recording is 35.92 seconds at 25 fps; SHA-256 `ce32f53c0a35047fa242ad840146241fcb3221477bcd1880b6d8fc472ca37bf3`.
+- Consecutive video frames from 27.4–28.4 seconds, including full-resolution crops from 27.76–28.0, show a broader cyan depression, a readable ball silhouette at deep compression, fixed frame and intermediate recovery poses. **This focused desktop visual review passes.** It does not establish mobile readability, all camera angles, sustained performance or a 60-fps guarantee.
+- `trampoline-rigid-rim-v2`: identical construction and all 100 shared body-state frames equal to its v1 control, zero errors and exact Reset. The ball still rests on the rigid rim without an elastic rebound.
+
+TrampolinePart SHA-256: `ceaffbbf72689d507cca6de1df6ead69c535c80784e5addc2ab66341dfc0c99d`. The failed v1 review remains unchanged above. This closes the specific off-centre readability defect; broader interactions, mobile review, the pipe-combination lesson and final campaign progression remain open.

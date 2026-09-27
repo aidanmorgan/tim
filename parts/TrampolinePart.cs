@@ -106,21 +106,29 @@ public partial class TrampolinePart : MachinePart
         Active = ContactCount > 0;
     }
 
-    // Local contact patches describe the massless spring approximation. They are not cloth waves.
+    // Frame-bounded visual patches describe the massless spring approximation, not cloth waves.
     public float MembraneHeight(Vector2 at)
     {
         if (Mathf.Abs(at.X) >= BedHalf.X || Mathf.Abs(at.Y) >= BedHalf.Y) return RestHeight;
         var depth = 0f;
         foreach (var contact in _contacts.Values)
         {
-            var support = Mathf.Min(BedHalf.X - Mathf.Abs(contact.At.X), BedHalf.Y - Mathf.Abs(contact.At.Y));
+            var offset = at - contact.At;
+            var distance = offset.Length();
+            // Distance to the fixed frame along this ray, not the nearest edge
+            // in every direction: an edge impact can pull the interior fabric down.
+            var direction = distance > 0 ? offset / distance : Vector2.Right;
+            var reachX = direction.X == 0 ? float.PositiveInfinity :
+                (BedHalf.X - Mathf.Sign(direction.X) * contact.At.X) / Mathf.Abs(direction.X);
+            var reachZ = direction.Y == 0 ? float.PositiveInfinity :
+                (BedHalf.Y - Mathf.Sign(direction.Y) * contact.At.Y) / Mathf.Abs(direction.Y);
+            var support = Mathf.Min(reachX, reachZ);
             foreach (var other in _contacts.Values)
                 if (!ReferenceEquals(contact, other))
                 {
                     var separation = contact.At.DistanceTo(other.At) * .49f;
                     if (separation > contact.Radius) support = Mathf.Min(support, separation);
                 }
-            var distance = at.DistanceTo(contact.At);
             if (support <= 0 || distance >= support) continue;
             var fraction = distance / support;
             var weight = 1 - fraction * fraction;

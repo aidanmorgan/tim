@@ -1,6 +1,6 @@
 # Project rules
 
-These rules apply to every contributor and sub-agent, across production code, tests, tooling and browser automation. No new or modified code may introduce magic strings; use existing enums or add appropriate enums wherever possible, and preserve their types through every internal caller.
+These rules apply to every contributor and sub-agent, across production code, tests, tooling and browser automation. There must be no magic strings in the project, including existing code. Use existing enums or add appropriate enums wherever possible, and preserve their types through every internal caller. Existing violations are refactoring work, not exceptions to this rule; do not claim repository-wide compliance until the audit and required refactors are verified.
 
 No magic strings are permitted. Use enums wherever possible so the compiler checks domain values and their callers. Enums are mandatory wherever a value belongs to a closed set; this is a project-wide requirement, not a preference. APIs, fields, collections and control flow must retain those enum types rather than pass their string representations internally. Named string constants do not replace enums for closed sets. The boundary and typed-identifier rules below govern values that genuinely cannot be enums.
 
