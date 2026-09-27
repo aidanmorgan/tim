@@ -46,6 +46,11 @@ public static class PipeParameters
     public const float BoreDiameter = 1.3f;
 }
 
+public static class CounterParameters
+{
+    public const string Target = "target_count";
+}
+
 public static class PressurePlateParameters
 {
     public const string MinimumMass = "minimum_mass";
