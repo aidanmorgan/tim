@@ -8,6 +8,12 @@ GitHub Pages serves the static SPA under `/tim/`; assets use relative paths and 
 This single-threaded 2dog host needs WebGL 2, but no custom cross-origin isolation headers or server backend. Initial loading downloads the engine and .NET runtime; allow extra time on a cold cache.
 Local browser screenshots, raw playtest records, generated bundles and agent state are intentionally not committed.
 
+Deployment verification (2026-09-27): [initial Actions run](https://github.com/aidanmorgan/tim/actions/runs/36293929096) passed all 89 tests and deployed successfully. On the actual Pages origin, Chrome rendered the workshop, a UI-only level-2 switch-to-lamp solution won, and `/tim/levels/1` returned to `/tim/#/levels/1` and loaded the app. Browser console: no errors or warnings and no playtest diagnostic output. Save/Load persistence across reload remains a separate verification item.
+
+
+Deployment uses [GitHub Actions](https://github.com/aidanmorgan/tim/actions/workflows/pages.yml). To roll back a release, revert the offending source commit on `main` and push; the same tests/build must pass before Pages switches to the replacement artifact. For a transient deployment failure, rerun the failed workflow. Do not commit `AppBundle` or enable `PlaytestDiagnostics` for the public build.
+
+
 A modern 3D contraption-puzzle prototype built with **Godot .NET and C#**.
 
 Gameplay, simulation, procedural artwork, workshop UI, serialization, tests, and the preview server are C#. Godot scenes/resources and puzzle JSON remain declarative data. The browser host includes the JavaScript/HTML required to start WebAssembly; there is no GDScript gameplay code. Use C# for new executable logic wherever possible.
@@ -19,7 +25,7 @@ Gameplay, simulation, procedural artwork, workshop UI, serialization, tests, and
 - [2dog](https://2dog.dev/getting-started.html) desktop/test/browser hosts, pinned in `Directory.Build.props`.
 - `dotnet workload install wasm-tools` for web publishing.
 
-Godot 4's official C# web export is not supported by the inspected [export documentation](https://docs.godotengine.org/en/latest/tutorials/export/exporting_for_web.html). This project uses the third-party 2dog WebAssembly host to meet the C# plus browser requirements. Successful publishing is not evidence of browser compatibility; full campaign browser playtesting remains outstanding. A standard, non-.NET Godot editor cannot run these C# scripts.
+Godot 4's official C# web export is not supported by the inspected [export documentation](https://docs.godotengine.org/en/latest/tutorials/export/exporting_for_web.html). This project uses the third-party 2dog WebAssembly host to meet the C# plus browser requirements. All 40 levels have Balanced reference playthroughs through the browser UI; the broader difficulty matrix remains incomplete. A standard, non-.NET Godot editor cannot run these C# scripts.
 
 ## Run and test
 
@@ -63,9 +69,9 @@ The solver uses fixed 120 Hz ticks, four substeps, stable part ordering, and qua
 
 ## Current evidence and remaining work
 
-Sixty-one native test cases pass, including all 40 draft campaign solutions at three precision settings, legal inventory/placement bounds, no untouched puzzle auto-solving, catalog and workshop creation, restart repeatability, depth separation, required-ball goals, power cycles, and automatic assistance bounds, interpolation, reset, successful-placement sweeps, powered conveyor transport through multiple orientations, and beginner interaction flows (preview, cancel, optional layers, height-preserving dragging, lift gestures, three-plane projections, all-axis rotation and mixed rotations through 90°, undo, run/reset controls, icon-only actions, and switching the widget between axis-constrained movement and rotation).
+Eighty-nine native test cases pass, including all 40 draft campaign solutions at three precision settings, legal inventory/placement bounds, no untouched puzzle auto-solving, catalog and workshop creation, restart repeatability, depth separation, required-ball goals, power cycles, and automatic assistance bounds, interpolation, reset, successful-placement sweeps, powered conveyor transport through multiple orientations, and beginner interaction flows (preview, cancel, optional layers, height-preserving dragging, lift gestures, three-plane projections, all-axis rotation and mixed rotations through 90°, undo, run/reset controls, icon-only actions, and switching the widget between axis-constrained movement and rotation).
 
-Forty draft levels now exist, authored as tutorials followed by combinations of motion, signals, domino chains, powered fans, conveyors, and depth-oriented routes. Their difficulty progression and variety still need hands-on playtesting; this is not the finished game. Chrome rendering, icon visibility, movement/rotation mode switching, lifting/sliding/rotating placed parts, camera controls, and floor bouncing have been checked through Playwright. All 40 levels still require complete browser playthroughs. The original game's integer physics have not been reproduced or quantitatively matched; cross-platform determinism is unproven. The realism toggle currently changes contact friction only. Ropes, belts, lasers, and character behaviors remain future work.
+Forty draft levels now exist, authored as tutorials followed by combinations of motion, signals, domino chains, powered fans, conveyors, and depth-oriented routes. Their difficulty progression and variety still need hands-on playtesting; this is not the finished game. Chrome rendering, icon visibility, movement/rotation mode switching, lifting/sliding/rotating placed parts, camera controls, and floor bouncing have been checked through Playwright. All 40 levels have successful Balanced reference playthroughs using the game UI, documented in [the browser report](docs/browser-playtest.md). The full 480-case difficulty/placement-error matrix remains incomplete; partial records do not prove the whole campaign's tolerance behavior. The original game's integer physics have not been reproduced or quantitatively matched; cross-platform determinism is unproven. The realism toggle currently changes contact friction only. Ropes, belts, lasers, and character behaviors remain future work.
 
 The [research dossier](docs/research.md) records historical references, puzzle families, physics findings, and the evidence required before claiming original-like behavior.
 

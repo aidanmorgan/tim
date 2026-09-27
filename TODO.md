@@ -23,11 +23,11 @@
   - Adapt the UI to small screens, portrait/landscape orientation, and safe areas while keeping the puzzle visible.
   - Check loading size, memory use, frame rate, and WebGL compatibility on real iOS Safari and Android Chrome devices.
   - Playtest all puzzle mechanics on touch devices; desktop browser emulation alone is insufficient.
-- [ ] Create a GitHub repository owned by `aidanmorgan` and deploy the webapp to GitHub Pages as an SPA.
-  - Choose the repository name and visibility, confirm account access, and connect the existing local Git repository to the remote.
-  - Add a GitHub Actions workflow that builds/tests the C# game, publishes the web bundle, and deploys Pages.
-  - Support the GitHub Pages repository subpath for all assets (including WebAssembly and Godot resources); handle SPA direct links/refreshes without server-side routing.
-  - Verify the published game, loading behavior, and browser storage at the actual Pages URL; document deployment and rollback.
+- [x] Create a GitHub repository owned by `aidanmorgan` and deploy the webapp to GitHub Pages as an SPA.
+  - Public source: https://github.com/aidanmorgan/tim; play: https://aidanmorgan.github.io/tim/.
+  - GitHub Actions tests the C# game and publishes/deploys the production WebAssembly bundle on pushes to `main`.
+  - Verified repository-subpath assets, actual Chrome rendering and UI-only level-2 win, diagnostics disabled, and deep-link fallback to the app root. Deployment/rollback is documented in README.
+- [ ] Verify Save/Load persistence across a fresh page load at the actual GitHub Pages origin (deployment and in-session play are verified; persistent storage is a separate check).
 - [x] Complete and document direct-UI Balanced reference playthroughs of all 40 levels; see [browser playtest](docs/browser-playtest.md).
 - [ ] Complete the full direct-UI difficulty/placement-error matrix for all 40 levels, including correction bounds/easing and browser Reset audits.
 - [ ] Improve dense 3D scene readability: occluded deeper parts, clipped scrolled palette rows, boundary placement rounding, and abrupt mid-animation success freeze; see playtest observations.
