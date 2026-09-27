@@ -48,6 +48,12 @@ Use four cyan pitched vanes with gold tips and hub inside a slender cream guard.
 
 Rotor and pulley angles follow the actual signed shaft speed: spin-up, reversal through zero and coast-down are continuous simulation motions, not decorative loops. A blocked fan path leaves the rotor at rest. The fixed guard/hub are collision geometry; blades are not individually simulated striking surfaces. Sampled desktop captures verify the connected, disconnected and blocked states; sustained fluidity and mobile review remain outstanding.
 
+## Bellows
+
+Use a navy base, cyan accordion body with thin cream fold rims, a cream press plate with a gold impact pad, and a short gold side nozzle with navy opening. The original navy pictogram shows a folded pump and side spout. Keep geometry chunky and uncluttered; retain the existing palette.
+
+The press plate and its collision proxy descend together while folds compress, then remain held by the load. Once clear, silent refill raises the same geometry; no decorative pulse loop continues after the air ends. Sampled desktop sequences show compression and downstream motion; sustained fluidity and mobile readability remain review items.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.
