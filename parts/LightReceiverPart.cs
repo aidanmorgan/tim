@@ -12,7 +12,7 @@ public partial class LightReceiverPart : MachinePart
     public Vector3 ReceivedPower { get; private set; }
     public float Power=>OpticalColours.Strength(ReceivedPower,Colour);
     public bool Matches=>OpticalColours.Accepts(ReceivedPower,Colour,Threshold);
-    public override OpticalSurface? OpticalSurface=>new(new(new(-.18f,0,0),Vector3.Left,.55f),OpticalInteraction.Absorb,Vector3.One);
+    public override IReadOnlyList<OpticalSurface> OpticalSurfaces=>[new(OpticalPortId.Main,new(new(-.18f,0,0),Vector3.Left,.55f),OpticalInteraction.Absorb,Vector3.One)];
     private StandardMaterial3D _target=null!;
     private float _level;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
@@ -22,7 +22,7 @@ public partial class LightReceiverPart : MachinePart
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
         Matches?[new(SocketIds.PowerIn,SocketIds.Supply)]:[];
-    public override void ReceiveOpticalPower(Vector3 power){ReceivedPower=power;Active=Matches;}
+    public override void ReceiveOpticalPower(IReadOnlyDictionary<OpticalPortId,Vector3> power){ReceivedPower=power[OpticalPortId.Main];Active=Matches;}
     public override void ValidateParameters()
     {
         if(!Enum.IsDefined(Colour))throw new ArgumentException("Unsupported receiver colour.");

@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CuriousContraptions;
@@ -6,7 +7,7 @@ namespace CuriousContraptions;
 /// <summary>Finite, front-silvered disc: actual transformed normal determines reflection.</summary>
 public partial class MirrorPart : MachinePart
 {
-    public override OpticalSurface? OpticalSurface=>new(new(new(-.18f,0,0),Vector3.Left,.65f),OpticalInteraction.Mirror,Vector3.One);
+    public override IReadOnlyList<OpticalSurface> OpticalSurfaces=>[new(OpticalPortId.Main,new(new(-.18f,0,0),Vector3.Left,.65f),OpticalInteraction.Mirror,Vector3.One)];
     private OpticalPathVisual _preview=null!;
     protected override void Build()
     {

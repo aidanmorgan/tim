@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CuriousContraptions;
@@ -6,7 +7,7 @@ namespace CuriousContraptions;
 /// <summary>Two-sided half-silvered aperture. Its solid glass is optically transparent, frame opaque.</summary>
 public partial class BeamSplitterPart : MachinePart
 {
-    public override OpticalSurface? OpticalSurface=>new(new(Vector3.Zero,Vector3.Left,.65f),OpticalInteraction.Split,Vector3.One);
+    public override IReadOnlyList<OpticalSurface> OpticalSurfaces=>[new(OpticalPortId.Main,new(Vector3.Zero,Vector3.Left,.65f),OpticalInteraction.Split,Vector3.One)];
     private OpticalPathVisual _preview=null!;
     protected override void Build()
     {

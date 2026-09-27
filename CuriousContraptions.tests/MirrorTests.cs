@@ -21,7 +21,7 @@ public class MirrorTests(HeadlessFixture godot)
         try
         {
             var mirror=world.AddPart(new(){Id="mirror",Kind="mirror",Position=[0,6,0],Rotation=[0,0,45]});
-            var point=mirror.Transform*mirror.OpticalSurface!.Value.Aperture.At;
+            var point=mirror.Transform*mirror.OpticalSurfaces.Single().Aperture.At;
             var laser=(LaserPart)world.AddPart(new(){Id="laser",Kind="laser"});
             laser.Position=point-Vector3.Right*3;
             var receiver=(LightReceiverPart)world.AddPart(new(){Id="receiver",Kind="light_receiver",Rotation=[0,0,-90]});
@@ -59,9 +59,9 @@ public class MirrorTests(HeadlessFixture godot)
         try
         {
             var first=world.AddPart(new(){Id="first",Kind="mirror",Position=[0,4,0],Rotation=[0,0,-45]});
-            var p=first.Transform*first.OpticalSurface!.Value.Aperture.At;
+            var p=first.Transform*first.OpticalSurfaces.Single().Aperture.At;
             var second=world.AddPart(new(){Id="second",Kind="mirror",Rotation=[0,0,135]});
-            second.Position=p+Vector3.Up*3-second.Basis*second.OpticalSurface!.Value.Aperture.At;
+            second.Position=p+Vector3.Up*3-second.Basis*second.OpticalSurfaces.Single().Aperture.At;
             var laser=world.AddPart(new(){Id="laser",Kind="laser"});
             laser.Position=p-Vector3.Right*3;
             var receiver=world.AddPart(new(){Id="receiver",Kind="light_receiver"});
@@ -84,7 +84,7 @@ public class MirrorTests(HeadlessFixture godot)
         try
         {
             var mirror=world.AddPart(new(){Id="mirror",Kind="mirror",Position=[0,6,0],Rotation=[0,0,45]});
-            var point=mirror.Transform*mirror.OpticalSurface!.Value.Aperture.At;
+            var point=mirror.Transform*mirror.OpticalSurfaces.Single().Aperture.At;
             var laser=world.AddPart(new(){Id="laser",Kind="laser"});
             laser.Position=point-Vector3.Right*3;
             var source=laser.OpticalPreviewSource!.Value;

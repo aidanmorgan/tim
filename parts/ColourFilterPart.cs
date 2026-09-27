@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 using System;
 using System.Linq;
 
@@ -8,8 +9,8 @@ namespace CuriousContraptions;
 public partial class ColourFilterPart : MachinePart
 {
     [Export] public OpticalColour Colour { get; set; }=OpticalColour.Red;
-    public override OpticalSurface? OpticalSurface=>new(new(Vector3.Zero,Vector3.Left,.65f),
-        OpticalInteraction.Filter,OpticalColours.Mask(Colour));
+    public override IReadOnlyList<OpticalSurface> OpticalSurfaces=>[new(OpticalPortId.Main,new(Vector3.Zero,Vector3.Left,.65f),
+        OpticalInteraction.Filter,OpticalColours.Mask(Colour))];
     private OpticalPathVisual _preview=null!;
     public override void ValidateParameters()
     {

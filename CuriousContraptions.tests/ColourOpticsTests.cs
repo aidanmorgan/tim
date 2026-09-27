@@ -34,7 +34,7 @@ public class ColourOpticsTests(HeadlessFixture godot)
             Assert.Equal(receiver,received.Receiver);
             var expected=source.Power*OpticalColours.Mask(colour);
             Assert.Equal(expected,received.Power);
-            receiver.ReceiveOpticalPower(received.Power);
+            receiver.ReceiveOpticalPower(new Dictionary<OpticalPortId,Vector3>{{OpticalPortId.Main,received.Power}});
             Assert.True(receiver.Active);
             Assert.False(receiver.HasElectricalPower(SocketIds.Supply));
             Assert.False(laser.Active); // Preview remains non-mutating.
@@ -82,11 +82,11 @@ public class ColourOpticsTests(HeadlessFixture godot)
         {
             var receiver=(LightReceiverPart)world.AddPart(new(){Id="receiver",Kind=name+"_receiver",Position=[3,6,0]});
             var mask=OpticalColours.Mask(colour);
-            receiver.ReceiveOpticalPower(Vector3.One);Assert.False(receiver.Active);
-            receiver.ReceiveOpticalPower(mask*.249f);Assert.False(receiver.Active);
-            receiver.ReceiveOpticalPower(mask*.25f);Assert.True(receiver.Active);
-            receiver.ReceiveOpticalPower(mask*.9f+(Vector3.One-mask)*.051f);Assert.False(receiver.Active);
-            receiver.ReceiveOpticalPower(mask*.91f+(Vector3.One-mask)*.045f);Assert.True(receiver.Active);
+            receiver.ReceiveOpticalPower(new Dictionary<OpticalPortId,Vector3>{{OpticalPortId.Main,Vector3.One}});Assert.False(receiver.Active);
+            receiver.ReceiveOpticalPower(new Dictionary<OpticalPortId,Vector3>{{OpticalPortId.Main,mask*.249f}});Assert.False(receiver.Active);
+            receiver.ReceiveOpticalPower(new Dictionary<OpticalPortId,Vector3>{{OpticalPortId.Main,mask*.25f}});Assert.True(receiver.Active);
+            receiver.ReceiveOpticalPower(new Dictionary<OpticalPortId,Vector3>{{OpticalPortId.Main,mask*.9f+(Vector3.One-mask)*.051f}});Assert.False(receiver.Active);
+            receiver.ReceiveOpticalPower(new Dictionary<OpticalPortId,Vector3>{{OpticalPortId.Main,mask*.91f+(Vector3.One-mask)*.045f}});Assert.True(receiver.Active);
             var laser=world.AddPart(new(){Id="laser",Kind="laser",Position=[-3,6,0]});
             world.AddPart(new(){Id="filter",Kind=name+"_filter",Position=[0,6,0]});
             var battery=world.AddPart(new(){Id="battery",Kind="battery",Position=[-5,2,3]});
