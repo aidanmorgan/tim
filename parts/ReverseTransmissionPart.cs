@@ -17,7 +17,7 @@ public partial class ReverseTransmissionPart : MachinePart
         new(SocketIds.DriveIn, ConnectionDomain.Mechanical, PortDirection.Input, new(-.36f, 0, .4f)),
         new(SocketIds.Drive, ConnectionDomain.Mechanical, PortDirection.Output, new(.36f, 0, .4f))
     ];
-    public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketIds.DriveIn, SocketIds.Drive, -1)];
+    public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketIds.DriveIn, SocketIds.Drive, -1, true)];
 
     protected override void Build()
     {

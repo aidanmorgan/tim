@@ -10,7 +10,7 @@ namespace CuriousContraptions;
 public static class MechanicalNetwork
 {
     private readonly record struct Socket(MachinePart Part, string Port);
-    private readonly record struct Edge(Socket Target, float Ratio);
+    private readonly record struct Edge(Socket Target, float Ratio, bool Enabled);
     private sealed class Graph
     {
         public Dictionary<Socket, List<Edge>> Edges { get; } = new();
@@ -32,13 +32,13 @@ public static class MechanicalNetwork
                 graph.Incoming.Add(socket, 0);
             }
 
-        void Add(Socket from, Socket to, float ratio)
+        void Add(Socket from, Socket to, float ratio, bool enabled)
         {
             if (!float.IsFinite(ratio) || ratio == 0)
                 throw new ArgumentException("Mechanical ratios must be finite and non-zero.");
             if (++graph.Incoming[to] > 1)
                 throw new ArgumentException("A mechanical socket accepts exactly one upstream drive.");
-            graph.Edges[from].Add(new(to, ratio));
+            graph.Edges[from].Add(new(to, ratio, enabled));
         }
         foreach (var part in byId.Values)
         {
@@ -47,7 +47,7 @@ public static class MechanicalNetwork
                 if (!ports[part].Any(p => p.Id == route.Input && p.Domain == ConnectionDomain.Mechanical && p.Direction == PortDirection.Input)
                     || !ports[part].Any(p => p.Id == route.Output && p.Domain == ConnectionDomain.Mechanical && p.Direction == PortDirection.Output))
                     throw new ArgumentException("Invalid internal mechanical route on " + part.Uid);
-                Add(new(part, route.Input), new(part, route.Output), route.Ratio);
+                Add(new(part, route.Input), new(part, route.Output), route.Ratio, route.Enabled);
             }
             var sources = new HashSet<string>(StringComparer.Ordinal);
             foreach (var source in part.MechanicalSources)
@@ -61,7 +61,7 @@ public static class MechanicalNetwork
             if (!byId.TryGetValue(link.From, out var from) || !byId.TryGetValue(link.To, out var to)
                 || !ConnectionRules.TryResolve(link, ports[from], ports[to], out _, out _))
                 throw new ArgumentException("Invalid mechanical belt endpoints.");
-            Add(new(from, link.FromPort!), new(to, link.ToPort!), 1);
+            Add(new(from, link.FromPort!), new(to, link.ToPort!), 1, true);
         }
         var incoming = new Dictionary<Socket, int>(graph.Incoming);
         var pending = new Queue<Socket>(incoming.Where(p => p.Value == 0).Select(p => p.Key));
@@ -96,7 +96,7 @@ public static class MechanicalNetwork
         foreach (var socket in graph.Order)
         foreach (var edge in graph.Edges[socket])
         {
-            var speed = socket.Part.MechanicalSpeed(socket.Port) * edge.Ratio;
+            var speed = edge.Enabled ? socket.Part.MechanicalSpeed(socket.Port) * edge.Ratio : 0;
             if (!float.IsFinite(speed)) throw new InvalidOperationException("Mechanical drive speed overflow.");
             edge.Target.Part.SetMechanicalSpeed(edge.Target.Port, speed);
         }

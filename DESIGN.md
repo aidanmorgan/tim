@@ -54,6 +54,12 @@ Use a navy base, cyan accordion body with thin cream fold rims, a cream press pl
 
 The press plate and its collision proxy descend together while folds compress, then remain held by the load. Once clear, silent refill raises the same geometry; no decorative pulse loop continues after the air ends. Sampled desktop sequences show compression and downstream motion; sustained fluidity and mobile readability remain review items.
 
+## Electrically controlled clutch
+
+Use cream bearing blocks and pulleys on a navy foot, two gold sliding coupling plates and a cyan coil ring. Gold pulley spokes expose rotation on each side independently. A small slate/cyan/gold lamp supplements the visible plate gap; do not rely on colour alone to distinguish open, closing and engaged states. Its original navy toolbox pictogram shows two separated plates between shafts.
+
+Plate travel follows the simulated closing fraction. Input and output spokes follow their respective signed shaft speeds: an open clutch can show a turning input and stationary output. Electricity closes the gap but cannot generate rotation without an upstream drive. Power loss immediately disconnects the ideal speed route while plates separate smoothly; do not animate fictitious freewheel inertia or claim torque/slip physics. Preserve the approved palette and add no permanent controls.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.

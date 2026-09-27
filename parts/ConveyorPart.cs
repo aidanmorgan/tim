@@ -29,7 +29,7 @@ public partial class ConveyorPart : MachinePart
         new(SocketIds.Drive, ConnectionDomain.Mechanical, PortDirection.Output,
             new(Properties[ConveyorParameters.Length] / 2 - .15f, -.07f, Properties[ConveyorParameters.Width] / 2 + .18f))
     ];
-    public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketIds.DriveIn, SocketIds.Drive, 1)];
+    public override IEnumerable<MechanicalRoute> MechanicalRoutes => [new(SocketIds.DriveIn, SocketIds.Drive, 1, true)];
     public override float SurfaceBounce => .05f;
 
     protected override void Build()

@@ -311,6 +311,7 @@ Sub-agent findings, sources, detailed contracts and **39 cross-system puzzle rec
 
 ### Complementary parts and integration
 
+- [ ] Electrically controlled clutch: C# implementation, scene/catalog/icon and 18 native cases pass (756 total; 48 UI-driver tests). Five real-UI Playwright cases prove powered drive, missing coil power, missing motor power, timed release and reversed drive, with verified construction/typed links and exact Reset; production Release publish passes. See [verification](docs/clutch-verification.md). Campaign lessons and sustained/mobile animation review remain open; brakes and torque/slip physics are separate unfinished elements.
 - [ ] Expand mechanical entries with cams/followers, cranks, clutches/brakes, ratchets/escapements and one-at-a-time feeders.
 - [ ] Extend bellows to finite pneumatic supply, hoses, reservoirs, valves and spring-return pistons; add electromagnets/material sorting.
 - [ ] Prototype flywheels/governors after torque/inertia/load support and thermal actuators after thermal-state modelling.
