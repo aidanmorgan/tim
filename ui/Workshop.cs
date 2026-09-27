@@ -117,7 +117,7 @@ public partial class Workshop : Node3D
         label.AddThemeColorOverride("font_color", color ?? Cream);
         return label;
     }
-    private static Button Button(string text, Action action, bool accent = false)
+    private static Button Button(string text, Action action, bool accent = false, Texture2D? icon = null)
     {
         var button = new WorkshopButton { Text = text, CustomMinimumSize = new(40, 40), MouseDefaultCursorShape = Control.CursorShape.PointingHand };
         button.AddThemeFontSizeOverride("font_size", 15);
@@ -133,7 +133,16 @@ public partial class Workshop : Node3D
             style.ContentMarginLeft = style.ContentMarginRight = 10;
             style.SetBorderWidthAll(0);
         }
-        WorkshopIcons.Apply(button, text);
+        if (icon == null) WorkshopIcons.Apply(button, text);
+        else
+        {
+            button.SetMeta("action_label", text);
+            button.Text = "";
+            button.Icon = icon;
+            button.ExpandIcon = false;
+            button.TooltipText = "";
+            button.AddThemeConstantOverride("icon_max_width", 20);
+        }
         button.Pressed += action;
         return button;
     }

@@ -21,30 +21,16 @@ public partial class Workshop
         ClearLinkChoices();
         foreach (var option in options)
         {
-            var action = option.Type switch
+            var choice = ConnectionChoice.Describe(option);
+            var button = Button(choice.Label, () => CompleteLink(target, option), icon: WorkshopIcons.ConnectionPictogram(choice));
+            if (choice.OutputIcon != null)
             {
-                ConnectionDomain.Activation => option.ToPort switch
-                {
-                    SocketId.SetIn => "Connect set",
-                    SocketId.ResetIn => "Connect reset",
-                    SocketId.ActivationIn => "Connect activation",
-                    _ => throw new InvalidOperationException("Unsupported activation input.")
-                },
-                ConnectionDomain.Electrical => option.ToPort switch
-                {
-                    SocketId.FirstIn => "Connect first input",
-                    SocketId.SecondIn => "Connect second input",
-                    SocketId.PowerIn => "Connect electricity",
-                    _ => throw new InvalidOperationException("Unsupported electrical input.")
-                },
-                ConnectionDomain.Mechanical => "Connect drive",
-                ConnectionDomain.Rope => "Connect rope",
-                _ => throw new InvalidOperationException("Unsupported selectable connection domain.")
-            };
-            var button = Button(action, () => CompleteLink(target, option));
+                button.CustomMinimumSize = new(64,40);
+                button.AddThemeConstantOverride("icon_max_width",42);
+            }
             _linkChoices.AddChild(button);
         }
-        _status.Text = "Choose the input socket.";
+        _status.Text = "Choose the connection sockets.";
     }
 
     private void CompleteLink(MachinePart target, ConnectionSpec option)

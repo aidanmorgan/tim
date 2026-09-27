@@ -4,6 +4,10 @@
 // This adapter never evaluates game code, edits storage, loads saves, sets transforms,
 // uses numeric placement menus, invokes game methods, or synthesizes success.
 async function directUiAttempt(page, attempt) {
+    // Closed protocol sets mirror C# enum wire names at this external boundary.
+    const ElectricalSocket = Object.freeze({ Supply:"supply", PowerIn:"power_in", FirstIn:"first_in",
+        SecondIn:"second_in", ExtendIn:"extend_in", RetractIn:"retract_in",
+        ExtendedOut:"extended_out", RetractedOut:"retracted_out" });
     if (!Number.isInteger(attempt.level) || attempt.level < 1 || attempt.level > 75)
         throw new Error("Expected a campaign level in the planned range 1..75");
     if (![0, 0.45, 1].includes(attempt.precision))
@@ -24,8 +28,9 @@ async function directUiAttempt(page, attempt) {
     for (const link of attempt.connections ?? []) {
         const activation = link.type === "activation" && link.from_port === "activation_out" &&
             ["activation_in", "set_in", "reset_in"].includes(link.to_port);
-        const motorSupply = link.type === "electrical" && link.from_port === "supply" &&
-            ["power_in", "first_in", "second_in"].includes(link.to_port);
+        const motorSupply = link.type === "electrical" && [ElectricalSocket.Supply, ElectricalSocket.ExtendedOut, ElectricalSocket.RetractedOut].includes(link.from_port) &&
+            [ElectricalSocket.PowerIn, ElectricalSocket.FirstIn, ElectricalSocket.SecondIn,
+                ElectricalSocket.ExtendIn, ElectricalSocket.RetractIn].includes(link.to_port);
         const mechanical = link.type === "mechanical" && link.from_port === "drive" &&
             link.to_port === "drive_in";
         const rope = link.type === "rope" && link.from_port === "tie" && link.to_port === "tie" &&
@@ -225,8 +230,12 @@ for (let tries=0;tries<40;tries++) {
             await waitFor(() => ui.selected===from, "wire source selection");
             await action("Connect");
             await click(target.screen, "connect to "+to);
-            const choice = {activation: {activation_in:"Connect activation", set_in:"Connect set", reset_in:"Connect reset"}[link.to_port],electrical:{power_in:"Connect electricity",first_in:"Connect first input",second_in:"Connect second input"}[link.to_port],
+            let choice = {activation: {activation_in:"Connect activation", set_in:"Connect set", reset_in:"Connect reset"}[link.to_port],electrical:{[ElectricalSocket.PowerIn]:"Connect electricity",[ElectricalSocket.FirstIn]:"Connect first input",
+                [ElectricalSocket.SecondIn]:"Connect second input",[ElectricalSocket.ExtendIn]:"Connect extend",
+                [ElectricalSocket.RetractIn]:"Connect retract"}[link.to_port],
                 mechanical:"Connect drive",rope:"Connect rope"}[link.type];
+            if (link.from_port === ElectricalSocket.ExtendedOut) choice = "Extended → " + choice;
+            if (link.from_port === ElectricalSocket.RetractedOut) choice = "Retracted → " + choice;
             if (ui.buttons.some(b => b.action === choice && b.enabled && !b.clipped))
                 await action(choice);
         }

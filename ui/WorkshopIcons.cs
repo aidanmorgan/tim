@@ -25,6 +25,11 @@ public static class WorkshopIcons
         if (Cache.TryGetValue(key, out var cached)) return cached;
         var drawing = kind switch
         {
+            "extend_input" => "<path d='M3 8h7v8H3zM10 12h11m-4-4 4 4-4 4'/>",
+            "retract_input" => "<path d='M3 8h7v8H3zM21 12H11m4-4-4 4 4 4'/>",
+            "extended_output" => "<path d='M2 7h7v10H2zM9 12h11M20 7v10M14 3h7m-3-2 3 2-3 2'/>",
+            "retracted_output" => "<path d='M2 7h7v10H2zM9 12h3M12 7v10M21 3h-7m3-2-3 2 3 2'/>",
+            LinearPusherPart.CatalogId => "<rect x='2' y='7' width='10' height='10' rx='2'/><path d='M12 11h7v2h-7M20 7v10M4 4h5m-5 16h5'/><circle cx='20' cy='12' r='2'/>",
             TrampolinePart.CatalogId => "<path d='M3 9h18M4 9v10m16-10v10M5 9q7 7 14 0M8 19h8'/><circle cx='12' cy='4' r='2'/>",
             "clutch" => "<path d='M2 12h5M17 12h5M7 5v14m10-14v14M10 7v10m4-10v10M12 2v3m-2 16h4'/><circle cx='12' cy='3' r='1'/>",
             "bellows" => "<path d='M3 5h14v3H3zM3 8l2 3-2 3 2 3-2 3h14l-2-3 2-3-2-3 2-3M17 14h5v3h-5M7 2h6'/>",
@@ -107,6 +112,20 @@ public static class WorkshopIcons
         return texture;
     }
 
+    public static Texture2D ConnectionPictogram(ConnectionChoice choice)
+    {
+        if (choice.OutputIcon == null) return Pictogram(choice.Icon);
+        var key = "connection:" + choice.OutputIcon + ":" + choice.Icon;
+        if (Cache.TryGetValue(key, out var cached)) return cached;
+        using var output = Pictogram(choice.OutputIcon).GetImage();
+        using var input = Pictogram(choice.Icon).GetImage();
+        using var combined = Image.CreateEmpty(100,48,false,Image.Format.Rgba8);
+        combined.BlitRect(output,new Rect2I(0,0,48,48),Vector2I.Zero);
+        combined.BlitRect(input,new Rect2I(0,0,48,48),new Vector2I(52,0));
+        var texture=ImageTexture.CreateFromImage(combined);
+        Cache.Add(key,texture);return texture;
+    }
+
     public static void Apply(Button button, string action)
     {
         var (label, icon) = action switch
@@ -128,14 +147,6 @@ public static class WorkshopIcons
             "Zoom −" => ("Zoom out", "zoom-out"),
             "Remove" => ("Remove", "trash"),
             "Connect" => ("Connect", "link"),
-            "Connect set" => ("Set input · turn on", "custom:set_input"),
-            "Connect reset" => ("Reset input · turn off", "custom:reset_input"),
-            "Connect activation" => ("Trigger connection", "custom:switch"),
-            "Connect first input" => ("First input", "custom:first_input"),
-            "Connect second input" => ("Second input", "custom:second_input"),
-            "Connect electricity" => ("Electrical connection", "custom:battery"),
-            "Connect drive" => ("Drive connection", "custom:conveyor"),
-            "Connect rope" => ("Rope connection", "custom:rope_anchor"),
             "Save" => ("Save", "save"),
             "Load" => ("Load", "folder-open"),
             "Show hint" => ("Hint", "lightbulb"),

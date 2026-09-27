@@ -94,7 +94,7 @@ public static class RopeGeometry
 public enum SocketId
 {
     ActivationOut = 1, SetIn, ResetIn, ActivationIn, FirstIn, SecondIn,
-    Supply, PowerIn, Drive, DriveIn, Tie
+    Supply, PowerIn, Drive, DriveIn, Tie, ExtendIn, RetractIn, ExtendedOut, RetractedOut
 }
 
 /// <summary>Exact current wire names only; no aliases, numeric values or case folding.</summary>

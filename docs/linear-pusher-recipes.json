@@ -1,0 +1,580 @@
+[
+  {
+    "caseId": "pusher-endpoints-v4",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "home",
+        "kind": "powered_gate",
+        "position": [
+          -4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "end",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      },
+      {
+        "from": "pusher",
+        "to": "home",
+        "type": "electrical",
+        "from_port": "retracted_out",
+        "to_port": "power_in"
+      },
+      {
+        "from": "pusher",
+        "to": "end",
+        "type": "electrical",
+        "from_port": "extended_out",
+        "to_port": "power_in"
+      }
+    ]
+  },
+  {
+    "caseId": "pusher-no-supply-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      }
+    ]
+  },
+  {
+    "caseId": "pusher-conflict-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "home",
+        "kind": "powered_gate",
+        "position": [
+          -4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "end",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      },
+      {
+        "from": "pusher",
+        "to": "home",
+        "type": "electrical",
+        "from_port": "retracted_out",
+        "to_port": "power_in"
+      },
+      {
+        "from": "pusher",
+        "to": "end",
+        "type": "electrical",
+        "from_port": "extended_out",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "retract_in"
+      }
+    ]
+  },
+  {
+    "caseId": "pusher-reversal-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "home",
+        "kind": "powered_gate",
+        "position": [
+          -4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "end",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          5,
+          -2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          0,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "nor",
+        "kind": "electrical_nor",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          5,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          5,
+          6,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "pusher",
+        "to": "home",
+        "type": "electrical",
+        "from_port": "retracted_out",
+        "to_port": "power_in"
+      },
+      {
+        "from": "pusher",
+        "to": "end",
+        "type": "electrical",
+        "from_port": "extended_out",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "nor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "timer",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      },
+      {
+        "from": "timer",
+        "to": "nor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "first_in"
+      },
+      {
+        "from": "nor",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "retract_in"
+      },
+      {
+        "from": "switch",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "pusher-interrupted-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          0,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "trigger",
+        "kind": "switch",
+        "position": [
+          -4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "early",
+        "kind": "ball",
+        "position": [
+          -4,
+          4.5,
+          -2
+        ]
+      },
+      {
+        "slot": "command",
+        "kind": "switch",
+        "position": [
+          5,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "late",
+        "kind": "ball",
+        "position": [
+          5,
+          8,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "command",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "timer",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "command",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      },
+      {
+        "from": "trigger",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  }
+]

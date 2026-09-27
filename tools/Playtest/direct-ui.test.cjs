@@ -40,15 +40,15 @@ for (const link of [
         await assert.rejects(fn({}, {level:1,precision:.45,connections:[link]}), /explicit supported connection sockets/);
     });
 }
-async function attemptWith(mode) {
+async function attemptWith(mode, requestedLink, expectedChoice) {
     let now = 0, listener, pointer, releaseShift = 0;
     const screenshots = [], wheels = [];
     const scrollCase = mode === "scroll-above" || mode === "scroll-below";
     const connectionCase = mode.startsWith("connection-");
     const ropeCase = mode.includes("rope");
-    const link = ropeCase
+    const link = requestedLink ?? (ropeCase
         ? { from:"a",to:"b",type:"rope",from_port:"tie",to_port:"tie",rope_length:2 }
-        : { from:"a",to:"b",type:"mechanical",from_port:"drive",to_port:"drive_in" };
+        : { from:"a",to:"b",type:"mechanical",from_port:"drive",to_port:"drive_in" });
     const ui = { level: 1, precision: .45, running: false, parts: [],
         buttons: [
             { action: "▶  Run machine", enabled: true, screen: [10,10] },
@@ -88,7 +88,11 @@ async function attemptWith(mode) {
                 if (scrollCase && pointer?.[0] === 130 && pointer?.[1] === 250)
                     throw new Error("palette reached");
                 if (connectionCase && pointer?.[0] === 30) { ui.selected="a"; emit("CCUI ",ui); }
-                if (connectionCase && pointer?.[0] === 40 && mode !== "connection-missing") {
+                if (connectionCase && pointer?.[0] === 40 && expectedChoice) {
+                    ui.buttons.push({action:expectedChoice,enabled:true,screen:[50,50]});
+                    emit("CCUI ",ui);
+                }
+                if (connectionCase && pointer?.[0] === (expectedChoice ? 50 : 40) && mode !== "connection-missing") {
                     const actual = {from:"a",to:"b",type:link.type,fromPort:link.from_port,toPort:link.to_port};
                     if (ropeCase) actual.ropeLength=2;
                     if (mode === "connection-type") actual.type="activation";
@@ -183,4 +187,24 @@ for (const mode of ["connection-missing","connection-type","connection-endpoint"
         assert.ok(result.run,"retain actual construction as failure evidence");
         assert.equal(result.reset,undefined,"do not call failed construction a verified lifecycle");
     });
+}
+
+const ElectricalSocket = Object.freeze({ Supply:"supply", PowerIn:"power_in", FirstIn:"first_in",
+    SecondIn:"second_in", ExtendIn:"extend_in", RetractIn:"retract_in",
+    ExtendedOut:"extended_out", RetractedOut:"retracted_out" });
+for (const [output,prefix] of [[ElectricalSocket.Supply,""],[ElectricalSocket.ExtendedOut,"Extended → "],
+    [ElectricalSocket.RetractedOut,"Retracted → "]]) {
+    for (const [input,label] of [[ElectricalSocket.PowerIn,"Connect electricity"],[ElectricalSocket.FirstIn,"Connect first input"],
+        [ElectricalSocket.SecondIn,"Connect second input"],[ElectricalSocket.ExtendIn,"Connect extend"],
+        [ElectricalSocket.RetractIn,"Connect retract"]]) {
+        test("chooses explicit electrical sockets "+output+" → "+input,async()=>{
+            const choice=prefix+label;
+            const link={from:"a",to:"b",type:"electrical",from_port:output,to_port:input};
+            const {result}=await attemptWith("connection-correct",link,choice);
+            assert.equal(result.failure,undefined);
+            assert.ok(result.actions.some(a=>a.label===choice));
+            assert.equal(result.run.connections[0].fromPort,output);
+            assert.equal(result.run.connections[0].toPort,input);
+        });
+    }
 }

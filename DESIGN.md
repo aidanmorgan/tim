@@ -104,7 +104,7 @@ Part identity is defined in `parts/catalog/*.tres`. Preserve these relationships
 | Balloon | 0.93, 0.39, 0.47 | `#ed6378` |
 | Ramp | 0.76, 0.56, 0.32 | `#c28f52` |
 | Basket | 0.29, 0.67, 0.58 | `#4aab94` |
-| Spring | 0.96, 0.70, 0.33 | `#f5b354` |
+| Electric linear pusher | Cream barrel on a navy foot, slim gold rod, cream spherical head with cyan ring, gold travel marks and distinct lower command/supply versus upper end-switch sockets. The rod and head follow the actual collision extension; never animate through an obstruction or teleport cargo. Slate indicates held/unpowered, cyan free movement and gold loaded/contact-blocked or conflicting commands. Brake on power loss holds the current pose; no spring-return animation. Original pictogram and paired endpoint/input icons preserve the minimal contextual UI. Ideal self-locking electric servo, not a pneumatic piston or battery-energy model. |\n| Spring | 0.96, 0.70, 0.33 | `#f5b354` |
 | Fan | 0.40, 0.72, 0.79 | `#66b8c9` |
 | Switch | 0.94, 0.43, 0.33 | `#f06e54` |
 | Domino | 0.91, 0.83, 0.65 | `#e8d4a6` |
@@ -155,7 +155,7 @@ The toolbar uses **Lucide**, with bundled ISC licensing and Feather-derived icon
 
 - Toolbar: 24 × 24 SVG viewBox, no fill, `#293954` stroke, 2-unit stroke, round caps and joins.
 - Custom part/move/front/cube pictograms: the same 24-unit canvas and ink, 1.7-unit stroke, no fill, round caps/joins; rasterised from SVG at 2×.
-- Button icon maximum width: 20 px, without icon expansion.
+- Button icon maximum width: 20 px, without icon expansion. Electrical connections with multiple source outputs show paired source/target pictograms in a 64 × 40 button (42 px combined icon width). The pair distinguishes both ends without adding visible button text or persistent tooltips.
 - Run is a play triangle; running uses a stop square; solved/reset uses a counterclockwise arrow. Undo, trash, link, save, folder, lightbulb, sliders and camera/rotation actions retain their established pictograms.
 - Each inventory row has a distinct part pictogram plus a neighbouring name and remaining count. The entire row is one click target, including the words and count; the labels do not intercept pointer events. The toolbox grows to fit its inventory, capped to the available screen height with scrolling only for overflow. Exhausted rows are disabled. Do not replace all parts with generic boxes or emoji.
 
