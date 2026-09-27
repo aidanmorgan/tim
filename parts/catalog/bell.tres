@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/bell.tscn" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "bell"
+Title = "Bell"
+Category = "Sound"
+Description = "Strike with a moving ball or weight to ring in every direction. Harder, heavier impacts sound louder. Needs separation before another strike, at most five times per second; gentle resting contact stays silent. No battery needed. A powered sound meter can turn the sound into a signal; opaque obstacles block reception."
+Scene = ExtResource("2")
+Color = Color(0.91, 0.72, 0.39, 1)

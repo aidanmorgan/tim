@@ -48,7 +48,7 @@ public partial class SpeakerPart : MachinePart
         }
         if(requested&&HasElectricalPower(SocketIds.PowerIn)&&world.Ticks-LastPulseTick>=MinimumIntervalTicks)
         {
-            _pulses.Add(new(Transform*Mouth,Transform.Basis*Vector3.Right,Tone,world.Ticks));
+            _pulses.Add(new(Transform*Mouth,Transform.Basis*Vector3.Right,Tone,world.Ticks,AcousticPattern.Cone,1));
             PulseCount++;LastPulseTick=world.Ticks;
             _visualKick=1;
             _audio.Play(); // presentation only; no playback state is read by simulation
@@ -80,23 +80,8 @@ public partial class SpeakerPart : MachinePart
             material.ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded;
             _rings.Add(ring);
         }
-        _audio=new AudioStreamPlayer3D {Stream=MakeTone(Tone),VolumeDb=-15,MaxDistance=20,MaxPolyphony=2};
+        _audio=new AudioStreamPlayer3D {Stream=AcousticAudio.Create(Tone,AcousticVoice.Speaker),VolumeDb=-15,MaxDistance=20,MaxPolyphony=2};
         AddChild(_audio);
-    }
-    private static AudioStreamWav MakeTone(ToneBand tone)
-    {
-        const int sampleRate=22050;
-        var frequency=tone switch {ToneBand.Low=>220,ToneBand.Mid=>440,ToneBand.High=>880,_=>throw new ArgumentOutOfRangeException(nameof(tone))};
-        var count=(int)(sampleRate*AcousticPulse.Duration);
-        var data=new byte[count*2];
-        for(var i=0;i<count;i++)
-        {
-            var t=(float)i/sampleRate;
-            var envelope=MathF.Min(1,t/.01f)*MathF.Pow(1-(float)i/count,2);
-            var sample=(short)(MathF.Sin(MathF.Tau*frequency*t)*envelope*12000);
-            data[i*2]=(byte)(sample&255);data[i*2+1]=(byte)((sample>>8)&255);
-        }
-        return new AudioStreamWav {Format=AudioStreamWav.FormatEnum.Format16Bits,MixRate=sampleRate,Stereo=false,Data=data};
     }
     public override void _Process(double delta)
     {

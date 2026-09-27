@@ -72,7 +72,7 @@ public class SoundMeterTests(HeadlessFixture godot)
     private partial class Source : MachinePart
     {
         public override IReadOnlyList<AcousticPulse> AcousticPulses =>
-            [new(Vector3.Up,Vector3.Right,ToneBand.Mid,0)];
+            [new(Vector3.Up,Vector3.Right,ToneBand.Mid,0,AcousticPattern.Cone,1)];
     }
     [Fact]
     public void SimultaneousSourcesUseStrongestNotAdditiveLevelAndHiddenMetersClear()

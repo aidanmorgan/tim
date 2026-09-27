@@ -4,7 +4,7 @@
 
 Speaker requires independent electricity and activation. Requests coalesce within one tick, settle on the next tick after electrical supply is solved, and expire without power. A 24-tick minimum interval limits retriggering to five per second. Immutable pulses preserve emission position/direction/tone/tick, travel at 12 game units/sec, reach 8 units, and last 0.15 sec at a sample location within a 35-degree cone. Strength attenuates with distance. These are authored game rules, not a physical sound-speed claim. At most five pulses remain in flight per speaker.
 
-The free-field sampler does not yet account for walls, receivers, ducts or acoustic feedback. A sound meter is next; no completed sound-to-activation puzzle is claimed.
+At the speaker-only checkpoint, the free-field sampler had no wall or receiver integration. The sound-meter follow-up below adds direct-path reception; ducts and richer acoustic materials remain pending.
 
 Procedural mono 16-bit PCM at 22050 Hz supplies a short 440 Hz default tone (typed Low/Mid/High model supports 220/440/880). AudioStreamPlayer3D presents it; simulation never reads playback state. Each real pulse also drives cone vibration and a thin expanding/fading ring. Rings are cosmetic, not collision or reception geometry.
 
@@ -35,4 +35,34 @@ UI-only evidence retained locally:
 - sound-meter-blocked-v1: same assembly with an intervening wall; inspected holding image shows idle meter/timer and closed gate despite the visible emitted wave.
 - Both have no reported browser errors, one Run/Reset and exact construction restoration. Screenshots do not prove continuous needle motion or audio quality.
 
-This completes the first sound-to-mechanism chain, not campaign teaching, bell/chime mechanisms, tuned meters, ducts, audio occlusion or mobile verification.
+This checkpoint completed the first sound-to-mechanism chain, not the entire sound family. The bell is covered below; campaign teaching, chimes, tuned meters, ducts, audio occlusion and mobile verification remain pending.
+
+## Impact bell
+
+The `bell` scene/catalog entry requires a real dynamic-body collision of at least 0.8 units/sec. Contact stays disarmed until that body separates by 0.04 units beyond the summed collision radii. A 24-tick minimum interval limits emission to five pulses/sec; simultaneous qualifying hits use the strongest impact, independent of body order. There is no electrical or activation input and no bumper impulse. Ordinary sphere collision supplies rebound. The fixed collision envelope is a 0.75-unit sphere; decorative rocking never moves that envelope.
+
+Loudness is clamp(mass × normal impact speed / 6, 0.05, 1). Bell pulses use the new typed Omnidirectional pattern; speakers explicitly use Cone. Pattern and strength are mandatory constructor arguments; all callers were forward-refactored, without a compatibility overload. Range, travel speed, lifetime and direct-path blocking use the shared acoustic rules above.
+
+A shared typed acoustic voice generator supplies a 0.7-second decaying bell tone with inharmonic partials, distinct from the speaker's 0.15-second tone. Audio playback remains presentation-only. An exact damped oscillator preserves pose continuity during retriggers and decays even when simulation stops. Three pooled, thin great-circle rings per in-flight pulse show omnidirectional propagation.
+
+### Native verification
+
+`dotnet test CuriousContraptions.tests --no-restore --verbosity quiet`: **661 passing tests**, including **19 new bell cases**. These cover real six-axis impacts and unchanged rebound energy, omnidirectional attenuation, actual ball→bell→meter→timer→gate integration, source order, blocked path, absent ball, absent meter supply, exact world Reset and JSON construction replay, quiet resting contact, geometric rearm, gentle impacts, mass-dependent loudness, bounded rapid strikes, simultaneous-hit coalescing, PCM samples, invalid typed modes/strength/voice, render settling and unchanged physics during presentation. Existing speaker and sound-meter tests pass after the shared pulse/audio refactor.
+
+`node --test tools/Playtest/direct-ui.test.cjs`: **39 passing tests**.
+
+Development failures retained here: the first bell test compile used nonexistent MachineCodec.Read/Write helpers; replaced those test calls with the existing source-generated JSON serializer. Five integration cases then rejected an ambiguous meter-to-timer connection; explicitly selecting activation sockets corrected the fixtures without changing gameplay.
+
+Production web verification: `dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false --no-restore --verbosity quiet` passed. `git diff --check` passed. Anvil's pre-write gate remained authentication-unavailable (allow-with-warning); no passed gate is claimed.
+
+### Real-UI browser verification
+
+Both cases used local Chrome through Playwright, only toolbox clicks, 3D handles, wire choices, Run and Reset. Read-only diagnostics captured construction; no imported solutions, storage edits, game-state setters or numeric placement menus were used.
+
+- `bell-relay-v1`: inspected motion frames show the ball rebounding and thin waves expanding around the bell; the holding frame shows the timer active and the gate open.
+- `bell-miss-v1`: ball offset two units in depth; inspected frames show it falling past the bell, no wave, idle meter/timer and closed gate.
+- Both attempts report zero browser errors, one Run/Reset and byte-identical construction restoration. Records are retained locally at `docs/playtest-results/<case>.json`; three motion frames plus holding/outcome screenshots are under `.playwright-mcp/<case>-*.png`.
+
+Reproduction recipe: free workshop (currently selector row 59), Balanced; bell (-3,6,0), basketball (-3,9,0), sound meter (1,6,0), hold timer (1,3,2), powered gate (4,3,0), battery (-4,2,3). Rotate the gate 90° around Z. Wire meter activation→timer activation, battery supply→meter power, battery supply→timer power and timer supply→gate power. Run, observe, then Reset. For the negative control, change only the ball's starting Z to 2 using its move handle. Coordinates describe the intended layout, not permission to use numeric placement; retained records contain the actual UI-created positions.
+
+Limitations: these are focused component proofs, not campaign teaching or the full repeated difficulty matrix. Wavefronts and audio still do not clip at walls, although meter reception does. PCM and simulation independence are tested, but no human listening-quality verdict or browser audio-suspension/mobile review is claimed. Sparse browser motion frames do not establish every-frame smoothness or performance on all devices.

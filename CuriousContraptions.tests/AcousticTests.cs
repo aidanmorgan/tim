@@ -13,7 +13,7 @@ public class AcousticTests(HeadlessFixture godot)
     [InlineData(ToneBand.High)]
     public void PulseHasFiniteTravelConeDurationAndRange(ToneBand tone)
     {
-        var pulse=new AcousticPulse(Vector3.Zero,Vector3.Right,tone,10);
+        var pulse=new AcousticPulse(Vector3.Zero,Vector3.Right,tone,10,AcousticPattern.Cone,1);
         Assert.Equal(tone,pulse.Tone);
         Assert.Equal(0,pulse.Sample(new(3,0,0),39));
         Assert.InRange(pulse.Sample(new(3,0,0),41),.58f,.59f);
@@ -22,16 +22,16 @@ public class AcousticTests(HeadlessFixture godot)
         Assert.Equal(0,pulse.Sample(new(9,0,0),101));
         Assert.Equal(0,pulse.Sample(new(3,0,0),60));
         Assert.Equal(0,pulse.Sample(Vector3.Zero,pulse.ExpiresTick));
-        var rotated=new AcousticPulse(new(2,4,1),Vector3.Up,tone,10);
+        var rotated=new AcousticPulse(new(2,4,1),Vector3.Up,tone,10,AcousticPattern.Cone,1);
         Assert.Equal(pulse.Sample(new(3,0,0),41),rotated.Sample(new(2,7,1),41));
     }
     [Fact]
     public void InvalidPulsesAndSamplesAreRejected()
     {
-        Assert.Throws<ArgumentException>(()=>new AcousticPulse(Vector3.Zero,Vector3.Zero,ToneBand.Mid,0));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>new AcousticPulse(Vector3.Zero,Vector3.Right,(ToneBand)99,0));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>new AcousticPulse(Vector3.Zero,Vector3.Right,ToneBand.Mid,-1));
-        var pulse=new AcousticPulse(Vector3.Zero,Vector3.Right,ToneBand.Mid,0);
+        Assert.Throws<ArgumentException>(()=>new AcousticPulse(Vector3.Zero,Vector3.Zero,ToneBand.Mid,0,AcousticPattern.Cone,1));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>new AcousticPulse(Vector3.Zero,Vector3.Right,(ToneBand)99,0,AcousticPattern.Cone,1));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>new AcousticPulse(Vector3.Zero,Vector3.Right,ToneBand.Mid,-1,AcousticPattern.Cone,1));
+        var pulse=new AcousticPulse(Vector3.Zero,Vector3.Right,ToneBand.Mid,0,AcousticPattern.Cone,1);
         Assert.Throws<ArgumentException>(()=>pulse.Sample(new(float.NaN,0,0),0));
     }
     private MachineWorld World()

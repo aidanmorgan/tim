@@ -28,11 +28,15 @@ The Both gate retains its cyan body, cream face, navy base and two numbered cond
 
 ## Sound speaker
 
-Use a cream speaker cabinet on a navy foot, a gold-rimmed navy diaphragm and cyan centre. Two raised bars identify the default mid tone. Its diaphragm gives a small eased vibration after a real pulse; thin, shadow-free translucent wavefronts expand forward and fade with distance. Avoid solid gold hoops that dominate the diorama. The visible pulse and future meter must remain useful when audio is muted. Current desktop wave contrast is subtle; mobile contrast and continuous motion remain review items.
+Use a cream speaker cabinet on a navy foot, a gold-rimmed navy diaphragm and cyan centre. Two raised bars identify the default mid tone. Its diaphragm gives a small eased vibration after a real pulse; thin, shadow-free translucent wavefronts expand forward and fade with distance. Avoid solid gold hoops that dominate the diorama. The visible pulse and sound meter must remain useful when audio is muted. Current desktop wave contrast is subtle; mobile contrast and continuous motion remain review items.
 
 ## Sound meter
 
 The sound meter is a cyan cabinet with a cream dial, navy tick marks, a gold eased needle and a slate-to-gold output lamp. The needle shows received intensity even without supply; the lamp indicates supplied output. Keep the top-right activation socket distinct from the lower electrical sockets. A wall may block reception while the speaker's cosmetic ring remains visible beyond it: the meter, not the decorative ring, is the authoritative feedback. Acoustic wave clipping and richer material behaviour are future work.
+
+## Impact bell
+
+A small gold tapered bell has a rounded crown, cream rim, navy hanging stem and cyan clapper. Keep its silhouette simple and toy-like; do not add an electrical socket. Impacts excite a damped rocking motion without snapping the pose on repeat hits or moving the collision proxy. Three very thin, translucent, shadow-free great-circle wavefronts expand in all directions and fade; they supplement the sound meter, not replace it. The bell toolbox pictogram uses the existing navy stroke style. Preserve the current palette.
 
 ## Character and hierarchy
 
