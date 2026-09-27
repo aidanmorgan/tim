@@ -40,6 +40,8 @@ public partial class MachinePart : Node3D
     public virtual AirflowEmitter? AirflowSource => null;
     public virtual IReadOnlyList<AirflowSample> AirflowSamples => [];
     public virtual void AirflowStep(MachineWorld world,Vector3 force,float delta) { }
+    /// <summary>One force/contact solve per physics substep, never in rope projection passes.</summary>
+    public virtual void ResolveCompliantContact(MachinePart body, MachineWorld world, float delta) { }
     public virtual IReadOnlyList<AcousticPulse> AcousticPulses => [];
     public virtual Vector3? AcousticTarget => null;
     public virtual void ReceiveAcousticLevel(float level) { }

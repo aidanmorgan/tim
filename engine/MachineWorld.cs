@@ -276,6 +276,7 @@ public partial class MachineWorld : Node3D
                 foreach (var obstacle in Parts)
                 {
                     if (obstacle == body || !obstacle.Visible) continue;
+                    obstacle.ResolveCompliantContact(body, this, delta);
                     foreach (var box in obstacle.Boxes) CollideBox(body, obstacle.Transform, box, obstacle.SurfaceBounce, obstacle);
                     foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
                     foreach (var tube in obstacle.Tubes) CollideTube(body, obstacle, tube);

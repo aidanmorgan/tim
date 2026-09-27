@@ -25,6 +25,7 @@ public static class WorkshopIcons
         if (Cache.TryGetValue(key, out var cached)) return cached;
         var drawing = kind switch
         {
+            TrampolinePart.CatalogId => "<path d='M3 9h18M4 9v10m16-10v10M5 9q7 7 14 0M8 19h8'/><circle cx='12' cy='4' r='2'/>",
             "clutch" => "<path d='M2 12h5M17 12h5M7 5v14m10-14v14M10 7v10m4-10v10M12 2v3m-2 16h4'/><circle cx='12' cy='3' r='1'/>",
             "bellows" => "<path d='M3 5h14v3H3zM3 8l2 3-2 3 2 3-2 3h14l-2-3 2-3-2-3 2-3M17 14h5v3h-5M7 2h6'/>",
             "windmill" => "<circle cx='12' cy='9' r='2'/><path d='M10 7 4 3l-2 3 8 3m4-2 4-6 3 2-7 6m0 2 6 4 2-3-8-3m-4 2-4 6-3-2 7-6M10 12l-2 10h8l-2-10'/>",

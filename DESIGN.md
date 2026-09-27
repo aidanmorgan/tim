@@ -60,6 +60,12 @@ Use cream bearing blocks and pulleys on a navy foot, two gold sliding coupling p
 
 Plate travel follows the simulated closing fraction. Input and output spokes follow their respective signed shaft speeds: an open clutch can show a turning input and stationary output. Electricity closes the gap but cannot generate rotation without an upstream drive. Power loss immediately disconnects the ideal speed route while plates separate smoothly; do not animate fictitious freewheel inertia or claim torque/slip physics. Preserve the approved palette and add no permanent controls.
 
+## Passive trampoline
+
+Use a cream rectangular frame, cyan membrane, restrained gold corner supports and a navy back plate. Keep the exposed gap deep enough to make compression readable. The original navy pictogram shows a ball above a sagging bed; do not reuse the springboard icon.
+
+The cyan mesh follows the simulated contact indentation and returns as the load leaves. Its profile stays below the contacting sphere, including deep off-centre loads. The rigid frame/back do not perform a decorative bounce. This part returns impact energy through contact springs; it does not impose the springboard's launch velocity. Preserve the palette and restrained toy geometry. The independent-contact approximation is not a cloth-wave simulation; sustained/mobile fluidity remains a review task.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.
