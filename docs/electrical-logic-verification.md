@@ -19,3 +19,21 @@ The solver snapshots sources, contact routes and gate rules. Socket dependency S
 ## Next required work
 
 Create electrical OR/XOR/NOR/NAND parts with distinct icons/visual explanations, forward-refactor the shared part class, and add user-facing circuit validation before exposing unsupported feedback to players. Validate potential switched-contact cycles, memory boundaries, invalid authored definitions and more complex reconvergence. The test-only gate probes prove solver behaviour, not playable scene integration. Teach the resulting family in the 75-level campaign. Full repeated difficulty testing remains deferred.
+
+## Playable family follow-up
+
+The shared ElectricalLogicPart replaces BothGatePart (including scene references and script UID); no alias is retained. Four new scenes expose OR/XOR/NOR/NAND. The existing 47 logic cases now instantiate actual catalogue scenes, not test probes. A new open-switch feedback test verifies Start rejection without changing the construction or entering Run: 627 native tests total.
+
+ElectricalRoute now explicitly declares Closed alongside fixed socket identities. All six contact parts were forward-updated. Before Start, validation includes their open routes so a contact cannot later close an undetected nonmonotone loop. The UI catches the specific feedback exception and remains in build mode. This conservatively rejects any potential XOR/NOR/NAND wire cycle even when a contact starts open; it does not silently invent a delay. Memory controls and supplied contacts remain distinct.
+
+New UI-only evidence:
+- electrical-xor-timed-v1: retained failure during level selection; no Run/Reset occurred.
+- electrical-xor-timed-v2: both inputs on → output off; timer expires → one input on → output on.
+- electrical-or-timed-v1: output remains on with two, then one powered condition.
+- electrical-nor-timed-v1: timed input on → output off; both conditions off → output on.
+- electrical-nand-timed-v1: both inputs on → output off; one expires → output on.
+- Each accepted timed attempt has zero reported browser errors, exactly one Run/Reset, and byte-identical restored construction. Holding/outcome screenshots were inspected for the distinct output states and original operation symbols.
+- electrical-feedback-rejected-v1: native/browser rejection works; screenshot exposed a clipped explanation. Retained as a visual failure and shortened the UI message.
+- electrical-feedback-rejected-v2: no browser errors, no Run event, remains in build mode; inspected screenshot shows the complete one-line explanation. No Reset is expected because simulation never started.
+
+The earlier “next required work” paragraph describes the prerequisite batch; gate scenes/icons and pre-run feedback validation are now implemented. Campaign lessons, mobile readability, large-network performance and expanded memory-boundary cases remain pending. Sampled screenshots are not continuous animation verification.

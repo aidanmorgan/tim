@@ -26,7 +26,7 @@ public partial class LatchPart : MachinePart
         new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.93f,0,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        State==LatchState.On?[new(SocketIds.PowerIn,SocketIds.Supply)]:[];
+        [new(SocketIds.PowerIn,SocketIds.Supply,State==LatchState.On)];
     public override ActivationDisposition HandleActivation(MachineWorld world,ActivationCommand command)
     {
         var request=command switch

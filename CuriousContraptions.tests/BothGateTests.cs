@@ -22,8 +22,8 @@ public class BothGateTests(HeadlessFixture godot)
         try
         {
             var source=world.AddPart(new(){Id="battery",Kind="battery",Position=[-8,4,0]});
-            var gate=(BothGatePart)world.AddPart(new(){Id=reverse?"z-first":"a-first",Kind="both_gate",Position=[-4,4,0]});
-            var next=(BothGatePart)world.AddPart(new(){Id=reverse?"a-next":"z-next",Kind="both_gate",Position=[0,4,0]});
+            var gate=(ElectricalLogicPart)world.AddPart(new(){Id=reverse?"z-first":"a-first",Kind="both_gate",Position=[-4,4,0]});
+            var next=(ElectricalLogicPart)world.AddPart(new(){Id=reverse?"a-next":"z-next",Kind="both_gate",Position=[0,4,0]});
             var load=world.AddPart(new(){Id="load",Kind="powered_gate",Position=[4,4,0]});
             Assert.Null(world.SuggestedConnection(source,gate));
             Assert.Equal(3,world.ConnectionOptions(source,gate).Count);
@@ -35,20 +35,20 @@ public class BothGateTests(HeadlessFixture godot)
             Assert.True(world.Connect(source,SocketIds.Supply,next,SocketIds.SecondIn,ConnectionDomain.Electrical));
             Assert.True(world.Connect(next,load));
             world.Start();world.Step();
-            var expected=first?second?BothGateState.Both:BothGateState.FirstOnly:second?BothGateState.SecondOnly:BothGateState.Neither;
+            var expected=first?second?LogicInputState.Both:LogicInputState.FirstOnly:second?LogicInputState.SecondOnly:LogicInputState.Neither;
             Assert.Equal(expected,gate.State);
             Assert.Equal(first&&second,gate.Active);
             Assert.Equal(first&&second,load.HasElectricalPower(SocketIds.PowerIn));
             var wires=world.Connections.Where(c=>c.From==source.Uid).ToArray();
             foreach(var wire in wires)world.Connections.Remove(wire);
             world.Step();
-            Assert.Equal(BothGateState.Neither,gate.State);
+            Assert.Equal(LogicInputState.Neither,gate.State);
             Assert.False(load.HasElectricalPower(SocketIds.PowerIn));
             world.Connections.AddRange(wires);world.Step();
             Assert.Equal(first&&second,load.HasElectricalPower(SocketIds.PowerIn));
             world.Restore();
-            gate=(BothGatePart)world.FindPart(gate.Uid)!;
-            Assert.Equal(BothGateState.Neither,gate.State);
+            gate=(ElectricalLogicPart)world.FindPart(gate.Uid)!;
+            Assert.Equal(LogicInputState.Neither,gate.State);
             Assert.False(gate.Active);
         }
         finally{world.Free();}

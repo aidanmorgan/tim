@@ -5,6 +5,8 @@ using System.Linq;
 namespace CuriousContraptions;
 
 /// <summary>Settled binary availability, not voltage/current. Each solve starts unpowered.</summary>
+public sealed class ElectricalFeedbackException(string message) : InvalidOperationException(message);
+
 public static class ElectricalNetwork
 {
     private readonly record struct Socket(MachinePart Part,string Port);
@@ -19,7 +21,7 @@ public static class ElectricalNetwork
     public static void Solve(MachineWorld world)
     {
         foreach(var part in world.Parts) part.ClearElectricalPower();
-        var equations=Snapshot(world);
+        var equations=Snapshot(world,false);
         var components=Components(equations);
         var powered=new HashSet<Socket>();
         foreach(var component in components)
@@ -28,7 +30,7 @@ public static class ElectricalNetwork
             var cyclic=component.Count>1 || equations[component[0]].Dependencies.Contains(component[0]);
             if(cyclic && component.Any(s=>equations[s].Gates.Any(g=>
                 g.Rule.Operation is LogicGateKind.Xor or LogicGateKind.Nor or LogicGateKind.Nand)))
-                throw new InvalidOperationException("Electrical XOR/NOR/NAND feedback needs an explicit memory or delay boundary.");
+                throw new ElectricalFeedbackException("Break the wire loop through "+string.Join(", ",component.Select(s=>s.Part.Uid).Distinct().Order())+". XOR, NOR and NAND outputs cannot feed their own inputs.");
             bool changed;
             do
             {
@@ -48,7 +50,19 @@ public static class ElectricalNetwork
                 socket.Part.SupplyElectricalPower(socket.Port);
     }
 
-    private static Dictionary<Socket,Equation> Snapshot(MachineWorld world)
+    public static void Validate(MachineWorld world)
+    {
+        // Include open contacts: closing a switch later must not create an invalid circuit.
+        var equations=Snapshot(world,true);
+        foreach(var component in Components(equations))
+        {
+            var cyclic=component.Count>1 || equations[component[0]].Dependencies.Contains(component[0]);
+            if(cyclic && component.Any(s=>equations[s].Gates.Any(g=>g.Rule.Operation is LogicGateKind.Xor or LogicGateKind.Nor or LogicGateKind.Nand)))
+                throw new ElectricalFeedbackException("Break the wire loop through "+string.Join(", ",component.Select(s=>s.Part.Uid).Distinct().Order())+". XOR, NOR and NAND outputs cannot feed their own inputs.");
+        }
+    }
+
+    private static Dictionary<Socket,Equation> Snapshot(MachineWorld world,bool includeOpenContacts)
     {
         var equations=new Dictionary<Socket,Equation>();
         var ports=world.Parts.ToDictionary(p=>p,p=>p.ConnectionPorts.ToArray());
@@ -63,7 +77,8 @@ public static class ElectricalNetwork
             {
                 if(!Has(route.Input,PortDirection.Input)||!Has(route.Output,PortDirection.Output))
                     throw new InvalidOperationException("Invalid electrical route sockets.");
-                equations[new(part,route.Output)].Wires.Add(new(part,route.Input));
+                if(includeOpenContacts || route.Closed)
+                    equations[new(part,route.Output)].Wires.Add(new(part,route.Input));
             }
             foreach(var gate in part.ElectricalGates)
             {

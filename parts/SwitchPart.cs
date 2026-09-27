@@ -13,7 +13,7 @@ public partial class SwitchPart : MachinePart
         new(SocketIds.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.58f, 0, 0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes =>
-        Active ? [new(SocketIds.PowerIn, SocketIds.Supply)] : [];
+        [new(SocketIds.PowerIn, SocketIds.Supply, Active)];
 
     protected override void Build()
     {

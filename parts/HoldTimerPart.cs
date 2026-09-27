@@ -24,7 +24,7 @@ public partial class HoldTimerPart : MachinePart
         new(SocketIds.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.78f,0,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes =>
-        State == HoldTimerState.Holding ? [new(SocketIds.PowerIn, SocketIds.Supply)] : [];
+        [new(SocketIds.PowerIn, SocketIds.Supply, State == HoldTimerState.Holding)];
     public override void ValidateParameters()
     {
         if (!float.IsFinite(Duration) || Duration < .1f || Duration > 12)

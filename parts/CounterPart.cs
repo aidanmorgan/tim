@@ -25,7 +25,7 @@ public partial class CounterPart : MachinePart
         new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.93f,0,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        State==CounterState.Reached?[new(SocketIds.PowerIn,SocketIds.Supply)]:[];
+        [new(SocketIds.PowerIn,SocketIds.Supply,State==CounterState.Reached)];
     public override void ValidateParameters()
     {
         var target=Properties[CounterParameters.Target];

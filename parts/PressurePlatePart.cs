@@ -25,7 +25,7 @@ public partial class PressurePlatePart : MachinePart
         new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(1.18f,-.08f,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        State==PressurePlateState.Pressed?[new(SocketIds.PowerIn,SocketIds.Supply)]:[];
+        [new(SocketIds.PowerIn,SocketIds.Supply,State==PressurePlateState.Pressed)];
     public override void ValidateParameters()
     {
         if(!float.IsFinite(MinimumMass)||MinimumMass<.1f||MinimumMass>16)

@@ -653,7 +653,12 @@ public partial class Workshop : Node3D
         ClearPreview();
         _dragging = false;
         _buildState = World.Snapshot();
-        World.Start();
+        try { World.Start(); }
+        catch (ElectricalFeedbackException)
+        {
+            _status.Text = "Break the wire loop through XOR, NOR or NAND before running.";
+            return;
+        }
         TracePlaytestStart();
         _inRun = true;
         RefreshLayerAppearance();

@@ -21,7 +21,7 @@ public partial class LightReceiverPart : MachinePart
         new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(0,-.6f,-.65f))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        Matches?[new(SocketIds.PowerIn,SocketIds.Supply)]:[];
+        [new(SocketIds.PowerIn,SocketIds.Supply,Matches)];
     public override void ReceiveOpticalPower(IReadOnlyDictionary<OpticalPortId,Vector3> power){ReceivedPower=power[OpticalPortId.Main];Active=Matches;}
     public override void ValidateParameters()
     {

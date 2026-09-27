@@ -18,7 +18,7 @@ public readonly record struct ConnectionPort(
 
 public readonly record struct ElectricalGate(LogicGateKind Operation, string First, string Second, string Supply, string Output);
 
-public readonly record struct ElectricalRoute(string Input, string Output);
+public readonly record struct ElectricalRoute(string Input, string Output, bool Closed);
 
 /// <summary>Signed shaft ratio; negative ratios reverse the local shaft direction.</summary>
 public readonly record struct MechanicalRoute(string Input, string Output, float Ratio);

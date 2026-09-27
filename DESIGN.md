@@ -24,7 +24,7 @@ A small cream relief shows the four two-input truth rows with raised gold output
 
 ## Supplied electrical logic
 
-The Both gate retains its cyan body, cream face, navy base and two numbered condition inputs. A separate lower-front gold socket accepts the energy supply; it is not a third condition. The output lamp indicates supplied output, so two lit input lamps with an unpowered supply leave the output slate. The real-UI positive/negative pair verifies that distinction. Preserve this separation when introducing the remaining electrical operations.
+The Both gate retains its cyan body, cream face, navy base and two numbered condition inputs. A separate lower-front gold socket accepts the energy supply; it is not a third condition. The output lamp indicates supplied output, so two lit input lamps with an unpowered supply leave the output slate. The real-UI positive/negative pair verifies that distinction. OR/XOR/NOR/NAND share this separation and body silhouette. Each displays its original navy operation pictogram on the cream face, matching its toolbox icon; small raised gold truth-row marks supplement it. Invalid feedback stays in build mode and uses the existing bottom status line, not a new popup. Keep that explanation short enough to fit the viewport.
 
 ## Character and hierarchy
 

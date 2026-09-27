@@ -7,22 +7,17 @@ namespace CuriousContraptions.Tests;
 [Collection<HeadlessCollection>]
 public class ElectricalLogicTests(HeadlessFixture godot)
 {
-    private partial class Gate : BothGatePart
-    {
-        public LogicGateKind Operation { get; set; }
-        public override IEnumerable<ElectricalGate> ElectricalGates =>
-            [new(Operation,SocketIds.FirstIn,SocketIds.SecondIn,SocketIds.PowerIn,SocketIds.Supply)];
-    }
     private MachineWorld World()
     {
         var world=new MachineWorld();godot.Tree.Root.AddChild(world);return world;
     }
-    private static Gate AddGate(MachineWorld world,string id,LogicGateKind operation)
-    {
-        var gate=new Gate {Operation=operation,Definition=new PartDefinition()};
-        gate.Configure(new(){Id=id,Kind="both_gate"});
-        world.AddChild(gate);world.Parts.Add(gate);return gate;
-    }
+    private static ElectricalLogicPart AddGate(MachineWorld world,string id,LogicGateKind operation) =>
+        (ElectricalLogicPart)world.AddPart(new(){Id=id,Kind=operation switch
+        {
+            LogicGateKind.And=>"both_gate",LogicGateKind.Or=>"electrical_or",
+            LogicGateKind.Xor=>"electrical_xor",LogicGateKind.Nor=>"electrical_nor",
+            LogicGateKind.Nand=>"electrical_nand",_=>throw new ArgumentOutOfRangeException(nameof(operation))
+        }});
     private static void Wire(MachineWorld world,MachinePart source,MachinePart target,string input) =>
         Assert.True(world.Connect(source,SocketIds.Supply,target,input,ConnectionDomain.Electrical));
     public static IEnumerable<object[]> Cases()
@@ -96,12 +91,33 @@ public class ElectricalLogicTests(HeadlessFixture godot)
             var a=AddGate(world,"a",operation);var b=AddGate(world,"b",LogicGateKind.Or);
             Wire(world,battery,a,SocketIds.PowerIn);Wire(world,battery,b,SocketIds.PowerIn);
             Wire(world,a,b,SocketIds.FirstIn);Wire(world,b,a,SocketIds.FirstIn);
-            Assert.Throws<InvalidOperationException>(()=>ElectricalNetwork.Solve(world));
+            Assert.Throws<ElectricalFeedbackException>(()=>ElectricalNetwork.Solve(world));
             Assert.False(a.HasElectricalPower(SocketIds.PowerIn));
             Assert.False(b.HasElectricalPower(SocketIds.PowerIn));
         }
         finally{world.Free();}
     }
+    [Fact]
+    public void OpenSwitchCannotHideInvalidFeedbackUntilAfterRunStarts()
+    {
+        var world=World();
+        try
+        {
+            var gate=AddGate(world,"exclusive",LogicGateKind.Xor);
+            var contact=world.AddPart(new(){Id="switch",Kind="switch"});
+            Wire(world,gate,contact,SocketIds.PowerIn);
+            Wire(world,contact,gate,SocketIds.FirstIn);
+            Assert.False(contact.Active);
+            var before=System.Text.Json.JsonSerializer.Serialize(world.Snapshot());
+            var error=Assert.Throws<ElectricalFeedbackException>(()=>world.Start());
+            Assert.Contains("exclusive",error.Message);
+            Assert.Contains("switch",error.Message);
+            Assert.False(world.Running);
+            Assert.Equal(before,System.Text.Json.JsonSerializer.Serialize(world.Snapshot()));
+        }
+        finally{world.Free();}
+    }
+
     [Theory]
     [InlineData(LogicGateKind.And)]
     [InlineData(LogicGateKind.Or)]
