@@ -44,6 +44,7 @@ public static class WorkshopIcons
             "set_input" => "<circle cx='12' cy='12' r='9'/><path d='M12 7v10'/>",
             "reset_input" => "<circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='4'/>",
             "latch" => "<rect x='3' y='4' width='18' height='16' rx='2'/><path d='M7 7v4M8 16l8-3'/><circle cx='17' cy='9' r='2'/>",
+            "clock" => "<rect x='4' y='2' width='16' height='20' rx='2'/><path d='M12 6l-3 9'/><circle cx='8' cy='17' r='2'/><circle cx='12' cy='6' r='1'/>",
             "counter" => "<rect x='3' y='4' width='18' height='16' rx='2'/><circle cx='7' cy='12' r='1.5'/><circle cx='12' cy='12' r='1.5'/><circle cx='17' cy='12' r='1.5'/>",
             "pressure_plate" => "<path d='M3 15h18v5H3ZM12 2v9m-4-4 4 4 4-4M6 17h12'/>",
             "funnel" => "<path d='M3 4h18l-6 11v5l-6 2v-7Z'/>",

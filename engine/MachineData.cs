@@ -46,6 +46,11 @@ public static class PipeParameters
     public const float BoreDiameter = 1.3f;
 }
 
+public static class ClockParameters
+{
+    public const string Seconds = "interval_seconds";
+}
+
 public static class CounterParameters
 {
     public const string Target = "target_count";
