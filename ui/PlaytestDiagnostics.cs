@@ -12,6 +12,7 @@ namespace CuriousContraptions;
 public partial class Workshop
 {
     private string _lastPlaytestUi = "";
+    private bool _lastPlaytestRunning;
     private static float[] ScreenPoint(Vector2 point) => [point.X, point.Y];
     private static float[] Point(Vector3 point) => [point.X, point.Y, point.Z];
     private static float[] Orientation(Quaternion value) => [value.X, value.Y, value.Z, value.W];
@@ -74,7 +75,10 @@ public partial class Workshop
     [Conditional("PLAYTEST")]
     private void TracePlaytestUi()
     {
-        if (_inRun && World.Running) return; // Moving-body geometry is unnecessary during simulation.
+        // Emit the running controls once, so UI-only tests can press Reset before a result.
+        // Subsequent moving-body geometry is unnecessary during simulation.
+        if (_inRun && World.Running && _lastPlaytestRunning) return;
+        _lastPlaytestRunning = _inRun;
         var ui = new PlaytestUi
         {
             Level = _currentLevel + 1, Running = _inRun, MenuOpen = _optionsPanel.Visible,

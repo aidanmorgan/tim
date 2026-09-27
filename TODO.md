@@ -164,7 +164,8 @@ These are **pending puzzle options**, not implemented features or claims about t
 ### Ball pipes and controlled delivery
 
 - [ ] Complete the initial pipe family: the clear length-resizable straight tube is implemented; fixed-radius 45°/90° elbows are implemented; funnel inlets remain. Example: catch a bumper launch and route the ball around a wall into a basket. Start with one bore size and length-only straight resizing.
-- [ ] First: a visible shutter/gate that holds and releases a ball through mechanical or powered control. Example: wait until a receiving tray arrives before releasing its payload.
+- [x] Add a powered shutter/gate: C# scene/catalogue, original icon, electrical-only input, tube-compatible mouths, acceleration-limited gold blade and obstruction-safe closing. Six focused native checks pass (332 total). UI-only free-workshop powered and unwired controls (`powered-gate-freeworkshop-v6`, `powered-gate-unwired-v7`) demonstrate release versus retention and exact Run/Reset snapshot restoration, with no console errors. Corrected diagnostic snapshots to expose running controls before a simulation result; retained failed attempts v2–v5. This fixes the observed Reset lookup timeout, not the separately tracked intermittent unexpected lifecycle events.
+- [ ] Add an introductory powered-gate lesson and later mechanical actuation. Neither is implemented in this batch.
 - [ ] Next: Y-diverter with a visible selected outlet; introduce a fixed selection before powered or alternating selection. Example: send the first ball to a switch and the second to the basket.
 - [ ] Next: hopper with a one-ball escapement, visible queue and one release per trigger. Example: feed two destinations alternately without releasing the whole supply.
 - [ ] Later: spiral gravity-delay tube, powered airlift and speed-sensitive trapdoor. Distinguish travel-time delay from an exact electronic timer; uphill transport must visibly consume power.
