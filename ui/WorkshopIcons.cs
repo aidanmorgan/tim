@@ -41,6 +41,7 @@ public static class WorkshopIcons
             "switch" => "<rect x='3' y='15' width='18' height='6' rx='2'/><path d='m12 15 5-10'/><circle cx='18' cy='4' r='2'/>",
             "domino" => "<rect x='5' y='2' width='14' height='20' rx='2'/><path d='M5 12h14M9 6h1m4 2h1M9 16h1m4 2h1'/>",
             "lamp" => "<path d='M8 16a7 7 0 1 1 8 0v3H8ZM9 22h6'/>",
+            "ball_detector" => "<ellipse cx='10' cy='12' rx='5' ry='9'/><path d='M3 12h17m-4-4 4 4-4 4'/>",
             "hold_timer" => "<rect x='3' y='5' width='18' height='14' rx='2'/><path d='M6 10h12M7 14h3m4 0h3M12 2v3M1 12h2m18 0h2'/>",
             "powered_gate" => "<path d='M3 7h18v14H3ZM8 7V3h8v4M7 11h10m-10 4h10m-5-9v13'/><path d='m10 4 2-2 2 2'/>",
             "pipe_bend_45" => "<path d='M3 15h5q5 0 8-5l3-4m-16 3h5q2 0 4-3l2-3M3 8v8m10-14 7 5'/>",
