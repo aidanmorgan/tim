@@ -1,0 +1,1596 @@
+[
+  {
+    "caseId": "cannon-powered-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-no-supply-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-powered-clear-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-blocked-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          2.8,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      },
+      {
+        "slot": "obstruction",
+        "kind": "wall",
+        "position": [
+          0,
+          3.85,
+          0
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "dimensions": [
+          2,
+          2,
+          0.2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-empty-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-blocked-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          2.8,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      },
+      {
+        "slot": "obstruction",
+        "kind": "wall",
+        "position": [
+          0,
+          3.85,
+          0
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "dimensions": [
+          2,
+          2,
+          0.2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-oblique-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          30,
+          75
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-oblique-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          30,
+          75
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-oblique-v3",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          30,
+          75
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-return-reload-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-return-no-charge-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-distinct-feed-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          75
+        ]
+      },
+      {
+        "slot": "first",
+        "kind": "ball",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "second",
+        "kind": "ball",
+        "position": [
+          0.05,
+          8.8,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -5,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "latch",
+        "kind": "latch",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          0.05,
+          8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "latch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "latch",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "clock",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "latch",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "set_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-distinct-feed-held-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          75
+        ]
+      },
+      {
+        "slot": "first",
+        "kind": "ball",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "second",
+        "kind": "ball",
+        "position": [
+          0.05,
+          8.8,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -5,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "latch",
+        "kind": "latch",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          0.05,
+          8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "latch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "clock",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "latch",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "set_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-recoil-close-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ],
+    "camera": {
+      "orbitKey": "e",
+      "heldMs": 1100,
+      "zoomWheelSteps": 10
+    }
+  },
+  {
+    "caseId": "cannon-recoil-close-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ],
+    "camera": {
+      "orbitKey": "e",
+      "heldMs": 1100,
+      "zoomWheelSteps": 10
+    }
+  },
+  {
+    "caseId": "cannon-recoil-wide-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "cannon-release-feeder-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          75
+        ]
+      },
+      {
+        "slot": "first",
+        "kind": "ball",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "second",
+        "kind": "ball",
+        "position": [
+          0.05,
+          8.8,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -5,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "latch",
+        "kind": "latch",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          0.05,
+          8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "latch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "latch",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "clock",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "latch",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "set_in"
+      }
+    ]
+  }
+]

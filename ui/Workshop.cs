@@ -36,7 +36,6 @@ public partial class Workshop : Node3D
     private List<PuzzleData> _puzzles = new();
     private int _currentLevel, _nextId = 1;
     private Dictionary<string, int> _inventory = new();
-    private MachineData _buildState = new();
     private readonly List<MachineData> _undo = new();
 
     public override void _Ready()
@@ -336,7 +335,6 @@ public partial class Workshop : Node3D
             _title.Text = puzzle.Title;
             _task.Text = puzzle.Description;
         }
-        _buildState = World.Snapshot();
         _hint.Text = "";
         _hint.Visible = _task.Visible = _hintButton.Visible = false;
         _objectivePanel.Size = new(266, 0);
@@ -670,7 +668,6 @@ public partial class Workshop : Node3D
         _tool = "";
         ClearPreview();
         _dragging = false;
-        _buildState = World.Snapshot();
         try { World.Start(); }
         catch (ElectricalFeedbackException)
         {
@@ -692,7 +689,7 @@ public partial class Workshop : Node3D
         Select(null);
         if (_inRun)
         {
-            World.LoadMachine(_buildState);
+            World.Restore();
             TracePlaytestReset();
         }
         _inRun = false;
@@ -771,7 +768,6 @@ public partial class Workshop : Node3D
             _nextId = Math.Max(data.NextId, 1);
             _precision.Value = Math.Clamp(data.Precision * 100, 0, 100);
             _friction.ButtonPressed = data.Realistic;
-            _buildState = World.Snapshot();
             RefreshPalette();
             RefreshCables();
             RefreshLayers();

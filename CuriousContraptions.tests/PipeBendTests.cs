@@ -47,6 +47,7 @@ public class PipeBendTests(HeadlessFixture godot, ITestOutputHelper output)
                     break;
                 }
             }
+            output.WriteLine($"exit={exited}; final local={bend.Transform.AffineInverse() * ball.Position}; velocity={bend.Basis.Inverse() * ball.Velocity}; visible={ball.Visible}");
             Assert.True(exited);
         }
         finally { world.Free(); }

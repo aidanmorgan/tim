@@ -29,16 +29,20 @@ public partial class BasketPart : MachinePart
 
     public override void BeforeStep(MachineWorld world, float delta)
     {
-        var assistance = Assistance(world.Precision).GuideAcceleration;
+        var settings = Assistance(world.Precision);
+        var assistance = settings.GuideAcceleration;
         if (assistance <= 0) return;
         foreach (var body in world.Bodies)
         {
             if (!body.Visible) continue;
             var local = ToLocal(body.Position);
             var velocity = Basis.Inverse() * body.Velocity;
-            // A bounded lateral guide above the open mouth, only on descent.
-            // It cannot pull bodies through the basket walls or from another plane.
-            if (velocity.Y >= 0 || local.Y < .5f + body.Radius ||
+            // Authored capture margin includes near-rim arrivals, not just balls
+            // already fully above the wall. Apply force only: solid contacts still
+            // prevent penetration, and the centre must remain above the rim.
+            // A ball settled on the rim is eligible too; an upward launch is not.
+            var minimumHeight = .5f + body.Radius - Mathf.Clamp(settings.CaptureMargin, 0, body.Radius);
+            if (velocity.Y > 0 || local.Y < minimumHeight ||
                 local.Y > 1.5f || Mathf.Abs(local.X) > 1.1f || Mathf.Abs(local.Z) > 1.1f) continue;
             var guide = new Vector3(-local.X, 0, -local.Z).LimitLength(1) * assistance;
             body.Velocity += Basis * guide * delta;

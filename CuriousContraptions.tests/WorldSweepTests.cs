@@ -25,6 +25,57 @@ public class WorldSweepTests(HeadlessFixture godot)
     }
 
     [Fact]
+    public void StaticQueryExcludesBodyButRetainsItsSolidProxies()
+    {
+        var world=World();
+        try
+        {
+            var body=Part(world,FirstId,new(0,3,0),true);
+            var wall=Part(world,SecondId,new(2,3,0));
+            wall.Boxes.Add(new(Vector3.Zero,Vector3.One));
+            var origin=new Vector3(-3,3,0);
+            var all=WorldGeometry.Sweep(world,origin,.25f,Vector3.Right*8);
+            Assert.Same(body,all.Part);
+            Assert.Equal(SweepSurfaceKind.Body,all.Surface);
+            var solids=WorldGeometry.Sweep(world,origin,.25f,Vector3.Right*8,
+                bodies:SweepBodyMode.ExcludeBodies);
+            Assert.Same(wall,solids.Part);
+            Assert.Equal(SweepSurfaceKind.Box,solids.Surface);
+            body.Spheres.Add(new(Vector3.Zero,.1f));
+            var proxy=WorldGeometry.Sweep(world,origin,.25f,Vector3.Right*8,
+                bodies:SweepBodyMode.ExcludeBodies);
+            Assert.Same(body,proxy.Part);
+            Assert.Equal(SweepSurfaceKind.Sphere,proxy.Surface);
+            Assert.Throws<ArgumentOutOfRangeException>(()=>WorldGeometry.Sweep(
+                world,origin,.25f,Vector3.Right,bodies:(SweepBodyMode)int.MaxValue));
+        }
+        finally{world.Free();}
+    }
+
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(63f)]
+    public void OverlapDepthSupportsSeparationInRotatedWorldSpace(float degrees)
+    {
+        var world=World();
+        try
+        {
+            var wall=Part(world,FirstId,new(0,5,0));
+            wall.RotationDegrees=new(0,0,degrees);
+            wall.Boxes.Add(new(Vector3.Zero,Vector3.One));
+            var origin=wall.Transform*new Vector3(.9f,0,0);
+            var hit=WorldGeometry.Sweep(world,origin,.25f,Vector3.Zero);
+            Assert.Equal(SphereSweepStatus.Overlapping,hit.Status);
+            Assert.InRange(hit.Penetration,.3499f,.3501f);
+            Assert.InRange(hit.Normal.DistanceTo(wall.Basis*Vector3.Right),0,.0001f);
+            var separated=origin+hit.Normal*(hit.Penetration+SphereSweep.ContactTolerance);
+            Assert.Equal(SphereSweepStatus.Clear,WorldGeometry.Sweep(
+                world,separated,.25f,hit.Normal).Status);
+        }
+        finally{world.Free();}
+    }
+
+    [Fact]
     public void EmptyWorldStillHitsDeckAndFiniteBase()
     {
         var world=World();

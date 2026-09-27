@@ -37,6 +37,7 @@ public partial class MachineWorld : Node3D
     public float Pressure { get; set; } = 1;
     public bool Realistic { get; set; }
     public MachineData? Initial { get; private set; }
+    private List<(string Id, Transform3D Transform, Vector3 Rotation, Vector3 Scale)> _initialTransforms = new();
 
     private OpticalPathVisual _opticalVisual=null!;
     public IReadOnlyList<OpticalSegment> OpticalPaths { get; private set; }=[];
@@ -56,12 +57,15 @@ public partial class MachineWorld : Node3D
     {
         var data = MachineCodec.Clone(input);
         ValidateMachine(data);
+        Initial = null;
+        _initialTransforms = new();
         Running = Won = false;
         OpticalPaths=[];
         _opticalVisual.Refresh([]);
         Ticks = 0;
         Events.Clear();
         _corrections.Clear();
+        _surfaceDampingBudgets.Clear();
         _assistanceTime = 0;
         _placementTargets = data.PlacementTargets;
         foreach (var part in Parts) { RemoveChild(part); part.Free(); }
@@ -133,6 +137,8 @@ public partial class MachineWorld : Node3D
         MechanicalNetwork.Validate(Parts, Connections);
         Ropes = RopeNetwork.Build(Parts, Connections);
         Initial = Snapshot();
+        // Preserve the edited basis exactly; Euler serialization is not a lossless Run/Reset snapshot.
+        _initialTransforms = Parts.Select(part => (part.Uid, part.Transform, part.Rotation, part.Scale)).ToList();
         _assistanceTime = 0;
         _corrections = PartAssistance.Prepare(Parts, _placementTargets, Precision);
         foreach (var part in Parts) part.UpdateAssistance(Precision);
@@ -143,8 +149,19 @@ public partial class MachineWorld : Node3D
     }
     public void Restore()
     {
-        if (Initial != null) LoadMachine(Initial);
-        Initial = null;
+        if (Initial == null) return;
+        var transforms = _initialTransforms;
+        LoadMachine(Initial);
+        foreach (var entry in transforms)
+        {
+            var part = FindPart(entry.Id) ?? throw new InvalidOperationException("Restored construction is missing a part.");
+            // Restore native radians/scale too: authored Euler nodes cache these independently
+            // of the basis. Degrees-to-radians and matrix decomposition each introduce rounding.
+            part.Rotation = entry.Rotation;
+            part.Scale = entry.Scale;
+            // Gizmo-edited bases must still be restored bit-for-bit.
+            if (part.Transform != entry.Transform) part.Transform = entry.Transform;
+        }
     }
     public MachinePart? FindPart(string id) => Parts.Find(p => p.Uid == id);
     public ConnectionSpec? SuggestedConnection(MachinePart source, MachinePart target)
@@ -269,19 +286,14 @@ public partial class MachineWorld : Node3D
                 body.Velocity = body.Velocity.LimitLength(40);
             }
             foreach (var rope in Ropes) rope.SolveVelocity(delta);
+            AdvanceBodies(delta);
             foreach (var body in Bodies)
             {
                 if (!body.Visible) continue;
-                body.Position += body.Velocity * delta;
                 foreach (var obstacle in Parts)
                 {
                     if (obstacle == body || !obstacle.Visible) continue;
                     obstacle.ResolveCompliantContact(body, this, delta);
-                    foreach (var box in obstacle.Boxes) CollideBox(body, obstacle.Transform, box, obstacle.SurfaceBounce, obstacle);
-                    foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
-                    foreach (var tube in obstacle.Tubes) CollideTube(body, obstacle, tube);
-                    foreach (var bend in obstacle.Bends) CollideBend(body, obstacle, bend);
-                    foreach (var frustum in obstacle.Frustums) CollideFrustum(body, obstacle, frustum);
                 }
                 if (body.Position.Y < -5 || body.Position.Y > 20 || Mathf.Abs(body.Position.X) > 18 || Mathf.Abs(body.Position.Z) > 12)
                 {
@@ -289,16 +301,10 @@ public partial class MachineWorld : Node3D
                     Events.TryAdd(new(MachineEventKind.Escaped, body.Uid), Ticks);
                 }
             }
-            for (var i = 0; i < Bodies.Count; i++)
-                for (var j = i + 1; j < Bodies.Count; j++) CollideSpheres(Bodies[i], Bodies[j]);
-            foreach (var body in Bodies)
-            {
-                if (!body.Visible) continue;
-                CollideBox(body, Transform3D.Identity, Workbench.Deck, 1);
-                CollideBox(body, Transform3D.Identity, Workbench.Base, 1);
-            }
+            // Swept flight already resolved rigid contacts; do not apply a second
+            // discrete impulse/damping pass to the same movement.
             // Alternate rope projection and contacts so a tether does not pull a load through solids.
-            // Only rope loads need this extra contact pass; ordinary scenes keep their existing solver.
+            // Only rope loads need this extra post-projection contact pass.
             var ropeLoads = Ropes.SelectMany(r => r.Sockets)
                 .Where(s => s.Part.RopeAttachment == RopeAttachmentKind.Load).Select(s => s.Part).Distinct().ToArray();
             for (var pass = 0; pass < 4 && Ropes.Count > 0; pass++)
@@ -364,8 +370,7 @@ public partial class MachineWorld : Node3D
         body.Velocity -= normal * speed * (1 + body.Bounce * surfaceBounce);
         if (Mathf.Abs(speed) < .45f && normal.Y > .7f)
             body.Velocity -= normal * body.Velocity.Dot(normal);
-        var tangent = body.Velocity - normal * body.Velocity.Dot(normal);
-        body.Velocity -= tangent * (Realistic ? .015f : .002f);
+        ApplySurfaceFriction(body, obstacle, normal, speed);
         obstacle?.OnContact(body, -speed, this);
     }
 
@@ -397,8 +402,7 @@ public partial class MachineWorld : Node3D
         var speed = body.Velocity.Dot(normal);
         if (speed >= 0) return;
         body.Velocity -= normal * speed * (1 + body.Bounce * obstacle.SurfaceBounce);
-        var tangent = body.Velocity - normal * body.Velocity.Dot(normal);
-        body.Velocity -= tangent * (Realistic ? .015f : .002f);
+        ApplySurfaceFriction(body, obstacle, normal, speed);
         obstacle.OnContact(body, -speed, this);
     }
 
@@ -414,8 +418,7 @@ public partial class MachineWorld : Node3D
         var approach = body.Velocity.Dot(normal);
         if (approach >= 0) return;
         body.Velocity -= normal * approach * (1 + body.Bounce * obstacle.SurfaceBounce);
-        var tangent = body.Velocity - normal * body.Velocity.Dot(normal);
-        body.Velocity -= tangent * (Realistic ? .015f : .002f);
+        ApplySurfaceFriction(body, obstacle, normal, approach);
         obstacle.OnContact(body, -approach, this);
     }
 
@@ -430,11 +433,10 @@ public partial class MachineWorld : Node3D
         var total = a.Mass + b.Mass;
         a.Position -= normal * (target - distance) * b.Mass / total;
         b.Position += normal * (target - distance) * a.Mass / total;
-        var approach = (b.Velocity - a.Velocity).Dot(normal);
-        if (approach >= 0) return;
-        var impulse = -(1 + Mathf.Min(a.Bounce, b.Bounce)) * approach / (1 / a.Mass + 1 / b.Mass);
-        a.Velocity -= normal * impulse / a.Mass;
-        b.Velocity += normal * impulse / b.Mass;
+        var impact = SphereImpact.Resolve(a.Velocity, a.Mass, b.Velocity, b.Mass, -normal,
+            Mathf.Min(a.Bounce, b.Bounce));
+        a.Velocity = impact.FirstVelocity;
+        b.Velocity = impact.SecondVelocity;
     }
 
     private bool GoalsMet() => Objectives.All(goal => goal.Type switch

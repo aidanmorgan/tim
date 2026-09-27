@@ -1,0 +1,652 @@
+[
+  {
+    "caseId": "flight-spring-forgiving-v1",
+    "level": 4,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "spring",
+        "position": [
+          -3,
+          0.8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -20
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-spring-forgiving-v2",
+    "level": 4,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "spring",
+        "position": [
+          -3,
+          0.8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -20
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-pipe-forgiving-v1",
+    "level": 25,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "pipe",
+        "kind": "pipe",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -45
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-bend-forgiving-v1",
+    "level": 27,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "bend",
+        "kind": "pipe_bend_90",
+        "position": [
+          0,
+          4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -90
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-spring-wrong-aim-v1",
+    "level": 4,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "spring",
+        "position": [
+          -3,
+          0.8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          20
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-pipe-missed-inlet-v1",
+    "level": 25,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "pipe",
+        "kind": "pipe",
+        "position": [
+          3,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -45
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-bend-wrong-mouth-v1",
+    "level": 27,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "bend",
+        "kind": "pipe_bend_90",
+        "position": [
+          0,
+          4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-bend-missed-inlet-v1",
+    "level": 27,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "bend",
+        "kind": "pipe_bend_90",
+        "position": [
+          3,
+          4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -90
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-pusher-endpoints-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "home",
+        "kind": "powered_gate",
+        "position": [
+          -4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "end",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      },
+      {
+        "from": "pusher",
+        "to": "home",
+        "type": "electrical",
+        "from_port": "retracted_out",
+        "to_port": "power_in"
+      },
+      {
+        "from": "pusher",
+        "to": "end",
+        "type": "electrical",
+        "from_port": "extended_out",
+        "to_port": "power_in"
+      }
+    ]
+  },
+  {
+    "caseId": "flight-pusher-no-supply-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      }
+    ]
+  },
+  {
+    "caseId": "flight-trampoline-receiver-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          0
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-trampoline-missed-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "flight-counterweight-v1",
+    "level": 19,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "weight",
+        "kind": "weight",
+        "position": [
+          2,
+          5,
+          0.12
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "load",
+        "to": "left_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 5
+      },
+      {
+        "from": "left_pulley",
+        "to": "right_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 4
+      },
+      {
+        "from": "right_pulley",
+        "to": "weight",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 0.81203175
+      },
+      {
+        "from": "switch",
+        "to": "lamp",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "flight-counterweight-no-rope-v1",
+    "level": 19,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "weight",
+        "kind": "weight",
+        "position": [
+          2,
+          5,
+          0.12
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "load",
+        "to": "left_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 5
+      },
+      {
+        "from": "left_pulley",
+        "to": "right_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 4
+      },
+      {
+        "from": "switch",
+        "to": "lamp",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "flight-feeder-timing-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          75
+        ]
+      },
+      {
+        "slot": "first",
+        "kind": "ball",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "second",
+        "kind": "ball",
+        "position": [
+          0.05,
+          8.8,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "clock",
+        "kind": "clock",
+        "position": [
+          -3,
+          5,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -5,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "latch",
+        "kind": "latch",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          0.05,
+          8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clock",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "latch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "latch",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "clock",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "clock",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "latch",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "set_in"
+      }
+    ],
+    "observeFrameWallClock": true
+  }
+]

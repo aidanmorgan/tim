@@ -59,6 +59,7 @@ public class SphereSweepTests
                 p=>SphereSweep.BoxSurface(p,Vector3.One));
             Assert.Equal(SphereSweepStatus.Overlapping,result.Status);
             Assert.Equal(0,result.Distance);
+            Assert.Equal(1.25f,result.Penetration);
         }
     }
 

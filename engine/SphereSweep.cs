@@ -5,7 +5,7 @@ namespace CuriousContraptions;
 
 public enum SphereSweepStatus { Clear, Contact, Overlapping }
 
-public readonly record struct SphereSweepResult(SphereSweepStatus Status, float Distance, Vector3 Normal);
+public readonly record struct SphereSweepResult(SphereSweepStatus Status, float Distance, Vector3 Normal, float Penetration);
 
 /// <summary>Conservative finite-radius sweep against a signed-distance surface in the same coordinate space.
 /// Requires a distance bound that never overestimates clearance and an outward unit normal.
@@ -34,10 +34,10 @@ public static class SphereSweep
                 throw new ArgumentException("Surface must return a finite distance and unit normal.", nameof(surface));
             var gap = sample.Distance - radius;
             if (travel == 0 && gap < -ContactTolerance)
-                return new(SphereSweepStatus.Overlapping, 0, sample.Normal);
+                return new(SphereSweepStatus.Overlapping, 0, sample.Normal, -gap);
             if (gap <= ContactTolerance && (gap < -ContactTolerance || direction.Dot(sample.Normal) < -1e-6f))
-                return new(SphereSweepStatus.Contact, (float)travel, sample.Normal);
-            if (travel >= length) return new(SphereSweepStatus.Clear, length, Vector3.Zero);
+                return new(SphereSweepStatus.Contact, (float)travel, sample.Normal, Mathf.Max(0, -gap));
+            if (travel >= length) return new(SphereSweepStatus.Clear, length, Vector3.Zero, 0);
             // Re-sample tangent/separating contacts rather than ignoring that surface:
             // a straight path tangent to the inside of a curved bore can enter its wall.
             travel = Math.Min(length, travel + Math.Max(ContactTolerance, gap));

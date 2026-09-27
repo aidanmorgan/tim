@@ -51,11 +51,22 @@ public partial class Workshop
     [Conditional("PLAYTEST")]
     private void TracePlaytestFrame()
     {
-        // Full early trajectory to assess easing and bounds, not merely end-state success.
-        if (World.Ticks > 120 || World.Ticks % 4 != 0) return;
+        // Dense early placement trace, followed by 10 Hz behavior evidence.
+        // All observations are read-only; no game commands are exposed.
+        if (World.Ticks % (World.Ticks <= 120 ? 4 : 12) != 0) return;
         GD.Print("CCFRAME " + JsonSerializer.Serialize(new PlaytestFrame
         {
             Tick = World.Ticks,
+            Bodies = World.Bodies.Select(p => new PlaytestBody
+            {
+                Id = p.Uid, Visible = p.Visible, Position = Point(p.Position), Velocity = Point(p.Velocity)
+            }).ToList(),
+            Cannons = World.Parts.OfType<CannonPart>().Select(p => new PlaytestCannon
+            {
+                Id = p.Uid, Phase = p.Phase, LastShot = p.LastShot, ShotCount = p.ShotCount,
+                StoredEnergy = p.StoredEnergy, ReleasedEnergy = p.ReleasedEnergy,
+                PayloadId = p.LastPayload?.Uid, RecoilOffset = p.RecoilOffset
+            }).ToList(),
             Parts = World.Parts.Where(p => !p.Locked && !p.Dynamic).Select(p => new PlaytestPart
             {
                 Id = p.Uid, Kind = p.Definition.Id,
@@ -192,8 +203,34 @@ public sealed class PlaytestRun
     public float Precision { get; set; }
     public List<PlaytestPart> Parts { get; set; } = new();
 }
+public sealed class PlaytestBody
+{
+    public string Id { get; set; } = "";
+    public bool Visible { get; set; }
+    public float[] Position { get; set; } = [];
+    public float[] Velocity { get; set; } = [];
+}
+public sealed class PlaytestCannonPhaseConverter() :
+    JsonStringEnumConverter<CannonPhase>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
+public sealed class PlaytestCannonShotConverter() :
+    JsonStringEnumConverter<CannonShotResult>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
+public sealed class PlaytestCannon
+{
+    public string Id { get; set; } = "";
+    [JsonConverter(typeof(PlaytestCannonPhaseConverter))]
+    public CannonPhase Phase { get; set; }
+    [JsonConverter(typeof(PlaytestCannonShotConverter))]
+    public CannonShotResult LastShot { get; set; }
+    public int ShotCount { get; set; }
+    public double StoredEnergy { get; set; }
+    public double ReleasedEnergy { get; set; }
+    public string? PayloadId { get; set; }
+    public float RecoilOffset { get; set; }
+}
 public sealed class PlaytestFrame
 {
+    public List<PlaytestBody> Bodies { get; set; } = new();
+    public List<PlaytestCannon> Cannons { get; set; } = new();
     public int Tick { get; set; }
     public List<PlaytestPart> Parts { get; set; } = new();
 }

@@ -66,6 +66,14 @@ Use a cream rectangular frame, cyan membrane, restrained gold corner supports an
 
 The cyan mesh follows the simulated contact indentation and returns as the load leaves. Its profile stays below the contacting sphere, including deep off-centre loads. The rigid frame/back do not perform a decorative bounce. This part returns impact energy through contact springs; it does not impose the springboard's launch velocity. Preserve the palette and restrained toy geometry. The independent-contact approximation is not a cloth-wave simulation; sustained/mobile fluidity remains a review task.
 
+## Reloadable toy cannon
+
+Use a fixed navy base, cream breech and open collars, transparent cyan annular jacket and a visible physical payload. The gold charge bar and small ready flag distinguish charging from loaded/ready; separate supply and trigger sockets use the existing contextual wiring UI. Keep the original navy cannon pictogram and current palette.
+
+A slate (#556573) inner sleeve contrasts with the fixed cream collars and moves backward inside the fixed transparent jacket after an accepted shot. Quintic easing gives an 0.08-second compression and 0.45-second return; overlapping pulses combine with smooth saturation below 0.16 world units, without resetting the pose. The sleeve stays within the jacket's annular solid envelope, never narrows the bore, and applies no extra payload impulse. This is anchored recoil feedback, not a simulated freely recoiling barrel. Fixed chamber, breech and outer collision surfaces remain aligned with their artwork.
+
+Rejected shots do not recoil. Presentation finishes after simulation stop and Reset clears it. Native bounds/settling/unchanged-physics checks pass; actual browser readability, continuous motion and mobile review are not yet proven.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.

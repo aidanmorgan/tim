@@ -5,9 +5,11 @@ using System.Linq;
 namespace CuriousContraptions;
 
 public enum TraceMedium { Light, Sound, Air }
+public enum SweepBodyMode { IncludeBodies, ExcludeBodies }
+public enum SweepSurfaceKind { None, Box, Sphere, Tube, Bend, Frustum, Body }
 public enum SweepObstacleKind { None, Part, Workbench }
 public readonly record struct WorldSweepResult(SphereSweepStatus Status, float Distance, Vector3 Normal,
-    SweepObstacleKind Kind, MachinePart? Part);
+    SweepObstacleKind Kind, MachinePart? Part, SweepSurfaceKind Surface, float Penetration);
 
 /// <summary>Direct-path geometry query. Air cannot pass through transparent solid proxies.</summary>
 public static class WorldGeometry
@@ -16,15 +18,19 @@ public static class WorldGeometry
 
     /// <summary>Nearest finite-radius contact against all visible solid proxies and the workbench.
     /// Equal-distance contacts use workbench first, then ordinal part ID and proxy declaration order.
-    /// Initial overlaps take priority over touching contacts. The ignored owner is excluded entirely.</summary>
+    /// Initial overlaps take priority over touching contacts. Both ignored parts are excluded entirely.
+    /// ExcludeBodies omits dynamic sphere bodies only; their declared solid proxies remain queryable.
+    /// Penetration is the nonnegative separation depth along the returned world-space normal.</summary>
     public static WorldSweepResult Sweep(MachineWorld world, Vector3 origin, float radius,
-        Vector3 displacement, MachinePart? ignoredOwner = null)
+        Vector3 displacement, MachinePart? ignoredOwner = null, MachinePart? ignoredBody = null,
+        SweepBodyMode bodies = SweepBodyMode.IncludeBodies)
     {
         ArgumentNullException.ThrowIfNull(world);
+        if (!Enum.IsDefined(bodies)) throw new ArgumentOutOfRangeException(nameof(bodies));
         var best = new WorldSweepResult(SphereSweepStatus.Clear, displacement.Length(), Vector3.Zero,
-            SweepObstacleKind.None, null);
+            SweepObstacleKind.None, null, SweepSurfaceKind.None, 0);
         void Candidate(Transform3D pose, Func<Vector3,(Vector3 Normal,float Distance)> surface,
-            SweepObstacleKind kind, MachinePart? part)
+            SweepObstacleKind kind, MachinePart? part, SweepSurfaceKind shape)
         {
             var basis = pose.Basis;
             if (!pose.Origin.IsFinite() || !basis.X.IsFinite() || !basis.Y.IsFinite() || !basis.Z.IsFinite()
@@ -41,27 +47,27 @@ public static class WorldGeometry
             if (best.Status == SphereSweepStatus.Overlapping) return;
             if (hit.Status != SphereSweepStatus.Overlapping && best.Status != SphereSweepStatus.Clear
                 && hit.Distance >= best.Distance) return;
-            best = new(hit.Status, hit.Distance, basis*hit.Normal, kind, part);
+            best = new(hit.Status, hit.Distance, basis*hit.Normal, kind, part, shape, hit.Penetration);
         }
         // Always query the workbench, including in an empty world; this also validates query inputs.
         foreach (var box in new[] { Workbench.Deck, Workbench.Base })
             Candidate(Transform3D.Identity, p=>SphereSweep.BoxSurface(p-box.At,box.Half),
-                SweepObstacleKind.Workbench,null);
-        foreach (var part in world.Parts.Where(p=>p.Visible && p!=ignoredOwner)
+                SweepObstacleKind.Workbench,null,SweepSurfaceKind.Box);
+        foreach (var part in world.Parts.Where(p=>p.Visible && p!=ignoredOwner && p!=ignoredBody)
                      .OrderBy(p=>p.Uid,StringComparer.Ordinal))
         {
             foreach (var box in part.Boxes)
-                Candidate(part.Transform,p=>SphereSweep.BoxSurface(p-box.At,box.Half),SweepObstacleKind.Part,part);
+                Candidate(part.Transform,p=>SphereSweep.BoxSurface(p-box.At,box.Half),SweepObstacleKind.Part,part,SweepSurfaceKind.Box);
             foreach (var sphere in part.Spheres)
-                Candidate(part.Transform,p=>SphereSweep.SphereSurface(p-sphere.At,sphere.Radius),SweepObstacleKind.Part,part);
+                Candidate(part.Transform,p=>SphereSweep.SphereSurface(p-sphere.At,sphere.Radius),SweepObstacleKind.Part,part,SweepSurfaceKind.Sphere);
             foreach (var tube in part.Tubes)
-                Candidate(part.Transform*tube.Pose,tube.Surface,SweepObstacleKind.Part,part);
+                Candidate(part.Transform*tube.Pose,tube.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Tube);
             foreach (var bend in part.Bends)
-                Candidate(part.Transform*bend.Pose,bend.Surface,SweepObstacleKind.Part,part);
+                Candidate(part.Transform*bend.Pose,bend.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Bend);
             foreach (var frustum in part.Frustums)
-                Candidate(part.Transform*frustum.Pose,frustum.Surface,SweepObstacleKind.Part,part);
-            if (part.Dynamic)
-                Candidate(part.Transform,p=>SphereSweep.SphereSurface(p,part.Radius),SweepObstacleKind.Part,part);
+                Candidate(part.Transform*frustum.Pose,frustum.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Frustum);
+            if (part.Dynamic && bodies == SweepBodyMode.IncludeBodies)
+                Candidate(part.Transform,p=>SphereSweep.SphereSurface(p,part.Radius),SweepObstacleKind.Part,part,SweepSurfaceKind.Body);
         }
         return best;
     }
