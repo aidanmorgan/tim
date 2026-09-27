@@ -38,6 +38,10 @@ The sound meter is a cyan cabinet with a cream dial, navy tick marks, a gold eas
 
 A small gold tapered bell has a rounded crown, cream rim, navy hanging stem and cyan clapper. Keep its silhouette simple and toy-like; do not add an electrical socket. Impacts excite a damped rocking motion without snapping the pose on repeat hits or moving the collision proxy. Three very thin, translucent, shadow-free great-circle wavefronts expand in all directions and fade; they supplement the sound meter, not replace it. The bell toolbox pictogram uses the existing navy stroke style. Preserve the current palette.
 
+## Wind chimes
+
+Use a small cream circular cap with a navy hanging stud, four slender gold tubes at different lengths, dark suspension strings, a cream clapper and a cyan sail. The sail and clapper visibly swing together; do not replace their motion with a flashing indicator. Thin fading three-plane wavefronts communicate sound without obscuring the diorama. The original navy line icon shows hanging tubes and a diamond-shaped sail. Preserve the approved palette and restrained geometry.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.

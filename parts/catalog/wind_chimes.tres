@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/wind_chimes.tscn" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "wind_chimes"
+Title = "Wind chimes"
+Category = "Sound"
+Description = "Aim a fan at the cyan sail. Wind swings the clapper; hitting a tube makes sound, not simply being near a fan. A moving ball can strike the tubes too. Sound radiates in every direction and can trigger a powered sound meter. No electrical input."
+Scene = ExtResource("2")
+Color = Color(0.91, 0.72, 0.39, 1)

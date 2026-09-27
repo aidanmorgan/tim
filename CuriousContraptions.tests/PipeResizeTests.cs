@@ -26,7 +26,7 @@ public class PipeResizeTests(HeadlessFixture godot)
             Assert.Equal(length, pipe.Serialize().Properties[PipeParameters.Length]);
             Assert.InRange(PlacementShadows.ArtworkBounds(pipe).Size.X, length + .179f, length + .181f);
             var emitter = world.AddPart(new() { Id = "light", Kind = "flashlight", Position = [-6, 4, 0] });
-            Assert.InRange(LightNetwork.Trace(world, new(-6, 4.7f, 0), Vector3.Right, 12, emitter),
+            Assert.InRange(WorldGeometry.Trace(TraceMedium.Light,world, new(-6, 4.7f, 0), Vector3.Right, 12, emitter),
                 6 - length * .5f - .091f, 6 - length * .5f - .089f);
             world.Start();
             world.Restore();

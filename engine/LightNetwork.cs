@@ -37,7 +37,7 @@ public static class LightNetwork
                 var direction = offset / distance;
                 if ((transform.Basis * source.Direction).Normalized().Dot(direction) < source.ConeCosine) continue;
                 var facing = Mathf.Max(0, (receiver.Basis * sample.Normal).Normalized().Dot(-direction));
-                if (facing == 0 || Trace(world, origin, direction, distance, part, receiver) < distance - Epsilon) continue;
+                if (facing == 0 || WorldGeometry.Trace(TraceMedium.Light, world, origin, direction, distance, part, receiver) < distance - Epsilon) continue;
                 total += source.Intensity * facing * sample.Weight / Mathf.Max(1, distance * distance);
             }
             readings.Add(receiver, total);
@@ -45,59 +45,4 @@ public static class LightNetwork
         foreach (var (receiver, total) in readings) receiver.ReceiveLight(total);
     }
 
-    public static float Trace(MachineWorld world, Vector3 origin, Vector3 direction, float range,
-        MachinePart? emitter, MachinePart? receiver = null)
-    {
-        var closest = range;
-        foreach (var part in world.Parts)
-        {
-            if (!part.Visible || part == emitter || part == receiver) continue;
-            var inverse = part.Transform.AffineInverse();
-            var local = inverse * origin;
-            var ray = inverse.Basis * direction;
-            foreach (var box in part.Boxes.Where(b => b.Opaque))
-                closest = BoxDistance(local - box.At, ray, box.Half, closest);
-            foreach (var sphere in part.Spheres)
-                closest = SphereDistance(local - sphere.At, ray, sphere.Radius, closest);
-            foreach (var tube in part.Tubes.Where(t => t.Opaque))
-            {
-                var tubeInverse = tube.Pose.AffineInverse();
-                closest = tube.RayDistance(tubeInverse * local, tubeInverse.Basis * ray, closest);
-            }
-            if (part.Dynamic) closest = SphereDistance(local, ray, part.Radius, closest);
-        }
-        closest = BoxDistance(origin - Workbench.Deck.At, direction, Workbench.Deck.Half, closest);
-        return BoxDistance(origin - Workbench.Base.At, direction, Workbench.Base.Half, closest);
-    }
-
-    private static float BoxDistance(Vector3 origin, Vector3 ray, Vector3 half, float maximum)
-    {
-        var near = 0f;
-        var far = maximum;
-        for (var axis = 0; axis < 3; axis++)
-        {
-            if (Mathf.Abs(ray[axis]) < Epsilon)
-            {
-                if (Mathf.Abs(origin[axis]) > half[axis]) return maximum;
-                continue;
-            }
-            var a = (-half[axis] - origin[axis]) / ray[axis];
-            var b = (half[axis] - origin[axis]) / ray[axis];
-            near = Mathf.Max(near, Mathf.Min(a, b));
-            far = Mathf.Min(far, Mathf.Max(a, b));
-            if (near > far) return maximum;
-        }
-        return near;
-    }
-
-    private static float SphereDistance(Vector3 origin, Vector3 ray, float radius, float maximum)
-    {
-        var c = origin.LengthSquared() - radius * radius;
-        if (c <= 0) return 0;
-        var b = origin.Dot(ray);
-        var discriminant = b * b - ray.LengthSquared() * c;
-        if (discriminant < 0) return maximum;
-        var near = (-b - Mathf.Sqrt(discriminant)) / ray.LengthSquared();
-        return near >= 0 ? Mathf.Min(near, maximum) : maximum;
-    }
 }

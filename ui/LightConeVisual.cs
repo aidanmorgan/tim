@@ -37,7 +37,7 @@ public partial class LightConeVisual : MeshInstance3D
             var azimuth = Mathf.Tau * i / Sectors;
             var direction = axis * Mathf.Cos(angle) +
                 (tangent * Mathf.Cos(azimuth) + bitangent * Mathf.Sin(azimuth)) * Mathf.Sin(angle);
-            var distance = LightNetwork.Trace(world, part.Transform * source.At,
+            var distance = WorldGeometry.Trace(TraceMedium.Light,world, part.Transform * source.At,
                 (part.Basis * direction).Normalized(), source.Range, part);
             rays[i] = new(direction, distance);
         }

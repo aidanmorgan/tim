@@ -87,9 +87,9 @@ public class PipeTests(HeadlessFixture godot)
         {
             var pipe = world.AddPart(new() { Id = "pipe", Kind = "pipe", Position = [0, 4, 0] });
             var emitter = world.AddPart(new() { Id = "torch", Kind = "flashlight", Position = [-6, 4, 0] });
-            Assert.Equal(10, LightNetwork.Trace(world, new(-5, 4, 0), Vector3.Right, 10, emitter));
-            Assert.InRange(LightNetwork.Trace(world, new(-5, 4.7f, 0), Vector3.Right, 10, emitter), 3.10f, 3.12f);
-            Assert.Equal(5, LightNetwork.Trace(world, new(0, 4, -2), Vector3.Back, 5, emitter));
+            Assert.Equal(10, WorldGeometry.Trace(TraceMedium.Light,world, new(-5, 4, 0), Vector3.Right, 10, emitter));
+            Assert.InRange(WorldGeometry.Trace(TraceMedium.Light,world, new(-5, 4.7f, 0), Vector3.Right, 10, emitter), 3.10f, 3.12f);
+            Assert.Equal(5, WorldGeometry.Trace(TraceMedium.Light,world, new(0, 4, -2), Vector3.Back, 5, emitter));
         }
         finally { world.Free(); }
     }

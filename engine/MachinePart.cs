@@ -37,6 +37,9 @@ public partial class MachinePart : Node3D
     public bool HasElectricalPower(string port) => _poweredInputs.Contains(port);
     internal void ClearElectricalPower() => _poweredInputs.Clear();
     internal void SupplyElectricalPower(string port) => _poweredInputs.Add(port);
+    public virtual AirflowEmitter? AirflowSource => null;
+    public virtual Vector3? AirflowTarget => null;
+    public virtual void AirflowStep(MachineWorld world,Vector3 force,float delta) { }
     public virtual IReadOnlyList<AcousticPulse> AcousticPulses => [];
     public virtual Vector3? AcousticTarget => null;
     public virtual void ReceiveAcousticLevel(float level) { }

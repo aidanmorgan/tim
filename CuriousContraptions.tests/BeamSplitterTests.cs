@@ -86,8 +86,8 @@ public class BeamSplitterTests(HeadlessFixture godot)
         {
             var splitter=world.AddPart(new(){Id="splitter",Kind="beam_splitter",Position=[0,5,0]});
             var laser=world.AddPart(new(){Id="laser",Kind="laser",Position=[-3,5,0]});
-            Assert.Equal(8,LightNetwork.Trace(world,new(-2,5,0),Vector3.Right,8,laser));
-            Assert.True(LightNetwork.Trace(world,new(-2,5.74f,0),Vector3.Right,8,laser)<2);
+            Assert.Equal(8,WorldGeometry.Trace(TraceMedium.Light,world,new(-2,5,0),Vector3.Right,8,laser));
+            Assert.True(WorldGeometry.Trace(TraceMedium.Light,world,new(-2,5.74f,0),Vector3.Right,8,laser)<2);
             var ball=world.AddPart(new(){Id="ball",Kind="ball",Position=[-1,5,0]});
             world.Start();ball.Velocity=Vector3.Right*4;
             for(var i=0;i<50;i++)

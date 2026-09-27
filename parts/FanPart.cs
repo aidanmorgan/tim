@@ -1,13 +1,24 @@
 using Godot;
+using System;
 namespace CuriousContraptions;
 
 public partial class FanPart : MachinePart
 {
     private Node3D _rotor = null!;
     public override bool CanReceiveActivation => true;
+    public override AirflowEmitter? AirflowSource => Active
+        ? new(Vector3.Zero,Vector3.Right,Properties[FanParameters.Reach],Properties[FanParameters.Width],Properties[FanParameters.Force]) : null;
+    public override void ValidateParameters()
+    {
+        foreach(var key in new[]{FanParameters.Powered,FanParameters.Force,FanParameters.Reach,FanParameters.Width})
+            if(!float.IsFinite(Properties[key]))throw new ArgumentException("Fan parameters must be finite.");
+        if(Properties[FanParameters.Powered] is not (0 or 1)||Properties[FanParameters.Force]<0||Properties[FanParameters.Force]>40||
+            Properties[FanParameters.Reach]<=0||Properties[FanParameters.Reach]>12||Properties[FanParameters.Width]<=0||Properties[FanParameters.Width]>4)
+            throw new ArgumentException("Fan parameters are outside their supported bounds.");
+    }
     protected override void Build()
     {
-        Active = Parameter("powered", 1) > .5f;
+        Active = Properties[FanParameters.Powered] > .5f;
         PickRadius = .75f;
         AddBox(new(0, -.55f, 0), new(.65f, .18f, 1), new("#263d4b"));
         PartArt.Box(Visual, new(.13f, .5f, .15f), new("#ccd8dc"), new(0, -.3f, 0));
@@ -27,13 +38,5 @@ public partial class FanPart : MachinePart
     {
         if (!Active) return;
         _rotor.RotateX(delta * 18);
-        foreach (var body in world.Bodies)
-        {
-            if (!body.Visible) continue;
-            var point = ToLocal(body.Position);
-            var width = Parameter("width", .85f);
-            if (point.X > 0 && point.X < Parameter("reach", 5) && new Vector2(point.Y, point.Z).Length() < width)
-                body.Velocity += Basis.X * Parameter("force", 9) * world.Pressure * delta / body.Mass;
-        }
     }
 }

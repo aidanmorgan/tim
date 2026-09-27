@@ -283,7 +283,7 @@ public class LightTests(HeadlessFixture godot)
             panel.Position += new Vector3(0, 0, 3);
             LightNetwork.Solve(world);
             Assert.Equal(0, panel.Irradiance);
-            var distance = LightNetwork.Trace(world, new(0, 2, 0), Vector3.Down, 8, torch);
+            var distance = WorldGeometry.Trace(TraceMedium.Light,world, new(0, 2, 0), Vector3.Down, 8, torch);
             Assert.InRange(distance, 2.459f, 2.461f);
         }
         finally { world.Free(); }

@@ -65,7 +65,7 @@ public static class OpticalNetwork
         while(pending.TryDequeue(out var ray)&&segments.Count<MaximumSegments)
         {
             if(ray.Remaining<=Epsilon||ray.Power.LengthSquared()<1e-8f)continue;
-            var distance=LightNetwork.Trace(world,ray.Origin,ray.Direction,ray.Remaining,ray.Depth==0?emitter:null);
+            var distance=WorldGeometry.Trace(TraceMedium.Light,world,ray.Origin,ray.Direction,ray.Remaining,ray.Depth==0?emitter:null);
             MachinePart? hit=null;
             var normal=Vector3.Zero;
             OpticalSurface hitSurface=default;

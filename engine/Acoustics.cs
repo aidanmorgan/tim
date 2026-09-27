@@ -67,7 +67,7 @@ public static class AcousticNetwork
                     if(strength<=level)continue;
                     var offset=point-pulse.Origin;
                     var distance=offset.Length();
-                    if(distance>1e-5f && LightNetwork.Trace(world,pulse.Origin,offset/distance,distance,source,receiver)<distance-.0001f)continue;
+                    if(distance>1e-5f && WorldGeometry.Trace(TraceMedium.Sound,world,pulse.Origin,offset/distance,distance,source,receiver)<distance-.0001f)continue;
                     level=strength;
                 }
             }

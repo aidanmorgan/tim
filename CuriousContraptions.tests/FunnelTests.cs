@@ -135,7 +135,7 @@ public class FunnelTests(HeadlessFixture godot)
         {
             var funnel=world.AddPart(new(){Id="funnel",Kind="funnel",Position=[0,6,0]});
             var emitter=world.AddPart(new(){Id="torch",Kind="flashlight",Position=[-5,8,0]});
-            Assert.Equal(6,LightNetwork.Trace(world,new(0,6,-3),Vector3.Back,6,emitter));
+            Assert.Equal(6,WorldGeometry.Trace(TraceMedium.Light,world,new(0,6,-3),Vector3.Back,6,emitter));
             var ball=world.AddPart(new(){Id="ball",Kind="ball",Position=[0,8,0]});
             world.Start();ball.Velocity=Vector3.Down*4;
             for(var i=0;i<30;i++)world.Step();
