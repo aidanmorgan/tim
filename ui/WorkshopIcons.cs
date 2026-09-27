@@ -41,6 +41,8 @@ public static class WorkshopIcons
             "switch" => "<rect x='3' y='15' width='18' height='6' rx='2'/><path d='m12 15 5-10'/><circle cx='18' cy='4' r='2'/>",
             "domino" => "<rect x='5' y='2' width='14' height='20' rx='2'/><path d='M5 12h14M9 6h1m4 2h1M9 16h1m4 2h1'/>",
             "lamp" => "<path d='M8 16a7 7 0 1 1 8 0v3H8ZM9 22h6'/>",
+            "pipe_bend_45" => "<path d='M3 15h5q5 0 8-5l3-4m-16 3h5q2 0 4-3l2-3M3 8v8m10-14 7 5'/>",
+            "pipe_bend_90" => "<path d='M3 20h4V11a4 4 0 0 1 4-4h9V3h-9a8 8 0 0 0-8 8zm-1 0h6M20 2v6'/>",
             "pipe" => "<ellipse cx=\'5\' cy=\'12\' rx=\'3\' ry=\'7\'/><path d=\'M5 5h14c4 0 4 14 0 14H5m2-12h12m-12 10h12\'/>",
             "delay" => "<circle cx='12' cy='13' r='8'/><path d='M12 8v5l3 2M9 2h6m-3 0v3M3 7 1 5m20 2 2-2'/>",
             "flashlight" => "<path d='M3 9h11l4-3v12l-4-3H3ZM20 8l2-2m-2 6h3m-3 4 2 2M7 6h4v3'/>",

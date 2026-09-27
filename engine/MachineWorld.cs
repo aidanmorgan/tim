@@ -255,6 +255,7 @@ public partial class MachineWorld : Node3D
                     foreach (var box in obstacle.Boxes) CollideBox(body, obstacle.Transform, box, obstacle.SurfaceBounce, obstacle);
                     foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
                     foreach (var tube in obstacle.Tubes) CollideTube(body, obstacle, tube);
+                    foreach (var bend in obstacle.Bends) CollideBend(body, obstacle, bend);
                 }
                 if (body.Position.Y < -5 || body.Position.Y > 20 || Mathf.Abs(body.Position.X) > 18 || Mathf.Abs(body.Position.Z) > 12)
                 {
@@ -286,6 +287,7 @@ public partial class MachineWorld : Node3D
                         foreach (var box in obstacle.Boxes) CollideBox(body, obstacle.Transform, box, obstacle.SurfaceBounce, obstacle);
                         foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
                         foreach (var tube in obstacle.Tubes) CollideTube(body, obstacle, tube);
+                        foreach (var bend in obstacle.Bends) CollideBend(body, obstacle, bend);
                     }
                     CollideBox(body, Transform3D.Identity, Workbench.Deck, 1);
                     CollideBox(body, Transform3D.Identity, Workbench.Base, 1);
@@ -344,8 +346,19 @@ public partial class MachineWorld : Node3D
     {
         var transform = obstacle.Transform * tube.Pose;
         var (localNormal, distance) = tube.Surface(transform.AffineInverse() * body.Position);
+        ResolveHollowContact(body, obstacle, transform.Basis * localNormal, distance);
+    }
+
+    private void CollideBend(MachinePart body, MachinePart obstacle, BendProxy bend)
+    {
+        var transform = obstacle.Transform * bend.Pose;
+        var (localNormal, distance) = bend.Surface(transform.AffineInverse() * body.Position);
+        ResolveHollowContact(body, obstacle, transform.Basis * localNormal, distance);
+    }
+
+    private void ResolveHollowContact(MachinePart body, MachinePart obstacle, Vector3 normal, float distance)
+    {
         if (distance >= body.Radius) return;
-        var normal = transform.Basis * localNormal;
         body.Position += normal * (body.Radius - distance + .00001f);
         var speed = body.Velocity.Dot(normal);
         if (speed >= 0) return;

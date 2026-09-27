@@ -25,6 +25,7 @@ public partial class MachinePart : Node3D
     public float Buoyancy { get; protected set; }
     public List<BoxProxy> Boxes { get; } = new();
     public List<TubeProxy> Tubes { get; } = new();
+    public List<BendProxy> Bends { get; } = new();
     public List<SphereProxy> Spheres { get; } = new();
     public bool Active { get; set; }
     public Dictionary<string, float> Properties { get; private set; } = new();

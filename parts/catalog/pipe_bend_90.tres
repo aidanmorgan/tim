@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/pipe_bend_90.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "pipe_bend_90"
+Title = "90° pipe bend"
+Category = "Motion"
+Description = "A hollow 90-degree bend. Gravity and contact carry balls around the curve. Nearby matching mouths snap together while building."
+Scene = ExtResource("2")
+Color = Color(0.40, 0.72, 0.79, 1)

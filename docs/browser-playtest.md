@@ -1,5 +1,18 @@
 # Browser campaign playtest
 
+## 45° and 90° bends — 57-level draft
+
+Current campaign hash: `0ae028b3a743782143bb95a9c6a7ffbcf68bd508edaa39b2bf61b411d4f42edc`. Lessons 26–27 introduce a gentle bend and a quarter turn after the straight-pipe lesson. Typed angles and opening IDs, a continuous hollow circular collision surface, common-bore collars, transparent cyan artwork and angle-specific icons extend the existing C# scene graph and sphere solver. Native tests align both bends with straight tubes and with each other in rotated 3D poses. There is no hidden path-following, added speed or automatic transport-network connection.
+
+The first six `reference-bend-v1` browser runs passed on hash `f5d951bc481f63ef24f465d1a9f4bc41a6571904d6ee682b6098d93750c67a93`. Native matched-error trials then exposed a poor generic assistance profile: partial correction could turn a successful 45° placement into failure, and did not rescue the 90° offset. An initial test also accidentally shared its perturbed solution with the reference target; cloning the reference fixed that test-fixture error before evaluating the real profile issue. The authoring generator now gives each bend an explicit bounded full-alignment window: Forgiving 0.6 units / 5°, Balanced 0.5 / 2°, Precise zero. Quintic easing remains 0.4 seconds; the physics engine is unchanged. This is a specific authored policy, not proof that all future error patterns are monotonic.
+
+Fresh `L{26,27}-{balanced,forgiving,precise}-reference-bend-v2.json` all win. L26 ticks are 185/173/201; L27 ticks are 262/251/275. Matched `depth-error-bend-v2` trials use the same approximately 0.48017 Z error. Both easier modes align the bend to Z=0 and repeat their reference win ticks. L26 Precise leaves the error untouched and still wins at 239: this is a valid alternate placement, not evidence of expanded tolerance. L27 Precise leaves it untouched and times out at 3600. Native tests remove fixture assistance and reproduce these results for exact 0.48 errors.
+
+`L27-balanced-reference-bend-motion-v3.json` repeats tick 262 with sixteen screenshots. Reviewed frames 3/6/9 show entry at 0.53 seconds, the ball inside the curve at 0.90 and exit at 1.28. These are sampled frames, not continuous frame-rate measurements. All thirteen current-version records have zero browser errors, complete Run/result/Reset, and passing audits with one sampled part each. Native tests cover ball trajectories separately.
+
+All 315 native tests pass, including all 57 campaign reference solutions at three difficulties, missing-part failures, six rotated bend passages without added energy, gravity-only traversal, nearest-surface checks, mouth alignment and isolated placement assistance. Blocked flow, queues, high-speed curved collisions, gravity-driven multi-piece seams, broader error sweeps and the full 75-level UI matrix remain unfinished.
+
+
 ## Straight-tube mouth snapping — editor checks
 
 Campaign remains 55 levels with hash `9386ca71bb8b61253c8d9c67da823ed4f859cb012107632026b5534b8ecc8f72`. Typed Start/End mouths sit at the outer collar faces. Editor queries require matching bores, opposing normals within 20°, distance at most 0.45 units and an unoccupied destination mouth. They preserve roll through the shortest alignment rotation, leave runtime assistance untouched and create no transport-network edge or rigid assembly.

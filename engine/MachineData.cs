@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace CuriousContraptions;
 
+public enum TubeBendAngle { Degrees45 = 45, Degrees90 = 90 }
+
 /// <summary>Puzzle-authored assistance at one difficulty knot; precision 0 is easiest, 1 is strict.</summary>
 public sealed class PartDifficulty
 {

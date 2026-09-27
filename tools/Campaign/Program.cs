@@ -286,6 +286,24 @@ modules["clear_pipe"] = new PuzzleData
     Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
 };
 
+foreach (var angle in Enum.GetValues<TubeBendAngle>())
+{
+    var half = (int)angle * MathF.PI / 360;
+    var inletX = 2.4f * (1 - MathF.Cos(half));
+    var inletY = 4 + 2.4f * MathF.Sin(half) + .09f;
+    var kind = $"pipe_bend_{(int)angle}";
+    modules[kind] = new PuzzleData
+    {
+        Parts = [
+            new() { Id = "ball", Kind = "ball", Locked = true, Position = [inletX, inletY + 1.6f, 0] },
+            new() { Id = "receiver", Kind = "basket", Locked = true, Position = [angle == TubeBendAngle.Degrees45 ? -2f : -5.5f, .6f, 0] }
+        ],
+        Inventory = new() { [kind] = 1 },
+        Solution = [new() { Id = "bend_1", Kind = kind, Position = [0, 4, 0], Rotation = [0, 0, -90] }],
+        Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
+    };
+}
+
 var campaign = source.Select(Copy).ToList();
 void Add(string id, string title, string chapter, string description, string hint,
          params (string Kind, float X, float Z, float Yaw)[] layout)
@@ -397,6 +415,13 @@ Add("clear_pipe", "Through the looking tube", "Hollow routes",
     "Catch the falling ball inside the clear pipe and guide it down to the basket.",
     "Tilt the tube downhill toward the basket. Its cream mouths are open; the clear walls keep the ball inside without adding speed.", ("clear_pipe", 0, 0, 0));
 
+Add("gentle_bend", "A gentle turn", "Hollow routes",
+    "Guide the falling ball toward the basket with a 45-degree bend.",
+    "Turn the first mouth upward under the ball. The second mouth sends it down and left; gravity carries it through the curve.", ("pipe_bend_45", 0, 0, 0));
+Add("quarter_bend", "Around the corner", "Hollow routes",
+    "Use a 90-degree bend to turn a vertical fall into a sideways delivery.",
+    "Point one mouth upward and the other toward the left-hand basket. The curve redirects motion, but does not add speed.", ("pipe_bend_90", 0, 0, 0));
+
 // Chapters 3 and 4: independent goals, mixed mechanisms, and power dependencies.
 Add("two_deliveries", "Two deliveries", "Parallel machines",
     "Catch both balls, one with ramps and one with air. The receivers are in separate depth planes.",
@@ -492,7 +517,7 @@ Add("cold_bridges", "Cold bridges", "Final workshop",
 Add("grand_contraption", "The grand contraption", "Final workshop",
     "Complete the ramp signal, conveyor signal, and domino chain; all three must succeed in one run.",
     "Build and test each lane. The final machine needs two slopes, a conveyor delivery, four dominoes, and both signal wires.", ("ramps_signal", 0, -3, 0), ("domino", 0, 0, 0), ("conveyor_signal", 0, 3, 0));
-if (campaign.Count != 55) throw new InvalidDataException($"Expected 55 authored levels in this expansion stage, authored {campaign.Count}.");
+if (campaign.Count != 57) throw new InvalidDataException($"Expected 57 authored levels in this expansion stage, authored {campaign.Count}.");
 // Every authored instance owns its difficulty curve; catalog defaults do not decide puzzle help.
 foreach (var puzzle in campaign)
 foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
@@ -517,5 +542,14 @@ foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
             TriggerThreshold = part.Kind == "domino" ? .3075f : .47f },
         new() { Precision = 1, TriggerThreshold = part.Kind == "domino" ? .5f : .8f }
     ];
+    if (part.Kind is "pipe_bend_45" or "pipe_bend_90")
+    {
+        // Curved outlets amplify residual lateral error. Bound eligibility and correction together:
+        // align fully inside a small authored window, never move a more distant bend.
+        part.Difficulty[0].PositionWindow = part.Difficulty[0].MaxPositionCorrection = .6f;
+        part.Difficulty[1].PositionWindow = part.Difficulty[1].MaxPositionCorrection = .5f;
+        part.Difficulty[0].RotationWindow = part.Difficulty[0].MaxRotationCorrection = 5;
+        part.Difficulty[1].RotationWindow = part.Difficulty[1].MaxRotationCorrection = 2;
+    }
 }
 Console.Write(JsonSerializer.Serialize(campaign, MachineJson.Default.ListPuzzleData));
