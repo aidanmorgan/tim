@@ -231,6 +231,7 @@ public partial class MachineWorld : Node3D
         if (!Running) return;
         foreach (var part in Parts) part.BeforeNetworks(this);
         LightNetwork.Solve(this);
+        OpticalNetwork.Solve(this);
         ElectricalNetwork.Solve(this);
         Ropes = RopeNetwork.Build(Parts, Connections);
         const float delta = Tick / Substeps;

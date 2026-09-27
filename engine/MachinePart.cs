@@ -37,6 +37,10 @@ public partial class MachinePart : Node3D
     public bool HasElectricalPower(string port) => _poweredInputs.Contains(port);
     internal void ClearElectricalPower() => _poweredInputs.Clear();
     internal void SupplyElectricalPower(string port) => _poweredInputs.Add(port);
+    public virtual OpticalEmitter? OpticalSource => null;
+    public virtual OpticalTarget? OpticalTarget => null;
+    public virtual void ReceiveOpticalPower(Vector3 power) { }
+    public virtual void ReceiveBeamLength(float distance) { }
     public virtual LightEmitter? LightSource => null;
     public virtual IEnumerable<LightSample> LightSamples => [];
     public virtual void ReceiveLight(float irradiance) { }
