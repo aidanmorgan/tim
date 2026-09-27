@@ -21,6 +21,24 @@ public class LightTests(HeadlessFixture godot)
         Assert.True(world.Connect(panel, motor));
         return (torch, panel, motor);
     }
+    [Fact]
+    public void VisibleConePreservesUnblockedRaysBesideMovingOccluder()
+    {
+        var world = World();
+        try
+        {
+            var torch = (FlashlightPart)world.AddPart(new() { Id = "torch", Kind = "flashlight", Position = [0, 5, 0] });
+            var ball = world.AddPart(new() { Id = "blocker", Kind = "ball", Position = [1.6f, 5, .3f] });
+            torch.Active = true;
+            var source = torch.LightSource!.Value;
+            var rays = LightConeVisual.Sample(world, torch, source, 1);
+            Assert.Contains(rays, r => r.Distance < 2);
+            Assert.Contains(rays, r => r.Distance == source.Range);
+            ball.Position = new(1.6f, 5, 3);
+            Assert.All(LightConeVisual.Sample(world, torch, source, 1), r => Assert.Equal(source.Range, r.Distance));
+        }
+        finally { world.Free(); }
+    }
     [Theory]
     [InlineData(0f, 1.02f, true)]
     [InlineData(.45f, 1.02f, true)]
@@ -51,6 +69,47 @@ public class LightTests(HeadlessFixture godot)
             var panel = (SolarPanelPart)world.FindPart("panel_1")!;
             Assert.Equal(expectedWin, panel.Irradiance >= SolarPanelPart.Threshold);
             Assert.InRange(Mathf.Abs(panel.Position.Z - (error - (precision == 0 ? .25f : precision == 1 ? 0 : .1f))), 0, .001f);
+        }
+        finally { world.Free(); }
+    }
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(0, 90, 0)]
+    [InlineData(25, 40, 15)]
+    public void VisibleConeUsesPhysicalAngleRangeAndRotatedOcclusion(float x, float y, float z)
+    {
+        var world = World();
+        try
+        {
+            var torch = (FlashlightPart)world.AddPart(new() { Id = "torch", Kind = "flashlight",
+                Position = [0, 5, 0], Rotation = [x, y, z] });
+            torch.Active = true;
+            var source = torch.LightSource!.Value;
+            var clear = LightConeVisual.Sample(world, torch, source, 1);
+            Assert.Equal(LightConeVisual.Sectors, clear.Length);
+            foreach (var ray in clear)
+            {
+                Assert.InRange(Mathf.Abs(ray.Direction.Length() - 1), 0, .00001f);
+                Assert.InRange(Mathf.Abs(ray.Direction.Dot(source.Direction) - source.ConeCosine), 0, .00001f);
+                Assert.InRange(ray.Distance, 0, source.Range);
+            }
+            var wall = world.AddPart(new() { Id = "wall", Kind = "wall",
+                Properties = new() { ["width"] = 4, ["height"] = 4, ["thickness"] = .2f } });
+            wall.Transform = torch.Transform * new Transform3D(Basis.FromEuler(new(0, Mathf.Pi / 2, 0)), new(3, 0, 0));
+            var blocked = LightConeVisual.Sample(world, torch, source, 1);
+            Assert.All(blocked, ray =>
+            {
+                var end = source.At + ray.Direction * ray.Distance;
+                Assert.InRange(end.X, 2.899f, 2.901f);
+                Assert.True(ray.Distance < source.Range);
+            });
+            using var visual = new LightConeVisual();
+            torch.AddChild(visual);
+            visual.Refresh(world, torch, source);
+            Assert.Equal(1, visual.Mesh.GetSurfaceCount());
+            Assert.Equal(LightConeVisual.ShellCount * LightConeVisual.Sectors * 9,
+                visual.Mesh.SurfaceGetArrays(0)[(int)Godot.Mesh.ArrayType.Vertex].AsVector3Array().Length);
+            torch.RemoveChild(visual);
         }
         finally { world.Free(); }
     }

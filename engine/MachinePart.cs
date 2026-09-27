@@ -35,7 +35,6 @@ public partial class MachinePart : Node3D
     public virtual LightEmitter? LightSource => null;
     public virtual IEnumerable<LightSample> LightSamples => [];
     public virtual void ReceiveLight(float irradiance) { }
-    public virtual void SetLightReach(float distance) { }
     public virtual bool SuppliesElectricity(string outputPort) => false;
     public virtual IEnumerable<ElectricalRoute> ElectricalRoutes => [];
     private readonly Dictionary<string, float> _shaftSpeeds = new();

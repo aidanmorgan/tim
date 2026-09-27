@@ -42,9 +42,6 @@ public static class LightNetwork
             }
             readings.Add(receiver, total);
         }
-        foreach (var (part, source, transform) in emitters)
-            part.SetLightReach(Trace(world, transform * source.At,
-                (transform.Basis * source.Direction).Normalized(), source.Range, part));
         foreach (var (receiver, total) in readings) receiver.ReceiveLight(total);
     }
 

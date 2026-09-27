@@ -8,14 +8,13 @@ public partial class FlashlightPart : MachinePart
     public const float Range = 8;
     public const float ConeCosine = .9659258f; // 15 degree half-angle.
     public const float Intensity = 24;
-    private MeshInstance3D _beam = null!;
+    private LightConeVisual _beam = null!;
     private MeshInstance3D _lens = null!;
     private MeshInstance3D _button = null!;
-    private float _reach;
+    private MachineWorld? _world;
     public override bool CanReceiveActivation => true;
     public override LightEmitter? LightSource => Active
         ? new(LensPosition, Vector3.Right, Range, ConeCosine, Intensity) : null;
-    public override void SetLightReach(float distance) => _reach = distance;
     protected override void Build()
     {
         PickRadius = .9f;
@@ -30,12 +29,13 @@ public partial class FlashlightPart : MachinePart
         AddBox(new(-.15f, .36f, 0), new(.4f, .14f, .35f), Definition.Color, false);
         _button = PartArt.Cylinder(Visual, .18f, .14f, new("#f7cb52"), new(-.15f, .36f, 0));
         PartArt.Box(Visual, new(1.2f, .12f, .85f), new("#293954"), new(0, -.38f, 0));
-        _beam = PartArt.Cylinder(Visual, .018f, 1, new("#fff0a5"));
-        _beam.RotationDegrees = new(0, 0, 90);
-        _beam.Visible = false;
-        var material = (StandardMaterial3D)_beam.MaterialOverride;
-        material.ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded;
-        _beam.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+        _beam = new LightConeVisual { Name = "LightCone", Visible = false };
+        Visual.AddChild(_beam);
+    }
+    public override void _Process(double delta)
+    {
+        _beam.Visible = Active;
+        if (_world != null && LightSource is { } source) _beam.Refresh(_world, this, source);
     }
     public override void OnContact(MachinePart body, float speed, MachineWorld world)
     {
@@ -48,8 +48,6 @@ public partial class FlashlightPart : MachinePart
     {
         _button.Position = new(-.15f, Mathf.MoveToward(_button.Position.Y, Active ? .3f : .36f, delta), 0);
         ((StandardMaterial3D)_lens.MaterialOverride).AlbedoColor = Active ? new("#fff0a5") : new("#556573");
-        _beam.Visible = Active && _reach > .001f;
-        _beam.Position = LensPosition + Vector3.Right * (_reach * .5f);
-        _beam.Scale = new(1, Mathf.Max(.001f, _reach), 1);
+        _world = world;
     }
 }

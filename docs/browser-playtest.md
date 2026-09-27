@@ -1,5 +1,13 @@
 # Browser campaign playtest
 
+## Soft torch cone — current 52-level campaign
+
+The straight axial marker is removed. A C# render-time mesh draws four translucent warm-cream shells, each sampled at 48 directions, using the physical emitter angle/range and the same opaque collision proxies. Source rotation affects both illumination and visible geometry. Adjacent sectors use their nearer sampled hit distance to limit connecting triangles across abrupt silhouette changes. This is approximate sampled clipping, not volumetric scattering; moving partial shadows and multi-source frame performance still need broader review.
+
+Campaign hash remains `0121fc4a7704fac68d2b8652f71d50779ecd25ccdda68b00cd7f07b3efff0a43`. UI-only `L21-balanced-reference-cone-v1.json` and `L22-balanced-reference-cone-v1.json` win at tick 207. `L22-balanced-shaded-cone-v1.json` and `L22-balanced-missing-wire-cone-v1.json` correctly time out at 3600. All four have zero recorded browser errors, one Run/result/Reset lifecycle and passing audits. Reviewed screenshots show a soft widening cone reaching the lit panel or stopping at the wall, with the existing palette and no new UI.
+
+All 240 native tests pass. New geometry checks cover cone angle/range, three source orientations, wall clipping, partial dynamic obstruction and restored unblocked rays when the blocker moves. These tests do not establish continuous rendered fluidity or complete optical fidelity. The earlier straight-marker captures and the solar Reset failure remain unchanged historical evidence.
+
 ## Flashlight and solar power — 52-level draft
 
 Current campaign hash: `0121fc4a7704fac68d2b8652f71d50779ecd25ccdda68b00cd7f07b3efff0a43`. Lessons 21 (“A little sunshine”) and 22 (“Out of the shade”) introduce a self-contained impact-triggered flashlight, a directional solar panel and electrical supply to a motor. The second lesson places an opaque wall across the beam. Initial `solar-v1` Balanced references won, but their screenshots showed the panel's back and a hidden meter. Both lesson layouts were subsequently turned 180°; those earlier captures remain historical evidence of hash `f82820a110fca24fecb205541624ee047c307e502dbc52ae80e921951d646b2a`.
