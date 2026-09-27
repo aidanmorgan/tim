@@ -11,7 +11,9 @@
 - Always refactor forward. Never add fallback paths, backwards compatibility, legacy modes, compatibility shims, old-name aliases or automatic format migration.
 - Update current implementations, callers, authored content, tooling and tests together. Reject unsupported inputs explicitly; do not silently substitute another implementation, infer obsolete fields or downgrade behaviour.
 - Preserve historical playtest artifacts unchanged as evidence, not as supported current input.
-- Use C# wherever possible. Use enums for closed sets and typed identities or centralized constants for extensible names; avoid magic-string protocols.
+- Use C# wherever possible. No magic strings: use enums wherever possible for closed sets, including part categories, states, modes, actions, events, connection types and protocol selectors. Do not replace an enum with string literals or a bag of string constants.
+- For genuinely extensible identities, resource paths and external API keys that cannot be enums, use strongly typed identifiers and centralized named constants. Keep necessary string conversion in explicit, validated serialization/UI/external boundaries; runtime logic must use typed values. Display text is presentation, never a behaviour selector.
+- Apply this rule to production code, tests and tooling. When changing string-based logic, forward-refactor affected callers, current authored content and tests together; reject unknown values explicitly, with no string aliases, fallback values or compatibility paths.
 - Preserve the current colour scheme. Follow DESIGN.md for Monument Valley-inspired form, composition, lighting and motion without replacing the approved palette.
 - The current campaign target is 75 progressively taught levels. Track actual implementation and verification status in TODO.md; do not equate passing reference solutions with completed repeated difficulty testing.
 - Browser playtests must use real UI actions, not game-state setters, imported solutions or numeric placement menus. Retain failed attempts.
