@@ -79,7 +79,7 @@ public partial class CannonPart : MachinePart
                 &&new Vector2(at.Y,at.Z).Length()<BoreRadius+body.Radius;
         }
         if(_departing!=null&&!Occupies(_departing))_departing=null;
-        var candidates=world.Bodies.Where(Occupies).ToArray();
+        var candidates=world.Bodies.Where(body=>body.PhysicsOwner==body).Where(Occupies).ToArray();
         _payload=null;
         if(_departing!=null){_loadState=CannonShotResult.Busy;return;}
         if(candidates.Length==0){_loadState=CannonShotResult.Empty;return;}

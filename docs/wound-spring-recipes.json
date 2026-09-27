@@ -1,0 +1,6834 @@
+[
+  {
+    "caseId": "wound-spring-powered-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-unpowered-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-reverse-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "reverse",
+        "kind": "reverse_transmission",
+        "position": [
+          -2,
+          3,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "reverse",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "reverse",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-empty-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-retained-charge-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-retained-charge-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-partial-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-partial-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-retained-repeat-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay5",
+        "kind": "delay",
+        "position": [
+          -5,
+          3,
+          -3
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "delay5",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay5",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-reverse-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "reverse",
+        "kind": "reverse_transmission",
+        "position": [
+          -2,
+          3,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "reverse",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "reverse",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-winding-obstacle-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "wall",
+        "kind": "wall",
+        "position": [
+          3,
+          3,
+          3
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-winding-clear-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "wall",
+        "kind": "wall",
+        "position": [
+          3,
+          3,
+          3
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-blocked-release-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          3.6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-open-release-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          3.6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "battery",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-resumed-release-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          3.6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      },
+      {
+        "slot": "motorTimer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          3,
+          -3
+        ]
+      },
+      {
+        "slot": "reopenDelay",
+        "kind": "delay",
+        "position": [
+          5,
+          3,
+          3
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "battery",
+        "to": "motorTimer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motorTimer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "motorTimer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "reopenDelay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "reopenDelay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-tennis-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "tennis",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-bowling-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "bowling",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-visual-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-angled-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0.40634590081095756,
+          4.516503547273837,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-angled-receiver-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0.40634590081095756,
+          4.516503547273837,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          3.6,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-angled-unpowered-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0.40634590081095756,
+          4.516503547273837,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          3.6,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-partial-v3",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-reverse-v3",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "reverse",
+        "kind": "reverse_transmission",
+        "position": [
+          -2,
+          3,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "reverse",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "reverse",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-retained-repeat-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay5",
+        "kind": "delay",
+        "position": [
+          -5,
+          3,
+          -3
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "delay5",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay5",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-winding-obstacle-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "wall",
+        "kind": "wall",
+        "position": [
+          3,
+          3,
+          3
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-winding-clear-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "wall",
+        "kind": "wall",
+        "position": [
+          3,
+          3,
+          3
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-resumed-release-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          3.6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      },
+      {
+        "slot": "motorTimer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          3,
+          -3
+        ]
+      },
+      {
+        "slot": "reopenDelay",
+        "kind": "delay",
+        "position": [
+          5,
+          3,
+          3
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "battery",
+        "to": "motorTimer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motorTimer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "motorTimer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "reopenDelay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "reopenDelay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-tennis-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "tennis",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-bowling-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "bowling",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-stacked-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "upperPayload",
+        "kind": "ball",
+        "position": [
+          0,
+          5.75,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-single-timing-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-stacked-timing-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "upperPayload",
+        "kind": "ball",
+        "position": [
+          0,
+          5.75,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-single-timing-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-stacked-timing-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "upperPayload",
+        "kind": "ball",
+        "position": [
+          0,
+          5.75,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-single-timing-v3",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-stacked-timing-v3",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "upperPayload",
+        "kind": "ball",
+        "position": [
+          0,
+          5.75,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-unpowered-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-empty-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-reverse-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "reverse",
+        "kind": "reverse_transmission",
+        "position": [
+          -2,
+          3,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "reverse",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "reverse",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-partial-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-retained-repeat-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay5",
+        "kind": "delay",
+        "position": [
+          -5,
+          3,
+          -3
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "delay5",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay5",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-winding-obstacle-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "wall",
+        "kind": "wall",
+        "position": [
+          3,
+          3,
+          3
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-winding-clear-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "wall",
+        "kind": "wall",
+        "position": [
+          3,
+          3,
+          3
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-blocked-release-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          3.6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-open-release-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          3.6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "battery",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-resumed-release-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ]
+      },
+      {
+        "slot": "delay2",
+        "kind": "delay",
+        "position": [
+          0,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "delay3",
+        "kind": "delay",
+        "position": [
+          3,
+          6,
+          2
+        ]
+      },
+      {
+        "slot": "delay4",
+        "kind": "delay",
+        "position": [
+          5,
+          6,
+          -3
+        ]
+      },
+      {
+        "slot": "gate",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          3.6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "finalMoves": [
+          {
+            "axis": 0,
+            "amount": -3
+          },
+          {
+            "axis": 2,
+            "amount": -3
+          }
+        ]
+      },
+      {
+        "slot": "motorTimer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          3,
+          -3
+        ]
+      },
+      {
+        "slot": "reopenDelay",
+        "kind": "delay",
+        "position": [
+          5,
+          3,
+          3
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "delay2",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "timer",
+        "to": "gate",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay2",
+        "to": "delay3",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay3",
+        "to": "delay4",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "battery",
+        "to": "motorTimer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motorTimer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "delay",
+        "to": "motorTimer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay4",
+        "to": "reopenDelay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "reopenDelay",
+        "to": "timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-angled-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0.40634590081095756,
+          4.516503547273837,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-angled-receiver-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0.40634590081095756,
+          4.516503547273837,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          3.6,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-angled-unpowered-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0.40634590081095756,
+          4.516503547273837,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          3.6,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-tennis-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "tennis",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-spring-bowling-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "bowling",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-lesson-reference-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "launcher",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "launcher",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "trigger",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "launcher",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-lesson-no-supply-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "launcher",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "motor",
+        "to": "launcher",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "trigger",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "launcher",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-off-centre-video-v2",
+    "level": 60,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ],
+        "offset": [
+          0.05,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-oversized-weight-v1",
+    "level": 60,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "weight",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-close-motion-v1",
+    "level": 60,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ],
+        "offset": [
+          0.05,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          -3,
+          6,
+          -2
+        ]
+      },
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "spring",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "motor",
+        "to": "spring",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-exact-enum-reference-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "launcher",
+        "kind": "wound_spring",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -15
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "launcher",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "trigger",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "launcher",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-retained-lesson-reference-v1",
+    "level": 60,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "hold_timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "hold_timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "hold_timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "launcher",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "trigger",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "hold_timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "release_delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "release_delay",
+        "to": "launcher",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-retained-lesson-reference-v2",
+    "level": 60,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "hold_timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "hold_timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "hold_timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "launcher",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "trigger",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "hold_timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "release_delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "release_delay",
+        "to": "launcher",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-retained-lesson-no-release-v1",
+    "level": 60,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "hold_timer",
+        "kind": "hold_timer",
+        "position": [
+          -5,
+          6,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "hold_timer",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "hold_timer",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "launcher",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "trigger",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "hold_timer",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "release_delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  }
+]

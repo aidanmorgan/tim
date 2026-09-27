@@ -648,5 +648,1671 @@
       }
     ],
     "observeFrameWallClock": true
+  },
+  {
+    "caseId": "wound-spring-regression-trampoline-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          0
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-trampoline-missed-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-counterweight-v1",
+    "level": 19,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "weight",
+        "kind": "weight",
+        "position": [
+          2,
+          5,
+          0.12
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "load",
+        "to": "left_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 5
+      },
+      {
+        "from": "left_pulley",
+        "to": "right_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 4
+      },
+      {
+        "from": "right_pulley",
+        "to": "weight",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 0.81203175
+      },
+      {
+        "from": "switch",
+        "to": "lamp",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-regression-counterweight-no-rope-v1",
+    "level": 19,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "weight",
+        "kind": "weight",
+        "position": [
+          2,
+          5,
+          0.12
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "load",
+        "to": "left_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 5
+      },
+      {
+        "from": "left_pulley",
+        "to": "right_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 4
+      },
+      {
+        "from": "switch",
+        "to": "lamp",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-regression-springboard-v1",
+    "level": 4,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "spring",
+        "position": [
+          -3,
+          0.8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -20
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-pipe-v1",
+    "level": 25,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "pipe",
+        "kind": "pipe",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -45
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-bend-v1",
+    "level": 27,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "bend",
+        "kind": "pipe_bend_90",
+        "position": [
+          0,
+          4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -90
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-springboard-wrong-aim-v1",
+    "level": 4,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "spring",
+        "position": [
+          -3,
+          0.8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          20
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-pipe-missed-v1",
+    "level": 25,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "pipe",
+        "kind": "pipe",
+        "position": [
+          3,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -45
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-bend-missed-v1",
+    "level": 27,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "bend",
+        "kind": "pipe_bend_90",
+        "position": [
+          3,
+          4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -90
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-trampoline-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          0
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-trampoline-missed-v2",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "wound-spring-regression-pusher-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "home",
+        "kind": "powered_gate",
+        "position": [
+          -4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "end",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      },
+      {
+        "from": "pusher",
+        "to": "home",
+        "type": "electrical",
+        "from_port": "retracted_out",
+        "to_port": "power_in"
+      },
+      {
+        "from": "pusher",
+        "to": "end",
+        "type": "electrical",
+        "from_port": "extended_out",
+        "to_port": "power_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-regression-pusher-no-supply-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-regression-cannon-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-regression-cannon-no-supply-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-regression-conveyor-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clutch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "wound-spring-regression-conveyor-open-clutch-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-regression-counterweight-v1",
+    "level": 19,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "weight",
+        "kind": "weight",
+        "position": [
+          2,
+          5,
+          0.12
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "load",
+        "to": "left_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 5
+      },
+      {
+        "from": "left_pulley",
+        "to": "right_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 4
+      },
+      {
+        "from": "right_pulley",
+        "to": "weight",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 0.81203175
+      },
+      {
+        "from": "switch",
+        "to": "lamp",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-regression-counterweight-no-rope-v1",
+    "level": 19,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "weight",
+        "kind": "weight",
+        "position": [
+          2,
+          5,
+          0.12
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "load",
+        "to": "left_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 5
+      },
+      {
+        "from": "left_pulley",
+        "to": "right_pulley",
+        "type": "rope",
+        "from_port": "tie",
+        "to_port": "tie",
+        "rope_length": 4
+      },
+      {
+        "from": "switch",
+        "to": "lamp",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-regression-springboard-v1",
+    "level": 4,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "spring",
+        "position": [
+          -3,
+          0.8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -20
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "contact-cache-regression-springboard-wrong-aim-v1",
+    "level": 4,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "spring",
+        "kind": "spring",
+        "position": [
+          -3,
+          0.8,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          20
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "contact-cache-regression-pipe-v1",
+    "level": 25,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "pipe",
+        "kind": "pipe",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -45
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "contact-cache-regression-pipe-missed-v1",
+    "level": 25,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "pipe",
+        "kind": "pipe",
+        "position": [
+          3,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -45
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "contact-cache-regression-bend-v1",
+    "level": 27,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "bend",
+        "kind": "pipe_bend_90",
+        "position": [
+          0,
+          4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -90
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "contact-cache-regression-bend-missed-v1",
+    "level": 27,
+    "precision": 0,
+    "parts": [
+      {
+        "slot": "bend",
+        "kind": "pipe_bend_90",
+        "position": [
+          3,
+          4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -90
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "contact-cache-regression-trampoline-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          0
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "contact-cache-regression-trampoline-missed-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "contact-cache-regression-pusher-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      },
+      {
+        "slot": "home",
+        "kind": "powered_gate",
+        "position": [
+          -4,
+          3,
+          -2
+        ]
+      },
+      {
+        "slot": "end",
+        "kind": "powered_gate",
+        "position": [
+          3,
+          5,
+          -2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      },
+      {
+        "from": "pusher",
+        "to": "home",
+        "type": "electrical",
+        "from_port": "retracted_out",
+        "to_port": "power_in"
+      },
+      {
+        "from": "pusher",
+        "to": "end",
+        "type": "electrical",
+        "from_port": "extended_out",
+        "to_port": "power_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-regression-pusher-no-supply-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "pusher",
+        "kind": "linear_pusher",
+        "position": [
+          -2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "platform",
+        "kind": "wall",
+        "position": [
+          1.5,
+          2.55,
+          0
+        ],
+        "dimensions": [
+          5,
+          2,
+          0.25
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ]
+      },
+      {
+        "slot": "cargo",
+        "kind": "ball",
+        "position": [
+          -0.4,
+          3.1,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "pusher",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "extend_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-regression-cannon-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "cannon",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-regression-cannon-no-supply-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "cannon",
+        "kind": "cannon",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ]
+      },
+      {
+        "slot": "payload",
+        "kind": "ball",
+        "position": [
+          0,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          3,
+          2
+        ]
+      },
+      {
+        "slot": "switch",
+        "kind": "switch",
+        "position": [
+          4,
+          2,
+          -2
+        ]
+      },
+      {
+        "slot": "striker",
+        "kind": "ball",
+        "position": [
+          4,
+          7,
+          -2
+        ]
+      },
+      {
+        "slot": "delay",
+        "kind": "delay",
+        "position": [
+          3,
+          5,
+          2
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "switch",
+        "to": "delay",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      },
+      {
+        "from": "delay",
+        "to": "cannon",
+        "type": "activation",
+        "from_port": "activation_out",
+        "to_port": "activation_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-regression-conveyor-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "battery",
+        "to": "clutch",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
+  },
+  {
+    "caseId": "contact-cache-regression-conveyor-open-clutch-v1",
+    "level": 59,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "motor",
+        "kind": "motor",
+        "position": [
+          -4,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "clutch",
+        "kind": "clutch",
+        "position": [
+          -1,
+          5,
+          0
+        ]
+      },
+      {
+        "slot": "belt",
+        "kind": "conveyor",
+        "position": [
+          2,
+          3,
+          0
+        ]
+      },
+      {
+        "slot": "battery",
+        "kind": "battery",
+        "position": [
+          -4,
+          2,
+          2
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          1,
+          4.5,
+          0
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "from": "battery",
+        "to": "motor",
+        "type": "electrical",
+        "from_port": "supply",
+        "to_port": "power_in"
+      },
+      {
+        "from": "motor",
+        "to": "clutch",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      },
+      {
+        "from": "clutch",
+        "to": "belt",
+        "type": "mechanical",
+        "from_port": "drive",
+        "to_port": "drive_in"
+      }
+    ]
   }
 ]

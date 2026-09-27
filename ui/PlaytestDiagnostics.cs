@@ -74,6 +74,12 @@ public partial class Workshop
                 StoredEnergy = p.StoredEnergy, ReleasedEnergy = p.ReleasedEnergy,
                 PayloadId = p.LastPayload?.Uid, RecoilOffset = p.RecoilOffset
             }).ToList(),
+            WoundSprings = World.Parts.OfType<WoundSpringPart>().Select(p => new PlaytestWoundSpring
+            {
+                Id = p.Uid, Phase = p.Phase, LastTrigger = p.LastTrigger, ReleaseCount = p.ReleaseCount,
+                Compression = p.Compression, StoredEnergy = p.StoredEnergy,
+                AcceptedWork = p.AcceptedWork, ReleasedWork = p.ReleasedWork
+            }).ToList(),
             Parts = World.Parts.Where(p => !p.Locked && !p.Dynamic).Select(p => new PlaytestPart
             {
                 Id = p.Uid, Kind = p.Definition.Id,
@@ -234,6 +240,50 @@ public sealed class PlaytestCannon
     public string? PayloadId { get; set; }
     public float RecoilOffset { get; set; }
 }
+/// <summary>Exact diagnostic wire names only: no case folding, whitespace aliases or combined names.</summary>
+public abstract class ExactPlaytestEnumConverter<T> : JsonConverter<T> where T : struct, Enum
+{
+    private static readonly Dictionary<string, T> FromWire = new(StringComparer.Ordinal);
+    private static readonly Dictionary<T, string> ToWire = new();
+    static ExactPlaytestEnumConverter()
+    {
+        foreach (var value in Enum.GetValues<T>())
+        {
+            // Enum-to-string conversion belongs only at this serialization boundary.
+            var name = JsonNamingPolicy.SnakeCaseLower.ConvertName(value.ToString());
+            FromWire.Add(name, value);
+            ToWire.Add(value, name);
+        }
+    }
+    public override T Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
+    {
+        if (reader.TokenType != JsonTokenType.String ||
+            !FromWire.TryGetValue(reader.GetString()!, out var value))
+            throw new JsonException("Unknown diagnostic enum wire value.");
+        return value;
+    }
+    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+    {
+        if (!ToWire.TryGetValue(value, out var name))
+            throw new JsonException("Undefined diagnostic enum value.");
+        writer.WriteStringValue(name);
+    }
+}
+public sealed class PlaytestWoundSpringPhaseConverter : ExactPlaytestEnumConverter<WoundSpringPhase>;
+public sealed class PlaytestSpringTriggerConverter : ExactPlaytestEnumConverter<SpringTriggerResult>;
+public sealed class PlaytestWoundSpring
+{
+    public string Id { get; set; } = "";
+    [JsonConverter(typeof(PlaytestWoundSpringPhaseConverter))]
+    public WoundSpringPhase Phase { get; set; }
+    [JsonConverter(typeof(PlaytestSpringTriggerConverter))]
+    public SpringTriggerResult? LastTrigger { get; set; }
+    public int ReleaseCount { get; set; }
+    public float Compression { get; set; }
+    public double StoredEnergy { get; set; }
+    public double AcceptedWork { get; set; }
+    public double ReleasedWork { get; set; }
+}
 public sealed class PlaytestMechanical
 {
     public string Id { get; set; } = "";
@@ -247,6 +297,7 @@ public sealed class PlaytestFrame
     public List<PlaytestMechanical> Mechanical { get; set; } = new();
     public List<PlaytestBody> Bodies { get; set; } = new();
     public List<PlaytestCannon> Cannons { get; set; } = new();
+    public List<PlaytestWoundSpring> WoundSprings { get; set; } = new();
     public int Tick { get; set; }
     public List<PlaytestPart> Parts { get; set; } = new();
 }

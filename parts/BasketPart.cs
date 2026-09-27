@@ -34,7 +34,7 @@ public partial class BasketPart : MachinePart
         if (assistance <= 0) return;
         foreach (var body in world.Bodies)
         {
-            if (!body.Visible) continue;
+            if (!body.Visible || body.PhysicsOwner != body) continue;
             var local = ToLocal(body.Position);
             var velocity = Basis.Inverse() * body.Velocity;
             // Authored capture margin includes near-rim arrivals, not just balls
@@ -54,7 +54,7 @@ public partial class BasketPart : MachinePart
         var settings = Assistance(world.Precision);
         foreach (var body in world.Bodies)
         {
-            if (!body.Visible) continue;
+            if (!body.Visible || body.PhysicsOwner != body) continue;
             var local = ToLocal(body.Position);
             var inside = Mathf.Abs(local.X) < .66f && Mathf.Abs(local.Z) < .66f &&
                          local.Y > -.4f && local.Y < .45f + settings.CaptureMargin;

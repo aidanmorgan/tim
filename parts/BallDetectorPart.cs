@@ -39,7 +39,7 @@ public partial class BallDetectorPart : MachinePart, ITubePart
         var inverse = Transform.AffineInverse();
         foreach (var body in world.Bodies)
         {
-            if (!body.Visible) { _armed.Remove(body); continue; }
+            if (!body.Visible || body.PhysicsOwner != body) { _armed.Remove(body); continue; }
             var position = inverse * body.Position;
             _before.Add(body,position);
             if (position.X <= -body.Radius - .02f) _armed.Add(body);

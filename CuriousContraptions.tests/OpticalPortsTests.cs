@@ -7,6 +7,7 @@ namespace CuriousContraptions.Tests;
 [Collection<HeadlessCollection>]
 public class OpticalPortsTests(HeadlessFixture godot)
 {
+    private enum ProbeRole { Target, First, Second }
     private partial class Probe : MachinePart
     {
         public OpticalSurface[] Surfaces { get; set; }=[];
@@ -68,6 +69,13 @@ public class OpticalPortsTests(HeadlessFixture godot)
         var first=Source(-1,Vector3.One);var second=Source(1,Vector3.One);
         try
         {
+            foreach (var (probe, role) in new[] { (target, ProbeRole.Target), (first, ProbeRole.First), (second, ProbeRole.Second) })
+            {
+                var position = probe.Position;
+                probe.Definition = new PartDefinition();
+                // Test-fixture instance IDs at the explicit scene configuration boundary.
+                probe.Configure(new() { Id = role.ToString(), Position = [position.X, position.Y, position.Z] });
+            }
             var around=new Transform3D(Basis.FromEuler(new(.2f,.3f,.4f)),new(0,2,0));
             foreach(var p in new Probe[]{target,first,second})p.Transform=around*p.Transform;
             world.Parts.AddRange([target,first,second]);

@@ -22,6 +22,17 @@ public partial class MachineWorld : Node3D
     public PartRegistry Registry { get; } = new();
     public List<MachinePart> Parts { get; } = new();
     public List<MachinePart> Bodies { get; } = new();
+    public IEnumerable<MachinePart> CollisionParts
+    {
+        get
+        {
+            foreach (var part in Parts)
+            {
+                yield return part;
+                foreach (var body in part.InternalBodies) yield return body;
+            }
+        }
+    }
     public List<ConnectionSpec> Connections { get; private set; } = new();
     public List<GoalSpec> Objectives { get; private set; } = new();
     public List<RopePath> Ropes { get; private set; } = new();
@@ -89,6 +100,7 @@ public partial class MachineWorld : Node3D
         try
         {
             foreach (var entry in data.Parts) candidates.Add(Registry.Create(entry));
+            ValidateInstanceIds(candidates);
             foreach (var link in data.Connections)
             {
                 var source = candidates.SingleOrDefault(p => p.Uid == link.From);
@@ -103,18 +115,31 @@ public partial class MachineWorld : Node3D
         finally { foreach (var candidate in candidates) candidate.Free(); }
     }
 
+    private static void ValidateInstanceIds(IEnumerable<MachinePart> parts)
+    {
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var part in parts)
+        {
+            if (!ids.Add(part.Uid)) throw new ArgumentException("Duplicate instance ID: " + part.Uid);
+            foreach (var role in part.InternalBodyRoles)
+            {
+                var id = part.InternalBodyId(role);
+                if (!ids.Add(id)) throw new ArgumentException("Duplicate internal-body instance ID: " + id);
+            }
+        }
+    }
+
     public MachinePart AddPart(PartSpec entry)
     {
-        if (Parts.Any(p => p.Uid == entry.Id)) throw new ArgumentException("Duplicate instance ID: " + entry.Id);
         var part = Registry.Create(entry);
+        try { ValidateInstanceIds(Parts.Append(part)); }
+        catch { part.Free(); throw; }
         AddChild(part);
         Parts.Add(part);
         Parts.Sort((a, b) => string.CompareOrdinal(a.Uid, b.Uid));
-        if (part.Dynamic)
-        {
-            Bodies.Add(part);
-            Bodies.Sort((a, b) => string.CompareOrdinal(a.Uid, b.Uid));
-        }
+        if (part.Dynamic) Bodies.Add(part);
+        Bodies.AddRange(part.InternalBodies);
+        Bodies.Sort((a, b) => string.CompareOrdinal(a.Uid, b.Uid));
         part.UpdateAssistance(Precision);
         return part;
     }
@@ -122,6 +147,7 @@ public partial class MachineWorld : Node3D
     {
         Parts.Remove(part);
         Bodies.Remove(part);
+        foreach (var body in part.InternalBodies) Bodies.Remove(body);
         Connections.RemoveAll(link => link.From == part.Uid || link.To == part.Uid);
         RemoveChild(part);
         part.Free();
@@ -261,6 +287,7 @@ public partial class MachineWorld : Node3D
     public void Step()
     {
         if (!Running) return;
+        MaximumFlightIterationsThisStep = 0;
         foreach (var part in Parts) part.BeforeNetworks(this);
         LightNetwork.Solve(this);
         OpticalNetwork.Solve(this);
@@ -279,11 +306,12 @@ public partial class MachineWorld : Node3D
             var guideDistances = Ropes.Select(r => r.GuideDistances()).ToArray();
             foreach (var body in Bodies)
             {
-                if (!body.Visible) continue;
+                if (!body.Visible || !body.FreeMotion) continue;
                 var acceleration = Vector3.Down * Gravity + Vector3.Up * body.Buoyancy * Pressure;
-                body.Velocity += acceleration * delta;
+                body.Velocity += body.InverseMassResponse(acceleration * body.Mass) * delta;
                 body.Velocity *= Mathf.Max(0, 1 - body.Drag * Pressure * delta);
                 body.Velocity = body.Velocity.LimitLength(40);
+                body.ConstrainVelocity();
             }
             foreach (var rope in Ropes) rope.SolveVelocity(delta);
             AdvanceBodies(delta);
@@ -295,7 +323,8 @@ public partial class MachineWorld : Node3D
                     if (obstacle == body || !obstacle.Visible) continue;
                     obstacle.ResolveCompliantContact(body, this, delta);
                 }
-                if (body.Position.Y < -5 || body.Position.Y > 20 || Mathf.Abs(body.Position.X) > 18 || Mathf.Abs(body.Position.Z) > 12)
+                body.ConstrainVelocity();
+                if (body.PhysicsOwner == body && (body.Position.Y < -5 || body.Position.Y > 20 || Mathf.Abs(body.Position.X) > 18 || Mathf.Abs(body.Position.Z) > 12))
                 {
                     body.Visible = false;
                     Events.TryAdd(new(MachineEventKind.Escaped, body.Uid), Ticks);
@@ -333,8 +362,7 @@ public partial class MachineWorld : Node3D
             foreach (var part in Parts) part.AfterStep(this, delta);
             foreach (var body in Bodies)
             {
-                body.Position = body.Position.Snapped(Vector3.One * Quantum);
-                body.Velocity = body.Velocity.Snapped(Vector3.One * Quantum);
+                body.QuantizePhysics();
             }
         }
         Ticks++;
@@ -430,13 +458,8 @@ public partial class MachineWorld : Node3D
         var target = a.Radius + b.Radius;
         if (distance >= target) return;
         var normal = distance > .00001f ? offset / distance : Vector3.Right;
-        var total = a.Mass + b.Mass;
-        a.Position -= normal * (target - distance) * b.Mass / total;
-        b.Position += normal * (target - distance) * a.Mass / total;
-        var impact = SphereImpact.Resolve(a.Velocity, a.Mass, b.Velocity, b.Mass, -normal,
-            Mathf.Min(a.Bounce, b.Bounce));
-        a.Velocity = impact.FirstVelocity;
-        b.Velocity = impact.SecondVelocity;
+        if (!a.FreeMotion && !b.FreeMotion) return;
+        BodyContact.Resolve(a, b, -normal, target - distance, Mathf.Min(a.Bounce, b.Bounce));
     }
 
     private bool GoalsMet() => Objectives.All(goal => goal.Type switch

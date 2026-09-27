@@ -24,6 +24,39 @@ public class WorldSweepTests(HeadlessFixture godot)
         return part;
     }
 
+    public enum SceneMutation { Move, Hide, RemoveProxy }
+
+    [Theory]
+    [InlineData(SceneMutation.Move)]
+    [InlineData(SceneMutation.Hide)]
+    [InlineData(SceneMutation.RemoveProxy)]
+    public void CapturedGeometryIsStableAndRecaptureReflectsSceneChanges(SceneMutation mutation)
+    {
+        var world = World();
+        try
+        {
+            var wall = Part(world, FirstId, new(0,5,0));
+            wall.Boxes.Add(new(Vector3.Zero, Vector3.One));
+            var snapshot = WorldGeometry.CaptureSweep(world, null, null, SweepBodyMode.ExcludeBodies);
+            var origin = new Vector3(-3,5,0);
+            var travel = Vector3.Right * 6;
+            var before = snapshot.Sweep(origin, .25f, travel);
+            Assert.Same(wall, before.Part);
+            switch (mutation)
+            {
+                case SceneMutation.Move: wall.Position += Vector3.Back * 10; break;
+                case SceneMutation.Hide: wall.Visible = false; break;
+                case SceneMutation.RemoveProxy: wall.Boxes.Clear(); break;
+                default: throw new ArgumentOutOfRangeException(nameof(mutation));
+            }
+            Assert.Equal(before, snapshot.Sweep(origin, .25f, travel));
+            Assert.Equal(SphereSweepStatus.Clear,
+                WorldGeometry.CaptureSweep(world, null, null, SweepBodyMode.ExcludeBodies)
+                    .Sweep(origin, .25f, travel).Status);
+        }
+        finally { world.Free(); }
+    }
+
     [Fact]
     public void StaticQueryExcludesBodyButRetainsItsSolidProxies()
     {

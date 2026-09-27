@@ -25,11 +25,53 @@ public static class WorldGeometry
         Vector3 displacement, MachinePart? ignoredOwner = null, MachinePart? ignoredBody = null,
         SweepBodyMode bodies = SweepBodyMode.IncludeBodies)
     {
+        return CaptureSweep(world, ignoredOwner, ignoredBody, bodies).Sweep(origin, radius, displacement);
+    }
+
+    /// <summary>Immutable solid geometry for repeated queries at one simulation instant.
+    /// Re-capture after movement, positional repair, visibility/proxy changes or contact callbacks.
+    /// Changing body velocity alone does not invalidate captured solid geometry.</summary>
+    public static SweepSnapshot CaptureSweep(MachineWorld world, MachinePart? ignoredOwner,
+        MachinePart? ignoredBody, SweepBodyMode bodies)
+    {
         ArgumentNullException.ThrowIfNull(world);
         if (!Enum.IsDefined(bodies)) throw new ArgumentOutOfRangeException(nameof(bodies));
-        var best = new WorldSweepResult(SphereSweepStatus.Clear, displacement.Length(), Vector3.Zero,
-            SweepObstacleKind.None, null, SweepSurfaceKind.None, 0);
-        void Candidate(Transform3D pose, Func<Vector3,(Vector3 Normal,float Distance)> surface,
+        var snapshot = new SweepSnapshot();
+        foreach (var box in new[] { Workbench.Deck, Workbench.Base })
+            snapshot.Add(Transform3D.Identity, p=>SphereSweep.BoxSurface(p-box.At,box.Half),
+                SweepObstacleKind.Workbench,null,SweepSurfaceKind.Box);
+        foreach (var part in world.CollisionParts.Where(p=>p.Visible && p.PhysicsOwner.Visible && p!=ignoredOwner && p.PhysicsOwner!=ignoredOwner && p!=ignoredBody)
+                     .OrderBy(p=>p.Uid,StringComparer.Ordinal))
+        {
+            var pose = part.Transform;
+            foreach (var box in part.Boxes)
+                snapshot.Add(pose,p=>SphereSweep.BoxSurface(p-box.At,box.Half),SweepObstacleKind.Part,part,SweepSurfaceKind.Box);
+            foreach (var sphere in part.Spheres)
+                snapshot.Add(pose,p=>SphereSweep.SphereSurface(p-sphere.At,sphere.Radius),SweepObstacleKind.Part,part,SweepSurfaceKind.Sphere);
+            foreach (var tube in part.Tubes)
+                snapshot.Add(pose*tube.Pose,tube.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Tube);
+            foreach (var bend in part.Bends)
+                snapshot.Add(pose*bend.Pose,bend.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Bend);
+            foreach (var frustum in part.Frustums)
+                snapshot.Add(pose*frustum.Pose,frustum.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Frustum);
+            if (part.Dynamic && bodies == SweepBodyMode.IncludeBodies)
+            {
+                var radius = part.Radius;
+                snapshot.Add(pose,p=>SphereSweep.SphereSurface(p,radius),SweepObstacleKind.Part,part,SweepSurfaceKind.Body);
+            }
+        }
+        return snapshot;
+    }
+
+    public sealed class SweepSnapshot
+    {
+        internal SweepSnapshot() { }
+        private readonly System.Collections.Generic.List<PreparedSurface> _surfaces = new();
+        private readonly record struct PreparedSurface(Transform3D Inverse, Basis Basis,
+            Func<Vector3,(Vector3 Normal,float Distance)> Surface, SweepObstacleKind Kind,
+            MachinePart? Part, SweepSurfaceKind Shape);
+
+        internal void Add(Transform3D pose, Func<Vector3,(Vector3 Normal,float Distance)> surface,
             SweepObstacleKind kind, MachinePart? part, SweepSurfaceKind shape)
         {
             var basis = pose.Basis;
@@ -41,44 +83,34 @@ public static class WorldGeometry
                 || Mathf.Abs(basis.X.Dot(basis.Z)) > .0001f
                 || Mathf.Abs(basis.Y.Dot(basis.Z)) > .0001f)
                 throw new InvalidOperationException("Sphere sweeps require rigid proxy transforms.");
-            var inverse = pose.AffineInverse();
-            var hit = SphereSweep.Cast(inverse*origin, radius, inverse.Basis*displacement, surface);
-            if (hit.Status == SphereSweepStatus.Clear) return;
-            if (best.Status == SphereSweepStatus.Overlapping) return;
-            if (hit.Status != SphereSweepStatus.Overlapping && best.Status != SphereSweepStatus.Clear
-                && hit.Distance >= best.Distance) return;
-            best = new(hit.Status, hit.Distance, basis*hit.Normal, kind, part, shape, hit.Penetration);
+            _surfaces.Add(new(pose.AffineInverse(), basis, surface, kind, part, shape));
         }
-        // Always query the workbench, including in an empty world; this also validates query inputs.
-        foreach (var box in new[] { Workbench.Deck, Workbench.Base })
-            Candidate(Transform3D.Identity, p=>SphereSweep.BoxSurface(p-box.At,box.Half),
-                SweepObstacleKind.Workbench,null,SweepSurfaceKind.Box);
-        foreach (var part in world.Parts.Where(p=>p.Visible && p!=ignoredOwner && p!=ignoredBody)
-                     .OrderBy(p=>p.Uid,StringComparer.Ordinal))
+
+        public WorldSweepResult Sweep(Vector3 origin, float radius, Vector3 displacement)
         {
-            foreach (var box in part.Boxes)
-                Candidate(part.Transform,p=>SphereSweep.BoxSurface(p-box.At,box.Half),SweepObstacleKind.Part,part,SweepSurfaceKind.Box);
-            foreach (var sphere in part.Spheres)
-                Candidate(part.Transform,p=>SphereSweep.SphereSurface(p-sphere.At,sphere.Radius),SweepObstacleKind.Part,part,SweepSurfaceKind.Sphere);
-            foreach (var tube in part.Tubes)
-                Candidate(part.Transform*tube.Pose,tube.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Tube);
-            foreach (var bend in part.Bends)
-                Candidate(part.Transform*bend.Pose,bend.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Bend);
-            foreach (var frustum in part.Frustums)
-                Candidate(part.Transform*frustum.Pose,frustum.Surface,SweepObstacleKind.Part,part,SweepSurfaceKind.Frustum);
-            if (part.Dynamic && bodies == SweepBodyMode.IncludeBodies)
-                Candidate(part.Transform,p=>SphereSweep.SphereSurface(p,part.Radius),SweepObstacleKind.Part,part,SweepSurfaceKind.Body);
+            var best = new WorldSweepResult(SphereSweepStatus.Clear, displacement.Length(), Vector3.Zero,
+                SweepObstacleKind.None, null, SweepSurfaceKind.None, 0);
+            foreach (var surface in _surfaces)
+            {
+                var hit = SphereSweep.Cast(surface.Inverse*origin, radius,
+                    surface.Inverse.Basis*displacement, surface.Surface);
+                if (hit.Status == SphereSweepStatus.Clear || best.Status == SphereSweepStatus.Overlapping) continue;
+                if (hit.Status != SphereSweepStatus.Overlapping && best.Status != SphereSweepStatus.Clear
+                    && hit.Distance >= best.Distance) continue;
+                best = new(hit.Status, hit.Distance, surface.Basis*hit.Normal, surface.Kind,
+                    surface.Part, surface.Shape, hit.Penetration);
+            }
+            return best;
         }
-        return best;
     }
     public static float Trace(TraceMedium medium, MachineWorld world, Vector3 origin, Vector3 direction, float range,
         MachinePart? emitter, MachinePart? receiver = null)
     {
         if(!Enum.IsDefined(medium))throw new ArgumentOutOfRangeException(nameof(medium));
         var closest = range;
-        foreach (var part in world.Parts)
+        foreach (var part in world.CollisionParts)
         {
-            if (!part.Visible || part == emitter || part == receiver) continue;
+            if (!part.Visible || !part.PhysicsOwner.Visible || part == emitter || part.PhysicsOwner == emitter || part == receiver || part.PhysicsOwner == receiver) continue;
             var inverse = part.Transform.AffineInverse();
             var local = inverse * origin;
             var ray = inverse.Basis * direction;

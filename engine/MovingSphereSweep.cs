@@ -46,8 +46,17 @@ public static class MovingSphereSweep
             return new(SphereSweepStatus.Overlapping,0,Normal(0),(float)-gap);
         }
         var approach=px*vx+py*vy+pz*vz;
+        // Impulses and normals are stored as floats. Near tangency, cancellation
+        // can leave an inward double dot product below their rounding resolution.
+        // Scale by the terms, not an absolute speed cutoff: tiny axial impacts
+        // must still be reported, including subnormal velocities.
+        const double FloatRelativeResolution = 1.1920928955078125e-7;
+        var approachRoundoff = 4 * FloatRelativeResolution *
+            (Math.Abs(px) * (Math.Abs((double)firstVelocity.X) + Math.Abs((double)secondVelocity.X)) +
+             Math.Abs(py) * (Math.Abs((double)firstVelocity.Y) + Math.Abs((double)secondVelocity.Y)) +
+             Math.Abs(pz) * (Math.Abs((double)firstVelocity.Z) + Math.Abs((double)secondVelocity.Z)));
         if(gap<=SphereSweep.ContactTolerance)
-            return approach<0?new(SphereSweepStatus.Contact,0,Normal(0),0)
+            return approach < -approachRoundoff?new(SphereSweepStatus.Contact,0,Normal(0),0)
                 :new(SphereSweepStatus.Clear,duration,Vector3.Zero,0);
         if(squaredSpeed==0||approach>=0)return new(SphereSweepStatus.Clear,duration,Vector3.Zero,0);
         var c=(distance-radius)*(distance+radius);

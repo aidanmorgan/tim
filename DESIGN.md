@@ -64,6 +64,12 @@ Plate travel follows the simulated closing fraction. Input and output spokes fol
 
 Mechanical sources and belt branches now have bounded torque/work allowances. Keep the existing artwork and palette: motor/windmill/conveyor shaft angles still follow their regulated speeds. Smooth cosmetic coast-down is not an energy source, and no new torque inspector or floating status panel is introduced. The electrical motor's existing lamp indicates active supply. This work-sharing model does not simulate elastic belts, flywheel inertia or motor stall curves.
 
+## Latched wound-spring launcher
+
+Use cream guide rails and a rounded physical plunger on a navy base, a transparent cyan guide, a continuous silver helix and a small gold latch. Preserve the existing palette and original navy toolbox pictogram; add no permanent panel. Five navy marks on the cream rail and a moving gold index show compression, not a linear energy percentage (spring energy is quadratic in compression).
+
+The helix and index follow the physical plunger; never ease them independently through an obstruction. The cosmetic latch moves toward its released angle of −0.65 radians at a bounded 8 radians/second, then returns after rearming. Its render updates do not move collision geometry or alter stored energy. This bounded motion is not a claim of eased acceleration. Continuous desktop Playwright recordings at 25 fps show the marks, winding/compressed/extended helix and launched payload; reviewed consecutive close-up release frames show intermediate latch angles and return. This verifies focused desktop readability, not a 60-fps guarantee. Mobile contrast and broader sustained fluidity remain unverified. Focused desktop integration, retained-charge, obstruction/resumption and loading-edge proofs are recorded in docs/wound-spring-verification.md. Broader campaign and mobile work remain separate.
+
 ## Passive trampoline
 
 Use a cream rectangular frame, cyan membrane, restrained gold corner supports and a navy back plate. Keep the exposed gap deep enough to make compression readable. The original navy pictogram shows a ball above a sagging bed; do not reuse the springboard icon.

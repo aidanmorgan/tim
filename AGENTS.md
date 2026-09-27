@@ -1,6 +1,11 @@
 # Project rules
 
-No magic strings are permitted. Enums are mandatory wherever a value belongs to a closed set; this is a project-wide requirement, not a preference. Named string constants do not replace enums for closed sets. The boundary and typed-identifier rules below govern values that genuinely cannot be enums.
+These rules apply to every contributor and sub-agent, across production code, tests, tooling and browser automation. No new or modified code may introduce magic strings; use existing enums or add appropriate enums wherever possible, and preserve their types through every internal caller.
+
+No magic strings are permitted. Use enums wherever possible so the compiler checks domain values and their callers. Enums are mandatory wherever a value belongs to a closed set; this is a project-wide requirement, not a preference. APIs, fields, collections and control flow must retain those enum types rather than pass their string representations internally. Named string constants do not replace enums for closed sets. The boundary and typed-identifier rules below govern values that genuinely cannot be enums.
+
+- Do not bypass type safety with `Enum.ToString()`, `nameof`, interpolation or string parsing inside domain logic. Keep enum-typed API parameters, return values and dictionary keys; perform validated string conversion only at genuine external boundaries. New or modified code that violates this rule is not complete, even if its tests pass.
+- This requirement also covers configuration models, test fixtures, test helpers and automation adapters: represent fixed choices with enums (or equivalent compiler-checked types where C# is unavailable), not loosely typed strings. Review every change for magic strings before marking it complete. Raw serialized values belong only at explicit boundary mappings; do not propagate them into internal logic.
 
 - Current priority: implement the outstanding puzzle-component families first. Defer exhaustive difficulty/nudging sweeps and the full campaign playtest matrix until the component set is implemented. Continue focused correctness, build, Reset and real-UI Playwright behavioural proof for each individual puzzle element; preserve all existing difficulty evidence. Expand/rework the 75-level campaign to teach the components, without letting difficulty testing delay component coverage.
 

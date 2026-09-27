@@ -62,6 +62,47 @@ public class MovingSphereSweepTests
         Assert.Equal(status,hit.Status);
     }
 
+    [Theory]
+    [InlineData(float.Epsilon)]
+    [InlineData(1e-20f)]
+    [InlineData(1f)]
+    public void TinyAxialApproachIsNotLostToTangencyRoundoff(float speed)
+    {
+        foreach (var reverse in new[] { false, true })
+        {
+            var hit = reverse
+                ? MovingSphereSweep.Cast(Vector3.Zero, .5f, Vector3.Zero,
+                    Vector3.Right, .5f, Vector3.Left * speed, 1)
+                : MovingSphereSweep.Cast(Vector3.Right, .5f, Vector3.Left * speed,
+                    Vector3.Zero, .5f, Vector3.Zero, 1);
+            Assert.Equal(SphereSweepStatus.Contact, hit.Status);
+            Assert.Equal(0, hit.Time);
+        }
+    }
+
+    [Theory]
+    [InlineData(1e-10f)]
+    [InlineData(1f)]
+    [InlineData(1e10f)]
+    public void ResolvedObliqueContactDoesNotRepeatAtZeroTime(float scale)
+    {
+        var first = new Vector3(0, 3.8460832f, .2267073f);
+        var second = new Vector3(0, 4.4737387f, .43078774f);
+        var tangent = new Vector3(0, -.13901666f, .42754984f) * scale;
+        foreach (var reverse in new[] { false, true })
+        {
+            var clear = reverse
+                ? MovingSphereSweep.Cast(second, .34f, tangent, first, .32f, Vector3.Zero, 1)
+                : MovingSphereSweep.Cast(first, .32f, Vector3.Zero, second, .34f, tangent, 1);
+            Assert.Equal(SphereSweepStatus.Clear, clear.Status);
+            var inward = tangent + (first - second).Normalized() * (.001f * scale);
+            var contact = reverse
+                ? MovingSphereSweep.Cast(second, .34f, inward, first, .32f, Vector3.Zero, 1)
+                : MovingSphereSweep.Cast(first, .32f, Vector3.Zero, second, .34f, inward, 1);
+            Assert.Equal(SphereSweepStatus.Contact, contact.Status);
+        }
+    }
+
     [Fact]
     public void StationaryOverlapReportsDepthAndDoesNotPretendToRepairIt()
     {

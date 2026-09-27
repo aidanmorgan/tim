@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace CuriousContraptions;
 
 public enum ActivationDisposition { Immediate, Deferred }
+public enum InternalBodyRole { Plunger }
 
 public readonly record struct BoxProxy(Vector3 At, Vector3 Half, bool Opaque = true);
 public readonly record struct SphereProxy(Vector3 At, float Radius);
@@ -17,6 +18,29 @@ public partial class MachinePart : Node3D
     public void SetDifficulty(IEnumerable<PartDifficulty> settings) => Difficulty = new(settings);
     public PartDifficulty Assistance(float precision) => PartAssistance.Evaluate(Difficulty, precision);
     public Vector3 Velocity { get; set; }
+    public virtual IReadOnlyList<MachinePart> InternalBodies => [];
+    // Declared before _Ready so instance validation can be atomic before construction.
+    public virtual IReadOnlyList<InternalBodyRole> InternalBodyRoles => [];
+    public string InternalBodyId(InternalBodyRole role)
+    {
+        if (!System.Enum.IsDefined(role)) throw new System.ArgumentOutOfRangeException(nameof(role));
+        foreach (var declared in InternalBodyRoles)
+            if (declared == role)
+                // Explicit boundary to the scene/diagnostic instance-ID namespace.
+                return Uid + "_" + System.Text.Json.JsonNamingPolicy.SnakeCaseLower.ConvertName(role.ToString());
+        throw new System.ArgumentException("Part does not declare this internal body role.", nameof(role));
+    }
+    public virtual MachinePart PhysicsOwner => this;
+    public virtual bool FreeMotion => true;
+    public virtual Vector3 InverseMassResponse(Vector3 direction) => direction / Mass;
+    public virtual void ConstrainVelocity() { }
+    public virtual float TimeToMotionLimit() => float.PositiveInfinity;
+    public virtual void ReachMotionLimit() => throw new System.InvalidOperationException("Body has no motion limit.");
+    public virtual void QuantizePhysics()
+    {
+        Position = Position.Snapped(Vector3.One * MachineWorld.Quantum);
+        Velocity = Velocity.Snapped(Vector3.One * MachineWorld.Quantum);
+    }
     public bool Dynamic { get; protected set; }
     public float Radius { get; protected set; } = .32f;
     public float Mass { get; protected set; } = 1;

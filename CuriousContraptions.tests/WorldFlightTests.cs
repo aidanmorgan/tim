@@ -9,7 +9,7 @@ public class WorldFlightTests(HeadlessFixture godot)
 {
     private const string BallKind="ball", WallKind="wall";
     private const string FirstId="first", SecondId="second", WallId="wall";
-    private const string RadiusParameter="radius", BounceParameter="bounce";
+    private enum BodyParameter { Radius, Bounce }
     private MachineWorld World()
     {
         var world=new MachineWorld { Gravity=0, Pressure=0 };
@@ -20,7 +20,7 @@ public class WorldFlightTests(HeadlessFixture godot)
     {
         var body=world.AddPart(new() {Id=id,Kind=BallKind,
             Position=[position.X,position.Y,position.Z],
-            Properties=new() {[RadiusParameter]=.005f,[BounceParameter]=1}});
+            Properties=new() {[PartParameterName.Of(BodyParameter.Radius)]=.005f,[PartParameterName.Of(BodyParameter.Bounce)]=1}});
         body.Velocity=velocity;
         return body;
     }
@@ -133,11 +133,12 @@ public class WorldFlightTests(HeadlessFixture godot)
         finally{world.Free();}
     }
 
-    public enum ContactEffect { Redirect, Hide }
+    public enum ContactEffect { Redirect, Hide, OpenPath }
     private const string ProbeId="contact_probe";
     private partial class ContactProbe : MachinePart
     {
         public ContactEffect Effect { get; init; }
+        public MachinePart? Gate { get; init; }
         public int Calls { get; private set; }
         public float IncomingSpeed { get; private set; }
         protected override void Build()=>Boxes.Add(new(Vector3.Zero,new(.001f,1,1)));
@@ -148,6 +149,8 @@ public class WorldFlightTests(HeadlessFixture godot)
             {
                 case ContactEffect.Redirect: body.Velocity=Vector3.Back*10;break;
                 case ContactEffect.Hide: body.Visible=false;break;
+                case ContactEffect.OpenPath:
+                    Gate!.Boxes.Clear(); Boxes.Clear(); body.Velocity=Vector3.Right*40; break;
                 default: throw new InvalidOperationException("Unsupported test contact effect.");
             }
         }
@@ -182,6 +185,31 @@ public class WorldFlightTests(HeadlessFixture godot)
             }
         }
         finally{world.Free();}
+    }
+
+    [Fact]
+    public void ZeroTimeCallbackInvalidatesGeometryForEveryBody()
+    {
+        var world = World();
+        try
+        {
+            var gate = world.AddPart(new() { Id=WallId, Kind=WallKind, Position=[.05f,5,0] });
+            gate.Boxes.Clear(); gate.Boxes.Add(new(Vector3.Zero, new(.001f,1,1)));
+            var probe = new ContactProbe { Effect=ContactEffect.OpenPath, Gate=gate,
+                Definition=new PartDefinition { Id=ProbeId } };
+            probe.Configure(new() { Id=ProbeId, Kind=ProbeId, Position=[0,5,0] });
+            world.AddChild(probe); world.Parts.Add(probe);
+            probe.Boxes.Clear(); probe.Boxes.Add(new(Vector3.Zero,new(.001f,.1f,.1f)));
+            var first = Ball(world,FirstId,new(-.006f,5,0),Vector3.Right*40);
+            var second = Ball(world,SecondId,new(-.04f,5,.5f),Vector3.Right*40);
+            world.Start(); world.Step();
+            Assert.Equal(1,probe.Calls);
+            Assert.InRange(first.Position.X,.326f,.328f);
+            Assert.InRange(second.Position.X,.292f,.294f);
+            Assert.Equal(Vector3.Right*40,first.Velocity);
+            Assert.Equal(Vector3.Right*40,second.Velocity);
+        }
+        finally { world.Free(); }
     }
 
     [Fact]
