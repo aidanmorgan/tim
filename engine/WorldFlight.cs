@@ -87,12 +87,12 @@ public partial class MachineWorld
                     time = stop; hinge = candidateHinge; first = null; kind = FlightContactKind.HingeLimit;
                 }
                 if (candidateHinge.Joint.AngularVelocity != 0)
-                foreach (var box in HingeObstacles(candidateHinge))
+                foreach (var obstacle in HingeObstacles(candidateHinge))
                 {
-                    var hit = SweepHingeBox(candidateHinge, box, candidateHinge.Joint.AngularVelocity,
+                    var hit = SweepHingeObstacle(candidateHinge, obstacle, candidateHinge.Joint.AngularVelocity,
                         Math.Min(interval, candidateHinge.Joint.TimeToLimit));
                     if (hit.Status == SphereSweepStatus.Overlapping)
-                        throw new HingeFixtureOverlapException(candidateHinge.Owner.Uid);
+                        throw new HingeFixtureOverlapException(candidateHinge);
                     if (hit.Status == SphereSweepStatus.Clear ||
                         (kind != FlightContactKind.None && hit.Time >= time)) continue;
                     time = hit.Time; hinge = candidateHinge; first = null;

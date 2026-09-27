@@ -676,7 +676,7 @@ public partial class Workshop : Node3D
         }
         catch (HingeFixtureOverlapException)
         {
-            _status.Text = "Move the lever beam clear of walls and the workbench before running.";
+            _status.Text = "Move the lever beam clear of solid parts and the workbench before running.";
             return;
         }
         TracePlaytestStart();

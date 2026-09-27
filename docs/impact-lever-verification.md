@@ -1,6 +1,6 @@
 # Impact lever — implementation and verification
 
-Status: **in progress: catalogue scene, sphere-contact and fixed-box obstruction UI proof, not a fully verified component**. See the [fixed-box/workbench obstruction increment](impact-lever-obstruction-verification.md) for the latest tests, browser evidence and remaining collision coverage. The research TODO's “expand existing lever” wording did not correspond to an implemented lever in the current parts/catalogue. The work below is a prerequisite, not a substitute for the complete component.
+Status: **in progress: catalogue scene, sphere-contact and fixed-box/spherical-fixture obstruction UI proof, not a fully verified component**. See the [fixed-box/workbench increment](impact-lever-obstruction-verification.md) and latest [spherical-fixture increment](impact-lever-sphere-verification.md) for tests, browser evidence and remaining collision coverage. The research TODO's “expand existing lever” wording did not correspond to an implemented lever in the current parts/catalogue. The work below is a prerequisite, not a substitute for the complete component.
 
 ## Fixed-axis groundwork
 
