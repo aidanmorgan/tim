@@ -10,10 +10,12 @@ public sealed class HingeFixtureOverlapException(HingedBody hinge) :
 
 public partial class MachineWorld
 {
-    private readonly record struct HingeObstacle(SweepSurfaceKind Shape, Transform3D Pose, Vector3 Half, float Radius)
+    private readonly record struct HingeObstacle(SweepSurfaceKind Shape, Transform3D Pose, Vector3 Half, float Radius, TubeProxy Tube)
     {
         public static HingeObstacle Box(Transform3D pose, Vector3 half) =>
-            new(SweepSurfaceKind.Box, pose, half, 0);
+            new(SweepSurfaceKind.Box, pose, half, 0, default);
+        public static HingeObstacle HollowTube(TubeProxy tube) =>
+            new(SweepSurfaceKind.Tube, tube.Pose, Vector3.Zero, 0, tube);
         public static HingeObstacle Sphere(Transform3D ownerPose, Vector3 localCenter, float radius)
         {
             // A scaled owner would turn a sphere into an ellipsoid. Never
@@ -28,13 +30,13 @@ public partial class MachineWorld
                 Math.Abs(basis.Y.Dot(basis.Z)) > .00001f ||
                 Math.Abs(basis.Determinant() - 1) > .0001f)
                 throw new InvalidOperationException("Hinge sphere fixtures require proper rigid transforms.");
-            return new(SweepSurfaceKind.Sphere, new(Basis.Identity, ownerPose * localCenter), Vector3.Zero, radius);
+            return new(SweepSurfaceKind.Sphere, new(Basis.Identity, ownerPose * localCenter), Vector3.Zero, radius, default);
         }
     }
     private readonly record struct HingeObstacleHit(SphereSweepStatus Status, double Time);
 
-    // Exact declared box and sphere proxies. Hollow shapes, prescribed moving
-    // obstacles and beam/beam contacts remain explicit outstanding work.
+    // Exact declared box, sphere and straight hollow tube proxies. Bends,
+    // frustums, prescribed moving obstacles and beam/beam remain outstanding.
     private IEnumerable<HingeObstacle> HingeObstacles(HingedBody hinge)
     {
         foreach (var box in new[] { Workbench.Deck, Workbench.Base })
@@ -47,6 +49,8 @@ public partial class MachineWorld
                 yield return HingeObstacle.Box(part.Transform * new Transform3D(Basis.Identity, box.At), box.Half);
             foreach (var sphere in part.Spheres)
                 yield return HingeObstacle.Sphere(part.Transform, sphere.At, sphere.Radius);
+            foreach (var tube in part.Tubes)
+                yield return HingeObstacle.HollowTube(tube with { Pose = part.Transform * tube.Pose });
         }
     }
 
@@ -63,6 +67,10 @@ public partial class MachineWorld
                 var sphere = RotatingBoxSweep.Cast(obstacle.Pose.Origin, obstacle.Radius, Vector3.Zero,
                     hinge.Pivot, hinge.Axis, hinge.Pose, hinge.Half, speed, duration);
                 return new(sphere.Status, sphere.Time);
+            case SweepSurfaceKind.Tube:
+                var tube = RotatingTubeSweep.Cast(hinge.Pivot, hinge.Axis, hinge.Pose, hinge.Half,
+                    speed, obstacle.Tube, duration);
+                return new(tube.Status, tube.Time);
             default:
                 throw new InvalidOperationException("Unsupported hinge obstruction shape.");
         }
