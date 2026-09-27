@@ -1,0 +1,88 @@
+using Godot;
+using twodog.Testing;
+using twodog.Testing.Xunit;
+
+namespace CuriousContraptions.Tests;
+
+[Collection<HeadlessCollection>]
+public class TubePlacementSnapTests(HeadlessFixture godot)
+{
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(30, 40, 50)]
+    [InlineData(0, 90, 90)]
+    public void MouthAlignmentPreservesBoreAndContinuousSeamTravel(float x, float y, float z)
+    {
+        var world = new MachineWorld { Gravity = 0, Pressure = 0 };
+        godot.Tree.Root.AddChild(world);
+        try
+        {
+            var a = (PipePart)world.AddPart(new() { Id = "a", Kind = "pipe", Position = [0, 8, 0], Rotation = [x, y, z], Locked = true });
+            var b = (PipePart)world.AddPart(new() { Id = "b", Kind = "pipe" });
+            b.GlobalTransform = a.GlobalTransform * new Transform3D(new Basis(Vector3.Back, .08f), new(3.9f, .05f, 0));
+            var original = b.GlobalTransform;
+            var snap = TubePlacementSnap.Find(world, b);
+            Assert.NotNull(snap);
+            Assert.Equal(original, b.GlobalTransform); // Query is non-mutating.
+            b.GlobalTransform = snap!.Value;
+            var end = a.Mouths.Single(m => m.Id == TubeMouthId.End);
+            var start = b.Mouths.Single(m => m.Id == TubeMouthId.Start);
+            Assert.True((a.GlobalTransform * end.Position).DistanceTo(b.GlobalTransform * start.Position) < .0001f);
+            Assert.True((a.GlobalBasis * end.Outward).Dot(b.GlobalBasis * start.Outward) < -.9999f);
+            var ball = world.AddPart(new() { Id = "ball", Kind = "ball" });
+            ball.Position = a.Transform * new Vector3(-3, .1f, 0);
+            world.Start();
+            ball.Velocity = a.Basis.X * 4;
+            var previous = ball.Position;
+            for (var i = 0; i < 300; i++)
+            {
+                world.Step();
+                Assert.True(ball.Position.DistanceTo(previous) < .04f);
+                previous = ball.Position;
+            }
+            Assert.InRange((a.Transform.AffineInverse() * ball.Position).X, 6.99f, 7.01f);
+            Assert.InRange(ball.Velocity.Length(), 3.99f, 4.01f);
+            Assert.Null(TubePlacementSnap.Find(world, b));
+            var placement = b.Serialize().Position;
+            world.Restore();
+            Assert.Equal(placement, world.FindPart("b")!.Serialize().Position);
+        }
+        finally { world.Free(); }
+    }
+
+    [Theory]
+    [InlineData(4.5f, 0f)]
+    [InlineData(3.78f, 40f)]
+    public void DistantOrWrongFacingMouthsDoNotSnap(float separation, float angle)
+    {
+        var world = new MachineWorld();
+        godot.Tree.Root.AddChild(world);
+        try
+        {
+            world.AddPart(new() { Id = "a", Kind = "pipe", Position = [0, 4, 0] });
+            var b = world.AddPart(new() { Id = "b", Kind = "pipe", Position = [separation, 4, 0], Rotation = [0, 0, angle] });
+            Assert.Null(TubePlacementSnap.Find(world, b));
+        }
+        finally { world.Free(); }
+    }
+
+    [Fact]
+    public void OccupiedMouthAndLockedPartAreNotSnapCandidates()
+    {
+        var world = new MachineWorld();
+        godot.Tree.Root.AddChild(world);
+        try
+        {
+            world.AddPart(new() { Id = "a", Kind = "pipe", Position = [0, 4, 0] });
+            world.AddPart(new() { Id = "joined", Kind = "pipe", Position = [3.78f, 4, 0] });
+            var b = world.AddPart(new() { Id = "moving", Kind = "pipe", Position = [3.9f, 4, 0] });
+            Assert.Null(TubePlacementSnap.Find(world, b));
+            world.RemovePart(world.FindPart("joined")!);
+            Assert.NotNull(TubePlacementSnap.Find(world, b));
+            world.RemovePart(b);
+            var locked = world.AddPart(new() { Id = "locked", Kind = "pipe", Position = [3.9f, 4, 0], Locked = true });
+            Assert.Null(TubePlacementSnap.Find(world, locked));
+        }
+        finally { world.Free(); }
+    }
+}

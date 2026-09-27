@@ -4,11 +4,19 @@ using System;
 namespace CuriousContraptions;
 
 /// <summary>Clear hollow gravity tube. No capture, teleport, scripted transport or added energy.</summary>
-public partial class PipePart : MachinePart, IResizablePart
+public partial class PipePart : MachinePart, IResizablePart, ITubePart
 {
     public float Length => Properties[PipeParameters.Length];
     public Vector3 Dimensions => new(Length, PipeParameters.BoreDiameter, PipeParameters.BoreDiameter);
     public ResizeAxes ResizableAxes => ResizeAxes.X;
+    public System.Collections.Generic.IEnumerable<TubeMouth> Mouths
+    {
+        get
+        {
+            yield return new(TubeMouthId.Start, Vector3.Left * (Length * .5f + .09f), Vector3.Left, BoreRadius);
+            yield return new(TubeMouthId.End, Vector3.Right * (Length * .5f + .09f), Vector3.Right, BoreRadius);
+        }
+    }
     private MeshInstance3D _shell = null!;
     private readonly MeshInstance3D[] _collars = new MeshInstance3D[2], _rails = new MeshInstance3D[2];
     public override void ValidateParameters()

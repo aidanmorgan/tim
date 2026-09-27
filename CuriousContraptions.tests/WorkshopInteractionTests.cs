@@ -717,6 +717,30 @@ public class WorkshopInteractionTests(HeadlessFixture godot)
     }
 
     [Fact]
+    public void TubePlacementSnapsAndOneUndoRemovesOnlyTheNewTube()
+    {
+        var scene = Scene();
+        try
+        {
+            var picker = scene.FindChildren("*", "OptionButton", true, false).OfType<OptionButton>()
+                .Single(p => p.ItemCount > 10);
+            picker.EmitSignal(OptionButton.SignalName.ItemSelected, picker.ItemCount - 1);
+            scene.World.AddPart(new() { Id = "fixed", Kind = "pipe", Position = [-2, 3, 0], Locked = true });
+            scene.FindChildren("*", "Button", true, false).OfType<Button>()
+                .Single(b => b.HasMeta("part_kind") && b.GetMeta("part_kind").AsString() == "pipe")
+                .EmitSignal(Button.SignalName.Pressed);
+            Click(scene, new(1.9f, 3, 0));
+            var placed = scene.World.Parts.Single(p => !p.Locked);
+            Assert.InRange(placed.Position.X, 1.779f, 1.781f);
+            Assert.InRange(placed.Position.Y, 2.999f, 3.001f);
+            Press(scene, "↺ Undo");
+            Assert.Single(scene.World.Parts);
+            Assert.Equal("fixed", scene.World.Parts[0].Uid);
+        }
+        finally { scene.Free(); }
+    }
+
+    [Fact]
     public void PartsToolboxExpandsForAllInventoryAndShrinksForSmallPuzzle()
     {
         var scene = Scene();

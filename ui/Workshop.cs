@@ -514,6 +514,7 @@ public partial class Workshop : Node3D
                 Rotation = [_previewRotation.X, _previewRotation.Y, _previewRotation.Z]
             });
             part.Position = part.Position.Snapped(Vector3.One * .1f);
+            SnapTube(part);
             Select(part);
             _tool = "";
             ClearPreview();

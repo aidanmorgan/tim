@@ -1,5 +1,13 @@
 # Browser campaign playtest
 
+## Straight-tube mouth snapping — editor checks
+
+Campaign remains 55 levels with hash `9386ca71bb8b61253c8d9c67da823ed4f859cb012107632026b5534b8ecc8f72`. Typed Start/End mouths sit at the outer collar faces. Editor queries require matching bores, opposing normals within 20°, distance at most 0.45 units and an unoccupied destination mouth. They preserve roll through the shortest alignment rotation, leave runtime assistance untouched and create no transport-network edge or rigid assembly.
+
+`sandbox-tube-snap-v1.json` places two tubes through the palette in the free workshop (selector row 56, not a new campaign level): the second requested centre X=1.9 snaps to X=1.78 against the first at X=-2. Screen-coordinate verification agrees within a pixel; reviewed screenshot shows adjacent collar faces. One Undo removes only the second tube. `sandbox-tube-snap-move-v1.json` additionally pulls it one unit away, moves it back into range, verifies rejoining and undoes each movement independently. Both records have zero browser errors. These are editor checks, not Run/result/Reset campaign records.
+
+`L25-balanced-tube-snap-regression-v1.json` resizes to 3.2, wins at tick 262, resets and passes the campaign audit with no errors. All 297 native tests pass, including three-axis mouth alignment, non-mutating queries, continuous zero-gravity ball passage through both joined tubes, constant speed, Reset, distant/wrong-facing rejection, occupied mouths, locked parts and running-state rejection. The initial new UI test incorrectly used height 2 instead of the workshop's height-3 placement plane; its fixture was corrected. Production publish passes. Gravity-driven seam combinations, incompatible-bore fixtures, blocked flow, corner joins and a full current campaign browser matrix remain to verify.
+
 ## Straight-pipe resizing — 55-level draft
 
 Campaign hash: `9386ca71bb8b61253c8d9c67da823ed4f859cb012107632026b5534b8ecc8f72`. Pipes resize from 1–8 units with a fixed 1.3-unit bore; a typed resize capability exposes only the local length handle while walls keep three. Native tests cover geometry, collars, optical bounds, serialization/Reset, invalid dimensions, rotated dragging, Cancel and one-gesture Undo.

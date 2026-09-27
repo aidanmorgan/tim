@@ -276,7 +276,11 @@ public partial class Workshop
                     point is { } at && PlacementInside(at);
         _preview.Visible = valid;
         if (valid && point is { } position)
+        {
+            _preview.RotationDegrees = _previewRotation;
             _preview.Position = ClampPlacement(position, _buildView ? _depth : _placementHeight);
+            SnapTube(_preview);
+        }
     }
 
     private void OrbitQuarter(int direction)
@@ -351,10 +355,19 @@ public partial class Workshop
         UpdateCamera();
     }
 
+    private void SnapTube(MachinePart? part)
+    {
+        if (_inRun || part == null) return;
+        if (TubePlacementSnap.Find(World, part) is { } pose && PlacementInside(ToLocal(pose.Origin)))
+            part.GlobalTransform = pose;
+    }
+
     private void EndGizmo(bool cancel)
     {
         if (_rotationGizmo == null) return;
+        var snapMove = _rotationGizmo.Dragging && _rotationGizmo.MoveMode && !cancel;
         _rotationGizmo.End(cancel);
+        if (snapMove) SnapTube(_selected);
         if (cancel && _gizmoUndoPending && _undo.Count > 0)
         {
             _undo.RemoveAt(_undo.Count - 1);
@@ -403,7 +416,11 @@ public partial class Workshop
         }
         if (input is InputEventMouseButton { Pressed: false } mouse)
         {
-            if (mouse.ButtonIndex == MouseButton.Left) _dragging = _lifting = false;
+            if (mouse.ButtonIndex == MouseButton.Left)
+            {
+                if (_dragging || _lifting) SnapTube(_preview ?? _selected);
+                _dragging = _lifting = false;
+            }
             if (mouse.ButtonIndex == MouseButton.Right) _orbiting = false;
         }
     }
