@@ -133,7 +133,7 @@ TIM2's inventory builds on *The Even More Incredible Machine*, so “present in 
 | --- | --- | --- |
 | [ ] P1 | Steel cable and two cutter types: cable requires tin snips. [Manual](https://pexy.io/wp-content/uploads/2025/06/the-incredible-machine-2-manual.pdf) | Extend rope material compatibility and cutter tags; give cable a distinct appearance and reject incompatible cutting interactions. Verify tension behaviour separately. |
 | [ ] P1 | Roto-Trans Converter and Trans-Roto-Matic appear in TIM2. [Inventory](https://the-incredible-machine.fandom.com/wiki/The_Incredible_Machine_2/Parts) | Add explicit rotational↔linear adapters to bridge belts and ropes. Confirm conversion direction, stroke, reset/retrigger and end-stop rules before modelling them; teach each separately. |
-| [ ] P1 | Leaky bucket loses mass over time. [Manual](https://pexy.io/wp-content/uploads/2025/06/the-incredible-machine-2-manual.pdf) | Extend moving containers with deterministic timed mass loss and visible fill level. Teach delayed counterbalance; avoid running a full fluid simulation merely for decoration. |
+| [ ] P1 | Leaky bucket loses mass over time. [Manual](https://pexy.io/wp-content/uploads/2025/06/the-incredible-machine-2-manual.pdf) | Extend moving containers with conserved water outflow, changing load and visible fill level; catch leaks in other containers. Teach delayed counterbalance. See expanded water research; countdown-only mass loss is no longer the proposed contract. |
 | [ ] P2 | Egg timer participates in delayed triggering. [TIM2 walkthrough](https://sierrachest.com/index.php?a=games&fld=walkthrough&id=229&pid=102) | Add a readable countdown actuator. Test zero delay, pause/Reset and ordered goals; keep author configuration separate from difficulty assistance. |
 | [ ] P2 | Toaster settings provide timing; phazer pulse count is programmable. [Contemporary Sierra article](https://www.sierragamers.com/wp-content/uploads/2019/12/022_InterAction_Volume_7_Number_2_Holiday_1994.pdf) | Add a powered delayed ejector and configurable toy pulse emitter. Their use should depend on actual source/trigger state, not just an elapsed global clock. |
 | [ ] P2 | Red/green/blue lasers, mixer, mirrors, detector and colour-selective power plug. [Manual](https://pexy.io/wp-content/uploads/2025/06/the-incredible-machine-2-manual.pdf) | Add deterministic 3D ray routing and colour signals, occlusion and bounded reflection loops. Teach one beam, reflection, interruption, then mixing. Use shape/pattern cues as well as colour. |
@@ -177,7 +177,7 @@ These are researched puzzle options; checked entries below record implemented fe
 - [ ] Use chunky collars, transparent strips/cutaways and tap-accessible inspection. Snap compatible endpoints; retain the existing move/rotate interaction, three unfilled dashed projections and transparent reference walls. Consider tap-to-route after basic pieces work, with one Undo for the whole route; do not add a CAD spline editor or permanent camera toolbar.
 - [ ] Teach almost-planar routing first, then meaningful depth: around a corner → catch and bank → descending delivery → hold/release → powered transfer → stagger two deliveries through a shared crossing.
 
-Research basis: [Minecraft's hopper description](https://www.minecraft.net/en-us/article/hopper) provides a collection/transfer precedent. Factorio's developer reports document both [unpredictable pipe behaviour](https://www.factorio.com/blog/post/fff-416) and [overly unconstrained transport](https://www.factorio.com/blog/post/fff-430). Those are design lessons about clarity and useful constraints, not a proposal to apply Factorio's fluid model to physical balls. Liquids, pressure networks and arbitrary suction remain separate future scope.
+Research basis: [Minecraft's hopper description](https://www.minecraft.net/en-us/article/hopper) provides a collection/transfer precedent. Factorio's developer reports document both [unpredictable pipe behaviour](https://www.factorio.com/blog/post/fff-416) and [overly unconstrained transport](https://www.factorio.com/blog/post/fff-430). Those are design lessons about clarity and useful constraints, not a proposal to apply Factorio's fluid model to physical balls. Liquids and pressure networks now have a separate explicit backlog in the expanded component research below; arbitrary suction remains unscoped.
 
 ### Electronics: delay, duration, memory and counting
 
@@ -193,10 +193,10 @@ Research basis: [Minecraft's hopper description](https://www.minecraft.net/en-us
 - [x] Add an event **counter** with 1–9 author-configured target (default 3), countable slate/gold dots, saturation and one activation on reaching target. It latches a separately supplied electrical contact until workshop Reset; held states do not increment per tick and extra triggers cannot re-emit. Fifteen focused cases pass (395 native total); actual-UI three-ball versus two-ball controls show all/partial dots and open/closed gate, with exact Run/Reset restoration and zero console errors.
 - [ ] Add a counter teaching level and later explicit reset-signal support alongside resettable logic. The current counter resets through workshop Reset, not a dedicated control input.
 - [x] Add a dedicated **Both gate** for two continuous electrical conditions. One/two-mark input sockets and three eased lamps show each input and the joint output. Conjunction reachability settles within one network solve, requiring real upstream sources; chains have no order delay and cycles cannot retain removed supply. Nine focused checks pass (422 native total); real-UI timed-input and missing-first-input controls verify hatch release/closure, contextual socket icons and exact Run/Reset restoration without console errors.
-- [ ] Teach Both gates with two independent physical conditions (e.g. ball waiting and lift docked); add Either/Not only where they earn teaching space. Signal-domain logic and broader campaign trials remain pending.
+- [ ] Teach Both gates with two independent physical conditions (e.g. ball waiting and lift docked). Implement AND/OR/XOR/NOR/NAND in electrical and optical domains under the expanded research below; broader campaign trials remain pending.
 - [x] Add a powered **repeating clock/metronome** with author-configured 0.1–12 s interval (default 1 s). First event follows one full interval; power loss stops it and resets phase, restoration starts a full interval without catch-up. A pendulum and pulse lamp expose timing in the approved palette. Thirteen focused checks pass (413 native total), plus 37 adapter checks, production publish and two actual-UI powered/unpowered counter→gate controls with exact Run/Reset restoration and no console errors.
 - [ ] Teach the repeating clock with a dispenser/alternating pipe junction once those parts exist. Adjustable player-facing timing controls, broader logic and campaign difficulty testing remain pending.
-- [ ] Define power versus control explicitly: a signal commands an actuator but never supplies motor power. Distinguish socket shapes and cable appearance as well as colour. Decide and document logic-module power before implementation; the research suggests self-contained low-power modules, but actuator batteries/solar supplies must remain necessary.
+- [ ] Define power versus control explicitly: a signal commands an actuator but never supplies motor power. Distinguish socket shapes and cable appearance as well as colour. Use the expanded proposal below: independent electrical supply or optical carrier distinct from A/B conditions. Actuator batteries/solar supplies remain necessary.
 - [ ] Give each module one understandable job, with a small dial, countdown ring, status lamps or on-body count. Use contextual controls and icon-first UI; avoid a breadboard editor, arithmetic combinators or mandatory truth-table configuration.
 - [ ] Use simulation-time ticks and deterministic event ordering. Pause freezes timers and physics together; slow motion scales both. Explicit Reset cancels pending events and clears timer/counter/latch state; run Reset restores authored initial state. Prevent zero-delay feedback loops and retain brief events across slow rendered frames.
 - [ ] Specify loss-of-power rules: actuator power loss stops action without replaying missed one-shot events when restored. If logic requires external power, losing it clears volatile state/countdowns; restoration samples input without fabricating a rising edge. Test simultaneous Reset/trigger and blocked gates without clipping through balls.
@@ -243,6 +243,48 @@ Research basis: Croteam's official [device reference](https://taloseditor.crotea
 - [ ] Keep all new interactions touch-compatible, with no required hover/keyboard modifier. Preserve DESIGN.md, existing minimal UI and fluid activation animation; use C# wherever possible.
 - [ ] Separate generous editor snapping from hidden author-controlled runtime forgiveness. Define per-part bounded inlet/angle/receiver/contact/timing tolerances in puzzle definitions; smoothly ease eligible errors without warping through walls, selecting the right branch, inventing power or bypassing a required mechanism.
 - [ ] For every selected family, add authoring/inventory/save support, native behavioural/Reset tests, then repeated real-UI Playwright attempts for all difficulties. Include valid references, matched near-errors and outside-window failures; compare normal/slow playback, simultaneous events and Reset at activation boundaries. Do not equate sampled screenshots with proven animation fluidity.
+
+## Expanded component research — water, sound and logic
+
+Sub-agent findings, sources, detailed contracts and **39 cross-system puzzle recipes**: [Component research](docs/component-research.md). These are implementation candidates, not shipped features or verified TIM inventory. P1 foundations precede P2 combinations; P3 is exploratory. Preserve the palette and component-first priority; defer full difficulty sweeps.
+
+### Water and fluid machinery
+
+- [ ] **P1:** finite reservoirs/header tanks, taps, catch basins/funnels, explicit drains and open gutters. Conserve volume through overflow/spills; gravity/head matters and particles are cosmetic.
+- [ ] **P1:** typed water pipes with straight sections, 45°/90° elbows, T splits, caps/nozzles and compatible-mouth snapping. Distinguish ball conduits, open gutters and sealed pipes.
+- [ ] **P1:** waterwheel with signed mechanical output to belts/conveyors and reusable discharge. Refactor load/energy budgeting before claiming wheel/pump loops conserve energy.
+- [ ] **P1:** extend rope-linked/leaky buckets with contents, changing mass, tilt/spill and catchable leaks; add floats, mechanical float valves and supplied electronic level switches.
+- [ ] **P2:** check valves, diverters/sluices, pumps, Archimedes screws, primed siphons and tipping-bucket water clocks.
+- [ ] **P2:** communicating tanks/canal locks, buoyant platforms/boats, hydraulic pistons and distinct flow/volume/pressure meters.
+- [ ] **P3:** accumulators, sponges/wicks, sprinklers and thermal ice/steam extensions after their energy/state dependencies.
+- [ ] Teach **First Pour** (tank/tap/gutter/bucket), **Run the Mill** (wheel/belt/conveyor), **Borrowed Weight** (water/rope counterweight) and **Every Drop Counts** (reuse discharge to lift a float).
+
+### Sound as a gameplay system
+
+- [ ] **P1:** supplied speaker, sound meter, physically struck bell and airflow-driven wind chimes. Require a real source/strike; threshold crossing emits once until rearmed.
+- [ ] **P2:** tuned meters, whistles, listening/exit horns, typed acoustic ducts and resonators; **P3:** acoustic screens/dishes and water-tuned bottles.
+- [ ] Fixed-tick typed acoustic events own strength, tone, direction, travel, occlusion and bounded propagation. Audio playback, mute, camera and browser audio suspension cannot change outcomes; no microphone requirement.
+- [ ] Provide visible source motion, tone symbols, restrained traveling arcs and receiver needles. Separate continuous condition from pulses; electrical outputs require real supply.
+- [ ] Teach **Across the Gap** (speaker/meter), **Wind in the Tower** (fan/chimes), **Three O'Clock at the Mill** (waterwheel/bell/counter) and **Fill to Sing** (water-tuned bottle closes its tap).
+
+### AND, OR, XOR, NOR and NAND in electricity and light
+
+- [ ] **P1:** shared typed evaluator for all five operations. Both is AND: forward-refactor it, no duplicate alias. Two conditions initially; author/inventory selects operation.
+- [ ] **P1:** electrical A/B controls, independent supply and switched output. NOR/NAND may be logically true without input but cannot create power.
+- [ ] **P1:** settled nonmonotone solver, order-independent chains and sourced monotone cycles; reject zero-delay XOR/NOR/NAND cycles. Explicit memory/delay components define feedback.
+- [ ] **P1:** separately addressed optical A/B apertures plus independent carrier and output for all five light gates. Preserve loss/bounds and document active-stage tick latency.
+- [ ] Define hysteresis, Reset and edge-event contracts; show A/B/output/supply state with domain-specific socket/lens icons. Update Both content/callers/tests together.
+- [ ] Test all truth rows, absent/present supply/carrier, output-retracting transitions, reordered/reconvergent networks, independent optical occlusion, feedback bounds and Reset.
+- [ ] Teach **One Passenger Only** (XOR; both loaded fails), **Quiet Lock** (NOR; two sound detectors silent), **Two Light Windows** (optical AND), **Alternating Shadows** (optical XOR) and **Duet Veto** (NAND). Include true-condition/missing-supply failures.
+
+### Complementary parts and integration
+
+- [ ] Expand mechanical entries with cams/followers, cranks, clutches/brakes, ratchets/escapements and one-at-a-time feeders.
+- [ ] Extend bellows to finite pneumatic supply, hoses, reservoirs, valves and spring-return pistons; add electromagnets/material sorting.
+- [ ] Prototype flywheels/governors after torque/inertia/load support and thermal actuators after thermal-state modelling.
+- [ ] Combine **Clockwork Rain** (wheel/cam/metred drops), **One Breath** (stored air/piston/whistle), **Sorting Office** (magnet/chute) and **The Mill's Song** (wheel/cam/chimes/sound-controlled sluice).
+- [ ] Reallocate the 75-level plan after prototypes: one new distinction per lesson, then mixed systems. Exploratory pieces can stay workshop-only/later content; do not silently increase the campaign target.
+- [ ] Each selected batch needs authoring/inventory/current-schema support, native behaviour/conservation/Reset checks, production build, real-UI smoke and retained negative attempts, then commit/push. Full difficulty/nudging remains deferred.
 
 ## Feature backlog and verification
 
