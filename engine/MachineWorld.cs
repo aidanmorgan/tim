@@ -63,6 +63,9 @@ public partial class MachineWorld : Node3D
 
     public void ValidateMachine(MachineData data)
     {
+        foreach (var goal in data.Goals)
+            if (!float.IsFinite(goal.MinimumDelaySeconds) || goal.MinimumDelaySeconds < 0 || goal.MinimumDelaySeconds > 120)
+                throw new ArgumentException("Goal delay must be finite and between zero and 120 seconds.");
         // Reject unsupported mechanical graphs before replacing the current machine.
         var candidates = new List<MachinePart>();
         try
@@ -193,22 +196,28 @@ public partial class MachineWorld : Node3D
         return source != null && target != null
             && ConnectionRules.TryResolve(link, source.ConnectionPorts, target.ConnectionPorts, out _, out _);
     }
-    public void Activate(MachinePart source)
+    private enum ActivationDelivery { Receive, Emit }
+    public void Activate(MachinePart source) => DispatchActivation(source, ActivationDelivery.Receive);
+    internal void EmitActivation(MachinePart source) => DispatchActivation(source, ActivationDelivery.Emit);
+    private void DispatchActivation(MachinePart source, ActivationDelivery delivery)
     {
         if (!Parts.Contains(source)) return;
-        var pending = new Queue<string>();
+        var pending = new Queue<(string Id, ActivationDelivery Delivery)>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
-        pending.Enqueue(source.Uid);
-        while (pending.TryDequeue(out var id))
+        pending.Enqueue((source.Uid, delivery));
+        while (pending.TryDequeue(out var entry))
         {
+            var id = entry.Id;
             if (!seen.Add(id)) continue;
             var part = FindPart(id);
             if (part == null) continue;
+            if (entry.Delivery == ActivationDelivery.Receive &&
+                part.HandleActivation(this) == ActivationDisposition.Deferred) continue;
             part.Active = true;
             Events.TryAdd(new(MachineEventKind.Activated, id), Ticks);
             foreach (var link in Connections)
                 if (link.From == id && link.Type == ConnectionDomain.Activation && IsValidConnection(link))
-                    pending.Enqueue(link.To);
+                    pending.Enqueue((link.To, ActivationDelivery.Receive));
         }
     }
 
@@ -370,9 +379,13 @@ public partial class MachineWorld : Node3D
         GoalKind.Activated => Events.ContainsKey(new(MachineEventKind.Activated, goal.Target)),
         GoalKind.Powered => Events.ContainsKey(new(MachineEventKind.Powered, goal.Target)),
         GoalKind.Turned => Events.ContainsKey(new(MachineEventKind.Turned, goal.Target)),
+        GoalKind.ActivatedAfter => Events.TryGetValue(new(MachineEventKind.Activated, goal.Body), out var emittedTick)
+            && Events.TryGetValue(new(MachineEventKind.Activated, goal.Target), out var receivedTick)
+            && receivedTick - emittedTick >= Math.Ceiling(goal.MinimumDelaySeconds / Tick),
         GoalKind.PoweredAfter => Events.TryGetValue(new(MachineEventKind.Activated, goal.Body), out var triggerTick)
             && Events.TryGetValue(new(MachineEventKind.Powered, goal.Target), out var poweredTick)
-            && poweredTick > triggerTick,
+            && poweredTick > triggerTick
+            && poweredTick - triggerTick >= Math.Ceiling(goal.MinimumDelaySeconds / Tick),
         _ => false
     });
 

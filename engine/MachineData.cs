@@ -36,6 +36,11 @@ public enum ConnectionDomain { Unknown, Activation, Electrical, Signal, Mechanic
 public sealed class ConnectionDomainJsonConverter() :
     JsonStringEnumConverter<ConnectionDomain>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
 
+public static class DelayParameters
+{
+    public const string Seconds = "delay_seconds";
+}
+
 public static class WeightParameters
 {
     public const string Mass = "mass";
@@ -74,7 +79,7 @@ public sealed class ConnectionSpec
     public float? RopeLength { get; set; }
 }
 [JsonConverter(typeof(GoalKindJsonConverter))]
-public enum GoalKind { Unknown, Captured, Activated, Powered, Turned, PoweredAfter }
+public enum GoalKind { Unknown, Captured, Activated, Powered, Turned, PoweredAfter, ActivatedAfter }
 public sealed class GoalKindJsonConverter() :
     JsonStringEnumConverter<GoalKind>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
 
@@ -83,6 +88,8 @@ public sealed class GoalSpec
     public GoalKind Type { get; set; }
     public string Target { get; set; } = "";
     public string Body { get; set; } = "";
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public float MinimumDelaySeconds { get; set; }
 }
 public sealed class MachineData
 {

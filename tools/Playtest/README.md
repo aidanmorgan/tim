@@ -33,7 +33,7 @@ Each part has `slot`, `kind`, `position`, `rotation`, optional `offset` and `rot
 
 ## Required matrix
 
-The revised final target is 75 levels × Forgiving (0), Balanced (0.45), Precise (1) × at least four attempts = **900 planned runs**, plus repeatability probes. The current draft has 52 levels. Historical 40-level/480-case counts below describe the pre-expansion campaign, not completion of the revised target:
+The revised final target is 75 levels × Forgiving (0), Balanced (0.45), Precise (1) × at least four attempts = **900 planned runs**, plus repeatability probes. The current draft has 54 levels. Historical 40-level/480-case counts below describe the pre-expansion campaign, not completion of the revised target:
 
 1. Reference placement through direct handles.
 2. Small positive placement/orientation error on a chosen part.

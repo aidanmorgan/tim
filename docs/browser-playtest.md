@@ -1,5 +1,15 @@
 # Browser campaign playtest
 
+## One-shot delay — 54-level draft
+
+Campaign hash: `2691ed54858909a421ef9b89f0c45596f7051f7bb07d19f1a8c84a2b3348e371`. Lessons 23–24 introduce a one-second delayed activation command, first to a lamp and then to a torch/solar-panel/motor circuit. The C# module has typed Ready/Counting/Finished states, a clockwise countdown hand and Reset. It supplies commands, not electricity. Authors can set 0.1–12 seconds; player adjustment and rearming pulses are not implemented.
+
+The initial UI batch exposed a goal-authoring defect: level 24 referred to the authored `delay_1` slot, but real placement created `delay_2`. All three reference difficulties timed out despite the working circuit. Those v1 records remain unchanged at historical hash `6ba2bb2bf38cdc577be650744e382e84d30f31fba7bc89a37d1e07d4b05338f7`. Goals now measure a minimum elapsed time from the fixed trigger, not the ID of a player-created part; native regression tests explicitly rename the placed timer.
+
+Current UI-only `L23-{balanced,forgiving,precise}-reference-delay-v2.json` cases win at tick 207; the corresponding L24 cases win at tick 333. `L23-balanced-early-bypass-delay-v2.json` correctly times out at tick 3600. All seven record zero browser errors, a complete Run/result/Reset lifecycle and passing sampled-state/property/connection audits. Reviewed screenshots retain the palette and show the round timer and its icon; they do not prove continuous animation fluidity.
+
+All 259 native tests and 26 UI-adapter tests pass. Native coverage includes exact deadlines, ignored repeat inputs, Reset, chained delays, invalid durations, arbitrary player IDs, missing links and early bypass rejection. These targeted checks are not the full repeated difficulty/placement-error matrix, nor verification of all 54 levels through the browser.
+
 ## Soft torch cone — current 52-level campaign
 
 The straight axial marker is removed. A C# render-time mesh draws four translucent warm-cream shells, each sampled at 48 directions, using the physical emitter angle/range and the same opaque collision proxies. Source rotation affects both illumination and visible geometry. Adjacent sectors use their nearer sampled hit distance to limit connecting triangles across abrupt silhouette changes. This is approximate sampled clipping, not volumetric scattering; moving partial shadows and multi-source frame performance still need broader review.

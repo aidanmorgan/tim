@@ -64,6 +64,7 @@ Part identity is defined in `parts/catalog/*.tres`. Preserve these relationships
 | Physical wall | 0.76, 0.56, 0.32 | `#c28f52` |
 | Battery | 0.87, 0.44, 0.35 | `#de7059` |
 | Electric motor | 0.40, 0.72, 0.79 | `#66b8c9` |
+| Delay box | 0.84, 0.61, 0.28 | `#d69c47` |
 | Reverse transmission | 0.84, 0.61, 0.28 | `#d69c47` |
 | Weight | 0.27, 0.39, 0.61 | `#45639c` |
 | Flashlight | 0.96, 0.70, 0.33 | `#f5b354` |
@@ -161,6 +162,7 @@ Current implementation:
 | Reverse transmission | Cream housing, navy base and two ochre wheels with navy/gold index marks. The input/output wheels turn smoothly in opposite directions with a -1 ratio. Positive shaft speed is clockwise viewed from the marked local +Z face; rotating the whole part does not change transmission sign. |
 | Mechanical belts | Taut, closed navy twin strands and moving gold witness marks distinguish them from sagging electrical/activation cables. Endpoints follow transformed sockets, including eased placement correction. Reset stops and restores all phases. |
 | Activation links | Two gold cylindrical segments with a lowered midpoint (0.5 units sag); no flowing current or chain animation. |
+| Delay box | Round ochre housing, cream clock face, twelve navy marks and a navy hand. The hand makes one clockwise revolution during the authored delay; a small indicator changes from slate to ochre to gold. Input/output sockets are on opposite sides. No extra toolbar or always-visible inspector. Reset restores the waiting state; it is a command module, not an electrical source. |
 | Light and solar | Gold-bodied torch with cream lens collar, pressing top button and lit lens. Blue nine-cell panel in a cream frame, navy foot and four gold power-meter marks. Torch light is a translucent warm-cream cone: four nested shells soften its edge, widen to the physical 15° half-angle, fade at the finite range and clip sampled rays against the shared collision proxies. No axial rod remains. This is a render-time approximation, not volumetric scattering; fine silhouettes can reveal sampling steps. |
 | Rope systems | Blue cylindrical loads with cream bands and gold eyes; heavier loads are visibly larger. Cream-rimmed ochre pulley wheels turn with rope travel. Single warm-wood ropes have gold knots, curve when slack and stay straight when taut; unfinished threading is dashed and carries no tension. Anchor eyes are gold on cream mounts. Weight motion follows the sphere-envelope physics; rope curves are a length-matched visual approximation, not collision geometry. |
 | Spring | Static plates and three metal rings; launch impulse exists, compression/rebound animation does not yet. |

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace CuriousContraptions;
 
+public enum ActivationDisposition { Immediate, Deferred }
+
 public readonly record struct BoxProxy(Vector3 At, Vector3 Half);
 public readonly record struct SphereProxy(Vector3 At, float Radius);
 
@@ -54,6 +56,7 @@ public partial class MachinePart : Node3D
     public virtual RopeAttachmentKind RopeAttachment => RopeAttachmentKind.None;
     public virtual void AdvanceRope(float distance) { }
     public virtual float SurfaceBounce => 1;
+    public virtual ActivationDisposition HandleActivation(MachineWorld world) => ActivationDisposition.Immediate;
     public virtual bool CanSendActivation => false;
     public virtual bool CanReceiveActivation => false;
 

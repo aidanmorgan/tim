@@ -244,6 +244,37 @@ shaded.Parts.Add(new() { Id = "shade", Kind = "wall", Locked = true, Position = 
 shaded.Solution[0].Position = [-1.5f, 3, 0];
 modules["solar_shadow"] = shaded;
 
+var delay = new PuzzleData
+{
+    Parts =
+    [
+        new() { Id = "switch", Kind = "switch", Locked = true, Position = [-3, 1, 0] },
+        new() { Id = "trigger", Kind = "ball", Locked = true, Position = [-3, 4, 0] },
+        new() { Id = "lamp", Kind = "lamp", Locked = true, Position = [3, 1, 0] }
+    ],
+    Inventory = new() { ["delay"] = 1 },
+    Solution = [new() { Id = "delay_1", Kind = "delay", Position = [0, 1, 0] }],
+    SolutionConnections =
+    [
+        new() { From = "switch", To = "delay_1", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn },
+        new() { From = "delay_1", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }
+    ],
+    Goals = [new() { Type = GoalKind.ActivatedAfter, Target = "lamp", Body = "switch", MinimumDelaySeconds = 1 }]
+};
+modules["delayed_signal"] = delay;
+var delayedSolar = Copy(solar);
+delayedSolar.Parts.Single(p => p.Id == "trigger").Position = [-4, 5, -2];
+delayedSolar.Parts.Add(new() { Id = "switch", Kind = "switch", Locked = true, Position = [-4, 3, -2] });
+delayedSolar.Solution.Add(new() { Id = "delay_1", Kind = "delay", Position = [0, 1, 2], Rotation = [0, 180, 0] });
+delayedSolar.Inventory["delay"] = 1;
+delayedSolar.SolutionConnections.AddRange(
+[
+    new() { From = "switch", To = "delay_1", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn },
+    new() { From = "delay_1", To = "torch", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }
+]);
+delayedSolar.Goals.Add(new() { Type = GoalKind.PoweredAfter, Target = "motor", Body = "switch", MinimumDelaySeconds = 1 });
+modules["delayed_solar"] = delayedSolar;
+
 var campaign = source.Select(Copy).ToList();
 void Add(string id, string title, string chapter, string description, string hint,
          params (string Kind, float X, float Z, float Yaw)[] layout)
@@ -344,6 +375,13 @@ Add("solar_shadow", "Out of the shade", "Light and obstacles",
     "The wooden wall blocks the flashlight. Find a lit position for the panel and turn the motor.",
     "Keep the panel on the flashlight side of the wall, facing the lens. Wires carry electricity around obstacles, but light cannot pass through them.", ("solar_shadow", 0, 0, 180));
 
+Add("delayed_signal", "Wait for it", "Delayed commands",
+    "Light the lamp only after the delay box finishes its countdown.",
+    "Connect switch → delay → lamp. A trigger starts the one-second countdown; further triggers are ignored until Reset.", ("delayed_signal", 0, 0, 0));
+Add("delayed_solar", "A later sunrise", "Timing and power",
+    "Wait for the countdown before lighting the torch and turning the motor.",
+    "Connect switch → delay → torch, then panel → motor. The delay sends a command, while the lit solar panel supplies electricity.", ("delayed_solar", 0, 0, 180));
+
 // Chapters 3 and 4: independent goals, mixed mechanisms, and power dependencies.
 Add("two_deliveries", "Two deliveries", "Parallel machines",
     "Catch both balls, one with ramps and one with air. The receivers are in separate depth planes.",
@@ -439,7 +477,7 @@ Add("cold_bridges", "Cold bridges", "Final workshop",
 Add("grand_contraption", "The grand contraption", "Final workshop",
     "Complete the ramp signal, conveyor signal, and domino chain; all three must succeed in one run.",
     "Build and test each lane. The final machine needs two slopes, a conveyor delivery, four dominoes, and both signal wires.", ("ramps_signal", 0, -3, 0), ("domino", 0, 0, 0), ("conveyor_signal", 0, 3, 0));
-if (campaign.Count != 52) throw new InvalidDataException($"Expected 52 authored levels in this expansion stage, authored {campaign.Count}.");
+if (campaign.Count != 54) throw new InvalidDataException($"Expected 54 authored levels in this expansion stage, authored {campaign.Count}.");
 // Every authored instance owns its difficulty curve; catalog defaults do not decide puzzle help.
 foreach (var puzzle in campaign)
 foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
