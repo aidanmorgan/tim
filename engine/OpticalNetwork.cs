@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace CuriousContraptions;
 
-public enum OpticalInteraction { Absorb, Mirror, Split }
+public enum OpticalInteraction { Absorb, Mirror, Split, Filter }
 public readonly record struct OpticalEmitter(Vector3 At,Vector3 Direction,float Range,Vector3 Power);
 public readonly record struct OpticalTarget(Vector3 At,Vector3 Normal,float Radius);
-public readonly record struct OpticalSurface(OpticalTarget Aperture,OpticalInteraction Interaction);
+public readonly record struct OpticalSurface(OpticalTarget Aperture,OpticalInteraction Interaction,Vector3 Transmission);
 public readonly record struct OpticalSegment(Vector3 From,Vector3 To,Vector3 Power,string OriginPart);
 public readonly record struct OpticalReception(MachinePart Receiver,Vector3 Power);
 public sealed record OpticalTrace(IReadOnlyList<OpticalSegment> Segments,IReadOnlyList<OpticalReception> Receptions);
@@ -45,7 +45,7 @@ public static class OpticalNetwork
                 var target=surface.Aperture;
                 var n=(candidate.Basis*target.Normal).Normalized();
                 var facing=ray.Direction.Dot(n);
-                if(surface.Interaction==OpticalInteraction.Split)
+                if(surface.Interaction is OpticalInteraction.Split or OpticalInteraction.Filter)
                 {
                     if(Mathf.Abs(facing)<Epsilon)continue; // Splitter coating works from either side.
                 }
@@ -68,6 +68,7 @@ public static class OpticalNetwork
                 new(end+direction*Epsilon,direction,remaining,power,ray.Depth+1,hit.Uid));
             switch(interaction)
             {
+                case OpticalInteraction.Filter: Branch(ray.Direction,ray.Power*hit.OpticalSurface!.Value.Transmission);break;
                 case OpticalInteraction.Mirror: Branch(reflected,ray.Power*MirrorRetention);break;
                 case OpticalInteraction.Split:
                     Branch(ray.Direction,ray.Power*.5f);

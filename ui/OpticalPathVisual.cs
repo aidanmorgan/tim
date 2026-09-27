@@ -37,8 +37,8 @@ public partial class OpticalPathVisual : Node3D
             line.Scale=new(1,offset.Length(),1);
             // Lost power reduces opacity; it never brightens a passive reflected path.
             var material=(StandardMaterial3D)line.MaterialOverride;
-            var color=new Color("#fff0a5");
-            color.A=(Preview?.28f:.7f)*Mathf.Clamp(segment.Power.X,0,1);
+            var color=OpticalColours.BeamInk(segment.Power);
+            color.A=(Preview?.28f:.7f)*Mathf.Clamp(Mathf.Max(segment.Power.X,Mathf.Max(segment.Power.Y,segment.Power.Z)),0,1);
             material.AlbedoColor=color;
         }
     }

@@ -6,7 +6,7 @@ namespace CuriousContraptions;
 /// <summary>Finite, front-silvered disc: actual transformed normal determines reflection.</summary>
 public partial class MirrorPart : MachinePart
 {
-    public override OpticalSurface? OpticalSurface=>new(new(new(-.18f,0,0),Vector3.Left,.65f),OpticalInteraction.Mirror);
+    public override OpticalSurface? OpticalSurface=>new(new(new(-.18f,0,0),Vector3.Left,.65f),OpticalInteraction.Mirror,Vector3.One);
     private OpticalPathVisual _preview=null!;
     protected override void Build()
     {

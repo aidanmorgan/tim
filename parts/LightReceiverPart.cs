@@ -7,10 +7,12 @@ namespace CuriousContraptions;
 /// <summary>Front-facing laser target closes a separately supplied electrical contact.</summary>
 public partial class LightReceiverPart : MachinePart
 {
+    [Export] public OpticalColour Colour { get; set; }=OpticalColour.Broadband;
     public float Threshold=>Properties[ReceiverParameters.Threshold];
     public Vector3 ReceivedPower { get; private set; }
-    public float Power=>(ReceivedPower.X+ReceivedPower.Y+ReceivedPower.Z)/3;
-    public override OpticalSurface? OpticalSurface=>new(new(new(-.18f,0,0),Vector3.Left,.55f),OpticalInteraction.Absorb);
+    public float Power=>OpticalColours.Strength(ReceivedPower,Colour);
+    public bool Matches=>OpticalColours.Accepts(ReceivedPower,Colour,Threshold);
+    public override OpticalSurface? OpticalSurface=>new(new(new(-.18f,0,0),Vector3.Left,.55f),OpticalInteraction.Absorb,Vector3.One);
     private StandardMaterial3D _target=null!;
     private float _level;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
@@ -19,10 +21,11 @@ public partial class LightReceiverPart : MachinePart
         new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(0,-.6f,-.65f))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        Power>=Threshold?[new(SocketIds.PowerIn,SocketIds.Supply)]:[];
-    public override void ReceiveOpticalPower(Vector3 power){ReceivedPower=power;Active=Power>=Threshold;}
+        Matches?[new(SocketIds.PowerIn,SocketIds.Supply)]:[];
+    public override void ReceiveOpticalPower(Vector3 power){ReceivedPower=power;Active=Matches;}
     public override void ValidateParameters()
     {
+        if(!Enum.IsDefined(Colour))throw new ArgumentException("Unsupported receiver colour.");
         if(!float.IsFinite(Threshold)||Threshold<.05f||Threshold>2)
             throw new ArgumentException("Receiver threshold must be finite and between 0.05 and 2.");
     }
@@ -36,6 +39,7 @@ public partial class LightReceiverPart : MachinePart
         var ring=PartArt.Ring(Visual,.33f,.025f,new("#fff8e9"),new(-.21f,0,0));
         ring.RotationDegrees=new(0,0,90);
         PartArt.Sphere(Visual,.08f,new("#f7cb52"),new(-.23f,0,0));
+        OpticalColours.Marks(Visual,Colour,new(-.15f,.6f,0));
         foreach(var port in ConnectionPorts)PartArt.Sphere(Visual,.075f,new("#f7cb52"),port.LocalPosition);
     }
     public override void _Process(double delta)

@@ -220,6 +220,12 @@ The standalone optical shutter uses a navy header/foot, two cream rails and a th
 
 The blade accelerates along local Y and retracts into the header. Its rendered pose and physical/optical OBB are identical; partial clearance really admits the beam. Supply loss closes it, stopping before a visible ball rather than crushing it. Shared C# motion keeps tube and optical shutters consistent. Browser open/closed samples are checked; a continuous animation/performance audit remains pending.
 
+## Colour optics addition — 27 September 2026
+
+Channel filter frames are cream with navy feet and translucent panes. Red/green/blue reuse the established gizmo accents (#de7058/#62aa78/#5b9cdb); no global palette changes. One/two/three raised bars on the frame, matching receiver faces and original icons distinguish channels without relying only on hue. Receivers retain the slate-to-gold eased activation disc, so “correct channel” and “currently active” remain separate cues.
+
+Traced single-channel beams use those accents; broadband keeps warm cream and two-channel artwork blends the existing accents. This is a palette-preserving signal convention, not spectral colourimetry. Opacity follows maximum RGB channel power instead of red alone, keeping blue/green beams visible without granting simulated energy. Filter previews remain faint, selected-only and non-activating. Browser snapshots verify all three colours; the lower-power blue beam is faint against the sky, so broader contrast/mobile review remains pending.
+
 ## Source of truth
 
 Implementation references: [Workshop UI/stage](ui/Workshop.cs), [guidance and layout behaviours](ui/WorkshopGuidance.cs), [icons](ui/WorkshopIcons.cs), [gizmo](ui/RotationGizmo.cs), [projections](ui/PlacementShadows.cs), [part geometry/materials](engine/PartArt.cs), [selection](engine/MachinePart.cs), [workbench](engine/Workbench.cs), [assistance easing](engine/PartAssistance.cs), [part implementations](parts), [catalog colours](parts/catalog), and [project settings](project.godot).
