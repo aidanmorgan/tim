@@ -10,10 +10,13 @@ async function directUiAttempt(page, attempt) {
         throw new Error("Use Forgiving, Balanced or Precise");
     for (const part of attempt.parts ?? []) {
         if (part.dimensions == null) continue;
-        if (part.kind !== "wall" || !Array.isArray(part.dimensions) || part.dimensions.length !== 3 ||
-            part.dimensions.some((n, axis) => !Number.isFinite(n) ||
-                n < [.4,.4,.12][axis] || n > [8,6,2][axis]))
-            throw new Error("Wall dimensions must be three finite lengths within the wall limits");
+        const bounds = {
+            wall: { min: [.4,.4,.12], max: [8,6,2] },
+            pipe: { min: [1,1.3,1.3], max: [8,1.3,1.3] }
+        }[part.kind];
+        if (!bounds || !Array.isArray(part.dimensions) || part.dimensions.length !== 3 ||
+            part.dimensions.some((n, axis) => !Number.isFinite(n) || n < bounds.min[axis] || n > bounds.max[axis]))
+            throw new Error("Resize dimensions must match the part's supported axes and limits");
     }
     for (const link of attempt.connections ?? []) {
         const activation = link.type === "activation" && link.from_port === "activation_out" &&
@@ -110,7 +113,7 @@ async function directUiAttempt(page, attempt) {
         if (Math.abs(amount) < 0.00001) return;
         await action("Move mode");
         await waitFor(() => ui.mode === "move" && ui.handles.length === 3, "move handles");
-        const h = ui.handles[axis];
+        const h = ui.handles.find(handle => handle.axis === axis);
         const points = Array.from({length: 17}, (_, i) => [
             h.screen[0]+h.unit[0]*amount*i/16, h.screen[1]+h.unit[1]*amount*i/16
         ]);
@@ -120,7 +123,7 @@ async function directUiAttempt(page, attempt) {
         if (Math.abs(degrees) < 0.00001) return;
         await action("Rotate mode");
         await waitFor(() => ui.mode === "rotate" && ui.handles.length === 3, "rotation handles");
-        const h = ui.handles[axis], center = ui.center;
+        const h = ui.handles.find(handle => handle.axis === axis), center = ui.center;
         const steps = Math.max(12, Math.ceil(Math.abs(degrees)/5));
         const points = Array.from({length: steps+1}, (_, i) => {
             const angle = degrees*Math.PI/180*i/steps;
@@ -185,22 +188,22 @@ async function directUiAttempt(page, attempt) {
         for (const part of attempt.parts ?? []) {
             if (!part.dimensions) continue;
             const id = placed.get(part.slot);
-            if (ui.selected !== id) await click(ui.parts.find(p => p.id === id).screen, "select wall to resize");
+            if (ui.selected !== id) await click(ui.parts.find(p => p.id === id).screen, "select part to resize");
             await action("Resize mode");
-            await waitFor(() => ui.selected === id && ui.mode === "resize" && ui.dimensions?.length === 3, "wall resize handles");
+            await waitFor(() => ui.selected === id && ui.mode === "resize" && ui.dimensions?.length === 3, "part resize handles");
             for (const axis of [0,1,2]) {
                 // Read rendered handle geometry and drag; never set game dimensions.
                 for (let pass = 0; pass < 3; pass++) {
                     const difference = part.dimensions[axis] - ui.dimensions[axis];
                     if (Math.abs(difference) < .03) break;
-                    const h = ui.handles[axis];
+                    const h = ui.handles.find(handle => handle.axis === axis);
                     const points = Array.from({length:17}, (_,i) => [
                         h.screen[0] + h.unit[0] * difference * .5 * i/16,
                         h.screen[1] + h.unit[1] * difference * .5 * i/16]);
                     await dragPath(points, "resize local axis " + axis + " toward " + part.dimensions[axis]);
                 }
                 if (Math.abs(part.dimensions[axis] - ui.dimensions[axis]) >= .03)
-                    throw new Error("Wall resize did not reach requested dimension on axis " + axis);
+                    throw new Error("Resize did not reach requested dimension on axis " + axis);
             }
         }
         for (const link of attempt.connections ?? []) {

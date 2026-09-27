@@ -676,8 +676,10 @@ public class WorkshopInteractionTests(HeadlessFixture godot)
         finally { scene.Free(); }
     }
 
-    [Fact]
-    public void WallResizeIsContextualAndOneGestureUndoesDimensions()
+    [Theory]
+    [InlineData("wall")]
+    [InlineData("pipe")]
+    public void ResizeIsContextualAndOneGestureUndoesDimensions(string kind)
     {
         var scene = Scene();
         try
@@ -688,12 +690,13 @@ public class WorkshopInteractionTests(HeadlessFixture godot)
                 .Single(p => p.ItemCount > 10);
             picker.EmitSignal(OptionButton.SignalName.ItemSelected, picker.ItemCount - 1);
             scene.FindChildren("*", "Button", true, false).OfType<Button>()
-                .Single(b => b.HasMeta("part_kind") && b.GetMeta("part_kind").AsString() == "wall")
+                .Single(b => b.HasMeta("part_kind") && b.GetMeta("part_kind").AsString() == kind)
                 .EmitSignal(Button.SignalName.Pressed);
             Click(scene, new(0, 3, 0));
             scene._Process(0);
-            var wall = scene.World.Parts.OfType<WallPart>().Single();
-            var initial = wall.Dimensions;
+            var part = scene.World.Parts.Single();
+            var resizable = (IResizablePart)part;
+            var initial = resizable.Dimensions;
             Assert.True(FindButton(scene, "Resize mode").IsVisibleInTree());
             Press(scene, "Resize mode");
             scene._Process(0);
@@ -702,12 +705,12 @@ public class WorkshopInteractionTests(HeadlessFixture godot)
             var camera = Camera(scene);
             var start = camera.UnprojectPosition(gizmo.HandlePosition(0));
             scene._UnhandledInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = start });
-            var delta = camera.UnprojectPosition(wall.Position + Vector3.Right) - camera.UnprojectPosition(wall.Position);
+            var delta = camera.UnprojectPosition(part.Position + Vector3.Right) - camera.UnprojectPosition(part.Position);
             scene._Input(new InputEventMouseMotion { Position = start + delta * .5f, ShiftPressed = true });
             scene._Input(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = start + delta * .5f });
-            Assert.Equal(initial.X + 1, wall.Dimensions.X, 3);
+            Assert.Equal(initial.X + 1, resizable.Dimensions.X, 3);
             Press(scene, "↺ Undo");
-            Assert.Equal(initial, scene.World.Parts.OfType<WallPart>().Single().Dimensions);
+            Assert.Equal(initial, scene.World.Parts.OfType<IResizablePart>().Single().Dimensions);
             Assert.Single(scene.World.Parts);
         }
         finally { scene.Free(); }

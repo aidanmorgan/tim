@@ -8,10 +8,11 @@ const { runInNewContext } = require("node:vm");
 
 const source = readFileSync(join(__dirname, "direct-ui.js"), "utf8");
 for (const [kind, dimensions] of [["ramp",[3,2,.25]], ["wall",[0,2,.25]],
-    ["wall",[3,2,4]], ["wall",[3,NaN,.25]], ["wall",[3,2]], ["wall","invalid"]]) {
+    ["wall",[3,2,4]], ["wall",[3,NaN,.25]], ["wall",[3,2]], ["wall","invalid"], ["pipe",[.5,1.3,1.3]], ["pipe",[3.6,2,1.3]],
+    ["pipe",[9,1.3,1.3]], ["pipe",[NaN,1.3,1.3]], ["pipe",[3.6,1.3,2]]]) {
     test("reject invalid resize recipe " + kind + " " + JSON.stringify(dimensions), async () => {
         const fn = runInNewContext("(" + source + ")");
-        await assert.rejects(fn({}, {level:1,precision:.45,parts:[{kind,dimensions}]}), /Wall dimensions/);
+        await assert.rejects(fn({}, {level:1,precision:.45,parts:[{kind,dimensions}]}), /Resize dimensions/);
     });
 }
 for (const link of [

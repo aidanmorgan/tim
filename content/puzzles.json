@@ -6861,7 +6861,9 @@
           0,
           -45
         ],
-        "properties": {}
+        "properties": {
+          "length": 3.6
+        }
       }
     ],
     "solution_connections": []

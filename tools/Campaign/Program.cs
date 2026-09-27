@@ -282,7 +282,7 @@ modules["clear_pipe"] = new PuzzleData
         new() { Id = "receiver", Kind = "basket", Locked = true, Position = [2, .6f, 0] }
     ],
     Inventory = new() { ["pipe"] = 1 },
-    Solution = [new() { Id = "pipe_1", Kind = "pipe", Position = [0, 3, 0], Rotation = [0, 0, -45] }],
+    Solution = [new() { Id = "pipe_1", Kind = "pipe", Position = [0, 3, 0], Rotation = [0, 0, -45], Properties = new() { [PipeParameters.Length] = 3.6f } }],
     Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
 };
 

@@ -1,26 +1,53 @@
 using Godot;
+using System;
 
 namespace CuriousContraptions;
 
 /// <summary>Clear hollow gravity tube. No capture, teleport, scripted transport or added energy.</summary>
-public partial class PipePart : MachinePart
+public partial class PipePart : MachinePart, IResizablePart
 {
-    public const float HalfLength = 1.8f;
+    public float Length => Properties[PipeParameters.Length];
+    public Vector3 Dimensions => new(Length, PipeParameters.BoreDiameter, PipeParameters.BoreDiameter);
+    public ResizeAxes ResizableAxes => ResizeAxes.X;
+    private MeshInstance3D _shell = null!;
+    private readonly MeshInstance3D[] _collars = new MeshInstance3D[2], _rails = new MeshInstance3D[2];
+    public override void ValidateParameters()
+    {
+        if (!float.IsFinite(Length) || Length < PipeParameters.MinimumLength || Length > PipeParameters.MaximumLength)
+            throw new ArgumentException("Pipe length must be finite and between one and eight units.");
+    }
     public const float BoreRadius = .65f;
     public override float SurfaceBounce => .15f;
     protected override void Build()
     {
-        PickRadius = 1.9f;
-        AddTube(Transform3D.Identity, HalfLength, BoreRadius, .70f, new Color(.40f, .72f, .79f, .16f), false);
-        foreach (var x in new[] { -HalfLength, HalfLength })
-            AddTube(new(Basis.Identity, new(x, 0, 0)), .09f, BoreRadius, .78f, new("#fff8e9"), true);
-        // Thin established-navy rails show the tube direction without hiding its contents.
-        foreach (var z in new[] { -.70f, .70f })
-            PartArt.Line(Visual, new(-HalfLength, 0, z), new(HalfLength, 0, z), new("#293954"), .018f);
+        _shell = AddTube(Transform3D.Identity, .5f, BoreRadius, .70f, new Color(.40f, .72f, .79f, .16f), false);
+        for (var i = 0; i < 2; i++)
+        {
+            _collars[i] = AddTube(Transform3D.Identity, .09f, BoreRadius, .78f, new("#fff8e9"), true);
+            var z = i == 0 ? -.70f : .70f;
+            _rails[i] = PartArt.Line(Visual, new(-.5f, 0, z), new(.5f, 0, z), new("#293954"), .018f);
+        }
+        SetDimensions(Dimensions);
     }
-    private void AddTube(Transform3D pose, float halfLength, float inner, float outer, Color color, bool opaque)
+    public void SetDimensions(Vector3 size)
     {
-        Tubes.Add(new(pose, halfLength, inner, outer, opaque));
+        if (!size.IsFinite() || !Mathf.IsEqualApprox(size.Y, PipeParameters.BoreDiameter)
+            || !Mathf.IsEqualApprox(size.Z, PipeParameters.BoreDiameter))
+            throw new ArgumentException("Only pipe length can be resized; the bore is fixed.");
+        Properties[PipeParameters.Length] = Mathf.Clamp(size.X, PipeParameters.MinimumLength, PipeParameters.MaximumLength);
+        _shell.Scale = new(Length, 1, 1);
+        Tubes.Clear();
+        Tubes.Add(new(Transform3D.Identity, Length * .5f, BoreRadius, .70f, false));
+        for (var i = 0; i < 2; i++)
+        {
+            _collars[i].Position = new((i == 0 ? -1 : 1) * Length * .5f, 0, 0);
+            Tubes.Add(new(_collars[i].Transform, .09f, BoreRadius, .78f, true));
+            ((CylinderMesh)_rails[i].Mesh).Height = Length;
+        }
+        UpdateSelectionRadius(Mathf.Sqrt(Length * Length + 1.56f * 1.56f) * .5f);
+    }
+    private MeshInstance3D AddTube(Transform3D pose, float halfLength, float inner, float outer, Color color, bool opaque)
+    {
         const int sides = 48;
         var mesh = new ImmediateMesh();
         mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
@@ -49,5 +76,6 @@ public partial class PipePart : MachinePart
             material.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
             node.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
         }
+        return node;
     }
 }

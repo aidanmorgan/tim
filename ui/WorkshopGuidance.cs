@@ -87,7 +87,7 @@ public partial class Workshop
         actions.AddChild(_rotateModeButton);
         _resizeModeButton = Button("Resize mode", () =>
         {
-            if (_selected is not WallPart { Locked: false }) return;
+            if (_selected is not IResizablePart || _selected.Locked) return;
             EndGizmo(true);
             _dragging = _lifting = false;
             _rotationGizmo.SetResizeMode();
@@ -264,7 +264,7 @@ public partial class Workshop
         _placementShadows.Follow(World.Parts, _preview, _selected, !_inRun);
         _detail.Visible = target != null;
         _time.Visible = _inRun;
-        _resizeModeButton.Visible = _preview == null && _selected is WallPart { Locked: false };
+        _resizeModeButton.Visible = _preview == null && _selected is IResizablePart && !_selected.Locked;
         _resizeModeButton.ButtonPressed = _rotationGizmo.ResizeMode;
         _moveModeButton.ButtonPressed = _rotationGizmo.MoveMode;
         _rotateModeButton.ButtonPressed = !_rotationGizmo.MoveMode && !_rotationGizmo.ResizeMode;

@@ -11,3 +11,4 @@ Category = "Motion"
 Description = "A hollow tube. Gravity carries balls through the open bore; tilt it downhill to guide them. The clear shell transmits light; cream collars are opaque."
 Scene = ExtResource("2")
 Color = Color(0.40, 0.72, 0.79, 1)
+Parameters = {"length": 3.6}

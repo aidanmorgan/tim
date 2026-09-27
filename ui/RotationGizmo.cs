@@ -78,7 +78,7 @@ public partial class RotationGizmo : Node3D
     {
         if (target != _target || !enabled) End(false);
         _target = target;
-        if (ResizeMode && target is not WallPart) SetMoveMode(true);
+        if (ResizeMode && target is not IResizablePart) SetMoveMode(true);
         Visible = enabled && GodotObject.IsInstanceValid(target) && target is { Locked: false, Visible: true };
         if (!Visible) return;
         GlobalPosition = target!.GlobalPosition;
@@ -95,7 +95,7 @@ public partial class RotationGizmo : Node3D
         {
             _rings[axis].Scale = Vector3.One * _radius;
             _rings[axis].Visible = _handles[axis].Visible = !MoveMode && !ResizeMode;
-            _shafts[axis].Visible = _arrows[axis].Visible = MoveMode || ResizeMode;
+            _shafts[axis].Visible = _arrows[axis].Visible = (MoveMode || ResizeMode) && AxisEnabled(axis);
             var direction = Direction(axis);
             _shafts[axis].Quaternion = _arrows[axis].Quaternion = new Quaternion(Vector3.Up, direction);
             _shafts[axis].Position = direction * _radius * .5f;
@@ -114,6 +114,8 @@ public partial class RotationGizmo : Node3D
     }
 
     private static Vector3 Circle(int axis, float angle) => U[axis] * Mathf.Cos(angle) + V[axis] * Mathf.Sin(angle);
+    public bool AxisEnabled(int axis) => !ResizeMode || _target is IResizablePart part
+        && (part.ResizableAxes & (ResizeAxes)(1 << axis)) != ResizeAxes.None;
     public Vector3 HandlePosition(int axis) => GlobalPosition + (MoveMode || ResizeMode ? Direction(axis) : Circle(axis, _angles[axis])) * _radius;
 
     public bool Begin(Camera3D camera, Vector2 screen)
@@ -125,6 +127,7 @@ public partial class RotationGizmo : Node3D
         // Spherical handles win over crossing rings.
         for (var axis = 0; axis < 3; axis++)
         {
+            if (!AxisEnabled(axis)) continue;
             var distance = camera.UnprojectPosition(HandlePosition(axis)).DistanceTo(screen);
             if (distance >= best) continue;
             best = distance; picked = axis; angle = _angles[axis];
@@ -145,7 +148,7 @@ public partial class RotationGizmo : Node3D
         ActiveAxis = picked;
         _start = _target.Quaternion;
         _startPosition = _target.Position;
-        if (_target is WallPart wall) _startDimensions = wall.Dimensions;
+        if (_target is IResizablePart resizable) _startDimensions = resizable.Dimensions;
         _startMouse = screen;
         _moveScreenAxis = camera.UnprojectPosition(GlobalPosition + Direction(picked)) - camera.UnprojectPosition(GlobalPosition);
         // An axis pointing directly into the camera has no meaningful projected direction.
@@ -173,13 +176,13 @@ public partial class RotationGizmo : Node3D
     public bool Drag(Camera3D camera, Vector2 screen, bool snap)
     {
         if (!Dragging || !GodotObject.IsInstanceValid(_target)) return false;
-        if (ResizeMode && _target is WallPart wall)
+        if (ResizeMode && _target is IResizablePart resizable)
         {
             var amount = (screen - _startMouse).Dot(_moveScreenAxis) / Mathf.Max(1, _moveScreenAxis.LengthSquared());
             var size = _startDimensions;
             size[ActiveAxis] += amount * 2; // Both faces expand around the unchanged centre.
             if (snap) size[ActiveAxis] = Mathf.Snapped(size[ActiveAxis], .1f);
-            wall.SetDimensions(size);
+            resizable.SetDimensions(size);
             return true;
         }
         if (MoveMode)
@@ -219,7 +222,7 @@ public partial class RotationGizmo : Node3D
         {
             _target!.Quaternion = _start;
             _target.Position = _startPosition;
-            if (ResizeMode && _target is WallPart wall) wall.SetDimensions(_startDimensions);
+            if (ResizeMode && _target is IResizablePart resizable) resizable.SetDimensions(_startDimensions);
         }
         ActiveAxis = -1;
     }

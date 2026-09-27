@@ -33,7 +33,9 @@ foreach (var variant in new[] { "reference", "near-positive", "near-negative", "
                 ? new JsonArray(JsonValue.Create(solution["properties"]?["width"]?.GetValue<float>() ?? 3),
                     JsonValue.Create(solution["properties"]?["height"]?.GetValue<float>() ?? 2),
                     JsonValue.Create(solution["properties"]?["thickness"]?.GetValue<float>() ?? .25f))
-                : null
+                : solution["kind"]!.GetValue<string>() == "pipe"
+                    ? new JsonArray(JsonValue.Create(solution["properties"]!["length"]!.GetValue<float>()), JsonValue.Create(1.3f), JsonValue.Create(1.3f))
+                    : null
         });
     var chosen = parts[0]!.AsObject();
     if (variant is "near-positive" or "near-negative")

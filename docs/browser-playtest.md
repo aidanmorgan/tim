@@ -1,5 +1,13 @@
 # Browser campaign playtest
 
+## Straight-pipe resizing — 55-level draft
+
+Campaign hash: `9386ca71bb8b61253c8d9c67da823ed4f859cb012107632026b5534b8ecc8f72`. Pipes resize from 1–8 units with a fixed 1.3-unit bore; a typed resize capability exposes only the local length handle while walls keep three. Native tests cover geometry, collars, optical bounds, serialization/Reset, invalid dimensions, rotated dragging, Cancel and one-gesture Undo.
+
+Six `L25-{balanced,forgiving,precise}-length-{32,42}-resize-v2.json` attempts use real placement/rotation/resize drags. Length 3.2 wins at ticks 262/216/266; length 4.2 wins at 283/250/296. The `L12-balanced-wall-resize-regression-v1.json` three-axis wall resize wins at 515. All seven have zero browser errors, complete Run/result/Reset and passing audits. These alternative lengths are not a new isolated difficulty-nudging comparison.
+
+The six resize-v1 records are retained as failed verification despite winning outcomes: startup reported an unsupported basket length. An ambiguously anchored content edit had put the new pipe property on the first basket. The content was corrected, regenerated and checked against the generator; no compatibility exception was added. A stale variable in the new parameterized UI test was also corrected. The fresh native suite passes all 290 tests; adapter tests pass 31. Elbows, mouth snapping and the broader campaign matrix remain unfinished.
+
 ## Clear gravity tube — 55-level draft
 
 Campaign hash: `ffc48e5fb25b24fe323d457e4419c9021543db686ff22901a643f502a966ef61`. Lesson 25, “Through the looking tube”, introduces a fixed-length clear pipe. The C# solver collides spheres against finite hollow cylinders and annular ends, including transformed pipes and rope-load contact passes. It does not capture/teleport a ball or prescribe travel velocity. Clear walls transmit traced light; opaque cream collars use the same hollow shape for optical occlusion. This is a modern hollow conduit, not a claim of calibrated original TIM pipe physics.

@@ -36,6 +36,14 @@ public enum ConnectionDomain { Unknown, Activation, Electrical, Signal, Mechanic
 public sealed class ConnectionDomainJsonConverter() :
     JsonStringEnumConverter<ConnectionDomain>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
 
+public static class PipeParameters
+{
+    public const string Length = "length";
+    public const float MinimumLength = 1;
+    public const float MaximumLength = 8;
+    public const float BoreDiameter = 1.3f;
+}
+
 public static class DelayParameters
 {
     public const string Seconds = "delay_seconds";

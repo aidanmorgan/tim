@@ -3,8 +3,9 @@ using Godot;
 namespace CuriousContraptions;
 
 /// <summary>A physical toy panel; dimensions are local-axis lengths, never node scale.</summary>
-public partial class WallPart : MachinePart
+public partial class WallPart : MachinePart, IResizablePart
 {
+    public ResizeAxes ResizableAxes => ResizeAxes.All;
     public Vector3 Dimensions { get; private set; }
     public static readonly Vector3 Minimum = new(.4f, .4f, .12f);
     public static readonly Vector3 Maximum = new(8, 6, 2);

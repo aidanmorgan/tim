@@ -105,16 +105,19 @@ public partial class Workshop
         if (_selected != null && _rotationGizmo.Visible)
         {
             ui.Mode = _rotationGizmo.ResizeMode ? "resize" : _rotationGizmo.MoveMode ? "move" : "rotate";
-            if (_selected is WallPart wall) ui.Dimensions = Point(wall.Dimensions);
+            if (_selected is IResizablePart resizable) ui.Dimensions = Point(resizable.Dimensions);
             ui.Center = ScreenPoint(_camera.UnprojectPosition(_selected.GlobalPosition));
-            foreach (var axis in new[] { Vector3.Right, Vector3.Up, Vector3.Back })
+            var axes = new[] { Vector3.Right, Vector3.Up, Vector3.Back };
+            for (var index = 0; index < axes.Length; index++)
             {
-                var index = ui.Handles.Count;
+                if (!_rotationGizmo.AxisEnabled(index)) continue;
+                var axis = axes[index];
                 var direction = _rotationGizmo.ResizeMode ? _selected.GlobalBasis * axis : axis;
                 var handle = _rotationGizmo.HandlePosition(index);
                 // Projected visible handle geometry, analogous to a DOM element's bounding box.
                 ui.Handles.Add(new()
                 {
+                    Axis = index,
                     Screen = ScreenPoint(_camera.UnprojectPosition(handle)),
                     Unit = ScreenPoint(_camera.UnprojectPosition(_selected.GlobalPosition + direction) -
                         _camera.UnprojectPosition(_selected.GlobalPosition)),
@@ -141,6 +144,7 @@ public sealed class PlaytestButton
 }
 public sealed class PlaytestHandle
 {
+    public int Axis { get; set; }
     public float[] Screen { get; set; } = [];
     public float[] Unit { get; set; } = [];
     public float[] Quarter { get; set; } = [];
