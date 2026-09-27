@@ -466,7 +466,13 @@ public class WorkshopInteractionTests(HeadlessFixture godot)
             var rotation = ramp.Quaternion;
             scene._UnhandledInput(new InputEventKey { Keycode = key, Pressed = true });
             scene._Process(.1);
-            Assert.True(camera.Position.DistanceTo(before) > .1f);
+            var displacement = camera.Position - before;
+            Assert.True(displacement.Length() > .1f);
+            Assert.Equal(before.Y, camera.Position.Y, 4);
+            var expected = key is Key.W or Key.S ? -camera.Basis.Z : camera.Basis.X;
+            expected.Y = 0;
+            expected = expected.Normalized() * (key is Key.S or Key.A ? -1 : 1);
+            Assert.True(displacement.Normalized().Dot(expected) > .999f);
             Assert.Equal(rotation, ramp.Quaternion);
             scene._Input(new InputEventKey { Keycode = key, Pressed = false });
             var stopped = camera.Position;
@@ -474,6 +480,98 @@ public class WorkshopInteractionTests(HeadlessFixture godot)
             Assert.Equal(stopped, camera.Position);
             Press(scene, "Reset camera");
             Assert.True(camera.Position.DistanceTo(before) < .001f);
+        }
+        finally { scene.Free(); }
+    }
+
+    [Theory]
+    [InlineData(Key.Q, 1)]
+    [InlineData(Key.E, -1)]
+    public void QeTurnsCameraWithoutTiltingPartAndStopsOnRelease(Key key, int sign)
+    {
+        var scene = Scene();
+        try
+        {
+            var ramp = PlaceRamp(scene, new(-2, 3, 1));
+            scene._Process(0);
+            var camera = Camera(scene);
+            var before = camera.Transform;
+            var partTransform = ramp.Transform;
+            scene._UnhandledInput(new InputEventKey { Keycode = key, Pressed = true });
+            scene._Process(.1);
+            var beforeYaw = Mathf.Atan2(before.Basis.Z.X, before.Basis.Z.Z);
+            var afterYaw = Mathf.Atan2(camera.Basis.Z.X, camera.Basis.Z.Z);
+            Assert.Equal(sign * .12f, afterYaw - beforeYaw, 4);
+            Assert.Equal(before.Origin.Y, camera.Position.Y, 4);
+            Assert.Equal(partTransform, ramp.Transform);
+            scene._Input(new InputEventKey { Keycode = key, Pressed = false });
+            var stopped = camera.Transform;
+            scene._Process(.1);
+            Assert.Equal(stopped, camera.Transform);
+
+            // Forward follows the changed heading, not the initial view.
+            var forward = -camera.Basis.Z;
+            forward.Y = 0;
+            scene._UnhandledInput(new InputEventKey { Keycode = Key.W, Pressed = true });
+            scene._Process(.1);
+            Assert.True((camera.Position - stopped.Origin).Normalized().Dot(forward.Normalized()) > .999f);
+            scene._Input(new InputEventKey { Keycode = Key.W, Pressed = false });
+            Press(scene, "Reset camera");
+            Assert.True(camera.Position.DistanceTo(before.Origin) < .001f);
+            Assert.True(camera.Basis.IsEqualApprox(before.Basis));
+        }
+        finally { scene.Free(); }
+    }
+
+    [Fact]
+    public void CameraDiagonalSpeedIsNormalizedAndOppositeInputsCancel()
+    {
+        var scene = Scene();
+        try
+        {
+            var camera = Camera(scene);
+            var initial = camera.Transform;
+            scene._UnhandledInput(new InputEventKey { Keycode = Key.W, Pressed = true });
+            scene._Process(.1);
+            var straightDistance = camera.Position.DistanceTo(initial.Origin);
+            Press(scene, "Reset camera");
+            scene._UnhandledInput(new InputEventKey { Keycode = Key.W, Pressed = true });
+            scene._UnhandledInput(new InputEventKey { Keycode = Key.D, Pressed = true });
+            scene._Process(.1);
+            Assert.Equal(straightDistance, camera.Position.DistanceTo(initial.Origin), 4);
+            foreach (var key in new[] { Key.S, Key.A, Key.Q, Key.E })
+                scene._UnhandledInput(new InputEventKey { Keycode = key, Pressed = true });
+            var stopped = camera.Transform;
+            scene._Process(.1);
+            Assert.Equal(stopped, camera.Transform);
+            scene.GetWindow().EmitSignal(Window.SignalName.FocusExited);
+            scene._Process(.1);
+            Assert.Equal(stopped, camera.Transform);
+        }
+        finally { scene.Free(); }
+    }
+
+    [Theory]
+    [InlineData(Key.W)]
+    [InlineData(Key.Q)]
+    [InlineData(Key.E)]
+    public void CameraIgnoresModifiedKeysAndClearsHeldKeysOnFocusLoss(Key key)
+    {
+        var scene = Scene();
+        try
+        {
+            var camera = Camera(scene);
+            var initial = camera.Transform;
+            scene._UnhandledInput(new InputEventKey { PhysicalKeycode = key, Pressed = true, CtrlPressed = true });
+            scene._Process(.1);
+            Assert.Equal(initial, camera.Transform);
+            scene._UnhandledInput(new InputEventKey { PhysicalKeycode = key, Pressed = true });
+            scene._Process(.1);
+            Assert.NotEqual(initial, camera.Transform);
+            scene.GetWindow().EmitSignal(Window.SignalName.FocusExited);
+            var stopped = camera.Transform;
+            scene._Process(.1);
+            Assert.Equal(stopped, camera.Transform);
         }
         finally { scene.Free(); }
     }
@@ -574,6 +672,85 @@ public class WorkshopInteractionTests(HeadlessFixture godot)
                 if (other != axis) Assert.Equal(start[other], ramp.Position[other]);
             scene._Input(new InputEventKey { Keycode = Key.Escape, Pressed = true });
             Assert.Equal(start, ramp.Position);
+        }
+        finally { scene.Free(); }
+    }
+
+    [Fact]
+    public void WallResizeIsContextualAndOneGestureUndoesDimensions()
+    {
+        var scene = Scene();
+        try
+        {
+            scene._Process(0);
+            Assert.False(FindButton(scene, "Resize mode").IsVisibleInTree());
+            var picker = scene.FindChildren("*", "OptionButton", true, false).OfType<OptionButton>()
+                .Single(p => p.ItemCount > 10);
+            picker.EmitSignal(OptionButton.SignalName.ItemSelected, picker.ItemCount - 1);
+            scene.FindChildren("*", "Button", true, false).OfType<Button>()
+                .Single(b => b.HasMeta("part_kind") && b.GetMeta("part_kind").AsString() == "wall")
+                .EmitSignal(Button.SignalName.Pressed);
+            Click(scene, new(0, 3, 0));
+            scene._Process(0);
+            var wall = scene.World.Parts.OfType<WallPart>().Single();
+            var initial = wall.Dimensions;
+            Assert.True(FindButton(scene, "Resize mode").IsVisibleInTree());
+            Press(scene, "Resize mode");
+            scene._Process(0);
+            var gizmo = (RotationGizmo)scene.FindChild("RotationGizmo", true, false);
+            Assert.True(gizmo.ResizeMode);
+            var camera = Camera(scene);
+            var start = camera.UnprojectPosition(gizmo.HandlePosition(0));
+            scene._UnhandledInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = start });
+            var delta = camera.UnprojectPosition(wall.Position + Vector3.Right) - camera.UnprojectPosition(wall.Position);
+            scene._Input(new InputEventMouseMotion { Position = start + delta * .5f, ShiftPressed = true });
+            scene._Input(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = start + delta * .5f });
+            Assert.Equal(initial.X + 1, wall.Dimensions.X, 3);
+            Press(scene, "↺ Undo");
+            Assert.Equal(initial, scene.World.Parts.OfType<WallPart>().Single().Dimensions);
+            Assert.Single(scene.World.Parts);
+        }
+        finally { scene.Free(); }
+    }
+
+    [Fact]
+    public void PartsToolboxExpandsForAllInventoryAndShrinksForSmallPuzzle()
+    {
+        var scene = Scene();
+        try
+        {
+            var picker = scene.FindChildren("*", "OptionButton", true, false).OfType<OptionButton>()
+                .Single(p => p.ItemCount > 10);
+            picker.EmitSignal(OptionButton.SignalName.ItemSelected, picker.ItemCount - 1);
+            scene._Process(0);
+            var scroll = (ScrollContainer)scene.FindChild("PartsScroll", true, false);
+            var palette = scroll.GetChildren().OfType<VBoxContainer>().Single();
+            var rows = palette.GetChildren().OfType<WorkshopButton>().ToArray();
+            Assert.Equal(scene.World.Registry.Definitions.Count, rows.Length);
+            var contentHeight = rows.Sum(r => r.GetCombinedMinimumSize().Y) + (rows.Length - 1) * 7;
+            var panel = scroll.GetParent().GetParent<PanelContainer>();
+            var factor = scroll.GetGlobalTransformWithCanvas().Scale.Y;
+            var layoutHeight = scene.GetViewport().GetVisibleRect().Size.Y / factor;
+            Assert.InRange(scroll.CustomMinimumSize.Y, 40, contentHeight + .1f);
+            Assert.True(panel.Position.Y + panel.Size.Y <= layoutHeight - 24 + .1f);
+            if (scroll.CustomMinimumSize.Y < contentHeight - .1f)
+            {
+                Assert.Equal(layoutHeight - 24, panel.Position.Y + panel.Size.Y, 2);
+                Assert.Equal(ScrollContainer.ScrollMode.Auto, scroll.VerticalScrollMode);
+            }
+            Assert.Equal(ScrollContainer.ScrollMode.Disabled, scroll.HorizontalScrollMode);
+            foreach (var row in rows)
+            {
+                Assert.True(row.CustomMinimumSize.X >= 180);
+                Assert.Equal(HorizontalAlignment.Left, row.IconAlignment);
+                Assert.All(row.FindChildren("*", "Control", true, false).OfType<Control>(),
+                    c => Assert.Equal(Control.MouseFilterEnum.Ignore, c.MouseFilter));
+                Assert.Equal(2, row.FindChildren("*", "Label", true, false).Count);
+            }
+            picker.EmitSignal(OptionButton.SignalName.ItemSelected, 0);
+            scene._Process(0);
+            Assert.Equal(palette.GetCombinedMinimumSize().Y, scroll.CustomMinimumSize.Y, 3);
+            Assert.True(scroll.CustomMinimumSize.Y < contentHeight);
         }
         finally { scene.Free(); }
     }

@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "status": "research-reference-not-runtime-configuration",
+  "collectedOn": "2026-09-27",
+  "provenance": {
+    "project": "OpenTIM",
+    "credit": "OpenTIM contributors; repository history identifies Danny Spencer (nukep)",
+    "repository": "https://github.com/mrfixit2001/OpenTIM",
+    "commit": "83fac1af87651fb6bcb128c9470fad236133e3c8",
+    "sourceLicense": "GPL-3.0; no upstream implementation code included here",
+    "edition": "Windows The Even More! Incredible Machine (TEMIM.EXE), as identified by the upstream reverse-engineering notes",
+    "executableSha256": "03d56a132ff7c987488c6d28cc6ba9c4a28b6f9d085c53a3c5a0bfdd14e49e35",
+    "notesUrl": "https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651fb6bcb128c9470fad236133e3c8/reverse-engineering/README.md",
+    "atmosphereUrl": "https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651fb6bcb128c9470fad236133e3c8/src/atmosphere.rs",
+    "partDefinitionsUrl": "https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651fb6bcb128c9470fad236133e3c8/src/parts/mod.rs",
+    "evidenceType": "Selected numerical facts transcribed from published reverse-engineering findings; acceleration fixture author reports original TIMWIN memory inspection",
+    "independentlyReproduced": false
+  },
+  "units": {
+    "gravity": "original environment setting; not metres per second squared",
+    "airPressure": "original environment setting; not pascals or our Pressure multiplier",
+    "density": "original internal parameter; SI conversion unknown",
+    "acceleration": "original signed internal increment; positive downward in referenced implementation",
+    "terminalVelocity": "original internal component limit; time/length conversion unverified",
+    "mass": "original internal parameter; relative ratios may be compared without an absolute scale",
+    "bounciness": "original internal material parameter; not directly a rebound-height ratio",
+    "friction": "original internal material parameter; not our multiplicative contact factor"
+  },
+  "partParameters": [
+    {
+      "part": "bowling",
+      "density": 2832,
+      "mass": 200,
+      "bounciness": 128,
+      "friction": 16,
+      "spriteSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "part": "ball",
+      "density": 1322,
+      "mass": 20,
+      "bounciness": 192,
+      "friction": 16,
+      "spriteSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "part": "tennis",
+      "density": 1322,
+      "mass": 5,
+      "bounciness": 192,
+      "friction": 16,
+      "spriteSize": [
+        15,
+        15
+      ]
+    },
+    {
+      "part": "balloon",
+      "density": 9,
+      "mass": 1,
+      "bounciness": 64,
+      "friction": 32,
+      "spriteSize": [
+        32,
+        48
+      ]
+    }
+  ],
+  "atmosphereFixtures": [
+    {
+      "gravity": 272,
+      "airPressure": 67,
+      "terminalVelocity": 9695,
+      "samples": [
+        {
+          "density": 9,
+          "acceleration": -198
+        },
+        {
+          "density": 1322,
+          "acceleration": 266
+        },
+        {
+          "density": 2832,
+          "acceleration": 269
+        }
+      ]
+    },
+    {
+      "gravity": 272,
+      "airPressure": 0,
+      "terminalVelocity": 9728,
+      "samples": [
+        {
+          "density": 0,
+          "acceleration": 0
+        },
+        {
+          "density": 9,
+          "acceleration": 272
+        },
+        {
+          "density": 1322,
+          "acceleration": 272
+        },
+        {
+          "density": 2832,
+          "acceleration": 272
+        }
+      ]
+    },
+    {
+      "gravity": 0,
+      "airPressure": 67,
+      "terminalVelocity": 9695,
+      "samples": [
+        {
+          "density": 9,
+          "acceleration": -1
+        },
+        {
+          "density": 1322,
+          "acceleration": 1
+        },
+        {
+          "density": 2832,
+          "acceleration": 1
+        }
+      ]
+    },
+    {
+      "gravity": 272,
+      "airPressure": 128,
+      "terminalVelocity": 7680,
+      "samples": [
+        {
+          "density": 9,
+          "acceleration": -271
+        },
+        {
+          "density": 1322,
+          "acceleration": -97
+        },
+        {
+          "density": 2832,
+          "acceleration": 76
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "These are upstream-reported memory fixtures and parameters, not trajectories measured in this workspace.",
+    "Do not assume TIM2/3, original DOS TIM, and Windows TEMIM use identical values or update rules.",
+    "Sprite dimensions are not proof of exact collision bounds.",
+    "OpenTIM is explicitly in progress and may contain reconstruction errors or VANILLAFIX changes.",
+    "Do not use these findings to silently change campaign physics or assistance.",
+    "Original executable timing, collision response, fixed-point scaling, and native/browser compatibility still require independent validation."
+  ]
+}

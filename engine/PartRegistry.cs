@@ -27,10 +27,12 @@ public sealed class PartRegistry
     {
         if (!Definitions.TryGetValue(specification.Kind, out var definition))
             throw new ArgumentException("Unknown part: " + specification.Kind);
+        foreach (var key in specification.Properties.Keys)
+            if (!definition.Parameters.ContainsKey(key))
+                throw new ArgumentException($"Unsupported property '{key}' on part '{specification.Kind}'.");
         var part = definition.Scene.Instantiate<MachinePart>();
         part.Definition = definition;
-        part.Configure(specification);
-        return part;
+        try { part.Configure(specification); return part; }
+        catch { part.Free(); throw; }
     }
 }
-

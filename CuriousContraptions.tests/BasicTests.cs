@@ -70,14 +70,14 @@ public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
 
 
     [Fact]
-    public void CampaignContainsFortyLegalNonTrivialPuzzles()
+    public void CampaignContainsTheAuthoredExpansionStageAndLegalNonTrivialPuzzles()
     {
         var world = CreateWorld();
         try
         {
             var puzzles = Puzzles();
-            Assert.Equal(40, puzzles.Count);
-            Assert.Equal(40, puzzles.Select(p => p.Id).Distinct().Count());
+            Assert.Equal(52, puzzles.Count); // Expansion stage; the final target remains 75.
+            Assert.Equal(puzzles.Count, puzzles.Select(p => p.Id).Distinct().Count());
             foreach (var puzzle in puzzles)
             {
                 Assert.NotEmpty(puzzle.Title);
@@ -99,8 +99,7 @@ public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
                 world.LoadMachine(data);
                 foreach (var link in data.Connections)
                 {
-                    Assert.True(world.FindPart(link.From)?.CanSendPower, puzzle.Id + ": invalid source");
-                    Assert.True(world.FindPart(link.To)?.CanReceivePower, puzzle.Id + ": invalid target");
+                    Assert.True(world.IsValidConnection(link), puzzle.Id + ": invalid typed sockets");
                 }
                 world.LoadMachine(puzzle.CreateMachine());
                 world.Start();
@@ -145,8 +144,8 @@ public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
                 world.LoadMachine(Solution(puzzle));
                 world.Start();
                 for (var i = 0; i < 3600 && world.Running; i++) world.Step();
-                var body = world.Bodies[0];
-                output.WriteLine($"{puzzle.Id} precision={precision}: won={world.Won}; ticks={world.Ticks}; ball={body.Position}; events={string.Join(",", world.Events.Keys)}");
+                var body = world.Bodies.FirstOrDefault();
+                output.WriteLine($"{puzzle.Id} precision={precision}: won={world.Won}; ticks={world.Ticks}; ball={body?.Position}; events={string.Join(",", world.Events.Keys)}");
                 if (!world.Won) failures.Add(puzzle.Id);
             }
             Assert.True(failures.Count == 0, "Unsolved: " + string.Join(", ", failures));
@@ -247,11 +246,11 @@ public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
                     new() { Id = "required", Kind = "ball", Position = [4, 2, 0] },
                     new() { Id = "receiver", Kind = "basket", Position = [0, .8f, 0] }
                 ],
-                Goals = [new() { Type = "captured", Target = "receiver", Body = "required" }]
+                Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "required" }]
             });
             world.Start();
             for (var tick = 0; tick < 600; tick++) world.Step();
-            Assert.Contains("captured:receiver:decoy", world.Events.Keys);
+            Assert.Contains(new MachineEvent(MachineEventKind.Captured, "receiver", "decoy"), world.Events.Keys);
             Assert.False(world.Won);
         }
         finally { world.Free(); }

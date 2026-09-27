@@ -20,7 +20,7 @@ public partial class Workshop
     private PlacementShadows _placementShadows = null!;
     private RotationGizmo _rotationGizmo = null!;
     private bool _gizmoUndoPending;
-    private Button _moveModeButton = null!, _rotateModeButton = null!;
+    private Button _moveModeButton = null!, _rotateModeButton = null!, _resizeModeButton = null!;
 
     private void MakeGuidance()
     {
@@ -85,6 +85,16 @@ public partial class Workshop
         _rotateModeButton.ButtonPressed = true;
         actions.AddChild(_moveModeButton);
         actions.AddChild(_rotateModeButton);
+        _resizeModeButton = Button("Resize mode", () =>
+        {
+            if (_selected is not WallPart { Locked: false }) return;
+            EndGizmo(true);
+            _dragging = _lifting = false;
+            _rotationGizmo.SetResizeMode();
+        });
+        _resizeModeButton.ToggleMode = true;
+        _resizeModeButton.Visible = false;
+        actions.AddChild(_resizeModeButton);
         var lift = Button("↕ Lift", () => { });
         lift.TooltipText = "";
         lift.GuiInput += input =>
@@ -204,13 +214,13 @@ public partial class Workshop
         _layers.Disabled = _inRun;
         _layerDepth.Editable = !_inRun;
         _buildHelp.Text = _inRun ? "Watch your machine work" :
-            _buildView ? "Front view · drag up/down or sideways" : "WASD moves the camera · drag rings to rotate";
+            _buildView ? "Front view · drag up/down or sideways" : "WASD moves · Q/E turns the camera · drag rings to rotate parts";
         foreach (var part in World.Parts)
         {
             var fade = !_inRun && _buildView && Mathf.Abs(part.Position.Z - _depth) > .26f;
             foreach (var mesh in part.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
                 mesh.Transparency = fade ? .75f : 0;
-            part.SetSelected(part == _selected || (_linkSource != null && part != _linkSource && part.CanReceivePower));
+            part.SetSelected(part == _selected || (_linkSource != null && part != _linkSource && World.SuggestedConnection(_linkSource, part) != null));
         }
     }
 
@@ -248,12 +258,17 @@ public partial class Workshop
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool.Length > 0 || _linkSource != null);
         _removeButton.Visible = _preview == null && _selected is { Locked: false };
-        _connectButton.Visible = _preview == null && _selected is { CanSendPower: true };
-        _partTools.Visible = !_inRun && (target is { Locked: false } || target is { CanSendPower: true }) && !_rotationGizmo.Dragging && !_optionsPanel.Visible;
+        _connectButton.Visible = _preview == null && _selected is { HasOutputSocket: true };
+        _partTools.Visible = !_inRun && (target is { Locked: false } || target is { HasOutputSocket: true }) && !_rotationGizmo.Dragging && !_optionsPanel.Visible;
         _rotationGizmo.Follow(_selected, !_inRun && _tool.Length == 0 && _linkSource == null, _camera);
         _placementShadows.Follow(World.Parts, _preview, _selected, !_inRun);
         _detail.Visible = target != null;
         _time.Visible = _inRun;
+        _resizeModeButton.Visible = _preview == null && _selected is WallPart { Locked: false };
+        _resizeModeButton.ButtonPressed = _rotationGizmo.ResizeMode;
+        _moveModeButton.ButtonPressed = _rotationGizmo.MoveMode;
+        _rotateModeButton.ButtonPressed = !_rotationGizmo.MoveMode && !_rotationGizmo.ResizeMode;
+        ResizePartsToolbox();
         TracePlaytestUi();
         if (_preview == null || _lifting || GetViewport().GuiGetHoveredControl() != null) return;
         var point = WorkPoint(GetViewport().GetMousePosition(), _buildView ? _depth : _placementHeight);
@@ -309,13 +324,29 @@ public partial class Workshop
     {
         if (_cameraKeys.Count == 0 || _rotationGizmo.Dragging || _dragging || _lifting ||
             GetViewport().GuiGetFocusOwner() is LineEdit or TextEdit) return;
+        var step = Mathf.Clamp(delta, 0, .1f);
+        var turn = (_cameraKeys.Contains(Key.Q) ? 1 : 0) - (_cameraKeys.Contains(Key.E) ? 1 : 0);
         var direction = new Vector2(
             (_cameraKeys.Contains(Key.D) ? 1 : 0) - (_cameraKeys.Contains(Key.A) ? 1 : 0),
             (_cameraKeys.Contains(Key.W) ? 1 : 0) - (_cameraKeys.Contains(Key.S) ? 1 : 0));
-        if (direction == Vector2.Zero) return;
-        direction = direction.Normalized();
-        var offset = (_camera.GlobalBasis.X * direction.X + _camera.GlobalBasis.Y * direction.Y) *
-                     (_zoom * .4f * Mathf.Min(delta, .1f));
+        if (turn == 0 && direction == Vector2.Zero) return;
+        if (turn != 0)
+        {
+            // Match the existing orbit controls; Q looks left and E looks right.
+            _azimuth = Mathf.Wrap(_azimuth + turn * 1.2f * step, -Mathf.Pi, Mathf.Pi);
+            if (_buildView)
+            {
+                _buildView = false;
+                _elevation = Mathf.Max(.35f, _elevation);
+                RefreshLayerAppearance();
+            }
+        }
+        // FPS-style movement stays on the ground plane, relative to the current
+        // heading. W goes forward rather than raising the camera along screen-up.
+        var right = new Vector3(Mathf.Cos(_azimuth), 0, -Mathf.Sin(_azimuth));
+        var forward = new Vector3(-Mathf.Sin(_azimuth), 0, -Mathf.Cos(_azimuth));
+        direction = direction.Normalized(); // Diagonals must not move faster.
+        var offset = (right * direction.X + forward * direction.Y) * (_zoom * .4f * step);
         _cameraPan = (_cameraPan + offset).Clamp(Vector3.One * -12, Vector3.One * 12);
         UpdateCamera();
     }

@@ -14,6 +14,19 @@ public class ConveyorTests(HeadlessFixture godot)
         return world;
     }
 
+    private static void AddDrive(MachineWorld world, MachinePart? contact = null)
+    {
+        var battery = world.AddPart(new() { Id = "battery", Kind = "battery", Position = [-5, .5f, -3] });
+        var motor = world.AddPart(new() { Id = "motor", Kind = "motor", Position = [-3, .5f, -3] });
+        if (contact == null) Assert.True(world.Connect(battery, motor));
+        else
+        {
+            Assert.True(world.Connect(battery, contact));
+            Assert.True(world.Connect(contact, motor));
+        }
+        Assert.True(world.Connect(motor, world.FindPart("belt")!));
+    }
+
     [Theory]
     [InlineData(0f)]
     [InlineData(90f)]
@@ -32,16 +45,17 @@ public class ConveyorTests(HeadlessFixture godot)
                     new() { Id = "belt", Kind = "conveyor", Position = [0, 1, 0], Rotation = [0, yaw, 0] }
                 ]
             });
+            AddDrive(world, world.FindPart("switch"));
             world.Start();
             for (var tick = 0; tick < 180; tick++) world.Step();
-            Assert.Contains("transported:belt:ball", world.Events.Keys);
+            Assert.Contains(new MachineEvent(MachineEventKind.Transported, "belt", "ball"), world.Events.Keys);
             Assert.True((world.FindPart("ball")!.Position - start).Dot(direction) > 1);
         }
         finally { world.Free(); }
     }
 
     [Fact]
-    public void UnpoweredBeltWaitsForActivation()
+    public void UnpoweredBeltWaitsForSwitchedMotorDrive()
     {
         var world = World();
         try
@@ -51,18 +65,18 @@ public class ConveyorTests(HeadlessFixture godot)
                 Parts =
                 [
                     new() { Id = "ball", Kind = "ball", Position = [-.8f, 2.5f, 0] },
-                    new() { Id = "belt", Kind = "conveyor", Position = [0, 1, 0], Properties = new() { ["powered"] = 0 } },
+                    new() { Id = "belt", Kind = "conveyor", Position = [0, 1, 0] },
                     new() { Id = "switch", Kind = "switch", Position = [5, 1, 0] }
-                ],
-                Connections = [new() { From = "switch", To = "belt" }]
+                ]
             });
+            AddDrive(world, world.FindPart("switch"));
             world.Start();
             for (var tick = 0; tick < 180; tick++) world.Step();
             Assert.Equal(-.8f, world.FindPart("ball")!.Position.X, 3);
-            Assert.DoesNotContain("transported:belt:ball", world.Events.Keys);
+            Assert.DoesNotContain(new MachineEvent(MachineEventKind.Transported, "belt", "ball"), world.Events.Keys);
             world.Activate(world.FindPart("switch")!);
             for (var tick = 0; tick < 180; tick++) world.Step();
-            Assert.Contains("transported:belt:ball", world.Events.Keys);
+            Assert.Contains(new MachineEvent(MachineEventKind.Transported, "belt", "ball"), world.Events.Keys);
             Assert.True(world.FindPart("ball")!.Position.X > .5f);
         }
         finally { world.Free(); }
@@ -82,12 +96,12 @@ public class ConveyorTests(HeadlessFixture godot)
                     new() { Id = "belt", Kind = "conveyor", Position = [0, 1, 0] }
                 ]
             });
+            AddDrive(world, world.FindPart("switch"));
             world.Start();
             for (var tick = 0; tick < 120; tick++) world.Step();
-            Assert.DoesNotContain("transported:belt:ball", world.Events.Keys);
+            Assert.DoesNotContain(new MachineEvent(MachineEventKind.Transported, "belt", "ball"), world.Events.Keys);
             Assert.Equal(0, world.FindPart("ball")!.Position.X);
         }
         finally { world.Free(); }
     }
 }
-

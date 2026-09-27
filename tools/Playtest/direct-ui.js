@@ -4,26 +4,69 @@
 // This adapter never evaluates game code, edits storage, loads saves, sets transforms,
 // uses numeric placement menus, invokes game methods, or synthesizes success.
 async function directUiAttempt(page, attempt) {
-    if (!Number.isInteger(attempt.level) || attempt.level < 1 || attempt.level > 40)
-        throw new Error("Expected campaign level 1..40");
+    if (!Number.isInteger(attempt.level) || attempt.level < 1 || attempt.level > 75)
+        throw new Error("Expected a campaign level in the planned range 1..75");
     if (![0, 0.45, 1].includes(attempt.precision))
         throw new Error("Use Forgiving, Balanced or Precise");
+    for (const part of attempt.parts ?? []) {
+        if (part.dimensions == null) continue;
+        if (part.kind !== "wall" || !Array.isArray(part.dimensions) || part.dimensions.length !== 3 ||
+            part.dimensions.some((n, axis) => !Number.isFinite(n) ||
+                n < [.4,.4,.12][axis] || n > [8,6,2][axis]))
+            throw new Error("Wall dimensions must be three finite lengths within the wall limits");
+    }
+    for (const link of attempt.connections ?? []) {
+        const activation = link.type === "activation" && link.from_port === "activation_out" &&
+            link.to_port === "activation_in";
+        const motorSupply = link.type === "electrical" && link.from_port === "supply" &&
+            link.to_port === "power_in";
+        const mechanical = link.type === "mechanical" && link.from_port === "drive" &&
+            link.to_port === "drive_in";
+        const rope = link.type === "rope" && link.from_port === "tie" && link.to_port === "tie" &&
+            Number.isFinite(link.rope_length) && link.rope_length >= .05 && link.rope_length <= 200;
+        if ((link.type !== "rope" && link.rope_length != null) ||
+            (!activation && !motorSupply && !mechanical && !rope))
+            throw new Error("UI driver requires explicit supported connection sockets");
+    }
     const evidence = { caseId: attempt.caseId, level: attempt.level, precision: attempt.precision,
         method: "palette-and-3d-handles", recipe: attempt, actions: [], frames: [], errors: [] };
     if (!/^[a-zA-Z0-9_-]+$/.test(attempt.caseId)) throw new Error("Invalid case ID");
-    let ui, run, outcome, reset;
+    let ui, run, outcome, reset, observerFailure;
+    let phase = "building";
+    evidence.lifecycle = [];
+    const checkObserver = () => {
+        if (observerFailure) throw new Error(observerFailure);
+    };
     const onConsole = message => {
         const text = message.text();
-        if (text.startsWith("CCUI ")) ui = JSON.parse(text.slice(5));
-        if (text.startsWith("CCRUN ")) run = JSON.parse(text.slice(6));
-        if (text.startsWith("CCFRAME ")) evidence.frames.push(JSON.parse(text.slice(8)));
-        if (text.startsWith("CCRESET ")) reset = JSON.parse(text.slice(8));
-        if (text.startsWith("CCRESULT ")) outcome = JSON.parse(text.slice(9));
         if (message.type() === "error") evidence.errors.push(text);
+        try {
+            if (text.startsWith("CCUI ")) ui = JSON.parse(text.slice(5));
+            if (text.startsWith("CCFRAME ")) evidence.frames.push(JSON.parse(text.slice(8)));
+            for (const [prefix, kind] of [["CCRUN ", "run"], ["CCRESULT ", "result"], ["CCRESET ", "reset"]]) {
+                if (!text.startsWith(prefix)) continue;
+                const value = JSON.parse(text.slice(prefix.length));
+                evidence.lifecycle.push({ kind, phase, value });
+                const expected = kind === "run" ? phase === "running" && !run :
+                    kind === "result" ? phase === "running" && run && !outcome :
+                    phase === "resetting" && outcome && !reset;
+                if (!expected) {
+                    observerFailure ??= "Unexpected " + kind + " event during " + phase;
+                    continue; // Preserve the first run rather than overwriting its identity.
+                }
+                if (kind === "run") run = value;
+                if (kind === "result") outcome = value;
+                if (kind === "reset") reset = value;
+            }
+        } catch (error) {
+            observerFailure ??= "Invalid diagnostic event: " + error.message;
+        }
     };
     const waitFor = async (predicate, description, timeout = 12000) => {
         const end = Date.now() + timeout;
-        while (!predicate()) {
+        while (true) {
+            checkObserver();
+            if (predicate()) return;
             if (Date.now() >= end) throw new Error("Timed out: " + description);
             await page.waitForTimeout(40);
         }
@@ -94,13 +137,13 @@ async function directUiAttempt(page, attempt) {
         await waitFor(() => ui?.buttons.length > 0, "rendered workshop");
         await page.waitForTimeout(200);
         await click([700,47], "puzzle selector");
-        await page.keyboard.press("Home");
+        await page.keyboard.press("Home", { delay: 70 });
         // The popup initially has no keyboard-focused item; first Down focuses row 1.
         for (let i=0;i<attempt.level;i++) {
-            await page.keyboard.press("ArrowDown");
+            await page.keyboard.press("ArrowDown", { delay: 70 });
             await page.waitForTimeout(45);
         }
-        await page.keyboard.press("Enter");
+        await page.keyboard.press("Enter", { delay: 70 });
         await waitFor(() => ui.level === attempt.level, "requested puzzle");
         if (attempt.precision !== 0.45) {
             await action("Menu");
@@ -139,6 +182,27 @@ async function directUiAttempt(page, attempt) {
             // Godot uses Y-X-Z Euler composition: apply world Z, X, then Y.
             for (const axis of [2,0,1]) await rotate(axis,rotation[axis]+error[axis]);
         }
+        for (const part of attempt.parts ?? []) {
+            if (!part.dimensions) continue;
+            const id = placed.get(part.slot);
+            if (ui.selected !== id) await click(ui.parts.find(p => p.id === id).screen, "select wall to resize");
+            await action("Resize mode");
+            await waitFor(() => ui.selected === id && ui.mode === "resize" && ui.dimensions?.length === 3, "wall resize handles");
+            for (const axis of [0,1,2]) {
+                // Read rendered handle geometry and drag; never set game dimensions.
+                for (let pass = 0; pass < 3; pass++) {
+                    const difference = part.dimensions[axis] - ui.dimensions[axis];
+                    if (Math.abs(difference) < .03) break;
+                    const h = ui.handles[axis];
+                    const points = Array.from({length:17}, (_,i) => [
+                        h.screen[0] + h.unit[0] * difference * .5 * i/16,
+                        h.screen[1] + h.unit[1] * difference * .5 * i/16]);
+                    await dragPath(points, "resize local axis " + axis + " toward " + part.dimensions[axis]);
+                }
+                if (Math.abs(part.dimensions[axis] - ui.dimensions[axis]) >= .03)
+                    throw new Error("Wall resize did not reach requested dimension on axis " + axis);
+            }
+        }
         for (const link of attempt.connections ?? []) {
             await page.keyboard.press("Escape");
             await page.waitForTimeout(120);
@@ -150,6 +214,7 @@ async function directUiAttempt(page, attempt) {
             await action("Connect");
             await click(target.screen, "connect to "+to);
         }
+        phase = "running";
         await action("▶  Run machine");
         await waitFor(() => run, "run start diagnostics");
         if (run.level !== attempt.level || Math.abs(run.precision-attempt.precision)>0.001)
@@ -162,14 +227,28 @@ async function directUiAttempt(page, attempt) {
         evidence.ui = ui;
         evidence.outcomeScreenshot = ".playwright-mcp/" + attempt.caseId + "-outcome.png";
         await page.screenshot({ path: evidence.outcomeScreenshot });
+        checkObserver();
+        phase = "resetting";
         await action(outcome.outcome === "won" ? "↶  Build again" : "■  Back to building");
         await waitFor(() => reset && ui && !ui.running, "reset to building");
         evidence.reset = reset;
         evidence.resetUi = ui;
         return evidence;
+    } catch (error) {
+        evidence.failure = { phase, message: error.message };
+        evidence.run = run;
+        evidence.outcome = outcome;
+        evidence.reset = reset;
+        evidence.ui = ui;
+        evidence.failureScreenshot = ".playwright-mcp/" + attempt.caseId + "-failure.png";
+        try { await page.screenshot({ path: evidence.failureScreenshot }); }
+        catch (captureError) { evidence.errors.push("Failure screenshot: " + captureError.message); }
+        return evidence; // Callers must persist failures and stop the batch.
     } finally {
-        await page.mouse.up();
-        await page.keyboard.up("Shift");
         page.off("console", onConsole);
+        try { await page.mouse.up(); }
+        catch (error) { evidence.errors.push("Release mouse: " + error.message); }
+        try { await page.keyboard.up("Shift"); }
+        catch (error) { evidence.errors.push("Release Shift: " + error.message); }
     }
 }

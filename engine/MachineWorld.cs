@@ -24,7 +24,8 @@ public partial class MachineWorld : Node3D
     public List<MachinePart> Bodies { get; } = new();
     public List<ConnectionSpec> Connections { get; private set; } = new();
     public List<GoalSpec> Objectives { get; private set; } = new();
-    public SortedDictionary<string, int> Events { get; } = new(StringComparer.Ordinal);
+    public List<RopePath> Ropes { get; private set; } = new();
+    public SortedDictionary<MachineEvent, int> Events { get; } = new();
     private List<PartSpec> _placementTargets = new();
     private List<PartAssistance.Correction> _corrections = new();
     private float _assistanceTime;
@@ -42,6 +43,7 @@ public partial class MachineWorld : Node3D
     public void LoadMachine(MachineData input)
     {
         var data = MachineCodec.Clone(input);
+        ValidateMachine(data);
         Running = Won = false;
         Ticks = 0;
         Events.Clear();
@@ -52,10 +54,32 @@ public partial class MachineWorld : Node3D
         Parts.Clear();
         Bodies.Clear();
         Connections = data.Connections;
+        Ropes.Clear();
         Objectives = data.Goals;
         Gravity = data.Gravity;
         Pressure = data.Pressure;
         foreach (var entry in data.Parts) AddPart(entry);
+    }
+
+    public void ValidateMachine(MachineData data)
+    {
+        // Reject unsupported mechanical graphs before replacing the current machine.
+        var candidates = new List<MachinePart>();
+        try
+        {
+            foreach (var entry in data.Parts) candidates.Add(Registry.Create(entry));
+            foreach (var link in data.Connections)
+            {
+                var source = candidates.SingleOrDefault(p => p.Uid == link.From);
+                var target = candidates.SingleOrDefault(p => p.Uid == link.To);
+                if (source == null || target == null ||
+                    !ConnectionRules.TryResolve(link, source.ConnectionPorts, target.ConnectionPorts, out _, out _))
+                    throw new ArgumentException("Invalid connection endpoints or socket type.");
+            }
+            MechanicalNetwork.Validate(candidates, data.Connections);
+            RopeNetwork.Build(candidates, data.Connections);
+        }
+        finally { foreach (var candidate in candidates) candidate.Free(); }
     }
 
     public MachinePart AddPart(PartSpec entry)
@@ -88,6 +112,8 @@ public partial class MachineWorld : Node3D
     });
     public void Start()
     {
+        MechanicalNetwork.Validate(Parts, Connections);
+        Ropes = RopeNetwork.Build(Parts, Connections);
         Initial = Snapshot();
         _assistanceTime = 0;
         _corrections = PartAssistance.Prepare(Parts, _placementTargets, Precision);
@@ -103,15 +129,73 @@ public partial class MachineWorld : Node3D
         Initial = null;
     }
     public MachinePart? FindPart(string id) => Parts.Find(p => p.Uid == id);
+    public ConnectionSpec? SuggestedConnection(MachinePart source, MachinePart target)
+    {
+        if (source == target || !Parts.Contains(source) || !Parts.Contains(target)) return null;
+        ConnectionSpec? candidate = null;
+        foreach (var output in source.ConnectionPorts)
+        foreach (var input in target.ConnectionPorts)
+        {
+            var link = new ConnectionSpec { From = source.Uid, To = target.Uid,
+                FromPort = output.Id, ToPort = input.Id, Type = output.Domain,
+                RopeLength = output.Domain == ConnectionDomain.Rope
+                    ? (source.Transform * output.LocalPosition).DistanceTo(target.Transform * input.LocalPosition) : null };
+            if (!ConnectionRules.TryResolve(link, source.ConnectionPorts, target.ConnectionPorts, out _, out _)) continue;
+            if (link.Type == ConnectionDomain.Mechanical &&
+                !MechanicalNetwork.CanConnect(Parts, Connections.Append(link))) continue;
+            if (link.Type == ConnectionDomain.Rope &&
+                !RopeNetwork.CanConnect(Parts, Connections.Append(link))) continue;
+            if (candidate != null) return null; // Ambiguous sockets need explicit selection.
+            candidate = link;
+        }
+        return candidate;
+    }
     public bool Connect(MachinePart source, MachinePart target)
     {
-        if (!source.CanSendPower || !target.CanReceivePower || source == target) return false;
-        if (Connections.Any(c => c.From == source.Uid && c.To == target.Uid)) return false;
-        Connections.Add(new() { From = source.Uid, To = target.Uid });
+        var link = SuggestedConnection(source, target);
+        if (link == null) return false;
+        var output = source.ConnectionPorts.Single(p => p.Id == link.FromPort);
+        return Connect(source, link.FromPort!, target, link.ToPort!, output.Domain);
+    }
+
+    public bool Connect(MachinePart source, string fromPort, MachinePart target,
+        string toPort, ConnectionDomain domain)
+    {
+        if (Running || !Parts.Contains(source) || !Parts.Contains(target)) return false;
+        var link = new ConnectionSpec
+        {
+            From = source.Uid, To = target.Uid, Type = domain,
+            FromPort = fromPort, ToPort = toPort
+        };
+        if (domain == ConnectionDomain.Rope)
+        {
+            var output = source.ConnectionPorts.SingleOrDefault(p => p.Id == fromPort);
+            var input = target.ConnectionPorts.SingleOrDefault(p => p.Id == toPort);
+            link.RopeLength = (source.Transform * output.LocalPosition).DistanceTo(target.Transform * input.LocalPosition);
+        }
+        if (!IsValidConnection(link)) return false;
+        if (Connections.Any(c => c.From == link.From && c.To == link.To
+            && c.Type == link.Type && ConnectionRules.TryResolve(c, source.ConnectionPorts,
+                target.ConnectionPorts, out var a, out var b)
+            && a.Id == fromPort && b.Id == toPort)) return false;
+        if (domain == ConnectionDomain.Mechanical &&
+            !MechanicalNetwork.CanConnect(Parts, Connections.Append(link))) return false;
+        if (domain == ConnectionDomain.Rope &&
+            !RopeNetwork.CanConnect(Parts, Connections.Append(link))) return false;
+        Connections.Add(link);
         return true;
+    }
+
+    public bool IsValidConnection(ConnectionSpec link)
+    {
+        var source = FindPart(link.From);
+        var target = FindPart(link.To);
+        return source != null && target != null
+            && ConnectionRules.TryResolve(link, source.ConnectionPorts, target.ConnectionPorts, out _, out _);
     }
     public void Activate(MachinePart source)
     {
+        if (!Parts.Contains(source)) return;
         var pending = new Queue<string>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
         pending.Enqueue(source.Uid);
@@ -121,21 +205,28 @@ public partial class MachineWorld : Node3D
             var part = FindPart(id);
             if (part == null) continue;
             part.Active = true;
-            Events.TryAdd("activated:" + id, Ticks);
+            Events.TryAdd(new(MachineEventKind.Activated, id), Ticks);
             foreach (var link in Connections)
-                if (link.From == id) pending.Enqueue(link.To);
+                if (link.From == id && link.Type == ConnectionDomain.Activation && IsValidConnection(link))
+                    pending.Enqueue(link.To);
         }
     }
 
     public void Step()
     {
         if (!Running) return;
+        LightNetwork.Solve(this);
+        ElectricalNetwork.Solve(this);
+        Ropes = RopeNetwork.Build(Parts, Connections);
         const float delta = Tick / Substeps;
         for (var iteration = 0; iteration < Substeps; iteration++)
         {
             _assistanceTime += delta;
             foreach (var correction in _corrections) correction.Apply(_assistanceTime);
             foreach (var part in Parts) part.BeforeStep(this, delta);
+            MechanicalNetwork.Solve(this);
+            foreach (var part in Parts) part.MechanicalStep(this, delta);
+            var guideDistances = Ropes.Select(r => r.GuideDistances()).ToArray();
             foreach (var body in Bodies)
             {
                 if (!body.Visible) continue;
@@ -143,16 +234,22 @@ public partial class MachineWorld : Node3D
                 body.Velocity += acceleration * delta;
                 body.Velocity *= Mathf.Max(0, 1 - body.Drag * Pressure * delta);
                 body.Velocity = body.Velocity.LimitLength(40);
+            }
+            foreach (var rope in Ropes) rope.SolveVelocity(delta);
+            foreach (var body in Bodies)
+            {
+                if (!body.Visible) continue;
                 body.Position += body.Velocity * delta;
                 foreach (var obstacle in Parts)
                 {
                     if (obstacle == body || !obstacle.Visible) continue;
                     foreach (var box in obstacle.Boxes) CollideBox(body, obstacle.Transform, box, obstacle.SurfaceBounce, obstacle);
+                    foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
                 }
                 if (body.Position.Y < -5 || body.Position.Y > 20 || Mathf.Abs(body.Position.X) > 18 || Mathf.Abs(body.Position.Z) > 12)
                 {
                     body.Visible = false;
-                    Events.TryAdd("escaped:" + body.Uid, Ticks);
+                    Events.TryAdd(new(MachineEventKind.Escaped, body.Uid), Ticks);
                 }
             }
             for (var i = 0; i < Bodies.Count; i++)
@@ -163,6 +260,30 @@ public partial class MachineWorld : Node3D
                 CollideBox(body, Transform3D.Identity, Workbench.Deck, 1);
                 CollideBox(body, Transform3D.Identity, Workbench.Base, 1);
             }
+            // Alternate rope projection and contacts so a tether does not pull a load through solids.
+            // Only rope loads need this extra contact pass; ordinary scenes keep their existing solver.
+            var ropeLoads = Ropes.SelectMany(r => r.Sockets)
+                .Where(s => s.Part.RopeAttachment == RopeAttachmentKind.Load).Select(s => s.Part).Distinct().ToArray();
+            for (var pass = 0; pass < 4 && Ropes.Count > 0; pass++)
+            {
+                foreach (var rope in Ropes) rope.SolvePosition();
+                foreach (var body in ropeLoads)
+                {
+                    if (!body.Visible) continue;
+                    foreach (var obstacle in Parts)
+                    {
+                        if (obstacle == body || !obstacle.Visible) continue;
+                        foreach (var box in obstacle.Boxes) CollideBox(body, obstacle.Transform, box, obstacle.SurfaceBounce, obstacle);
+                        foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
+                    }
+                    CollideBox(body, Transform3D.Identity, Workbench.Deck, 1);
+                    CollideBox(body, Transform3D.Identity, Workbench.Base, 1);
+                }
+                for (var i = 0; i < Bodies.Count; i++)
+                    for (var j = i + 1; j < Bodies.Count; j++) CollideSpheres(Bodies[i], Bodies[j]);
+                foreach (var rope in Ropes) rope.SolveVelocity(delta);
+            }
+            for (var i = 0; i < Ropes.Count; i++) Ropes[i].AnimateGuides(guideDistances[i]);
             foreach (var part in Parts) part.AfterStep(this, delta);
             foreach (var body in Bodies)
             {
@@ -208,6 +329,23 @@ public partial class MachineWorld : Node3D
         obstacle?.OnContact(body, -speed, this);
     }
 
+    private void CollideStaticSphere(MachinePart body, MachinePart obstacle, SphereProxy sphere)
+    {
+        var offset = body.Position - obstacle.Transform * sphere.At;
+        var distance = offset.Length();
+        var target = body.Radius + sphere.Radius;
+        if (distance >= target) return;
+        var normal = distance > .00001f ? offset / distance :
+            body.Velocity.LengthSquared() > .00001f ? -body.Velocity.Normalized() : Vector3.Up;
+        body.Position += normal * (target - distance + .00001f);
+        var approach = body.Velocity.Dot(normal);
+        if (approach >= 0) return;
+        body.Velocity -= normal * approach * (1 + body.Bounce * obstacle.SurfaceBounce);
+        var tangent = body.Velocity - normal * body.Velocity.Dot(normal);
+        body.Velocity -= tangent * (Realistic ? .015f : .002f);
+        obstacle.OnContact(body, -approach, this);
+    }
+
     private static void CollideSpheres(MachinePart a, MachinePart b)
     {
         if (!a.Visible || !b.Visible) return;
@@ -226,8 +364,17 @@ public partial class MachineWorld : Node3D
         b.Velocity += normal * impulse / b.Mass;
     }
 
-    private bool GoalsMet() => Objectives.All(goal =>
-        Events.ContainsKey(goal.Type + ":" + goal.Target + (goal.Type == "captured" ? ":" + goal.Body : "")));
+    private bool GoalsMet() => Objectives.All(goal => goal.Type switch
+    {
+        GoalKind.Captured => Events.ContainsKey(new(MachineEventKind.Captured, goal.Target, goal.Body)),
+        GoalKind.Activated => Events.ContainsKey(new(MachineEventKind.Activated, goal.Target)),
+        GoalKind.Powered => Events.ContainsKey(new(MachineEventKind.Powered, goal.Target)),
+        GoalKind.Turned => Events.ContainsKey(new(MachineEventKind.Turned, goal.Target)),
+        GoalKind.PoweredAfter => Events.TryGetValue(new(MachineEventKind.Activated, goal.Body), out var triggerTick)
+            && Events.TryGetValue(new(MachineEventKind.Powered, goal.Target), out var poweredTick)
+            && poweredTick > triggerTick,
+        _ => false
+    });
 
     public string StateSignature()
     {

@@ -59,7 +59,7 @@ public partial class BasketPart : MachinePart
                 _residence[body.Uid] = _residence.GetValueOrDefault(body.Uid) + delta;
                 if (_residence[body.Uid] >= settings.CaptureDwell)
                 {
-                    world.Events.TryAdd("captured:" + Uid + ":" + body.Uid, world.Ticks);
+                    world.Events.TryAdd(new MachineEvent(MachineEventKind.Captured, Uid, body.Uid), world.Ticks);
                     Active = true;
                 }
             }

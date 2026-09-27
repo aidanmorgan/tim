@@ -5,8 +5,8 @@ namespace CuriousContraptions;
 public partial class DominoPart : MachinePart
 {
     private float _topple;
-    public override bool CanSendPower => true;
-    public override bool CanReceivePower => true;
+    public override bool CanSendActivation => true;
+    public override bool CanReceiveActivation => true;
     protected override void Build()
     {
         PickRadius = .6f;

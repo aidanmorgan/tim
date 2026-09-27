@@ -31,15 +31,56 @@ public sealed class PartSpec
     public float[] Rotation { get; set; } = [0, 0, 0];
     public Dictionary<string, float> Properties { get; set; } = new();
 }
+[JsonConverter(typeof(ConnectionDomainJsonConverter))]
+public enum ConnectionDomain { Unknown, Activation, Electrical, Signal, Mechanical, Rope }
+public sealed class ConnectionDomainJsonConverter() :
+    JsonStringEnumConverter<ConnectionDomain>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
+
+public static class WeightParameters
+{
+    public const string Mass = "mass";
+}
+
+// Engine-independent geometry used by authored rope lengths and runtime sockets.
+public static class RopeGeometry
+{
+    public const float PulleyRadius = .4f;
+    public const float PulleySocketDepth = .12f;
+    public static float WeightRadius(float mass) => .32f * MathF.Cbrt(mass);
+    public static float WeightTieHeight(float mass) => WeightRadius(mass) + .08f;
+}
+
+public static class SocketIds
+{
+    public const string ActivationOut = "activation_out";
+    public const string ActivationIn = "activation_in";
+    public const string Supply = "supply";
+    public const string PowerIn = "power_in";
+    public const string Drive = "drive";
+    public const string DriveIn = "drive_in";
+    public const string Tie = "tie";
+}
+
 public sealed class ConnectionSpec
 {
     public string From { get; set; } = "";
     public string To { get; set; } = "";
-    public string Type { get; set; } = "power";
+    public ConnectionDomain Type { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? FromPort { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ToPort { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public float? RopeLength { get; set; }
 }
+[JsonConverter(typeof(GoalKindJsonConverter))]
+public enum GoalKind { Unknown, Captured, Activated, Powered, Turned, PoweredAfter }
+public sealed class GoalKindJsonConverter() :
+    JsonStringEnumConverter<GoalKind>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
+
 public sealed class GoalSpec
 {
-    public string Type { get; set; } = "";
+    public GoalKind Type { get; set; }
     public string Target { get; set; } = "";
     public string Body { get; set; } = "";
 }
@@ -68,15 +109,30 @@ public sealed class PuzzleData
 }
 public sealed class SavedMachine
 {
-    public int Version { get; set; } = 1;
-    public int Level { get; set; }
+    public const int CurrentVersion = 3;
+    public int Version { get; set; } // Absent or older versions are rejected.
+    public string PuzzleId { get; set; } = "";
     public float Precision { get; set; } = .45f;
     public bool Realistic { get; set; }
     public int NextId { get; set; } = 1;
     public MachineData Machine { get; set; } = new();
 }
 
+// Only the current schema is supported; campaign positions are never save identities.
+public static class CampaignProgress
+{
+    public static int ResolveLevel(SavedMachine saved, IReadOnlyList<PuzzleData> puzzles)
+    {
+        if (saved.Version != SavedMachine.CurrentVersion) return -1;
+        if (saved.PuzzleId == "") return puzzles.Count; // Free workshop.
+        for (var i = 0; i < puzzles.Count; i++)
+            if (puzzles[i].Id == saved.PuzzleId) return i;
+        return -1;
+    }
+}
+
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true)]
+[JsonSerializable(typeof(ConnectionDomain))]
 [JsonSerializable(typeof(MachineData))]
 [JsonSerializable(typeof(SavedMachine))]
 [JsonSerializable(typeof(List<PuzzleData>))]

@@ -4,7 +4,7 @@ namespace CuriousContraptions;
 public partial class LampPart : MachinePart
 {
     private MeshInstance3D _bulb = null!;
-    public override bool CanReceivePower => true;
+    public override bool CanReceiveActivation => true;
     protected override void Build()
     {
         PickRadius = .65f;
@@ -21,4 +21,3 @@ public partial class LampPart : MachinePart
         material.Emission = new("#e9b24c");
     }
 }
-

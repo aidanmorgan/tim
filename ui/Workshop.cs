@@ -14,6 +14,7 @@ public partial class Workshop : Node3D
     private Node3D _cables = null!;
     private CanvasLayer _canvas = null!;
     private VBoxContainer _palette = null!;
+    private ScrollContainer _paletteScroll = null!;
     private Label _title = null!, _task = null!, _status = null!, _detail = null!, _state = null!, _precisionText = null!, _depthText = null!, _time = null!, _hint = null!;
     private Button _run = null!, _cancelButton = null!, _removeButton = null!, _connectButton = null!;
     private Control _optionsPanel = null!, _objectivePanel = null!;
@@ -179,11 +180,15 @@ public partial class Workshop : Node3D
         var left = Panel(new(24, 94), new(216, 0));
         _partDockContents = left;
         left.AddChild(Text("PARTS", 11, Muted));
-        var scroll = new ScrollContainer { CustomMinimumSize = new(180, 108) };
-        left.AddChild(scroll);
+        _paletteScroll = new ScrollContainer
+        {
+            Name = "PartsScroll", CustomMinimumSize = new(180, 40),
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled
+        };
+        left.AddChild(_paletteScroll);
         _palette = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         _palette.AddThemeConstantOverride("separation", 7);
-        scroll.AddChild(_palette);
+        _paletteScroll.AddChild(_palette);
         _detail = Paragraph("Choose a part, then click the workbench.", 14, Muted, new(180, 0));
         left.AddChild(_detail);
         _cancelButton = Button("Cancel / deselect", CancelTool);
@@ -274,7 +279,28 @@ public partial class Workshop : Node3D
         _objectivePanel.Position = new(layout.X - 290, 94);
         _mainActions.Position = new(layout.X / 2 - 60, layout.Y - 88);
         _status.Position = new(layout.X / 2 - 240, layout.Y - 32);
+        ResizePartsToolbox();
     }
+
+    private void ResizePartsToolbox()
+    {
+        if (_paletteScroll == null || _partDockContents == null) return;
+        var panel = _partDockContents.GetParent<PanelContainer>();
+        var layoutHeight = GetViewport().GetVisibleRect().Size.Y / _canvas.Transform.Scale.Y;
+        var children = _partDockContents.GetChildren().OfType<Control>().Where(c => c.Visible).ToArray();
+        var chromeHeight = panel.GetThemeStylebox("panel").GetMinimumSize().Y +
+            children.Where(c => c != _paletteScroll).Sum(c => c.GetCombinedMinimumSize().Y) +
+            Mathf.Max(0, children.Length - 1) * _partDockContents.GetThemeConstant("separation");
+        var available = Mathf.Max(40, layoutHeight - panel.Position.Y - 24 - chromeHeight);
+        var height = Mathf.Clamp(_palette.GetCombinedMinimumSize().Y, 40, available);
+        _paletteScroll.CustomMinimumSize = new(180, height);
+        // Containers grow automatically but do not otherwise shrink after changing
+        // from a full inventory to a small puzzle or hiding contextual controls.
+        var targetHeight = height + chromeHeight;
+        if (Mathf.Abs(panel.Size.Y - targetHeight) > .1f)
+            panel.Size = new(panel.Size.X, targetHeight);
+    }
+
     private void LoadLevel(int index)
     {
         CancelTool();
@@ -324,13 +350,25 @@ public partial class Workshop : Node3D
             button.TooltipText = ""; // Description already appears in the drawer when chosen.
             button.Icon = WorkshopIcons.Pictogram(key);
             button.SetMeta("part_kind", key);
-            var row = new HBoxContainer();
-            row.AddChild(button);
-            var name = Text(definition.Title, 14);
+            button.CustomMinimumSize = new(180, 40);
+            button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            button.IconAlignment = HorizontalAlignment.Left;
+            // The single button owns the whole row. Decorative labels ignore
+            // mouse input so the name/count activate the same placement preview.
+            var row = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+            button.AddChild(row);
+            row.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            row.OffsetLeft = 40;
+            row.OffsetRight = -6;
+            var name = Text(definition.Title, 14, button.Disabled ? Muted : Navy);
             name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            name.ClipText = true;
+            name.MouseFilter = Control.MouseFilterEnum.Ignore;
             row.AddChild(name);
-            row.AddChild(Text(_sandbox ? "∞" : remaining.ToString(), 14, Muted));
-            _palette.AddChild(row);
+            var count = Text(_sandbox ? "∞" : remaining.ToString(), 14, Muted);
+            count.MouseFilter = Control.MouseFilterEnum.Ignore;
+            row.AddChild(count);
+            _palette.AddChild(button);
         }
     }
     private int Remaining(string kind) => _inventory.GetValueOrDefault(kind) - World.Parts.Count(p => !p.Locked && p.Definition.Id == kind);
@@ -362,7 +400,7 @@ public partial class Workshop : Node3D
         if (input is InputEventKey panKey)
         {
             var code = panKey.PhysicalKeycode != Key.None ? panKey.PhysicalKeycode : panKey.Keycode;
-            if (code is Key.W or Key.A or Key.S or Key.D)
+            if (code is Key.W or Key.A or Key.S or Key.D or Key.Q or Key.E)
             {
                 if (panKey.Pressed && !panKey.CtrlPressed && !panKey.MetaPressed && !panKey.AltPressed &&
                     GetViewport().GuiGetFocusOwner() is not (LineEdit or TextEdit))
@@ -415,8 +453,7 @@ public partial class Workshop : Node3D
                 if (key.Keycode == Key.Z && (key.CtrlPressed || key.MetaPressed)) Undo();
                 switch (key.Keycode)
                 {
-                    case Key.Q: Rotate(new(0, 0, 5)); break;
-                    case Key.E: Rotate(new(0, 0, -5)); break;
+
                     case Key.Delete: case Key.Backspace: DeleteSelected(); break;
                     case Key.Pageup: ChangeDepth(.5f); break;
                     case Key.Pagedown: ChangeDepth(-.5f); break;
@@ -434,7 +471,7 @@ public partial class Workshop : Node3D
         {
             if (!part.Visible) continue;
             if (_buildView && _linkSource == null && Mathf.Abs(part.Position.Z - _depth) > .26f) continue;
-            if (_linkSource != null && !part.CanReceivePower) continue;
+            if (_linkSource != null && World.SuggestedConnection(_linkSource, part) == null) continue;
             var distance = _camera.UnprojectPosition(part.Position).DistanceTo(screen);
             if (distance >= best) continue;
             best = distance;
@@ -449,7 +486,7 @@ public partial class Workshop : Node3D
             PushUndo();
             _gizmoUndoPending = true;
             _dragging = _lifting = _orbiting = false;
-            _status.Text = _rotationGizmo.MoveMode ? "Drag an arrow. Shift aligns to 0.1; Escape cancels." : "Drag to rotate. Shift snaps; Escape cancels.";
+            _status.Text = _rotationGizmo.ResizeMode ? "Drag a square to stretch. Shift snaps; Escape cancels." : _rotationGizmo.MoveMode ? "Drag an arrow. Shift aligns to 0.1; Escape cancels." : "Drag to rotate. Shift snaps; Escape cancels.";
             return;
         }
         if (_linkSource != null)
@@ -459,7 +496,7 @@ public partial class Workshop : Node3D
             {
                 PushUndo();
                 var connected = World.Connect(_linkSource, target);
-                _status.Text = connected ? _linkSource.Definition.Title + " → " + target.Definition.Title : "Already connected. Choose another powered part or Cancel.";
+                _status.Text = connected ? _linkSource.Definition.Title + " → " + target.Definition.Title : "Cannot connect these sockets. Choose another part or Cancel.";
                 if (connected) _linkSource = null;
                 RefreshLayerAppearance();
                 RefreshCables();
@@ -567,29 +604,45 @@ public partial class Workshop : Node3D
     private void BeginLink()
     {
         if (_inRun) return;
-        if (_selected is { CanSendPower: true })
+        if (_selected is { HasOutputSocket: true })
         {
             _linkSource = _selected;
             _tool = "";
             ClearPreview();
             RefreshLayerAppearance();
-            _status.Text = "Click a highlighted lamp, fan or conveyor to connect. Cancel stops wiring.";
+            _status.Text = "Click a highlighted compatible part to connect. Cancel stops linking.";
         }
-        else _status.Text = "Select a switch first, then choose Connect.";
+        else _status.Text = "Select a part with an output socket, then choose Connect.";
     }
     private void RefreshCables()
     {
         foreach (var child in _cables.GetChildren()) { _cables.RemoveChild(child); child.QueueFree(); }
+        foreach (var rope in RopeNetwork.Build(World.Parts, World.Connections))
+            _cables.AddChild(new RopeVisual { Path = rope });
         foreach (var link in World.Connections)
         {
+            if (link.Type == ConnectionDomain.Rope) continue;
             var source = World.FindPart(link.From);
             var target = World.FindPart(link.To);
             if (source == null || target == null) continue;
-            var a = source.Position + new Vector3(0, 0, .48f);
-            var b = target.Position + new Vector3(0, 0, .48f);
+            if (!ConnectionRules.TryResolve(link, source.ConnectionPorts, target.ConnectionPorts,
+                out var output, out var input)) continue;
+            var a = source.Transform * output.LocalPosition;
+            var b = target.Transform * input.LocalPosition;
+            if (link.Type == ConnectionDomain.Mechanical)
+            {
+                _cables.AddChild(new MechanicalBeltVisual
+                {
+                    World = World, Source = source, Target = target, Output = output, Input = input
+                });
+                continue;
+            }
             var mid = (a + b) * .5f + new Vector3(0, -.5f, 0);
-            PartArt.Line(_cables, a, mid, new("#e8b764"));
-            PartArt.Line(_cables, mid, b, new("#e8b764"));
+            var electrical = link.Type == ConnectionDomain.Electrical;
+            var color = new Color(electrical ? "#293954" : "#e8b764");
+            var width = electrical ? .045f : .025f;
+            PartArt.Line(_cables, a, mid, color, width);
+            PartArt.Line(_cables, mid, b, color, width);
         }
     }
     private void ToggleRun()
@@ -675,7 +728,8 @@ public partial class Workshop : Node3D
         if (_inRun) { _status.Text = "Return to building before saving."; return; }
         using var file = FileAccess.Open("user://workshop.json", FileAccess.ModeFlags.Write);
         if (file == null) { _status.Text = "Storage is unavailable on this device."; return; }
-        var data = new SavedMachine { Level = _currentLevel, Precision = World.Precision, Realistic = World.Realistic, NextId = _nextId, Machine = World.Snapshot() };
+        var data = new SavedMachine { Version = SavedMachine.CurrentVersion, PuzzleId = _sandbox ? "" : _puzzles[_currentLevel].Id,
+            Precision = World.Precision, Realistic = World.Realistic, NextId = _nextId, Machine = World.Snapshot() };
         file.StoreString(JsonSerializer.Serialize(data, MachineJson.Default.SavedMachine));
         _status.Text = "Saved on this device.";
     }
@@ -685,8 +739,10 @@ public partial class Workshop : Node3D
         try
         {
             var data = JsonSerializer.Deserialize(FileAccess.GetFileAsString("user://workshop.json"), MachineJson.Default.SavedMachine);
-            if (data == null || data.Version != 1 || !Validate(data.Machine)) { _status.Text = "This save is not a supported machine."; return; }
-            var level = Math.Clamp(data.Level, 0, _puzzles.Count);
+            if (data == null || !Validate(data.Machine)) { _status.Text = "This save is not a supported machine."; return; }
+            var level = CampaignProgress.ResolveLevel(data, _puzzles);
+            if (level < 0) { _status.Text = "This save refers to an unavailable puzzle or save version."; return; }
+            World.ValidateMachine(data.Machine);
             LoadLevel(level);
             _picker.Select(level);
             World.LoadMachine(data.Machine);
@@ -701,6 +757,7 @@ public partial class Workshop : Node3D
             _status.Text = "Machine restored from this device.";
         }
         catch (JsonException) { _status.Text = "The save file could not be read."; }
+        catch (ArgumentException) { _status.Text = "This machine contains unsupported parts, properties or connections."; }
     }
     private bool Validate(MachineData data)
     {

@@ -1,5 +1,6 @@
 using CuriousContraptions;
 using System.Text.Json;
+using System.Numerics;
 
 // Emits authored campaign data to stdout; never overwrites project files.
 // The first five tutorial definitions are the independent building blocks.
@@ -23,7 +24,7 @@ var domino = new PuzzleData
         new() { Id = "end", Kind = "domino", Position = [.8f, 1, 0], Locked = true }
     ],
     Inventory = new() { ["domino"] = 4 },
-    Goals = [new() { Type = "activated", Target = "end" }]
+    Goals = [new() { Type = GoalKind.Activated, Target = "end" }]
 };
 for (var i = 0; i < 4; i++)
     domino.Solution.Add(new() { Id = "domino_" + i, Kind = "domino", Position = [-2.4f + i * .8f, 1, 0] });
@@ -34,11 +35,18 @@ modules["conveyor"] = new()
     Parts =
     [
         new() { Id = "ball", Kind = "ball", Position = [-3, 5, 0], Locked = true },
-        new() { Id = "receiver", Kind = "basket", Position = [2, .9f, 0], Locked = true }
+        new() { Id = "receiver", Kind = "basket", Position = [2, .9f, 0], Locked = true },
+        new() { Id = "battery", Kind = "battery", Position = [-3.4f, .4f, 0], Locked = true },
+        new() { Id = "motor", Kind = "motor", Position = [-2, .4f, 0], Locked = true }
+    ],
+    SolutionConnections =
+    [
+        new() { From = "battery", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn },
+        new() { From = "motor", To = "conveyor_1", Type = ConnectionDomain.Mechanical, FromPort = SocketIds.Drive, ToPort = SocketIds.DriveIn }
     ],
     Inventory = new() { ["conveyor"] = 1 },
     Solution = [new() { Id = "conveyor_1", Kind = "conveyor", Position = [-2, 2.5f, 0] }],
-    Goals = [new() { Type = "captured", Target = "receiver", Body = "ball" }]
+    Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
 };
 
 foreach (var name in new[] { "ramps", "spring", "air", "conveyor" })
@@ -48,8 +56,8 @@ foreach (var name in new[] { "ramps", "spring", "air", "conveyor" })
     receiver.Kind = "switch";
     if (name == "ramps") receiver.Position[0] = 3.2f;
     module.Parts.Add(new() { Id = "lamp", Kind = "lamp", Position = [4.5f, 1, 0], Locked = true });
-    module.Goals = [new() { Type = "activated", Target = "lamp" }];
-    module.SolutionConnections.Add(new() { From = "receiver", To = "lamp" });
+    module.Goals = [new() { Type = GoalKind.Activated, Target = "lamp" }];
+    module.SolutionConnections.Add(new() { Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn, From = "receiver", To = "lamp" });
     modules[name + "_signal"] = module;
 }
 var gated = Copy(modules["air"]);
@@ -61,21 +69,180 @@ fixedFan.Properties["powered"] = 0;
 gated.Parts.Add(fixedFan);
 gated.Parts.Add(new() { Id = "trigger", Kind = "bowling", Position = [-5.8f, 2.4f, 0], Locked = true });
 gated.Solution.Add(new() { Id = "switch_1", Kind = "switch", Position = [-5.8f, 1.6f, 0] });
-gated.SolutionConnections = [new() { From = "switch_1", To = fixedFan.Id }];
-gated.Goals.Add(new() { Type = "activated", Target = fixedFan.Id });
+gated.SolutionConnections = [new() { Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn, From = "switch_1", To = fixedFan.Id }];
+gated.Goals.Add(new() { Type = GoalKind.Activated, Target = fixedFan.Id });
 modules["gated_air"] = gated;
 var gatedBelt = Copy(modules["conveyor"]);
 var fixedBelt = gatedBelt.Solution.Single();
 gatedBelt.Solution.Clear();
 gatedBelt.Inventory = new() { ["switch"] = 1 };
 fixedBelt.Locked = true;
-fixedBelt.Properties["powered"] = 0;
 gatedBelt.Parts.Add(fixedBelt);
 gatedBelt.Parts.Add(new() { Id = "trigger", Kind = "bowling", Position = [-5.8f, 2.4f, 0], Locked = true });
 gatedBelt.Solution.Add(new() { Id = "switch_1", Kind = "switch", Position = [-5.8f, 1.6f, 0] });
-gatedBelt.SolutionConnections = [new() { From = "switch_1", To = fixedBelt.Id }];
-gatedBelt.Goals.Add(new() { Type = "activated", Target = fixedBelt.Id });
+gatedBelt.SolutionConnections =
+[
+    new() { Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn, From = "battery", To = "switch_1" },
+    new() { Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn, From = "switch_1", To = "motor" },
+    new() { Type = ConnectionDomain.Mechanical, FromPort = SocketIds.Drive, ToPort = SocketIds.DriveIn, From = "motor", To = fixedBelt.Id }
+];
+gatedBelt.Goals.Add(new() { Type = GoalKind.PoweredAfter, Target = "motor", Body = "switch_1" });
 modules["gated_belt"] = gatedBelt;
+
+modules["bumper"] = new()
+{
+    Parts = [
+        new() { Id = "ball", Kind = "ball", Position = [-3, 5, 0], Locked = true },
+        new() { Id = "receiver", Kind = "basket", Position = [2, .9f, 0], Locked = true }
+    ],
+    Inventory = new() { ["bumper"] = 1 },
+    Solution = [new() { Id = "bumper_1", Kind = "bumper", Position = [-3.2f, 1.5f, 0] }],
+    Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
+};
+
+modules["wall_return"] = new()
+{
+    Parts = [
+        new() { Id = "ball", Kind = "ball", Position = [-3, 5, 0], Locked = true },
+        new() { Id = "bumper", Kind = "bumper", Position = [-3.2f, 1.5f, 0], Locked = true },
+        new() { Id = "receiver", Kind = "basket", Position = [-5, .9f, 0], Locked = true }
+    ],
+    Inventory = new() { ["wall"] = 1 },
+    Solution = [new() { Id = "wall_1", Kind = "wall", Position = [-1, 4, 0],
+        Properties = new() { ["width"] = .4f, ["height"] = 6, ["thickness"] = 1.5f } }],
+    Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
+};
+var combinedWall = Copy(modules["wall_return"]);
+var launchBumper = combinedWall.Parts.Single(p => p.Kind == "bumper");
+combinedWall.Parts.Remove(launchBumper);
+launchBumper.Id = "bumper_1";
+launchBumper.Locked = false;
+combinedWall.Solution.Insert(0, launchBumper);
+combinedWall.Inventory["bumper"] = 1;
+modules["wall_and_bumper"] = combinedWall;
+
+modules["battery_motor"] = new()
+{
+    Inventory = new() { ["battery"] = 1 },
+    Parts = [new() { Id = "motor", Kind = "motor", Locked = true, Position = [3, 1, 0] }],
+    Solution = [new() { Id = "battery_1", Kind = "battery", Position = [-3, 1, 0] }],
+    SolutionConnections = [new() { From = "battery_1", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn }],
+    Goals = [new() { Type = GoalKind.Turned, Target = "motor" }]
+};
+modules["switched_motor"] = new()
+{
+    Inventory = new() { ["switch"] = 1 },
+    Parts =
+    [
+        new() { Id = "battery", Kind = "battery", Locked = true, Position = [-5, 1, 0] },
+        new() { Id = "motor", Kind = "motor", Locked = true, Position = [3, 1, 0] },
+        new() { Id = "ball", Kind = "bowling", Locked = true, Position = [-2, 5, 0] }
+    ],
+    Solution = [new() { Id = "switch_1", Kind = "switch", Position = [-2, 1, 0] }],
+    SolutionConnections =
+    [
+        new() { From = "battery", To = "switch_1", Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn },
+        new() { From = "switch_1", To = "motor", Type = ConnectionDomain.Electrical, FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn }
+    ],
+    Goals = [new() { Type = GoalKind.Turned, Target = "motor" }, new() { Type = GoalKind.PoweredAfter, Target = "motor", Body = "switch_1" }]
+};
+
+var relayBelt = Copy(modules["conveyor"]);
+relayBelt.Parts.Add(new() { Id = "relay", Kind = "conveyor", Locked = true, Position = [1, 4.5f, 0] });
+relayBelt.SolutionConnections.Single(c => c.Type == ConnectionDomain.Mechanical).To = "relay";
+relayBelt.SolutionConnections.Add(new() { From = "relay", To = "conveyor_1", Type = ConnectionDomain.Mechanical,
+    FromPort = SocketIds.Drive, ToPort = SocketIds.DriveIn });
+modules["belt_relay"] = relayBelt;
+
+var reverseBelt = Copy(modules["conveyor"]);
+reverseBelt.Parts.Single(p => p.Id == "ball").Position[0] = 3;
+reverseBelt.Parts.Single(p => p.Id == "receiver").Position[0] = -2;
+reverseBelt.Parts.Single(p => p.Id == "battery").Position = [-5, 1, 0];
+reverseBelt.Parts.Single(p => p.Id == "motor").Position = [-3.5f, 1, 0];
+reverseBelt.Solution.Single().Position[0] = 2;
+reverseBelt.Inventory["reverse_transmission"] = 1;
+reverseBelt.Solution.Add(new() { Id = "reverse_1", Kind = "reverse_transmission", Position = [-.3f, 1, 0] });
+reverseBelt.SolutionConnections.Single(c => c.Type == ConnectionDomain.Mechanical).To = "reverse_1";
+reverseBelt.SolutionConnections.Add(new() { From = "reverse_1", To = "conveyor_1", Type = ConnectionDomain.Mechanical,
+    FromPort = SocketIds.Drive, ToPort = SocketIds.DriveIn });
+modules["reverse_belt"] = reverseBelt;
+
+ConnectionSpec Rope(PuzzleData puzzle, string from, string to)
+{
+    Vector3 Socket(string id)
+    {
+        var part = puzzle.Parts.Concat(puzzle.Solution).Single(p => p.Id == id);
+        var local = part.Kind switch
+        {
+            "weight" => new Vector3(0, RopeGeometry.WeightTieHeight(part.Properties[WeightParameters.Mass]), 0),
+            "pulley" => new Vector3(0, RopeGeometry.PulleyRadius, RopeGeometry.PulleySocketDepth),
+            _ => throw new InvalidDataException("No authored rope geometry for " + part.Kind)
+        };
+        var degrees = MathF.PI / 180;
+        var rotation = Quaternion.CreateFromYawPitchRoll(part.Rotation[1] * degrees, part.Rotation[0] * degrees, part.Rotation[2] * degrees);
+        return new Vector3(part.Position[0], part.Position[1], part.Position[2]) + Vector3.Transform(local, rotation);
+    }
+    return new() { From = from, To = to, Type = ConnectionDomain.Rope, FromPort = SocketIds.Tie, ToPort = SocketIds.Tie,
+        RopeLength = Vector3.Distance(Socket(from), Socket(to)) };
+}
+var lift = new PuzzleData
+{
+    Inventory = new() { ["weight"] = 1 },
+    Parts =
+    [
+        new() { Id = "load", Kind = "weight", Locked = true, Position = [-2, 1, .12f], Properties = new() { [WeightParameters.Mass] = 1 } },
+        new() { Id = "left_pulley", Kind = "pulley", Locked = true, Position = [-2, 6, 0] },
+        new() { Id = "right_pulley", Kind = "pulley", Locked = true, Position = [2, 6, 0] },
+        new() { Id = "switch", Kind = "switch", Locked = true, Position = [-2, 3.2f, .12f], Rotation = [0, 0, 180] },
+        new() { Id = "lamp", Kind = "lamp", Locked = true, Position = [5, 1, .12f] }
+    ],
+    Solution = [new() { Id = "weight_1", Kind = "weight", Position = [2, 5, .12f], Properties = new() { [WeightParameters.Mass] = 4 } }],
+    Goals = [new() { Type = GoalKind.Activated, Target = "lamp" }]
+};
+lift.SolutionConnections =
+[
+    Rope(lift, "load", "left_pulley"), Rope(lift, "left_pulley", "right_pulley"), Rope(lift, "right_pulley", "weight_1"),
+    new() { From = "switch", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }
+];
+modules["counterweight"] = lift;
+var depthLift = Copy(lift);
+var movablePulley = depthLift.Parts.Single(p => p.Id == "right_pulley");
+depthLift.Parts.Remove(movablePulley);
+movablePulley.Locked = false;
+movablePulley.Id = "pulley_1";
+movablePulley.Position[2] = 2;
+depthLift.Solution.Single().Position[2] = 2.12f;
+depthLift.Solution.Add(movablePulley);
+depthLift.Inventory["pulley"] = 1;
+depthLift.SolutionConnections =
+[
+    Rope(depthLift, "load", "left_pulley"), Rope(depthLift, "left_pulley", "pulley_1"), Rope(depthLift, "pulley_1", "weight_1"),
+    new() { From = "switch", To = "lamp", Type = ConnectionDomain.Activation, FromPort = SocketIds.ActivationOut, ToPort = SocketIds.ActivationIn }
+];
+modules["pulley_depth"] = depthLift;
+
+var solar = new PuzzleData
+{
+    Parts =
+    [
+        new() { Id = "torch", Kind = "flashlight", Locked = true, Position = [-2, 3, 0] },
+        new() { Id = "trigger", Kind = "ball", Locked = true, Position = [-2.15f, 5, 0] },
+        new() { Id = "motor", Kind = "motor", Locked = true, Position = [4, 1, 2] }
+    ],
+    Inventory = new() { ["solar_panel"] = 1 },
+    Solution = [new() { Id = "panel_1", Kind = "solar_panel", Position = [1, 3, 0] }],
+    SolutionConnections = [new() { From = "panel_1", To = "motor", Type = ConnectionDomain.Electrical,
+        FromPort = SocketIds.Supply, ToPort = SocketIds.PowerIn }],
+    Goals = [new() { Type = GoalKind.Turned, Target = "motor" }]
+};
+modules["solar_motor"] = solar;
+var shaded = Copy(solar);
+shaded.Parts.Single(p => p.Id == "torch").Position[0] = -3;
+shaded.Parts.Single(p => p.Id == "trigger").Position[0] = -3.15f;
+shaded.Parts.Add(new() { Id = "shade", Kind = "wall", Locked = true, Position = [-.5f, 3, 0],
+    Rotation = [0, 90, 0], Properties = new() { ["width"] = 3, ["height"] = 3, ["thickness"] = .3f } });
+shaded.Solution[0].Position = [-1.5f, 3, 0];
+modules["solar_shadow"] = shaded;
 
 var campaign = source.Select(Copy).ToList();
 void Add(string id, string title, string chapter, string description, string hint,
@@ -121,9 +288,6 @@ void Add(string id, string title, string chapter, string description, string hin
 Add("domino_effect", "The domino effect", "Chain reactions",
     "Make the fixed end domino fall. Fill the gap with four dominoes.",
     "Start under the bowling ball. Neighbours must be less than a metre apart.", ("domino", 0, 0, 0));
-Add("conveyor_courier", "Conveyor courier", "Moving surfaces",
-    "Carry the orange ball toward the receiver on a moving belt.",
-    "Place a horizontal conveyor beneath the ball. The gold arrow shows which end it will leave.", ("conveyor", 0, 0, 0));
 Add("spring_signal", "Spring-loaded signal", "Motion into power",
     "Launch the ball onto the elevated switch and light the lamp.",
     "Tilt the spring clockwise. Remember the wire from switch to lamp.", ("spring_signal", 0, 0, 0));
@@ -133,6 +297,52 @@ Add("wind_signal", "A breath of electricity", "Motion into power",
 Add("cold_start", "Cold start", "Causal machines",
     "The fan starts off. Use the bowling ball to power it before the tennis ball falls past.",
     "A switch close beneath the bowling ball starts the fan early. Connect it to the fixed fan.", ("gated_air", 0, 0, 0));
+
+// New mechanics are taught before the older multi-machine combinations.
+Add("bumper_sidekick", "A little sidekick", "Round rebounds",
+    "Use the pinball bumper to bounce the orange ball into the receiver.",
+    "The ball bounces away from the impact point. Put the bumper just left of the falling ball to send it right.", ("bumper", 0, 0, 0));
+Add("bumper_depth", "Bounce into depth", "Round rebounds",
+    "Send the ball across the workbench's depth with a round bumper.",
+    "Orbit with Q/E to see the route. Offset the bumper toward the front so the ball rebounds toward the receiver behind it.", ("bumper", 0, 0, 90));
+
+Add("wall_return", "Return to sender", "Build a barrier",
+    "The fixed bumper launches the ball away from the basket. Build a wall that sends it back.",
+    "Use the square resize icon. Make a tall, narrow barrier to the right of the bumper; the dashed boxes show its reach.", ("wall_return", 0, 0, 0));
+Add("wall_and_bumper", "Build the rebound", "Build a barrier",
+    "Place both the launcher and its return wall to deliver the ball into the basket on the left.",
+    "First offset the bumper slightly left of the falling ball. Then catch the rising flight with a tall wall to its right.", ("wall_and_bumper", 0, 0, 0));
+
+Add("battery_motor", "A turn for the better", "Electrical supply",
+    "Make the motor complete a full turn. It needs a battery, not an activation signal.",
+    "Place a battery, select it and choose Connect. Click the motor, then Run.", ("battery_motor", 0, 0, 0));
+Add("switched_motor", "Close the circuit", "Switched supply",
+    "The motor must wait for the falling ball to trigger its supply switch, then complete a turn.",
+    "Place the switch under the ball. Connect battery to switch, then switch to motor. A switch controls electricity but does not create it.", ("switched_motor", 0, 0, 0));
+
+Add("conveyor_courier", "Conveyor courier", "Mechanical drive",
+    "Carry the ball on a motor-driven conveyor. A belt needs rotation, not an activation signal.",
+    "Place the conveyor beneath the ball. Connect battery to motor, then motor to conveyor.", ("conveyor", 0, 0, 0));
+Add("belt_relay", "Pass the rotation", "Mechanical drive",
+    "Use the high conveyor's output pulley to drive the delivery conveyor below.",
+    "Wire battery to motor. Belt the motor to the high conveyor, then connect that conveyor to your delivery belt.", ("belt_relay", 0, 0, 0));
+Add("reverse_belt", "The other way round", "Reverse transmission",
+    "The basket is to the left. Reverse the drive so the conveyor carries the ball back toward it.",
+    "Wire battery to motor, then belt motor to reverse transmission and transmission to conveyor. Its paired wheels turn in opposite directions.", ("reverse_belt", 0, 0, 0));
+
+Add("counterweight", "A helping weight", "Ropes and loads",
+    "Lift the small load into the overhead switch to light the lamp. A heavier weight can pull it upward.",
+    "Place the larger weight high under the right pulley. Connect small load → left pulley → right pulley → large weight, then switch → lamp. Rope length is set when you connect.", ("counterweight", 0, 0, 0));
+Add("pulley_depth", "Around the corner", "Route a rope",
+    "The counterweight belongs in the front depth lane. Add a pulley above it and route the rope back to the small load.",
+    "Place the second pulley above the large weight. Connect both pulleys into one continuous rope with a load at each end; a loose end cannot lift anything.", ("pulley_depth", 0, 0, 0));
+
+Add("solar_motor", "A little sunshine", "Light into electricity",
+    "Use the flashlight to supply the motor through a solar panel. The falling ball presses the torch's button.",
+    "Put the panel in front of the cream lens, with blue cells facing the torch. Connect panel to motor; four gold meter marks mean enough light.", ("solar_motor", 0, 0, 180));
+Add("solar_shadow", "Out of the shade", "Light and obstacles",
+    "The wooden wall blocks the flashlight. Find a lit position for the panel and turn the motor.",
+    "Keep the panel on the flashlight side of the wall, facing the lens. Wires carry electricity around obstacles, but light cannot pass through them.", ("solar_shadow", 0, 0, 180));
 
 // Chapters 3 and 4: independent goals, mixed mechanisms, and power dependencies.
 Add("two_deliveries", "Two deliveries", "Parallel machines",
@@ -172,10 +382,10 @@ Add("deep_routes", "Deep routes", "Spatial reasoning",
     "Orbit the camera. Turn the ramps 90 degrees, then tilt them along their local slope.", ("ramps", -2, 0, 90), ("ramps", 2, 0, -90));
 Add("cross_breezes", "Cross breezes", "Spatial reasoning",
     "Two fans must send their balls in opposite depth directions.",
-    "Use A/D to turn each fan. Keep each gust in its own X lane.", ("air", -2, 0, 90), ("air", 2, 0, -90));
+    "Use the green rotation ring to turn each fan. Keep each gust in its own X lane.", ("air", -2, 0, 90), ("air", 2, 0, -90));
 Add("deep_springs", "Deep springs", "Spatial reasoning",
     "Launch two balls through depth into elevated receivers.",
-    "Rotate each spring around Y, then use Q/E to set its launch tilt.", ("spring", -2, 0, 90), ("spring", 2, 0, -90));
+    "Rotate each spring around Y, then use the rotation rings to set its launch tilt.", ("spring", -2, 0, 90), ("spring", 2, 0, -90));
 Add("spatial_signals", "Spatial signals", "Spatial reasoning",
     "Send a rolling ball and an airborne ball onto switches in depth-oriented lanes.",
     "Both switches need wiring. Watch the goal positions while orbiting.", ("ramps_signal", -2, 0, 90), ("air_signal", 2, 0, -90));
@@ -229,13 +439,13 @@ Add("cold_bridges", "Cold bridges", "Final workshop",
 Add("grand_contraption", "The grand contraption", "Final workshop",
     "Complete the ramp signal, conveyor signal, and domino chain; all three must succeed in one run.",
     "Build and test each lane. The final machine needs two slopes, a conveyor delivery, four dominoes, and both signal wires.", ("ramps_signal", 0, -3, 0), ("domino", 0, 0, 0), ("conveyor_signal", 0, 3, 0));
-if (campaign.Count != 40) throw new InvalidDataException($"Expected 40 levels, authored {campaign.Count}.");
+if (campaign.Count != 52) throw new InvalidDataException($"Expected 52 authored levels in this expansion stage, authored {campaign.Count}.");
 // Every authored instance owns its difficulty curve; catalog defaults do not decide puzzle help.
 foreach (var puzzle in campaign)
 foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
 {
     var positionStep = part.Kind switch { "ramp" => .30f, "spring" => .20f, "fan" => .35f, "domino" => .20f, _ => .25f };
-    var rotationStep = part.Kind switch { "spring" => 3f, "fan" => 15f, "switch" => 0f, _ => 5f };
+    var rotationStep = part.Kind switch { "spring" => 3f, "fan" => 15f, "switch" or "bumper" => 0f, _ => 5f };
     var window = part.Kind == "domino" ? 1.2f : 3f;
     // Fans must settle before a nearby falling ball enters the airflow (~0.27 s).
     // Keep quintic animation, but author a shorter duration instead of snapping or changing physics.

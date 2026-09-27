@@ -28,7 +28,12 @@ foreach (var variant in new[] { "reference", "near-positive", "near-negative", "
             ["slot"] = solution!["id"]!.GetValue<string>(),
             ["kind"] = solution["kind"]!.GetValue<string>(),
             ["position"] = solution["position"]!.DeepClone(),
-            ["rotation"] = solution["rotation"]!.DeepClone()
+            ["rotation"] = solution["rotation"]!.DeepClone(),
+            ["dimensions"] = solution["kind"]!.GetValue<string>() == "wall"
+                ? new JsonArray(JsonValue.Create(solution["properties"]?["width"]?.GetValue<float>() ?? 3),
+                    JsonValue.Create(solution["properties"]?["height"]?.GetValue<float>() ?? 2),
+                    JsonValue.Create(solution["properties"]?["thickness"]?.GetValue<float>() ?? .25f))
+                : null
         });
     var chosen = parts[0]!.AsObject();
     if (variant is "near-positive" or "near-negative")

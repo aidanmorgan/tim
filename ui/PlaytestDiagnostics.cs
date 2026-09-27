@@ -26,7 +26,7 @@ public partial class Workshop
             Parts = World.Parts.Select(p => new PlaytestPart
             {
                 Id = p.Uid, Kind = p.Definition.Id, Locked = p.Locked, Dynamic = p.Dynamic,
-                Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
+                Properties = new(p.Properties), Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
             }).ToList()
         }, PlaytestJson.Default.PlaytestRun));
         TracePlaytestFrame();
@@ -42,7 +42,7 @@ public partial class Workshop
             Parts = World.Parts.Select(p => new PlaytestPart
             {
                 Id = p.Uid, Kind = p.Definition.Id, Locked = p.Locked, Dynamic = p.Dynamic,
-                Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
+                Properties = new(p.Properties), Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
             }).ToList()
         }, PlaytestJson.Default.PlaytestRun));
     }
@@ -58,7 +58,7 @@ public partial class Workshop
             Parts = World.Parts.Where(p => !p.Locked && !p.Dynamic).Select(p => new PlaytestPart
             {
                 Id = p.Uid, Kind = p.Definition.Id,
-                Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
+                Properties = new(p.Properties), Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
             }).ToList()
         }, PlaytestJson.Default.PlaytestFrame));
     }
@@ -101,20 +101,22 @@ public partial class Workshop
         foreach (var part in World.Parts.Where(p => p.Visible))
             ui.Parts.Add(new() { Id = part.Uid, Kind = part.Definition.Id,
                 Screen = ScreenPoint(_camera.UnprojectPosition(part.GlobalPosition)) });
+        if (_selected != null) ui.Selected = _selected.Uid;
         if (_selected != null && _rotationGizmo.Visible)
         {
-            ui.Selected = _selected.Uid;
-            ui.Mode = _rotationGizmo.MoveMode ? "move" : "rotate";
+            ui.Mode = _rotationGizmo.ResizeMode ? "resize" : _rotationGizmo.MoveMode ? "move" : "rotate";
+            if (_selected is WallPart wall) ui.Dimensions = Point(wall.Dimensions);
             ui.Center = ScreenPoint(_camera.UnprojectPosition(_selected.GlobalPosition));
             foreach (var axis in new[] { Vector3.Right, Vector3.Up, Vector3.Back })
             {
                 var index = ui.Handles.Count;
+                var direction = _rotationGizmo.ResizeMode ? _selected.GlobalBasis * axis : axis;
                 var handle = _rotationGizmo.HandlePosition(index);
                 // Projected visible handle geometry, analogous to a DOM element's bounding box.
                 ui.Handles.Add(new()
                 {
                     Screen = ScreenPoint(_camera.UnprojectPosition(handle)),
-                    Unit = ScreenPoint(_camera.UnprojectPosition(_selected.GlobalPosition + axis) -
+                    Unit = ScreenPoint(_camera.UnprojectPosition(_selected.GlobalPosition + direction) -
                         _camera.UnprojectPosition(_selected.GlobalPosition)),
                     Quarter = ScreenPoint(_camera.UnprojectPosition(_selected.GlobalPosition +
                         axis.Cross(handle - _selected.GlobalPosition)))
@@ -159,6 +161,7 @@ public sealed class PlaytestUi
     public bool MenuOpen { get; set; }
     public string Selected { get; set; } = "";
     public string Mode { get; set; } = "";
+    public float[] Dimensions { get; set; } = [];
     public float[] Center { get; set; } = [];
     public List<PlaytestButton> Buttons { get; set; } = new();
     public List<PlaytestUiPart> Parts { get; set; } = new();
@@ -166,6 +169,7 @@ public sealed class PlaytestUi
 }
 public sealed class PlaytestPart
 {
+    public Dictionary<string, float> Properties { get; set; } = new();
     public string Id { get; set; } = "";
     public string Kind { get; set; } = "";
     public bool Locked { get; set; }

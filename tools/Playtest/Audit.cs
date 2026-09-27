@@ -1,3 +1,4 @@
+using CuriousContraptions;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -23,7 +24,7 @@ internal static class Audit
     internal static void CheckResetConnections(JsonNode run, JsonNode reset,
         List<string> errors, List<string> gaps)
     {
-        HashSet<(string From, string To, string Type)>? Read(JsonNode state, string label)
+        HashSet<(string From, string To, ConnectionDomain Type, string FromPort, string ToPort, float? RopeLength)>? Read(JsonNode state, string label)
         {
             if (state["connections"] == null)
             {
@@ -35,7 +36,8 @@ internal static class Audit
                 errors.Add(label + " connections must be an array.");
                 return null;
             }
-            var edges = new HashSet<(string From, string To, string Type)>();
+            var edges = new HashSet<(string From, string To, ConnectionDomain Type, string FromPort, string ToPort, float? RopeLength)>();
+            var identities = new HashSet<(string From, string To, ConnectionDomain Type, string FromPort, string ToPort)>();
             foreach (var node in connections)
             {
                 string? Text(string name) => node is JsonObject obj &&
@@ -43,22 +45,97 @@ internal static class Audit
                         ? text : null;
                 var from = Text("from");
                 var to = Text("to");
-                var type = Text("type");
+                var typeText = Text("type");
                 if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to) ||
-                    string.IsNullOrWhiteSpace(type))
+                    string.IsNullOrWhiteSpace(typeText))
                 {
                     errors.Add(label + " contains a malformed connection.");
                     continue;
                 }
-                if (!edges.Add((from, to, type)))
+                ConnectionDomain type;
+                try
+                {
+                    type = JsonSerializer.Deserialize(node!["type"]!.ToJsonString(), MachineJson.Default.ConnectionDomain);
+                    if (type == ConnectionDomain.Unknown) throw new JsonException("Unknown connection domain.");
+                }
+                catch (JsonException)
+                {
+                    errors.Add(label + " contains a malformed connection type.");
+                    continue;
+                }
+                var fromPort = Text("fromPort");
+                var toPort = Text("toPort");
+                // Browser diagnostics use camelCase; every edge requires explicit socket identities.
+                if (string.IsNullOrWhiteSpace(fromPort) || string.IsNullOrWhiteSpace(toPort))
+                {
+                    errors.Add(label + " contains a malformed connection socket.");
+                    continue;
+                }
+                float? ropeLength = null;
+                if (type == ConnectionDomain.Rope)
+                {
+                    if (node!["ropeLength"] is not JsonValue lengthValue ||
+                        !lengthValue.TryGetValue<float>(out var length) || !float.IsFinite(length) ||
+                        length < .05f || length > 200)
+                    {
+                        errors.Add(label + " contains a malformed rope length.");
+                        continue;
+                    }
+                    ropeLength = length;
+                    // Rope ends are undirected; canonicalize without changing the recorded evidence.
+                    if (string.CompareOrdinal(from, to) > 0)
+                    {
+                        (from, to) = (to, from);
+                        (fromPort, toPort) = (toPort, fromPort);
+                    }
+                }
+                else if (node!["ropeLength"] != null)
+                    errors.Add(label + " non-rope connection contains a rope length.");
+                if (!identities.Add((from, to, type, fromPort, toPort)))
                     errors.Add(label + " contains a duplicate connection.");
+                edges.Add((from, to, type, fromPort, toPort, ropeLength));
             }
             return edges;
         }
         var initial = Read(run, "Run");
         var restored = Read(reset, "Reset");
         if (initial != null && restored != null && !initial.SetEquals(restored))
-            errors.Add("Reset did not restore directed, typed connections.");
+            errors.Add("Reset did not restore typed connections and rope lengths.");
+    }
+
+    // Properties include wall dimensions and other authored physical parameters.
+    // Missing fields cannot be interpreted as empty dictionaries in old captures.
+    internal static void CheckProperties(JsonNode initial, JsonNode observed, string label,
+        List<string> errors, List<string> gaps)
+    {
+        Dictionary<string, float>? Read(JsonNode node, string phase)
+        {
+            if (node["properties"] == null)
+            {
+                gaps.Add(phase + " property evidence missing.");
+                return null;
+            }
+            if (node["properties"] is not JsonObject properties)
+            {
+                errors.Add(phase + " properties must be an object.");
+                return null;
+            }
+            var result = new Dictionary<string, float>(StringComparer.Ordinal);
+            foreach (var (key, value) in properties)
+            {
+                if (value is not JsonValue scalar || !scalar.TryGetValue<float>(out var number) ||
+                    !float.IsFinite(number))
+                    errors.Add(phase + " contains a malformed property: " + key);
+                else result.Add(key, number);
+            }
+            return result;
+        }
+        var before = Read(initial, "Run");
+        var after = Read(observed, label);
+        if (before != null && after != null &&
+            (before.Count != after.Count || before.Any(p =>
+                !after.TryGetValue(p.Key, out var value) || MathF.Abs(value - p.Value) > .0001f)))
+            errors.Add(label + " did not preserve part properties.");
     }
 
     public static int Run(string root, string[] files)
@@ -72,6 +149,13 @@ internal static class Audit
         foreach (var file in files)
         {
             var record = JsonNode.Parse(file == "-" ? Console.In.ReadToEnd() : File.ReadAllText(file))!;
+            if (record["failure"] != null)
+            {
+                reports.Add(new { file, status = "failed", errors = new[] {
+                    "UI attempt failed: " + record["failure"]!.ToJsonString() } });
+                failed = true;
+                continue; // Construction/lifecycle failures need not contain a Run or outcome.
+            }
             var errors = new List<string>();
             var gaps = new List<string>();
             void Require(bool condition, string message) { if (!condition) errors.Add(message); }
@@ -129,6 +213,7 @@ internal static class Audit
                 });
                 foreach (var sample in samples)
                 {
+                    CheckProperties(initial, sample.Part!, id + ": sample", errors, gaps);
                     var distance = Vector3.Distance(startPosition, Position(sample.Part!));
                     var angle = Angle(startRotation, Rotation(sample.Part!));
                     Require(distance <= maxPosition + .0001f, id + ": position cap exceeded.");
@@ -167,12 +252,20 @@ internal static class Audit
                     var part = restored.SingleOrDefault(p => p!["id"]!.GetValue<string>() == initial["id"]!.GetValue<string>());
                     Require(part != null, "Reset lost a part.");
                     if (part != null)
+                    {
+                        CheckProperties(initial, part, initial["id"] + ": Reset", errors, gaps);
+                        Require(JsonNode.DeepEquals(initial["kind"], part["kind"]) &&
+                            JsonNode.DeepEquals(initial["locked"], part["locked"]) &&
+                            JsonNode.DeepEquals(initial["dynamic"], part["dynamic"]),
+                            initial["id"] + ": Reset changed part identity or flags.");
                         Require(Vector3.Distance(Position(initial), Position(part)) < .0001f &&
                             Angle(Rotation(initial), Rotation(part)) < .002f, initial["id"] + ": Reset did not restore transform.");
+                    }
                 }
                 Require(record["resetUi"]?["running"]?.GetValue<bool>() == false, "Reset did not return to build UI.");
             }
             errors = errors.Distinct().ToList();
+            gaps = gaps.Distinct().ToList();
             failed |= errors.Count > 0;
             incomplete |= gaps.Count > 0;
             reports.Add(new { file, status = errors.Count > 0 ? "failed" : gaps.Count > 0 ? "incomplete" : "passed", checkedParts, errors, gaps });

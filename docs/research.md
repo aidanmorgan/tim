@@ -1,5 +1,18 @@
 # The Incredible Machine: research and design evidence
 
+
+## Flashlight and solar-panel implementation basis — 27 September 2026
+
+The indexed text of the [TIM2 manual, printed page 44](https://pexy.io/wp-content/uploads/2025/06/the-incredible-machine-2-manual.pdf) describes a flashlight whose button is pressed by a falling object and whose light powers solar panels. The full PDF fetch timed out in this pass; the indexed excerpt establishes that interaction, not quantitative beam or solar rules.
+
+Our initial C# implementation uses an explicitly self-contained battery torch, an activation/impact latch, a finite 15° half-angle cone with range 8, and nine equally weighted panel samples. Each sample responds to front-face incidence and inverse-square attenuation with a close-range cap. Opaque physical box/sphere proxies and the finite workbench block light; receiver outputs are computed from one tick snapshot and committed before electrical propagation. This is an original simplified game rule, not a measured reproduction of TIM or calibrated lumens/volts. Panel output is binary supply without charge storage. Its current straight axial light marker must be replaced by the owner's requested visible cone; actual illumination already uses the cone rule. Mirrors, lenses, splitters, colour transport and conservation-aware optical branching remain future work.
+## Initial rope and fixed-pulley model (2026-09-27)
+
+This is a new implementation, not a claim of TIM numerical fidelity. [Box2D's pulley documentation](https://box2d.org/doc_version_2_4/classb2_pulley_joint.html) describes a bound on the sum of two rope spans, with a ratio for force transfer, and warns about zero-length geometry. [Müller et al., Position Based Dynamics](https://matthias-research.github.io/pages/publications/posBasedDyn.pdf) describes inverse-mass-weighted constraint projection and inequality constraints. Those are the foundations used here; no Box2D source was copied.
+
+Our fixed-guide model constrains the **total** length of a complete, unbranched rope path. It applies only tensile impulses, projects excess length with inverse-mass weights, and alternates rope/contact resolution inside the existing fixed substeps. Point guides are stationary during simulation except authored eased placement correction; no wheel inertia, pulley friction, moving-block advantage, self-collision, wrapping around arbitrary obstacles or cutting is claimed. An unfinished threading path has a free end, carries no tension and renders as a dashed preview. Saved spans carry explicit lengths; missing, non-finite and out-of-range lengths are rejected.
+
+Native calibration includes the ideal two-load acceleration `g × (m₂−m₁)/(m₁+m₂)`, equal-mass balance, reversed mass ordering, link-order independence, slack/no-pushing, a 3D pendulum's length and energy bounds, floor contacts and exact same-runtime Reset replay. This verifies our stated ideal model, not original-game timings. The first pendulum motion assertion sampled only the final position near a full swing; it was replaced with a trajectory-wide crossing check while retaining the per-step energy/length bounds.
 Research date: 27 September 2026. This is a design dossier, not a claim of an exact engine reconstruction. Sources are linked individually; inaccessible full pages are identified. No original artwork, level files, music, or code is included.
 
 ## Which game are we matching?
@@ -185,3 +198,58 @@ Inspection of [MachineWorld.cs](../engine/MachineWorld.cs) identifies these curr
 The level-format source confirms authored environment and ball-property fields, but not their conversion into our world units or integration equations. The interview-appendix PDF and original DOS manual both timed out on this research pass; their contents were not newly inspected. [Level-format source](https://moddingwiki.shikadi.net/wiki/The_Incredible_Machine_Level_Format).
 
 Next reference experiment: identify an edition and capture an isolated ball drop onto a horizontal surface. Record the initial bottom-to-surface clearance, first impact, and first rebound apex in original pixels and video timestamps, with duplicate-frame/timing uncertainty. Compare the dimensionless rebound-height ratio before fitting any world-unit scale. Repeat with the same ball at another height and with the other ball types; keep some drops out of fitting as validation cases. Do not tune difficulty nudges to hide a base-physics mismatch. No original drop measurement has yet been recorded.
+
+## New primary reverse-engineering lead — OpenTIM
+
+Inspected on 2026-09-27: [OpenTIM](https://github.com/mrfixit2001/OpenTIM), pinned to commit `83fac1af87651fb6bcb128c9470fad236133e3c8` (2020-10-25). The inspected history credits Danny Spencer / nukep. Its README describes an in-progress reconstruction aiming to retain original simulation quirks and requiring original assets from the user. This is primary evidence of the author's reverse-engineering work, **not** official released TIM source or proof that the reconstruction is complete.
+
+[The reverse-engineering notes](https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651fb6bcb128c9470fad236133e3c8/reverse-engineering/README.md) identify Windows **The Even More! Incredible Machine**, with TEMIM.EXE SHA-256 `03d56a132ff7c987488c6d28cc6ba9c4a28b6f9d085c53a3c5a0bfdd14e49e35`. This narrows the edition provenance; it must not silently stand in for TIM2/3 or the original DOS executable. The project marks intentional original-game fixes with `VANILLAFIX`.
+
+The [atmosphere module](https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651fb6bcb128c9470fad236133e3c8/src/atmosphere.rs) includes numerical fixtures the author says were obtained by inspecting the original TIMWIN Parts table in memory. Selected data and its provenance are recorded in [physics-reference-temim.json](physics-reference-temim.json); no upstream implementation code or game assets were imported.
+
+### Concrete comparisons now available
+
+The [part definitions](https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651fb6bcb128c9470fad236133e3c8/src/parts/mod.rs) report:
+
+| Part | Internal mass | Density | Bounciness | Friction |
+| --- | ---: | ---: | ---: | ---: |
+| Bowling ball | 200 | 2832 | 128 | 16 |
+| Basketball | 20 | 1322 | 192 | 16 |
+| Tennis ball | 5 | 1322 | 192 | 16 |
+| Balloon | 1 | 9 | 64 | 32 |
+
+Our current catalog uses basketball mass 1 / bounce 0.55, bowling mass 4 / bounce 0.14, and tennis mass 0.35 / bounce 0.78. Thus relative masses are not aligned (bowling:basketball 4:1 versus the reported 10:1; tennis:basketball 0.35:1 versus 0.25:1). The reported basketball and tennis ball share a bounciness value, whereas our restitution values differ. This is a concrete compatibility concern, not sufficient grounds to equate raw bounciness with a restitution coefficient or change the catalog without collision validation.
+
+Selected reported atmosphere fixtures:
+
+| Gravity setting | Pressure setting | Density | Signed acceleration | Terminal component limit |
+| --- | ---: | ---: | ---: | ---: |
+| 272 | 67 | 1322 | 266 | 9695 |
+| 272 | 67 | 2832 | 269 | 9695 |
+| 272 | 67 | 9 | -198 | 9695 |
+| 272 | 0 | 1322 | 272 | 9728 |
+| 0 | 67 | 1322 | 1 | 9695 |
+| 272 | 128 | 1322 | -97 | 7680 |
+| 272 | 128 | 2832 | 76 | 7680 |
+
+Units are internal, not SI. Positive acceleration is downward in the referenced implementation. Notably, minimum gravity is not necessarily zero acceleration, and maximum pressure can reverse acceleration for some densities. Those observations conflict with assuming a linear SI gravity/pressure mapping. They have not been independently reproduced here.
+
+### Solver details to validate, not silently port
+
+The [movement and contact reconstruction](https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651fb6bcb128c9470fad236133e3c8/c_src/main.c) labels relevant routines with original addresses: velocity update `1090:01b0`, component-wise terminal clamp `1090:012d`, and bounce `1090:0644`. The inspected bounce path uses both contacting parts' material data, a low-speed loss, and special cases; our constant restitution alone is not equivalent. Position updates use 512 subunits per pixel in the inspected code, while Ryan's interview describes a 1024-based representation. This may reflect different quantities or editions; it rules out assuming one universal scale from that interview.
+
+The [reconstruction's renderer update](https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651fb6bcb128c9470fad236133e3c8/src/nannou.rs) advances simulation on alternate update callbacks. That is **not** evidence of the original game's frame frequency. Establish simulation ticks versus wall-clock/video frames independently before converting accelerations or velocities.
+
+OpenTIM is GPL-3.0. It remains an external research reference; no code dependency, port, license change, or publication of original assets was made. Any proposal to incorporate its implementation needs an explicit dependency/licensing decision. Numerical facts in our reference file retain source attribution and uncertainty rather than being presented as our measurements.
+
+A second lead, [moralrecordings/breakfastmachine](https://github.com/moralrecordings/breakfastmachine/tree/1f1ffe920fb7e3c1ee7c742d9b760089890ba903), describes a TIM3 disassembly project. Its inspected file tree contains resource/graphics code; no physics implementation was established during this pass. Keep it as a located lead, not an independent physics confirmation.
+
+### Next compatibility experiments
+
+1. Use an identified, lawfully available original executable or reference capture matching the recorded edition/hash; independently reproduce the atmosphere fixtures where possible.
+2. Capture isolated basketball, bowling and tennis drops at two heights onto the same surface. Check both dimensions and boundary shape; sprite sizes alone do not establish collision size.
+3. Compare collision output across impact speeds, surface types and low-speed settling. A single bounce-height fit cannot recover additive losses or contact-specific rules.
+4. Establish original step rate and each quantity's fixed-point scale. Compare relative mass ratios independently of the chosen world-unit scale.
+5. Only then introduce a versioned Classic profile and replay the campaign without using difficulty nudges to hide base-physics differences. Preserve the approved visuals and retain the existing solver as an explicitly non-calibrated baseline during comparison.
+
+The major change in evidence is that there are now pinned, edition-specific, upstream-reported numerical fixtures to investigate. They do not yet prove original-compatible physics, and no new original-game trajectory was measured in this pass.

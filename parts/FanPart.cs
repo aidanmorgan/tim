@@ -4,7 +4,7 @@ namespace CuriousContraptions;
 public partial class FanPart : MachinePart
 {
     private Node3D _rotor = null!;
-    public override bool CanReceivePower => true;
+    public override bool CanReceiveActivation => true;
     protected override void Build()
     {
         Active = Parameter("powered", 1) > .5f;

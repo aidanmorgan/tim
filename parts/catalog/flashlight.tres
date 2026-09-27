@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/flashlight.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "flashlight"
+Title = "Flashlight"
+Category = "Power"
+Description = "Self-contained battery light: press its top button with a falling object or send an activation command. Its beam points out of the cream lens."
+Scene = ExtResource("2")
+Color = Color(0.96, 0.70, 0.33, 1)
+Parameters = {}

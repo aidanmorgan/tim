@@ -1,5 +1,12 @@
 # Direct-UI difficulty playtest
 
+## Current schema — forward-only refactor
+
+Current campaign recipes require explicit `type: activation`, `from_port: activation_out` and `to_port: activation_in` for the implemented activation UI. The implemented battery-to-motor path also accepts `type: electrical`, `from_port: supply`, `to_port: power_in` through the same contextual UI. Mechanical belts accept `type: mechanical`, `from_port: drive`, `to_port: drive_in` through the same Connect action. Ropes use `type: rope`, `from_port: tie`, `to_port: tie` and an explicit authored `rope_length`; the driver clicks the ordinary Connect UI, which measures actual placed socket distance rather than importing that length. Reset auditing compares the observed `ropeLength`. Other socket combinations still require appropriate UI support; unsupported/obsolete recipes are rejected, not silently adapted. C# browser diagnostics use camelCase `fromPort`/`toPort`; the Reset audit requires these identities. Machine/save JSON uses snake_case. Historical captures stay unchanged and are not upgraded or counted as current-schema verification.
+
+The adapter also supports wall `dimensions: [width, height, thickness]` through real local-axis resize drags. Run/frame/Reset properties are checked, including dimensions; missing historical property evidence is incomplete. The current save format is version 3 only, without backwards-compatible loading.
+
+
 This replaces the earlier reference pass that used front-view/numeric depth controls.
 
 The MCP input adapter is JavaScript because Playwright MCP executes JavaScript callbacks. Game code and diagnostic instrumentation are C#. The adapter has no game-state setters: it clicks actual palette/action buttons, drags visible 3D translation arrows and rotation rings, clicks wiring endpoints, and presses Run. The only workshop menu setting it changes is the difficulty slider. Puzzle selection is ordinary UI navigation.
@@ -14,13 +21,19 @@ dotnet publish CuriousContraptions.web -p:PlaytestDiagnostics=true
 
 Normal publishing omits diagnostic calls. Invoke the `directUiAttempt` function in `direct-ui.js` through the Playwright MCP callback, supplying a recipe with `level`, `precision`, `caseId`, `parts` and `connections`. Recipes describe desired pointer actions relative to a reference layout; they are not imported into the game.
 
+The adapter returns an evidence object for both completed and failed attempts. **Persist every returned record under a new case ID, then stop the batch if `record.failure` is present.** Do not access `record.outcome` unconditionally: construction failures have no simulation outcome. Never overwrite an earlier failed attempt with a retry.
+
+Each new record includes ordered `lifecycle` events (Run, result, Reset) and their capture phases. An early Reset, repeated Run/result/Reset, or malformed diagnostic event aborts the attempt; the first run identity, partial samples, action log, latest UI and `<caseId>-failure.png` are retained. Mouse/Shift release and listener cleanup run on both paths. Screenshot/cleanup failures are recorded separately. Recipe validation errors still throw before browser work begins. The C# audit rejects a record with `failure` before inspecting optional run/outcome fields.
+
+Run adapter-only tests with `node --test tools/Playtest/direct-ui.test.cjs`. These use a fake page to test the required JavaScript MCP glue, not game behaviour or campaign success. Continue running the C# suite and real browser playtests separately.
+
 Generate the full matrix with `dotnet run --project tools/Playtest`; optionally filter by level, difficulty and variant, e.g. `dotnet run --project tools/Playtest -- 1 balanced near-positive`. This C# tool produces recipes only and has no connection to the game. Each recipe records the puzzle-data SHA-256.
 
 Each part has `slot`, `kind`, `position`, `rotation`, optional `offset` and `rotationOffset`. The adapter reads only rendered UI geometry while building. `CCRUN`, `CCFRAME` and `CCRESULT` are evidence captured after ordinary UI actions.
 
 ## Required matrix
 
-All 40 levels × Forgiving (0), Balanced (0.45), Precise (1) × at least four attempts = **480 planned runs**:
+The revised final target is 75 levels × Forgiving (0), Balanced (0.45), Precise (1) × at least four attempts = **900 planned runs**, plus repeatability probes. The current draft has 52 levels. Historical 40-level/480-case counts below describe the pre-expansion campaign, not completion of the revised target:
 
 1. Reference placement through direct handles.
 2. Small positive placement/orientation error on a chosen part.

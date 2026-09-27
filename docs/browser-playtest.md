@@ -1,5 +1,103 @@
 # Browser campaign playtest
 
+## Flashlight and solar power — 52-level draft
+
+Current campaign hash: `0121fc4a7704fac68d2b8652f71d50779ecd25ccdda68b00cd7f07b3efff0a43`. Lessons 21 (“A little sunshine”) and 22 (“Out of the shade”) introduce a self-contained impact-triggered flashlight, a directional solar panel and electrical supply to a motor. The second lesson places an opaque wall across the beam. Initial `solar-v1` Balanced references won, but their screenshots showed the panel's back and a hidden meter. Both lesson layouts were subsequently turned 180°; those earlier captures remain historical evidence of hash `f82820a110fca24fecb205541624ee047c307e502dbc52ae80e921951d646b2a`.
+
+Eight current-layout UI-only attempts use real palette clicks, three-dimensional translation/rotation handles, contextual Connect, Run and Reset:
+
+| Capture in `docs/playtest-results/` | Result |
+| --- | --- |
+| `L21-{forgiving,balanced,precise}-reference-solar-v2.json` | All won at tick 207 |
+| `L22-{forgiving,balanced,precise}-reference-solar-v2.json` | All won at tick 207 |
+| `L22-balanced-shaded-solar-v2.json` | Expected timeout at tick 3600 with panel beyond the wall |
+| `L22-balanced-missing-wire-solar-v2.json` | Expected timeout at tick 3600 without panel-to-motor wiring |
+
+All eight have zero recorded browser errors, one Run/result/Reset lifecycle and passing current sampled-motion/property/socket audits. The reviewed level-22 outcome now shows the blue panel cells, gold meter marks and flashlight lens on the camera-facing side of the wall, with the existing palette and no additional toolbar.
+
+Six additional matched-error attempts use `L21-{forgiving,balanced,precise}-beam-edge-{102,110}-solar-v2.json`. Actual smaller-error starts are identical at [-1, 3, 1.0060782]; Forgiving ends at depth 0.75607824 and Balanced at 0.9060782, both winning at tick 207. Precise retains depth 1.0060782 and times out at 3600. Larger-error starts are identical at [-1, 3, 1.0860776]; Forgiving corrects to 0.8360776 and wins at 207, Balanced corrects to 0.98607755 but times out, and Precise stays unchanged and times out. These observations demonstrate distinct successful placement ranges for these fixtures, not complete coverage of all authored tolerances.
+
+Five error records pass their sampled-motion/Reset audits. The larger-error Precise v2 record is **failed verification**: it records the expected timeout but the Reset click produced no Reset event before the observer deadline. Its screenshot still shows the unchanged timeout screen. A later separate UI click at the same control restored the scene and emitted `CCRESET`; the failed evidence was not amended. This does not establish the cause of the missed input or prove reliability. The separate `L21-precise-beam-edge-110-solar-v3.json` replay subsequently recorded the expected timeout and a complete Run/result/Reset lifecycle with zero browser errors; its audit passes. It does not erase the v2 failure.
+
+All 236 native tests pass, including current 52-level references at three difficulties and six controlled solar-boundary cases. At an exact 1.02-unit depth error, Forgiving/Balanced win and Precise fails; at 1.1, only Forgiving wins. Impact thresholds remain .8 in every controlled case, isolating placement assistance rather than easier trigger physics. These are native boundary fixtures, not claims that UI drags land at exactly those offsets. Together with the 14 accepted current-layout UI captures and the retained Reset failure, they provide targeted evidence rather than full campaign acceptance.
+
+The generator matches current content, and the diagnostic browser build was published locally. Visible torch light remains a temporary straight axial marker: the owner's widening, softly clipped cone is explicitly unfinished in TODO.md. The simulation samples nine points within a finite illumination cone; it has no calibrated lumens, reflection/refraction, storage or ambient-sky supply. Original TIM equivalence, full campaign difficulty coverage, continuous rendered-fluidity checks and browser Save/Load remain unproven. Changes are local, not deployed to Pages.
+
+## Weights, fixed pulleys and ropes — 50-level draft
+
+That stage’s campaign hash: `d4c81b09d5628d1fc0881f20bb3fc72ed1a17d5d9afaef16c00d60de550fd196`. New lessons 19 (“A helping weight”) and 20 (“Around the corner”) teach unequal counterweights and a pulley route extending into depth. The switch is mounted upside down so the rising load hits its button face. Earlier `ropes-v1` captures use the pre-rotation hash and remain historical evidence, not current acceptance.
+
+The UI driver places parts with palette clicks and 3D handles and ties ropes using the contextual Connect action. Rope length is measured from actual socket positions when the player connects; recipe lengths do not set game state. Reset audits now compare explicit rope lengths and canonical undirected endpoints. The audit uses the shared C# connection-domain enum and rejects invalid domains, even when both Run and Reset contain the same invalid value.
+
+| Capture in `docs/playtest-results/` | Result |
+| --- | --- |
+| `L19-{forgiving,balanced,precise}-reference-ropes-v2.json` | All won at tick 93 |
+| `L20-{forgiving,balanced}-reference-ropes-v2.json` | Both won at tick 92 |
+| `L20-precise-reference-ropes-v2.json` | Won at tick 93 |
+| `L20-balanced-missing-rope-ropes-v2.json` | Expected timeout at tick 3600 with the middle pulley-to-pulley span omitted |
+
+All seven captures contain one Run/result/Reset lifecycle, zero reported browser errors and passing current audits. The reviewed level-20 outcome screenshot shows cream/gold pulleys, blue banded weights and warm rope within the existing minimal interface and palette. Incomplete routes are drawn dashed and carry no tension.
+
+Six additional UI-only captures, `L20-{forgiving,balanced,precise}-{near-positive,near-negative}-pulley-ropes-v2.json`, perturb the movable pulley through actual handles rather than moving the dynamic weight. Positive attempts win at ticks 94/94/93 and negative attempts at 91/91/93 (Forgiving/Balanced/Precise). All six have zero recorded browser errors, complete Run/result/Reset lifecycles and passing audits.
+
+Positive attempts share the exact observed start [2.0926993, 5.9916, 2.043662], quaternion [0, 0, 0.018233724, 0.99983376]. Forgiving reaches [2, 6, 2] and effectively zero rotation; Balanced reaches [2.0025344, 5.99977, 2.0011938] with quaternion Z 0.000781438; Precise retains its starting transform. Negative starts are [1.9357867, 5.9815993, 1.9521961]; both assisted settings reach the authored position while Precise retains the error. This directly observes different bounded placement corrections. Since every attempt wins, it does **not** establish a wider successful placement region or isolate assistance from the rope length measured at connection time.
+
+Important scope: the sampled correction audit observes **zero** parts in level 19 (the placed weight is dynamic) and **one** in level 20 (the movable pulley). It verifies connection/property/transform restoration for the complete setup, but it does not measure dynamic weight trajectories or continuous rendered fluidity. Reference wins at every difficulty alone do not establish an expanded successful placement region.
+
+Native coverage includes unequal/equal counterweights, order independence, slack and inward motion, open routes, graph rejection, invalid masses, floor constraints, pendulum energy bounds and Reset. All 218 native and 26 adapter tests pass; the generator matches current content and the diagnostic web publish succeeds. The model uses ideal fixed point guides, not moving pulley blocks, obstacle wrapping, self-collision, cutting, friction or pulley inertia. Original TIM physics equivalence, browser persistence, full repeated difficulty coverage and the 75-level target remain unproven. These changes are local and not deployed to Pages.
+
+## Mechanical relay and reversing transmission — 48-level draft
+
+That stage’s campaign hash is `300dbcadd3e69e17e563d17a749032ce9136f01de2a7acf7b58fba7d1470e039`. Electrical lessons now precede the first conveyor: battery/motor 14, switched supply 15, conveyor 16, relay 17 and reversal 18. Old numbered captures remain immutable evidence of their own content hashes.
+
+The driver now permits explicit `mechanical: drive -> drive_in` recipes. These use the ordinary contextual Connect icon and visible part clicks; no machine imports, variable setters or numeric placement menu. All records below contain one Run/result/Reset lifecycle, zero reported console errors and passing current sampled-motion/property/socket Reset audits.
+
+| Capture in `docs/playtest-results/` | Result |
+| --- | --- |
+| `L16-balanced-reference-mechanical-v1.json` | Won at tick 281 |
+| `L17-balanced-reference-mechanical-v1.json` | Won at tick 281; motor → fixed conveyor → placed conveyor |
+| `L18-balanced-reference-mechanical-v1.json` | Won at tick 281; motor → reverse transmission → conveyor |
+| `L17-balanced-reference-mechanical-animated-v2.json` | Won at tick 281 after adding moving belt artwork |
+| `L18-balanced-reference-mechanical-animated-v2.json` | Won at tick 281; outcome screenshot reviewed |
+| `L18-balanced-missing-drive-mechanical-v2.json` | Expected timeout at tick 3600 with transmission → conveyor omitted |
+| `L18-balanced-reference-mechanical-final-v3.json` | Won at tick 281; final short-label/continuous-marker screenshot reviewed |
+
+The reviewed reversal screenshot retains the established palette and minimal interface, with opposite-direction gear wheels and double-strand mechanical belts. It exposed an overlong inventory label, subsequently shortened to “Reverse gear” without changing the `reverse_transmission` part identity. A subsequent visual refinement makes witness marks traverse the closed belt ends continuously instead of wrapping along separate strands. The final-v3 replay passes its audit and the reviewed screenshot confirms the full “Reverse gear” label fits.
+
+Native tests additionally cover all three difficulties, each required-link omission, wrong-direction bypass, source loss/coasting, two reversers restoring direction, ordering, fan-out rules, rejected loops/competing inputs, and Reset. The campaign generator matches the checked-in content. This does **not** complete repeated browser difficulty trials, frame-by-frame rendered-fluidity verification, current-schema persistence or the 75-level target. Shaft-speed transfer is ideal; torque, load sharing, belt slip and chain-specific mechanics remain unimplemented. Changes are local, not deployed to Pages.
+## Switched circuits, power lessons and enum contracts — 27 September 2026
+
+Current campaign: 46 levels, hash `9f0e32a24c249a8ac34febb16c458fecd649cf64d9c5f3a82f10ca849c5974a0`. Levels 15–16 teach a supplied motor, then ball-triggered supply through an impact switch. The motor must complete one shaft revolution. Level 16 additionally requires its first supplied-power event to occur after the switch trigger; native direct-wire bypass controls fail even though both the unrelated switch and motor activate.
+
+Supply now traverses explicitly closed contacts from actual sources, with a per-tick snapshot and simultaneous assignment. Native tests cover reversed part/link ordering, multi-switch chains, cycles without source power, source loss/restoration, opened contacts, removed wires and Reset/replay. These are binary supply rules, not voltage/current, battery depletion or mechanical load simulation.
+
+Connection domains and goal kinds now use C# enums with strict string-enum JSON conversion. Runtime events have typed kind/target/body keys, and built-in sockets use centralized identifiers. Unknown string names and numeric enum inputs are rejected; no old-name aliases were added. Resource/instance IDs remain extensible. All 173 native tests pass, the web publish succeeds, and the standalone generator matches current data after negative-zero normalisation.
+
+Browser evidence:
+- `L15-balanced-reference-direct-switched-supply-reset-enum-v3.json`: win at tick 146.
+- `L16-balanced-reference-direct-switched-supply-reset-enum-v3.json`: win at tick 248.
+- Both use real palette, movement, contextual Connect, Run and Reset; zero recorded browser errors, complete lifecycles, reviewed outcome screenshots and passing sampled-motion/property/socket Reset audits.
+- Earlier `-v1` runs passed before the sequencing goal was strengthened; retain them as historical. `L15-...-v2` also won; `L16-...-v2` stopped during construction with `Timed out: requested puzzle` and no Run. Its failed record is preserved. The fresh enum-v3 attempt succeeds, but this does not establish a fix for intermittent selector navigation.
+
+Full repeated difficulty coverage, browser bypass/missing-wire controls, continuous shaft-motion review, mechanical drive transmission and browser Save/Load remain outstanding. Goal observers now report selection of fixed fixtures too, allowing UI-only linking from the fixed battery without exposing writable game state.
+## Battery/motor free-workshop probe — 27 September 2026
+
+Added two real C# part scenes and icons without changing the existing colour scheme. Direct battery supply reaches the motor's electrical input; activation commands cannot replace it. The motor visibly indicates supply and accelerates/coasts its shaft. A mechanical output socket is declared, but downstream belts/chains and torque/load transmission are not implemented.
+
+`workshop-battery-motor-direct-supply-reset-v1.json` uses only palette clicks, three-axis handles, contextual Connect, Run and Reset. It records one electrical edge from `battery_1:supply` to `motor_2:power_in`, preserved after Reset, with zero browser errors. The reviewed outcome screenshot shows the new icons, coral battery, teal motor, lit indicator and navy cable. Free workshop is currently selector entry 45; its 3600-tick diagnostic timeout is expected because it has no puzzle goal, **not** a successful level or a failed authored solution.
+
+All 158 native tests pass, including four connected/enabled combinations, source-loss coast-down, restored supply, disconnect clearing and Reset. The enlarged toolbox correctly reaches its screen-height limit and scrolls overflow; its previous test incorrectly assumed every catalogue always fits without scrolling and now checks both content and viewport limits. All 19 JavaScript adapter tests pass.
+
+The campaign remains 44 levels. Next: switched circuits, motor-driven mechanisms, progressive power lessons, real-browser unpowered controls and sampled shaft-motion review. Do not claim this single screenshot proves continuous fluidity, browser save persistence or full power-system acceptance.
+## Forward-only connection schema — 27 September 2026
+
+Per the owner's policy, remove compatibility paths instead of maintaining old save formats or implicit connection sockets. The 44-level draft now has explicit activation links; campaign hash is `717ead37ed63550b6193ca3d960d326dfc8633d3ce24ea6a92cb3f76d7f502cc`. Activation commands are separate from forthcoming electrical/signal/mechanical/rope domains. Version-1/2 and missing-version saves are rejected; current saves use version 3 and stable puzzle IDs.
+
+UI-only `L02-balanced-reference-direct-explicit-sockets-reset.json` places the switch, links the lamp and wins at tick 116 with zero browser errors and one Run/result/Reset lifecycle. Reviewed outcome screenshot shows the lit lamp and unchanged approved colours. Both observed connection snapshots contain type `activation`, source socket `activation_out` and target socket `activation_in`. The independent sampled-motion/property/socket Reset audit passes.
+
+The first audit rejected these valid sockets because it expected snake_case recipe keys instead of the browser observer's camelCase keys. Corrected the checker and its fixtures to use the actual diagnostic contract; re-audited the original unchanged capture successfully. No dual-name compatibility fallback was added.
+
+Native forward-refactor suite: 153 passing tests, including all 44 reference solutions at three precisions, explicit socket validation/Reset and obsolete-save rejection. The campaign generator matches checked-in content after numeric negative-zero normalisation. New-family UI, electrical supply simulation, browser save persistence and full repeated difficulty coverage remain pending; this regression is not a completed campaign matrix.
 In progress, 2026-09-27. All 40 levels have completed a direct-UI Balanced reference run; the full difficulty matrix remains incomplete.
 
 **Revised user requirement:** direct 3D UI manipulation, no numeric placement/layer menus, and multiple attempts at every difficulty on all 40 levels. The 24 reference completions below do not satisfy that requirement. The replacement runner and 480-run minimum matrix are described in [tools/Playtest/README.md](../tools/Playtest/README.md).
@@ -229,3 +327,137 @@ The near-positive first domino starts at [-2.3095338, 1.0008088, 0.032416027] on
 The screenshot review continues to show success freezing the final domino before its visible topple finishes. The approved visual style was not changed during testing; this behaviour remains an open playability issue.
 
 Archive totals: 120 outcomes (100 wins, 20 timeouts), including repeats/historical records; 66 have Reset evidence. Auditing those 66 gives **14 passed, 52 incomplete, 0 failed** under the connection-aware checker. The incomplete records lack connection snapshots. The full 480-case campaign matrix and original-physics calibration remain unfinished.
+
+## Level 7: outcomes and mixed-run evidence investigation
+
+The twelve difficulty/placement cases now have passing motion/Reset audits when using the separate isolated retry for Forgiving outside-window. Gameplay, author data, visual style, and the UI driver were unchanged for that retry.
+
+| Difficulty | Reference | Near-positive | Near-negative | Outside window |
+| --- | ---: | ---: | ---: | ---: |
+| Forgiving | Won, tick 268 | Won, tick 268 | Won, tick 268 | Timeout, tick 3600 (isolated retry) |
+| Balanced | Won, tick 281 | Won, tick 281 | Won, tick 281 | Timeout, tick 3600 |
+| Precise | Won, tick 300 | Won, tick 302 | Won, tick 311 | Timeout, tick 3600 |
+
+All thirteen outcome screenshots (the twelve original records plus retry) were reviewed. Wins show the ball at the basket and success UI; outside-window runs show a conveyor far above the useful route, the ball on the solid deck, and timeout UI. All records report zero browser errors. Precise reference construction initially hit the intermittent `Timed out: placed part` failure before a fresh-navigation retry succeeded; this does not establish a placement fix.
+
+The original `L07-forgiving-outside-window-direct-reset.json` remains **failed**: it contains 62 samples, two identical sequences of ticks 0..120, rather than one 31-sample sequence. The retained local browser log `.playwright-mcp/console-2026-09-27T02-31-06-916Z.log` establishes an actual Run at 6040414 ms, Reset at 6052029 ms, second Run at 6060268 ms, timeout at 6090265 ms, and final Reset at 6090636 ms. This explains the mixed trajectories; the source of the unexpected early Reset/restart is not established. Do not silently deduplicate or count the original record as a passing attempt.
+
+A fresh-page, UI-only [isolated retry](playtest-results/L07-forgiving-outside-window-direct-isolated-retry.json) has exactly 31 ordered samples, times out at tick 3600, restores the build with the real Reset control, and passes the independent connection-aware audit. It is separate evidence, not a repair to the historical record. Add explicit run-lifecycle tracking and fail early with captured evidence if an unexpected Reset or second Run occurs during an attempt.
+
+These outcomes do not demonstrate a wider successful placement region on easier settings: all three small-error variants win even on Precise. Rendered continuity between samples, exact target assignment, and original-physics equivalence remain outside the implemented checker.
+
+Current local archive: 133 outcome records (109 wins, 24 timeouts), including repeats/historical records; 79 have Reset evidence. Current audit: **26 passed, 52 incomplete, 1 failed**. The incomplete records lack connection snapshots; the failed record is retained mixed-run evidence. Neither the archive count nor this level's twelve accepted cases establishes completion of the full 480-case campaign matrix.
+
+## Runner lifecycle and failure-capture regression
+
+The UI adapter now retains ordered Run/result/Reset events and aborts on unexpected lifecycle events instead of merging observations. Failed construction or interrupted simulation returns `failure`, partial observations, the action log, latest UI and a failure screenshot; callers must save the record and stop the batch. The independent C# audit reports such a record as failed before requiring a completed Run/outcome. No gameplay or diagnostic game code changed.
+
+- Nine adapter-only unit tests pass: normal lifecycle, early Reset, repeated Run/result/Reset, malformed diagnostic JSON, missing Run, unavailable construction part, and screenshot-failure cleanup.
+- All 89 native C# tests pass.
+- [Level 8 Balanced reference](playtest-results/L08-balanced-reference-direct-lifecycle-reset.json) was played with the actual palette, lift/rotation handles, receiver-to-lamp wiring, Run and Reset. It wins at tick 206, records exactly Run → result → Reset, reports no browser errors, and passes the motion/connection-aware Reset audit. The reviewed screenshot shows a lit lamp, wire and success UI.
+- [Intentional early-Reset negative control](playtest-results/L07-lifecycle-negative-control.json) uses the level-7 outside-window recipe, then clicks the visible Reset toolbar button during simulation. The runner stops with `Unexpected reset event during running`, retains 24 partial samples and a failure screenshot, and the C# audit returns exit 1. This intentionally interrupted check is **not** campaign coverage or a puzzle timeout. The screenshot shows the restored build and placement projections.
+
+There are now 134 actual outcome records (110 wins, 24 timeouts), plus the separate intentional failure control with no outcome. This verifies the runner's normal and interrupted paths, not the full matrix, the source of the earlier unexpected interruption, or a fix for the intermittent placement issue. The published production game is unchanged.
+
+## Level 8: complete base matrix and exploratory tolerance probes
+
+All twelve planned reference/near-positive/near-negative/outside-window cases now have reviewed screenshots and pass the independent sampled-motion/Reset audit. Each records exactly one Run, result and Reset; no browser errors or construction interruptions occurred. Actual Reset snapshots preserve the directed receiver → lamp power link.
+
+| Difficulty | Reference | Near-positive | Near-negative | Outside window |
+| --- | ---: | ---: | ---: | ---: |
+| Forgiving | Won 206 | Won 206 | Won 206 | Timeout 3600 |
+| Balanced | Won 206 | Won 208 | Won 206 | Timeout 3600 |
+| Precise | Won 207 | Won 211 | Won 203 | Timeout 3600 |
+
+Numbers are simulation ticks. Near-positive starts at [-2.916413, 0.78961825, 0.030801335] at every difficulty. At tick 120, Forgiving reaches [-3, 0.8, 0], Balanced reaches [-2.9909742, 0.79887897, 0.003325997], and Precise remains unchanged. The small-error outcomes alone do not show expanded successful tolerance because all difficulties win.
+
+Twelve additional UI-only exploratory probes requested a +0.18 X offset and +3°, +6°, +12°, then +9° Z rotation error relative to the reference spring placement. Each is a separate artifact, not a replacement or extra base-matrix cell; the chronological search and all failures are retained. Recipes describe requested gestures, not exact resulting transforms.
+
+| Requested angular error | Forgiving | Balanced | Precise |
+| --- | ---: | ---: | ---: |
+| +3° (`larger-offset-probe`) | Won 208 | Won 214 | Won 219 |
+| +6° (`six-degree-probe`) | Won 218 | Won 227 | Won 233 |
+| +12° (`twelve-degree-probe`) | Timeout 3600 | Timeout 3600 | Timeout 3600 |
+| +9° (`nine-degree-probe`) | Won 234 | Timeout 3600 | Timeout 3600 |
+
+The three +9° records have identical actual starting transforms: position [-2.8148696, 0.78461814, 0], quaternion [0, 0, -0.089754276, 0.99596393], approximately -10.29894° Z (actual error +9.70106° from the authored -20°). Forgiving corrects position to [-3, 0.8, 0] and angle to -13.29894°; Balanced reaches [-2.894595, 0.79124224, 0] and -11.49894°; Precise changes neither. This directly observes 3° / 1.2° / 0° angular correction, respectively, within the authored caps.
+
+The Forgiving +9° screenshot shows the goal lit, whereas Balanced/Precise show an unlit goal and the ball on the floor. This is a matched-placement example of a wider successful region for the **whole Forgiving difficulty profile**, not a causal isolation of placement nudging from trigger/capture assistance. Repeatability and a complete tolerance boundary are not established by one matched triplet.
+
+All 24 level-8 records pass the audit, including the exploratory failures; all 24 screenshots were reviewed. The spring still has no compression/rebound animation (existing TODO). No physics, author curves, visual style or published build changed.
+
+Local archive now contains 157 actual outcomes (125 wins, 32 timeouts), plus the intentional early-Reset negative control without an outcome. The 103 outcome records with Reset audit as **50 passed, 52 incomplete, 1 failed**; the historical mixed-run failure remains untouched. Full campaign difficulty coverage, stronger audit gaps, rendered fluidity and original-physics calibration remain unfinished.
+
+## Level 9: fan-to-switch difficulty matrix
+
+All twelve UI-only cases have reviewed outcome screenshots and pass the current sampled-motion/connection-aware Reset audit. Each records exactly Run → result → Reset with no browser errors or captured construction failures. The screenshots show a lit lamp for the nine wins, and an unlit lamp with the ball on the solid floor for the three outside-window attempts.
+
+| Difficulty | Reference | Near-positive | Near-negative | Outside window |
+| --- | ---: | ---: | ---: | ---: |
+| Forgiving | Won 106 | Won 106 | Won 106 | Timeout 3600 |
+| Balanced | Won 106 | Won 106 | Won 106 | Timeout 3600 |
+| Precise | Won 107 | Won 107 | Won 107 | Timeout 3600 |
+
+Numbers are simulation ticks. The near-positive fan starts at [-3.9104257, 3.7891128, 0.03292829] on all difficulties. Forgiving and Balanced reach [-4, 3.8, 0]; Precise retains the initial transform. Outside-window placements remain at [0.009037018, 7.784113, 0] throughout sampled motion at every difficulty. Actual Reset restores the unassisted placement and the directed receiver → lamp power link.
+
+The reference free-drag height is 3.7841127 rather than the authored 3.8. All Precise near/reference attempts still win here; the earlier level-3 free-drag failure did not recur in this puzzle. Since all small-error cases win without assistance, these outcomes do not demonstrate expanded successful tolerance. No gameplay, author curves or visual changes were made.
+
+The archive contains 169 actual outcomes (134 wins, 35 timeouts), plus the separate intentional early-Reset failure control. The 115 outcome records with Reset audit as **62 passed, 52 incomplete, 1 failed**. Counts include repeated and historical attempts, not 169 unique accepted matrix cells. The older missing connection snapshots, retained mixed-run failure, exact-assignment audit gaps, rendered fluidity, full 480-case matrix and original-game physics equivalence remain unresolved.
+
+## Camera and toolbox interaction update
+
+The user revised the campaign objective to 75 progressively taught levels and prioritised new mechanics over exhaustive legacy testing; see TODO.md. The already-running level-10 batch completed with twelve saved outcomes, but its remaining screenshot/audit review is explicitly left in the handoff rather than counted as finished review.
+
+The local browser build now uses ground-plane, camera-heading-relative WASD movement and continuous Q/E camera turning. Q/E no longer tilts parts. Right-drag orbit, wheel zoom, three-axis part rotation and the approved visual style remain. Inventory rows are full-width click targets and their toolbox grows to fit, scrolling only at the available-height limit.
+
+Verification: all **96 native tests pass**. Actual Chrome UI input at 1440×900 showed all 12 free-workshop rows visible without clipping; name-click placed a ramp, count-click placed a conveyor and icon-click placed a lamp. Each of W/S/A/D/Q/E moved the observed projected geometry, with zero subsequent drift after release. Reset camera restored the original projections exactly. A Shift-drag on the Z rotation ring produced the expected 30° quaternion [0, 0, 0.25881904, 0.9659258], preserved by Run/Reset. Right-drag still changed the view. Returning to level 1 shrank the toolbox; two name-click placements exhausted its inventory, and a third click on the disabled row added no part. No browser errors were observed.
+
+Reviewed screenshots: .playwright-mcp/toolbox-all-parts.png, camera-fps-gizmo-orbit-v2.png and toolbox-exhausted-rows.png. Detailed local evidence: .playwright-mcp/camera-toolbox-controls.json. Earlier check attempts timed out on the script's Stop-button observation and selector-End assumptions; corrected UI gestures passed without changing game state through setters. These interaction checks are not campaign wins or evidence for the new 75-level campaign. The published GitHub Pages build remains unchanged.
+
+## Pinball bumper: first expanded-campaign lessons
+
+The local draft now contains **42 levels**. New levels 11–12 are `bumper_sidekick` (“A little sidekick”) and `bumper_depth` (“Bounce into depth”); original levels 11–40 shift to 13–42. Current puzzle SHA-256: `6f48ca28e0f5ebccbe94dc07f2ed8da57d9ca24590170ffc92b172e6f5fa91cf`. Earlier hashes and level numbers remain historical evidence, not verification of the expanded campaign.
+
+The new C# bumper uses a spherical collision proxy, radial launch impulse preserving tangential motion, per-body cooldown and an overlapping impact-ring pulse. Native tests cover contacts from six directions, glancing/missed contacts, cooldown, animation settling after simulation stops, Reset and same-host replay. Save version 2 identifies puzzles by stable ID; version 1 resolves the original 40 indices through their original IDs. These compatibility checks are native tests, not browser persistence verification.
+
+All **110 native tests** and **9 adapter-only tests** pass. The controlled native test `PlacementNudgingAloneRescuesTheSameImperfectBumper` freezes all non-bumper assistance at strict defaults. Starting at [-3.1104352, 1.4996231, 0.03465762], Forgiving and Balanced win while Precise fails. Gravity stays 9.81, Start does not teleport the part, first-step movement is at most 0.001, and Reset restores the initial placement. This isolates placement assistance for one configuration; it is not a complete tolerance boundary.
+
+### UI-only difficulty outcomes
+
+Each accepted case uses palette selection, movement/rotation handles, Run and actual Reset. Ticks below are simulation ticks; timeout is tick 3600.
+
+| Lesson | Difficulty | Reference | Near-positive | Near-negative | Outside window |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 11 | Forgiving | Won 323 | Won 323 | Won 323 | Timeout |
+| 11 | Balanced | Won 335 | Won 335 | Won 335 | Timeout |
+| 11 | Precise | Won 349 | Timeout | Timeout | Timeout |
+| 12 | Forgiving | Won 323 | Won 323 | Won 323 | Timeout |
+| 12 | Balanced | Won 335 | Won 334 | Won 335 | Timeout |
+| 12 | Precise | Won 349 | Timeout | Timeout | Timeout |
+
+All 24 accepted records have reviewed outcome screenshots, zero browser errors, ordered Run → result → Reset, and passing sampled-motion/connection-aware Reset audits. Wins show the ball in the basket and success text; timeouts show no success. A passing audit validates the recorded motion/reset contract, not that a puzzle was solved.
+
+For level 12, near-positive starts at [0.09592436, 1.5004194, 3.239566] at every difficulty. By the last sampled frame, Forgiving reaches [0, 1.5, 3.2], Balanced reaches [0.0034803078, 1.5000153, 3.2014356], and Precise remains unchanged. Near-negative starts at [-0.060988147, 1.490419, 3.1667554]; assisted settings reach the authored target while Precise retains that placement. This matched browser evidence establishes expanded success for the whole assisted profile; the separate native probe isolates nudging.
+
+Base artifacts end in `-direct-bumper-v1-lifecycle-reset.json`, except three accepted retries:
+- L11 Precise near-positive: `-direct-bumper-v1-isolated-retry-reset.json`.
+- L11 Precise near-negative: `-direct-bumper-v1-key-delay-retry-reset.json`.
+- L12 Forgiving outside-window: `-direct-bumper-v1-fresh-tab-retry-reset.json`.
+
+The three original records remain failed and excluded: L11 near-positive recorded a second Run; L11 near-negative timed out selecting the requested puzzle; L12 outside-window recorded a second Run for level 22 during level 12. Their source is not established. Explicit key-down delays and a fresh test tab produced clean retries but do not prove the root cause fixed. Audit totals for these lessons are **24 accepted passes, 3 retained failures**, plus one additional passing motion probe.
+
+### Rendered impact feedback
+
+`L11-balanced-reference-direct-bumper-motion-probe-reset.json` repeats the UI-only reference and wins at tick 335. Four reviewed images capture the resting cream ring, expanded gold ring after impact, and return to rest. Requested ticks 72/92/104/120 correspond to latest observed diagnostic ticks 72/96/104/120; screenshots occur asynchronously, not at exact simulation boundaries. No game-state setter was used. Sampled frames demonstrate visible feedback, not frame-by-frame fluidity or mobile performance. The earliest six bumper outcomes predate the final overlapping pulse refinement; this probe uses the final animation implementation.
+
+The 75-level rewrite, other mechanism families, repeated matched-error trials, stronger assignment-specific auditing, browser save persistence, mobile support and original-game physics calibration remain unfinished. All changes remain local; GitHub Pages has not been updated.
+
+## Physical wall and local-axis resize interaction
+
+The free workshop now includes a physical wall (14 catalog parts total). It is not a reference-plane wall: it has a solid oriented box collider and warm wood/cream panel artwork. The contextual resize icon appears only for a movable selected wall; square X/Y/Z handles follow its rotated local axes. Resize preserves centre/rotation, clamps dimension limits, updates serialized properties, collider, selection radius and artwork-derived dashed projections, and participates in cancellation/Undo. No campaign level has been added for walls yet; the campaign remains 42 levels.
+
+All **118 native tests** pass. New coverage includes three local resize axes on a rotated wall, snap/cancel, size limits/non-finite inputs, serialization/Reset, collision rebounds at 0°/45°/90° yaw, contextual visibility and one-drag/one-Undo. The initial contact tests incorrectly read a freed wall after reloading the world; fixing the test to retain the original centre resolved those failures without changing physics.
+
+Actual Chrome input in `wall-local-axis-resize-ui-v2.json` places and rotates a wall, then drags each square handle. Dimensions change from [3, 2, 0.25] to approximately [3.6, 2.6, 0.9]; one Undo restores thickness to 0.25. A further drag grows width to 4.617939, and Escape restores it to 3.6000001. The test reselects the wall if Escape clears selection before reading dimensions. Zero browser errors were recorded. The first record `wall-local-axis-resize-ui-v1.json` is retained as a failed observation: it compared an empty dimensions array after deselection rather than reselecting the wall. No game-state setters were used.
+
+The reviewed resized screenshot shows the warm panel, cream bands, square coloured handles, three unfilled projection boxes and contextual icon row. At 1440×900 all 14 items fit without selection controls; opening contextual controls appropriately enables inventory overflow scrolling. This check is not a campaign win, nor browser save/load or Run/Reset verification. Generic campaign audits currently check transforms/connections, not resized property values; expand that coverage before claiming wall-level acceptance. Remaining work is tracked in TODO.md. The deployment remains unchanged.

@@ -19,6 +19,6 @@ public partial class SpringPart : MachinePart
         _cooldown[body.Uid] = world.Ticks;
         var direction = Basis.Y.Normalized();
         body.Velocity = direction * Parameter("strength", 8.5f);
-        world.Events.TryAdd("bounced:" + Uid, world.Ticks);
+        world.Events.TryAdd(new MachineEvent(MachineEventKind.Bounced, Uid), world.Ticks);
     }
 }

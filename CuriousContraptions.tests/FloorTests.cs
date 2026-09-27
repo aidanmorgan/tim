@@ -37,7 +37,7 @@ public class FloorTests(HeadlessFixture godot)
             Assert.True(bounced);
             Assert.InRange(body.Position.Y - body.Radius, Workbench.SurfaceY - .001f, Workbench.SurfaceY + .002f);
             Assert.InRange(body.Velocity.Length(), 0, .05f);
-            Assert.DoesNotContain("escaped:ball", world.Events.Keys);
+            Assert.DoesNotContain(new MachineEvent(MachineEventKind.Escaped, "ball"), world.Events.Keys);
         }
         finally { world.Free(); }
     }
@@ -52,7 +52,7 @@ public class FloorTests(HeadlessFixture godot)
         {
             for (var i = 0; i < 300; i++) world.Step();
             Assert.False(world.FindPart("ball")!.Visible);
-            Assert.Contains("escaped:ball", world.Events.Keys);
+            Assert.Contains(new MachineEvent(MachineEventKind.Escaped, "ball"), world.Events.Keys);
         }
         finally { world.Free(); }
     }

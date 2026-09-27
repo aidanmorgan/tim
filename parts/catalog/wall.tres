@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/wall.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "wall"
+Title = "Wall"
+Category = "Structure"
+Description = "A solid panel. Move, rotate or stretch its three local dimensions to guide and contain balls."
+Scene = ExtResource("2")
+Color = Color(0.76, 0.56, 0.32, 1)
+Parameters = {"width": 3.0, "height": 2.0, "thickness": 0.25}
