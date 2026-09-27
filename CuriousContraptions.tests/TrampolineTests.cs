@@ -20,7 +20,7 @@ public class TrampolineTests(HeadlessFixture godot)
     private static TrampolinePart Bed(MachineWorld world, float tension = 180, Vector3 rotation = default) =>
         (TrampolinePart)world.AddPart(new() { Id = BedId, Kind = TrampolinePart.CatalogId,
             Position = [0,4,0], Rotation = [rotation.X,rotation.Y,rotation.Z],
-            Properties = new() { [TrampolineParameters.Tension] = tension } });
+            Properties = new() { [PartParameterName.Of(TrampolineParameter.Tension)] = tension } });
     private static MachinePart Ball(MachineWorld world, string id, Vector3 at, float mass = 1) =>
         world.AddPart(new() { Id = id, Kind = "ball", Position = [at.X,at.Y,at.Z],
             Properties = new() { [WeightParameters.Mass] = mass } });
@@ -296,7 +296,7 @@ public class TrampolineTests(HeadlessFixture godot)
         try
         {
             Assert.Throws<ArgumentException>(()=>world.AddPart(new(){Id="bad",Kind=TrampolinePart.CatalogId,
-                Properties=new(){[TrampolineParameters.Tension]=tension,[TrampolineParameters.DampingRatio]=damping}}));
+                Properties=new(){[PartParameterName.Of(TrampolineParameter.Tension)]=tension,[PartParameterName.Of(TrampolineParameter.DampingRatio)]=damping}}));
         }
         finally{world.Free();}
     }

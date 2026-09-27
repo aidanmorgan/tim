@@ -76,7 +76,7 @@ public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
         try
         {
             var puzzles = Puzzles();
-            Assert.Equal(60, puzzles.Count); // Expansion stage; the final target remains 75.
+            Assert.Equal(61, puzzles.Count); // Expansion stage; the final target remains 75.
             Assert.Equal(puzzles.Count, puzzles.Select(p => p.Id).Distinct().Count());
             foreach (var puzzle in puzzles)
             {

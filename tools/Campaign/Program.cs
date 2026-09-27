@@ -574,4 +574,5 @@ foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
 // New component lessons retain their explicitly authored, bounded assistance curves.
 campaign.Add(CuriousContraptions.Authoring.WoundSpringLesson.Create(campaign.Count + 1));
 campaign.Add(CuriousContraptions.Authoring.WoundSpringLesson.CreateRetained(campaign.Count + 1));
+campaign.Add(CuriousContraptions.Authoring.TrampolineLesson.Create(campaign.Count + 1));
 Console.Write(JsonSerializer.Serialize(campaign, MachineJson.Default.ListPuzzleData));

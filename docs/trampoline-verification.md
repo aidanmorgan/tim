@@ -78,3 +78,19 @@ On `8d7f58d` plus test/evidence additions only, five new enum-driven native case
 - Both actual configurations match recipe positions within 0.025 units (including post-connection moves), contain exactly the expected three parts and one typed link, report zero browser errors, and restore exact Run/Reset configuration equality. Outcome images were inspected: supported load versus suspended load. Complete ignored logs, actions and screenshots are retained at `docs/playtest-results/<caseId>.json` and `.playwright-mcp/`.
 
 These checks establish the specific fixed-anchor tether interaction, not all pulley networks, off-axis loads or arbitrary rope routing. Broader interactions, introductory campaign/pipe puzzles, refreshed off-centre motion and sustained/mobile visual review remain open. The trampoline entry remains unchecked.
+
+### Introductory lesson and enum parameters (28 September 2026)
+
+“A gentle rebound” is draft lesson 61: fixed ball at (0,7,0), fixed basket at (5.4,1.2,0), one placeable trampoline with reference position (0,3,0) and −30° Z rotation. There are no connections or power requirements. The author supplies bounded position/rotation correction of 0.2 units/5° at Forgiving, 0.1 units/2° at Balanced and zero at Precise, blended over 0.4 seconds. These are authored settings, not proof of the deferred repeated difficulty/monotonicity matrix. Final gradual ordering remains open; this lesson is appended during component development.
+
+The old `TrampolineParameters` string-constant class is removed. Runtime reads now use `TrampolineParameter` enum values through the validated resource boundary, with test authoring updated at that boundary. Canonical names remain `tension` and `damping_ratio`; undefined enum values are rejected. No aliases, fallback or compatibility path was added, and no physics constants changed.
+
+Six native lesson checks cover successful references at all three difficulties and Balanced flat, depth-missed and missing-bed controls, each with exact Reset. A seventh test checks parameter names/invalid enum rejection. **All 1,185 native tests pass**, plus diagnostic and production Release publishes.
+
+[Real-UI recipes and adapter snapshot](trampoline-lesson-recipes.json):
+
+- `trampoline-lesson-reference-v1`: place the bed from the palette, rotate it using the ring and Run. Actual position (0,3,0), quaternion (0,0,−0.25881904,0.9659258). Win at tick 252 (2.1 seconds), 42 diagnostic frames; outcome image shows the original ball in the basket.
+- `trampoline-lesson-flat-v1`: same construction with no tilt. The ball rebounds vertically and remains above the bed at (0,3.4859467,0), velocity (0,0.0031585693,0), tick 948. No win during the observed run; 100 frames. Native controls observe through tick 1200.
+- Both contain the expected two locked fixtures plus one unlocked trampoline, no connections, zero console errors and exact construction Reset. Outcome images inspected; complete local evidence retained under `docs/playtest-results/<caseId>.json`.
+
+Typed authoring in `tools/Campaign/TrampolineLesson.cs` reproduces checked-in content. A semantic comparison confirms the preceding 60 lessons are unchanged. Canonical full-campaign SHA-256: `e37ef7b11779a5ad363b364a043eddb376f6fd28ed8983367ad615fb2a521637`; TrampolinePart: `1b2bf856fa26639734306812acae3761f9658a1a2b10bb3b19e951abaac0b086`. There are now **61 draft lessons**, and Free workshop moves to row **62**. Historical recipes retain their original row numbers. Pipe integration, broader interaction/motion/mobile evidence, final 75-level progression and exhaustive difficulty testing remain open.

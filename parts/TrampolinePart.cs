@@ -6,11 +6,7 @@ using System.Linq;
 namespace CuriousContraptions;
 
 public enum ElasticContactPhase { Compressing, Returning, Settled }
-public static class TrampolineParameters
-{
-    public const string Tension = "tension";
-    public const string DampingRatio = "damping_ratio";
-}
+public enum TrampolineParameter { Tension, DampingRatio }
 
 /// <summary>Finite unilateral contact springs, not a powered launcher or a full cloth solver.</summary>
 public partial class TrampolinePart : MachinePart
@@ -32,13 +28,13 @@ public partial class TrampolinePart : MachinePart
     public int ContactCount => _contacts.Count;
     public int ImpactCount { get; private set; }
     public float Compression => _contacts.Count == 0 ? 0 : _contacts.Values.Max(c => c.Depth);
-    public float StoredElasticEnergy => _contacts.Values.Sum(c => .5f * Properties[TrampolineParameters.Tension] * c.Depth * c.Depth);
+    public float StoredElasticEnergy => _contacts.Values.Sum(c => .5f * ReadParameter(TrampolineParameter.Tension) * c.Depth * c.Depth);
     public override float SurfaceBounce => 0; // The rigid rim/back absorb; only the membrane stores energy.
 
     public override void ValidateParameters()
     {
-        var tension = Properties[TrampolineParameters.Tension];
-        var damping = Properties[TrampolineParameters.DampingRatio];
+        var tension = ReadParameter(TrampolineParameter.Tension);
+        var damping = ReadParameter(TrampolineParameter.DampingRatio);
         if (!float.IsFinite(tension) || tension < 120 || tension > 1200 ||
             !float.IsFinite(damping) || damping < .08f || damping > .8f)
             throw new ArgumentException("Trampoline tension must be 120–1200 and damping ratio 0.08–0.8.");
@@ -83,8 +79,8 @@ public partial class TrampolinePart : MachinePart
         contact.Radius = body.Radius;
         contact.Phase = Mathf.Abs(speed) < .03f ? ElasticContactPhase.Settled :
             speed < 0 ? ElasticContactPhase.Compressing : ElasticContactPhase.Returning;
-        var stiffness = Properties[TrampolineParameters.Tension];
-        var damping = 2 * Properties[TrampolineParameters.DampingRatio] * Mathf.Sqrt(stiffness * body.Mass);
+        var stiffness = ReadParameter(TrampolineParameter.Tension);
+        var damping = 2 * ReadParameter(TrampolineParameter.DampingRatio) * Mathf.Sqrt(stiffness * body.Mass);
         // Unilateral spring/damper: it may push, never pull or impose a launch velocity.
         var force = Mathf.Max(0, stiffness * contact.Depth - damping * speed);
         body.Velocity += normal * (force / body.Mass * delta);

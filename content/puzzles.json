@@ -29681,5 +29681,198 @@
         "to_port": "activation_in"
       }
     ]
+  },
+  {
+    "id": "a_gentle_rebound",
+    "title": "A gentle rebound",
+    "subtitle": "61 / Elastic surfaces",
+    "description": "Bounce the orange ball into the basket with one trampoline.",
+    "hint": "Place the trampoline beneath the ball and tilt its surface toward the basket. It returns some of the falling ball's energy; it needs no motor or trigger.",
+    "inventory": {
+      "trampoline": 1
+    },
+    "parts": [
+      {
+        "id": "payload",
+        "kind": "ball",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 0.2,
+            "rotation_window": 5,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 0.45,
+            "position_window": 0.1,
+            "rotation_window": 2,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": true,
+        "position": [
+          0,
+          7,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "properties": {}
+      },
+      {
+        "id": "receiver",
+        "kind": "basket",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 0.2,
+            "rotation_window": 5,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 0.45,
+            "position_window": 0.1,
+            "rotation_window": 2,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": true,
+        "position": [
+          5.4,
+          1.2,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "properties": {}
+      }
+    ],
+    "goals": [
+      {
+        "type": "captured",
+        "target": "receiver",
+        "body": "payload"
+      }
+    ],
+    "solution": [
+      {
+        "id": "bed",
+        "kind": "trampoline",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 0.2,
+            "rotation_window": 5,
+            "max_position_correction": 0.2,
+            "max_rotation_correction": 5,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 0.45,
+            "position_window": 0.1,
+            "rotation_window": 2,
+            "max_position_correction": 0.1,
+            "max_rotation_correction": 2,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": false,
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ],
+        "properties": {}
+      }
+    ],
+    "solution_connections": []
   }
 ]
