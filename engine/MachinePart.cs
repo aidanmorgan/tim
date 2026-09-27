@@ -38,6 +38,8 @@ public partial class MachinePart : Node3D
     internal void ClearElectricalPower() => _poweredInputs.Clear();
     internal void SupplyElectricalPower(string port) => _poweredInputs.Add(port);
     public virtual IReadOnlyList<AcousticPulse> AcousticPulses => [];
+    public virtual Vector3? AcousticTarget => null;
+    public virtual void ReceiveAcousticLevel(float level) { }
     public virtual OpticalEmitter? OpticalSource => null;
     public virtual IReadOnlyList<OpticalSurface> OpticalSurfaces => [];
     public virtual OpticalOutlet? OpticalOutput => null;

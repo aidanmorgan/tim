@@ -1,5 +1,7 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CuriousContraptions;
 
@@ -36,5 +38,36 @@ public sealed class AcousticPulse
         var localAge=(tick-EmissionTick)*MachineWorld.Tick-distance/Speed;
         if(localAge<0||localAge>=Duration)return 0;
         return 1/(1+.08f*distance*distance);
+    }
+}
+
+/// <summary>Strongest direct arrival wins; opaque collision geometry blocks the direct path.</summary>
+public static class AcousticNetwork
+{
+    public static void Solve(MachineWorld world)
+    {
+        var pulses=world.Parts.Where(p=>p.Visible).OrderBy(p=>p.Uid,StringComparer.Ordinal)
+            .SelectMany(p=>p.AcousticPulses.Select(pulse=>(Source:p,Pulse:pulse))).ToArray();
+        var readings=new List<(MachinePart Receiver,float Level)>();
+        foreach(var receiver in world.Parts.Where(p=>p.AcousticTarget.HasValue))
+        {
+            var level=0f;
+            if(receiver.Visible)
+            {
+                var point=receiver.Transform*receiver.AcousticTarget!.Value;
+                foreach(var (source,pulse) in pulses)
+                {
+                    if(source==receiver)continue;
+                    var strength=pulse.Sample(point,world.Ticks);
+                    if(strength<=level)continue;
+                    var offset=point-pulse.Origin;
+                    var distance=offset.Length();
+                    if(distance>1e-5f && LightNetwork.Trace(world,pulse.Origin,offset/distance,distance,source,receiver)<distance-.0001f)continue;
+                    level=strength;
+                }
+            }
+            readings.Add((receiver,level));
+        }
+        foreach(var (receiver,level) in readings)receiver.ReceiveAcousticLevel(level);
     }
 }

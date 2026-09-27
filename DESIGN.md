@@ -30,6 +30,10 @@ The Both gate retains its cyan body, cream face, navy base and two numbered cond
 
 Use a cream speaker cabinet on a navy foot, a gold-rimmed navy diaphragm and cyan centre. Two raised bars identify the default mid tone. Its diaphragm gives a small eased vibration after a real pulse; thin, shadow-free translucent wavefronts expand forward and fade with distance. Avoid solid gold hoops that dominate the diorama. The visible pulse and future meter must remain useful when audio is muted. Current desktop wave contrast is subtle; mobile contrast and continuous motion remain review items.
 
+## Sound meter
+
+The sound meter is a cyan cabinet with a cream dial, navy tick marks, a gold eased needle and a slate-to-gold output lamp. The needle shows received intensity even without supply; the lamp indicates supplied output. Keep the top-right activation socket distinct from the lower electrical sockets. A wall may block reception while the speaker's cosmetic ring remains visible beyond it: the meter, not the decorative ring, is the authoritative feedback. Acoustic wave clipping and richer material behaviour are future work.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.

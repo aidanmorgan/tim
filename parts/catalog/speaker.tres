@@ -6,6 +6,6 @@ script = ExtResource("1")
 Id = "speaker"
 Title = "Speaker"
 Category = "Sound"
-Description = "Supply electricity, then trigger a short forward sound pulse. Visible rings work even when muted. Needs a fresh trigger after losing power; at most five pulses per second. Sound meters and acoustic routing are still being added."
+Description = "Supply electricity, then trigger a short forward sound pulse. Visible rings work even when muted. Needs a fresh trigger after losing power; at most five pulses per second. Aim toward a powered sound meter to trigger mechanisms; opaque obstacles block its direct reception."
 Scene = ExtResource("2")
 Color = Color(1, 0.97, 0.91, 1)
