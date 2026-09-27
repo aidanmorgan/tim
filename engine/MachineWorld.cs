@@ -38,13 +38,27 @@ public partial class MachineWorld : Node3D
     public bool Realistic { get; set; }
     public MachineData? Initial { get; private set; }
 
-    public override void _Ready() => Registry.Discover();
+    private OpticalPathVisual _opticalVisual=null!;
+    public IReadOnlyList<OpticalSegment> OpticalPaths { get; private set; }=[];
+    public void SetOpticalPaths(IReadOnlyList<OpticalSegment> paths)
+    {
+        OpticalPaths=OpticalPathVisual.Merge(paths);
+    }
+    public override void _Ready()
+    {
+        Registry.Discover();
+        _opticalVisual=new OpticalPathVisual {Name="OpticalPaths"};
+        AddChild(_opticalVisual);
+    }
+    public override void _Process(double delta)=>_opticalVisual.Refresh(OpticalPaths);
 
     public void LoadMachine(MachineData input)
     {
         var data = MachineCodec.Clone(input);
         ValidateMachine(data);
         Running = Won = false;
+        OpticalPaths=[];
+        _opticalVisual.Refresh([]);
         Ticks = 0;
         Events.Clear();
         _corrections.Clear();

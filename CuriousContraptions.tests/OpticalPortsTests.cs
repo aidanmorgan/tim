@@ -102,7 +102,7 @@ public class OpticalPortsTests(HeadlessFixture godot)
     }
     [Theory]
     [InlineData(0)] [InlineData(1)] [InlineData(2)] [InlineData(3)]
-    [InlineData(4)] [InlineData(5)] [InlineData(6)] [InlineData(7)]
+    [InlineData(4)] [InlineData(5)] [InlineData(6)] [InlineData(7)] [InlineData(8)]
     public void InvalidAperturesAreRejectedRatherThanSilentlySubstituted(int fault)
     {
         var world=World();
@@ -121,6 +121,7 @@ public class OpticalPortsTests(HeadlessFixture godot)
                 5=>valid with{Transmission=new(float.NaN,1,1)},
                 6=>valid with{Interaction=(OpticalInteraction)99},
                 7=>valid with{Aperture=valid.Aperture with{At=new(float.PositiveInfinity,0,0)}},
+                8=>valid with{Interaction=OpticalInteraction.Route}, // No routed output declared.
                 _=>throw new ArgumentOutOfRangeException(nameof(fault))
             };
             target.Surfaces=fault==1?[valid,invalid]:[invalid];

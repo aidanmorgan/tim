@@ -39,6 +39,7 @@ public partial class MachinePart : Node3D
     internal void SupplyElectricalPower(string port) => _poweredInputs.Add(port);
     public virtual OpticalEmitter? OpticalSource => null;
     public virtual IReadOnlyList<OpticalSurface> OpticalSurfaces => [];
+    public virtual OpticalOutlet? OpticalOutput => null;
     public virtual void ReceiveOpticalPower(IReadOnlyDictionary<OpticalPortId,Vector3> power) { }
     public virtual OpticalEmitter? OpticalPreviewSource => null;
     public virtual void ReceiveOpticalPath(IReadOnlyList<OpticalSegment> path) { }

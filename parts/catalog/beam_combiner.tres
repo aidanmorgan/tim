@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/beam_combiner.tscn" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "beam_combiner"
+Title = "Beam combiner"
+Category = "Optics"
+Description = "Aim beams into any of the three cream-rimmed inputs. Their existing colours share the gold-rimmed output, retaining 90% power. No electricity or new light is produced."
+Scene = ExtResource("2")
+Color = Color(0.40, 0.72, 0.79, 1)

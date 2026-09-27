@@ -224,7 +224,15 @@ The blade accelerates along local Y and retracts into the header. Its rendered p
 
 Channel filter frames are cream with navy feet and translucent panes. Red/green/blue reuse the established gizmo accents (#de7058/#62aa78/#5b9cdb); no global palette changes. One/two/three raised bars on the frame, matching receiver faces and original icons distinguish channels without relying only on hue. Receivers retain the slate-to-gold eased activation disc, so “correct channel” and “currently active” remain separate cues.
 
-Traced single-channel beams use those accents; broadband keeps warm cream and two-channel artwork blends the existing accents. This is a palette-preserving signal convention, not spectral colourimetry. Opacity follows maximum RGB channel power instead of red alone, keeping blue/green beams visible without granting simulated energy. Filter previews remain faint, selected-only and non-activating. Browser snapshots verify all three colours; the lower-power blue beam is faint against the sky, so broader contrast/mobile review remains pending.
+Traced single-channel beams use those accents; broadband keeps warm cream and two-channel artwork uses the established combination accents documented below. This is a palette-preserving signal convention, not spectral colourimetry. Opacity follows maximum RGB channel power instead of red alone, keeping blue/green beams visible without granting simulated energy. Filter previews remain faint, selected-only and non-activating. Browser snapshots verify all three colours; the lower-power blue beam is faint against the sky, so broader contrast/mobile review remains pending.
+
+## Combiner and mixed-channel receivers — 27 September 2026
+
+The combiner is a chunky cyan cube on a navy foot. Three cream-rimmed input discs carry one/two/three cream bars; these identify ports, not mandatory input colours. Its smaller gold-rimmed outlet distinguishes the outgoing direction. The output lens eases toward the actual exiting light colour, or slate when dark; light exhausted inside the body cannot falsely light the outlet.
+
+Yellow/cyan/magenta/white-channel receivers retain the cream plate, navy foot and eased gold activation disc. Required RGB channels appear as grouped coloured bar rows using existing accents. Each required channel must meet threshold; the names denote game-channel combinations rather than precise colourimetry.
+
+Runtime beams now share one world renderer. Co-directed paths with the same physical origin sum over their actual overlapping intervals; a shorter colour contribution ends where its range ends. Red+green uses existing gold (#f7cb52), green+blue cyan (#66b8c9), red+blue balloon pink (#ed6378), and three-channel light retains warm cream. Crossing or differently directed paths remain separate. No global palette replacement. Selected combiner previews are faint and non-activating; broader preview/mobile/continuous-motion review remains pending.
 
 ## Source of truth
 

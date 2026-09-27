@@ -14,7 +14,7 @@ public partial class ColourFilterPart : MachinePart
     private OpticalPathVisual _preview=null!;
     public override void ValidateParameters()
     {
-        if(!Enum.IsDefined(Colour)||Colour==OpticalColour.Broadband)
+        if(Colour is not (OpticalColour.Red or OpticalColour.Green or OpticalColour.Blue))
             throw new ArgumentException("A filter requires a red, green or blue channel.");
     }
     protected override void Build()

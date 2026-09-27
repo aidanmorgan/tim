@@ -12,7 +12,6 @@ public partial class LaserPart : MachinePart
     public static readonly Vector3 BeamPower=new(1,.78f,.32f);
     public bool Enabled { get; private set; }
     public IReadOnlyList<OpticalSegment> BeamPath { get; private set; }=[];
-    private OpticalPathVisual _beam=null!;
     private StandardMaterial3D _lens=null!;
     public override bool CanReceiveActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
@@ -40,12 +39,9 @@ public partial class LaserPart : MachinePart
         var lens=PartArt.Cylinder(Visual,.23f,.035f,new("#556573"),LensPosition);
         lens.RotationDegrees=new(0,0,90);_lens=(StandardMaterial3D)lens.MaterialOverride;
         foreach(var port in ConnectionPorts)PartArt.Sphere(Visual,.075f,new("#f7cb52"),port.LocalPosition);
-        _beam=new OpticalPathVisual();
-        Visual.AddChild(_beam);
     }
     public override void _Process(double delta)
     {
-        _beam.Refresh(BeamPath);
         _lens.AlbedoColor=_lens.AlbedoColor.Lerp(Active?new("#fff0a5"):new("#556573"),1-Mathf.Exp(-(float)delta*12));
     }
 }
