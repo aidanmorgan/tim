@@ -6,14 +6,26 @@ Delivery policy: **Every time a new puzzle element is added and proven properly 
 
 ## Current objective — revised 27 September 2026
 
-**Component coverage first.** Implement the outstanding component families in the backlog before resuming exhaustive difficulty/nudging testing. Add focused introductory levels as useful, retaining the **75-level campaign** target; the full difficulty matrix and comprehensive campaign balancing come after the components are implemented. This supersedes the previous emphasis on running repeated difficulty sweeps as each piece lands.
+**Implement, prove, commit and push every puzzle element.** Complete all different puzzle elements tracked in this backlog and the linked component research, including mechanical, electrical, timing/logic, optical, transport/pipe, fluid/water and sound systems. One representative part does not complete a family. Maintain explicit per-element status; any proposed scope removal requires a user decision. Component coverage comes before resuming exhaustive difficulty/nudging testing. Add focused introductory levels as useful, retaining the **75-level campaign** target; the full difficulty matrix and comprehensive campaign balancing come after the components are implemented. This supersedes the previous emphasis on running repeated difficulty sweeps as each piece lands.
 
 - Add the requested solution types: movable/three-axis-rotatable/resizable walls, pinball bumpers, batteries, solar panels, wires and circuits, electric motors, chains/belts, weights, ropes and pulleys. Identify complementary items from the existing TIM research where they add distinct puzzle possibilities, not just cosmetic variants.
 - Rework existing levels as well as adding new ones. Introduce each new piece in a simple, focused puzzle before requiring combinations; gradually increase sequencing, timing, spatial reasoning and the number of interacting mechanisms. Support alternative solutions instead of only rewarding an exact reference layout.
 - Keep the extensible scene-graph architecture, Godot C# wherever possible, browser delivery and DESIGN.md's approved visual style. Mechanisms need understandable, fluid activation animation and reliable Reset behaviour.
 - Retain author-controlled, non-user-exposed placement/physics nudging across difficulties. Defer expanded tolerance sweeps and cross-difficulty tuning until component coverage is complete; do not replace the authored system with global physics relaxation.
-- Ultimately play every final level through real UI controls with Playwright, including repeated attempts across difficulties. For now, use focused behaviour/build/Reset tests and browser smoke checks per component; preserve existing evidence and defer the full difficulty matrix. Historical 40-level results do not verify the rewritten campaign.
+- Ultimately play every final level through real UI controls with Playwright, including repeated attempts across difficulties. For now, use focused behaviour/build/Reset tests and positive and negative real-UI checks per element; preserve existing evidence and defer the full difficulty matrix. Historical 40-level results do not verify the rewritten campaign.
 - Physics research/calibration and mobile support remain tracked requirements, but implementing the new solution systems and progressively teaching them across 75 levels is the immediate focus.
+
+### Per-element completion gate
+
+For every element, complete this sequence before starting the next:
+
+1. Implement actual C# behaviour, typed connections/parameters, catalog and authoring support, scene, icon and fluid activation feedback in the approved visual style. No placeholders or bypassed mechanics.
+2. Prove intended behaviour and relevant negative/boundary cases with automated tests, including combinations with existing mechanisms, repeat activation, ordering/timing where applicable, and Reset/save restoration. Run relevant regressions and a production web build.
+3. Exercise the element through real UI Playwright actions, including successful use, a meaningful failure/control case and Run/Reset. Inspect visual behaviour; add targeted motion, performance or audio checks where those are essential to the element. Do not treat screenshots alone as proof of fluid motion or sound quality.
+4. Record commands, outcomes, retained failed attempts, evidence locations and remaining limitations in this TODO and the relevant verification document. Keep the element incomplete while required behaviour or proof is missing; previously shipped elements with verification gaps still need those gaps closed.
+5. Commit the element, tests and evidence documentation; push that commit and confirm it reached the remote before proceeding to another element. Record the commit identifier. Failed verification or a failed push is not a completed delivery.
+
+The component goal is complete only when every tracked element has passed these gates. This does not mark the separate 75-level progression, full campaign/difficulty matrix or mobile requirements complete.
 
 ### Implementation and campaign sequence
 
