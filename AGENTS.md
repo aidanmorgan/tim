@@ -1,5 +1,7 @@
 # Project rules
 
+No magic strings are permitted. Enums are mandatory wherever a value belongs to a closed set; this is a project-wide requirement, not a preference. Named string constants do not replace enums for closed sets. The boundary and typed-identifier rules below govern values that genuinely cannot be enums.
+
 - Current priority: implement the outstanding puzzle-component families first. Defer exhaustive difficulty/nudging sweeps and the full campaign playtest matrix until the component set is implemented. Continue focused correctness, build, Reset and real-UI Playwright behavioural proof for each individual puzzle element; preserve all existing difficulty evidence. Expand/rework the 75-level campaign to teach the components, without letting difficulty testing delay component coverage.
 
 - Goal: implement all different puzzle elements tracked in TODO.md and its linked component research, not merely one representative of each family. Track each element separately through implementation, sufficient verification, commit and push; do not silently drop or defer an element out of scope.
