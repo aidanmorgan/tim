@@ -5,66 +5,79 @@ using System.Linq;
 
 namespace CuriousContraptions;
 
+public enum OpticalInteraction { Absorb, Mirror, Split }
 public readonly record struct OpticalEmitter(Vector3 At,Vector3 Direction,float Range,Vector3 Power);
 public readonly record struct OpticalTarget(Vector3 At,Vector3 Normal,float Radius);
-public readonly record struct OpticalReflector(OpticalTarget Surface,float Reflectivity);
+public readonly record struct OpticalSurface(OpticalTarget Aperture,OpticalInteraction Interaction);
 public readonly record struct OpticalSegment(Vector3 From,Vector3 To,Vector3 Power,string OriginPart);
-public sealed record OpticalTrace(IReadOnlyList<OpticalSegment> Segments,MachinePart? Receiver,Vector3 Power);
+public readonly record struct OpticalReception(MachinePart Receiver,Vector3 Power);
+public sealed record OpticalTrace(IReadOnlyList<OpticalSegment> Segments,IReadOnlyList<OpticalReception> Receptions);
 
-/// <summary>Narrow-ray optics in linear RGB game-power units. All outputs commit together.
-/// Emitters read the preceding electrical snapshot, so optical/electrical feedback advances one tick.</summary>
+/// <summary>Bounded narrow-ray optics; all receivers commit together after source snapshots.
+/// Passive branches divide rather than duplicate power. No electrical feedback within a trace.</summary>
 public static class OpticalNetwork
 {
-    public const int MaximumReflections=16;
+    public const int MaximumInteractions=16;
+    public const int MaximumSegments=128;
+    public const float MirrorRetention=.95f;
     private const float Epsilon=.0001f;
+    private readonly record struct Ray(Vector3 Origin,Vector3 Direction,float Remaining,Vector3 Power,int Depth,string OriginPart);
 
-    // Pure geometry query shared by simulation and non-activating selected-mirror aim previews.
     public static OpticalTrace Trace(MachineWorld world,MachinePart emitter,OpticalEmitter source)
     {
-        var surfaces=world.Parts.Where(p=>p.Visible&&(p.OpticalTarget.HasValue||p.OpticalReflector.HasValue))
+        var surfaces=world.Parts.Where(p=>p.Visible&&p.OpticalSurface.HasValue)
             .OrderBy(p=>p.Uid,StringComparer.Ordinal).ToArray();
-        var origin=emitter.Transform*source.At;
-        var direction=(emitter.Basis*source.Direction).Normalized();
-        var remaining=source.Range;
-        var power=source.Power;
-        var originPart=emitter.Uid;
         var segments=new List<OpticalSegment>();
-        for(var bounce=0;bounce<=MaximumReflections&&remaining>Epsilon;bounce++)
+        var receptions=new List<OpticalReception>();
+        var pending=new Queue<Ray>();
+        pending.Enqueue(new(emitter.Transform*source.At,(emitter.Basis*source.Direction).Normalized(),
+            source.Range,source.Power,0,emitter.Uid));
+        while(pending.TryDequeue(out var ray)&&segments.Count<MaximumSegments)
         {
-            // Only the initial emitter is ignored; reflected rays can hit it or the mirror's mount.
-            var distance=LightNetwork.Trace(world,origin,direction,remaining,bounce==0?emitter:null);
+            if(ray.Remaining<=Epsilon||ray.Power.LengthSquared()<1e-8f)continue;
+            var distance=LightNetwork.Trace(world,ray.Origin,ray.Direction,ray.Remaining,ray.Depth==0?emitter:null);
             MachinePart? hit=null;
             var normal=Vector3.Zero;
             foreach(var candidate in surfaces)
             {
-                if(bounce==0&&candidate==emitter)continue;
-                var target=candidate.OpticalReflector is {} reflector?reflector.Surface:candidate.OpticalTarget!.Value;
+                if(ray.Depth==0&&candidate==emitter)continue;
+                var surface=candidate.OpticalSurface!.Value;
+                var target=surface.Aperture;
                 var n=(candidate.Basis*target.Normal).Normalized();
-                var facing=direction.Dot(n);
-                if(facing>=-Epsilon)continue;
+                var facing=ray.Direction.Dot(n);
+                if(surface.Interaction==OpticalInteraction.Split)
+                {
+                    if(Mathf.Abs(facing)<Epsilon)continue; // Splitter coating works from either side.
+                }
+                else if(facing>=-Epsilon)continue;
                 var centre=candidate.Transform*target.At;
-                var along=(centre-origin).Dot(n)/facing;
+                var along=(centre-ray.Origin).Dot(n)/facing;
                 if(along<Epsilon||along>=distance)continue;
-                if((origin+direction*along-centre).LengthSquared()>target.Radius*target.Radius)continue;
+                if((ray.Origin+ray.Direction*along-centre).LengthSquared()>target.Radius*target.Radius)continue;
                 distance=along;hit=candidate;normal=n;
             }
-            var end=origin+direction*distance;
-            segments.Add(new(origin,end,power,originPart));
-            if(hit==null)return new(segments,null,Vector3.Zero);
-            if(hit.OpticalReflector is not {} mirror)return new(segments,hit,power);
-            if(!float.IsFinite(mirror.Reflectivity)||mirror.Reflectivity<0||mirror.Reflectivity>1)
-                throw new InvalidOperationException("Passive mirror reflectivity must be between zero and one.");
-            if(bounce==MaximumReflections)break;
-            power*=mirror.Reflectivity;
-            if(power.LengthSquared()<1e-8f)break;
-            direction=(direction-2*direction.Dot(normal)*normal).Normalized();
-            remaining-=distance+Epsilon;
-            origin=end+direction*Epsilon;
-            originPart=hit.Uid;
+            var end=ray.Origin+ray.Direction*distance;
+            segments.Add(new(ray.Origin,end,ray.Power,ray.OriginPart));
+            if(hit==null)continue;
+            var interaction=hit.OpticalSurface!.Value.Interaction;
+            if(interaction==OpticalInteraction.Absorb){receptions.Add(new(hit,ray.Power));continue;}
+            if(ray.Depth==MaximumInteractions)continue;
+            var remaining=ray.Remaining-distance-Epsilon;
+            var reflected=(ray.Direction-2*ray.Direction.Dot(normal)*normal).Normalized();
+            void Branch(Vector3 direction,Vector3 power)=>pending.Enqueue(
+                new(end+direction*Epsilon,direction,remaining,power,ray.Depth+1,hit.Uid));
+            switch(interaction)
+            {
+                case OpticalInteraction.Mirror: Branch(reflected,ray.Power*MirrorRetention);break;
+                case OpticalInteraction.Split:
+                    Branch(ray.Direction,ray.Power*.5f);
+                    Branch(reflected,ray.Power*.5f);
+                    break;
+                default: throw new InvalidOperationException("Unsupported optical interaction.");
+            }
         }
-        return new(segments,null,Vector3.Zero);
+        return new(segments,receptions);
     }
-
     public static void Solve(MachineWorld world)
     {
         var emitters=world.Parts.Where(p=>p.Visible&&p.OpticalSource.HasValue)
@@ -76,7 +89,7 @@ public static class OpticalNetwork
         {
             var trace=Trace(world,part,source);
             part.ReceiveOpticalPath(trace.Segments);
-            if(trace.Receiver!=null)readings[trace.Receiver]+=trace.Power;
+            foreach(var reception in trace.Receptions)readings[reception.Receiver]+=reception.Power;
         }
         foreach(var (part,power) in readings)part.ReceiveOpticalPower(power);
     }

@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 namespace CuriousContraptions;
@@ -6,10 +7,10 @@ namespace CuriousContraptions;
 /// <summary>Front-facing laser target closes a separately supplied electrical contact.</summary>
 public partial class LightReceiverPart : MachinePart
 {
-    public const float Threshold=.5f;
+    public float Threshold=>Properties[ReceiverParameters.Threshold];
     public Vector3 ReceivedPower { get; private set; }
     public float Power=>(ReceivedPower.X+ReceivedPower.Y+ReceivedPower.Z)/3;
-    public override OpticalTarget? OpticalTarget=>new(new(-.18f,0,0),Vector3.Left,.55f);
+    public override OpticalSurface? OpticalSurface=>new(new(new(-.18f,0,0),Vector3.Left,.55f),OpticalInteraction.Absorb);
     private StandardMaterial3D _target=null!;
     private float _level;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
@@ -20,6 +21,11 @@ public partial class LightReceiverPart : MachinePart
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
         Power>=Threshold?[new(SocketIds.PowerIn,SocketIds.Supply)]:[];
     public override void ReceiveOpticalPower(Vector3 power){ReceivedPower=power;Active=Power>=Threshold;}
+    public override void ValidateParameters()
+    {
+        if(!float.IsFinite(Threshold)||Threshold<.05f||Threshold>2)
+            throw new ArgumentException("Receiver threshold must be finite and between 0.05 and 2.");
+    }
     protected override void Build()
     {
         PickRadius=1.1f;

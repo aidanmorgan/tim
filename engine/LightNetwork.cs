@@ -55,7 +55,7 @@ public static class LightNetwork
             var inverse = part.Transform.AffineInverse();
             var local = inverse * origin;
             var ray = inverse.Basis * direction;
-            foreach (var box in part.Boxes)
+            foreach (var box in part.Boxes.Where(b => b.Opaque))
                 closest = BoxDistance(local - box.At, ray, box.Half, closest);
             foreach (var sphere in part.Spheres)
                 closest = SphereDistance(local - sphere.At, ray, sphere.Radius, closest);

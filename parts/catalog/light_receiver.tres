@@ -9,3 +9,4 @@ Category = "Optics"
 Description = "The front target detects a laser beam and closes an electrical contact while lit. Connect a separate battery supply; the beam does not create electricity."
 Scene = ExtResource("2")
 Color = Color(1, 0.97, 0.91, 1)
+Parameters = {"threshold": 0.25}

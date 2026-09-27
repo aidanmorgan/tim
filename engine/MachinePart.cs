@@ -5,7 +5,7 @@ namespace CuriousContraptions;
 
 public enum ActivationDisposition { Immediate, Deferred }
 
-public readonly record struct BoxProxy(Vector3 At, Vector3 Half);
+public readonly record struct BoxProxy(Vector3 At, Vector3 Half, bool Opaque = true);
 public readonly record struct SphereProxy(Vector3 At, float Radius);
 
 public partial class MachinePart : Node3D
@@ -38,9 +38,8 @@ public partial class MachinePart : Node3D
     internal void ClearElectricalPower() => _poweredInputs.Clear();
     internal void SupplyElectricalPower(string port) => _poweredInputs.Add(port);
     public virtual OpticalEmitter? OpticalSource => null;
-    public virtual OpticalTarget? OpticalTarget => null;
+    public virtual OpticalSurface? OpticalSurface => null;
     public virtual void ReceiveOpticalPower(Vector3 power) { }
-    public virtual OpticalReflector? OpticalReflector => null;
     public virtual OpticalEmitter? OpticalPreviewSource => null;
     public virtual void ReceiveOpticalPath(IReadOnlyList<OpticalSegment> path) { }
     public virtual LightEmitter? LightSource => null;

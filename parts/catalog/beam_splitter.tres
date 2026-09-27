@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/beam_splitter.tscn" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "beam_splitter"
+Title = "Beam splitter"
+Category = "Optics"
+Description = "Half the beam continues straight; half reflects from the glass. Rotate with the same gizmo as a mirror. Selecting it previews both paths. Further splitting may leave too little power for a receiver."
+Scene = ExtResource("2")
+Color = Color(0.4, 0.72, 0.79, 1)
