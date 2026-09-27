@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/ramp.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "ramp"
+Title = "Ramp"
+Category = "Structure"
+Description = "Rotate a ramp to guide a falling ball. Its width extends into depth."
+Scene = ExtResource("2")
+Color = Color(0.76, 0.56, 0.32, 1)
+Parameters = {"length": 3.0, "width": 1.3}

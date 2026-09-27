@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/spring.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "spring"
+Title = "Springboard"
+Category = "Motion"
+Description = "An impact launches the ball along the springboard normal."
+Scene = ExtResource("2")
+Color = Color(0.96, 0.7, 0.33, 1)
+Parameters = {"strength": 8.5}

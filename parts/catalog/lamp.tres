@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/goal_light.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "lamp"
+Title = "Signal lamp"
+Category = "Goals"
+Description = "Lights when an incoming connection supplies power."
+Scene = ExtResource("2")
+Color = Color(0.98, 0.86, 0.51, 1)
+Parameters = {}

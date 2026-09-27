@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/ball.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "tennis"
+Title = "Tennis ball"
+Category = "Motion"
+Description = "Light, small and bouncy. Responds strongly to moving air."
+Scene = ExtResource("2")
+Color = Color(0.72, 0.86, 0.35, 1)
+Parameters = {"mass": 0.35, "bounce": 0.78, "radius": 0.25}

@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Browser (wasm) host; requires `dotnet workload install wasm-tools`. Publish from the project root:
+         dotnet publish CuriousContraptions.web -> AppBundle/ (engine linked in, content exported as godot.pck) -->
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <!-- Keep host namespaces uniform with the desktop host (whose
+             '.2dog' assembly name is not a valid namespace). -->
+        <RootNamespace>CuriousContraptions.Web</RootNamespace>
+    </PropertyGroup>
+    <!-- Godot project location: the parent directory (hosts are nested inside
+         the Godot project, hidden from the Godot editor by their .gdignore) -->
+    <PropertyGroup>
+        <GodotProjectDir>..</GodotProjectDir>
+        <TwoDogRemoveDuplicateGodotAnalyzers>true</TwoDogRemoveDuplicateGodotAnalyzers>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- TwoDogWebBoot.cs is compiled by the GAME project (see the root
+             csproj's Compile Include), not by this host. -->
+        <Compile Remove="TwoDogWebBoot.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="2dog.engine" Version="$(TwoDogVersion)"/>
+        <PackageReference Include="2dog.browser-wasm" Version="[$(TwoDogNativesVersion)]"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="../CuriousContraptions.csproj"/>
+    </ItemGroup>
+
+    <!-- Scripts are resolved by reflection: root the game assembly, and any NuGet package your game reaches
+         via reflection (e.g. an ECS or serializer library) -->
+    <ItemGroup>
+        <TrimmerRootAssembly Include="CuriousContraptions"/>
+        <TrimmerRootAssembly Include="$(TargetName)"/>
+    </ItemGroup>
+
+    <Target Name="DeepClean" AfterTargets="Clean">
+        <RemoveDir Directories="AppBundle"/>
+    </Target>
+</Project>

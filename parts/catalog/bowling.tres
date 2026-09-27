@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/ball.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "bowling"
+Title = "Bowling ball"
+Category = "Motion"
+Description = "Heavy and reluctant to bounce. Useful for pushing and switches."
+Scene = ExtResource("2")
+Color = Color(0.27, 0.39, 0.61, 1)
+Parameters = {"mass": 4.0, "bounce": 0.14, "radius": 0.38}

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/ball.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "balloon"
+Title = "Balloon"
+Category = "Motion"
+Description = "Buoyancy lifts it; fans can guide it. Pressure changes its ascent."
+Scene = ExtResource("2")
+Color = Color(0.93, 0.39, 0.47, 1)
+Parameters = {"mass": 0.5, "bounce": 0.2, "radius": 0.36, "buoyancy": 11.5, "drag": 0.4}

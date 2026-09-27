@@ -1,0 +1,194 @@
+{
+  "scope": "Implemented sampled-motion and Reset checks only; see tools/Playtest/README.md for limitations.",
+  "reports": [
+    {
+      "file": "docs/playtest-results/L01-balanced-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 2,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L01-forgiving-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 2,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L01-precise-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 2,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-balanced-near-negative-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-balanced-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-balanced-outside-window-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-balanced-reference-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-forgiving-near-negative-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-forgiving-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-forgiving-outside-window-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-forgiving-reference-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-precise-near-negative-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-precise-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-precise-outside-window-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L02-precise-reference-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-balanced-near-negative-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-balanced-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-balanced-outside-window-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-balanced-reference-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-forgiving-near-negative-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-forgiving-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-forgiving-outside-window-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-forgiving-reference-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-precise-near-negative-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-precise-near-positive-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-precise-outside-window-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    },
+    {
+      "file": "docs/playtest-results/L03-precise-reference-direct-reset.json",
+      "status": "passed",
+      "checkedParts": 1,
+      "errors": [],
+      "gaps": []
+    }
+  ]
+}

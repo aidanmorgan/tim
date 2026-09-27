@@ -1,0 +1,20 @@
+.anvil/
+anvil/exceptions/.lock
+anvil/witness/.chain-initialised
+anvil/witness/.lock
+.godot/
+.tools/
+build/
+.DS_Store
+*.tmp
+**/bin/
+**/obj/
+**/AppBundle/
+TestResults/
+
+# Local agent state and browser evidence are not publication inputs.
+.playwright-mcp/
+docs/playtest-results/
+anvil/
+.anvil.yaml
+plans/

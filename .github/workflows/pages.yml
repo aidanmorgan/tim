@@ -1,0 +1,49 @@
+name: Build and deploy game
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.401'
+      - name: Install WebAssembly workload
+        run: dotnet workload install wasm-tools
+      - name: Test C# game
+        run: dotnet test CuriousContraptions.tests --nologo
+      - name: Publish production browser bundle
+        run: dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false
+      - name: Check static deployment
+        run: |
+          test -s CuriousContraptions.web/AppBundle/index.html
+          test -s CuriousContraptions.web/AppBundle/404.html
+          test -s CuriousContraptions.web/AppBundle/godot.wasm
+          test -s CuriousContraptions.web/AppBundle/godot.pck
+          test -s CuriousContraptions.web/AppBundle/_framework/dotnet.js
+          touch CuriousContraptions.web/AppBundle/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: CuriousContraptions.web/AppBundle
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
+

@@ -1,0 +1,39 @@
+# To-do
+
+- [ ] Animate activated mechanical parts so their operation is visually understandable. Start with the springboard: visibly compress the spring, extend/rebound on launch, and settle smoothly. Synchronize the animation with activation and the ball's impulse, preserve collision/physics behavior, support repeated activation, and restore the resting pose on Reset.
+- [ ] Add distinct electrical and mechanical power systems instead of treating every connection as a generic activation link.
+  - Batteries and solar panels supply electrical power through wires; switches control circuits rather than generating power.
+  - Electric motors consume electrical power and provide mechanical drive.
+  - Chains/belts transmit mechanical drive from motors to compatible mechanisms.
+  - Give parts typed connection points; reject incompatible links and expose clearly different wire versus chain/belt visuals.
+  - Model source availability, switching, disconnected links, and mechanical operation consistently; update level inventories, authored puzzles, animation, and tests to teach and exercise these systems.
+- [ ] Add weights, pulleys, and ropes as core mechanics for both creating puzzles and solving them.
+  - Support attachable weights, rope endpoints, and routing over pulleys to lift, pull, counterbalance, and redirect forces between mechanisms.
+  - Make rope length, slack/tension, pulley routing, and weight effects visually understandable in 3D; animate motion smoothly and restore the complete setup on Reset.
+  - Include these parts in authoring tools and player inventories, with introductory puzzles and later combinations that allow alternative solutions.
+  - Add deterministic physics, connection/constraint, difficulty-tolerance, and UI playtests for these systems.
+- [ ] Add wall pieces, pinball bumpers, and more interactive items for creating and solving puzzles.
+  - Wall pieces must be movable, rotatable in all three dimensions, and resizable through intuitive controls; update collision geometry and dashed placement projections to match their dimensions.
+  - Keep these physical puzzle walls distinct from the transparent reference walls used for placement aids.
+  - Add pinball bumpers with clear impact feedback and predictable rebound/impulse behaviour, including smooth activation animation and Reset support.
+  - Expand the item catalog with complementary puzzle-solving mechanisms; include authoring support, player inventories, teaching puzzles, alternative solutions, and physics/UI tests while retaining DESIGN.md's visual style.
+- [ ] Make the full game playable in mobile browsers.
+  - Provide touch-first placement, selection, movement/lift, rotation, wiring, undo, and Run/Reset without requiring keyboard shortcuts, hover, or right-click.
+  - Add discoverable camera gestures, generous touch targets, and clear separation between camera gestures and part manipulation.
+  - Adapt the UI to small screens, portrait/landscape orientation, and safe areas while keeping the puzzle visible.
+  - Check loading size, memory use, frame rate, and WebGL compatibility on real iOS Safari and Android Chrome devices.
+  - Playtest all puzzle mechanics on touch devices; desktop browser emulation alone is insufficient.
+- [ ] Create a GitHub repository owned by `aidanmorgan` and deploy the webapp to GitHub Pages as an SPA.
+  - Choose the repository name and visibility, confirm account access, and connect the existing local Git repository to the remote.
+  - Add a GitHub Actions workflow that builds/tests the C# game, publishes the web bundle, and deploys Pages.
+  - Support the GitHub Pages repository subpath for all assets (including WebAssembly and Godot resources); handle SPA direct links/refreshes without server-side routing.
+  - Verify the published game, loading behavior, and browser storage at the actual Pages URL; document deployment and rollback.
+- [x] Complete and document direct-UI Balanced reference playthroughs of all 40 levels; see [browser playtest](docs/browser-playtest.md).
+- [ ] Complete the full direct-UI difficulty/placement-error matrix for all 40 levels, including correction bounds/easing and browser Reset audits.
+- [ ] Improve dense 3D scene readability: occluded deeper parts, clipped scrolled palette rows, boundary placement rounding, and abrupt mid-animation success freeze; see playtest observations.
+- [x] Fix the reproduced level-3 fan-height forgiveness defect: author fan correction over 0.15 s instead of 0.4 s, retaining quintic easing and correction bounds. Native height-offset/Reset regressions pass at Forgiving and Balanced; direct-UI before/after and positive/negative perturbation browser runs verify the repair. Broader fan/campaign tolerance coverage remains part of the playtest matrix.
+- [ ] Check next-puzzle navigation immediately after success; avoid requiring Reset or showing misleading instructions.
+- [ ] Validate difficulty progression and puzzle variety through hands-on play, not just reference solutions.
+- [ ] Quantitatively calibrate classic physics against original-game observations; current physics fidelity is not proven.
+
+- [x] Verify a practical keyboard-assisted level-3 Precise placement path: Shift-drag now aligns the chosen movement axis to the tenth-unit world grid. Direct UI placement reaches Y=3.8 and wins at tick 265 with zero sampled correction; Reset restores it. Free dragging is unchanged. Touch-first precision controls and broader discoverability remain covered by mobile/UI work.

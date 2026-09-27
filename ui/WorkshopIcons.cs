@@ -1,0 +1,112 @@
+using Godot;
+using System.Collections.Generic;
+
+namespace CuriousContraptions;
+
+public static class WorkshopIcons
+{
+    private static readonly Dictionary<string, Texture2D> Cache = new();
+    public static Texture2D Load(string name)
+    {
+        if (!Cache.TryGetValue(name, out var texture))
+        {
+            // Resource loading follows SVG import remaps in exported Godot packs.
+            texture = GD.Load<Texture2D>("res://assets/icons/" + name + ".svg");
+            if (texture == null) throw new System.InvalidOperationException("Cannot load icon: " + name);
+            Cache.Add(name, texture);
+        }
+        return texture;
+    }
+
+    // Small original vector pictograms share the toolbar's stroke and palette.
+    public static Texture2D Pictogram(string kind)
+    {
+        var key = "pictogram:" + kind;
+        if (Cache.TryGetValue(key, out var cached)) return cached;
+        var drawing = kind switch
+        {
+            "ball" => "<circle cx='12' cy='12' r='9'/><path d='M5 6q12 2 13 12'/>",
+            "tennis" => "<circle cx='12' cy='12' r='9'/><path d='M5 5q12 7 0 14M19 5q-12 7 0 14'/>",
+            "bowling" => "<circle cx='12' cy='12' r='9'/><circle cx='10' cy='7' r='1'/><circle cx='15' cy='9' r='1'/><circle cx='10' cy='12' r='1'/>",
+            "balloon" => "<ellipse cx='12' cy='9' rx='7' ry='8'/><path d='m10 18 2-2 2 2m-2 0q-4 3 0 5'/>",
+            "ramp" => "<path d='M3 19 21 6v13Z'/>",
+            "basket" => "<path d='m3 7 3 13h12l3-13M2 7h20M8 7l2 13M16 7l-2 13M5 13h14'/>",
+            "spring" => "<path d='M4 3h16M12 3v2L5 8l14 4-14 4 7 3v2M4 21h16'/>",
+            "fan" => "<circle cx='12' cy='12' r='2'/><path d='M10 10C1 2 16 0 14 10M14 12c12-3 5 12-2 2M10 14c-3 11-13-1 0-2'/>",
+            "switch" => "<rect x='3' y='15' width='18' height='6' rx='2'/><path d='m12 15 5-10'/><circle cx='18' cy='4' r='2'/>",
+            "domino" => "<rect x='5' y='2' width='14' height='20' rx='2'/><path d='M5 12h14M9 6h1m4 2h1M9 16h1m4 2h1'/>",
+            "lamp" => "<path d='M8 16a7 7 0 1 1 8 0v3H8ZM9 22h6'/>",
+            "conveyor" => "<rect x='2' y='9' width='20' height='10' rx='5'/><circle cx='7' cy='14' r='2'/><circle cx='17' cy='14' r='2'/><path d='M7 4h10m-3-2 3 2-3 2'/>",
+            "move" => "<path d='M12 2v20M2 12h20M9 5l3-3 3 3M9 19l3 3 3-3M5 9l-3 3 3 3M19 9l3 3-3 3'/>",
+            "front" => "<rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 16h18'/>",
+            "cube" => "<path d='m12 2 9 5v10l-9 5-9-5V7Zm0 10L3 7m9 5 9-5m-9 5v10'/>",
+            _ => "<path d='M4 12h16m-6-6 6 6-6 6'/>"
+        };
+        using var image = new Image();
+        var error = image.LoadSvgFromString("<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#293954' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>" + drawing + "</svg>", 2);
+        if (error != Error.Ok) throw new System.InvalidOperationException("Invalid pictogram: " + kind);
+        var texture = ImageTexture.CreateFromImage(image);
+        Cache.Add(key, texture);
+        return texture;
+    }
+
+    public static void Apply(Button button, string action)
+    {
+        var (label, icon) = action switch
+        {
+            "▶  Run machine" => ("Run machine", "play"),
+            "■  Back to building" => ("Back to building", "square"),
+            "↶  Build again" => ("Build again", "rotate-ccw"),
+            "↶ Reset" => ("Reset", "rotate-ccw"),
+            "↺ Undo" => ("Undo", "undo-2"),
+            "↶ View" => ("View left", "rotate-ccw"),
+            "View ↷" => ("View right", "rotate-cw"),
+            "↶ Tilt" => ("Tilt left", "rotate-ccw"),
+            "Tilt ↷" => ("Tilt right", "rotate-cw"),
+            "Turn 90°" => ("Quarter turn", "rotate-cw"),
+            "↕ Lift" => ("Lift", "move-vertical"),
+            "↑" => ("", "arrow-up"),
+            "↓" => ("", "arrow-down"),
+            "Zoom +" => ("Zoom in", "zoom-in"),
+            "Zoom −" => ("Zoom out", "zoom-out"),
+            "Remove" => ("Remove", "trash"),
+            "Connect" => ("Connect", "link"),
+            "Save" => ("Save", "save"),
+            "Load" => ("Load", "folder-open"),
+            "Show hint" => ("Hint", "lightbulb"),
+            "Cancel / deselect" => ("Deselect", "x"),
+            "More…" => ("More", "sliders-horizontal"),
+            "Menu" => ("Menu", "sliders-horizontal"),
+            "Goal" => ("Goal", "lightbulb"),
+            "Reset camera" => ("Reset camera", "rotate-ccw"),
+            "Move mode" => ("Move", "custom:move"),
+            "Rotate mode" => ("Rotate", "rotate-cw"),
+            "Front view" => ("Front view", "custom:front"),
+            "3D view" => ("3D view", "custom:cube"),
+            "Move selected here" => ("Move to layer", "custom:move"),
+            "Fine rotate" => ("Fine rotate", "sliders-horizontal"),
+            _ when action.EndsWith(" −") => (action[..^2], "minus"),
+            _ when action.EndsWith(" +") => (action[..^2], "plus"),
+            _ => (action, "")
+        };
+        button.SetMeta("action_label", action);
+        button.Text = "";
+        button.Icon = icon.StartsWith("custom:") ? Pictogram(icon[7..]) : icon.Length > 0 ? Load(icon) : Pictogram("move");
+        button.ExpandIcon = false;
+        button.TooltipText = "";
+        button.AddThemeConstantOverride("icon_max_width", 20);
+    }
+}
+
+// Compact, wrapped tooltips; long explanations belong in the side panel.
+public partial class WorkshopButton : Button
+{
+    public override GodotObject _MakeCustomTooltip(string forText)
+    {
+        return new Label
+        {
+            Text = forText, CustomMinimumSize = new(180, 0),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart
+        };
+    }
+}
