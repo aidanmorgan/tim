@@ -44,18 +44,18 @@ public class OpticalTests(HeadlessFixture godot)
             if(receiver.Active)
             {
                 Assert.Equal(LaserPart.BeamPower,receiver.ReceivedPower);
-                Assert.InRange(laser.BeamLength,5.09f,5.11f);
+                Assert.InRange(laser.BeamPath.Sum(s=>s.From.DistanceTo(s.To)),5.09f,5.11f);
             }
             var sourceWire=world.Connections.SingleOrDefault(c=>c.To==laser.Uid);
             if(sourceWire!=null)world.Connections.Remove(sourceWire);
             world.Step();world.Step();
             Assert.False(receiver.Active);
-            Assert.Equal(0,laser.BeamLength);
+            Assert.Equal(0,laser.BeamPath.Sum(s=>s.From.DistanceTo(s.To)));
             world.Restore();
             laser=(LaserPart)world.FindPart("laser")!;
             receiver=(LightReceiverPart)world.FindPart("receiver")!;
             Assert.False(laser.Enabled);
-            Assert.Equal(0,laser.BeamLength);
+            Assert.Equal(0,laser.BeamPath.Sum(s=>s.From.DistanceTo(s.To)));
             Assert.Equal(Vector3.Zero,receiver.ReceivedPower);
         }
         finally{world.Free();}
@@ -106,7 +106,7 @@ public class OpticalTests(HeadlessFixture godot)
             Assert.True(world.Connect(battery,laser));
             world.Start();world.Activate(laser);world.Step();world.Step();
             Assert.False(receiver.Active);
-            Assert.True(laser.BeamLength<5);
+            Assert.True(laser.BeamPath.Sum(s=>s.From.DistanceTo(s.To))<5);
             blocker.Position+=Vector3.Up*3;
             world.Step();
             Assert.True(receiver.Active);
@@ -134,7 +134,7 @@ public class OpticalTests(HeadlessFixture godot)
             Assert.True(far.Active);
             far.Position=new(18,5,0);world.Step();
             Assert.False(far.Active);
-            Assert.Equal(LaserPart.Range,laser.BeamLength);
+            Assert.InRange(laser.BeamPath.Sum(s=>s.From.DistanceTo(s.To)),LaserPart.Range-.00001f,LaserPart.Range+.00001f);
         }
         finally{world.Free();}
     }

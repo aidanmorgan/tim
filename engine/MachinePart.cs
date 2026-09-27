@@ -40,7 +40,9 @@ public partial class MachinePart : Node3D
     public virtual OpticalEmitter? OpticalSource => null;
     public virtual OpticalTarget? OpticalTarget => null;
     public virtual void ReceiveOpticalPower(Vector3 power) { }
-    public virtual void ReceiveBeamLength(float distance) { }
+    public virtual OpticalReflector? OpticalReflector => null;
+    public virtual OpticalEmitter? OpticalPreviewSource => null;
+    public virtual void ReceiveOpticalPath(IReadOnlyList<OpticalSegment> path) { }
     public virtual LightEmitter? LightSource => null;
     public virtual IEnumerable<LightSample> LightSamples => [];
     public virtual void ReceiveLight(float irradiance) { }
@@ -129,7 +131,8 @@ public partial class MachinePart : Node3D
     public virtual void AfterStep(MachineWorld world, float delta) { }
     public virtual void OnContact(MachinePart body, float speed, MachineWorld world) { }
     public virtual void UpdateAssistance(float precision) { }
-    public void SetSelected(bool value) => _highlight.Visible = value;
+    public bool IsSelected { get; private set; }
+    public void SetSelected(bool value) { IsSelected=value; _highlight.Visible=value; }
     public PartSpec Serialize() => new()
     {
         Id = Uid, Kind = Definition.Id, Locked = Locked,

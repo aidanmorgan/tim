@@ -46,7 +46,7 @@ public static class LightNetwork
     }
 
     public static float Trace(MachineWorld world, Vector3 origin, Vector3 direction, float range,
-        MachinePart emitter, MachinePart? receiver = null)
+        MachinePart? emitter, MachinePart? receiver = null)
     {
         var closest = range;
         foreach (var part in world.Parts)

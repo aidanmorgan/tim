@@ -50,6 +50,7 @@ public static class WorkshopIcons
             "both_gate" => "<rect x='2' y='3' width='20' height='18' rx='2'/><path d='M7 7l9 5-9 5'/><circle cx='7' cy='7' r='1.5'/><circle cx='7' cy='17' r='1.5'/><circle cx='17' cy='12' r='1.5'/>",
             "laser" => "<rect x='2' y='8' width='9' height='8' rx='2'/><path d='M11 12h11M17 5v3M17 16v3M4 18h6'/>",
             "light_receiver" => "<circle cx='12' cy='10' r='7'/><circle cx='12' cy='10' r='3'/><path d='M12 17v4M7 21h10'/>",
+            "mirror" => "<ellipse cx='12' cy='10' rx='7' ry='8'/><path d='M9 8l3-3M11 13l4-5M12 18v3M7 21h10'/>",
             "counter" => "<rect x='3' y='4' width='18' height='16' rx='2'/><circle cx='7' cy='12' r='1.5'/><circle cx='12' cy='12' r='1.5'/><circle cx='17' cy='12' r='1.5'/>",
             "pressure_plate" => "<path d='M3 15h18v5H3ZM12 2v9m-4-4 4 4 4-4M6 17h12'/>",
             "funnel" => "<path d='M3 4h18l-6 11v5l-6 2v-7Z'/>",
