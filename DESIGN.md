@@ -16,6 +16,12 @@ The owner requests this visual direction for both the parts and the game environ
 - Keep artwork, layouts and pictograms original. This is visual inspiration, not a request for Monument Valley characters, copied levels, branding or impossible-geometry gameplay.
 - Apply the direction consistently to new families and incrementally reconcile existing shapes and motion while retaining the current palette. Validate build/run screenshots and motion at desktop and mobile sizes; lighting changes must preserve the approved colour appearance.
 
+## Optical logic gates
+
+Five operations share a cyan cube and navy foot. Cream-rimmed left/top control lenses carry one/two raised marks; a gold-rimmed front carrier enters separately and leaves the gold-rimmed right outlet. Controls absorb light and never become output energy. The outlet lights only when a carrier actually exits, not merely when Boolean truth permits it. Control lamps ease slate-to-gold; physics changes only on fixed-tick boundaries.
+
+A small cream relief shows the four two-input truth rows with raised gold output dots. Toolbox pictograms distinguish the operations without adding permanent panels. Preserve the palette. Current NOR browser captures demonstrate carrier/no-carrier output and downstream actuation, not legibility of every tiny relief mark or continuous animation quality; those remain visual-review work.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.
