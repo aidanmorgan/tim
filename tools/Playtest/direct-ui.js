@@ -162,13 +162,13 @@ async function directUiAttempt(page, attempt) {
         for (const part of attempt.parts) {
             const before = new Set(ui.parts.map(p=>p.id));
             // Scroll the actual inventory, never set its value or the game's inventory.
-            for (let tries=0;tries<12;tries++) {
-                const button = ui.buttons.find(b=>b.kind===part.kind && b.enabled && !b.clipped);
-                if (button) { await click(button.screen, "palette "+part.kind); break; }
-                if (tries === 11) throw new Error("Palette part unavailable: "+part.kind);
+for (let tries=0;tries<40;tries++) {
+                const target = ui.buttons.find(b=>b.kind===part.kind && b.enabled);
+                if (target && !target.clipped) { await click(target.screen, "palette "+part.kind); break; }
+                if (!target || tries === 39) throw new Error("Palette part unavailable: "+part.kind);
                 await page.mouse.move(130,190);
                 await page.waitForTimeout(100);
-                await page.mouse.wheel(0,tries<6 ? 55 : -55);
+                await page.mouse.wheel(0,target.screen[1]<190 ? -120 : 120);
                 await page.waitForTimeout(120);
             }
             // Pixel rounding can put an exact boundary click outside the build area.

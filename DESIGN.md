@@ -214,6 +214,12 @@ Before accepting a visual change:
 - Review active mechanisms and assisted motion in motion, not only screenshots.
 - Record intentional exceptions here; do not overwrite the approved style incidentally while implementing a new feature.
 
+## Beam shutter addition — 27 September 2026
+
+The standalone optical shutter uses a navy header/foot, two cream rails and a thin gold blade with cream witness stripes on both faces. A gold electrical socket and slate/gold indicator show supply; ochre indicates obstructed closing. It retains the established palette and an original outline icon. Unlike the tube gate it has no tube mouth or snap connection.
+
+The blade accelerates along local Y and retracts into the header. Its rendered pose and physical/optical OBB are identical; partial clearance really admits the beam. Supply loss closes it, stopping before a visible ball rather than crushing it. Shared C# motion keeps tube and optical shutters consistent. Browser open/closed samples are checked; a continuous animation/performance audit remains pending.
+
 ## Source of truth
 
 Implementation references: [Workshop UI/stage](ui/Workshop.cs), [guidance and layout behaviours](ui/WorkshopGuidance.cs), [icons](ui/WorkshopIcons.cs), [gizmo](ui/RotationGizmo.cs), [projections](ui/PlacementShadows.cs), [part geometry/materials](engine/PartArt.cs), [selection](engine/MachinePart.cs), [workbench](engine/Workbench.cs), [assistance easing](engine/PartAssistance.cs), [part implementations](parts), [catalog colours](parts/catalog), and [project settings](project.godot).

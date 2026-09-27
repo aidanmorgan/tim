@@ -42,12 +42,15 @@ for (const link of [
 }
 async function attemptWith(mode) {
     let now = 0, listener, pointer, releaseShift = 0;
-    const screenshots = [];
+    const screenshots = [], wheels = [];
+    const scrollCase = mode === "scroll-above" || mode === "scroll-below";
     const ui = { level: 1, precision: .45, running: false, parts: [],
         buttons: [
             { action: "▶  Run machine", enabled: true, screen: [10,10] },
             { action: "↶  Build again", enabled: true, screen: [20,20] }
         ] };
+    if (scrollCase) ui.buttons.push({kind:"ramp",enabled:true,clipped:true,
+        screen:[130,mode === "scroll-above" ? 106 : 1900]});
     const state = { level: 1, precision: .45, parts: [], connections: [] };
     const emit = (prefix, value) => listener?.({
         text: () => prefix + JSON.stringify(value), type: () => "log"
@@ -66,9 +69,15 @@ async function attemptWith(mode) {
         mouse: {
             move: async (x,y) => { pointer = [x,y]; },
             down: async () => {},
-            wheel: async () => {},
+            wheel: async (_,dy) => {
+                wheels.push(dy);
+                const target=ui.buttons.find(b=>b.kind==="ramp");
+                if (target) { target.clipped=false; target.screen=[130,250]; emit("CCUI ",ui); }
+            },
             up: async () => {
                 if (!listener) return;
+                if (scrollCase && pointer?.[0] === 130 && pointer?.[1] === 250)
+                    throw new Error("palette reached");
                 if (pointer?.[0] === 10) {
                     if (mode === "missing-run" || mode === "capture-error") return;
                     emit("CCRUN ", state);
@@ -90,11 +99,11 @@ async function attemptWith(mode) {
     };
     const fn = runInNewContext("(" + source + ")", { Date: { now: () => now } });
     const result = await fn(page, { caseId: "unit-" + mode, level: 1,
-        precision: .45, parts: mode === "construction-failure" ? [{ kind: "ramp" }] : [],
+        precision: .45, parts: mode === "construction-failure" || scrollCase ? [{ kind: "ramp" }] : [],
         connections: [] });
     assert.equal(listener, undefined, "listener must be detached on every path");
     assert.equal(releaseShift, 1, "Shift must be released");
-    return { result, screenshots };
+    return { result, screenshots, wheels };
 }
 
 test("one Run/result/Reset completes and preserves ordered lifecycle", async () => {
@@ -127,3 +136,12 @@ test("screenshot errors preserve the original failure and cleanup", async () => 
     assert.equal(result.failure.message, "Timed out: run start diagnostics");
     assert.ok(result.errors.includes("Failure screenshot: capture unavailable"));
 });
+
+for (const [mode,direction] of [["scroll-above",-120],["scroll-below",120]]) {
+    test(mode+" scrolls toward the observed clipped item",async()=>{
+        const {result,wheels}=await attemptWith(mode);
+        assert.deepEqual(wheels,[direction]);
+        assert.equal(result.failure.message,"palette reached");
+        assert.equal(result.actions.at(-1).label,"palette ramp");
+    });
+}

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/beam_shutter.tscn" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "beam_shutter"
+Title = "Beam shutter"
+Category = "Optics"
+Description = "Electricity lifts the gold blade to let light through. Losing supply closes it again; a ball in the blade's path safely stops closing until cleared. Wire a timer or sensor contact to control it."
+Scene = ExtResource("2")
+Color = Color(0.97, 0.8, 0.32, 1)

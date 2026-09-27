@@ -52,6 +52,7 @@ public static class WorkshopIcons
             "light_receiver" => "<circle cx='12' cy='10' r='7'/><circle cx='12' cy='10' r='3'/><path d='M12 17v4M7 21h10'/>",
             "mirror" => "<ellipse cx='12' cy='10' rx='7' ry='8'/><path d='M9 8l3-3M11 13l4-5M12 18v3M7 21h10'/>",
             "beam_splitter" => "<path d='M3 12h18M12 12V3M7 17L17 7M18 9l3 3-3 3M9 6l3-3 3 3'/>",
+            "beam_shutter" => "<path d='M5 3h14v18H5zM3 12h6M15 12h6M9 4h6v11H9zM10 7h4'/>",
             "counter" => "<rect x='3' y='4' width='18' height='16' rx='2'/><circle cx='7' cy='12' r='1.5'/><circle cx='12' cy='12' r='1.5'/><circle cx='17' cy='12' r='1.5'/>",
             "pressure_plate" => "<path d='M3 15h18v5H3ZM12 2v9m-4-4 4 4 4-4M6 17h12'/>",
             "funnel" => "<path d='M3 4h18l-6 11v5l-6 2v-7Z'/>",
