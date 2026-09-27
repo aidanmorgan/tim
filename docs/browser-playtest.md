@@ -1,5 +1,13 @@
 # Browser campaign playtest
 
+## Spring activation feedback — 54-level draft
+
+Campaign hash remains `2691ed54858909a421ef9b89f0c45596f7051f7bb07d19f1a8c84a2b3348e371`. The spring now has a continuous silver helix and a moving gold plate, with bounded compression/rebound and settling on each accepted impact. It retains the original instantaneous launch and collision proxy. Presentation runs independently of simulation so it can settle after success; Reset reconstructs the resting spring.
+
+UI-only `L04-{balanced,forgiving,precise}-reference-spring-v1.json` win at ticks 277/265/302 respectively; `L07-balanced-reference-spring-v1.json` wins at tick 206. All four record zero browser errors, Run/result/Reset and passing audits. The level-4 Balanced run also records sixteen actual browser frames at roughly 90 ms intervals; reviewed frames 3/6/7/8/9 show rest, compression, extension and settling around the launched ball. The helix is partially hidden by the plate from the default camera. These sampled captures are not a frame-rate or complete continuous-fluidity measurement.
+
+All 263 native tests pass, including new tests for three-axis orientation, unchanged launch/collision state, cooldown, overlapping impacts without pose jumps, active-animation Reset, settling after simulation stops and render-step agreement. The full repeated difficulty/error matrix remains incomplete.
+
 ## One-shot delay — 54-level draft
 
 Campaign hash: `2691ed54858909a421ef9b89f0c45596f7051f7bb07d19f1a8c84a2b3348e371`. Lessons 23–24 introduce a one-second delayed activation command, first to a lamp and then to a torch/solar-panel/motor circuit. The C# module has typed Ready/Counting/Finished states, a clockwise countdown hand and Reset. It supplies commands, not electricity. Authors can set 0.1–12 seconds; player adjustment and rearming pulses are not implemented.
