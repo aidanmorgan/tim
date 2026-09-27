@@ -313,8 +313,8 @@ public partial class MachineWorld : Node3D
                 body.Velocity = body.Velocity.LimitLength(40);
                 body.ConstrainVelocity();
             }
-            foreach (var rope in Ropes) rope.SolveVelocity(delta);
-            AdvanceBodies(delta);
+            // Sample compliant forces before flight, so their impulses participate
+            // in this substep's rigid contacts and rope velocity constraints.
             foreach (var body in Bodies)
             {
                 if (!body.Visible) continue;
@@ -324,6 +324,12 @@ public partial class MachineWorld : Node3D
                     obstacle.ResolveCompliantContact(body, this, delta);
                 }
                 body.ConstrainVelocity();
+            }
+            foreach (var rope in Ropes) rope.SolveVelocity(delta);
+            AdvanceBodies(delta);
+            foreach (var body in Bodies)
+            {
+                if (!body.Visible) continue;
                 if (body.PhysicsOwner == body && (body.Position.Y < -5 || body.Position.Y > 20 || Mathf.Abs(body.Position.X) > 18 || Mathf.Abs(body.Position.Z) > 12))
                 {
                     body.Visible = false;

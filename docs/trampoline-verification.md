@@ -47,4 +47,22 @@ A final rendered-skin envelope improves deep/off-centre contact geometry without
 
 Introductory campaign/pipe puzzles, broader interacting or stacked loads and rope contacts, extended real-UI boundary checks, mobile readability and sustained animation/performance review remain open. The 75-level goal and per-part evidence audit are not complete.
 
+### Stacked-load investigation (28 September 2026)
+
+On revision `6fac063` plus the new `TrampolineStackTests`, two centred unit-mass balls at Y=4.5401 and 5.2201 above a bed at Y=4 fail the proposed 0.03-unit/second settling requirement after 2,400 ticks (20 seconds), in both insertion orders. The lower body's final speed is 0.059158325; the last twelve samples show a repeating low-amplitude velocity cycle, while its height ranges from 4.431122 to 4.4312134. Compression is approximately 0.1088, consistent with combined weight divided by stiffness (19.62/180). Finite-state, separation, stroke and 1% initial-energy-bound checks pass before the settling assertion; Reset assertions occur after that failure and are therefore not yet proven by these cases.
+
+The retained diagnostic log is `docs/playtest-results/trampoline-stack-native-v1-failure.txt`. Reproduce with `dotnet test CuriousContraptions.tests --no-restore --filter FullyQualifiedName~TrampolineStackTests --logger 'console;verbosity=normal'`. Inspection shows compliant forces are applied after swept rigid flight in each substep; the relationship between that phase ordering and the observed velocity cycle needs investigation. At that failure checkpoint, no production physics or acceptance threshold had been changed. This was an unresolved native test, not browser proof or a completed component. A temporary diagnostic compile error caused by ambiguous `Environment` was corrected to `System.Environment` before the recorded run.
+
 Anvil's graph supplied no useful dependency/test mapping for the solver hooks. Its write gate was authentication-unavailable and allowed edits with a warning; direct inspection and full tests supplemented it.
+
+### Force-timing correction and refreshed evidence
+
+The current substep applies compliant forces before rope velocity constraints and swept flight, rather than leaving the membrane impulse until after collision resolution. Each compliant force is still applied once per substep. No bounce coefficients, energy limits or settling thresholds were relaxed. The two new cases now also require both bodies to stay below 0.03 units/second throughout the final second, and reach/preserve the exact Reset assertions. All **36 trampoline cases and 1,173 native tests pass**. Diagnostic and production Release browser builds pass.
+
+Real-UI replay recipes and the exact adapter snapshot are in [force-timing recipes](trampoline-force-timing-recipes.json). The workshop is now row 61; older recipe rows remain historical evidence. Each new run contains the expected three parts, no links, positions within 0.025 units of the UI recipe, zero console errors and exact Run/Reset configuration equality.
+
+- `trampoline-force-timing-receiver-v1`: 100 frames; tilted bed sends the same ball into the basket. At tick 948 it is at (5.255142,1.1600494,0), velocity (-0.0036621094,0,0). Outcome image inspected and confirms containment.
+- `trampoline-force-timing-missed-v1`: 100 frames; Z=2 ball misses bed/receiver and rests on the floor at (0,-0.11999512,2), zero velocity, tick 948.
+- `trampoline-force-timing-stack-v1`: 255 frames through tick 2808 (23.4 seconds). UI placed the bed at Y=3.9950578 and balls at Y=4.5391693 and 5.2191696. Across all 45 samples from tick 2280 onward, maximum body speed is 0.009567261. Final ball heights are 4.4265137 and 5.1067047; the inspected outcome image shows the centred supported stack. This is sampled browser settling proof, supplemented by per-tick native checks, not arbitrary off-centre stack stability.
+
+Complete ignored logs are `docs/playtest-results/<caseId>.json`; screenshots are under `.playwright-mcp/`. Source SHA-256: MachineWorld `48398e306ecac17b2480e481134c9ff5101c093c480a6c5d92d507366b26f0d4`, unchanged TrampolinePart `c781daea463a186c43e70aae9d438854e66e678f66e145613abe9ff2fa0203ef`. The original model paragraph records the historical stepped solver; current rigid flight is swept. This correction closes the centred two-ball settling issue only. Rope-loaded contact, broader stacks, campaign/pipe lessons and sustained/mobile visual verification remain open; the trampoline component is still unchecked.
