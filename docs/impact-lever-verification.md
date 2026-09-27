@@ -27,6 +27,22 @@ On base revision `685fe05` plus this unused engine primitive/tests, all **1,207 
 
 Source SHA-256: `RevoluteJoint.cs` = `e910d0290b0eece58a2c544a8f783c8a4f5956363484e68b7e22cb86923c1352`; tests = `85808d5de58b858712413c090ac9838e5cf1a91d13a529941aa00e61dfa24c42`.
 
+## Rotating geometry and finite-inertia contact groundwork
+
+On base revision `ecbafb4`, `RotatingBoxSweep` adds continuous sphere/rotating-box time-of-impact queries. It follows a box around a fixed world-space pivot at constant angular speed while the sphere moves linearly. A separating plane's maximum vertex velocity and projected acceleration bound determine the next conservative sample; endpoint poses alone cannot establish clearance. Contact is classified with `SphereSweepStatus`, with world normal, surface point, penetration, time and iteration count. Invalid geometry, loss of representable progress and iteration exhaustion are explicit errors, not collision-free fallbacks.
+
+Eighteen sweep tests cover analytic positive/negative rotation hits at ordinary and high speed, clear endpoints with an intermediate collision, agreement with stationary-box linear sweeps, separating contact, a later hit after initial separation, persistent axial tangency without tiny steps, depth/radius misses, initial overlap, arbitrary transformed setups and an off-centre orbiting box. Three seeded tests contain 240 moving/rotating setups and independently sample poses for missed or late deep contacts. This finite sample suite is not a mathematical proof for every possible input.
+
+`RevoluteContact` applies a normal impact to a free sphere and finite-inertia hinge. A resting outward stop acts as an immovable surface. If an impact reverses an inward-moving hinge back into its stop, the stop absorbs angular energy; residual approach is removed plastically without applying restitution a second time. No friction or multiple-contact solver is claimed.
+
+Eighteen contact tests cover energy/angular-momentum transfer, restitution, both resting stops, inward release, moving-at-stop reversal, pivot and separating contacts, invalid input, and a continuous rotation-driven hit that transfers actual hinge energy to a stationary sphere. Three seeded tests additionally exercise 3,000 varied mass/inertia/velocity/arm/restitution cases across interior/lower/upper states, checking passivity and no residual approach. Together with the original hinge cases, **50 focused tests pass**.
+
+A new rejection assertion initially failed: speed `1e-200` over duration `1e200` was accepted even though squaring that speed underflowed the acceleration bound to zero. The sweep now explicitly rejects angular rates whose squared bound is zero or nonfinite. The failed test output is retained in `docs/playtest-results/rotating-box-underflow-v1-failure.txt`; this is an unsupported numeric-range error, not a stationary-motion fallback.
+
+After the numeric-range correction, all **1,243 native cases pass** and the production Release browser publish succeeds. Reproduce with `dotnet test CuriousContraptions.tests --no-restore --verbosity quiet`; focused coverage selects `RevoluteJoint`, `RotatingBoxSweep` and `RevoluteContact`. Source SHA-256: rotating sweep `bc65634080caab63649d330e1605aea5cad0b8cf2b648ade273fbc388caf2691`; contact response `f175a81851afd82f7edf7bebca1466053bef4f15e414786ddd868c49ec4b90a9`.
+
+These operations remain unused by `MachineWorld`. The coupled sweep/contact test is a direct engine-level construction, not actual-UI or scene-graph proof. Existing gameplay is unchanged. World-clock integration, resting/sliding cargo, beam obstruction by fixtures, rope constraints, visuals and browser evidence remain required.
+
 ## Required integration before the component can pass
 
 1. Add the beam's real swept rotating collision geometry to the shared flight clock. Solve finite-inertia contact and active end stops together; a kinematic rotating box must not inject energy into cargo.
