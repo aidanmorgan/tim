@@ -274,7 +274,9 @@ Sub-agent findings, sources, detailed contracts and **39 cross-system puzzle rec
 
 ### AND, OR, XOR, NOR and NAND in electricity and light
 
-- [ ] **P1:** shared typed evaluator for all five operations. Both is AND: forward-refactor it, no duplicate alias. Two conditions initially; author/inventory selects operation.
+- [x] Shared C# `LogicGateKind` evaluator for AND/OR/XOR/NOR/NAND; the existing electrical conjunction now calls the AND evaluator. Added optical control snapshots with independent hysteresis, next-advance truth changes and explicit Reset. 34 new native cases cover every truth row, output retraction, boundary thresholds and invalid input atomicity; 539 native tests and 39 adapter tests pass; production web publish passes. This is an engine foundation, not five playable gates.
+- [ ] **P1:** integrate optical control snapshots into actual gate parts and the fixed-tick network boundary, with carrier conservation, scene/catalog/icon support and real-UI Run/Reset evidence. The standalone control model does not yet verify world scheduling or geometry.
+- [ ] **P1:** forward-refactor Both's complete supplied gate contract and authored content, no duplicate alias. Two conditions initially; author/inventory selects operation.
 - [ ] **P1:** electrical A/B controls, independent supply and switched output. NOR/NAND may be logically true without input but cannot create power.
 - [ ] **P1:** settled nonmonotone solver, order-independent chains and sourced monotone cycles; reject zero-delay XOR/NOR/NAND cycles. Explicit memory/delay components define feedback.
 - [x] Optical engine supports separately addressed apertures and per-port snapshots; see optical prerequisite verification above.

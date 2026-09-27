@@ -55,7 +55,7 @@ public static class ElectricalNetwork
             if (!reached.Add(socket)) continue;
             // Monotone two-input reachability: no stale previous-tick power or artificial source.
             foreach (var rule in conjunctions[socket.Part])
-                if (reached.Contains((socket.Part, rule.First)) && reached.Contains((socket.Part, rule.Second)))
+                if (LogicGate.Evaluate(LogicGateKind.And, reached.Contains((socket.Part, rule.First)), reached.Contains((socket.Part, rule.Second))))
                     pending.Enqueue((socket.Part, rule.Output));
             if (edges.TryGetValue(socket, out var next))
                 foreach (var destination in next) pending.Enqueue(destination);
