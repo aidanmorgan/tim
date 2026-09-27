@@ -30,7 +30,13 @@ public partial class Workshop
                     SocketIds.ActivationIn => "Connect activation",
                     _ => throw new InvalidOperationException("Unsupported activation input.")
                 },
-                ConnectionDomain.Electrical => "Connect electricity",
+                ConnectionDomain.Electrical => option.ToPort switch
+                {
+                    SocketIds.FirstIn => "Connect first input",
+                    SocketIds.SecondIn => "Connect second input",
+                    SocketIds.PowerIn => "Connect electricity",
+                    _ => throw new InvalidOperationException("Unsupported electrical input.")
+                },
                 ConnectionDomain.Mechanical => "Connect drive",
                 ConnectionDomain.Rope => "Connect rope",
                 _ => throw new InvalidOperationException("Unsupported selectable connection domain.")

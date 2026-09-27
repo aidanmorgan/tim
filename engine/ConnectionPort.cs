@@ -16,6 +16,8 @@ public readonly record struct ConnectionPort(
     string Id, ConnectionDomain Domain, PortDirection Direction, Vector3 LocalPosition,
     ActivationCommand Command = ActivationCommand.Trigger);
 
+public readonly record struct ElectricalConjunction(string First, string Second, string Output);
+
 public readonly record struct ElectricalRoute(string Input, string Output);
 
 /// <summary>Signed shaft ratio; negative ratios reverse the local shaft direction.</summary>

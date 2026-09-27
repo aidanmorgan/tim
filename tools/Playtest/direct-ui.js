@@ -25,7 +25,7 @@ async function directUiAttempt(page, attempt) {
         const activation = link.type === "activation" && link.from_port === "activation_out" &&
             ["activation_in", "set_in", "reset_in"].includes(link.to_port);
         const motorSupply = link.type === "electrical" && link.from_port === "supply" &&
-            link.to_port === "power_in";
+            ["power_in", "first_in", "second_in"].includes(link.to_port);
         const mechanical = link.type === "mechanical" && link.from_port === "drive" &&
             link.to_port === "drive_in";
         const rope = link.type === "rope" && link.from_port === "tie" && link.to_port === "tie" &&
@@ -225,7 +225,7 @@ async function directUiAttempt(page, attempt) {
             await waitFor(() => ui.selected===from, "wire source selection");
             await action("Connect");
             await click(target.screen, "connect to "+to);
-            const choice = {activation: {activation_in:"Connect activation", set_in:"Connect set", reset_in:"Connect reset"}[link.to_port],electrical:"Connect electricity",
+            const choice = {activation: {activation_in:"Connect activation", set_in:"Connect set", reset_in:"Connect reset"}[link.to_port],electrical:{power_in:"Connect electricity",first_in:"Connect first input",second_in:"Connect second input"}[link.to_port],
                 mechanical:"Connect drive",rope:"Connect rope"}[link.type];
             if (ui.buttons.some(b => b.action === choice && b.enabled && !b.clipped))
                 await action(choice);

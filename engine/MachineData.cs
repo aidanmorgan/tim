@@ -91,6 +91,8 @@ public static class SocketIds
     public const string SetIn = "set_in";
     public const string ResetIn = "reset_in";
     public const string ActivationIn = "activation_in";
+    public const string FirstIn = "first_in";
+    public const string SecondIn = "second_in";
     public const string Supply = "supply";
     public const string PowerIn = "power_in";
     public const string Drive = "drive";

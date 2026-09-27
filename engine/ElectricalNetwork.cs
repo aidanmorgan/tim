@@ -11,6 +11,7 @@ public static class ElectricalNetwork
     {
         var edges = new Dictionary<(MachinePart Part, string Port), List<(MachinePart Part, string Port)>>();
         var ports = world.Parts.ToDictionary(p => p, p => p.ConnectionPorts.ToArray());
+        var conjunctions = new Dictionary<MachinePart, ElectricalConjunction[]>();
         var pending = new Queue<(MachinePart Part, string Port)>();
         void Edge((MachinePart Part, string Port) from, (MachinePart Part, string Port) to)
         {
@@ -20,6 +21,15 @@ public static class ElectricalNetwork
         foreach (var part in world.Parts)
         {
             part.ClearElectricalPower();
+            conjunctions[part] = part.ElectricalConjunctions.ToArray();
+            foreach (var rule in conjunctions[part])
+            {
+                bool HasPort(string id, PortDirection direction) => ports[part].Any(p =>
+                    p.Id == id && p.Domain == ConnectionDomain.Electrical && p.Direction == direction);
+                if (rule.First == rule.Second || !HasPort(rule.First, PortDirection.Input)
+                    || !HasPort(rule.Second, PortDirection.Input) || !HasPort(rule.Output, PortDirection.Output))
+                    throw new System.InvalidOperationException("Invalid electrical conjunction sockets.");
+            }
             foreach (var port in ports[part])
                 if (port.Domain == ConnectionDomain.Electrical && port.Direction == PortDirection.Output
                     && part.SuppliesElectricity(port.Id))
@@ -43,6 +53,10 @@ public static class ElectricalNetwork
         while (pending.TryDequeue(out var socket))
         {
             if (!reached.Add(socket)) continue;
+            // Monotone two-input reachability: no stale previous-tick power or artificial source.
+            foreach (var rule in conjunctions[socket.Part])
+                if (reached.Contains((socket.Part, rule.First)) && reached.Contains((socket.Part, rule.Second)))
+                    pending.Enqueue((socket.Part, rule.Output));
             if (edges.TryGetValue(socket, out var next))
                 foreach (var destination in next) pending.Enqueue(destination);
         }
