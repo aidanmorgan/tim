@@ -59,7 +59,11 @@ public partial class MachinePart : Node3D
     public virtual RopeAttachmentKind RopeAttachment => RopeAttachmentKind.None;
     public virtual void AdvanceRope(float distance) { }
     public virtual float SurfaceBounce => 1;
-    public virtual ActivationDisposition HandleActivation(MachineWorld world) => ActivationDisposition.Immediate;
+    public virtual ActivationDisposition HandleActivation(MachineWorld world, ActivationCommand command)
+    {
+        if (command != ActivationCommand.Trigger) throw new System.ArgumentException("Unsupported activation command.");
+        return ActivationDisposition.Immediate;
+    }
     public virtual bool CanSendActivation => false;
     public virtual bool CanReceiveActivation => false;
 

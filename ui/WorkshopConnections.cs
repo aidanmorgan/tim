@@ -23,7 +23,13 @@ public partial class Workshop
         {
             var action = option.Type switch
             {
-                ConnectionDomain.Activation => "Connect activation",
+                ConnectionDomain.Activation => option.ToPort switch
+                {
+                    SocketIds.SetIn => "Connect set",
+                    SocketIds.ResetIn => "Connect reset",
+                    SocketIds.ActivationIn => "Connect activation",
+                    _ => throw new InvalidOperationException("Unsupported activation input.")
+                },
                 ConnectionDomain.Electrical => "Connect electricity",
                 ConnectionDomain.Mechanical => "Connect drive",
                 ConnectionDomain.Rope => "Connect rope",
@@ -32,7 +38,7 @@ public partial class Workshop
             var button = Button(action, () => CompleteLink(target, option));
             _linkChoices.AddChild(button);
         }
-        _status.Text = "Choose the connection: trigger or power.";
+        _status.Text = "Choose the input socket.";
     }
 
     private void CompleteLink(MachinePart target, ConnectionSpec option)

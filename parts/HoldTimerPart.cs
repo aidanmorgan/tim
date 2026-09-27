@@ -30,8 +30,9 @@ public partial class HoldTimerPart : MachinePart
         if (!float.IsFinite(Duration) || Duration < .1f || Duration > 12)
             throw new ArgumentException("Hold duration must be finite and between 0.1 and 12 seconds.");
     }
-    public override ActivationDisposition HandleActivation(MachineWorld world)
+    public override ActivationDisposition HandleActivation(MachineWorld world, ActivationCommand command)
     {
+        if (command != ActivationCommand.Trigger) throw new ArgumentException("Unsupported activation command.");
         if (State == HoldTimerState.Holding) return ActivationDisposition.Deferred;
         State = HoldTimerState.Holding;
         StartedTick = world.Ticks;

@@ -32,8 +32,9 @@ public partial class CounterPart : MachinePart
         if(!float.IsFinite(target)||target<1||target>9||target!=Mathf.Floor(target))
             throw new ArgumentException("Counter target must be an integer between 1 and 9.");
     }
-    public override ActivationDisposition HandleActivation(MachineWorld world)
+    public override ActivationDisposition HandleActivation(MachineWorld world, ActivationCommand command)
     {
+        if (command != ActivationCommand.Trigger) throw new ArgumentException("Unsupported activation command.");
         if(State==CounterState.Reached)return ActivationDisposition.Deferred;
         Count++;
         return State==CounterState.Reached?ActivationDisposition.Immediate:ActivationDisposition.Deferred;

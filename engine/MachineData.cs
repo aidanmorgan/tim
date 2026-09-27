@@ -83,6 +83,8 @@ public static class RopeGeometry
 public static class SocketIds
 {
     public const string ActivationOut = "activation_out";
+    public const string SetIn = "set_in";
+    public const string ResetIn = "reset_in";
     public const string ActivationIn = "activation_in";
     public const string Supply = "supply";
     public const string PowerIn = "power_in";

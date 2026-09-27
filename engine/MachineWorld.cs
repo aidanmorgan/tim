@@ -206,22 +206,23 @@ public partial class MachineWorld : Node3D
     private void DispatchActivation(MachinePart source, ActivationDelivery delivery)
     {
         if (!Parts.Contains(source)) return;
-        var pending = new Queue<(string Id, ActivationDelivery Delivery)>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        pending.Enqueue((source.Uid, delivery));
+        var pending = new Queue<(string Id, ActivationDelivery Delivery, ActivationCommand Command)>();
+        var seen = new HashSet<(string, ActivationCommand)>();
+        pending.Enqueue((source.Uid, delivery, ActivationCommand.Trigger));
         while (pending.TryDequeue(out var entry))
         {
             var id = entry.Id;
-            if (!seen.Add(id)) continue;
+            if (!seen.Add((id, entry.Command))) continue;
             var part = FindPart(id);
             if (part == null) continue;
             if (entry.Delivery == ActivationDelivery.Receive &&
-                part.HandleActivation(this) == ActivationDisposition.Deferred) continue;
+                part.HandleActivation(this, entry.Command) == ActivationDisposition.Deferred) continue;
             part.Active = true;
             Events.TryAdd(new(MachineEventKind.Activated, id), Ticks);
             foreach (var link in Connections)
                 if (link.From == id && link.Type == ConnectionDomain.Activation && IsValidConnection(link))
-                    pending.Enqueue((link.To, ActivationDelivery.Receive));
+                    pending.Enqueue((link.To, ActivationDelivery.Receive,
+                        FindPart(link.To)!.ConnectionPorts.Single(p => p.Id == link.ToPort).Command));
         }
     }
 

@@ -5,13 +5,16 @@ using Godot;
 
 namespace CuriousContraptions;
 
+public enum ActivationCommand { Trigger, Set, Reset }
+
 public enum PortDirection { Input, Output, Bidirectional }
 public enum RopeAttachmentKind { None, Load, Anchor, Guide }
 public enum RopeState { Open, Slack, Taut }
 
 /// <summary>Stable local socket identity; positions follow the part's transform.</summary>
 public readonly record struct ConnectionPort(
-    string Id, ConnectionDomain Domain, PortDirection Direction, Vector3 LocalPosition);
+    string Id, ConnectionDomain Domain, PortDirection Direction, Vector3 LocalPosition,
+    ActivationCommand Command = ActivationCommand.Trigger);
 
 public readonly record struct ElectricalRoute(string Input, string Output);
 
