@@ -471,7 +471,7 @@ public partial class Workshop : Node3D
         {
             if (!part.Visible) continue;
             if (_buildView && _linkSource == null && Mathf.Abs(part.Position.Z - _depth) > .26f) continue;
-            if (_linkSource != null && World.SuggestedConnection(_linkSource, part) == null) continue;
+            if (_linkSource != null && World.ConnectionOptions(_linkSource, part).Count == 0) continue;
             var distance = _camera.UnprojectPosition(part.Position).DistanceTo(screen);
             if (distance >= best) continue;
             best = distance;
@@ -494,12 +494,9 @@ public partial class Workshop : Node3D
             var target = Pick(screen);
             if (target != null && target != _linkSource)
             {
-                PushUndo();
-                var connected = World.Connect(_linkSource, target);
-                _status.Text = connected ? _linkSource.Definition.Title + " → " + target.Definition.Title : "Cannot connect these sockets. Choose another part or Cancel.";
-                if (connected) _linkSource = null;
-                RefreshLayerAppearance();
-                RefreshCables();
+                var options = World.ConnectionOptions(_linkSource, target);
+                if (options.Count == 1) CompleteLink(target, options[0]);
+                else ShowLinkChoices(target, options);
             }
             return;
         }
@@ -607,6 +604,7 @@ public partial class Workshop : Node3D
         if (_inRun) return;
         if (_selected is { HasOutputSocket: true })
         {
+            ClearLinkChoices();
             _linkSource = _selected;
             _tool = "";
             ClearPreview();

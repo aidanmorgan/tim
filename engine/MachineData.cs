@@ -46,6 +46,11 @@ public static class PipeParameters
     public const float BoreDiameter = 1.3f;
 }
 
+public static class HoldTimerParameters
+{
+    public const string Seconds = "hold_seconds";
+}
+
 public static class DelayParameters
 {
     public const string Seconds = "delay_seconds";

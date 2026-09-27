@@ -7,6 +7,7 @@ namespace CuriousContraptions;
 public partial class Workshop
 {
     private MachinePart? _preview;
+    private HBoxContainer _linkChoices = null!;
     private Vector3 _previewRotation, _grabOffset;
     private Node3D _workGrid = null!;
     private OptionButton _layers = null!;
@@ -108,6 +109,8 @@ public partial class Workshop
         _connectButton = Button("Connect", BeginLink);
         actions.AddChild(_connectButton);
         contextual.AddChild(actions);
+        _linkChoices = new HBoxContainer { Visible = false };
+        contextual.AddChild(_linkChoices);
     }
 
     private void SetGizmoMode(bool move)
@@ -220,7 +223,7 @@ public partial class Workshop
             var fade = !_inRun && _buildView && Mathf.Abs(part.Position.Z - _depth) > .26f;
             foreach (var mesh in part.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
                 mesh.Transparency = fade ? .75f : 0;
-            part.SetSelected(part == _selected || (_linkSource != null && part != _linkSource && World.SuggestedConnection(_linkSource, part) != null));
+            part.SetSelected(part == _selected || (_linkSource != null && part != _linkSource && World.ConnectionOptions(_linkSource, part).Count > 0));
         }
     }
 
@@ -257,6 +260,7 @@ public partial class Workshop
         PanCamera((float)delta);
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool.Length > 0 || _linkSource != null);
+        _linkChoices.Visible = !_inRun && _linkSource != null && _linkChoices.GetChildCount() > 0;
         _removeButton.Visible = _preview == null && _selected is { Locked: false };
         _connectButton.Visible = _preview == null && _selected is { HasOutputSocket: true };
         _partTools.Visible = !_inRun && (target is { Locked: false } || target is { HasOutputSocket: true }) && !_rotationGizmo.Dragging && !_optionsPanel.Visible;

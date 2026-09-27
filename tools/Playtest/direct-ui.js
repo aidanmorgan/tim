@@ -225,6 +225,10 @@ async function directUiAttempt(page, attempt) {
             await waitFor(() => ui.selected===from, "wire source selection");
             await action("Connect");
             await click(target.screen, "connect to "+to);
+            const choice = {activation:"Connect activation",electrical:"Connect electricity",
+                mechanical:"Connect drive",rope:"Connect rope"}[link.type];
+            if (ui.buttons.some(b => b.action === choice && b.enabled && !b.clipped))
+                await action(choice);
         }
         phase = "running";
         await action("▶  Run machine");

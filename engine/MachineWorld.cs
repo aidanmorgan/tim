@@ -134,8 +134,13 @@ public partial class MachineWorld : Node3D
     public MachinePart? FindPart(string id) => Parts.Find(p => p.Uid == id);
     public ConnectionSpec? SuggestedConnection(MachinePart source, MachinePart target)
     {
-        if (source == target || !Parts.Contains(source) || !Parts.Contains(target)) return null;
-        ConnectionSpec? candidate = null;
+        var options = ConnectionOptions(source, target);
+        return options.Count == 1 ? options[0] : null;
+    }
+    public List<ConnectionSpec> ConnectionOptions(MachinePart source, MachinePart target)
+    {
+        var options = new List<ConnectionSpec>();
+        if (source == target || !Parts.Contains(source) || !Parts.Contains(target)) return options;
         foreach (var output in source.ConnectionPorts)
         foreach (var input in target.ConnectionPorts)
         {
@@ -148,10 +153,9 @@ public partial class MachineWorld : Node3D
                 !MechanicalNetwork.CanConnect(Parts, Connections.Append(link))) continue;
             if (link.Type == ConnectionDomain.Rope &&
                 !RopeNetwork.CanConnect(Parts, Connections.Append(link))) continue;
-            if (candidate != null) return null; // Ambiguous sockets need explicit selection.
-            candidate = link;
+            options.Add(link);
         }
-        return candidate;
+        return options;
     }
     public bool Connect(MachinePart source, MachinePart target)
     {
@@ -224,6 +228,7 @@ public partial class MachineWorld : Node3D
     public void Step()
     {
         if (!Running) return;
+        foreach (var part in Parts) part.BeforeNetworks(this);
         LightNetwork.Solve(this);
         ElectricalNetwork.Solve(this);
         Ropes = RopeNetwork.Build(Parts, Connections);

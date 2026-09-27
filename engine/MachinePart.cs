@@ -113,6 +113,8 @@ public partial class MachinePart : Node3D
         Boxes.Add(new(at, size * .5f));
         if (draw) PartArt.Box(Visual, size, color, at);
     }
+    // Fixed-tick control changes commit before optical/electrical network snapshots.
+    public virtual void BeforeNetworks(MachineWorld world) { }
     public virtual void BeforeStep(MachineWorld world, float delta) { }
     public virtual void AfterStep(MachineWorld world, float delta) { }
     public virtual void OnContact(MachinePart body, float speed, MachineWorld world) { }
