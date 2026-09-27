@@ -94,3 +94,15 @@ Six native lesson checks cover successful references at all three difficulties a
 - Both contain the expected two locked fixtures plus one unlocked trampoline, no connections, zero console errors and exact construction Reset. Outcome images inspected; complete local evidence retained under `docs/playtest-results/<caseId>.json`.
 
 Typed authoring in `tools/Campaign/TrampolineLesson.cs` reproduces checked-in content. A semantic comparison confirms the preceding 60 lessons are unchanged. Canonical full-campaign SHA-256: `e37ef7b11779a5ad363b364a043eddb376f6fd28ed8983367ad615fb2a521637`; TrampolinePart: `1b2bf856fa26639734306812acae3761f9658a1a2b10bb3b19e951abaac0b086`. There are now **61 draft lessons**, and Free workshop moves to row **62**. Historical recipes retain their original row numbers. Pipe integration, broader interaction/motion/mobile evidence, final 75-level progression and exhaustive difficulty testing remain open.
+
+### Rebound-to-pipe integration (28 September 2026)
+
+Three native enum-driven route cases on `ed19b88` plus tests/evidence only prove an aimed rebound, a flat-bed control and a depth-misaligned pipe control. The positive case must cross the inlet within the bore, cross the pipe centre, spend at least 20 ticks fully inside the finite bore, then leave beyond the outlet collar plus ball radius. Interior radial clearance, finite state, a 1% total-energy bound, exact serialized Reset and deterministic replay are asserted. All **1,188 native tests pass**; diagnostic and production Release builds succeed. No production physics changed.
+
+[Real-UI recipes and adapter](trampoline-pipe-recipes.json) use Free workshop row 62, three palette parts and no connections:
+
+- `trampoline-pipe-reference-v1`: bed at (0,3,0), −30° Z; ball at (0,6.999069,0); horizontal pipe at (3,3.091826,0), length 3.6. Four fully interior diagnostic samples at ticks 144, 156, 168 and 180 cross from X=1.7872162 to X=3.8080902 inside the bore. At tick 216 the ball is beyond the far collar at X=5.723572. Images at 1.18 and 1.72 seconds were inspected and show the ball inside the clear pipe and leaving its outlet. 100 total frames.
+- `trampoline-pipe-missed-v1`: same tilted rebound and a pipe at Z=2, actual Y=3.096811. No diagnostic sample enters the bore. 101 total frames.
+- Both actual configurations contain the three expected kinds at positions within 0.025 units of the recipe, no links, zero errors and exact Run/Reset equality. Full ignored logs retain recipes, actions, configurations, frames and image paths under `docs/playtest-results/<caseId>.json`.
+
+This closes the focused straight-pipe combination check, not a completed campaign puzzle: the workshop construction has no receiver goal. A follow-on lesson, broader routes/loads, sustained motion and mobile review remain open. Historical evidence is unchanged.
