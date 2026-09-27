@@ -59,6 +59,11 @@ public static class LightNetwork
                 closest = BoxDistance(local - box.At, ray, box.Half, closest);
             foreach (var sphere in part.Spheres)
                 closest = SphereDistance(local - sphere.At, ray, sphere.Radius, closest);
+            foreach (var tube in part.Tubes.Where(t => t.Opaque))
+            {
+                var tubeInverse = tube.Pose.AffineInverse();
+                closest = tube.RayDistance(tubeInverse * local, tubeInverse.Basis * ray, closest);
+            }
             if (part.Dynamic) closest = SphereDistance(local, ray, part.Radius, closest);
         }
         closest = BoxDistance(origin - Workbench.Deck.At, direction, Workbench.Deck.Half, closest);

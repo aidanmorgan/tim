@@ -1,5 +1,15 @@
 # Browser campaign playtest
 
+## Clear gravity tube — 55-level draft
+
+Campaign hash: `ffc48e5fb25b24fe323d457e4419c9021543db686ff22901a643f502a966ef61`. Lesson 25, “Through the looking tube”, introduces a fixed-length clear pipe. The C# solver collides spheres against finite hollow cylinders and annular ends, including transformed pipes and rope-load contact passes. It does not capture/teleport a ball or prescribe travel velocity. Clear walls transmit traced light; opaque cream collars use the same hollow shape for optical occlusion. This is a modern hollow conduit, not a claim of calibrated original TIM pipe physics.
+
+`L25-{balanced,forgiving,precise}-reference-pipe-v1.json` win at ticks 255/212/262. The matched `depth-error` variants place the pipe at approximately Z=0.48017. Balanced corrects to 0.38017 and wins at 268; Forgiving corrects to 0.23017 and wins at 195; Precise leaves it unchanged and times out at 3600. Native fixtures remove basket assistance and reproduce the successful Forgiving/Balanced versus failed Precise outcome at an exact 0.48 error. An initial native expectation incorrectly predicted Balanced failure; the observed native/browser agreement corrected that assertion without changing the mechanism.
+
+A fresh `L25-balanced-reference-pipe-v2.json` repeats the win at 255 and captures sixteen browser motion frames. Reviewed frames 6/9/12 show the ball travelling inside the transparent tube and leaving toward the basket; the clear shell, cream collars, navy rails and original pipe icon retain the palette. All seven records have zero browser errors, complete Run/result/Reset and passing sampled-state/connection audits. Screenshots sample motion, not continuous frame-rate performance.
+
+All 282 native tests pass, including all 55 campaign references at three difficulties, continuous rotated bore passage, side-wall rejection, maximum-speed passage, an oversized ball stopped at the mouth, light through the bore/shell versus collar occlusion, isolated placement assistance, missing-pipe failure and deterministic Reset. Straight resizing, elbows, funnels, explicit mouth snapping, pipe networks, seams, queues and blocked-outlet combinations are unfinished; the full repeated 75-level matrix is still incomplete.
+
 ## Pulley rim artwork — 54-level draft
 
 Campaign hash remains `2691ed54858909a421ef9b89f0c45596f7051f7bb07d19f1a8c84a2b3348e371`. Rope presentation now uses tangent entry/exit legs and 32-segment contact arcs outside each intervening pulley rim. Adjacent-wheel tangencies are iterated, endpoint knots remain, and the former pulley knots are hidden. Winding is retained during motion and chosen to favour the wheel's local upper side.

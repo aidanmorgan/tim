@@ -23,19 +23,24 @@ Prioritise implementing the outstanding puzzle-solving mechanics and rebuilding/
 
 | Levels | Main teaching focus |
 | --- | --- |
-| 1–10 | Basic placement, moving/lifting, rotation, ramps, balls, springs and simple cause/effect |
-| 11–20 | Adjustable walls, containment, pinball bumpers and controlled rebound routes |
-| 21–30 | Batteries, wires, switches, circuits and solar power availability |
-| 31–40 | Electric motors, chains/belts and mechanically driven mechanisms |
-| 41–50 | Weights, ropes, pulling, lifting and counterbalancing |
-| 51–60 | Pulley routing, redirected force and increasingly complex rope mechanisms |
-| 61–70 | Mixed electrical/mechanical systems, timing and multi-stage chains of events |
-| 71–75 | Capstone puzzles combining learned systems with multiple viable solutions |
+| 1–9 | Basic placement, three-axis movement/rotation, ramps, balls, springs, signals and simple cause/effect |
+| 10–18 | Bumpers, walls, batteries, switches, motors, belts and reversing transmission |
+| 19–24 | Counterweights, depth-oriented pulley routing, light/solar supply and one-shot timing |
+| 25–30 | Hollow pipes, bends, inlet alignment and controlled delivery; straight pipe starts at 25 |
+| 31–38 | Introductory optical routing, detectors, mirrors and power interlocks |
+| 39–44 | Additional mechanical/rope adapters and deliberately taught timing/control pieces |
+| 45–60 | Mixed mechanisms, multiple goals and meaningful depth; rework older combinations |
+| 61–70 | Longer causal sequences, timing dependencies and alternative solutions |
+| 71–75 | Capstones combining already-taught systems |
 
 - [ ] Audit campaign loading, selection/navigation, current-schema save handling, hints, tests and Playwright tooling for hard-coded 40-level assumptions; derive limits from campaign data where possible.
 - [ ] Verify 75 distinct, playable levels with an intentional difficulty ramp and no unintroduced required mechanism. Expand the baseline matrix to 75 × 3 difficulties × 4 placement variants = 900 cases, plus repeatability and mechanism-specific probes; preserve failed attempts and evidence versions.
 
 ## In-flight work and handoff
+
+- [x] Add the first clear straight pipe and lesson 25, bringing the campaign to **55 draft levels**. C# finite annular-cylinder contact uses the existing sphere solver, not a second physics world; ball motion stays continuous under gravity/contact. Opaque collars block traced light while the clear shell transmits it. Original pictogram, catalog/scene, rotation and palette styling are integrated.
+- [x] Verify pipe references at all three difficulties plus matched depth-error trials: Forgiving/Balanced succeed, Precise times out. A repeated Balanced reference wins at the same tick; seven UI-only records/audits pass and sampled frames show the ball inside the transparent tube. All 282 native tests pass, including isolated pipe-placement assistance, missing-pipe failure, rotated passage, side-wall collision, high-speed/oversized balls, optical openings and Reset.
+- [ ] Extend pipes with length resizing, explicit mouth alignment/snapping, elbows, funnels, blocked-outlet/queue/seam tests and controlled gates. Current pipe length is 3.6 units with a 1.3-unit bore; there are no transport-network links or hidden path-following. Broader motion/performance and repeated placement-error coverage remain unfinished.
 
 - [x] Add a C# one-shot Delay control module with typed Ready/Counting/Finished states, explicit activation input/output, author-set duration (0.1–12 seconds, default 1), a moving countdown hand and Reset. It does not supply electricity; repeat inputs are ignored until workshop Reset. Add delayed-lamp and delayed-solar lessons at 23–24: **54 draft levels** now exist toward 75. Sequence goals reject direct early bypasses.
 - [x] Verify both delay lessons through real UI placement/wiring/Run/Reset at all three difficulties, plus a direct-early-bypass negative control. Fix goals to measure elapsed time from the fixed switch, independent of player-generated timer IDs. Preserve the three failed level-24 v1 attempts; seven v2 attempts pass their expected results, lifecycle checks and audits. Native suite: 259 tests; UI adapter: 26 tests.
@@ -149,7 +154,7 @@ These are **pending puzzle options**, not implemented features or claims about t
 
 ### Ball pipes and controlled delivery
 
-- [ ] First: clear straight tubes, fixed-radius 45°/90° elbows and funnel inlets. Example: catch a bumper launch and route the ball around a wall into a basket. Start with one bore size and length-only straight resizing.
+- [ ] Complete the initial pipe family: the clear fixed-size straight tube is implemented; length-only resizing, fixed-radius 45°/90° elbows and funnel inlets remain. Example: catch a bumper launch and route the ball around a wall into a basket. Start with one bore size and length-only straight resizing.
 - [ ] First: a visible shutter/gate that holds and releases a ball through mechanical or powered control. Example: wait until a receiving tray arrives before releasing its payload.
 - [ ] Next: Y-diverter with a visible selected outlet; introduce a fixed selection before powered or alternating selection. Example: send the first ball to a switch and the second to the basket.
 - [ ] Next: hopper with a one-ball escapement, visible queue and one release per trigger. Example: feed two destinations alternately without releasing the whole supply.
@@ -209,7 +214,7 @@ Research basis: Croteam's official [device reference](https://taloseditor.crotea
 - [ ] Consider size grates/weight trays for sorting; electromagnets for powered pickup/drop of explicitly ferrous objects; clutches/brakes for selective mechanical drive; ratchet/indexed carousels for one-step-per-trigger motion; and docking ferries/lifts with loading interlocks. These depend on material, drive or rope systems and must add distinct decisions.
 - [ ] Defer releasable assembly joints/temporary bridges until compound-body and connection lifecycle behaviour is reliable. Do not add unrestricted teleporters merely to expand the palette.
 - [ ] Evaluate new pieces for distinct puzzle decisions, recombination with existing pieces, readable behaviour, easy assembly, repeatability and teachability. Research precedents include [Infinifactory's sensors/actuators](https://zachtronics.com/zachademics/) and [Opus Magnum's programmable mechanisms](https://store.steampowered.com/app/558990/Opus_Magnum/); our game should not inherit their programming UI.
-- [ ] Revise the 75-level chapter allocation before implementing these as mandatory content: reserve focused pipe, timing and introductory optics lessons, then combine them with power and mechanics. Retain 75 total levels and defer advanced optics/logic if there is insufficient room to teach them properly.
+- [x] Revise the 75-level planning allocation for the pipe introduction: reserve 25–30 for transport and controlled delivery, 31–38 for introductory optics, and 39–44 for further mechanical/control adapters before mixed puzzles and capstones. Existing one-shot timing lessons occupy 23–24. These are planned ranges, not a claim that their content exists; defer advanced optics/logic if teaching space is insufficient.
 - [ ] Keep all new interactions touch-compatible, with no required hover/keyboard modifier. Preserve DESIGN.md, existing minimal UI and fluid activation animation; use C# wherever possible.
 - [ ] Separate generous editor snapping from hidden author-controlled runtime forgiveness. Define per-part bounded inlet/angle/receiver/contact/timing tolerances in puzzle definitions; smoothly ease eligible errors without warping through walls, selecting the right branch, inventing power or bypassing a required mechanism.
 - [ ] For every selected family, add authoring/inventory/save support, native behavioural/Reset tests, then repeated real-UI Playwright attempts for all difficulties. Include valid references, matched near-errors and outside-window failures; compare normal/slow playback, simultaneous events and Reset at activation boundaries. Do not equate sampled screenshots with proven animation fluidity.

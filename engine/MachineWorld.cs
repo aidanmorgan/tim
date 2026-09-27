@@ -254,6 +254,7 @@ public partial class MachineWorld : Node3D
                     if (obstacle == body || !obstacle.Visible) continue;
                     foreach (var box in obstacle.Boxes) CollideBox(body, obstacle.Transform, box, obstacle.SurfaceBounce, obstacle);
                     foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
+                    foreach (var tube in obstacle.Tubes) CollideTube(body, obstacle, tube);
                 }
                 if (body.Position.Y < -5 || body.Position.Y > 20 || Mathf.Abs(body.Position.X) > 18 || Mathf.Abs(body.Position.Z) > 12)
                 {
@@ -284,6 +285,7 @@ public partial class MachineWorld : Node3D
                         if (obstacle == body || !obstacle.Visible) continue;
                         foreach (var box in obstacle.Boxes) CollideBox(body, obstacle.Transform, box, obstacle.SurfaceBounce, obstacle);
                         foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
+                        foreach (var tube in obstacle.Tubes) CollideTube(body, obstacle, tube);
                     }
                     CollideBox(body, Transform3D.Identity, Workbench.Deck, 1);
                     CollideBox(body, Transform3D.Identity, Workbench.Base, 1);
@@ -336,6 +338,21 @@ public partial class MachineWorld : Node3D
         var tangent = body.Velocity - normal * body.Velocity.Dot(normal);
         body.Velocity -= tangent * (Realistic ? .015f : .002f);
         obstacle?.OnContact(body, -speed, this);
+    }
+
+    private void CollideTube(MachinePart body, MachinePart obstacle, TubeProxy tube)
+    {
+        var transform = obstacle.Transform * tube.Pose;
+        var (localNormal, distance) = tube.Surface(transform.AffineInverse() * body.Position);
+        if (distance >= body.Radius) return;
+        var normal = transform.Basis * localNormal;
+        body.Position += normal * (body.Radius - distance + .00001f);
+        var speed = body.Velocity.Dot(normal);
+        if (speed >= 0) return;
+        body.Velocity -= normal * speed * (1 + body.Bounce * obstacle.SurfaceBounce);
+        var tangent = body.Velocity - normal * body.Velocity.Dot(normal);
+        body.Velocity -= tangent * (Realistic ? .015f : .002f);
+        obstacle.OnContact(body, -speed, this);
     }
 
     private void CollideStaticSphere(MachinePart body, MachinePart obstacle, SphereProxy sphere)

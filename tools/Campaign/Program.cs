@@ -275,6 +275,17 @@ delayedSolar.SolutionConnections.AddRange(
 delayedSolar.Goals.Add(new() { Type = GoalKind.PoweredAfter, Target = "motor", Body = "switch", MinimumDelaySeconds = 1 });
 modules["delayed_solar"] = delayedSolar;
 
+modules["clear_pipe"] = new PuzzleData
+{
+    Parts = [
+        new() { Id = "ball", Kind = "ball", Locked = true, Position = [-1.4f, 6, 0] },
+        new() { Id = "receiver", Kind = "basket", Locked = true, Position = [2, .6f, 0] }
+    ],
+    Inventory = new() { ["pipe"] = 1 },
+    Solution = [new() { Id = "pipe_1", Kind = "pipe", Position = [0, 3, 0], Rotation = [0, 0, -45] }],
+    Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
+};
+
 var campaign = source.Select(Copy).ToList();
 void Add(string id, string title, string chapter, string description, string hint,
          params (string Kind, float X, float Z, float Yaw)[] layout)
@@ -382,6 +393,10 @@ Add("delayed_solar", "A later sunrise", "Timing and power",
     "Wait for the countdown before lighting the torch and turning the motor.",
     "Connect switch → delay → torch, then panel → motor. The delay sends a command, while the lit solar panel supplies electricity.", ("delayed_solar", 0, 0, 180));
 
+Add("clear_pipe", "Through the looking tube", "Hollow routes",
+    "Catch the falling ball inside the clear pipe and guide it down to the basket.",
+    "Tilt the tube downhill toward the basket. Its cream mouths are open; the clear walls keep the ball inside without adding speed.", ("clear_pipe", 0, 0, 0));
+
 // Chapters 3 and 4: independent goals, mixed mechanisms, and power dependencies.
 Add("two_deliveries", "Two deliveries", "Parallel machines",
     "Catch both balls, one with ramps and one with air. The receivers are in separate depth planes.",
@@ -477,7 +492,7 @@ Add("cold_bridges", "Cold bridges", "Final workshop",
 Add("grand_contraption", "The grand contraption", "Final workshop",
     "Complete the ramp signal, conveyor signal, and domino chain; all three must succeed in one run.",
     "Build and test each lane. The final machine needs two slopes, a conveyor delivery, four dominoes, and both signal wires.", ("ramps_signal", 0, -3, 0), ("domino", 0, 0, 0), ("conveyor_signal", 0, 3, 0));
-if (campaign.Count != 54) throw new InvalidDataException($"Expected 54 authored levels in this expansion stage, authored {campaign.Count}.");
+if (campaign.Count != 55) throw new InvalidDataException($"Expected 55 authored levels in this expansion stage, authored {campaign.Count}.");
 // Every authored instance owns its difficulty curve; catalog defaults do not decide puzzle help.
 foreach (var puzzle in campaign)
 foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
