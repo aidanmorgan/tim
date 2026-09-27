@@ -26,6 +26,7 @@ public partial class MachinePart : Node3D
     public List<BoxProxy> Boxes { get; } = new();
     public List<TubeProxy> Tubes { get; } = new();
     public List<BendProxy> Bends { get; } = new();
+    public List<FrustumProxy> Frustums { get; } = new();
     public List<SphereProxy> Spheres { get; } = new();
     public bool Active { get; set; }
     public Dictionary<string, float> Properties { get; private set; } = new();

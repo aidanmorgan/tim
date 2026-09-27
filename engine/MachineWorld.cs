@@ -261,6 +261,7 @@ public partial class MachineWorld : Node3D
                     foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
                     foreach (var tube in obstacle.Tubes) CollideTube(body, obstacle, tube);
                     foreach (var bend in obstacle.Bends) CollideBend(body, obstacle, bend);
+                    foreach (var frustum in obstacle.Frustums) CollideFrustum(body, obstacle, frustum);
                 }
                 if (body.Position.Y < -5 || body.Position.Y > 20 || Mathf.Abs(body.Position.X) > 18 || Mathf.Abs(body.Position.Z) > 12)
                 {
@@ -293,6 +294,7 @@ public partial class MachineWorld : Node3D
                         foreach (var sphere in obstacle.Spheres) CollideStaticSphere(body, obstacle, sphere);
                         foreach (var tube in obstacle.Tubes) CollideTube(body, obstacle, tube);
                         foreach (var bend in obstacle.Bends) CollideBend(body, obstacle, bend);
+                        foreach (var frustum in obstacle.Frustums) CollideFrustum(body, obstacle, frustum);
                     }
                     CollideBox(body, Transform3D.Identity, Workbench.Deck, 1);
                     CollideBox(body, Transform3D.Identity, Workbench.Base, 1);
@@ -351,6 +353,13 @@ public partial class MachineWorld : Node3D
     {
         var transform = obstacle.Transform * tube.Pose;
         var (localNormal, distance) = tube.Surface(transform.AffineInverse() * body.Position);
+        ResolveHollowContact(body, obstacle, transform.Basis * localNormal, distance);
+    }
+
+    private void CollideFrustum(MachinePart body, MachinePart obstacle, FrustumProxy frustum)
+    {
+        var transform = obstacle.Transform * frustum.Pose;
+        var (localNormal, distance) = frustum.Surface(transform.AffineInverse() * body.Position);
         ResolveHollowContact(body, obstacle, transform.Basis * localNormal, distance);
     }
 
