@@ -42,6 +42,12 @@ A small gold tapered bell has a rounded crown, cream rim, navy hanging stem and 
 
 Use a small cream circular cap with a navy hanging stud, four slender gold tubes at different lengths, dark suspension strings, a cream clapper and a cyan sail. The sail and clapper visibly swing together; do not replace their motion with a flashing indicator. Thin fading three-plane wavefronts communicate sound without obscuring the diorama. The original navy line icon shows hanging tubes and a diamond-shaped sail. Preserve the approved palette and restrained geometry.
 
+## Windmill
+
+Use four cyan pitched vanes with gold tips and hub inside a slender cream guard. A cream mast/gearbox on a navy foot supports the rotor; a cream side pulley with a gold spoke clearly exposes its mechanical output. The original navy line icon shows vanes and a small tower. Preserve existing palette values and uncluttered toy geometry.
+
+Rotor and pulley angles follow the actual signed shaft speed: spin-up, reversal through zero and coast-down are continuous simulation motions, not decorative loops. A blocked fan path leaves the rotor at rest. The fixed guard/hub are collision geometry; blades are not individually simulated striking surfaces. Sampled desktop captures verify the connected, disconnected and blocked states; sustained fluidity and mobile review remain outstanding.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.

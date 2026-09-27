@@ -14,7 +14,7 @@ public partial class WindChimesPart : MachinePart
     public Vector3 LastAirForce { get; private set; }
     private readonly List<AcousticPulse> _pulses=[];
     public override IReadOnlyList<AcousticPulse> AcousticPulses=>_pulses;
-    public override Vector3? AirflowTarget=>Motion.LocalTip(Basis);
+    public override IReadOnlyList<AirflowSample> AirflowSamples=>[new(Motion.LocalTip(Basis),1)];
     private Node3D _pendulum=null!;
     private AudioStreamPlayer3D _audio=null!;
     private readonly Dictionary<ToneBand,AudioStreamWav> _tones=[];

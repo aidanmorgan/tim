@@ -25,6 +25,7 @@ public static class WorkshopIcons
         if (Cache.TryGetValue(key, out var cached)) return cached;
         var drawing = kind switch
         {
+            "windmill" => "<circle cx='12' cy='9' r='2'/><path d='M10 7 4 3l-2 3 8 3m4-2 4-6 3 2-7 6m0 2 6 4 2-3-8-3m-4 2-4 6-3-2 7-6M10 12l-2 10h8l-2-10'/>",
             "wind_chimes" => "<path d='M3 4h18M6 4v14M10 4v10M18 4v12M14 4v15m0 0-2 2 2 2 2-2z'/>",
             "bell" => "<path d='M5 17h14l-2-4V9a5 5 0 0 0-10 0v4zM10 20q2 2 4 0M12 2v2M3 8l-1 4M21 8l1 4'/>",
             "sound_meter" => "<path d='M3 17a9 9 0 1 1 18 0H3zM12 14l5-6M6 10l1 1M12 5v2'/><circle cx='12' cy='14' r='1.5'/>",
