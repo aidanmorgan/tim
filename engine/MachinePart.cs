@@ -47,7 +47,7 @@ public partial class MachinePart : Node3D
     public virtual IEnumerable<LightSample> LightSamples => [];
     public virtual void ReceiveLight(float irradiance) { }
     public virtual bool SuppliesElectricity(string outputPort) => false;
-    public virtual IEnumerable<ElectricalConjunction> ElectricalConjunctions => [];
+    public virtual IEnumerable<ElectricalGate> ElectricalGates => [];
     public virtual IEnumerable<ElectricalRoute> ElectricalRoutes => [];
     private readonly Dictionary<string, float> _shaftSpeeds = new();
     public float MechanicalSpeed(string port) => _shaftSpeeds[port];

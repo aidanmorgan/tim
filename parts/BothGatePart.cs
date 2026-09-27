@@ -17,13 +17,14 @@ public partial class BothGatePart : MachinePart
     [
         new(SocketIds.FirstIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.94f,.35f,0)),
         new(SocketIds.SecondIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.94f,-.35f,0)),
+        new(SocketIds.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,-.75f,.55f)),
         new(SocketIds.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.94f,0,0))
     ];
-    public override IEnumerable<ElectricalConjunction> ElectricalConjunctions=>
-        [new(SocketIds.FirstIn,SocketIds.SecondIn,SocketIds.Supply)];
+    public override IEnumerable<ElectricalGate> ElectricalGates=>
+        [new(LogicGateKind.And,SocketIds.FirstIn,SocketIds.SecondIn,SocketIds.PowerIn,SocketIds.Supply)];
     public override void BeforeStep(MachineWorld world,float delta)
     {
-        Active=State==BothGateState.Both;
+        Active=State==BothGateState.Both && HasElectricalPower(SocketIds.PowerIn);
         if(Active)world.Events.TryAdd(new(MachineEventKind.Powered,Uid),world.Ticks);
     }
     protected override void Build()
@@ -52,7 +53,7 @@ public partial class BothGatePart : MachinePart
     {
         for(var i=0;i<3;i++)
         {
-            var on=i==0?HasElectricalPower(SocketIds.FirstIn):i==1?HasElectricalPower(SocketIds.SecondIn):State==BothGateState.Both;
+            var on=i==0?HasElectricalPower(SocketIds.FirstIn):i==1?HasElectricalPower(SocketIds.SecondIn):Active;
             _levels[i]=Mathf.MoveToward(_levels[i],on?1:0,(float)delta*10);
             var level=_levels[i];
             _indicators[i].AlbedoColor=new Color("#556573").Lerp(new("#f7cb52"),level*level*(3-2*level));

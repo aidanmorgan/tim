@@ -22,6 +22,10 @@ Five operations share a cyan cube and navy foot. Cream-rimmed left/top control l
 
 A small cream relief shows the four two-input truth rows with raised gold output dots. Toolbox pictograms distinguish the operations without adding permanent panels. Preserve the palette. Current NOR browser captures demonstrate carrier/no-carrier output and downstream actuation, not legibility of every tiny relief mark or continuous animation quality; those remain visual-review work.
 
+## Supplied electrical logic
+
+The Both gate retains its cyan body, cream face, navy base and two numbered condition inputs. A separate lower-front gold socket accepts the energy supply; it is not a third condition. The output lamp indicates supplied output, so two lit input lamps with an unpowered supply leave the output slate. The real-UI positive/negative pair verifies that distinction. Preserve this separation when introducing the remaining electrical operations.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.

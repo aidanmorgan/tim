@@ -6,6 +6,6 @@ script = ExtResource("1")
 Id = "both_gate"
 Title = "Both gate"
 Category = "Control"
-Description = "Passes electricity only while both inputs have supply. Connect two switched conditions to the one-mark and two-mark sockets. Does not remember inputs or generate power."
+Description = "Both numbered controls must be powered to pass the separate bottom supply to the output. Connect a battery to the bottom socket and switched conditions to the one-mark and two-mark sockets. No supply means no output."
 Scene = ExtResource("2")
 Color = Color(0.4, 0.72, 0.79, 1)
