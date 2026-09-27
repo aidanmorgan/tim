@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/speaker.tscn" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "speaker"
+Title = "Speaker"
+Category = "Sound"
+Description = "Supply electricity, then trigger a short forward sound pulse. Visible rings work even when muted. Needs a fresh trigger after losing power; at most five pulses per second. Sound meters and acoustic routing are still being added."
+Scene = ExtResource("2")
+Color = Color(1, 0.97, 0.91, 1)

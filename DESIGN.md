@@ -26,6 +26,10 @@ A small cream relief shows the four two-input truth rows with raised gold output
 
 The Both gate retains its cyan body, cream face, navy base and two numbered condition inputs. A separate lower-front gold socket accepts the energy supply; it is not a third condition. The output lamp indicates supplied output, so two lit input lamps with an unpowered supply leave the output slate. The real-UI positive/negative pair verifies that distinction. OR/XOR/NOR/NAND share this separation and body silhouette. Each displays its original navy operation pictogram on the cream face, matching its toolbox icon; small raised gold truth-row marks supplement it. Invalid feedback stays in build mode and uses the existing bottom status line, not a new popup. Keep that explanation short enough to fit the viewport.
 
+## Sound speaker
+
+Use a cream speaker cabinet on a navy foot, a gold-rimmed navy diaphragm and cyan centre. Two raised bars identify the default mid tone. Its diaphragm gives a small eased vibration after a real pulse; thin, shadow-free translucent wavefronts expand forward and fade with distance. Avoid solid gold hoops that dominate the diorama. The visible pulse and future meter must remain useful when audio is muted. Current desktop wave contrast is subtle; mobile contrast and continuous motion remain review items.
+
 ## Character and hierarchy
 
 A bright, friendly toy workbench: sky blue space, warm wood and cream surfaces, readable coloured mechanisms, restrained dark-blue line icons. The contraption is the main content. Keep the playful, simple geometry and ample empty space; avoid a CAD/editor aesthetic, permanent drafting grids, dense toolbars, opaque enclosing walls, photorealistic grime, or a dark industrial dashboard.

@@ -266,7 +266,9 @@ Sub-agent findings, sources, detailed contracts and **39 cross-system puzzle rec
 
 ### Sound as a gameplay system
 
-- [ ] **P1:** supplied speaker, sound meter, physically struck bell and airflow-driven wind chimes. Require a real source/strike; threshold crossing emits once until rearmed.
+- [x] Powered speaker: next-tick triggers, bounded finite directional pulses, procedural tone, animated cone and thin fading wavefronts. Independent electricity required; unpowered requests expire. 635 native tests (eight new acoustic cases), 39 driver tests; real-UI powered/unpowered checks restore exact construction without browser errors. See docs/sound-verification.md; retained selector and initial over-heavy wave visual attempts.
+- [ ] **P1:** sound meter, physically struck bell and airflow-driven wind chimes. Require a real source/strike; threshold crossing emits once until rearmed. Add acoustic occlusion and strongest-arrival reception; speaker pulses currently expose a free-field sampling model only.
+- [ ] Speaker follow-up: auditory listening/quality check, browser audio-suspension testing, mobile wave contrast and continuous animation review. The current faint wave is supplementary feedback; metering remains unimplemented.
 - [ ] **P2:** tuned meters, whistles, listening/exit horns, typed acoustic ducts and resonators; **P3:** acoustic screens/dishes and water-tuned bottles.
 - [ ] Fixed-tick typed acoustic events own strength, tone, direction, travel, occlusion and bounded propagation. Audio playback, mute, camera and browser audio suspension cannot change outcomes; no microphone requirement.
 - [ ] Provide visible source motion, tone symbols, restrained traveling arcs and receiver needles. Separate continuous condition from pulses; electrical outputs require real supply.
