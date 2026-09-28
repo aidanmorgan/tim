@@ -53,6 +53,7 @@ public partial class Workshop : Node3D
         _picker.AddItem("Free workshop");
         LoadLevel(0);
         GetWindow().FocusExited += ClearCameraMotion;
+        StartBackendQualification();
     }
 
     private void MakeStage()

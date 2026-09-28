@@ -1,0 +1,7958 @@
+{
+  "baseline": "35acec8b38a2f25c7493c35e19630075a22ffaa6",
+  "browser": {
+    "observations": [
+      {
+        "prefix": "CCGENERALCCD ",
+        "report": {
+          "Probe": "PureRotation",
+          "Status": "Contact",
+          "Time": 0.002702584758762334,
+          "Queries": 12
+        }
+      },
+      {
+        "prefix": "CCGENERALCCD ",
+        "report": {
+          "Probe": "OpposingBodies",
+          "Status": "Contact",
+          "Time": 0.0037498749999999997,
+          "Queries": 2
+        }
+      },
+      {
+        "prefix": "CCGENERALCCD ",
+        "report": {
+          "Probe": "CompoundPassage",
+          "Status": "Clear",
+          "Time": 1,
+          "Queries": 4
+        }
+      },
+      {
+        "prefix": "CCGENERALCCD ",
+        "report": {
+          "Probe": "CompoundWall",
+          "Status": "Contact",
+          "Time": 0.2916499999975121,
+          "Queries": 4
+        }
+      },
+      {
+        "prefix": "CCBACKENDQUERY ",
+        "report": {
+          "Probe": "SphereTranslation",
+          "Collided": true,
+          "SafeFraction": 0.44140625,
+          "Contacts": 1,
+          "Normal": [
+            -1,
+            0,
+            0
+          ],
+          "SpaceAvailable": true
+        }
+      },
+      {
+        "prefix": "CCBACKENDQUERY ",
+        "report": {
+          "Probe": "BoxTranslation",
+          "Collided": true,
+          "SafeFraction": 0.44140625,
+          "Contacts": 4,
+          "Normal": [
+            -1,
+            0,
+            0
+          ],
+          "SpaceAvailable": true
+        }
+      },
+      {
+        "prefix": "CCBACKENDQUERY ",
+        "report": {
+          "Probe": "HullTranslation",
+          "Collided": true,
+          "SafeFraction": 0.44140625,
+          "Contacts": 4,
+          "Normal": [
+            -1,
+            0,
+            0
+          ],
+          "SpaceAvailable": true
+        }
+      },
+      {
+        "prefix": "CCBACKENDQUERY ",
+        "report": {
+          "Probe": "CompoundPassage",
+          "Collided": false,
+          "SafeFraction": 1,
+          "Contacts": 0,
+          "Normal": [
+            0,
+            0,
+            0
+          ],
+          "SpaceAvailable": true
+        }
+      },
+      {
+        "prefix": "CCBACKENDQUERY ",
+        "report": {
+          "Probe": "CompoundWall",
+          "Collided": true,
+          "SafeFraction": 0.2890625,
+          "Contacts": 4,
+          "Normal": [
+            -1,
+            0,
+            0
+          ],
+          "SpaceAvailable": true
+        }
+      },
+      {
+        "prefix": "CCBACKENDMOTION ",
+        "report": {
+          "Experiment": "FastTranslation",
+          "Frames": [
+            {
+              "Step": 0,
+              "Delta": 0,
+              "Position": [
+                0,
+                0,
+                0
+              ],
+              "Angle": 0,
+              "Velocity": [
+                1000,
+                0,
+                0
+              ],
+              "AngularSpeed": 0,
+              "Contacts": 0,
+              "OtherPosition": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 1,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                0,
+                0,
+                0
+              ],
+              "Angle": 0,
+              "Velocity": [
+                1000,
+                0,
+                0
+              ],
+              "AngularSpeed": 0,
+              "Contacts": 0,
+              "OtherPosition": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 2,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                2.6550002,
+                0,
+                0
+              ],
+              "Angle": 0,
+              "Velocity": [
+                318.6,
+                0,
+                0
+              ],
+              "AngularSpeed": 0,
+              "Contacts": 0,
+              "OtherPosition": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 3,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                2.6550004,
+                -6.357829e-7,
+                -7.629395e-7
+              ],
+              "Angle": 0.000003306071,
+              "Velocity": [
+                0.000015258789,
+                -0.000076293945,
+                -0.000091552734
+              ],
+              "AngularSpeed": 0.00039672852,
+              "Contacts": 4,
+              "OtherPosition": [
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "prefix": "CCBACKENDMOTION ",
+        "report": {
+          "Experiment": "PureRotation",
+          "Frames": [
+            {
+              "Step": 0,
+              "Delta": 0,
+              "Position": [
+                0,
+                0,
+                0
+              ],
+              "Angle": 0,
+              "Velocity": [
+                0,
+                0,
+                0
+              ],
+              "AngularSpeed": 120,
+              "Contacts": 0,
+              "OtherPosition": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 1,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                0,
+                0,
+                0
+              ],
+              "Angle": 0,
+              "Velocity": [
+                0,
+                0,
+                0
+              ],
+              "AngularSpeed": 120,
+              "Contacts": 0,
+              "OtherPosition": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 2,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                0,
+                0,
+                0
+              ],
+              "Angle": 1,
+              "Velocity": [
+                0,
+                0,
+                0
+              ],
+              "AngularSpeed": 120,
+              "Contacts": 0,
+              "OtherPosition": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 3,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                0,
+                0,
+                0
+              ],
+              "Angle": 2,
+              "Velocity": [
+                0,
+                0,
+                0
+              ],
+              "AngularSpeed": 120,
+              "Contacts": 0,
+              "OtherPosition": [
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "prefix": "CCBACKENDMOTION ",
+        "report": {
+          "Experiment": "OpposingBodies",
+          "Frames": [
+            {
+              "Step": 0,
+              "Delta": 0,
+              "Position": [
+                -2,
+                0,
+                0
+              ],
+              "Angle": 0,
+              "Velocity": [
+                400,
+                0,
+                0
+              ],
+              "AngularSpeed": 0,
+              "Contacts": 0,
+              "OtherPosition": [
+                2,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 1,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                -2,
+                0,
+                0
+              ],
+              "Angle": 0,
+              "Velocity": [
+                400,
+                0,
+                0
+              ],
+              "AngularSpeed": 0,
+              "Contacts": 0,
+              "OtherPosition": [
+                2,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 2,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                -1.8283335,
+                0,
+                0
+              ],
+              "Angle": 0,
+              "Velocity": [
+                20.59998,
+                0,
+                0
+              ],
+              "AngularSpeed": 0,
+              "Contacts": 0,
+              "OtherPosition": [
+                -1.3333335,
+                0,
+                0
+              ]
+            },
+            {
+              "Step": 3,
+              "Delta": 0.008333333333333333,
+              "Position": [
+                -3.409167,
+                0,
+                0
+              ],
+              "Angle": 8.2651775e-7,
+              "Velocity": [
+                -189.70001,
+                0,
+                0
+              ],
+              "AngularSpeed": 0.00009918213,
+              "Contacts": 4,
+              "OtherPosition": [
+                -2.914167,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "errors": []
+  },
+  "uiRegression": {
+    "recipe": {
+      "caseId": "general-collision-foundation-ui-regression-v1",
+      "level": 62,
+      "precision": 0.45,
+      "parts": [
+        {
+          "slot": "lever",
+          "kind": "impact_lever",
+          "position": [
+            0,
+            3,
+            0
+          ]
+        },
+        {
+          "slot": "driver",
+          "kind": "bowling",
+          "position": [
+            -1.2,
+            6,
+            0
+          ]
+        },
+        {
+          "slot": "funnel",
+          "kind": "funnel",
+          "position": [
+            1.5,
+            3,
+            0
+          ]
+        }
+      ],
+      "connections": []
+    },
+    "errors": [],
+    "resetExact": true,
+    "comparedBaselineFrames": 101,
+    "run": {
+      "connections": [],
+      "level": 62,
+      "precision": 0.45,
+      "parts": [
+        {
+          "properties": {
+            "mass": 4,
+            "bounce": 0.14,
+            "radius": 0.38
+          },
+          "id": "bowling_2",
+          "kind": "bowling",
+          "locked": false,
+          "dynamic": true,
+          "position": [
+            -1.2,
+            5.988797,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "properties": {},
+          "id": "funnel_3",
+          "kind": "funnel",
+          "locked": false,
+          "dynamic": false,
+          "position": [
+            1.5,
+            3,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "properties": {
+            "beam_mass": 2,
+            "initial_angle": 0
+          },
+          "id": "impact_lever_1",
+          "kind": "impact_lever",
+          "locked": false,
+          "dynamic": false,
+          "position": [
+            0,
+            3,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    "reset": {
+      "connections": [],
+      "level": 62,
+      "precision": 0.45,
+      "parts": [
+        {
+          "properties": {
+            "mass": 4,
+            "bounce": 0.14,
+            "radius": 0.38
+          },
+          "id": "bowling_2",
+          "kind": "bowling",
+          "locked": false,
+          "dynamic": true,
+          "position": [
+            -1.2,
+            5.988797,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "properties": {},
+          "id": "funnel_3",
+          "kind": "funnel",
+          "locked": false,
+          "dynamic": false,
+          "position": [
+            1.5,
+            3,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "properties": {
+            "beam_mass": 2,
+            "initial_angle": 0
+          },
+          "id": "impact_lever_1",
+          "kind": "impact_lever",
+          "locked": false,
+          "dynamic": false,
+          "position": [
+            0,
+            3,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    "frames": [
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.2,
+              5.988797,
+              0
+            ],
+            "velocity": [
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 0,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.9830017,
+              0
+            ],
+            "velocity": [
+              0,
+              -0.32676697,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 4,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.966339,
+              0
+            ],
+            "velocity": [
+              0,
+              -0.6530762,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 8,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.938797,
+              0
+            ],
+            "velocity": [
+              0,
+              -0.97895813,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 12,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.900406,
+              0
+            ],
+            "velocity": [
+              0,
+              -1.3044128,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 16,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.851166,
+              0
+            ],
+            "velocity": [
+              0,
+              -1.6294403,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 20,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.791107,
+              0
+            ],
+            "velocity": [
+              0,
+              -1.9540253,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 24,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.72023,
+              0
+            ],
+            "velocity": [
+              0,
+              -2.2781677,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 28,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.638565,
+              0
+            ],
+            "velocity": [
+              0,
+              -2.6018982,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 32,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.546097,
+              0
+            ],
+            "velocity": [
+              0,
+              -2.9252167,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 36,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.4428864,
+              0
+            ],
+            "velocity": [
+              0,
+              -3.2480927,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 40,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.3289337,
+              0
+            ],
+            "velocity": [
+              0,
+              -3.5705261,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 44,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.204239,
+              0
+            ],
+            "velocity": [
+              0,
+              -3.8925323,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 48,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              5.068802,
+              0
+            ],
+            "velocity": [
+              0,
+              -4.2141113,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 52,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              4.922638,
+              0
+            ],
+            "velocity": [
+              0,
+              -4.535263,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 56,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              4.7657776,
+              0
+            ],
+            "velocity": [
+              0,
+              -4.8559875,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 60,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              4.598236,
+              0
+            ],
+            "velocity": [
+              0,
+              -5.176285,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 64,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              4.420044,
+              0
+            ],
+            "velocity": [
+              0,
+              -5.496155,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 68,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              4.231186,
+              0
+            ],
+            "velocity": [
+              0,
+              -5.815613,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 72,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              4.0316772,
+              0
+            ],
+            "velocity": [
+              0,
+              -6.1346283,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 76,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              3.8215637,
+              0
+            ],
+            "velocity": [
+              0,
+              -6.4532166,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 80,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              3.6007996,
+              0
+            ],
+            "velocity": [
+              0,
+              -6.771393,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 84,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.07992691620960818,
+            "angularVelocity": 4.377247896507882,
+            "energy": 20.78509032612152
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.199997,
+              3.4055939,
+              0
+            ],
+            "velocity": [
+              -0.003189087,
+              -5.110794,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 88,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.230659717278714,
+            "angularVelocity": 4.631587389531719,
+            "energy": 23.270695124154322
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.2003937,
+              3.2318115,
+              0
+            ],
+            "velocity": [
+              -0.020812988,
+              -5.311264,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 92,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.213211,
+              3.0819702,
+              0
+            ],
+            "velocity": [
+              -1.8617249,
+              -0.67749023,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 96,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.2768707,
+              3.0580292,
+              0
+            ],
+            "velocity": [
+              -1.961029,
+              -0.7300873,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 100,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.3440857,
+              3.0330048,
+              0
+            ],
+            "velocity": [
+              -2.0652924,
+              -0.76890564,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 104,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.4147797,
+              3.0066833,
+              0
+            ],
+            "velocity": [
+              -2.1694183,
+              -0.8076935,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 108,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.4889526,
+              2.9790497,
+              0
+            ],
+            "velocity": [
+              -2.2734222,
+              -0.8464203,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 112,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.5665741,
+              2.950119,
+              0
+            ],
+            "velocity": [
+              -2.377243,
+              -0.88508606,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 116,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.647644,
+              2.9199677,
+              0
+            ],
+            "velocity": [
+              -2.4809723,
+              -0.9237213,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 120,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -1.9110718,
+              2.820343,
+              0
+            ],
+            "velocity": [
+              -2.7377777,
+              -1.1828003,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 132,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -2.1842957,
+              2.652298,
+              0
+            ],
+            "velocity": [
+              -2.7267914,
+              -2.1570587,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 144,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -2.4564056,
+              2.3870544,
+              0
+            ],
+            "velocity": [
+              -2.715805,
+              -3.1274414,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 156,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -2.7274323,
+              2.0249023,
+              0
+            ],
+            "velocity": [
+              -2.7048187,
+              -4.0939484,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 168,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -2.997345,
+              1.5663452,
+              0
+            ],
+            "velocity": [
+              -2.6938324,
+              -5.05661,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 180,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -3.2661743,
+              1.0117035,
+              0
+            ],
+            "velocity": [
+              -2.682846,
+              -6.0154266,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 192,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -3.5338898,
+              0.3613739,
+              0
+            ],
+            "velocity": [
+              -2.6718597,
+              -6.970398,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 204,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -3.8003387,
+              -0.045700073,
+              0
+            ],
+            "velocity": [
+              -2.655548,
+              0.6899719,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 216,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -4.0653076,
+              -0.026855469,
+              0
+            ],
+            "velocity": [
+              -2.645172,
+              -0.2917633,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 228,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -4.3291473,
+              -0.078948975,
+              0
+            ],
+            "velocity": [
+              -2.6296387,
+              -0.055145264,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 240,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -4.5810394,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -2.3983154,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 252,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -4.8089905,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -2.1698914,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 264,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -5.015274,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -1.9631805,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 276,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -5.201889,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -1.7761688,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 288,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -5.3707123,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -1.6069946,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 300,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -5.523468,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -1.4539185,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 312,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -5.661667,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -1.315445,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 324,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -5.7866974,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -1.1901245,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 336,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -5.8997955,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -1.0767975,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 348,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.0021515,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.9742279,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 360,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.094757,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.88142395,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 372,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.178543,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.7974701,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 384,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.2543488,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.7214966,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 396,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.322891,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.6528015,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 408,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.3849335,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.59062195,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 420,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.44104,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.53437805,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 432,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.4918365,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.48347473,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 444,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.537781,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.4374237,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 456,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.5793457,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.3957672,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 468,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.6169434,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.358078,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 480,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.650955,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.3239746,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 492,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.681732,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.29312134,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 504,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.7095795,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.2651825,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 516,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.7347717,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.23991394,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 528,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.7575684,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.21705627,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 540,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.7781677,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.19639587,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 552,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.796814,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.1776886,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 564,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.813675,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.1607666,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 576,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.828949,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.14546204,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 588,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.842758,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.13162231,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 600,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.8552704,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.11907959,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 612,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.8665924,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.10774231,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 624,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.876816,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.0974884,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 636,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.8860474,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.08824158,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 648,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.8944244,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.07984924,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 660,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.901993,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.072250366,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 672,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9088287,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.06538391,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 684,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9150085,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.059173584,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 696,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.920639,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.053512573,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 708,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.925766,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.04838562,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 720,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.930252,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.04386902,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 732,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9344788,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.039596558,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 744,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.938141,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.03593445,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 756,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.941635,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.032409668,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 768,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.944565,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.02947998,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 780,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9474945,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.026550293,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 792,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.94989,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.024124146,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 804,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9520874,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.02192688,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 816,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9542847,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.019729614,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 828,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9561768,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.017791748,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 840,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9576416,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.016326904,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 852,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9591064,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.014862061,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 864,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9605713,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.013397217,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 876,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.962036,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.011932373,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 888,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9631805,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.010726929,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 900,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.963913,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.009994507,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 912,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9646454,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.009262085,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 924,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.965378,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.008529663,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 936,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.96611,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.007797241,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 948,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "hinges": [
+          {
+            "id": "impact_lever_1",
+            "role": "beam",
+            "limit": "none",
+            "angle": 0.35652214814725963,
+            "angularVelocity": 0,
+            "energy": 0
+          }
+        ],
+        "mechanical": [],
+        "bodies": [
+          {
+            "id": "bowling_2",
+            "visible": true,
+            "position": [
+              -6.9668427,
+              -0.07991028,
+              0
+            ],
+            "velocity": [
+              -0.0070648193,
+              0,
+              0
+            ]
+          }
+        ],
+        "cannons": [],
+        "woundSprings": [],
+        "tick": 960,
+        "parts": [
+          {
+            "properties": {},
+            "id": "funnel_3",
+            "kind": "funnel",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              1.5,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "properties": {
+              "beam_mass": 2,
+              "initial_angle": 0
+            },
+            "id": "impact_lever_1",
+            "kind": "impact_lever",
+            "locked": false,
+            "dynamic": false,
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
