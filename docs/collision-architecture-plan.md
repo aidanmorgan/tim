@@ -165,3 +165,23 @@ Verification covers every ordered sphere/box/hull pair, 200 analytic sphere case
 This provides penetration depth and one witness pair, **not a stable multi-point contact manifold**. Still required: support-feature extraction and contact-patch clipping, manifold persistence, resting/releasing contacts, position correction, hollow catalogue geometry, world/caller cutover, old-solver deletion and affected-part UI proof.
 
 [Browser verification](general-penetration-qualification-results.json) reports sphere depth **1.1417424236758462** and box/hull depth **1.5999999940395355**, with zero witness error in all three cases and no browser errors. The [Playwright recipe](general-penetration-qualification.playwright.js) checks analytic depths and bounded results through read-only diagnostics. The full native suite passes **1,481 tests**, and the diagnostics-disabled production Release publish succeeds. These checks qualify the query, not gameplay parts or the world cutover.
+
+## Full-replacement continuation: generic contact patches
+
+Added mandatory supporting-feature declarations to convex geometry, with typed vertex identities. Sphere, box, hull and the test capsule describe their own geometry; the query never dispatches on a shape pair. Instance and trajectory transforms propagate features through the same poses as distance/sweep queries.
+
+`ContactPatch` projects supporting features into one tangent plane, computes their convex intersection, and reconstructs paired anchors using nonnegative convex weights. Point, edge, face, collinear and disjoint cases share this algorithm. It retains the complete patch (including eight corners for overlapping rotated squares), not an arbitrary single centre point. Anchors remain in the convex input geometry; no artificial thickness is added.
+
+`ContactManifold.Query` connects distance/penetration bounds to that patch. Both certified query witnesses participate in the features on every query, alongside support vertices: this accounts for finite normal accuracy on curved shapes without a shape-specific path or empty-patch substitution. Undefined normals and inconsistent bounds fail explicitly. Query-local witness vertex IDs are not persistent contact identities.
+
+The feature approach is informed by [Catto's contact-manifold presentation](https://box2d.org/files/ErinCatto_ContactManifolds_GDC2007.pdf); this implementation uses a shared 3D tangent-plane intersection, not Box2D's pair-specific collision code.
+
+Focused verification covers 400 analytic rectangle intersections, 200 randomized rotated box contacts, 300 mixed sphere/box/hull configurations, all nine ordered shape pairs, contact skin, common rigid transforms, feature identities, degenerate features and invalid inputs. A four-corner box impact feeds the existing generic impulse solver and verifies no residual translation or spin above 1e-8.
+
+Retained development failures: the first test compile required explicit element types for three single-element params calls. Random seeds 83 and 142 then exposed nearly collinear triangle winding and reconstruction errors. The projection algorithm now evaluates feasible triangle/segment/vertex combinations and certifies the reconstruction error before accepting a point; it does not enlarge the tolerance or substitute a different collision path.
+
+Still incomplete: contact persistence/warm starting, resting/releasing time advancement, split position correction, persistent joint/rope ownership, hollow catalogue builders, full gameplay/world cutover, old-solver deletion and new per-part UI proof. This increment establishes instantaneous manifolds, not a completed resting-contact simulation.
+
+[Browser evidence](general-manifold-qualification-results.json) and the [reproducible recipe](general-manifold-qualification.playwright.js) verify four-corner and eight-corner impact patches, the analytic clipped coordinates, residual linear/angular motion below 1e-8, a clear control with unchanged velocity, exact body snapshot restore and exact response replay. No browser errors were recorded. All **1,497 native tests** pass. These are engine diagnostics, not UI construction/Reset evidence for any gameplay part.
+
+The diagnostics-disabled production Release publish also succeeds. Domain selectors remain enum-typed; supporting vertices use typed indices, and string conversion occurs only at the diagnostic JSON boundary.

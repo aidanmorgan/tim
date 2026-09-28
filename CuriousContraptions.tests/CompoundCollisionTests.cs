@@ -81,6 +81,13 @@ public class CompoundCollisionTests
 
     private sealed class Capsule(double radius,double halfLength) : ConvexGeometry
     {
+        public override SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
+        {
+            var normal=SupportFeature.UnitDirection(direction,planeTolerance);
+            var radial=normal*radius;
+            return SupportFeature.FromPoints([radial+new CollisionVector(0,-halfLength,0),
+                radial+new CollisionVector(0,halfLength,0)],normal,planeTolerance);
+        }
         public override double BoundingRadius=>radius+halfLength;
         public override InteriorBall InteriorBall=>new(default,radius);
         public override CollisionVector Support(CollisionVector direction)

@@ -30,12 +30,23 @@ public readonly struct ConvexMotion
         if(Trajectory is null) throw new InvalidOperationException("Uninitialised convex motion.");
         return new(Instance,Trajectory.At(time));
     }
-    public readonly struct AtTime : IConvexSupport
+    public readonly struct AtTime : IConvexFeatureSupport
     {
         private readonly ConvexInstance _instance;
         private readonly RigidPose _pose;
         internal AtTime(ConvexInstance instance,RigidPose pose) { _instance=instance; _pose=pose; }
         public InteriorBall InteriorBall=>new(_pose.TransformPoint(_instance.InteriorBall.Center),_instance.InteriorBall.Radius);
+        public SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
+        {
+            var feature=_instance.SupportingFeature(_pose.Rotation.Inverse().Apply(direction),planeTolerance);
+            var vertices=new SupportVertex[feature.Vertices.Length];
+            for(var i=0;i<vertices.Length;i++)
+            {
+                var vertex=feature.Vertices[i];
+                vertices[i]=new(vertex.Id,_pose.TransformPoint(vertex.Point));
+            }
+            return new(vertices);
+        }
         public CollisionVector Support(CollisionVector direction)
         {
             var localDirection=_pose.Rotation.Inverse().Apply(direction);

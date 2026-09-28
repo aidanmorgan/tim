@@ -1,0 +1,163 @@
+{
+  "testedBaseRevision": "3fee7e7",
+  "changes": "Supporting features, generic contact patch intersection, and distance/penetration-driven manifolds in the commit containing this record.",
+  "scope": "Engine-only, instantaneous contact response and body snapshot restore/replay. Not resting-world simulation or per-part UI proof.",
+  "native": {
+    "passed": 1497,
+    "failed": 0,
+    "skipped": 0,
+    "command": "dotnet test CuriousContraptions.tests --no-restore --verbosity quiet"
+  },
+  "diagnosticsPublish": {
+    "exitCode": 0,
+    "command": "dotnet publish CuriousContraptions.web -p:PlaytestDiagnostics=true --no-restore --verbosity quiet"
+  },
+  "browser": {
+    "reports": [
+      {
+        "Probe": "FlatImpact",
+        "Status": "Contact",
+        "Points": [
+          [
+            -1,
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            -1,
+            0
+          ],
+          [
+            1,
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            -1,
+            0
+          ]
+        ],
+        "MaximumAnchorError": 0,
+        "LinearSpeed": 5.871109367812627e-9,
+        "AngularSpeed": 3.4630047171516748e-9,
+        "Residual": 7.788818770504413e-9,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "RotatedFaces",
+        "Status": "Contact",
+        "Points": [
+          [
+            -1,
+            0,
+            0.4142135623730949,
+            0
+          ],
+          [
+            -1,
+            0,
+            -0.4142135623730949,
+            0
+          ],
+          [
+            -0.4142135623730949,
+            0,
+            1,
+            0
+          ],
+          [
+            -0.4142135623730949,
+            0,
+            -1,
+            0
+          ],
+          [
+            0.4142135623730949,
+            0,
+            1,
+            0
+          ],
+          [
+            0.4142135623730949,
+            0,
+            -1,
+            0
+          ],
+          [
+            1,
+            0,
+            0.4142135623730949,
+            0
+          ],
+          [
+            1,
+            0,
+            -0.4142135623730949,
+            0
+          ]
+        ],
+        "MaximumAnchorError": 5.551115123125783e-17,
+        "LinearSpeed": 7.474110787736146e-9,
+        "AngularSpeed": 4.935113866033499e-9,
+        "Residual": 9.493783864183157e-9,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "Clear",
+        "Status": "Clear",
+        "Points": [],
+        "MaximumAnchorError": 0,
+        "LinearSpeed": 3,
+        "AngularSpeed": 0,
+        "Residual": 0,
+        "ExactRestore": true,
+        "ExactReplay": true
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only engine diagnostics. Instantaneous response and body restore/replay, not resting-world or gameplay-part proof."
+  },
+  "productionPublish": {
+    "exitCode": 0,
+    "command": "dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false --no-restore --verbosity quiet"
+  },
+  "focusedCoverage": {
+    "tests": 16,
+    "analyticRectangleIntersections": 400,
+    "randomRotatedBoxContacts": 200,
+    "mixedCurvedAndFlatConfigurations": 300,
+    "orderedShapePairs": 9
+  },
+  "retainedFailures": [
+    {
+      "phase": "Initial test compilation",
+      "result": "CS8752 in three single-element params calls",
+      "resolution": "Explicit CollisionVector element types."
+    },
+    {
+      "phase": "Random manifold seeds 83 and 142",
+      "result": "Invalid contact polygon winding.",
+      "resolution": "Handle zero-area simplices as lower-dimensional geometry; convex barycentric coordinates support either winding."
+    },
+    {
+      "phase": "Same random seeds after winding correction",
+      "result": "Contact anchors exceed the tangent error bound.",
+      "resolution": "Evaluate and compare reconstructed projection error for triangle, segment and vertex candidates; only accept bounded-error convex combinations. No tolerance increase."
+    }
+  ],
+  "limitations": [
+    "Query-local witness IDs are not persistent contact identities",
+    "Contact persistence/warm starting and resting/releasing advancement remain unimplemented",
+    "No gameplay/world cutover",
+    "Original gameplay solver remains to be removed",
+    "Per-part UI proofs must be rerun after cutover"
+  ]
+}

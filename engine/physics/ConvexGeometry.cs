@@ -37,6 +37,7 @@ public readonly record struct InteriorBall
 public abstract class ConvexGeometry
 {
     public abstract CollisionVector Support(CollisionVector direction);
+    public abstract SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance);
     public abstract double BoundingRadius { get; }
     public abstract InteriorBall InteriorBall { get; }
 }
@@ -49,6 +50,8 @@ public sealed class ConvexSphere : ConvexGeometry
         if(!double.IsFinite(radius)||radius<=0) throw new ArgumentOutOfRangeException(nameof(radius));
         Radius=radius;
     }
+    public override SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)=>
+        new([new(new(0),Support(SupportFeature.UnitDirection(direction,planeTolerance)))]);
     public override double BoundingRadius=>Radius;
     public override InteriorBall InteriorBall=>new(default,Radius);
     public override CollisionVector Support(CollisionVector direction)
@@ -65,6 +68,12 @@ public sealed class ConvexBox : ConvexGeometry
     {
         if(!half.IsFinite||half.X<=0||half.Y<=0||half.Z<=0) throw new ArgumentOutOfRangeException(nameof(half));
         Half=half;
+    }
+    public override SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
+    {
+        Span<CollisionVector> points=stackalloc CollisionVector[8];
+        for(var i=0;i<8;i++) points[i]=new((i&1)==0?-Half.X:Half.X,(i&2)==0?-Half.Y:Half.Y,(i&4)==0?-Half.Z:Half.Z);
+        return SupportFeature.FromPoints(points,direction,planeTolerance);
     }
     public override double BoundingRadius=>Half.Length;
     public override InteriorBall InteriorBall=>new(default,Math.Min(Half.X,Math.Min(Half.Y,Half.Z)));
@@ -92,6 +101,8 @@ public sealed class ConvexHull : ConvexGeometry
         }
         InteriorBall=new(center,0); // A convex combination is inside even a degenerate hull.
     }
+    public override SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)=>
+        SupportFeature.FromPoints(_points,direction,planeTolerance);
     public override CollisionVector Support(CollisionVector direction)
     {
         var best=_points[0]; var projection=CollisionVector.Dot(best,direction);
@@ -111,7 +122,7 @@ public interface IConvexSupport
     CollisionVector Support(CollisionVector direction);
 }
 
-public readonly struct ConvexInstance : IConvexSupport
+public readonly struct ConvexInstance : IConvexFeatureSupport
 {
     public ConvexGeometry Geometry { get; }
     public Transform3D Pose { get; }
@@ -141,6 +152,21 @@ public readonly struct ConvexInstance : IConvexSupport
         InteriorBall=new(CollisionVector.From(pose.Origin)+x*ball.Center.X+y*ball.Center.Y+z*ball.Center.Z,
             ball.Radius*Math.Sqrt(minimum));
         Geometry=geometry; Pose=pose;
+    }
+    public SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
+    {
+        if(Geometry is null) throw new InvalidOperationException("Uninitialised convex instance.");
+        var normal=SupportFeature.UnitDirection(direction,planeTolerance);
+        var x=CollisionVector.From(Pose.Basis.X); var y=CollisionVector.From(Pose.Basis.Y); var z=CollisionVector.From(Pose.Basis.Z);
+        var localDirection=new CollisionVector(CollisionVector.Dot(x,normal),CollisionVector.Dot(y,normal),CollisionVector.Dot(z,normal));
+        var local=Geometry.SupportingFeature(localDirection,planeTolerance/localDirection.Length);
+        var vertices=new SupportVertex[local.Vertices.Length];
+        for(var i=0;i<vertices.Length;i++)
+        {
+            var v=local.Vertices[i]; var p=v.Point;
+            vertices[i]=new(v.Id,CollisionVector.From(Pose.Origin)+x*p.X+y*p.Y+z*p.Z);
+        }
+        return new(vertices);
     }
     public CollisionVector Support(CollisionVector direction)
     {
