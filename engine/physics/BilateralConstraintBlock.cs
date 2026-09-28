@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CuriousContraptions.Physics;
 
@@ -8,31 +9,41 @@ namespace CuriousContraptions.Physics;
 /// convergence at offset anchors. Contacts remain coupled through the outer solve.</summary>
 public sealed class BilateralConstraintBlock : IImpulseConstraint
 {
-    public PhysicsBody A { get; }
-    public PhysicsBody B { get; }
+    private readonly PhysicsBody[] _bodies;
+    public ReadOnlySpan<PhysicsBody> Bodies=>_bodies;
     private readonly ImpulseConstraint[] _rows;
     private readonly ConstraintMassMatrix _mass;
     private readonly double[] _impulses;
+    private readonly int[][] _bodyIndices;
+    private readonly BodyVelocityUpdate[] _updates;
     public BilateralConstraintBlock(IReadOnlyList<ImpulseConstraint> rows)
     {
         ArgumentNullException.ThrowIfNull(rows);
         if(rows.Count<1||rows.Count>6) throw new ArgumentOutOfRangeException(nameof(rows));
         ArgumentNullException.ThrowIfNull(rows[0]);
-        A=rows[0].A; B=rows[0].B;
+        var bodies=new Dictionary<PhysicsBodyId,PhysicsBody>();
         _rows=new ImpulseConstraint[rows.Count];
         _impulses=new double[rows.Count];
-        var jacobians=new ConstraintJacobian[rows.Count]; var diagonal=new double[rows.Count];
+        var jacobians=new ConstraintGradient[rows.Count]; var diagonal=new double[rows.Count];
         for(var i=0;i<rows.Count;i++)
         {
             var row=rows[i];
-            if(row is null||row.A!=A||row.B!=B||row.MinimumImpulse!=double.NegativeInfinity||
+            if(row is null||row.MinimumImpulse!=double.NegativeInfinity||
                 row.MaximumImpulse!=double.PositiveInfinity||row.AccumulatedImpulse!=0)
-                throw new ArgumentException("Joint block requires fresh bilateral rows sharing ordered body references.");
+                throw new ArgumentException("Joint block requires fresh bilateral rows.");
             row.ValidatePose();
             _rows[i]=row;
-            jacobians[i]=row.Jacobian; diagonal[i]=row.Softness;
+            jacobians[i]=row.Gradient; diagonal[i]=row.Softness;
+            foreach(var body in row.Bodies)
+                if(bodies.TryGetValue(body.Id,out var prior)&&prior!=body)
+                    throw new ArgumentException("Body identity refers to multiple states.");
+                else bodies[body.Id]=body;
         }
-        _mass=new(a:A,b:B,jacobians,diagonal);
+        _bodies=bodies.Values.OrderBy(b=>b.Id.Index).ToArray();
+        _mass=new(jacobians,diagonal);
+        var indices=_bodies.Select((body,index)=>(body.Id,index)).ToDictionary(p=>p.Id,p=>p.index);
+        _bodyIndices=_rows.Select(r=>r.Gradient.Terms.ToArray().Select(t=>indices[t.Body.Id]).ToArray()).ToArray();
+        _updates=new BodyVelocityUpdate[_bodies.Length];
     }
     private double Error(int index)
     {
@@ -56,16 +67,21 @@ public sealed class BilateralConstraintBlock : IImpulseConstraint
         Span<double> rhs=stackalloc double[_rows.Length];
         for(var i=0;i<_rows.Length;i++) rhs[i]=Error(i);
         _mass.Solve(rhs,increment);
-        CollisionVector la=default,aa=default,lb=default,ab=default;
+        Span<CollisionVector> linear=new CollisionVector[_bodies.Length];
+        Span<CollisionVector> angular=new CollisionVector[_bodies.Length];
         for(var i=0;i<_rows.Length;i++)
         {
-            var j=_rows[i].Jacobian;
-            la+=j.LinearA*increment[i]; aa+=j.AngularA*increment[i];
-            lb+=j.LinearB*increment[i]; ab+=j.AngularB*increment[i];
+            var terms=_rows[i].Gradient.Terms;
+            for(var j=0;j<terms.Length;j++)
+            {
+                var index=_bodyIndices[i][j];
+                linear[index]+=terms[j].Linear*increment[i];
+                angular[index]+=terms[j].Angular*increment[i];
+            }
             if(!double.IsFinite(_impulses[i]+increment[i])) throw new InvalidOperationException("Joint impulse exceeds numeric range.");
         }
-        var va=A.AfterImpulse(la,aa); var vb=B.AfterImpulse(lb,ab);
-        A.CommitVelocity(va); B.CommitVelocity(vb);
+        for(var i=0;i<_bodies.Length;i++) _updates[i]=_bodies[i].AfterImpulse(linear[i],angular[i]);
+        for(var i=0;i<_bodies.Length;i++) _bodies[i].CommitVelocity(_updates[i]);
         for(var i=0;i<_rows.Length;i++) _impulses[i]+=increment[i];
     }
 }

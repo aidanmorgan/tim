@@ -39,8 +39,8 @@ public abstract class PhysicsJoint : IPositionConstraint
     protected void ProjectEquations(JointEquation[] equations,PositionProjector projector)
     {
         if(equations.Length==0) return;
-        var jacobians=equations.Select(e=>e.Jacobian).ToArray();
-        var matrix=new ConstraintMassMatrix(A,B,jacobians,new double[equations.Length]);
+        var jacobians=equations.Select(e=>e.Jacobian.Bind(A,B)).ToArray();
+        var matrix=new ConstraintMassMatrix(jacobians,new double[equations.Length]);
         var rhs=equations.Select(e=>-e.Error).ToArray(); var result=new double[equations.Length];
         matrix.Solve(rhs,result);
         CollisionVector la=default,aa=default,lb=default,ab=default;

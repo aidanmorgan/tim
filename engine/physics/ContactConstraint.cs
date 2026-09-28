@@ -21,13 +21,14 @@ public readonly record struct ContactImpulse
 public sealed class ContactConstraint : IImpulseConstraint
 {
     public ImpulseConstraint Normal { get; }
-    public PhysicsBody A=>Normal.A;
-    public PhysicsBody B=>Normal.B;
+    public PhysicsBody A { get; }
+    public PhysicsBody B { get; }
+    public ReadOnlySpan<PhysicsBody> Bodies=>Normal.Bodies;
     public CollisionVector TangentImpulse=>_u*(_j0)+_v*(_j1);
     public double Friction { get; }
     public ContactImpulse Impulse=>new(Normal.AccumulatedImpulse,TangentImpulse);
     private readonly CollisionVector _u,_v;
-    private readonly ConstraintJacobian _ju,_jv;
+    private readonly ConstraintJacobian _jn,_ju,_jv;
     private readonly double _k00,_k01,_k11,_scale;
     private double _j0,_j1;
 
@@ -36,6 +37,7 @@ public sealed class ContactConstraint : IImpulseConstraint
     {
         if(!double.IsFinite(friction)||friction<0) throw new ArgumentOutOfRangeException(nameof(friction));
         Normal=ImpulseConstraint.Contact(a,b,point,normal,restitution,bounceThreshold);
+        A=a; B=b; _jn=ConstraintJacobian.AtPoint(a,b,point,normal);
         Friction=friction;
         var seed=Math.Abs(normal.X)<.5773502691896258?new CollisionVector(1,0,0):
             Math.Abs(normal.Y)<.5773502691896258?new CollisionVector(0,1,0):new CollisionVector(0,0,1);
@@ -58,7 +60,7 @@ public sealed class ContactConstraint : IImpulseConstraint
         var radius=Friction*impulse.Normal;
         if(!double.IsFinite(radius)) throw new ArgumentOutOfRangeException(nameof(impulse));
         var tangent=Project(CollisionVector.Dot(impulse.Tangent,_u),CollisionVector.Dot(impulse.Tangent,_v),radius);
-        var j=Normal.Jacobian;
+        var j=_jn;
         var va=A.AfterImpulse(j.LinearA*impulse.Normal+_ju.LinearA*tangent.X+_jv.LinearA*tangent.Y,
             j.AngularA*impulse.Normal+_ju.AngularA*tangent.X+_jv.AngularA*tangent.Y);
         var vb=B.AfterImpulse(j.LinearB*impulse.Normal+_ju.LinearB*tangent.X+_jv.LinearB*tangent.Y,

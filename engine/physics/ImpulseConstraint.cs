@@ -7,6 +7,12 @@ public readonly record struct ConstraintJacobian(CollisionVector LinearA,Collisi
     CollisionVector LinearB,CollisionVector AngularB)
 {
     public bool IsFinite=>LinearA.IsFinite&&AngularA.IsFinite&&LinearB.IsFinite&&AngularB.IsFinite;
+    public ConstraintGradient Bind(PhysicsBody a,PhysicsBody b)
+    {
+        ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
+        if(a==b||a.Id==b.Id) throw new ArgumentException("Pair geometry requires distinct body identities.");
+        return new([new(a,LinearA,AngularA),new(b,LinearB,AngularB)]);
+    }
     public static ConstraintJacobian AtPoint(PhysicsBody a,PhysicsBody b,CollisionVector point,CollisionVector direction)
     {
         if(!point.IsFinite||!direction.IsFinite||Math.Abs(direction.LengthSquared-1)>1e-10)
@@ -20,56 +26,51 @@ public readonly record struct ConstraintJacobian(CollisionVector LinearA,Collisi
 /// motors. Clamp the accumulated impulse, not the incremental correction.</summary>
 public interface IImpulseConstraint
 {
-    PhysicsBody A { get; }
-    PhysicsBody B { get; }
+    ReadOnlySpan<PhysicsBody> Bodies { get; }
     double Residual { get; }
     void Solve();
 }
 
 public sealed class ImpulseConstraint : IImpulseConstraint
 {
-    public PhysicsBody A { get; }
-    public PhysicsBody B { get; }
-    public ConstraintJacobian Jacobian { get; }
+    public ReadOnlySpan<PhysicsBody> Bodies=>Gradient.Bodies;
+    public ConstraintGradient Gradient { get; }
     public double TargetSpeed { get; }
     public double MinimumImpulse { get; }
     public double MaximumImpulse { get; }
     public double Softness { get; }
     public double AccumulatedImpulse { get; private set; }
     public double InverseEffectiveMass { get; }
-    private readonly ulong _revisionA,_revisionB;
+    private readonly ulong[] _revisions;
     private bool _started;
 
-    public ImpulseConstraint(PhysicsBody a,PhysicsBody b,ConstraintJacobian jacobian,
+    public ImpulseConstraint(ConstraintGradient gradient,
         double targetSpeed,double minimumImpulse,double maximumImpulse,double softness=0)
     {
-        ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
-        if(a==b||a.Id==b.Id) throw new ArgumentException("Constraint requires two distinct body identities.");
-        if(!jacobian.IsFinite||!double.IsFinite(targetSpeed)||!double.IsFinite(softness)||softness<0||
+        ArgumentNullException.ThrowIfNull(gradient);
+        if(!double.IsFinite(targetSpeed)||!double.IsFinite(softness)||softness<0||
             double.IsNaN(minimumImpulse)||double.IsNaN(maximumImpulse)||minimumImpulse>0||maximumImpulse<0)
             throw new ArgumentException("Invalid constraint declaration; impulse interval must include zero.");
-        A=a; B=b; _revisionA=a.PoseRevision; _revisionB=b.PoseRevision; Jacobian=jacobian; TargetSpeed=targetSpeed;
+        Gradient=gradient; TargetSpeed=targetSpeed;
+        _revisions=new ulong[Bodies.Length];
+        for(var i=0;i<Bodies.Length;i++) _revisions[i]=Bodies[i].PoseRevision;
         MinimumImpulse=minimumImpulse; MaximumImpulse=maximumImpulse; Softness=softness;
-        InverseEffectiveMass=a.InverseMass*jacobian.LinearA.LengthSquared+
-            b.InverseMass*jacobian.LinearB.LengthSquared+
-            CollisionVector.Dot(jacobian.AngularA,a.InverseInertia(jacobian.AngularA))+
-            CollisionVector.Dot(jacobian.AngularB,b.InverseInertia(jacobian.AngularB))+softness;
+        InverseEffectiveMass=gradient.Coupling(gradient)+softness;
         if(!double.IsFinite(InverseEffectiveMass)||InverseEffectiveMass<0)
             throw new ArgumentException("Constraint mass is not representable.");
     }
     internal void ValidatePose()
     {
-        if(A.PoseRevision!=_revisionA||B.PoseRevision!=_revisionB)
-            throw new InvalidOperationException("Constraint geometry is stale after a body pose change.");
+        for(var i=0;i<Bodies.Length;i++)
+            if(Bodies[i].PoseRevision!=_revisions[i])
+                throw new InvalidOperationException("Constraint geometry is stale after a body pose change.");
     }
     public double Speed
     {
         get
         {
             ValidatePose();
-            return CollisionVector.Dot(Jacobian.LinearA,A.LinearVelocity)+
-        CollisionVector.Dot(Jacobian.AngularA,A.AngularVelocity)+
-        CollisionVector.Dot(Jacobian.LinearB,B.LinearVelocity)+CollisionVector.Dot(Jacobian.AngularB,B.AngularVelocity);
+            return Gradient.Speed;
         }
     }
     private double Error=>TargetSpeed-Speed-Softness*AccumulatedImpulse;
@@ -103,10 +104,7 @@ public sealed class ImpulseConstraint : IImpulseConstraint
         if(!double.IsFinite(error)) throw new InvalidOperationException("Constraint residual is not finite.");
         var next=Math.Clamp(AccumulatedImpulse+error/InverseEffectiveMass,MinimumImpulse,MaximumImpulse);
         var increment=next-AccumulatedImpulse;
-        // Validate both results before mutation; a numerical failure is not a partial impulse.
-        var va=A.AfterImpulse(Jacobian.LinearA*increment,Jacobian.AngularA*increment);
-        var vb=B.AfterImpulse(Jacobian.LinearB*increment,Jacobian.AngularB*increment);
-        A.CommitVelocity(va); B.CommitVelocity(vb); AccumulatedImpulse=next;
+        Gradient.Apply(increment); AccumulatedImpulse=next;
     }
     public static ImpulseConstraint Contact(PhysicsBody a,PhysicsBody b,CollisionVector point,
         CollisionVector normalFromBToA,double restitution,double bounceThreshold)
@@ -116,7 +114,7 @@ public sealed class ImpulseConstraint : IImpulseConstraint
         var jacobian=ConstraintJacobian.AtPoint(a,b,point,normalFromBToA);
         var incoming=CollisionVector.Dot(a.PointVelocity(point)-b.PointVelocity(point),normalFromBToA);
         var target=incoming < -bounceThreshold?-restitution*incoming:0;
-        return new(a,b,jacobian,target,0,double.PositiveInfinity);
+        return new(jacobian.Bind(a,b),target,0,double.PositiveInfinity);
     }
 }
 
@@ -132,7 +130,7 @@ public static class ImpulseSolver
         foreach(var row in constraints)
         {
             ArgumentNullException.ThrowIfNull(row);
-            foreach(var body in new[]{row.A,row.B})
+            foreach(var body in row.Bodies)
                 if(bodies.TryGetValue(body.Id,out var prior)&&prior!=body)
                     throw new ArgumentException("Body identity refers to multiple velocity states.");
                 else bodies[body.Id]=body;

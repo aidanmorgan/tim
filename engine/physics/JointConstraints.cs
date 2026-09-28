@@ -27,7 +27,7 @@ public static class JointConstraints
         var equations=JointEquations.Frames(kind,a,b,fa,fb);
         var rows=new ImpulseConstraint[equations.Length];
         for(var i=0;i<rows.Length;i++)
-            rows[i]=new(a,b,equations[i].Jacobian,-correctionRate*equations[i].Error,double.NegativeInfinity,double.PositiveInfinity);
+            rows[i]=new(equations[i].Jacobian.Bind(a,b),-correctionRate*equations[i].Error,double.NegativeInfinity,double.PositiveInfinity);
         return [new BilateralConstraintBlock(rows)];
     }
     public static IReadOnlyList<IImpulseConstraint> BallSocket(PhysicsBody a,PhysicsBody b,
@@ -48,8 +48,8 @@ public static class JointConstraints
             !double.IsFinite(activationTolerance)||activationTolerance<=0)
             throw new ArgumentException("Limit interval and activation precision must be finite and ordered.");
         var rows=new List<IImpulseConstraint>();
-        if(coordinate-lower<=activationTolerance) rows.Add(new ImpulseConstraint(a,b,jacobian,0,0,double.PositiveInfinity));
-        if(upper-coordinate<=activationTolerance) rows.Add(new ImpulseConstraint(a,b,jacobian,0,double.NegativeInfinity,0));
+        if(coordinate-lower<=activationTolerance) rows.Add(new ImpulseConstraint(jacobian.Bind(a,b),0,0,double.PositiveInfinity));
+        if(upper-coordinate<=activationTolerance) rows.Add(new ImpulseConstraint(jacobian.Bind(a,b),0,double.NegativeInfinity,0));
         return rows;
     }
 
@@ -63,6 +63,6 @@ public static class JointConstraints
             throw new ArgumentException("Rope geometry and activation precision must be finite and consistent.");
         if((pointA-pointB).Length<maximumLength-activationTolerance) return [];
         var equation=JointEquations.Rope(a,b,pointA,pointB,maximumLength);
-        return [new ImpulseConstraint(a,b,equation.Jacobian,0,double.NegativeInfinity,0)];
+        return [new ImpulseConstraint(equation.Jacobian.Bind(a,b),0,double.NegativeInfinity,0)];
     }
 }

@@ -43,7 +43,7 @@ public class BilateralConstraintBlockTests
     public void DependentOrBoundedRowsAreRejectedRatherThanRegularized()
     {
         var a=Body(0,default,default,default); var b=Ground();
-        ImpulseConstraint Row()=>new(a,b,new(X,default,-X,default),0,double.NegativeInfinity,double.PositiveInfinity);
+        ImpulseConstraint Row()=>new(new ConstraintJacobian(X,default,-X,default).Bind(a,b),0,double.NegativeInfinity,double.PositiveInfinity);
         Assert.Throws<ArgumentException>(()=>new BilateralConstraintBlock([Row(),Row()]));
         Assert.Throws<ArgumentException>(()=>new BilateralConstraintBlock([ImpulseConstraint.Contact(a,b,default,X,0,0)]));
         Assert.Throws<ArgumentOutOfRangeException>(()=>new BilateralConstraintBlock([]));

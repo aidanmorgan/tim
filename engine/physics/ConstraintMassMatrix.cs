@@ -10,28 +10,24 @@ public sealed class ConstraintMassMatrix
     private readonly double[,] _factor;
     private readonly double[] _scale;
     public int Count=>_scale.Length;
-    public ConstraintMassMatrix(PhysicsBody a,PhysicsBody b,IReadOnlyList<ConstraintJacobian> jacobians,
+    public ConstraintMassMatrix(IReadOnlyList<ConstraintGradient> jacobians,
         IReadOnlyList<double> diagonal)
     {
-        ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
         ArgumentNullException.ThrowIfNull(jacobians); ArgumentNullException.ThrowIfNull(diagonal);
         if(jacobians.Count<1||jacobians.Count>6||diagonal.Count!=jacobians.Count)
             throw new ArgumentException("A mass block requires one to six matching equations.");
         _scale=new double[jacobians.Count]; _factor=new double[jacobians.Count,jacobians.Count];
-        double Coupling(ConstraintJacobian x,ConstraintJacobian y)=>
-            a.InverseMass*CollisionVector.Dot(x.LinearA,y.LinearA)+b.InverseMass*CollisionVector.Dot(x.LinearB,y.LinearB)+
-            CollisionVector.Dot(x.AngularA,a.InverseInertia(y.AngularA))+CollisionVector.Dot(x.AngularB,b.InverseInertia(y.AngularB));
         for(var i=0;i<Count;i++)
         {
-            if(!jacobians[i].IsFinite||!double.IsFinite(diagonal[i])||diagonal[i]<0)
+            if(jacobians[i] is null||!double.IsFinite(diagonal[i])||diagonal[i]<0)
                 throw new ArgumentException("Mass equations must be finite with nonnegative compliance.");
-            _scale[i]=Math.Sqrt(Coupling(jacobians[i],jacobians[i])+diagonal[i]);
+            _scale[i]=Math.Sqrt(jacobians[i].Coupling(jacobians[i])+diagonal[i]);
             if(!double.IsFinite(_scale[i])||_scale[i]<=0) throw new ArgumentException("Mass block contains an immovable equation.");
         }
         for(var i=0;i<Count;i++)
         for(var j=0;j<=i;j++)
         {
-            var value=(Coupling(jacobians[i],jacobians[j])+(i==j?diagonal[i]:0))/_scale[i]/_scale[j];
+            var value=(jacobians[i].Coupling(jacobians[j])+(i==j?diagonal[i]:0))/_scale[i]/_scale[j];
             for(var k=0;k<j;k++) value-=_factor[i,k]*_factor[j,k];
             if(!double.IsFinite(value)||(i==j&&value<=0))
                 throw new ArgumentException("Mass equations must be independent and positive definite.");

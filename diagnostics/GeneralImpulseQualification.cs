@@ -23,7 +23,7 @@ internal static class GeneralImpulseQualification
         var beam=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(x),default,default,2,inertia);
         var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
         var ball=new PhysicsBody(new(2),PhysicsMotionType.Dynamic,RigidPose.At(x*2+y),-y*3,default,1,inertia);
-        var pivot=new ImpulseConstraint(beam,anchor,ConstraintJacobian.AtPoint(beam,anchor,default,y),
+        var pivot=new ImpulseConstraint(ConstraintJacobian.AtPoint(beam,anchor,default,y).Bind(beam,anchor),
             0,double.NegativeInfinity,double.PositiveInfinity);
         var result=ImpulseSolver.Solve([pivot,ImpulseConstraint.Contact(ball,beam,x*2,y,0,0)]);
         return new(probe,ball.LinearVelocity.Y,beam.LinearVelocity.Y,beam.AngularVelocity.Z,result.Iterations,result.MaximumResidual);

@@ -16,7 +16,7 @@ public static class PoweredImpulse
     {
         if(!double.IsFinite(maximumImpulse)||maximumImpulse<0||!double.IsFinite(availableWork)||availableWork<0)
             throw new ArgumentException("Actuator budgets must be finite and nonnegative.");
-        var row=new ImpulseConstraint(a,b,jacobian,targetSpeed,-maximumImpulse,maximumImpulse);
+        var row=new ImpulseConstraint(jacobian.Bind(a,b),targetSpeed,-maximumImpulse,maximumImpulse);
         var k=row.InverseEffectiveMass; var initialSpeed=row.Speed;
         if(k<=0||!double.IsFinite(initialSpeed)) throw new ArgumentException("Actuator needs a finite dynamic response.");
         var difference=targetSpeed-initialSpeed;

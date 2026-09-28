@@ -14,6 +14,8 @@ public partial class Workshop
     private void StartBackendQualification()
     {
 #if PLAYTEST
+        foreach(var probe in Enum.GetValues<GeneralMultiBodyProbe>())
+            GD.Print(BackendQualificationProtocol.MultiBodyPrefix+JsonSerializer.Serialize(GeneralMultiBodyQualification.Run(probe),BackendQualificationJson.Default.GeneralMultiBodyReport));
         foreach(var probe in Enum.GetValues<GeneralMotorProbe>())
             GD.Print(BackendQualificationProtocol.MotorPrefix+JsonSerializer.Serialize(GeneralMotorQualification.Run(probe),BackendQualificationJson.Default.GeneralMotorReport));
         foreach(var probe in Enum.GetValues<GeneralJointBoundaryProbe>())
@@ -68,6 +70,7 @@ public partial class Workshop
 internal static class BackendQualificationProtocol
 {
     // External diagnostic wire identifiers, never domain behaviour selectors.
+    internal const string MultiBodyPrefix="CCGENERALMULTIBODY ";
     internal const string MotorPrefix="CCGENERALMOTOR ";
     internal const string JointBoundaryPrefix="CCGENERALJOINTBOUNDARY ";
     internal const string JointRangePrefix="CCGENERALJOINTRANGE ";
@@ -91,6 +94,7 @@ internal sealed record BackendQueryReport(PhysicsBackendQualification.Probe Prob
 internal sealed record BackendMotionReport(PhysicsBackendMotionProbe.Experiment Experiment,
     PhysicsBackendMotionProbe.Frame[] Frames);
 [JsonSourceGenerationOptions(UseStringEnumConverter=true)]
+[JsonSerializable(typeof(GeneralMultiBodyReport))]
 [JsonSerializable(typeof(GeneralMotorReport))]
 [JsonSerializable(typeof(GeneralJointBoundaryReport))]
 [JsonSerializable(typeof(GeneralJointRangeReport))]

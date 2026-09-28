@@ -71,7 +71,7 @@ public class ImpulseSolverTests
         var anchor=Fixed(1);
         var ball=Dynamic(2,X*2+Y,-Y*3);
         var pivot=ConstraintJacobian.AtPoint(beam,anchor,default,Y);
-        var anchorRow=new ImpulseConstraint(beam,anchor,pivot,0,double.NegativeInfinity,double.PositiveInfinity);
+        var anchorRow=new ImpulseConstraint(pivot.Bind(beam,anchor),0,double.NegativeInfinity,double.PositiveInfinity);
         var hit=ImpulseConstraint.Contact(ball,beam,X*2,Y,0,0);
         ImpulseSolver.Solve([anchorRow,hit]);
         Near(default(CollisionVector),beam.PointVelocity(default));
@@ -107,9 +107,9 @@ public class ImpulseSolverTests
     public void BoundedMotorAndSoftConstraintUseTheSameSolver()
     {
         var body=Dynamic(0,default,default); var anchor=Fixed(1);
-        var motor=new ImpulseConstraint(body,anchor,new(default,Z,default,-Z),10,-2,2);
+        var motor=new ImpulseConstraint(new ConstraintJacobian(default,Z,default,-Z).Bind(body,anchor),10,-2,2);
         ImpulseSolver.Solve([motor]); Near(2,body.AngularVelocity.Z); Near(0,motor.Residual);
-        var soft=new ImpulseConstraint(body,anchor,new(X,default,-X,default),3,
+        var soft=new ImpulseConstraint(new ConstraintJacobian(X,default,-X,default).Bind(body,anchor),3,
             double.NegativeInfinity,double.PositiveInfinity,2);
         ImpulseSolver.Solve([soft]); Near(1,body.LinearVelocity.X); Near(1,soft.AccumulatedImpulse);
     }
@@ -130,13 +130,13 @@ public class ImpulseSolverTests
     public void UnsolvableAndExhaustedConstraintsFailExplicitly()
     {
         var fixedA=Fixed(0); var fixedB=Fixed(1);
-        var impossible=new ImpulseConstraint(fixedA,fixedB,new(X,default,-X,default),1,
+        var impossible=new ImpulseConstraint(new ConstraintJacobian(X,default,-X,default).Bind(fixedA,fixedB),1,
             double.NegativeInfinity,double.PositiveInfinity);
         Assert.Throws<InvalidOperationException>(()=>ImpulseSolver.Solve([impossible]));
         var body=Dynamic(2,default,default);
-        var positive=new ImpulseConstraint(body,fixedA,new(X,default,-X,default),1,
+        var positive=new ImpulseConstraint(new ConstraintJacobian(X,default,-X,default).Bind(body,fixedA),1,
             double.NegativeInfinity,double.PositiveInfinity);
-        var negative=new ImpulseConstraint(body,fixedB,new(X,default,-X,default),-1,
+        var negative=new ImpulseConstraint(new ConstraintJacobian(X,default,-X,default).Bind(body,fixedB),-1,
             double.NegativeInfinity,double.PositiveInfinity);
         Assert.Throws<InvalidOperationException>(()=>ImpulseSolver.Solve([positive,negative],4));
     }
@@ -146,7 +146,7 @@ public class ImpulseSolverTests
     {
         var velocity=new CollisionVector(double.MaxValue,0,0);
         var body=Dynamic(0,default,velocity); var anchor=Fixed(1);
-        var row=new ImpulseConstraint(body,anchor,new(X*2,default,-X*2,default),0,-1,1);
+        var row=new ImpulseConstraint(new ConstraintJacobian(X*2,default,-X*2,default).Bind(body,anchor),0,-1,1);
         Assert.Throws<InvalidOperationException>(()=>row.Solve());
         Assert.Equal(velocity,body.LinearVelocity);
         Assert.Equal(0,row.AccumulatedImpulse);
