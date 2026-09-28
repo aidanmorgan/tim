@@ -11,13 +11,13 @@ public readonly record struct ConvexSweepResult(ConvexSweepStatus Status,double 
 public readonly struct ConvexMotion
 {
     public ConvexInstance Instance { get; }
-    public BodyTrajectory Trajectory { get; }
+    public IRigidTrajectory Trajectory { get; }
     public CollisionVector CenterAtStart=>Trajectory.StartPose.Center;
     public CollisionVector LinearVelocity=>Trajectory.LinearVelocity;
     public double AngularSpeedBound=>Trajectory.AngularSpeedBound;
     public double Reach { get; }
     public double RotationalReach { get; }
-    public ConvexMotion(ConvexInstance localInstance,BodyTrajectory trajectory)
+    public ConvexMotion(ConvexInstance localInstance,IRigidTrajectory trajectory)
     {
         ArgumentNullException.ThrowIfNull(trajectory);
         if(localInstance.Geometry is null) throw new ArgumentException("Uninitialised collision instance.",nameof(localInstance));
@@ -85,7 +85,8 @@ public static class ConvexSweep
         for(var iteration=1;iteration<=MaximumIterations;iteration++)
         {
             var separation=At(time);
-            if(separation.UpperBound<=minimumSeparation+ConvexDistance.DefaultTolerance)
+            if(separation.UpperBound<=minimumSeparation+ConvexDistance.DefaultTolerance&&
+                (time>0||separation.LowerBound<=minimumSeparation))
                 return new(time==0?ConvexSweepStatus.InitialContact:ConvexSweepStatus.Contact,time,separation,iteration);
             if(time>=duration) return new(ConvexSweepStatus.Clear,duration,separation,iteration);
             var normal=separation.Normal;

@@ -124,7 +124,8 @@ public sealed class PhysicsWorld
                 double elapsed=0;
                 while(true)
                 {
-                    positionIterations+=PositionSolver.Solve(_positions,_settings.PositionTolerance).Iterations;
+                    var projector=new PositionProjector(_objects.Select(o=>o.Body),_pairs.Select(p=>p.Position),_settings.MaximumPenetration);
+                    positionIterations+=PositionSolver.Solve(_positions,projector,_settings.PositionTolerance).Iterations;
                     foreach(var pair in _pairs) pair.Contact.Prepare(step);
                     var jointDuration=elapsed<step?step-elapsed:step;
                     var constraints=_pairs.SelectMany(p=>p.Contact.PreparedContacts.ToArray()).Select(p=>(IImpulseConstraint)p.Constraint)

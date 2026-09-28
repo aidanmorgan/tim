@@ -33,9 +33,9 @@ public abstract class PhysicsJoint : IPositionConstraint
     }
     public abstract IReadOnlyList<IImpulseConstraint> VelocityConstraints(double duration);
     public abstract double Error(double queryTolerance);
-    public abstract void Project(double tolerance);
+    public abstract void Project(double tolerance,PositionProjector projector);
 
-    protected void ProjectEquations(JointEquation[] equations)
+    protected void ProjectEquations(JointEquation[] equations,PositionProjector projector)
     {
         if(equations.Length==0) return;
         var jacobians=equations.Select(e=>e.Jacobian).ToArray();
@@ -49,8 +49,8 @@ public abstract class PhysicsJoint : IPositionConstraint
             la+=j.LinearA*result[i]; aa+=j.AngularA*result[i];
             lb+=j.LinearB*result[i]; ab+=j.AngularB*result[i];
         }
-        if(A.MotionType==PhysicsMotionType.Dynamic) A.CorrectPose(la*A.InverseMass,A.InverseInertia(aa));
-        if(B.MotionType==PhysicsMotionType.Dynamic) B.CorrectPose(lb*B.InverseMass,B.InverseInertia(ab));
+        projector.Apply([new(A,la*A.InverseMass,A.InverseInertia(aa)),
+            new(B,lb*B.InverseMass,B.InverseInertia(ab))]);
     }
 }
 
@@ -83,10 +83,10 @@ public sealed class PhysicsFrameJoint : PhysicsJoint
         };
     }
     public override double Error(double queryTolerance)=>Equations().Max(e=>Math.Abs(e.Error));
-    public override void Project(double tolerance)
+    public override void Project(double tolerance,PositionProjector projector)
     {
         if(!double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(tolerance));
-        ProjectEquations(Equations());
+        ProjectEquations(Equations(),projector);
     }
 }
 
@@ -107,10 +107,10 @@ public sealed class PhysicsRopeJoint : PhysicsJoint
     public override IReadOnlyList<IImpulseConstraint> VelocityConstraints(double duration)=>
         [JointConstraints.Rope(A,B,PointA,PointB,MaximumLength,duration)];
     public override double Error(double queryTolerance)=>Math.Max(0,(PointA-PointB).Length-MaximumLength);
-    public override void Project(double tolerance)
+    public override void Project(double tolerance,PositionProjector projector)
     {
         if(!double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(tolerance));
         if(Error(tolerance)<=tolerance) return; // A slack rope has no positional equality.
-        ProjectEquations([JointEquations.Rope(A,B,PointA,PointB,MaximumLength)]);
+        ProjectEquations([JointEquations.Rope(A,B,PointA,PointB,MaximumLength)],projector);
     }
 }

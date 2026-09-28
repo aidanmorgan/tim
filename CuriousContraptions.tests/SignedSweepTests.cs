@@ -39,6 +39,21 @@ public class SignedSweepTests
         Assert.Equal(1,slide.Time);
     }
 
+    [Theory]
+    [InlineData(-.00000095,-2,ConvexSweepStatus.Clear)]
+    [InlineData(-.00000095,2,ConvexSweepStatus.Contact)]
+    [InlineData(-.00000105,-2,ConvexSweepStatus.InitialContact)]
+    public void AnInitiallyCertifiedGapCanSeparateEvenInsideTheEventTolerance(double gap,double velocity,ConvexSweepStatus expected)
+    {
+        var shape=new ConvexSphere(1);
+        var a=Motion(shape,RigidPose.Identity,new(velocity,0,0));
+        var b=Motion(shape,RigidPose.At(new(2+gap,0,0)));
+        var hit=ConvexSweep.Cast(a,b,1,MinimumSeparation);
+        Assert.Equal(expected,hit.Status);
+        if(expected==ConvexSweepStatus.Contact) Assert.InRange(hit.Time,1e-9,1e-7);
+        if(expected==ConvexSweepStatus.Clear) Assert.Equal(1,hit.Time);
+    }
+
     [Fact]
     public void SeparationAndFurtherPenetrationAreDifferentEvents()
     {

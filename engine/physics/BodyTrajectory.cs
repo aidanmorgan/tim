@@ -5,7 +5,7 @@ namespace CuriousContraptions.Physics;
 /// <summary>Immutable piecewise-exponential rigid path. Each dynamic segment's
 /// spin comes from the same Lie-midpoint integration used for its endpoint.
 /// Queries and committed movement consume this exact captured path.</summary>
-public sealed class BodyTrajectory
+public sealed class BodyTrajectory : IRigidTrajectory
 {
     private const double MaximumRotationStep=.125;
     private const int MaximumIntegrationSteps=4096;

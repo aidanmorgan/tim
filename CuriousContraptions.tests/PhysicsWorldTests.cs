@@ -16,6 +16,9 @@ public class PhysicsWorldTests
     private static PhysicsWorld World(params PhysicsObject[] objects)=>new(objects,[],new(default,maximumStep:1));
     private static void Near(double expected,double actual,double tolerance=1e-6)=>Assert.InRange(Math.Abs(expected-actual),0,tolerance);
 
+    private static PositionSolveResult Project(ContactPositionConstraint constraint)=>
+        PositionSolver.Solve([constraint],new([constraint.A,constraint.B],[constraint],1e-6),1e-7);
+
     [Fact]
     public void HighSpeedSphereBouncesWithoutCrossingThinWall()
     {
@@ -87,7 +90,7 @@ public class PhysicsWorldTests
         var a=Dynamic(0,default,new(1,2,3),1);
         var b=Dynamic(1,new(.8,0,0),new(3,2,1),3);
         var oldA=a.Snapshot(); var oldB=b.Snapshot();
-        var result=PositionSolver.Solve([new ContactPositionConstraint(a,Sphere,b,Sphere)],1e-7);
+        var result=Project(new ContactPositionConstraint(a,Sphere,b,Sphere));
         Assert.True(result.Iterations>0);
         Near(-.15,a.Center.X); Near(.85,b.Center.X);
         Assert.Equal(oldA.LinearVelocity,a.LinearVelocity); Assert.Equal(oldB.LinearVelocity,b.LinearVelocity);
@@ -148,7 +151,7 @@ public class PhysicsWorldTests
         var before=floor.Snapshot();
         var constraint=new ContactPositionConstraint(body,box,floor,
             new(new ConvexBox(new(10,.5,10)),Transform3D.Identity));
-        Assert.True(PositionSolver.Solve([constraint],1e-7).Iterations>0);
+        Assert.True(Project(constraint).Iterations>0);
         Assert.InRange(constraint.Error(1e-8),0,1e-7);
         Assert.Equal(default,body.LinearVelocity); Assert.Equal(default,body.AngularMomentum);
         Assert.Equal(before,floor.Snapshot());
@@ -176,7 +179,7 @@ public class PhysicsWorldTests
         var a=new PhysicsBody(new(0),PhysicsMotionType.Static,RigidPose.Identity,default,default);
         var b=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.At(new(.8,0,0)),default,default);
         Assert.Throws<InvalidOperationException>(()=>
-            PositionSolver.Solve([new ContactPositionConstraint(a,Sphere,b,Sphere)],1e-7));
+            Project(new ContactPositionConstraint(a,Sphere,b,Sphere)));
     }
 
     [Fact]

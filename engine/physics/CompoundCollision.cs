@@ -58,9 +58,9 @@ public readonly record struct CollisionBounds(CollisionVector Minimum,CollisionV
 public readonly struct CompoundMotion
 {
     private readonly CompoundGeometry _geometry;
-    private readonly BodyTrajectory _trajectory;
+    private readonly IRigidTrajectory _trajectory;
     public int Count=>_geometry?.Count??throw new InvalidOperationException("Uninitialised compound motion.");
-    public CompoundMotion(CompoundGeometry geometry,BodyTrajectory trajectory)
+    public CompoundMotion(CompoundGeometry geometry,IRigidTrajectory trajectory)
     {
         ArgumentNullException.ThrowIfNull(geometry); ArgumentNullException.ThrowIfNull(trajectory);
         for(var i=0;i<geometry.Count;i++) _=new ConvexMotion(geometry[new(i)],trajectory);
