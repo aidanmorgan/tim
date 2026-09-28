@@ -14,6 +14,8 @@ public partial class Workshop
     private void StartBackendQualification()
     {
 #if PLAYTEST
+        foreach(var probe in Enum.GetValues<GeneralPenetrationProbe>())
+            GD.Print(BackendQualificationProtocol.PenetrationPrefix+JsonSerializer.Serialize(GeneralPenetrationQualification.Run(probe),BackendQualificationJson.Default.GeneralPenetrationReport));
         GD.Print(BackendQualificationProtocol.TrajectoryPrefix+JsonSerializer.Serialize(GeneralTrajectoryQualification.Run(),BackendQualificationJson.Default.GeneralTrajectoryReport));
         GD.Print(BackendQualificationProtocol.BodyPrefix+JsonSerializer.Serialize(GeneralBodyQualification.Run(),BackendQualificationJson.Default.GeneralBodyReport));
         foreach(var probe in Enum.GetValues<GeneralConstraintProbe>())
@@ -48,6 +50,7 @@ public partial class Workshop
 internal static class BackendQualificationProtocol
 {
     // External diagnostic wire identifiers, never domain behaviour selectors.
+    internal const string PenetrationPrefix="CCGENERALPENETRATION ";
     internal const string TrajectoryPrefix="CCGENERALTRAJECTORY ";
     internal const string BodyPrefix="CCGENERALBODY ";
     internal const string ConstraintPrefix="CCGENERALCONSTRAINT ";
@@ -61,6 +64,7 @@ internal sealed record BackendQueryReport(PhysicsBackendQualification.Probe Prob
 internal sealed record BackendMotionReport(PhysicsBackendMotionProbe.Experiment Experiment,
     PhysicsBackendMotionProbe.Frame[] Frames);
 [JsonSourceGenerationOptions(UseStringEnumConverter=true)]
+[JsonSerializable(typeof(GeneralPenetrationReport))]
 [JsonSerializable(typeof(GeneralTrajectoryReport))]
 [JsonSerializable(typeof(GeneralBodyReport))]
 [JsonSerializable(typeof(GeneralConstraintReport))]

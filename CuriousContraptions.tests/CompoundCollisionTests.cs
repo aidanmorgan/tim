@@ -82,6 +82,7 @@ public class CompoundCollisionTests
     private sealed class Capsule(double radius,double halfLength) : ConvexGeometry
     {
         public override double BoundingRadius=>radius+halfLength;
+        public override InteriorBall InteriorBall=>new(default,radius);
         public override CollisionVector Support(CollisionVector direction)
         {
             var ball=direction.Length==0?new CollisionVector(radius,0,0):direction*(radius/direction.Length);

@@ -1,0 +1,66 @@
+{
+  "testedBaseRevision": "7b3a222",
+  "changes": "ConvexPenetration and interior-ball support bounds; changes in the commit containing this record.",
+  "scope": "Engine-only qualification. Gameplay remains on the original solver; no gameplay-part completion claimed.",
+  "native": {
+    "passed": 1481,
+    "failed": 0,
+    "skipped": 0,
+    "command": "dotnet test CuriousContraptions.tests --no-restore --verbosity quiet"
+  },
+  "diagnosticsPublish": {
+    "exitCode": 0,
+    "command": "dotnet publish CuriousContraptions.web -p:PlaytestDiagnostics=true --no-restore --verbosity quiet"
+  },
+  "browser": {
+    "reports": [
+      {
+        "Probe": "Sphere",
+        "Status": "Penetrating",
+        "LowerDepth": 1.1417424236758462,
+        "UpperDepth": 1.1417424236758464,
+        "WitnessError": 0,
+        "Iterations": 0
+      },
+      {
+        "Probe": "Box",
+        "Status": "Penetrating",
+        "LowerDepth": 1.5999999940395355,
+        "UpperDepth": 1.5999999940395355,
+        "WitnessError": 0,
+        "Iterations": 11
+      },
+      {
+        "Probe": "Hull",
+        "Status": "Penetrating",
+        "LowerDepth": 1.5999999940395355,
+        "UpperDepth": 1.5999999940395355,
+        "WitnessError": 0,
+        "Iterations": 11
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only engine diagnostics; not gameplay part proof."
+  },
+  "productionPublish": {
+    "exitCode": 0,
+    "command": "dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false --no-restore --verbosity quiet"
+  },
+  "coverage": {
+    "orderedShapePairs": 9,
+    "analyticSphereCases": 200,
+    "randomizedBoxSatCases": 500,
+    "also": [
+      "Separating translation",
+      "Touching and separated geometry",
+      "Flat hull and coincident point",
+      "Invalid interior bounds and tolerance"
+    ]
+  },
+  "limitations": [
+    "Single witness pair, not a multi-point contact manifold",
+    "No gameplay/world integration",
+    "Original gameplay solver not yet removed",
+    "No per-part UI re-verification for the new engine"
+  ]
+}

@@ -13,7 +13,7 @@ public static class ConvexDistance
 {
     public const double DefaultTolerance=1e-7;
     private const int MaximumIterations=256;
-    private readonly record struct Vertex(CollisionVector A,CollisionVector B)
+    internal readonly record struct Vertex(CollisionVector A,CollisionVector B)
     {
         public CollisionVector Difference=>A-B;
     }
@@ -52,14 +52,14 @@ public static class ConvexDistance
         throw new InvalidOperationException("Convex distance did not converge; separation was not inferred.");
     }
 
-    private static Vertex Support<TA,TB>(TA a,TB b,CollisionVector direction)
+    internal static Vertex Support<TA,TB>(TA a,TB b,CollisionVector direction)
         where TA : IConvexSupport where TB : IConvexSupport =>
         new(a.Support(direction),b.Support(-direction));
 
     // Project the origin onto every simplex feature. A rank-deficient affine
     // feature has the same hull as lower-dimensional features already visited.
     // Feasible barycentric weights provide witnesses inside both input shapes.
-    private static (CollisionVector A,CollisionVector B) Reduce(Span<Vertex> simplex,ref int count)
+    internal static (CollisionVector A,CollisionVector B) Reduce(Span<Vertex> simplex,ref int count)
     {
         Span<double> bestWeights=stackalloc double[4];
         Span<double> weights=stackalloc double[4];

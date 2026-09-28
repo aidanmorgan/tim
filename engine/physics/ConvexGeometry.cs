@@ -23,10 +23,22 @@ public readonly record struct CollisionVector(double X,double Y,double Z)
 
 /// <summary>A convex shape is defined by its farthest point in a direction.
 /// The collision algorithm does not inspect the concrete shape type.</summary>
+public readonly record struct InteriorBall
+{
+    public CollisionVector Center { get; }
+    public double Radius { get; }
+    public InteriorBall(CollisionVector center,double radius)
+    {
+        if(!center.IsFinite||!double.IsFinite(radius)||radius<0) throw new ArgumentException("Interior ball must be finite.");
+        Center=center; Radius=radius;
+    }
+}
+
 public abstract class ConvexGeometry
 {
     public abstract CollisionVector Support(CollisionVector direction);
     public abstract double BoundingRadius { get; }
+    public abstract InteriorBall InteriorBall { get; }
 }
 
 public sealed class ConvexSphere : ConvexGeometry
@@ -38,6 +50,7 @@ public sealed class ConvexSphere : ConvexGeometry
         Radius=radius;
     }
     public override double BoundingRadius=>Radius;
+    public override InteriorBall InteriorBall=>new(default,Radius);
     public override CollisionVector Support(CollisionVector direction)
     {
         var length=direction.Length;
@@ -54,6 +67,7 @@ public sealed class ConvexBox : ConvexGeometry
         Half=half;
     }
     public override double BoundingRadius=>Half.Length;
+    public override InteriorBall InteriorBall=>new(default,Math.Min(Half.X,Math.Min(Half.Y,Half.Z)));
     public override CollisionVector Support(CollisionVector direction)=>
         new(direction.X<0?-Half.X:Half.X,direction.Y<0?-Half.Y:Half.Y,direction.Z<0?-Half.Z:Half.Z);
 }
@@ -64,15 +78,19 @@ public sealed class ConvexHull : ConvexGeometry
 {
     private readonly CollisionVector[] _points;
     public override double BoundingRadius { get; }
+    public override InteriorBall InteriorBall { get; }
     public ConvexHull(ReadOnlySpan<CollisionVector> points)
     {
         if(points.Length==0) throw new ArgumentException("A hull requires points.",nameof(points));
         _points=points.ToArray();
+        CollisionVector center=default;
         foreach(var p in _points)
         {
             if(!p.IsFinite||!double.IsFinite(p.LengthSquared)) throw new ArgumentOutOfRangeException(nameof(points));
             BoundingRadius=Math.Max(BoundingRadius,p.Length);
+            center+=p/_points.Length;
         }
+        InteriorBall=new(center,0); // A convex combination is inside even a degenerate hull.
     }
     public override CollisionVector Support(CollisionVector direction)
     {
@@ -89,6 +107,7 @@ public sealed class ConvexHull : ConvexGeometry
 
 public interface IConvexSupport
 {
+    InteriorBall InteriorBall { get; }
     CollisionVector Support(CollisionVector direction);
 }
 
@@ -97,6 +116,7 @@ public readonly struct ConvexInstance : IConvexSupport
     public ConvexGeometry Geometry { get; }
     public Transform3D Pose { get; }
     public double RadiusBound { get; }
+    public InteriorBall InteriorBall { get; }
     public ConvexInstance(ConvexGeometry geometry,Transform3D pose)
     {
         ArgumentNullException.ThrowIfNull(geometry);
@@ -115,6 +135,11 @@ public readonly struct ConvexInstance : IConvexSupport
         // eigenvalue, including float transform roundoff.
         RadiusBound=geometry.BoundingRadius*Math.Sqrt(Math.Max(x.LengthSquared+xy+xz,
             Math.Max(y.LengthSquared+xy+yz,z.LengthSquared+xz+yz)));
+        var ball=geometry.InteriorBall;
+        var minimum=Math.Min(x.LengthSquared-xy-xz,Math.Min(y.LengthSquared-xy-yz,z.LengthSquared-xz-yz));
+        if(!double.IsFinite(minimum)||minimum<=0) throw new ArgumentException("Rigid transform has no positive interior-radius bound.",nameof(pose));
+        InteriorBall=new(CollisionVector.From(pose.Origin)+x*ball.Center.X+y*ball.Center.Y+z*ball.Center.Z,
+            ball.Radius*Math.Sqrt(minimum));
         Geometry=geometry; Pose=pose;
     }
     public CollisionVector Support(CollisionVector direction)
