@@ -1,5 +1,7 @@
 # Hollow-funnel collision foundation
 
+Historical foundation snapshot at `ffdac82`. The subsequent [continuous sweep and actual-UI verification](impact-lever-frustum-verification.md) now integrates this query into hinge flight; the record below preserves the original foundation scope.
+
 Status: **native geometry foundation only; not connected to hinge flight and not a completed part proof**.
 
 The lever still ignores declared frustum shells in `WorldHinges`; separately declared straight collars retain their existing tube collision. This increment supplies the static query and conservative clearance needed for a continuous rotating-beam query. It does not change player-visible physics, geometry, colours or controls.

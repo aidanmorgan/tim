@@ -6,9 +6,9 @@ public class RotatingTubeSweepTests
 {
     private static readonly Vector3 Half = new(1.8f,.12f,.55f);
     private static readonly TubeProxy Tube = new(new(Basis.Identity,new(1.5f,1.1f,0)),.5f,.65f,.7f,false);
-    private static RotatingTubeHit Cast(double speed,double duration,TubeProxy? tube = null,
+    private static RotatingShellHit Cast(double speed,double duration,TubeProxy? tube = null,
         Transform3D? box = null,Vector3? pivot = null,Vector3? axis = null) =>
-        RotatingTubeSweep.Cast(pivot ?? Vector3.Zero,axis ?? Vector3.Back,box ?? Transform3D.Identity,Half,
+        RotatingShellSweep.Cast(pivot ?? Vector3.Zero,axis ?? Vector3.Back,box ?? Transform3D.Identity,Half,
             speed,tube ?? Tube,duration);
 
     [Theory]
@@ -121,12 +121,12 @@ public class RotatingTubeSweepTests
         var pose = new Transform3D(Basis.Identity,new(2,.1f,0));
         var half = new Vector3(1,.1f,.1f);
         var pivot = new Vector3(2,0,0);
-        var hit = RotatingTubeSweep.Cast(pivot,Vector3.Back,pose,half,1,tube,.1);
+        var hit = RotatingShellSweep.Cast(pivot,Vector3.Back,pose,half,1,tube,.1);
         Assert.Equal(SphereSweepStatus.Contact,hit.Status);
         var rotation = new Basis(Vector3.Back,(float)hit.Time);
         var stopped = new Transform3D(rotation*pose.Basis,pivot+rotation*(pose.Origin-pivot));
         Assert.False(TubeBoxIntersection.Intersects(stopped,half,tube,-SphereSweep.ContactTolerance));
-        var release = RotatingTubeSweep.Cast(pivot,Vector3.Back,stopped,half,-1,tube,.1);
+        var release = RotatingShellSweep.Cast(pivot,Vector3.Back,stopped,half,-1,tube,.1);
         Assert.True(release.Status == SphereSweepStatus.Clear,$"hit={hit}; release={release}");
     }
 
