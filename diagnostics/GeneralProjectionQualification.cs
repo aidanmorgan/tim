@@ -42,7 +42,7 @@ internal static class GeneralProjectionQualification
             _=>[new(a,new(2,0,0),default)]
         };
         var beforeA=a.Snapshot(); var beforeB=b.Snapshot();
-        PositionProjector Projector()=>new([a,b],[new(a,shapeA,b,shapeB)],1e-6);
+        PositionProjector Projector()=>new([a,b],(_,_)=>[new(a,shapeA,b,shapeB)],1e-6);
         var projector=Projector(); var fraction=projector.Apply(corrections);
         var afterA=a.Snapshot(); var afterB=b.Snapshot();
         var momentum=a.LinearVelocity==beforeA.LinearVelocity&&a.AngularMomentum==beforeA.AngularMomentum&&

@@ -97,7 +97,7 @@ public class PhysicsJointTests
     {
         var a=Body(0,new(2,0,0)); var b=Body(1,default);
         var rope=new PhysicsRopeJoint(new(0),new([new(a,default),new(b,default)]),1,ConnectedBodyCollision.Enabled);
-        PositionSolver.Solve([rope],new([a,b],[],1e-6),1e-7);
+        PositionSolver.Solve(()=>[rope],new([a,b],(_,_)=>[],1e-6),1e-7);
         Near(new(1.5,0,0),a.Center); Near(new(.5,0,0),b.Center);
         Near(default,a.LinearVelocity); Near(default,b.LinearVelocity);
         a.ApplyImpulse(new(-1,0,0),a.Center);

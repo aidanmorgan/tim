@@ -18,7 +18,7 @@ public class PositionProjectorTests
     {
         var a=Body(0,new(-1,0,0)); var b=Body(1,default,PhysicsMotionType.Static);
         var contact=new ContactPositionConstraint(a,Sphere,b,Wall);
-        var projector=new PositionProjector([a,b],[contact],1e-6);
+        var projector=new PositionProjector([a,b],(_,_)=>[contact],1e-6);
         var before=a.Snapshot();
         var fraction=projector.Apply([new(a,new(2,0,0),default)]);
         Assert.InRange(fraction,.449,.451);
@@ -33,7 +33,7 @@ public class PositionProjectorTests
     public void SimultaneousCorrectionsStopOnOneSharedClock()
     {
         var a=Body(0,new(-1,0,0)); var b=Body(1,new(1,0,0));
-        var projector=new PositionProjector([a,b],[new(a,Sphere,b,Sphere)],1e-6);
+        var projector=new PositionProjector([a,b],(_,_)=>[new(a,Sphere,b,Sphere)],1e-6);
         var fraction=projector.Apply([new(a,new(2,0,0),default),new(b,new(-2,0,0),default)]);
         Assert.InRange(fraction,.449,.451);
         Near(default,a.Center+b.Center);
@@ -54,7 +54,7 @@ public class PositionProjectorTests
         var fixedMotion=new ConvexMotion(obstacle,new ConfigurationTrajectory(b.Pose,default,default));
         Assert.True(ConvexDistance.Query(moving.At(0),fixedMotion.At(0)).LowerBound>.1);
         Assert.True(ConvexDistance.Query(moving.At(1),fixedMotion.At(1)).LowerBound>.1);
-        var projector=new PositionProjector([a,b],[new(a,beam,b,obstacle)],1e-6);
+        var projector=new PositionProjector([a,b],(_,_)=>[new(a,beam,b,obstacle)],1e-6);
         var fraction=projector.Apply([new(a,default,spin)]);
         Assert.InRange(fraction,.04,.07);
         Assert.Equal(path.At(fraction),a.Pose);
@@ -91,7 +91,7 @@ public class PositionProjectorTests
     {
         var a=Body(0,default); var b=Body(1,new(2,0,0),PhysicsMotionType.Static);
         var foreign=Body(0,default);
-        var projector=new PositionProjector([a,b],[],1e-6);
+        var projector=new PositionProjector([a,b],(_,_)=>[],1e-6);
         var before=a.Snapshot();
         Assert.Throws<ArgumentException>(()=>projector.Apply([new(a,new(1,0,0),default),new(b,new(1,0,0),default)]));
         Assert.Throws<ArgumentException>(()=>projector.Apply([new(a,new(1,0,0),default),new(a,default,default)]));
@@ -104,7 +104,7 @@ public class PositionProjectorTests
     public void ChangedObstaclePoseInvalidatesAnExistingProjectionTransaction()
     {
         var a=Body(0,new(-1,0,0)); var b=Body(1,default,PhysicsMotionType.Static);
-        var projector=new PositionProjector([a,b],[new(a,Sphere,b,Wall)],1e-6);
+        var projector=new PositionProjector([a,b],(_,_)=>[new(a,Sphere,b,Wall)],1e-6);
         var before=a.Snapshot();
         b.Restore(b.Snapshot() with {Pose=RigidPose.At(new(10,0,0))});
         Assert.Throws<InvalidOperationException>(()=>projector.Apply([new(a,new(2,0,0),default)]));

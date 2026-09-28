@@ -17,7 +17,7 @@ public class PhysicsWorldTests
     private static void Near(double expected,double actual,double tolerance=1e-6)=>Assert.InRange(Math.Abs(expected-actual),0,tolerance);
 
     private static PositionSolveResult Project(ContactPositionConstraint constraint)=>
-        PositionSolver.Solve([constraint],new([constraint.A,constraint.B],[constraint],1e-6),1e-7);
+        PositionSolver.Solve(()=>[constraint],new([constraint.A,constraint.B],(_,_)=>[constraint],1e-6),1e-7);
 
     [Fact]
     public void HighSpeedSphereBouncesWithoutCrossingThinWall()

@@ -49,7 +49,7 @@ public class JointRangeTests
         var pose=kind==FrameJointKind.Hinge?new RigidPose(default,RigidRotation.FromRotationVector(new(0,0,sign))):
             RigidPose.At(new(0,0,sign));
         var a=Body(0,pose); var b=Fixed(1); var joint=Joint(kind,a,b,new(-.5,.5));
-        PositionSolver.Solve([joint],new([a,b],[],1e-6),1e-7);
+        PositionSolver.Solve(()=>[joint],new([a,b],(_,_)=>[],1e-6),1e-7);
         Assert.InRange(Math.Abs(joint.Travel.Error-sign*.5),0,1e-7);
         Assert.Equal(default,a.LinearVelocity); Assert.Equal(default,a.AngularMomentum);
     }

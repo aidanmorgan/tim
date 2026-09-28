@@ -69,7 +69,7 @@ public class RoutedRopeTests
         var a=Body(0,-X,-Y*3); var guide=Body(1,Y*2); var b=Body(2,X,-Y);
         var rope=Route(a,guide,b,4);
         var momentum=new[]{a.LinearVelocity,guide.LinearVelocity,b.LinearVelocity};
-        PositionSolver.Solve([rope],new([a,guide,b],[],1e-6),1e-7);
+        PositionSolver.Solve(()=>[rope],new([a,guide,b],(_,_)=>[],1e-6),1e-7);
         Near(-X+Y/3,a.Center); Near(X+Y/3,b.Center); Near(Y*(4.0/3),guide.Center);
         Near(4,rope.Route.CurrentLength);
         Assert.Equal(momentum,new[]{a.LinearVelocity,guide.LinearVelocity,b.LinearVelocity});
@@ -180,7 +180,7 @@ public class RoutedRopeTests
         Assert.Throws<ArgumentException>(()=>rope.Sweep([paths[0],paths[2]],.01,1e-7));
         guide.ApplyImpulse(Y,guide.Center);
         Assert.Throws<InvalidOperationException>(()=>rope.Sweep(paths,.01,1e-7));
-        Assert.Throws<ArgumentException>(()=>PositionSolver.Solve([rope],new([a,copy,b],[],1e-6),1e-7));
+        Assert.Throws<ArgumentException>(()=>PositionSolver.Solve(()=>[rope],new([a,copy,b],(_,_)=>[],1e-6),1e-7));
         Assert.Throws<ArgumentException>(()=>new RopeRoute([new(a,default),new(copy,default),new(guide,default)]));
         Assert.Throws<ArgumentException>(()=>new RopeRoute([]));
         Assert.Throws<ArgumentNullException>(()=>new RopeRoute([default,new(a,default)]));

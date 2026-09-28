@@ -48,13 +48,14 @@ public sealed record PhysicsStepResult(int Substeps,int Events,int SweepIteratio
 /// is certified before all bodies commit it; a failed step restores body/cache state.</summary>
 public sealed class PhysicsWorld
 {
-    private sealed record Pair(int A,int B,ColliderChildId ChildA,ColliderChildId ChildB,
+    internal sealed record Pair(int A,int B,ColliderChildId ChildA,ColliderChildId ChildB,
         ConvexInstance ShapeA,ConvexInstance ShapeB,PersistentContactPair Contact,ContactPositionConstraint Position,ColliderPairKey Key);
     private readonly PhysicsObject[] _objects;
-    private readonly Pair[] _pairs;
+    private readonly Dictionary<ColliderPairKey,Pair> _pairs=new();
+    private readonly (int A,int B)[] _bodyPairs;
+    public int RetainedContactPairs=>_pairs.Count;
     private readonly PhysicsJoint[] _joints;
     private readonly int[][] _jointBodies;
-    private readonly IPositionConstraint[] _positions;
     private readonly PhysicsWorldSettings _settings;
     private PhysicsImpact[] _impacts=[];
     private PhysicsJointStop[] _jointStops=[];
@@ -85,7 +86,7 @@ public sealed class PhysicsWorld
                     throw new ArgumentException("Joint refers to a body state not owned by this world.");
         var indices=_objects.Select((o,i)=>(o.Body.Id,i)).ToDictionary(p=>p.Id,p=>p.i);
         _jointBodies=_joints.Select(j=>j.Bodies.ToArray().Select(b=>indices[b.Id]).ToArray()).ToArray();
-        var pairs=new List<Pair>();
+        var pairs=new List<(int A,int B)>();
         for(var a=0;a<_objects.Length;a++)
         for(var b=a+1;b<_objects.Length;b++)
         {
@@ -94,20 +95,45 @@ public sealed class PhysicsWorld
             if(first.Body.MotionType!=PhysicsMotionType.Dynamic&&second.Body.MotionType!=PhysicsMotionType.Dynamic) continue;
             if(_joints.Any(j=>j.Collision==ConnectedBodyCollision.Disabled&&
                 j.Connects(first.Body,second.Body))) continue;
-            var material=new ContactMaterial(Math.Max(first.Material.Restitution,second.Material.Restitution),
-                Math.Max(first.Material.BounceThreshold,second.Material.BounceThreshold),
-                Math.Sqrt(first.Material.Friction)*Math.Sqrt(second.Material.Friction));
-            for(var i=0;i<first.Geometry.Count;i++)
-            for(var j=0;j<second.Geometry.Count;j++)
-            {
-                var ia=new ColliderChildId(i); var ib=new ColliderChildId(j);
-                var shapeA=first.Geometry[ia]; var shapeB=second.Geometry[ib];
-                pairs.Add(new(a,b,ia,ib,shapeA,shapeB,new(first.Body,shapeA,second.Body,shapeB,material,.01,.2),
-                    new(first.Body,shapeA,second.Body,shapeB),new(first.Body.Id,ia,second.Body.Id,ib)));
-            }
+            pairs.Add((a,b));
         }
-        _pairs=pairs.ToArray(); _positions=_pairs.Select(p=>(IPositionConstraint)p.Position).Concat(_joints).ToArray();
+        _bodyPairs=pairs.ToArray();
     }
+
+    private Pair PairFor(int a,int b,ColliderChildId ia,ColliderChildId ib)
+    {
+        var first=_objects[a]; var second=_objects[b];
+        var key=new ColliderPairKey(first.Body.Id,ia,second.Body.Id,ib);
+        if(_pairs.TryGetValue(key,out var pair)) return pair;
+        var material=new ContactMaterial(Math.Max(first.Material.Restitution,second.Material.Restitution),
+            Math.Max(first.Material.BounceThreshold,second.Material.BounceThreshold),
+            Math.Sqrt(first.Material.Friction)*Math.Sqrt(second.Material.Friction));
+        var shapeA=first.Geometry[ia]; var shapeB=second.Geometry[ib];
+        pair=new(a,b,ia,ib,shapeA,shapeB,new(first.Body,shapeA,second.Body,shapeB,material,.01,.2),
+            new(first.Body,shapeA,second.Body,shapeB),key);
+        _pairs.Add(key,pair);
+        return pair;
+    }
+    private IEnumerable<Pair> CandidatePairs(Func<PhysicsBody,IRigidTrajectory> path,double duration,double margin)
+    {
+        // Capture each body path once, then reuse immutable local hierarchies.
+        var motions=_objects.Select(o=>new CompoundMotion(o.Geometry,path(o.Body))).ToArray();
+        foreach(var (a,b) in _bodyPairs)
+            foreach(var children in CompoundCollision.Candidates(motions[a],motions[b],duration,margin).Pairs)
+                yield return PairFor(a,b,children.A,children.B);
+    }
+    private IEnumerable<ContactPositionConstraint> PositionContacts(Func<PhysicsBody,ConfigurationTrajectory> path,double duration)=>
+        CandidatePairs(body=>path(body),duration,ConvexDistance.DefaultTolerance).Select(p=>p.Position);
+    private IEnumerable<IPositionConstraint> Positions()=>PositionContacts(body=>new(body.Pose,default,default),0)
+        .Cast<IPositionConstraint>().Concat(_joints);
+    private Pair[] CurrentPairs()
+    {
+        var near=CandidatePairs(body=>body.CreateTrajectory(0),0,ConvexSweep.ContactDistance+ConvexDistance.DefaultTolerance).ToArray();
+        // Previously supported pairs must observe release even outside the skin.
+        return Order(near.Concat(_pairs.Values.Where(p=>p.Contact.Contacts.Length>0)).Distinct()).ToArray();
+    }
+    private static IOrderedEnumerable<Pair> Order(IEnumerable<Pair> pairs)=>pairs.OrderBy(p=>p.A).ThenBy(p=>p.B)
+        .ThenBy(p=>p.ChildA.Index).ThenBy(p=>p.ChildB.Index);
 
     public PhysicsStepResult Step(ReadOnlySpan<PhysicsMotorCommand> motors,double duration)
     {
@@ -144,24 +170,26 @@ public sealed class PhysicsWorld
                 var actuationPending=true;
                 while(true)
                 {
-                    var projector=new PositionProjector(_objects.Select(o=>o.Body),_pairs.Select(p=>p.Position),_settings.MaximumPenetration);
-                    positionIterations+=PositionSolver.Solve(_positions,projector,_settings.PositionTolerance).Iterations;
+                    var projector=new PositionProjector(_objects.Select(o=>o.Body),PositionContacts,_settings.MaximumPenetration);
+                    positionIterations+=PositionSolver.Solve(Positions,projector,_settings.PositionTolerance).Iterations;
                     if(actuationPending)
                     {
                         foreach(var budget in budgets) budget.Apply(step);
                         actuationPending=false;
                     }
-                    foreach(var pair in _pairs) pair.Contact.Prepare(step);
-                    var constraints=_pairs.SelectMany(p=>p.Contact.PreparedContacts.ToArray()).Select(p=>(IImpulseConstraint)p.Constraint)
+                    var currentPairs=CurrentPairs();
+                    foreach(var pair in currentPairs) pair.Contact.Prepare(step);
+                    var constraints=currentPairs.SelectMany(p=>p.Contact.PreparedContacts.ToArray()).Select(p=>(IImpulseConstraint)p.Constraint)
                         .Concat(_joints.SelectMany(j=>j.VelocityConstraints(_settings.PositionTolerance))).ToArray();
-                    foreach(var pair in _pairs) pair.Contact.WarmStart();
+                    foreach(var pair in currentPairs) pair.Contact.WarmStart();
                     velocityIterations+=ImpulseSolver.Solve(constraints,tolerance:_settings.VelocityTolerance).Iterations;
-                    foreach(var pair in _pairs) pair.Contact.Complete(_settings.VelocityTolerance);
+                    foreach(var pair in currentPairs) pair.Contact.Complete(_settings.VelocityTolerance);
                     if(elapsed>=step) break;
                     var remaining=step-elapsed;
                     var paths=_objects.Select(o=>o.Body.CreateTrajectory(remaining)).ToArray();
                     var travel=remaining; Pair? hitPair=null; ConvexSweepResult earliest=default;
-                    foreach(var pair in _pairs)
+                    var pathById=_objects.Select((o,i)=>(o.Body.Id,Path:paths[i])).ToDictionary(p=>p.Id,p=>p.Path);
+                    foreach(var pair in CandidatePairs(body=>pathById[body.Id],remaining,ConvexSweep.ContactDistance+ConvexDistance.DefaultTolerance))
                     {
                         var a=new ConvexMotion(pair.ShapeA,paths[pair.A]); var b=new ConvexMotion(pair.ShapeB,paths[pair.B]);
                         var boundary=pair.Contact.Contacts.Length==0?
@@ -219,7 +247,7 @@ public sealed class PhysicsWorld
     public Snapshot Capture()
     {
         RequireIdle();
-        return new(this,_objects.Select(o=>o.Body.Snapshot()).ToArray(),_pairs.Select(p=>p.Contact.Capture()).ToArray(),
+        return new(this,_objects.Select(o=>o.Body.Snapshot()).ToArray(),Order(_pairs.Values).Select(p=>(p,p.Contact.Capture())).ToArray(),
             Time,StepIndex,_impacts,_jointStops,_motorUse);
     }
     public void Restore(Snapshot snapshot)
@@ -231,7 +259,11 @@ public sealed class PhysicsWorld
     private void RestoreState(Snapshot snapshot)
     {
         for(var i=0;i<_objects.Length;i++) _objects[i].Body.Restore(snapshot.Bodies[i]);
-        for(var i=0;i<_pairs.Length;i++) _pairs[i].Contact.Restore(snapshot.Pairs[i]);
+        _pairs.Clear();
+        foreach(var (pair,state) in snapshot.Pairs)
+        {
+            pair.Contact.Restore(state); _pairs.Add(pair.Key,pair);
+        }
         Time=snapshot.Time; StepIndex=snapshot.StepIndex; _impacts=(PhysicsImpact[])snapshot.ImpactData.Clone();
         _jointStops=(PhysicsJointStop[])snapshot.StopData.Clone();
         _motorUse=(PhysicsMotorUse[])snapshot.MotorData.Clone();
@@ -240,14 +272,14 @@ public sealed class PhysicsWorld
     {
         internal PhysicsWorld Owner { get; }
         internal PhysicsBodySnapshot[] Bodies { get; }
-        internal PersistentContactPair.Snapshot[] Pairs { get; }
+        internal (Pair Pair,PersistentContactPair.Snapshot State)[] Pairs { get; }
         internal PhysicsImpact[] ImpactData { get; }
         internal PhysicsJointStop[] StopData { get; }
         internal PhysicsMotorUse[] MotorData { get; }
         public double Time { get; }
         public ulong StepIndex { get; }
         public ReadOnlySpan<PhysicsBodySnapshot> BodyStates=>Bodies;
-        internal Snapshot(PhysicsWorld owner,PhysicsBodySnapshot[] bodies,PersistentContactPair.Snapshot[] pairs,
+        internal Snapshot(PhysicsWorld owner,PhysicsBodySnapshot[] bodies,(Pair Pair,PersistentContactPair.Snapshot State)[] pairs,
             double time,ulong stepIndex,PhysicsImpact[] impacts,PhysicsJointStop[] stops,PhysicsMotorUse[] motors)
         {
             Owner=owner; Bodies=bodies; Pairs=pairs; Time=time; StepIndex=stepIndex; ImpactData=(PhysicsImpact[])impacts.Clone(); StopData=(PhysicsJointStop[])stops.Clone(); MotorData=(PhysicsMotorUse[])motors.Clone();

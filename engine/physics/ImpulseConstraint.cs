@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CuriousContraptions.Physics;
 
@@ -124,7 +125,7 @@ public sealed class ImpulseConstraint : IImpulseConstraint
     }
 }
 
-public readonly record struct ImpulseSolveResult(int Iterations,double MaximumResidual);
+public readonly record struct ImpulseSolveResult(int Iterations,double MaximumResidual,int CouplingTests,int CoupledPairs);
 public static class ImpulseSolver
 {
     public static ImpulseSolveResult Solve(IReadOnlyList<IImpulseConstraint> constraints,int maximumIterations=256,double tolerance=1e-8)
@@ -146,19 +147,34 @@ public static class ImpulseSolver
         foreach(var constraint in constraints)
             foreach(var row in constraint.ScalarRows)
                 if(uniqueRows.Add(row)) scalarRows.Add(row);
-        var pairs=new List<CoupledImpulsePair>();
+        // Rows can exchange an impulse only through a shared dynamic body.
+        // A common immovable floor does not connect otherwise independent loads.
+        var incidence=new Dictionary<PhysicsBodyId,List<int>>();
         for(var i=0;i<scalarRows.Count;i++)
-        for(var j=i+1;j<scalarRows.Count;j++)
-            if(scalarRows[i].InverseEffectiveMass>0&&scalarRows[j].InverseEffectiveMass>0&&
-                scalarRows[i].Gradient.Coupling(scalarRows[j].Gradient)!=0)
-                pairs.Add(new(scalarRows[i],scalarRows[j]));
+        {
+            if(scalarRows[i].InverseEffectiveMass==0) continue;
+            foreach(var body in scalarRows[i].Bodies)
+            {
+                if(body.MotionType!=PhysicsMotionType.Dynamic) continue;
+                if(!incidence.TryGetValue(body.Id,out var rows)) incidence.Add(body.Id,rows=new());
+                rows.Add(i);
+            }
+        }
+        var candidates=new HashSet<(int A,int B)>();
+        foreach(var rows in incidence.Values)
+            for(var i=0;i<rows.Count;i++)
+            for(var j=i+1;j<rows.Count;j++) candidates.Add((rows[i],rows[j]));
+        var pairs=new List<CoupledImpulsePair>();
+        foreach(var (a,b) in candidates.OrderBy(p=>p.A).ThenBy(p=>p.B))
+            if(scalarRows[a].Gradient.Coupling(scalarRows[b].Gradient)!=0)
+                pairs.Add(new(scalarRows[a],scalarRows[b]));
         for(var iteration=1;iteration<=maximumIterations;iteration++)
         {
             foreach(var pair in pairs) pair.Solve();
             foreach(var row in constraints) row.Solve();
             double residual=0;
             foreach(var row in constraints) residual=Math.Max(residual,row.Residual);
-            if(residual<=tolerance) return new(iteration,residual);
+            if(residual<=tolerance) return new(iteration,residual,candidates.Count,pairs.Count);
         }
         double remaining=0;
         foreach(var row in constraints) remaining=Math.Max(remaining,row.Residual);

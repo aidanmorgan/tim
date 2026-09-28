@@ -16,6 +16,7 @@ public readonly record struct ColliderChildId
 public sealed class CompoundGeometry
 {
     private readonly ConvexInstance[] _children;
+    internal CompoundBoundsTree Tree { get; }
     public int Count=>_children.Length;
     public ConvexInstance this[ColliderChildId child]=>_children[child.Index];
     public CompoundGeometry(ReadOnlySpan<ConvexInstance> children)
@@ -24,6 +25,7 @@ public sealed class CompoundGeometry
         _children=children.ToArray();
         foreach(var child in _children)
             if(child.Geometry is null) throw new ArgumentException("Uninitialised compound child.",nameof(children));
+        Tree=new(this);
     }
 }
 
@@ -66,11 +68,14 @@ public readonly struct CompoundMotion
 {
     private readonly CompoundGeometry _geometry;
     private readonly IRigidTrajectory _trajectory;
+    internal CompoundGeometry Geometry=>_geometry??throw new InvalidOperationException("Uninitialised compound motion.");
+    internal IRigidTrajectory Trajectory=>_trajectory??throw new InvalidOperationException("Uninitialised compound motion.");
     public int Count=>_geometry?.Count??throw new InvalidOperationException("Uninitialised compound motion.");
     public CompoundMotion(CompoundGeometry geometry,IRigidTrajectory trajectory)
     {
         ArgumentNullException.ThrowIfNull(geometry); ArgumentNullException.ThrowIfNull(trajectory);
-        for(var i=0;i<geometry.Count;i++) _=new ConvexMotion(geometry[new(i)],trajectory);
+        if(!double.IsFinite(trajectory.AngularSpeedBound*geometry.Tree.Root.Reach))
+            throw new ArgumentOutOfRangeException(nameof(trajectory));
         _geometry=geometry; _trajectory=trajectory;
     }
     public ConvexMotion Child(ColliderChildId id)
@@ -84,27 +89,22 @@ public readonly struct CompoundMotion
 /// their source part. Child indices are stable declaration-order identities.</summary>
 public static class CompoundCollision
 {
+    public static CompoundCandidateResult Candidates(CompoundMotion a,CompoundMotion b,double duration,double margin)=>
+        CompoundBoundsTree.Query(a,b,duration,margin);
+
     public static CompoundSweepResult Cast(CompoundMotion a,CompoundMotion b,double duration,double minimumSeparation)
     {
         if(!double.IsFinite(minimumSeparation)) throw new ArgumentOutOfRangeException(nameof(minimumSeparation));
         if(!double.IsFinite(duration)||duration<0) throw new ArgumentOutOfRangeException(nameof(duration));
         var best=new CompoundSweepResult(ConvexSweepStatus.Clear,duration,null,null,null,0);
         var calls=0;
-        for(var i=0;i<a.Count;i++)
+        foreach(var pair in Candidates(a,b,duration,Math.Max(0,minimumSeparation)+ConvexDistance.DefaultTolerance).Pairs)
         {
-            var first=a.Child(new(i));
-            var firstBounds=CollisionBounds.Swept(first,duration);
-            for(var j=0;j<b.Count;j++)
-            {
-                var second=b.Child(new(j));
-                var secondBounds=CollisionBounds.Swept(second,duration);
-                if(firstBounds.DistanceLowerBound(secondBounds)>Math.Max(0,minimumSeparation)+ConvexDistance.DefaultTolerance) continue;
-                var hit=ConvexSweep.Cast(first,second,best.Time,minimumSeparation);
-                calls++;
-                if(hit.Status==ConvexSweepStatus.Clear) continue;
-                if(best.Status!=ConvexSweepStatus.Clear&&hit.Time>=best.Time) continue;
-                best=new(hit.Status,hit.Time,new(i),new(j),hit.Separation,calls);
-            }
+            var hit=ConvexSweep.Cast(a.Child(pair.A),b.Child(pair.B),best.Time,minimumSeparation);
+            calls++;
+            if(hit.Status==ConvexSweepStatus.Clear) continue;
+            if(best.Status!=ConvexSweepStatus.Clear&&hit.Time>=best.Time) continue;
+            best=new(hit.Status,hit.Time,pair.A,pair.B,hit.Separation,calls);
         }
         return best with { NarrowPhaseCalls=calls };
     }
