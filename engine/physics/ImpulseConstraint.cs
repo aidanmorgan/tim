@@ -38,6 +38,7 @@ public sealed class ImpulseConstraint : IImpulseConstraint
     public double AccumulatedImpulse { get; private set; }
     public double InverseEffectiveMass { get; }
     private readonly ulong _revisionA,_revisionB;
+    private bool _started;
 
     public ImpulseConstraint(PhysicsBody a,PhysicsBody b,ConstraintJacobian jacobian,
         double targetSpeed,double minimumImpulse,double maximumImpulse,double softness=0)
@@ -82,8 +83,17 @@ public sealed class ImpulseConstraint : IImpulseConstraint
             return Math.Abs(error);
         }
     }
+    internal void InitializeAccumulatedImpulse(double impulse)
+    {
+        ValidatePose();
+        if(_started) throw new InvalidOperationException("A constraint can only be warm started before its first solve.");
+        if(!double.IsFinite(impulse)||impulse<MinimumImpulse||impulse>MaximumImpulse)
+            throw new ArgumentOutOfRangeException(nameof(impulse));
+        AccumulatedImpulse=impulse; _started=true;
+    }
     public void Solve()
     {
+        ValidatePose(); _started=true;
         if(InverseEffectiveMass==0)
         {
             if(Residual>0) throw new InvalidOperationException("An immovable constraint cannot meet its target.");

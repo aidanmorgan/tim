@@ -185,3 +185,32 @@ Still incomplete: contact persistence/warm starting, resting/releasing time adva
 [Browser evidence](general-manifold-qualification-results.json) and the [reproducible recipe](general-manifold-qualification.playwright.js) verify four-corner and eight-corner impact patches, the analytic clipped coordinates, residual linear/angular motion below 1e-8, a clear control with unchanged velocity, exact body snapshot restore and exact response replay. No browser errors were recorded. All **1,497 native tests** pass. These are engine diagnostics, not UI construction/Reset evidence for any gameplay part.
 
 The diagnostics-disabled production Release publish also succeeds. Domain selectors remain enum-typed; supporting vertices use typed indices, and string conversion occurs only at the diagnostic JSON boundary.
+
+## Full-replacement continuation: persistent contact state
+
+`PersistentContactPair` now owns the contact state of one immutable convex-child pair. Each step queries fresh geometry, matches both body-local anchors and the normal one-to-one, retains typed contact IDs, and sorts by those IDs to keep solver ordering stable. Changed normals or unmatched anchors receive new IDs and no borrowed impulse. A clear manifold removes the episode's cached contacts.
+
+The explicit enum lifecycle is prepare, warm start, global solve, complete. All pairs must be prepared before any warm start so restitution observes pre-solve velocities. Restitution is applied at the beginning of a contact episode, not to every newly clipped corner. Normal and body-local tangent impulses are cached; timestep changes scale the force estimate. The current friction disk bounds the warm-start estimate, and accumulated-impulse solving can retract it. Duplicate initialization, stale poses, invalid lifecycle calls and unsolved cache commits are rejected.
+
+Immutable cache snapshots include duration and the next contact ID. Both bodies must be restored before their cache; an owner mismatch is rejected. Restoring discards any prepared frame. This is in-memory physics reset state, not a legacy save-format adapter.
+
+The warm-start/accumulated-impulse approach is informed by [Catto's Solver2D discussion](https://box2d.org/posts/2024/02/solver2d/). It accelerates convergence; it does not replace fresh contact geometry or certify free motion.
+
+Thirteen focused native tests cover 600 gravity-supported steps, a 240-step coupled two-body stack, friction-disk projection and impulse retraction, timestep scaling, stable one-to-one IDs under common motion, normal-change invalidation, release/re-contact, one restitution event, invalid/stale lifecycle calls, and exact cache/body restore/replay.
+
+Retained failures and corrections:
+
+- Fresh geometric ordering permuted the same four IDs. Prepared rows now use stable ID ordering.
+- A common rigid transform exposed a redundant fifth point on a flat contact edge. Supporting features and the resulting contact boundary now remove a sample only when every original vertex on the replaced arc lies within the existing tolerance of its retained chord. Paired contact anchors are checked on both bodies, preventing cumulative simplification error. This does not enlarge collision tolerances.
+- The first stack test compared absolute body speed to twice the default per-contact residual and observed 2.1502622028588688e-8. Those are different quantities. The stack qualification explicitly requests a tighter 1e-10 relative-contact residual (same iteration budget), rather than weakening its absolute-speed assertion. Single-body support retains the default 1e-8 residual.
+
+Still incomplete: a world-owned contact graph and contact-aware continuous time advancement (including rotational release/re-contact), split positional correction, persistent joints and routed ropes, hollow catalogue builders, gameplay/caller migration, original-solver deletion and affected-part real-UI proof. The support loops here are controlled engine fixtures, not a collision-complete world integrator.
+
+[Browser verification](general-persistence-qualification-results.json), using the [recorded Playwright recipe](general-persistence-qualification.playwright.js), reports:
+
+- Single support: 600 steps, maximum drift 6.76941855415641e-11, maximum speed 3.5075879511508064e-9; cold solve 21 iterations and later solves at most one.
+- Two-body stack: 240 steps, maximum drift 7.086187190884336e-12, maximum speed 2.0888887740104901e-10; cold solve 214 iterations and later solves at most nine.
+- Stable IDs, exact body/cache restore, exact 20-step replay and release-cleared caches in both fixtures; no browser errors.
+- The four/eight-corner manifold and clear-control browser regressions also pass after boundary simplification.
+
+The cold stack's 214 iterations are close to the 256-iteration budget: larger stacks and coupled-scene performance remain unqualified and must be tested before full-engine completion. All **1,510 native tests** pass, and the diagnostics-disabled production Release publish succeeds. Lifecycle/status/probe values remain enums end-to-end; point identities are typed indices, and serialization strings are confined to the external diagnostic boundary.

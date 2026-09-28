@@ -2,6 +2,19 @@ using System;
 
 namespace CuriousContraptions.Physics;
 
+/// <summary>A nonnegative normal impulse and a tangent vector in the caller's
+/// declared coordinate frame. Warm starting projects it onto the current cone.</summary>
+public readonly record struct ContactImpulse
+{
+    public double Normal { get; }
+    public CollisionVector Tangent { get; }
+    public ContactImpulse(double normal,CollisionVector tangent)
+    {
+        if(!double.IsFinite(normal)||normal<0||!tangent.IsFinite) throw new ArgumentException("Contact impulse must be finite with a nonnegative normal component.");
+        Normal=normal; Tangent=tangent;
+    }
+}
+
 /// <summary>Normal response plus maximum-dissipation friction over a circular
 /// Coulomb disk. The full 2x2 tangent effective mass includes angular coupling.
 /// No independent axis clamps (which would create a square friction cone).</summary>
@@ -12,6 +25,7 @@ public sealed class ContactConstraint : IImpulseConstraint
     public PhysicsBody B=>Normal.B;
     public CollisionVector TangentImpulse=>_u*(_j0)+_v*(_j1);
     public double Friction { get; }
+    public ContactImpulse Impulse=>new(Normal.AccumulatedImpulse,TangentImpulse);
     private readonly CollisionVector _u,_v;
     private readonly ConstraintJacobian _ju,_jv;
     private readonly double _k00,_k01,_k11,_scale;
@@ -34,6 +48,24 @@ public sealed class ContactConstraint : IImpulseConstraint
         if(!double.IsFinite(_scale)||!double.IsFinite(_k01)||
             (_scale>0&&(_k00<=0||_k11<=0||_k00*_k11-_k01*_k01<=0)))
             throw new ArgumentException("Contact tangent mass must be finite and positive definite.");
+    }
+
+    /// <summary>Seed the new row once. Project the cached estimate onto this
+    /// contact's current Coulomb disk; the solver can subsequently retract it.</summary>
+    public void WarmStart(ContactImpulse impulse)
+    {
+        Normal.ValidatePose();
+        var radius=Friction*impulse.Normal;
+        if(!double.IsFinite(radius)) throw new ArgumentOutOfRangeException(nameof(impulse));
+        var tangent=Project(CollisionVector.Dot(impulse.Tangent,_u),CollisionVector.Dot(impulse.Tangent,_v),radius);
+        var j=Normal.Jacobian;
+        var va=A.AfterImpulse(j.LinearA*impulse.Normal+_ju.LinearA*tangent.X+_jv.LinearA*tangent.Y,
+            j.AngularA*impulse.Normal+_ju.AngularA*tangent.X+_jv.AngularA*tangent.Y);
+        var vb=B.AfterImpulse(j.LinearB*impulse.Normal+_ju.LinearB*tangent.X+_jv.LinearB*tangent.Y,
+            j.AngularB*impulse.Normal+_ju.AngularB*tangent.X+_jv.AngularB*tangent.Y);
+        // The row rejects repeated/stale initialization before either body changes.
+        Normal.InitializeAccumulatedImpulse(impulse.Normal);
+        A.CommitVelocity(va); B.CommitVelocity(vb); _j0=tangent.X; _j1=tangent.Y;
     }
 
     private double Mass(ConstraintJacobian x,ConstraintJacobian y)=>

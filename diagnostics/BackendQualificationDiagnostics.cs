@@ -14,6 +14,8 @@ public partial class Workshop
     private void StartBackendQualification()
     {
 #if PLAYTEST
+        foreach(var probe in Enum.GetValues<GeneralPersistenceProbe>())
+            GD.Print(BackendQualificationProtocol.PersistencePrefix+JsonSerializer.Serialize(GeneralPersistenceQualification.Run(probe),BackendQualificationJson.Default.GeneralPersistenceReport));
         foreach(var probe in Enum.GetValues<GeneralManifoldProbe>())
             GD.Print(BackendQualificationProtocol.ManifoldPrefix+JsonSerializer.Serialize(GeneralManifoldQualification.Run(probe),BackendQualificationJson.Default.GeneralManifoldReport));
         foreach(var probe in Enum.GetValues<GeneralPenetrationProbe>())
@@ -52,6 +54,7 @@ public partial class Workshop
 internal static class BackendQualificationProtocol
 {
     // External diagnostic wire identifiers, never domain behaviour selectors.
+    internal const string PersistencePrefix="CCGENERALPERSISTENCE ";
     internal const string ManifoldPrefix="CCGENERALMANIFOLD ";
     internal const string PenetrationPrefix="CCGENERALPENETRATION ";
     internal const string TrajectoryPrefix="CCGENERALTRAJECTORY ";
@@ -67,6 +70,7 @@ internal sealed record BackendQueryReport(PhysicsBackendQualification.Probe Prob
 internal sealed record BackendMotionReport(PhysicsBackendMotionProbe.Experiment Experiment,
     PhysicsBackendMotionProbe.Frame[] Frames);
 [JsonSourceGenerationOptions(UseStringEnumConverter=true)]
+[JsonSerializable(typeof(GeneralPersistenceReport))]
 [JsonSerializable(typeof(GeneralManifoldReport))]
 [JsonSerializable(typeof(GeneralPenetrationReport))]
 [JsonSerializable(typeof(GeneralTrajectoryReport))]

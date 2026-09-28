@@ -1,0 +1,195 @@
+{
+  "testedBaseRevision": "90820fc",
+  "changes": "Persistent convex-child contact state, warm-started normal/friction impulses, and bounded removal of redundant contact-boundary samples in the commit containing this record.",
+  "scope": "Controlled engine support fixtures and cache/body reset, not a collision-complete world integrator or gameplay-part UI proof.",
+  "native": {
+    "passed": 1510,
+    "failed": 0,
+    "skipped": 0,
+    "command": "dotnet test CuriousContraptions.tests --no-restore --verbosity quiet"
+  },
+  "diagnosticsPublish": {
+    "exitCode": 0,
+    "command": "dotnet publish CuriousContraptions.web -p:PlaytestDiagnostics=true --no-restore --verbosity quiet"
+  },
+  "browser": {
+    "reports": [
+      {
+        "Probe": "SingleSupport",
+        "Steps": 600,
+        "SolverTolerance": 1e-8,
+        "MaximumDrift": 6.76941855415641e-11,
+        "MaximumSpeed": 3.5075879511508064e-9,
+        "MaximumSpin": 2.0697202855685573e-9,
+        "MaximumResidual": 4.6566962605843615e-9,
+        "FirstIterations": 21,
+        "LaterMaximumIterations": 1,
+        "StableIds": true,
+        "ExactRestore": true,
+        "ExactReplay": true,
+        "ReleaseCleared": true
+      },
+      {
+        "Probe": "TwoBodyStack",
+        "Steps": 240,
+        "SolverTolerance": 1e-10,
+        "MaximumDrift": 7.086187190884336e-12,
+        "MaximumSpeed": 2.0888887740104901e-10,
+        "MaximumSpin": 8.274245170799614e-11,
+        "MaximumResidual": 9.791563062914227e-11,
+        "FirstIterations": 214,
+        "LaterMaximumIterations": 9,
+        "StableIds": true,
+        "ExactRestore": true,
+        "ExactReplay": true,
+        "ReleaseCleared": true
+      }
+    ],
+    "errors": [],
+    "scope": "Controlled engine support loops and read-only diagnostics, not a collision-complete world or gameplay-part UI proof."
+  },
+  "manifoldRegression": {
+    "recipe": "general-manifold-qualification.playwright.js",
+    "reports": [
+      {
+        "Probe": "FlatImpact",
+        "Status": "Contact",
+        "Points": [
+          [
+            -1,
+            0,
+            1,
+            0
+          ],
+          [
+            -1,
+            0,
+            -1,
+            0
+          ],
+          [
+            1,
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            -1,
+            0
+          ]
+        ],
+        "MaximumAnchorError": 0,
+        "LinearSpeed": 5.871109367812627e-9,
+        "AngularSpeed": 3.4630047171516748e-9,
+        "Residual": 7.788818770504413e-9,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "RotatedFaces",
+        "Status": "Contact",
+        "Points": [
+          [
+            -1,
+            0,
+            0.4142135623730949,
+            0
+          ],
+          [
+            -1,
+            0,
+            -0.4142135623730949,
+            0
+          ],
+          [
+            -0.4142135623730949,
+            0,
+            1,
+            0
+          ],
+          [
+            -0.4142135623730949,
+            0,
+            -1,
+            0
+          ],
+          [
+            0.4142135623730949,
+            0,
+            1,
+            0
+          ],
+          [
+            0.4142135623730949,
+            0,
+            -1,
+            0
+          ],
+          [
+            1,
+            0,
+            0.4142135623730949,
+            0
+          ],
+          [
+            1,
+            0,
+            -0.4142135623730949,
+            0
+          ]
+        ],
+        "MaximumAnchorError": 5.551115123125783e-17,
+        "LinearSpeed": 7.474110787736146e-9,
+        "AngularSpeed": 4.935113866033499e-9,
+        "Residual": 9.493783864183157e-9,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "Clear",
+        "Status": "Clear",
+        "Points": [],
+        "MaximumAnchorError": 0,
+        "LinearSpeed": 3,
+        "AngularSpeed": 0,
+        "Residual": 0,
+        "ExactRestore": true,
+        "ExactReplay": true
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only engine diagnostics. Instantaneous response and body restore/replay, not resting-world or gameplay-part proof."
+  },
+  "productionPublish": {
+    "exitCode": 0,
+    "command": "dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false --no-restore --verbosity quiet"
+  },
+  "focusedTests": 13,
+  "retainedFailures": [
+    {
+      "phase": "Initial persistence tests",
+      "result": "Geometric enumeration permuted contact IDs [0,1,2,3] into [2,0,3,1].",
+      "resolution": "Sort prepared contacts and their corresponding seeds by stable typed contact ID."
+    },
+    {
+      "phase": "Common rigid transform",
+      "result": "A numerically redundant edge point at local (-1,-1,0.6172818615017628) produced a fifth contact.",
+      "resolution": "Compute the final contact boundary and remove only samples whose entire replaced original arc stays within the unchanged geometric tolerance; check paired anchors on both bodies."
+    },
+    {
+      "phase": "Initial stack qualification",
+      "result": "Absolute body speed 2.1502622028588688e-8 exceeded the 2e-8 test assertion at the default per-contact residual.",
+      "resolution": "The stack fixture explicitly requests a tighter 1e-10 relative-contact residual, with the same 256-iteration budget; the absolute-speed assertion is unchanged. Single support uses the default 1e-8."
+    }
+  ],
+  "limitations": [
+    "Two-body cold stack requires 214 iterations; larger-stack convergence/performance unqualified",
+    "No world contact graph or contact-aware continuous advancement",
+    "No split positional correction",
+    "Persistent joints, routed ropes and hollow catalogue builders pending",
+    "Original gameplay solver remains; full cutover and old-code deletion pending",
+    "No new-engine gameplay-part UI completion claimed"
+  ]
+}

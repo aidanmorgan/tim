@@ -22,7 +22,7 @@ public sealed class ContactPatch
         public static PlanePoint operator -(PlanePoint a,PlanePoint b)=>new(a.X-b.X,a.Y-b.Y);
         public static PlanePoint operator *(PlanePoint a,double s)=>new(a.X*s,a.Y*s);
     }
-    private readonly record struct Vertex(PlanePoint Plane,CollisionVector World,SupportVertexId Id);
+    private readonly record struct Vertex(PlanePoint Plane,CollisionVector World,CollisionVector PairedWorld,SupportVertexId Id);
     private static double Cross(PlanePoint a,PlanePoint b)=>a.X*b.Y-a.Y*b.X;
     private static double Dot(PlanePoint a,PlanePoint b)=>a.X*b.X+a.Y*b.Y;
 
@@ -70,6 +70,19 @@ public sealed class ContactPatch
             if(ta<0||ta>1||tb<0||tb>1) continue;
             Add(a0.World+(a1.World-a0.World)*ta,b0.World+(b1.World-b0.World)*tb);
         }
+        if(contacts.Count>2)
+        {
+            var boundary=new List<Vertex>();
+            for(var i=0;i<contacts.Count;i++)
+            {
+                var point=contacts[i]; var delta=point.PointA-origin;
+                boundary.Add(new(new(CollisionVector.Dot(delta,tangent),CollisionVector.Dot(delta,bitangent)),
+                    point.PointA,point.PointB,new(i)));
+            }
+            var reduced=new List<ContactPatchPoint>();
+            foreach(var vertex in Hull(boundary,tolerance)) reduced.Add(contacts[vertex.Id.Value]);
+            contacts=reduced;
+        }
         contacts.Sort((x,y)=>
         {
             var dx=x.PointA-origin; var dy=y.PointA-origin;
@@ -94,10 +107,15 @@ public sealed class ContactPatch
             if(!double.IsFinite(height)||!double.IsFinite(point.LengthSquared))
                 throw new InvalidOperationException("Contact projection exceeds numeric range.");
             minimum=Math.Min(minimum,height); maximum=Math.Max(maximum,height);
-            vertices.Add(new(point,vertex.Point,vertex.Id));
+            vertices.Add(new(point,vertex.Point,vertex.Point,vertex.Id));
         }
         if(maximum-minimum>tolerance)
             throw new ArgumentException("Supporting feature exceeds its plane tolerance.",nameof(feature));
+        return Hull(vertices,tolerance);
+    }
+
+    private static List<Vertex> Hull(List<Vertex> vertices,double tolerance)
+    {
         vertices.Sort((a,b)=>
         {
             var x=a.Plane.X.CompareTo(b.Plane.X); if(x!=0) return x;
@@ -123,7 +141,40 @@ public sealed class ContactPatch
             hull.Add(vertex);
         }
         hull.RemoveAt(hull.Count-1);
-        return hull;
+        return Simplify(hull,tolerance);
+    }
+
+    private static List<Vertex> Simplify(List<Vertex> hull,double tolerance)
+    {
+        // Remove numerically redundant boundary samples only when every original
+        // vertex on the replaced arc is within tolerance of the retained chord.
+        // Checking the entire original arc prevents accumulated simplification error.
+        var kept=new List<int>();
+        for(var i=0;i<hull.Count;i++) kept.Add(i);
+        var changed=true;
+        while(changed&&kept.Count>2)
+        {
+            changed=false;
+            for(var k=0;k<kept.Count;k++)
+            {
+                var previous=kept[(k+kept.Count-1)%kept.Count]; var next=kept[(k+1)%kept.Count];
+                var a=hull[previous]; var b=hull[next]; var edge=b.Plane-a.Plane;
+                if(edge.LengthSquared==0) continue;
+                var valid=true;
+                for(var i=(previous+1)%hull.Count;i!=next;i=(i+1)%hull.Count)
+                {
+                    var t=Math.Clamp(Dot(hull[i].Plane-a.Plane,edge)/edge.LengthSquared,0,1);
+                    if((hull[i].World-(a.World+(b.World-a.World)*t)).Length>tolerance||
+                        (hull[i].PairedWorld-(a.PairedWorld+(b.PairedWorld-a.PairedWorld)*t)).Length>tolerance)
+                    { valid=false; break; }
+                }
+                if(!valid) continue;
+                kept.RemoveAt(k); changed=true; break;
+            }
+        }
+        var result=new List<Vertex>();
+        foreach(var index in kept) result.Add(hull[index]);
+        return result;
     }
 
     private static bool Lift(List<Vertex> polygon,PlanePoint target,double tolerance,out CollisionVector world)
