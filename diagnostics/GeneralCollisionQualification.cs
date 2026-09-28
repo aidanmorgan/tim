@@ -8,21 +8,23 @@ internal enum GeneralCollisionProbe { PureRotation, OpposingBodies, CompoundPass
 internal sealed record GeneralCollisionReport(GeneralCollisionProbe Probe,ConvexSweepStatus Status,double Time,int Queries);
 internal static class GeneralCollisionQualification
 {
+    private static BodyTrajectory Path(RigidPose pose,CollisionVector velocity=default,CollisionVector spin=default,double duration=1)=>
+        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration);
     internal static GeneralCollisionReport Run(GeneralCollisionProbe probe)
     {
         if(probe==GeneralCollisionProbe.PureRotation)
         {
-            var beam=new ConvexMotion(new(new ConvexBox(new(2,.05,.05)),Transform3D.Identity),default,default,new(0,0,120));
+            var beam=new ConvexMotion(new(new ConvexBox(new(2,.05,.05)),Transform3D.Identity),Path(RigidPose.Identity,spin:new(0,0,120)));
             var pose=new Transform3D(Basis.Identity,new(1.5f*Mathf.Cos(.4f),1.5f*Mathf.Sin(.4f),0));
-            var obstacle=new ConvexMotion(new(new ConvexBox(new(.05,.05,.05)),pose),CollisionVector.From(pose.Origin),default,default);
+            var obstacle=new ConvexMotion(new(new ConvexBox(new(.05,.05,.05)),Transform3D.Identity),Path(RigidPose.At(CollisionVector.From(pose.Origin))));
             var hit=ConvexSweep.Cast(beam,obstacle,1.0/120);
             return new(probe,hit.Status,hit.Time,hit.Iterations);
         }
         if(probe==GeneralCollisionProbe.OpposingBodies)
         {
             var shape=new ConvexSphere(.5);
-            var a=new ConvexMotion(new(shape,new(Basis.Identity,new(-2,0,0))),new(-2,0,0),new(400,0,0),default);
-            var b=new ConvexMotion(new(shape,new(Basis.Identity,new(2,0,0))),new(2,0,0),new(-400,0,0),default);
+            var a=new ConvexMotion(new(shape,Transform3D.Identity),Path(RigidPose.At(new(-2,0,0)),new(400,0,0)));
+            var b=new ConvexMotion(new(shape,Transform3D.Identity),Path(RigidPose.At(new(2,0,0)),new(-400,0,0)));
             var hit=ConvexSweep.Cast(a,b,.005);
             return new(probe,hit.Status,hit.Time,hit.Iterations);
         }
@@ -36,8 +38,8 @@ internal static class GeneralCollisionQualification
         }
         var height=probe==GeneralCollisionProbe.CompoundWall?1.1f:0;
         var moving=new CompoundMotion(new([new(new ConvexSphere(.25),Transform3D.Identity)]),
-            new(Basis.Identity,new(0,height,0)),new(0,height,0),new(6,0,0),default);
-        var passage=new CompoundMotion(new(children.ToArray()),Transform3D.Identity,default,default,default);
+            Path(RigidPose.At(new(0,height,0)),new(6,0,0)));
+        var passage=new CompoundMotion(new(children.ToArray()),Path(RigidPose.Identity));
         var result=CompoundCollision.Cast(moving,passage,1);
         return new(probe,result.Status,result.Time,result.NarrowPhaseCalls);
     }

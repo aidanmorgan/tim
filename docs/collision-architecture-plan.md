@@ -139,3 +139,17 @@ The [browser recipe](general-body-qualification.playwright.js) verifies 4,800 st
 The full native suite passes **1,455 tests**, and production Release publication with diagnostics disabled succeeds.
 
 **Next integration requirement:** the collision trajectory and the body's advance trajectory must agree. Existing constant-spin sweeps must not be used to certify a different torque-free rotating trajectory. Implement shared trajectory evaluation/bounds before world cutover. Still outstanding are penetration/manifolds, split positional correction, persistent joint/rope ownership, hollow catalogue geometry, world/caller migration, deletion of the original gameplay solver and fresh per-part UI proof.
+
+## Full-replacement continuation: shared collision and advancement trajectory
+
+`BodyTrajectory` now captures the immutable free-flight path once. Dynamic rotation is integrated into bounded Lie-midpoint segments; each segment is evaluated as a constant angular-velocity exponential. The maximum segment spin is the rotation-speed bound used by conservative advancement. Linear motion is identical in query and commit. Multi-turn kinematic motion retains its full spin rather than interpolating between endpoint orientations.
+
+`PhysicsBody.Advance` now requires the captured path and elapsed time; the duration-only API and separate internal drift implementation are removed. `ConvexMotion` and `CompoundMotion` consume that same path; their old pivot/velocity constructors and independent rotation evaluator are removed. All callers are forward-migrated. Source pose/velocity/momentum changes invalidate a path before commit.
+
+Seven new native cases pass: exact query/commit pose identity; invalidated paths after an impulse; angular-speed bounds across segment boundaries; an anisotropic intermediate collision with both endpoints clear; compound child identity on that path; multi-turn rotation; and atomic rejection of invalid times. Existing sweep/compound/body tests also pass. The rotation test no longer depends on an old production collision algorithm: its independent expected angle comes from the fixture's side-projection equation.
+
+Local collider declarations still use their existing validated Godot transforms at the declaration boundary. Time-varying body poses are evaluated in double precision and are not converted to float at each sweep trial.
+
+Still incomplete: penetration/contact manifolds, stable resting/releasing contact handling, split positional correction, persistent joint and multi-endpoint rope ownership, catalogue hollow builders, full world migration, removal of the original gameplay solver and per-part UI re-verification. This increment does not claim any of those are complete.
+
+[Browser verification](general-trajectory-qualification-results.json) finds the anisotropic contact at **0.1132580265338625 s** along a 55-segment path. Both endpoint separations exceed 1.12 units, the reported contact separation is 0.00010004424744187166, and the committed pose equals the queried pose exactly. The [Playwright recipe](general-trajectory-qualification.playwright.js) asserts those conditions and no browser errors. The full native suite passes **1,462 tests**, and the diagnostics-disabled production Release publish succeeds. This is engine-path proof, not per-part gameplay proof.

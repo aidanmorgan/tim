@@ -18,7 +18,7 @@ public class PhysicsBodyTests
         body.ApplyWrench(X*4,Z*8,.25);
         Near(X*.5,body.LinearVelocity); Near(Z*2,body.AngularMomentum);
         Near(Z,body.AngularVelocity); Near(default,body.Center);
-        body.Advance(.5);
+        body.Advance(body.CreateTrajectory(.5),.5);
         Near(X*.25,body.Center);
         Near(RigidRotation.FromRotationVector(Z*.5).Apply(X),body.Pose.Rotation.Apply(X));
     }
@@ -48,7 +48,7 @@ public class PhysicsBodyTests
         double maximumError=0;
         for(var i=0;i<4800;i++)
         {
-            body.Advance(1.0/480);
+            body.Advance(body.CreateTrajectory(1.0/480),1.0/480);
             Assert.Equal(momentum,body.AngularMomentum);
             maximumError=Math.Max(maximumError,Math.Abs(body.KineticEnergy-energy)/energy);
         }
@@ -61,10 +61,10 @@ public class PhysicsBodyTests
     public void FreeRotationIsTimeReversibleWithinIntegrationTolerance()
     {
         var body=Body(angular:new(.7,1.1,1.6),inertia:new InertiaTensor(1,2,3));
-        for(var i=0;i<240;i++) body.Advance(1.0/240);
+        for(var i=0;i<240;i++) body.Advance(body.CreateTrajectory(1.0/240),1.0/240);
         var state=body.Snapshot();
         body.Restore(state with { AngularMomentum=-state.AngularMomentum });
-        for(var i=0;i<240;i++) body.Advance(1.0/240);
+        for(var i=0;i<240;i++) body.Advance(body.CreateTrajectory(1.0/240),1.0/240);
         Near(X,body.Pose.Rotation.Apply(X),1e-9);
         Near(Y,body.Pose.Rotation.Apply(Y),1e-9);
     }
@@ -78,7 +78,7 @@ public class PhysicsBodyTests
             for(var i=0;i<100;i++)
             {
                 body.ApplyWrench(Y*-19.62,X*.1,1.0/240);
-                body.Advance(1.0/240);
+                body.Advance(body.CreateTrajectory(1.0/240),1.0/240);
             }
         }
         Run(); var expected=body.Snapshot();
@@ -89,13 +89,13 @@ public class PhysicsBodyTests
     public void StaticAndKinematicMotionHaveExplicitContracts()
     {
         var stationary=new PhysicsBody(new(0),PhysicsMotionType.Static,RigidPose.At(X),default,default);
-        stationary.Advance(1); Near(X,stationary.Center);
+        stationary.Advance(stationary.CreateTrajectory(1),1); Near(X,stationary.Center);
         Assert.Throws<InvalidOperationException>(()=>stationary.ApplyWrench(X,default,.1));
         Assert.Throws<InvalidOperationException>(()=>stationary.SetKinematicVelocity(X,default));
         var moving=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,RigidPose.Identity,X,Z);
-        moving.Advance(.5); Near(X*.5,moving.Center);
+        moving.Advance(moving.CreateTrajectory(.5),.5); Near(X*.5,moving.Center);
         Near(RigidRotation.FromRotationVector(Z*.5).Apply(X),moving.Pose.Rotation.Apply(X));
-        moving.SetKinematicVelocity(Y,default); moving.Advance(.5);
+        moving.SetKinematicVelocity(Y,default); moving.Advance(moving.CreateTrajectory(.5),.5);
         Near(new(.5,.5,0),moving.Center);
     }
     [Fact]
@@ -103,7 +103,7 @@ public class PhysicsBodyTests
     {
         var body=Body(Y*-1); var floor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
         var row=ImpulseConstraint.Contact(body,floor,default,Y,0,0);
-        body.Advance(.1);
+        body.Advance(body.CreateTrajectory(.1),.1);
         Assert.Throws<InvalidOperationException>(()=>row.Solve());
         Assert.Throws<InvalidOperationException>(()=>ImpulseSolver.Solve([row]));
     }
@@ -112,8 +112,8 @@ public class PhysicsBodyTests
     {
         var body=Body(X,new(2,3,4),new InertiaTensor(1,2,3));
         var before=body.Snapshot();
-        Assert.Throws<ArgumentOutOfRangeException>(()=>body.Advance(-1));
-        Assert.Throws<InvalidOperationException>(()=>body.Advance(1000000));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>body.Advance(body.CreateTrajectory(-1),-1));
+        Assert.Throws<InvalidOperationException>(()=>body.Advance(body.CreateTrajectory(1000000),1000000));
         Assert.Throws<ArgumentException>(()=>body.Restore(before with { Id=new(3) }));
         Assert.Throws<ArgumentException>(()=>body.Restore(before with { Pose=default }));
         Assert.Throws<ArgumentException>(()=>body.ApplyWrench(new(double.NaN,0,0),default,.1));

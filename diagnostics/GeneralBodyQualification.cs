@@ -17,14 +17,14 @@ internal static class GeneralBodyQualification
         var exact=true; double error=0;
         for(var i=0;i<steps;i++)
         {
-            body.Advance(delta);
+            body.Advance(body.CreateTrajectory(delta),delta);
             exact&=body.AngularMomentum==initial.AngularMomentum;
             error=System.Math.Max(error,System.Math.Abs(body.KineticEnergy-energy)/energy);
         }
         var end=body.Snapshot();
         body.Restore(initial);
         var restored=body.Snapshot()==initial;
-        for(var i=0;i<steps;i++) body.Advance(delta);
+        for(var i=0;i<steps;i++) body.Advance(body.CreateTrajectory(delta),delta);
         return new(steps,steps*delta,[body.Center.X,body.Center.Y,body.Center.Z],exact,error,
             restored,body.Snapshot()==end);
     }

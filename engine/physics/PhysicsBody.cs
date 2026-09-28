@@ -62,9 +62,6 @@ internal readonly record struct BodyVelocityUpdate(CollisionVector Linear,Collis
 /// and rotated with the pose, never replaced by a part-specific response.</summary>
 public sealed class PhysicsBody
 {
-    private const double MaximumRotationStep=.125;
-    private const int MaximumIntegrationSteps=4096;
-    private const int MaximumMidpointIterations=64;
     public PhysicsBodyId Id { get; }
     public PhysicsMotionType MotionType { get; }
     public RigidPose Pose { get; private set; }
@@ -150,42 +147,16 @@ public sealed class PhysicsBody
     {
         if(!double.IsFinite(duration)||duration<0) throw new ArgumentOutOfRangeException(nameof(duration));
     }
-    /// <summary>Drift at fixed linear and world angular momentum. A Lie midpoint
-    /// solve captures torque-free anisotropic rotation. Bounded angular substeps
-    /// are part of the integrator, not a collision-detection substitute.</summary>
-    public void Advance(double duration)
+    public BodyTrajectory CreateTrajectory(double duration)=>new(this,duration);
+    /// <summary>Commit a prefix of the exact path used by collision queries.
+    /// Changing forces, velocities or pose invalidates the captured source.</summary>
+    public void Advance(BodyTrajectory trajectory,double elapsed)
     {
-        Duration(duration);
-        if(duration==0||MotionType==PhysicsMotionType.Static) return;
-        var center=Center+LinearVelocity*duration;
-        var rotation=Pose.Rotation;
-        if(MotionType==PhysicsMotionType.Kinematic)
-            rotation=RigidRotation.FromRotationVector(_kinematicAngularVelocity*duration)*rotation;
-        else
-        {
-            var bound=_localInverse.FrobeniusNorm*AngularMomentum.Length;
-            var count=Math.Max(1,Math.Ceiling(bound*duration/MaximumRotationStep));
-            if(!double.IsFinite(count)||count>MaximumIntegrationSteps)
-                throw new InvalidOperationException("Rigid integration exceeds its angular-step budget.");
-            var step=duration/count;
-            for(var i=0;i<(int)count;i++) rotation=DriftRotation(rotation,step);
-        }
-        SetPose(new(center,rotation),AngularMomentum);
-    }
-    private RigidRotation DriftRotation(RigidRotation start,double duration)
-    {
-        CollisionVector Omega(RigidRotation rotation)=>
-            rotation.Apply(_localInverse.Apply(rotation.Inverse().Apply(AngularMomentum)));
-        var increment=Omega(start)*duration;
-        for(var i=0;i<MaximumMidpointIterations;i++)
-        {
-            var midpoint=RigidRotation.FromRotationVector(increment*.5)*start;
-            var next=Omega(midpoint)*duration;
-            if((next-increment).Length<=1e-13)
-                return RigidRotation.FromRotationVector(next)*start;
-            increment=next;
-        }
-        throw new InvalidOperationException("Rigid midpoint integration did not converge.");
+        ArgumentNullException.ThrowIfNull(trajectory);
+        trajectory.ValidateSource(this);
+        var pose=trajectory.At(elapsed);
+        if(elapsed==0||MotionType==PhysicsMotionType.Static) return;
+        SetPose(pose,AngularMomentum);
     }
     private void SetPose(RigidPose pose,CollisionVector momentum)
     {

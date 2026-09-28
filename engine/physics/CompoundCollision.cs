@@ -40,7 +40,7 @@ public readonly record struct CollisionBounds(CollisionVector Minimum,CollisionV
     public static CollisionBounds Swept(ConvexMotion motion,double duration)
     {
         motion.At(duration); // Validate time even when used only by the broad phase.
-        var start=motion.Pivot; var end=start+motion.LinearVelocity*duration;
+        var start=motion.CenterAtStart; var end=start+motion.LinearVelocity*duration;
         var r=motion.Reach;
         return new(new(Math.Min(start.X,end.X)-r,Math.Min(start.Y,end.Y)-r,Math.Min(start.Z,end.Z)-r),
             new(Math.Max(start.X,end.X)+r,Math.Max(start.Y,end.Y)+r,Math.Max(start.Z,end.Z)+r));
@@ -58,26 +58,18 @@ public readonly record struct CollisionBounds(CollisionVector Minimum,CollisionV
 public readonly struct CompoundMotion
 {
     private readonly CompoundGeometry _geometry;
-    private readonly Transform3D _pose;
-    private readonly CollisionVector _pivot,_linear,_angular;
+    private readonly BodyTrajectory _trajectory;
     public int Count=>_geometry?.Count??throw new InvalidOperationException("Uninitialised compound motion.");
-    public CompoundMotion(CompoundGeometry geometry,Transform3D pose,CollisionVector pivot,
-        CollisionVector linearVelocity,CollisionVector angularVelocity)
+    public CompoundMotion(CompoundGeometry geometry,BodyTrajectory trajectory)
     {
-        ArgumentNullException.ThrowIfNull(geometry);
-        // Every child's world transform must be proper rigid geometry.
-        for(var i=0;i<geometry.Count;i++)
-        {
-            var child=geometry[new(i)];
-            _=new ConvexMotion(new(child.Geometry,pose*child.Pose),pivot,linearVelocity,angularVelocity);
-        }
-        _geometry=geometry; _pose=pose; _pivot=pivot; _linear=linearVelocity; _angular=angularVelocity;
+        ArgumentNullException.ThrowIfNull(geometry); ArgumentNullException.ThrowIfNull(trajectory);
+        for(var i=0;i<geometry.Count;i++) _=new ConvexMotion(geometry[new(i)],trajectory);
+        _geometry=geometry; _trajectory=trajectory;
     }
     public ConvexMotion Child(ColliderChildId id)
     {
         if(_geometry is null) throw new InvalidOperationException("Uninitialised compound motion.");
-        var child=_geometry[id];
-        return new(new(child.Geometry,_pose*child.Pose),_pivot,_linear,_angular);
+        return new(_geometry[id],_trajectory);
     }
 }
 

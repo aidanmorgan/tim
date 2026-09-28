@@ -6,58 +6,41 @@ public enum ConvexSweepStatus { Clear, Contact, InitialContact }
 public readonly record struct ConvexSweepResult(ConvexSweepStatus Status,double Time,
     ConvexDistanceResult Separation,int Iterations);
 
-/// <summary>Constant linear/angular rigid motion about an explicit world pivot.
-/// Evaluates support in double precision without quantizing each trial rotation
-/// back through a Godot float transform.</summary>
+/// <summary>A convex child's local geometry evaluated along its body's captured
+/// trajectory. There is no independent collision-only motion integrator.</summary>
 public readonly struct ConvexMotion
 {
     public ConvexInstance Instance { get; }
-    public CollisionVector Pivot { get; }
-    public CollisionVector LinearVelocity { get; }
-    public CollisionVector AngularVelocity { get; }
-    public double AngularSpeed { get; }
+    public BodyTrajectory Trajectory { get; }
+    public CollisionVector CenterAtStart=>Trajectory.StartPose.Center;
+    public CollisionVector LinearVelocity=>Trajectory.LinearVelocity;
+    public double AngularSpeedBound=>Trajectory.AngularSpeedBound;
     public double Reach { get; }
-    public ConvexMotion(ConvexInstance instance,CollisionVector pivot,
-        CollisionVector linearVelocity,CollisionVector angularVelocity)
+    public ConvexMotion(ConvexInstance localInstance,BodyTrajectory trajectory)
     {
-        if(instance.Geometry is null) throw new ArgumentException("Uninitialised collision instance.",nameof(instance));
-        if(!pivot.IsFinite||!linearVelocity.IsFinite||!angularVelocity.IsFinite)
-            throw new ArgumentException("Rigid motion must be finite.");
-        Instance=instance; Pivot=pivot; LinearVelocity=linearVelocity; AngularVelocity=angularVelocity;
-        AngularSpeed=angularVelocity.Length;
-        Reach=(CollisionVector.From(instance.Pose.Origin)-pivot).Length+instance.RadiusBound;
-        if(!double.IsFinite(AngularSpeed)||!double.IsFinite(Reach)||!double.IsFinite(AngularSpeed*Reach))
-            throw new ArgumentOutOfRangeException(nameof(angularVelocity));
+        ArgumentNullException.ThrowIfNull(trajectory);
+        if(localInstance.Geometry is null) throw new ArgumentException("Uninitialised collision instance.",nameof(localInstance));
+        Instance=localInstance; Trajectory=trajectory;
+        Reach=CollisionVector.From(localInstance.Pose.Origin).Length+localInstance.RadiusBound;
+        if(!double.IsFinite(Reach)||!double.IsFinite(AngularSpeedBound*Reach))
+            throw new ArgumentOutOfRangeException(nameof(localInstance));
     }
-
     public AtTime At(double time)
     {
-        if(!double.IsFinite(time)||time<0||!double.IsFinite(AngularSpeed*time))
-            throw new ArgumentOutOfRangeException(nameof(time));
-        return new(this,time);
+        if(Trajectory is null) throw new InvalidOperationException("Uninitialised convex motion.");
+        return new(Instance,Trajectory.At(time));
     }
-
     public readonly struct AtTime : IConvexSupport
     {
-        private readonly ConvexMotion _motion;
-        private readonly double _time;
-        internal AtTime(ConvexMotion motion,double time) { _motion=motion; _time=time; }
+        private readonly ConvexInstance _instance;
+        private readonly RigidPose _pose;
+        internal AtTime(ConvexInstance instance,RigidPose pose) { _instance=instance; _pose=pose; }
         public CollisionVector Support(CollisionVector direction)
         {
-            var localDirection=Rotate(direction,-_motion.AngularSpeed*_time);
-            var point=_motion.Instance.Support(localDirection)-_motion.Pivot;
-            var result=_motion.Pivot+_motion.LinearVelocity*_time+Rotate(point,_motion.AngularSpeed*_time);
-            if(!result.IsFinite) throw new InvalidOperationException("Rigid motion exceeds representable coordinates.");
+            var localDirection=_pose.Rotation.Inverse().Apply(direction);
+            var result=_pose.TransformPoint(_instance.Support(localDirection));
+            if(!result.IsFinite) throw new InvalidOperationException("Rigid support exceeds representable coordinates.");
             return result;
-        }
-        private CollisionVector Rotate(CollisionVector v,double angle)
-        {
-            if(_motion.AngularSpeed==0) return v;
-            var axis=_motion.AngularVelocity/_motion.AngularSpeed;
-            var reduced=Math.IEEERemainder(angle,Math.Tau);
-            var c=Math.Cos(reduced); var s=Math.Sin(reduced);
-            var cross=new CollisionVector(axis.Y*v.Z-axis.Z*v.Y,axis.Z*v.X-axis.X*v.Z,axis.X*v.Y-axis.Y*v.X);
-            return v*c+cross*s+axis*(CollisionVector.Dot(axis,v)*(1-c));
         }
     }
 }
@@ -72,10 +55,10 @@ public static class ConvexSweep
     public static ConvexSweepResult Cast(ConvexMotion a,ConvexMotion b,double duration)
     {
         if(!double.IsFinite(duration)||duration<0) throw new ArgumentOutOfRangeException(nameof(duration));
-        var speed=(a.LinearVelocity-b.LinearVelocity).Length+a.AngularSpeed*a.Reach+b.AngularSpeed*b.Reach;
-        if(!double.IsFinite(speed)) throw new ArgumentOutOfRangeException(nameof(a));
-        // Validate the full requested interval before an early stationary/contact result.
+        // Validate both captured horizons before reading motion bounds.
         a.At(duration); b.At(duration);
+        var speed=(a.LinearVelocity-b.LinearVelocity).Length+a.AngularSpeedBound*a.Reach+b.AngularSpeedBound*b.Reach;
+        if(!double.IsFinite(speed)) throw new ArgumentOutOfRangeException(nameof(a));
         double time=0;
         for(var iteration=1;iteration<=MaximumIterations;iteration++)
         {

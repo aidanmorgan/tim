@@ -1,0 +1,15 @@
+{
+  "baseline": "a192f27",
+  "scope": "Shared new-engine query/advance trajectory; original gameplay world not migrated",
+  "nativeTests": 1462,
+  "report": {
+    "Status": "Contact",
+    "Time": 0.1132580265338625,
+    "Segments": 55,
+    "InitialSeparation": 1.1656219577197817,
+    "FinalSeparation": 1.1261254060005872,
+    "ContactSeparation": 0.00010004424744187166,
+    "ExactCommittedPose": true
+  },
+  "errors": []
+}
