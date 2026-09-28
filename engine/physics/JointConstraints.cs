@@ -53,16 +53,4 @@ public static class JointConstraints
         return rows;
     }
 
-    public static IReadOnlyList<IImpulseConstraint> Rope(PhysicsBody a,PhysicsBody b,CollisionVector pointA,CollisionVector pointB,
-        double maximumLength,double activationTolerance)
-    {
-        ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
-        if(a==b||a.Id==b.Id) throw new ArgumentException("Rope requires distinct body identities.");
-        if(!pointA.IsFinite||!pointB.IsFinite||!double.IsFinite(maximumLength)||maximumLength<=0||
-            !double.IsFinite(activationTolerance)||activationTolerance<=0||maximumLength<=activationTolerance)
-            throw new ArgumentException("Rope geometry and activation precision must be finite and consistent.");
-        if((pointA-pointB).Length<maximumLength-activationTolerance) return [];
-        var equation=JointEquations.Rope(a,b,pointA,pointB,maximumLength);
-        return [new ImpulseConstraint(equation.Jacobian.Bind(a,b),0,double.NegativeInfinity,0)];
-    }
 }

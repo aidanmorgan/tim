@@ -13,16 +13,22 @@ public static class JointBoundarySweep
 {
     private const int MaximumIterations=4096;
     private readonly record struct Sample(double Value,double Rate);
-    private readonly record struct Interval(Sample Start,Sample End,double Curvature);
-    private abstract class Motion(BodyTrajectory a,BodyTrajectory b)
+    private readonly record struct Interval(Sample Start,Sample End,double Curvature,double ChordCurvature);
+    private abstract class Motion(BodyTrajectory[] paths)
     {
-        protected BodyTrajectory A { get; }=a;
-        protected BodyTrajectory B { get; }=b;
-        public virtual double SegmentEndAfter(double time)=>Math.Min(A.SegmentEndAfter(time),B.SegmentEndAfter(time));
+        protected BodyTrajectory[] Paths { get; }=paths;
+        public virtual double SegmentEndAfter(double time)
+        {
+            var end=double.PositiveInfinity;
+            foreach(var path in Paths) end=Math.Min(end,path.SegmentEndAfter(time));
+            return end;
+        }
         public abstract Interval Evaluate(double start,double end);
     }
-    private sealed class FrameMotion(PhysicsFrameJoint joint,BodyTrajectory a,BodyTrajectory b,JointBoundary boundary):Motion(a,b)
+    private sealed class FrameMotion(PhysicsFrameJoint joint,BodyTrajectory a,BodyTrajectory b,JointBoundary boundary):Motion([a,b])
     {
+        private BodyTrajectory A=>a;
+        private BodyTrajectory B=>b;
         private double Bound=>boundary==JointBoundary.Lower?joint.TravelRange!.Lower:joint.TravelRange!.Upper;
         private double Sign=>boundary==JointBoundary.Lower?1:-1;
         public override double SegmentEndAfter(double time)
@@ -56,7 +62,7 @@ public static class JointBoundarySweep
                 var speed=(A.LinearVelocity-B.LinearVelocity).Length;
                 var curvature=wb.LengthSquared*distance+2*wb.Length*speed+
                     Math.Pow(wa.Length+wb.Length,2)*joint.LocalA.Anchor.Length;
-                return new(At(pa,pb),At(ea,eb),curvature);
+                return new(At(pa,pb),At(ea,eb),curvature,curvature);
             }
             if(joint.Kind!=FrameJointKind.Hinge) throw new InvalidOperationException("Only axial frames have travel boundaries.");
             var frameA=pa.Rotation*joint.LocalA.Orientation; var frameB=pb.Rotation*joint.LocalB.Orientation;
@@ -76,42 +82,56 @@ public static class JointBoundarySweep
             }
             // q'' = 1/4 B^-1 [(wa-wb)^2 + [wa,wb]] A.
             var bound=.5*(wa-wb).LengthSquared+CollisionVector.Cross(wa,wb).Length;
-            return new(Twist(pa,pb),Twist(ea,eb),bound);
+            return new(Twist(pa,pb),Twist(ea,eb),bound,bound);
         }
     }
-    private sealed class RopeMotion(PhysicsRopeJoint joint,BodyTrajectory a,BodyTrajectory b):Motion(a,b)
+    private sealed class RopeMotion : Motion
     {
+        private readonly PhysicsRopeJoint _joint;
+        private readonly int[] _indices;
+        public RopeMotion(PhysicsRopeJoint joint,BodyTrajectory[] paths):base(paths)
+        {
+            _joint=joint; _indices=new int[joint.Route.Anchors.Length];
+            for(var i=0;i<_indices.Length;i++) _indices[i]=joint.BodyIndex(joint.Route.Anchors[i].Body);
+        }
         public override Interval Evaluate(double start,double end)
         {
-            var wa=A.AngularVelocityAt(start); var wb=B.AngularVelocityAt(start);
-            Sample At(double time)
+            var anchors=_joint.Route.Anchors;
+            double first=0,last=0,rate=0,curvature=0,chord=0;
+            for(var i=1;i<anchors.Length;i++)
             {
-                var pa=A.At(time); var pb=B.At(time);
-                var ra=pa.Rotation.Apply(joint.LocalA); var rb=pb.Rotation.Apply(joint.LocalB);
-                var delta=pa.Center-pb.Center+ra-rb;
-                var velocity=A.LinearVelocity-B.LinearVelocity+CollisionVector.Cross(wa,ra)-CollisionVector.Cross(wb,rb);
-                // Squared length avoids an undefined gradient at coincident slack endpoints.
-                return new((joint.MaximumLength*joint.MaximumLength-delta.LengthSquared)/(2*joint.MaximumLength),
-                    -CollisionVector.Dot(delta,velocity)/joint.MaximumLength);
+                var aa=anchors[i-1]; var ab=anchors[i];
+                if(aa.Body==ab.Body)
+                {
+                    var length=(aa.LocalPosition-ab.LocalPosition).Length;
+                    first+=length; last+=length; continue;
+                }
+                var a=Paths[_indices[i-1]]; var b=Paths[_indices[i]];
+                var pa=a.At(start); var pb=b.At(start);
+                var wa=a.AngularVelocityAt(start); var wb=b.AngularVelocityAt(start);
+                var ra=pa.Rotation.Apply(aa.LocalPosition); var rb=pb.Rotation.Apply(ab.LocalPosition);
+                var delta=pa.Center-pb.Center+ra-rb; var distance=delta.Length;
+                var velocity=a.LinearVelocity-b.LinearVelocity+CollisionVector.Cross(wa,ra)-CollisionVector.Cross(wb,rb);
+                var acceleration=wa.LengthSquared*aa.LocalPosition.Length+wb.LengthSquared*ab.LocalPosition.Length;
+                first+=distance;
+                last+=(a.At(end).TransformPoint(aa.LocalPosition)-b.At(end).TransformPoint(ab.LocalPosition)).Length;
+                // ||r(t)|| <= ||r0+v0*t|| + A*t²/2. Concavity of sqrt
+                // bounds the first norm by d + dot(r0/d,v0)*t + ||v0||²*t²/(2*d).
+                // At d=0, ||v0||*t is exact for the linear term. Neither
+                // certificate divides by a future minimum separation.
+                rate-=distance==0?velocity.Length:CollisionVector.Dot(delta/distance,velocity);
+                curvature+=acceleration+(distance==0?0:velocity.LengthSquared/distance);
+                // Vector interpolation error is <= A*h²/8; convexity of norm
+                // bounds its linear interpolation by the endpoint lengths.
+                chord+=acceleration;
             }
-            var ra=joint.LocalA.Length; var rb=joint.LocalB.Length;
-            var speed=(A.LinearVelocity-B.LinearVelocity).Length+wa.Length*ra+wb.Length*rb;
-            var distance=Math.Max((A.At(start).Center-B.At(start).Center).Length,
-                (A.At(end).Center-B.At(end).Center).Length)+ra+rb;
-            var acceleration=wa.LengthSquared*ra+wb.LengthSquared*rb;
-            return new(At(start),At(end),(speed*speed+distance*acceleration)/joint.MaximumLength);
+            return new(new(_joint.MaximumLength-first,rate),new(_joint.MaximumLength-last,0),curvature,chord);
         }
     }
-    private static void Validate(PhysicsJoint joint,BodyTrajectory a,BodyTrajectory b,double duration,double tolerance)
+    public static JointSweepResult Frame(PhysicsFrameJoint joint,ReadOnlySpan<BodyTrajectory> paths,double duration,double tolerance)
     {
-        ArgumentNullException.ThrowIfNull(joint); ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
-        a.ValidateSource(joint.A); b.ValidateSource(joint.B);
-        if(!double.IsFinite(duration)||duration<0||duration>a.Duration||duration>b.Duration||
-            !double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(duration));
-    }
-    public static JointSweepResult Frame(PhysicsFrameJoint joint,BodyTrajectory a,BodyTrajectory b,double duration,double tolerance)
-    {
-        Validate(joint,a,b,duration,tolerance);
+        ArgumentNullException.ThrowIfNull(joint); joint.ValidatePaths(paths,duration,tolerance);
+        var a=paths[joint.BodyIndex(joint.A)]; var b=paths[joint.BodyIndex(joint.B)];
         if(joint.TravelRange is null) return new(JointSweepStatus.Clear,duration,null,0);
         if(joint.Kind==FrameJointKind.Hinge&&
             (joint.TravelRange.Lower<=-Math.PI+32*tolerance||joint.TravelRange.Upper>=Math.PI-32*tolerance))
@@ -121,11 +141,11 @@ public static class JointBoundarySweep
         var result=upper.Status==JointSweepStatus.Boundary?upper:lower;
         return result with {Iterations=lower.Iterations+upper.Iterations};
     }
-    public static JointSweepResult Rope(PhysicsRopeJoint joint,BodyTrajectory a,BodyTrajectory b,double duration,double tolerance)
+    public static JointSweepResult Rope(PhysicsRopeJoint joint,ReadOnlySpan<BodyTrajectory> paths,double duration,double tolerance)
     {
-        Validate(joint,a,b,duration,tolerance);
+        ArgumentNullException.ThrowIfNull(joint); joint.ValidatePaths(paths,duration,tolerance);
         if(joint.MaximumLength<=32*tolerance) throw new ArgumentException("Rope length is too small for the requested precision.");
-        return Cast(new RopeMotion(joint,a,b),duration,tolerance,JointBoundary.Upper);
+        return Cast(new RopeMotion(joint,paths.ToArray()),duration,tolerance,JointBoundary.Upper);
     }
     private static JointSweepResult Cast(Motion motion,double duration,double tolerance,JointBoundary boundary)
     {
@@ -141,12 +161,12 @@ public static class JointBoundarySweep
             var interval=motion.Evaluate(time,end);
             var gap=interval.Start.Value+allowance; var last=interval.End.Value+allowance;
             var rate=interval.Start.Rate; var curvature=interval.Curvature;
-            if(!double.IsFinite(gap)||!double.IsFinite(last)||!double.IsFinite(rate)||!double.IsFinite(curvature)||curvature<0)
+            if(!double.IsFinite(gap)||!double.IsFinite(last)||!double.IsFinite(rate)||!double.IsFinite(curvature)||curvature<0||!double.IsFinite(interval.ChordCurvature)||interval.ChordCurvature<0)
                 throw new InvalidOperationException("Joint boundary is not numerically representable.");
             if(gap<=eventTolerance) return new(JointSweepStatus.Boundary,time,boundary,iteration);
             if(time==duration) return new(JointSweepStatus.Clear,duration,null,iteration);
             var h=end-time;
-            var chordLower=Math.Min(gap,last)-curvature*h*h/8;
+            var chordLower=Math.Min(gap,last)-interval.ChordCurvature*h*h/8;
             var derivativeLower=Math.Min(gap,gap+rate*h-curvature*h*h*.5);
             if(Math.Max(chordLower,derivativeLower)>eventTolerance) { time=end; continue; }
             var margin=gap-eventTolerance*.5;

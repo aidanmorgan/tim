@@ -24,7 +24,7 @@ internal static class GeneralJointBoundaryQualification
         var a=Body(0,rope?new(.5,0,0):default,hinge?default:rope?new(100,0,0):new(0,0,100),
             hinge?new(0,0,100):default);
         var b=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
-        PhysicsJoint joint=rope?new PhysicsRopeJoint(new(0),a,default,b,default,1,ConnectedBodyCollision.Disabled):
+        PhysicsJoint joint=rope?new PhysicsRopeJoint(new(0),new([new(a,default),new(b,default)]),1,ConnectedBodyCollision.Disabled):
             new PhysicsFrameJoint(new(0),hinge?FrameJointKind.Hinge:FrameJointKind.Slider,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,new(-.5,.5));
         var speed=a.LinearVelocity.Length+a.AngularVelocity.Length;
         ImpulseSolver.Solve(joint.VelocityConstraints(1e-7));
@@ -47,13 +47,13 @@ internal static class GeneralJointBoundaryQualification
             new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.At(new(1,0,0)),default,default);
         var frame=new JointFrame(default,RigidRotation.FromRotationVector(new(0,Math.PI/2,0)));
         PhysicsJoint joint=slider?new PhysicsFrameJoint(new(0),FrameJointKind.Slider,a,frame,b,frame,ConnectedBodyCollision.Disabled,new(-.5,.5)):
-            new PhysicsRopeJoint(new(0),a,new(1,0,0),b,default,1,ConnectedBodyCollision.Disabled);
+            new PhysicsRopeJoint(new(0),new([new(a,new(1,0,0)),new(b,default)]),1,ConnectedBodyCollision.Disabled);
         var beforeA=a.Snapshot(); var beforeB=b.Snapshot();
         var duration=Math.Tau/120;
         JointSweepResult Sweep()
         {
             var pa=a.CreateTrajectory(duration); var pb=b.CreateTrajectory(duration);
-            var hit=joint.Sweep(pa,pb,duration,1e-7);
+            var hit=joint.Sweep([pa,pb],duration,1e-7);
             if(hit.Status!=JointSweepStatus.Boundary) throw new InvalidOperationException("Expected an intermediate boundary.");
             a.Advance(pa,hit.Time); b.Advance(pb,hit.Time);
             return hit;
@@ -61,7 +61,7 @@ internal static class GeneralJointBoundaryQualification
         var initialSpeed=a.LinearVelocity.Length+a.AngularVelocity.Length+b.LinearVelocity.Length+b.AngularVelocity.Length;
         var result=Sweep(); var afterA=a.Snapshot(); var afterB=b.Snapshot();
         var coordinate=slider?((PhysicsFrameJoint)joint).Travel.Error:
-            (((PhysicsRopeJoint)joint).PointA-((PhysicsRopeJoint)joint).PointB).Length;
+            ((PhysicsRopeJoint)joint).Route.CurrentLength;
         a.Restore(beforeA); b.Restore(beforeB);
         var restored=a.Snapshot()==beforeA&&b.Snapshot()==beforeB;
         var replay=Sweep()==result&&a.Snapshot()==afterA&&b.Snapshot()==afterB;

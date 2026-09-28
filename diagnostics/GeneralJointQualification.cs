@@ -35,7 +35,7 @@ internal static class GeneralJointQualification
             GeneralJointProbe.HingePendulum=>new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,
                 new(new(-1,0,0),RigidRotation.Identity),anchor,origin,ConnectedBodyCollision.Disabled,null),
             GeneralJointProbe.Slider=>new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,origin,anchor,origin,ConnectedBodyCollision.Disabled,null),
-            GeneralJointProbe.SlackRope or GeneralJointProbe.TautRope=>new PhysicsRopeJoint(new(0),body,default,anchor,default,1,ConnectedBodyCollision.Disabled),
+            GeneralJointProbe.SlackRope or GeneralJointProbe.TautRope=>new PhysicsRopeJoint(new(0),new([new(body,default),new(anchor,default)]),1,ConnectedBodyCollision.Disabled),
             GeneralJointProbe.CoupledImpact=>new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,origin,anchor,origin,ConnectedBodyCollision.Disabled,null),
             _=>throw new ArgumentOutOfRangeException(nameof(probe))
         };

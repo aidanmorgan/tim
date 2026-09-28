@@ -85,7 +85,7 @@ public class PhysicsJointTests
     public void RopeLeavesSlackFreeButStopsOutwardMotionAtFullExtension(double length,double speed,double expected)
     {
         var body=Body(0,new(length,0,0),new(speed,0,0)); var anchor=Fixed(1);
-        var rope=new PhysicsRopeJoint(new(0),body,default,anchor,default,1,ConnectedBodyCollision.Disabled);
+        var rope=new PhysicsRopeJoint(new(0),new([new(body,default),new(anchor,default)]),1,ConnectedBodyCollision.Disabled);
         var world=new PhysicsWorld([Object(body),Object(anchor)],[rope],new(default));
         world.Step([],.01);
         Near(new(expected,0,0),body.LinearVelocity);
@@ -96,7 +96,7 @@ public class PhysicsJointTests
     public void OverextendedRopeUsesMassWeightedProjectionAndNeverPushes()
     {
         var a=Body(0,new(2,0,0)); var b=Body(1,default);
-        var rope=new PhysicsRopeJoint(new(0),a,default,b,default,1,ConnectedBodyCollision.Enabled);
+        var rope=new PhysicsRopeJoint(new(0),new([new(a,default),new(b,default)]),1,ConnectedBodyCollision.Enabled);
         PositionSolver.Solve([rope],new([a,b],[],1e-6),1e-7);
         Near(new(1.5,0,0),a.Center); Near(new(.5,0,0),b.Center);
         Near(default,a.LinearVelocity); Near(default,b.LinearVelocity);
@@ -140,6 +140,6 @@ public class PhysicsJointTests
         Assert.Throws<ArgumentException>(()=>new PhysicsWorld([Object(a),Object(b)],[Joint(FrameJointKind.Hinge,foreign,b)],new(default)));
         Assert.Throws<ArgumentException>(()=>new PhysicsWorld([Object(a),Object(b)],[joint,joint],new(default)));
         Assert.Throws<ArgumentException>(()=>new PhysicsFrameJoint(new(0),(FrameJointKind)999,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,null));
-        Assert.Throws<ArgumentException>(()=>new PhysicsRopeJoint(new(0),a,default,b,default,0,ConnectedBodyCollision.Disabled));
+        Assert.Throws<ArgumentException>(()=>new PhysicsRopeJoint(new(0),new([new(a,default),new(b,default)]),0,ConnectedBodyCollision.Disabled));
     }
 }

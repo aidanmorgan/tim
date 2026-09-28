@@ -65,14 +65,4 @@ public static class JointEquations
         return Angular(gradient,angle);
     }
 
-    public static JointEquation Rope(PhysicsBody a,PhysicsBody b,CollisionVector pointA,CollisionVector pointB,double length)
-    {
-        if(!pointA.IsFinite||!pointB.IsFinite||!double.IsFinite(length)||length<=0)
-            throw new ArgumentException("Rope geometry must be finite with positive length.");
-        var delta=pointA-pointB; var distance=delta.Length;
-        if(!double.IsFinite(distance)||distance==0) throw new ArgumentException("Coincident rope endpoints have no defined gradient.");
-        var axis=delta/distance;
-        return new(new(axis,CollisionVector.Cross(pointA-a.Center,axis),
-            -axis,-CollisionVector.Cross(pointB-b.Center,axis)),distance-length);
-    }
 }

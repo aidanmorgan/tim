@@ -1,0 +1,890 @@
+{
+  "baseRevision": "0d144ac66b86fc786224dff28da34c8b84c5498e",
+  "scope": "Shared-world point-guide rope routes, multi-participant ownership/events and shared position algebra. No sheave-arc or gameplay-part UI completion claimed.",
+  "native": {
+    "command": "dotnet test CuriousContraptions.tests --no-restore --verbosity quiet",
+    "passed": 1647,
+    "failed": 0,
+    "skipped": 0,
+    "durationSeconds": 54,
+    "newCases": 16,
+    "randomFiveBodyDifferentials": 150,
+    "randomAnisotropicRouteSweeps": 100,
+    "samplesPerSweep": 201
+  },
+  "diagnosticPublish": {
+    "command": "dotnet publish CuriousContraptions.web -p:PlaytestDiagnostics=true --no-restore --verbosity quiet",
+    "exitCode": 0
+  },
+  "productionPublish": {
+    "command": "dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false --no-restore --verbosity quiet",
+    "exitCode": 0
+  },
+  "browser": {
+    "reports": [
+      {
+        "Probe": "MovingGuide",
+        "Outcome": "Completed",
+        "Length": 4,
+        "Speeds": [
+          -2.3333333333333335,
+          -0.3333333333333333,
+          -1.3333333333333335
+        ],
+        "GuideHeight": 0.8666666666666667,
+        "GuideSpin": 0,
+        "BoundaryTime": null,
+        "Events": 0,
+        "BeforeFlightSpeed": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "FixedGuide",
+        "Outcome": "Completed",
+        "Length": 4,
+        "Speeds": [
+          -1,
+          1,
+          0
+        ],
+        "GuideHeight": 1,
+        "GuideSpin": 0,
+        "BoundaryTime": null,
+        "Events": 0,
+        "BeforeFlightSpeed": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "Shortening",
+        "Outcome": "Completed",
+        "Length": 3.6,
+        "Speeds": [
+          3,
+          1,
+          0
+        ],
+        "GuideHeight": 1,
+        "GuideSpin": 0,
+        "BoundaryTime": null,
+        "Events": 0,
+        "BeforeFlightSpeed": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "SlackEvent",
+        "Outcome": "Completed",
+        "Length": 4.999999992098549,
+        "Speeds": [
+          -50,
+          50,
+          0
+        ],
+        "GuideHeight": 1,
+        "GuideSpin": 0,
+        "BoundaryTime": 0.009999999920985493,
+        "Events": 1,
+        "BeforeFlightSpeed": 100,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "ClearProjection",
+        "Outcome": "Completed",
+        "Length": 4,
+        "Speeds": [
+          0,
+          0,
+          0
+        ],
+        "GuideHeight": 1,
+        "GuideSpin": 0,
+        "BoundaryTime": null,
+        "Events": 0,
+        "BeforeFlightSpeed": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "BlockedProjection",
+        "Outcome": "Rejected",
+        "Length": 6,
+        "Speeds": [
+          0,
+          0,
+          0
+        ],
+        "GuideHeight": 2,
+        "GuideSpin": 0,
+        "BoundaryTime": null,
+        "Events": 0,
+        "BeforeFlightSpeed": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "RotatingGuide",
+        "Outcome": "Completed",
+        "Length": 1.9999999935610053,
+        "Speeds": [
+          0,
+          0,
+          0
+        ],
+        "GuideHeight": 0,
+        "GuideSpin": 120,
+        "BoundaryTime": 0.00872664622899202,
+        "Events": 1,
+        "BeforeFlightSpeed": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only shared-world point-route qualification. RotatingGuide is a captured-path sweep. Not sheave-arc geometry or gameplay-part UI proof."
+  },
+  "regressions": {
+    "multiBodyBrowserSource": {
+      "reports": [
+        {
+          "Probe": "MovingGuide",
+          "Speeds": [
+            2.3333333333333335,
+            0.33333333333333337,
+            1.3333333333333333
+          ],
+          "GuideSpin": 0,
+          "Energy": 3.666666666666667,
+          "Momentum": [
+            0,
+            4,
+            0
+          ],
+          "AngularMomentum": -2,
+          "Residual": 4.440892098500626e-16,
+          "Iterations": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "Shortening",
+          "Speeds": [
+            -3,
+            -1,
+            0
+          ],
+          "GuideSpin": 0,
+          "Energy": 5,
+          "Momentum": [
+            0,
+            -4,
+            0
+          ],
+          "AngularMomentum": 2,
+          "Residual": 0,
+          "Iterations": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "OffsetGuide",
+          "Speeds": [
+            2.428571428571429,
+            0.4285714285714286,
+            1.1428571428571428
+          ],
+          "GuideSpin": 0.5714285714285714,
+          "Energy": 3.8571428571428577,
+          "Momentum": [
+            0,
+            4,
+            0
+          ],
+          "AngularMomentum": -1.0000000000000002,
+          "Residual": 8.881784197001252e-16,
+          "Iterations": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "ContactCoupling",
+          "Speeds": [
+            1.942890293094024e-16,
+            -0.7999999987136976,
+            -0.40000000257260443
+          ],
+          "GuideSpin": 0,
+          "Energy": 0.39999999999999986,
+          "Momentum": [
+            0,
+            -1.200000001286302,
+            0
+          ],
+          "AngularMomentum": -0.7999999987136979,
+          "Residual": 6.431511434534798e-9,
+          "Iterations": 12,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "BilateralChain",
+          "Speeds": [
+            1.333333333333333,
+            1.3333333333333335,
+            1.3333333333333335
+          ],
+          "GuideSpin": 0,
+          "Energy": 2.666666666666667,
+          "Momentum": [
+            0,
+            4,
+            0
+          ],
+          "AngularMomentum": 0,
+          "Residual": 4.440892098500626e-16,
+          "Iterations": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        }
+      ],
+      "errors": [],
+      "scope": "Read-only generalized constraint qualification; not routed-rope geometry or gameplay-part UI proof."
+    },
+    "motorBrowserSource": {
+      "reports": [
+        {
+          "Probe": "SliderSupply",
+          "Speed": 0.9999999999999957,
+          "Coordinate": 0.25416666666666676,
+          "Energy": 0.49999999999999567,
+          "Use": {
+            "Joint": {
+              "Index": 0
+            },
+            "AbsoluteImpulse": 1,
+            "SuppliedWork": 0.49999999999999833,
+            "DissipatedWork": 0,
+            "RemainingWork": 1.68962066560141e-15
+          },
+          "Events": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "HingeSupply",
+          "Speed": 3.1622776601683764,
+          "Coordinate": 1.3442971810589321,
+          "Energy": 0.4999999999999991,
+          "Use": {
+            "Joint": {
+              "Index": 0
+            },
+            "AbsoluteImpulse": 0.3162277660168453,
+            "SuppliedWork": 0.5,
+            "DissipatedWork": 0,
+            "RemainingWork": 0
+          },
+          "Events": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "BrakeReverse",
+          "Speed": -1,
+          "Coordinate": -0.1,
+          "Energy": 0.5,
+          "Use": {
+            "Joint": {
+              "Index": 0
+            },
+            "AbsoluteImpulse": 4.000000000000001,
+            "SuppliedWork": 0.5,
+            "DissipatedWork": 4.5,
+            "RemainingWork": 0
+          },
+          "Events": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "Disabled",
+          "Speed": 2,
+          "Coordinate": 0.19999999999999998,
+          "Energy": 2,
+          "Use": {
+            "Joint": {
+              "Index": 0
+            },
+            "AbsoluteImpulse": 0,
+            "SuppliedWork": 0,
+            "DissipatedWork": 0,
+            "RemainingWork": 3
+          },
+          "Events": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "StopEvent",
+          "Speed": 0,
+          "Coordinate": 0.01999999375,
+          "Energy": 0,
+          "Use": {
+            "Joint": {
+              "Index": 0
+            },
+            "AbsoluteImpulse": 1.0000000000000018,
+            "SuppliedWork": 0.5000000000000142,
+            "DissipatedWork": 0,
+            "RemainingWork": 99.49999999999999
+          },
+          "Events": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        }
+      ],
+      "errors": [],
+      "scope": "Read-only engine motor budget qualification, not powered gameplay-part UI proof."
+    },
+    "jointBoundaryBrowserSource": {
+      "reports": [
+        {
+          "Probe": "HingeStop",
+          "HitTime": 0.004999999937499673,
+          "Coordinate": 0.4999999937499673,
+          "InitialSpeed": 100,
+          "AfterInitialSolveSpeed": 100,
+          "FinalSpeed": 0,
+          "Events": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "SliderStop",
+          "HitTime": 0.0049999999375,
+          "Coordinate": 0.49999999375000004,
+          "InitialSpeed": 100,
+          "AfterInitialSolveSpeed": 100,
+          "FinalSpeed": 0,
+          "Events": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "RopeStop",
+          "HitTime": 0.0049999999292427485,
+          "Coordinate": 0.9999999929242749,
+          "InitialSpeed": 100,
+          "AfterInitialSolveSpeed": 100,
+          "FinalSpeed": 0,
+          "Events": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "RotatingSlider",
+          "HitTime": 0.00436332304365986,
+          "Coordinate": 0.4999999910287427,
+          "InitialSpeed": 120,
+          "AfterInitialSolveSpeed": null,
+          "FinalSpeed": 120,
+          "Events": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "RotatingRope",
+          "HitTime": 0.008726646198921691,
+          "Coordinate": 0.9999999936555022,
+          "InitialSpeed": 120,
+          "AfterInitialSolveSpeed": null,
+          "FinalSpeed": 120,
+          "Events": 1,
+          "ExactRestore": true,
+          "ExactReplay": true
+        }
+      ],
+      "errors": [],
+      "scope": "Read-only engine event-timing qualification, not catalogue part UI proof."
+    },
+    "jointRangeBrowserSource": {
+      "reports": [
+        {
+          "Probe": "HingeLower",
+          "Coordinate": -0.49999999374997994,
+          "ReleasedCoordinate": -0.48999999374998005,
+          "Speed": 0,
+          "Events": 1,
+          "Error": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "HingeUpper",
+          "Coordinate": 0.49999999374997994,
+          "ReleasedCoordinate": 0.48999999374998005,
+          "Speed": 0,
+          "Events": 1,
+          "Error": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "SliderLower",
+          "Coordinate": -0.49999999375,
+          "ReleasedCoordinate": -0.48999999375,
+          "Speed": 0,
+          "Events": 1,
+          "Error": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "SliderUpper",
+          "Coordinate": 0.49999999375,
+          "ReleasedCoordinate": 0.48999999375,
+          "Speed": 0,
+          "Events": 1,
+          "Error": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "SliderObstacle",
+          "Coordinate": 0.19890009435625255,
+          "ReleasedCoordinate": 0.18890009435625255,
+          "Speed": 0,
+          "Events": 1,
+          "Error": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        }
+      ],
+      "errors": [],
+      "scope": "Read-only engine range qualification, not catalogue UI proof or exact stop-event timing."
+    },
+    "jointBrowserSource": {
+      "reports": [
+        {
+          "Probe": "HingePendulum",
+          "Steps": 240,
+          "Events": 0,
+          "SweepIterations": 0,
+          "MaximumError": 9.670417688845134e-9,
+          "MaximumVelocityResidual": 8.881784197001252e-16,
+          "Position": [
+            0.5619301627267245,
+            -0.8271846784663627,
+            0
+          ],
+          "Velocity": [
+            3.0101512245233053,
+            2.044881646701358,
+            0
+          ],
+          "Spin": [
+            0,
+            0,
+            3.6390316491499792
+          ],
+          "PayloadVelocityY": null,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "Slider",
+          "Steps": 120,
+          "Events": 0,
+          "SweepIterations": 0,
+          "MaximumError": 4.625929269271485e-18,
+          "MaximumVelocityResidual": 1.232595164407831e-31,
+          "Position": [
+            0,
+            0,
+            5.5125000000000215
+          ],
+          "Velocity": [
+            0,
+            0,
+            7.000000000000043
+          ],
+          "Spin": [
+            0,
+            0,
+            0
+          ],
+          "PayloadVelocityY": null,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "SlackRope",
+          "Steps": 120,
+          "Events": 0,
+          "SweepIterations": 240,
+          "MaximumError": 0,
+          "MaximumVelocityResidual": 0,
+          "Position": [
+            0.6000000000000023,
+            0,
+            0
+          ],
+          "Velocity": [
+            0.1,
+            0,
+            0
+          ],
+          "Spin": [
+            0,
+            0,
+            0
+          ],
+          "PayloadVelocityY": null,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "TautRope",
+          "Steps": 120,
+          "Events": 0,
+          "SweepIterations": 240,
+          "MaximumError": 0,
+          "MaximumVelocityResidual": 0,
+          "Position": [
+            1,
+            0,
+            0
+          ],
+          "Velocity": [
+            0,
+            0,
+            0
+          ],
+          "Spin": [
+            0,
+            0,
+            0
+          ],
+          "PayloadVelocityY": null,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "CoupledImpact",
+          "Steps": 12,
+          "Events": 11,
+          "SweepIterations": 158,
+          "MaximumError": 0,
+          "MaximumVelocityResidual": 2.204051907791789e-39,
+          "Position": [
+            0,
+            0,
+            0
+          ],
+          "Velocity": [
+            0,
+            0,
+            0
+          ],
+          "Spin": [
+            -9.53665611610318e-24,
+            -1.1947925754356847e-22,
+            -9.17490211446844
+          ],
+          "PayloadVelocityY": -9.08245375479509,
+          "ExactRestore": true,
+          "ExactReplay": true
+        }
+      ],
+      "errors": [],
+      "scope": "Integrated engine joint/contact diagnostics; not catalogue part UI or constrained-trajectory completion proof."
+    },
+    "roundedWorldBrowserSource": {
+      "reports": [
+        {
+          "Probe": "ThinWall",
+          "Events": 1,
+          "Steps": 1,
+          "Time": 0.01,
+          "Position": [
+            -6.020199800000423,
+            0,
+            0
+          ],
+          "Velocity": [
+            -1000,
+            0,
+            0
+          ],
+          "Spin": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "RepeatedBounce",
+          "Events": 3,
+          "Steps": 1,
+          "Time": 0.8,
+          "Position": [
+            0.9394005999961192,
+            0,
+            0
+          ],
+          "Velocity": [
+            -10,
+            0,
+            0
+          ],
+          "Spin": 0,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "RestingBox",
+          "Events": 0,
+          "Steps": 600,
+          "Time": 5.000000000000038,
+          "Position": [
+            1.6666441062102047e-8,
+            0.5000000108786979,
+            -9.766718211312443e-9
+          ],
+          "Velocity": [
+            9.983225936976366e-9,
+            2.1757411258033145e-9,
+            -5.8502804729130175e-9
+          ],
+          "Spin": 3.145411804416517e-9,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "RotatingBeam",
+          "Events": 1,
+          "Steps": 1,
+          "Time": 0.01,
+          "Position": [
+            1.0611780329759095,
+            4.178017195785295,
+            0
+          ],
+          "Velocity": [
+            -49.17607350856022,
+            378.5535693658622,
+            0
+          ],
+          "Spin": 7.417861461156813e-13,
+          "ExactRestore": true,
+          "ExactReplay": true
+        }
+      ],
+      "errors": [],
+      "scope": "Read-only integrated physics-world qualification, not gameplay-part UI proof."
+    },
+    "projectionBrowserSource": {
+      "reports": [
+        {
+          "Probe": "Translation",
+          "Outcome": "Clipped",
+          "Fraction": 0.44950049999997904,
+          "SweepIterations": 2,
+          "Position": [
+            -0.10099900000004192,
+            0,
+            0
+          ],
+          "ExpectedVelocityState": true,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "Simultaneous",
+          "Outcome": "Clipped",
+          "Fraction": 0.45000025,
+          "SweepIterations": 2,
+          "Position": [
+            -0.09999950000000002,
+            0,
+            0
+          ],
+          "ExpectedVelocityState": true,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "FullTurn",
+          "Outcome": "Clipped",
+          "Fraction": 0.058355932206255824,
+          "SweepIterations": 12,
+          "Position": [
+            0,
+            0,
+            0
+          ],
+          "ExpectedVelocityState": true,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "BlockedJoint",
+          "Outcome": "Rejected",
+          "Fraction": 0,
+          "SweepIterations": 0,
+          "Position": [
+            -1,
+            0,
+            0
+          ],
+          "ExpectedVelocityState": true,
+          "ExactRestore": true,
+          "ExactReplay": true
+        },
+        {
+          "Probe": "ClearJoint",
+          "Outcome": "Applied",
+          "Fraction": 1,
+          "SweepIterations": 0,
+          "Position": [
+            1,
+            0,
+            0
+          ],
+          "ExpectedVelocityState": true,
+          "ExactRestore": true,
+          "ExactReplay": true
+        }
+      ],
+      "errors": [],
+      "scope": "Read-only engine correction-path qualification; not gameplay-part UI proof or complete constrained dynamics."
+    },
+    "constraintBrowserSource": {
+      "reports": [
+        {
+          "Probe": "SlidingFriction",
+          "Linear": [
+            1.7999999999999998,
+            0,
+            2.4000000000000004
+          ],
+          "Angular": [
+            0,
+            0,
+            0
+          ],
+          "FrictionImpulse": [
+            -0.6,
+            0,
+            -0.8
+          ],
+          "Iterations": 1,
+          "Residual": 2.220446049250313e-16
+        },
+        {
+          "Probe": "MovingSlider",
+          "Linear": [
+            3,
+            0,
+            0
+          ],
+          "Angular": [
+            0,
+            1,
+            0
+          ],
+          "FrictionImpulse": [
+            0,
+            0,
+            0
+          ],
+          "Iterations": 1,
+          "Residual": 0
+        },
+        {
+          "Probe": "OffsetJoint",
+          "Linear": [
+            4.440892098500626e-15,
+            0,
+            1
+          ],
+          "Angular": [
+            0,
+            0,
+            0
+          ],
+          "FrictionImpulse": [
+            0,
+            0,
+            0
+          ],
+          "Iterations": 1,
+          "Residual": 4.440892098500626e-15
+        }
+      ],
+      "errors": []
+    }
+  },
+  "productionSmoke": {
+    "banners": [
+      "Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev"
+    ],
+    "canvasVisible": true,
+    "errors": [],
+    "scope": "Production Release startup smoke only; not gameplay behaviour proof."
+  },
+  "productionSmokeRecipe": "async (page) => {\n const context=await page.context().browser().newContext();\n const tab=await context.newPage(),errors=[],banners=[];\n tab.on(\"console\",message=>{\n   const value=message.text();\n   if(message.type()===\"error\") errors.push(value);\n   if(value.includes(\"Godot Engine\")) banners.push(value);\n });\n tab.on(\"pageerror\",error=>errors.push(error.message));\n try{\n   await tab.goto(\"http://127.0.0.1:8060\");\n   const deadline=Date.now()+30000;\n   while(!banners.length&&Date.now()<deadline) await tab.waitForTimeout(100);\n   await tab.waitForTimeout(1000);\n   const canvasVisible=await tab.locator(\"canvas\").first().isVisible();\n   if(!banners.length||!canvasVisible||errors.length) throw Error(JSON.stringify({banners,canvasVisible,errors}));\n   return {banners,canvasVisible,errors,scope:\"Production Release startup smoke only; not gameplay behaviour proof.\"};\n }finally{await context.close();}\n}",
+  "sourceSha256": {
+    "engine/physics/BilateralConstraintBlock.cs": "5cd6e60ea216f13d7a9521ca9cb87335be587c0a9003fe4cbd32954ec0adfedf",
+    "engine/physics/BodyTrajectory.cs": "e1a697395c3f676e4545015a22b2e00435afd2c28f0bd116ab1eb67bf8df60f7",
+    "engine/physics/CompoundCollision.cs": "16193ef5f38337393bd129f87f09cb9b40c76070826e037e2f43490cb236e639",
+    "engine/physics/ConfigurationTrajectory.cs": "aba8fa4c440c6b49029585d2f9cc6bb86d9a5aaf5153393dbc7bd68ba757b17a",
+    "engine/physics/ConstraintGradient.cs": "69846996fff57313da8369216c7e5632267d84f119ed234d9bc00f03ecc9ae45",
+    "engine/physics/ConstraintMassMatrix.cs": "0bfb2666cf64c3e2fd69219bbd3b7055634536806fbca39a95360f4f25d592c9",
+    "engine/physics/ContactConstraint.cs": "5b36a8263f6055380001e40f5b932bd80ea8c54ca3fcb3149fd7d4a0ef5ff9a3",
+    "engine/physics/ContactManifold.cs": "a2001a75047fba4dad45bb4d7262de3a27b8be19d39b68e659413b15e204eebd",
+    "engine/physics/ContactPatch.cs": "aa13a2fb40a405bc0507626553e1ed4b40c0a3c2fc9909fa794359e9c45605e0",
+    "engine/physics/ConvexDistance.cs": "882dc7c99d1645ef51f3d8f2f124188488fc4c0d026248f6c7e8fd5bdab9bfe1",
+    "engine/physics/ConvexGeometry.cs": "1967523faef62f3b1991f578faae065e504a029e2d22c9fc185b25a6f932d106",
+    "engine/physics/ConvexPenetration.cs": "f8321c9aa8fde400ae96b19ee5e5005c3b1d17fca4703751dd1d962a4dd691fc",
+    "engine/physics/ConvexSeparation.cs": "30e4f33200f6537fdb1765ca6848893aea655e441516fc36ddd406640791e8db",
+    "engine/physics/ConvexSweep.cs": "ab3a115a9f7998e65fe1e27cf6fbb252f9c6b16461ce7621c037e869946262d7",
+    "engine/physics/IRigidTrajectory.cs": "bd2ef870deff200b379538a5d8cb5e1f2a164af6ae6973c93a571818a5defad8",
+    "engine/physics/ImpulseConstraint.cs": "ce29218c7c88b3b94db0ccb74f8429d4ac5fca3d10e070ffc8acef50c0084292",
+    "engine/physics/JointBoundarySweep.cs": "f273a846b78bc638ab281d74c94848764eb3b2641e2851a6283af822c3cb887f",
+    "engine/physics/JointConstraints.cs": "0485e20d17dc2b3f1934747a8d7488e638807e4586533b0ec1a614eb95c2c27f",
+    "engine/physics/JointEquations.cs": "424c01045209a564b780669009dbc7af4f9e5ce94641d3dddf45c9ce97f622fe",
+    "engine/physics/PersistentContactPair.cs": "bcf03284e2f7c6462c8f5ee49e19a9755b2e0c2576454799c2ebef90833675b2",
+    "engine/physics/PhysicsBody.cs": "ab4c14b623425ae181dd8503d3f43b1fd5d6d81d1ab3f80280ef2f759eb5b0e0",
+    "engine/physics/PhysicsJoint.cs": "338aee09b521c33a2eddcc3882135b2121a9b2e785863cd3a3bf431a040308bd",
+    "engine/physics/PhysicsMotorCommand.cs": "0d5a599d20ab64d20ea45ac9a0d98f929d039d7d9bf23132a14d3e791b36dc8d",
+    "engine/physics/PhysicsRopeJoint.cs": "f4f6899efe03c388e30ba5d8efc65b3ec6a1f9ce45623f7c94a1302be5db996b",
+    "engine/physics/PhysicsWorld.cs": "3cc463c1e772280ffcc76004d4db5de776b9804488278eeb80127acb4dec05f6",
+    "engine/physics/PositionConstraints.cs": "39b5809ab569a6988cb0a37723ae3cee5d0069dc63a17e2de225f07318fa9ff5",
+    "engine/physics/PositionEquation.cs": "36c0300c3b9d993895a2974e6de2562aec64b77391cd1852ee1b58adf68a99a7",
+    "engine/physics/PositionProjector.cs": "decdb71a734a9b174f2f6cc02c183a0ceb9693fedb0d41b6b0d89ac41d1f77a6",
+    "engine/physics/PoweredImpulse.cs": "e12b4c681160117998b7e4ba2210270dc6c089dd0833b3b6c2494bb5fb361953",
+    "engine/physics/RigidPose.cs": "7565043aedec03f0f90f9646fcf03439dd2b5feb69978e1cdf8ff538e95e31d8",
+    "engine/physics/RigidRotation.cs": "0bdc0a6f5e16f44feccdb7d4f6f2eed4968ab73fe7f73375c8415bb1cdba61a1",
+    "engine/physics/RoundedSeparation.cs": "d72391c4a6cb383fcc8ff6f88617e0d65fa6161a672caece2eb08310c7d0d0d7",
+    "engine/physics/SupportFeature.cs": "d3426944a46de59f5d2de7f5e818f1a7025fbeb95e4ab3762765b55c3f009a58",
+    "diagnostics/GeneralRoutedRopeQualification.cs": "1d49388f37ee3fb453d149925b6222d72f376b292c3ab9378d28cdbbbdc97e3e",
+    "diagnostics/BackendQualificationDiagnostics.cs": "ba6c9839707cbead3738017d6f4d66b6eea7e224557ff984342b44148d83f317",
+    "diagnostics/GeneralJointBoundaryQualification.cs": "6fd73adf01fe169ac89f7ca0a93f55f4b249787f6cc580702baefc4d765824df",
+    "diagnostics/GeneralJointQualification.cs": "21dcc9b64c3c3d298cdd3b94ba1372af28fafaee3b651678dc87d32d970ea0d0",
+    "CuriousContraptions.tests/RoutedRopeTests.cs": "ba92cadb48581c9390d94e7e5b93dfc6f77b3fdd15d1e13ddd08b6ee6fdbbe30",
+    "CuriousContraptions.tests/JointBoundaryTests.cs": "fe7352cffe944dd7b0ba9684b3a4d34cae0bae44b69787f601d1408326d855cb",
+    "CuriousContraptions.tests/JointConstraintTests.cs": "5d63d9d0a8aa74ae953ef6357a87b2d3fd81a296d1099f4462da68d4854ab8bf",
+    "CuriousContraptions.tests/PhysicsJointTests.cs": "9948f1e16780736ffd6f18acc30a38dc85dbfa4c8478b35711fbd8c78d04ae27",
+    "docs/general-routed-rope-qualification.playwright.js": "e06e78d35641434356e878ff2690c02dff81f3e9e02ce5ac39a3c4afe0221f16"
+  },
+  "retainedFailures": [],
+  "limitations": [
+    "Point attachments and constant body-fixed spans only. Round-sheave tangent/arc routing, visual rope wrap and rope-to-obstacle contact are not implemented by this increment.",
+    "Collapsed slack spans are supported; a zero-length active deformable span has no defined smooth gradient and explicitly rejects/restores rather than inventing a direction.",
+    "ConnectedBodyCollision.Disabled excludes collisions between all participants of that joint, never unrelated obstacles. Enabled retains those contacts.",
+    "World sweeps consume trajectories in canonical typed-body order, not authoring route order or frame A/B role order.",
+    "Broader timestep/convergence and catalogue-scale performance are still unqualified.",
+    "Bounded-error hollow geometry, catalogue/world/query cutover, original solver removal and refreshed per-part UI/mobile proofs remain outstanding."
+  ]
+}

@@ -20,39 +20,47 @@ public enum ConnectedBodyCollision { Enabled, Disabled }
 public abstract class PhysicsJoint : IPositionConstraint
 {
     public PhysicsJointId Id { get; }
-    public PhysicsBody A { get; }
-    public PhysicsBody B { get; }
+    private readonly PhysicsBody[] _bodies;
+    public ReadOnlySpan<PhysicsBody> Bodies=>_bodies;
     public ConnectedBodyCollision Collision { get; }
-    protected PhysicsJoint(PhysicsJointId id,PhysicsBody a,PhysicsBody b,ConnectedBodyCollision collision)
+    protected PhysicsJoint(PhysicsJointId id,IEnumerable<PhysicsBody> bodies,ConnectedBodyCollision collision)
     {
-        ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
-        if(a==b||a.Id==b.Id||!Enum.IsDefined(collision)||
-            (a.MotionType!=PhysicsMotionType.Dynamic&&b.MotionType!=PhysicsMotionType.Dynamic))
+        ArgumentNullException.ThrowIfNull(bodies);
+        var owned=new Dictionary<PhysicsBodyId,PhysicsBody>();
+        foreach(var body in bodies)
+        {
+            ArgumentNullException.ThrowIfNull(body);
+            if(owned.TryGetValue(body.Id,out var prior)&&prior!=body)
+                throw new ArgumentException("Joint identity refers to multiple body states.");
+            owned[body.Id]=body;
+        }
+        _bodies=owned.Values.OrderBy(b=>b.Id.Index).ToArray();
+        if(_bodies.Length<2||!Enum.IsDefined(collision)||!_bodies.Any(b=>b.MotionType==PhysicsMotionType.Dynamic))
             throw new ArgumentException("Joint requires distinct bodies, a dynamic participant and an explicit collision policy.");
-        Id=id; A=a; B=b; Collision=collision;
+        Id=id; Collision=collision;
+    }
+    internal int BodyIndex(PhysicsBody body)
+    {
+        var index=Array.IndexOf(_bodies,body);
+        return index>=0?index:throw new ArgumentException("Foreign joint participant.");
+    }
+    internal bool Connects(PhysicsBody a,PhysicsBody b)=>Array.IndexOf(_bodies,a)>=0&&Array.IndexOf(_bodies,b)>=0;
+    internal void ValidatePaths(ReadOnlySpan<BodyTrajectory> paths,double duration,double tolerance)
+    {
+        if(paths.Length!=_bodies.Length) throw new ArgumentException("Joint trajectories must match its ordered participants.");
+        if(!double.IsFinite(duration)||duration<0||!double.IsFinite(tolerance)||tolerance<=0)
+            throw new ArgumentOutOfRangeException(nameof(duration));
+        for(var i=0;i<paths.Length;i++)
+        {
+            ArgumentNullException.ThrowIfNull(paths[i]); paths[i].ValidateSource(_bodies[i]);
+            if(duration>paths[i].Duration) throw new ArgumentOutOfRangeException(nameof(duration));
+        }
     }
     public abstract IReadOnlyList<IImpulseConstraint> VelocityConstraints(double activationTolerance);
-    public abstract JointSweepResult Sweep(BodyTrajectory a,BodyTrajectory b,double duration,double tolerance);
+    public abstract JointSweepResult Sweep(ReadOnlySpan<BodyTrajectory> paths,double duration,double tolerance);
     public abstract double Error(double queryTolerance);
     public abstract void Project(double tolerance,PositionProjector projector);
 
-    protected void ProjectEquations(JointEquation[] equations,PositionProjector projector)
-    {
-        if(equations.Length==0) return;
-        var jacobians=equations.Select(e=>e.Jacobian.Bind(A,B)).ToArray();
-        var matrix=new ConstraintMassMatrix(jacobians,new double[equations.Length]);
-        var rhs=equations.Select(e=>-e.Error).ToArray(); var result=new double[equations.Length];
-        matrix.Solve(rhs,result);
-        CollisionVector la=default,aa=default,lb=default,ab=default;
-        for(var i=0;i<equations.Length;i++)
-        {
-            var j=equations[i].Jacobian;
-            la+=j.LinearA*result[i]; aa+=j.AngularA*result[i];
-            lb+=j.LinearB*result[i]; ab+=j.AngularB*result[i];
-        }
-        projector.Apply([new(A,la*A.InverseMass,A.InverseInertia(aa)),
-            new(B,lb*B.InverseMass,B.InverseInertia(ab))]);
-    }
 }
 
 /// <summary>Finite lower/upper travel bounds, in length units for sliders and
@@ -72,6 +80,8 @@ public sealed record JointTravelRange
 
 public sealed class PhysicsFrameJoint : PhysicsJoint
 {
+    public PhysicsBody A { get; }
+    public PhysicsBody B { get; }
     public FrameJointKind Kind { get; }
     public JointTravelRange? TravelRange { get; }
     public JointFrame LocalA { get; }
@@ -79,14 +89,14 @@ public sealed class PhysicsFrameJoint : PhysicsJoint
     public JointFrame FrameA=>World(A,LocalA);
     public JointFrame FrameB=>World(B,LocalB);
     public PhysicsFrameJoint(PhysicsJointId id,FrameJointKind kind,PhysicsBody a,JointFrame localA,
-        PhysicsBody b,JointFrame localB,ConnectedBodyCollision collision,JointTravelRange? travelRange):base(id,a,b,collision)
+        PhysicsBody b,JointFrame localB,ConnectedBodyCollision collision,JointTravelRange? travelRange):base(id,[a,b],collision)
     {
         if(!Enum.IsDefined(kind)||!localA.Orientation.IsValid||!localB.Orientation.IsValid)
             throw new ArgumentException("Joint kind and local frames must be valid.");
         if(travelRange is not null&&(kind==FrameJointKind.BallSocket||
             kind==FrameJointKind.Hinge&&(travelRange.Lower<=-Math.PI||travelRange.Upper>=Math.PI)))
             throw new ArgumentException("Travel bounds require a slider or a hinge interval strictly inside the principal-angle branch.");
-        Kind=kind; LocalA=localA; LocalB=localB; TravelRange=travelRange;
+        A=a; B=b; Kind=kind; LocalA=localA; LocalB=localB; TravelRange=travelRange;
     }
     private static JointFrame World(PhysicsBody body,JointFrame frame)=>
         new(body.Pose.TransformPoint(frame.Anchor),body.Pose.Rotation*frame.Orientation);
@@ -113,39 +123,12 @@ public sealed class PhysicsFrameJoint : PhysicsJoint
         return [..rows,..JointConstraints.Limits(A,B,travel.Jacobian,travel.Error,
             TravelRange.Lower,TravelRange.Upper,activationTolerance)];
     }
-    public override JointSweepResult Sweep(BodyTrajectory a,BodyTrajectory b,double duration,double tolerance)=>
-        JointBoundarySweep.Frame(this,a,b,duration,tolerance);
+    public override JointSweepResult Sweep(ReadOnlySpan<BodyTrajectory> paths,double duration,double tolerance)=>
+        JointBoundarySweep.Frame(this,paths,duration,tolerance);
     public override double Error(double queryTolerance)=>Equations().Max(e=>Math.Abs(e.Error));
     public override void Project(double tolerance,PositionProjector projector)
     {
         if(!double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(tolerance));
-        ProjectEquations(Equations(),projector);
-    }
-}
-
-public sealed class PhysicsRopeJoint : PhysicsJoint
-{
-    public CollisionVector LocalA { get; }
-    public CollisionVector LocalB { get; }
-    public double MaximumLength { get; }
-    public CollisionVector PointA=>A.Pose.TransformPoint(LocalA);
-    public CollisionVector PointB=>B.Pose.TransformPoint(LocalB);
-    public PhysicsRopeJoint(PhysicsJointId id,PhysicsBody a,CollisionVector localA,PhysicsBody b,CollisionVector localB,
-        double maximumLength,ConnectedBodyCollision collision):base(id,a,b,collision)
-    {
-        if(!localA.IsFinite||!localB.IsFinite||!double.IsFinite(maximumLength)||maximumLength<=0)
-            throw new ArgumentException("Rope requires finite anchors and a positive length.");
-        LocalA=localA; LocalB=localB; MaximumLength=maximumLength;
-    }
-    public override IReadOnlyList<IImpulseConstraint> VelocityConstraints(double activationTolerance)=>
-        JointConstraints.Rope(A,B,PointA,PointB,MaximumLength,activationTolerance);
-    public override JointSweepResult Sweep(BodyTrajectory a,BodyTrajectory b,double duration,double tolerance)=>
-        JointBoundarySweep.Rope(this,a,b,duration,tolerance);
-    public override double Error(double queryTolerance)=>Math.Max(0,(PointA-PointB).Length-MaximumLength);
-    public override void Project(double tolerance,PositionProjector projector)
-    {
-        if(!double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(tolerance));
-        if(Error(tolerance)<=tolerance) return; // A slack rope has no positional equality.
-        ProjectEquations([JointEquations.Rope(A,B,PointA,PointB,MaximumLength)],projector);
+        PositionEquations.Project(Equations().Select(e=>new PositionEquation(e.Jacobian.Bind(A,B),e.Error)).ToArray(),projector);
     }
 }

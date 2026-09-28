@@ -27,7 +27,7 @@ public class JointBoundaryTests
     public void SlackRopeDoesNotBrakeBeforeItIsTaut()
     {
         var a=Body(0,new(.5,0,0),new(100,0,0));
-        var rope=new PhysicsRopeJoint(new(0),a,default,Fixed(1),default,1,ConnectedBodyCollision.Disabled);
+        var rope=new PhysicsRopeJoint(new(0),new([new(a,default),new(Fixed(1),default)]),1,ConnectedBodyCollision.Disabled);
         ImpulseSolver.Solve(rope.VelocityConstraints(.01));
         Assert.Equal(new CollisionVector(100,0,0),a.LinearVelocity);
     }
@@ -67,7 +67,7 @@ public class JointBoundaryTests
         var frame=new JointFrame(default,RigidRotation.FromRotationVector(new(0,Math.PI/2,0)));
         var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,a,frame,b,frame,ConnectedBodyCollision.Disabled,new(-.5,.5));
         var duration=Math.Tau/120;
-        var hit=joint.Sweep(a.CreateTrajectory(duration),b.CreateTrajectory(duration),duration,1e-7);
+        var hit=joint.Sweep([a.CreateTrajectory(duration),b.CreateTrajectory(duration)],duration,1e-7);
         Assert.Equal(JointSweepStatus.Boundary,hit.Status); Assert.Equal(JointBoundary.Upper,hit.Boundary);
         Assert.InRange(Math.Abs(hit.Time*120-Math.PI/6),0,1e-7);
     }
@@ -77,10 +77,10 @@ public class JointBoundaryTests
     {
         var a=Body(0,default,spin:new(0,0,120));
         var b=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.At(new(1,0,0)),default,default);
-        var rope=new PhysicsRopeJoint(new(0),a,new(1,0,0),b,default,1,ConnectedBodyCollision.Disabled);
+        var rope=new PhysicsRopeJoint(new(0),new([new(a,new(1,0,0)),new(b,default)]),1,ConnectedBodyCollision.Disabled);
         Assert.Empty(rope.VelocityConstraints(1e-7));
         var duration=Math.Tau/120;
-        var hit=rope.Sweep(a.CreateTrajectory(duration),b.CreateTrajectory(duration),duration,1e-7);
+        var hit=rope.Sweep([a.CreateTrajectory(duration),b.CreateTrajectory(duration)],duration,1e-7);
         Assert.Equal(JointSweepStatus.Boundary,hit.Status);
         Assert.InRange(Math.Abs(hit.Time*120-Math.PI/3),0,1e-7);
     }
@@ -89,7 +89,7 @@ public class JointBoundaryTests
     public void CoincidentSlackRopeFliesFreelyUntilItsAnalyticStop()
     {
         var a=Body(0,default,new(100,0,0)); var b=Fixed(1);
-        var rope=new PhysicsRopeJoint(new(0),a,default,b,default,1,ConnectedBodyCollision.Disabled);
+        var rope=new PhysicsRopeJoint(new(0),new([new(a,default),new(b,default)]),1,ConnectedBodyCollision.Disabled);
         var world=new PhysicsWorld([Object(a),Object(b)],[rope],new(default,maximumStep:.02));
         world.Step([],.02);
         var stop=Assert.Single(world.JointStops.ToArray());
@@ -133,16 +133,16 @@ public class JointBoundaryTests
         var a=Body(0,default); var b=Fixed(1);
         var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,new(-.5,.5));
         var pa=a.CreateTrajectory(.01); var pb=b.CreateTrajectory(.01);
-        Assert.Throws<InvalidOperationException>(()=>joint.Sweep(pb,pa,.01,1e-7));
+        Assert.Throws<InvalidOperationException>(()=>joint.Sweep([pb,pa],.01,1e-7));
         a.ApplyImpulse(new(0,0,1),a.Center);
-        Assert.Throws<InvalidOperationException>(()=>joint.Sweep(pa,pb,.01,1e-7));
+        Assert.Throws<InvalidOperationException>(()=>joint.Sweep([pa,pb],.01,1e-7));
     }
 
     [Fact]
     public void TautRopeSupportsCurvedMotionWithoutAnInitialContactDeadlock()
     {
         var a=Body(0,new(1,0,0),new(0,1,0)); var b=Fixed(1);
-        var rope=new PhysicsRopeJoint(new(0),a,default,b,default,1,ConnectedBodyCollision.Disabled);
+        var rope=new PhysicsRopeJoint(new(0),new([new(a,default),new(b,default)]),1,ConnectedBodyCollision.Disabled);
         var world=new PhysicsWorld([Object(a),Object(b)],[rope],new(default));
         var before=world.Capture();
         for(var i=0;i<120;i++)
@@ -174,7 +174,7 @@ public class JointBoundaryTests
             var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.Identity,Vector(),Vector()*20,1,new(.3,.15,.1));
             var joint=new PhysicsFrameJoint(new(0),kind,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,new(-.5,.5));
             const double duration=.1; var pa=a.CreateTrajectory(duration); var pb=b.CreateTrajectory(duration);
-            var hit=joint.Sweep(pa,pb,duration,1e-7);
+            var hit=joint.Sweep([pa,pb],duration,1e-7);
             for(var i=0;i<=200;i++)
             {
                 var time=hit.Time*i/200; var first=pa.At(time); var second=pb.At(time);
@@ -193,7 +193,7 @@ public class JointBoundaryTests
         Assert.Throws<ArgumentException>(()=>JointConstraints.Limits(a,Body(0,default),j,0,-1,1,1e-7));
         Assert.Throws<ArgumentException>(()=>JointConstraints.Limits(a,b,j with {AngularA=new(double.NaN,0,0)},0,-1,1,1e-7));
         Assert.Throws<ArgumentNullException>(()=>JointConstraints.Limits(null!,b,j,0,-1,1,1e-7));
-        Assert.Throws<ArgumentException>(()=>JointConstraints.Rope(a,a,default,default,1,1e-7));
-        Assert.Throws<ArgumentException>(()=>JointConstraints.Rope(a,Body(0,default),default,default,1,1e-7));
+        Assert.Throws<ArgumentException>(()=>new PhysicsRopeJoint(new(0),new([new(a,default),new(a,default)]),1,ConnectedBodyCollision.Disabled));
+        Assert.Throws<ArgumentException>(()=>new PhysicsRopeJoint(new(0),new([new(a,default),new(Body(0,default),default)]),1,ConnectedBodyCollision.Disabled));
     }
 }

@@ -87,12 +87,12 @@ public class JointConstraintTests
     public void RopeOnlyTensionsAndPreservesMomentumBetweenDynamicEndpoints()
     {
         var a=Dynamic(0,X,X*3,default); var b=Dynamic(1,-X,-X,default);
-        var rope=JointConstraints.Rope(a,b,a.Center,b.Center,2,1e-7);
+        var rope=new PhysicsRopeJoint(new(0),new([new(a,default),new(b,default)]),2,ConnectedBodyCollision.Disabled).VelocityConstraints(1e-7);
         ImpulseSolver.Solve(rope);
         Near(X,a.LinearVelocity); Near(X,b.LinearVelocity);
         Assert.True(Assert.IsType<ImpulseConstraint>(Assert.Single(rope)).AccumulatedImpulse<0);
         var slack=Dynamic(0,X,-X,default);
-        var free=JointConstraints.Rope(slack,Fixed(),X,default,2,1e-7);
+        var free=new PhysicsRopeJoint(new(0),new([new(slack,default),new(Fixed(),default)]),2,ConnectedBodyCollision.Disabled).VelocityConstraints(1e-7);
         ImpulseSolver.Solve(free); Near(-X,slack.LinearVelocity); Assert.Empty(free);
     }
     [Fact]
@@ -118,6 +118,6 @@ public class JointConstraintTests
         Assert.Throws<ArgumentException>(()=>new RigidRotation(0,0,0,0));
         Assert.Throws<ArgumentException>(()=>JointConstraints.Hinge(a,b,default,Frame()));
         Assert.Throws<ArgumentException>(()=>JointConstraints.Limits(a,b,new(X,default,-X,default),0,2,1,.1));
-        Assert.Empty(JointConstraints.Rope(a,b,default,default,1,1e-7));
+        Assert.Empty(new PhysicsRopeJoint(new(0),new([new(a,default),new(b,default)]),1,ConnectedBodyCollision.Disabled).VelocityConstraints(1e-7));
     }
 }

@@ -53,7 +53,7 @@ public sealed class PhysicsWorld
     private readonly PhysicsObject[] _objects;
     private readonly Pair[] _pairs;
     private readonly PhysicsJoint[] _joints;
-    private readonly (int A,int B)[] _jointBodies;
+    private readonly int[][] _jointBodies;
     private readonly IPositionConstraint[] _positions;
     private readonly PhysicsWorldSettings _settings;
     private PhysicsImpact[] _impacts=[];
@@ -80,11 +80,11 @@ public sealed class PhysicsWorld
         if(_objects.Select(o=>o.Body.Id).Distinct().Count()!=_objects.Length) throw new ArgumentException("World body identities must be unique.");
         var owned=_objects.ToDictionary(o=>o.Body.Id,o=>o.Body);
         foreach(var joint in _joints)
-            foreach(var body in new[]{joint.A,joint.B})
+            foreach(var body in joint.Bodies)
                 if(!owned.TryGetValue(body.Id,out var worldBody)||worldBody!=body)
                     throw new ArgumentException("Joint refers to a body state not owned by this world.");
         var indices=_objects.Select((o,i)=>(o.Body.Id,i)).ToDictionary(p=>p.Id,p=>p.i);
-        _jointBodies=_joints.Select(j=>(indices[j.A.Id],indices[j.B.Id])).ToArray();
+        _jointBodies=_joints.Select(j=>j.Bodies.ToArray().Select(b=>indices[b.Id]).ToArray()).ToArray();
         var pairs=new List<Pair>();
         for(var a=0;a<_objects.Length;a++)
         for(var b=a+1;b<_objects.Length;b++)
@@ -93,7 +93,7 @@ public sealed class PhysicsWorld
             // Two prescribed/immovable bodies cannot exchange a dynamic impulse.
             if(first.Body.MotionType!=PhysicsMotionType.Dynamic&&second.Body.MotionType!=PhysicsMotionType.Dynamic) continue;
             if(_joints.Any(j=>j.Collision==ConnectedBodyCollision.Disabled&&
-                ((j.A==first.Body&&j.B==second.Body)||(j.B==first.Body&&j.A==second.Body)))) continue;
+                j.Connects(first.Body,second.Body))) continue;
             var material=new ContactMaterial(Math.Max(first.Material.Restitution,second.Material.Restitution),
                 Math.Max(first.Material.BounceThreshold,second.Material.BounceThreshold),
                 Math.Sqrt(first.Material.Friction)*Math.Sqrt(second.Material.Friction));
@@ -176,8 +176,8 @@ public sealed class PhysicsWorld
                     PhysicsJoint? hitJoint=null; JointBoundary? hitBoundary=null;
                     for(var i=0;i<_joints.Length;i++)
                     {
-                        var endpoints=_jointBodies[i];
-                        var hit=_joints[i].Sweep(paths[endpoints.A],paths[endpoints.B],travel,_settings.PositionTolerance);
+                        var participants=_jointBodies[i].Select(index=>paths[index]).ToArray();
+                        var hit=_joints[i].Sweep(participants,travel,_settings.PositionTolerance);
                         sweeps+=hit.Iterations;
                         if(hit.Status==JointSweepStatus.Clear||(hitPair is not null||hitJoint is not null)&&hit.Time>=travel) continue;
                         travel=hit.Time; hitJoint=_joints[i]; hitBoundary=hit.Boundary; hitPair=null;

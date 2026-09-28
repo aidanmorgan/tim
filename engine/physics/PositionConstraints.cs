@@ -5,8 +5,7 @@ namespace CuriousContraptions.Physics;
 
 public interface IPositionConstraint
 {
-    PhysicsBody A { get; }
-    PhysicsBody B { get; }
+    ReadOnlySpan<PhysicsBody> Bodies { get; }
     double Error(double queryTolerance);
     void Project(double tolerance,PositionProjector projector);
 }
@@ -18,13 +17,15 @@ public sealed class ContactPositionConstraint : IPositionConstraint
 {
     public PhysicsBody A { get; }
     public PhysicsBody B { get; }
+    private readonly PhysicsBody[] _bodies;
+    public ReadOnlySpan<PhysicsBody> Bodies=>_bodies;
     private readonly ConvexInstance _shapeA,_shapeB;
     public ContactPositionConstraint(PhysicsBody a,ConvexInstance shapeA,PhysicsBody b,ConvexInstance shapeB)
     {
         ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
         if(a==b||a.Id==b.Id||shapeA.Geometry is null||shapeB.Geometry is null)
             throw new ArgumentException("Position contact requires distinct bodies and explicit geometry.");
-        A=a; B=b; _shapeA=shapeA; _shapeB=shapeB;
+        A=a; B=b; _bodies=[a,b]; _shapeA=shapeA; _shapeB=shapeB;
     }
     internal ConvexMotion MotionA(IRigidTrajectory path)=>new(_shapeA,path);
     internal ConvexMotion MotionB(IRigidTrajectory path)=>new(_shapeB,path);
@@ -51,13 +52,7 @@ public sealed class ContactPositionConstraint : IPositionConstraint
             if(error<=tolerance*.5) continue;
             var angularA=CollisionVector.Cross(pointA-A.Center,normal);
             var angularB=-CollisionVector.Cross(pointB-B.Center,normal);
-            var turnA=A.InverseInertia(angularA); var turnB=B.InverseInertia(angularB);
-            var mass=A.InverseMass+B.InverseMass+CollisionVector.Dot(angularA,turnA)+CollisionVector.Dot(angularB,turnB);
-            if(!double.IsFinite(mass)||mass<=0) throw new InvalidOperationException("Immovable contact cannot resolve penetration.");
-            var impulse=error/mass;
-            if(!double.IsFinite(impulse)) throw new InvalidOperationException("Position impulse exceeds numeric range.");
-            projector.Apply([new(A,normal*(A.InverseMass*impulse),turnA*impulse),
-                new(B,-normal*(B.InverseMass*impulse),turnB*impulse)]);
+            PositionEquations.Project([new(new([new(A,normal,angularA),new(B,-normal,angularB)]),-error)],projector);
         }
     }
 }
@@ -73,7 +68,7 @@ public static class PositionSolver
         foreach(var constraint in constraints)
         {
             ArgumentNullException.ThrowIfNull(constraint);
-            foreach(var body in new[]{constraint.A,constraint.B})
+            foreach(var body in constraint.Bodies)
             {
                 projector.ValidateBody(body);
                 if(bodies.TryGetValue(body.Id,out var prior)&&prior!=body) throw new ArgumentException("Duplicate body state for one identity.");
