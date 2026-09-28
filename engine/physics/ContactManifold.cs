@@ -21,7 +21,7 @@ public sealed class ContactManifold
         where TA:IConvexFeatureSupport where TB:IConvexFeatureSupport
     {
         if(!double.IsFinite(contactDistance)||contactDistance<0) throw new ArgumentOutOfRangeException(nameof(contactDistance));
-        var separation=RoundedSeparation.Query(a,b,tolerance);
+        var separation=ConvexSeparation.Query(a,b,tolerance);
         if(separation.LowerBound>contactDistance) return new(ContactManifoldStatus.Clear,separation.Normal,[]);
         var normal=separation.Normal; var pointA=separation.PointA; var pointB=separation.PointB;
         if(!normal.IsFinite||Math.Abs(normal.Length-1)>1e-10)

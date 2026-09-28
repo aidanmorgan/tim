@@ -54,7 +54,14 @@ public static class ConvexPenetration
             if(squared>span) { span=squared; first=i; second=j; }
         }
         if(!double.IsFinite(span)) throw new InvalidOperationException("Polytope scale exceeds numeric range.");
-        if(span==0) return Touch(distance,default,0);
+        if(span==0)
+        {
+            // A singleton Minkowski difference has no unique normal at the
+            // origin. Every direction is supporting there; choose a stable
+            // unit axis so an exact rounding radius can restore its surface.
+            var delta=distance.PointA-distance.PointB;
+            return Touch(distance,delta.Length>0?delta/delta.Length:new CollisionVector(-1,0,0),0);
+        }
         var edge=(vertices[second].Difference-vertices[first].Difference)/Math.Sqrt(span);
         var seed=Math.Abs(edge.X)<.5773502691896258?new CollisionVector(1,0,0):
             Math.Abs(edge.Y)<.5773502691896258?new CollisionVector(0,1,0):new CollisionVector(0,0,1);

@@ -177,6 +177,6 @@ public class ConvexPenetrationTests
         var point=new ConvexInstance(new ConvexHull([default]),Transform3D.Identity);
         var coincident=ConvexPenetration.Query(point,point);
         Assert.Equal(0,coincident.UpperDepth);
-        Assert.Equal(default,coincident.Normal); // A coincident point pair has no unique normal.
+        Assert.Equal(new CollisionVector(-1,0,0),coincident.Normal); // Deterministic member of the non-unique supporting normals.
     }
 }

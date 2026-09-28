@@ -40,10 +40,17 @@ public readonly record struct CollisionBounds(CollisionVector Minimum,CollisionV
     public static CollisionBounds Swept(ConvexMotion motion,double duration)
     {
         motion.At(duration); // Validate time even when used only by the broad phase.
-        var start=motion.CenterAtStart; var end=start+motion.LinearVelocity*duration;
-        var r=motion.Reach;
-        return new(new(Math.Min(start.X,end.X)-r,Math.Min(start.Y,end.Y)-r,Math.Min(start.Z,end.Z)-r),
-            new(Math.Max(start.X,end.X)+r,Math.Max(start.Y,end.Y)+r,Math.Max(start.Z,end.Z)+r));
+        var bounds=Of(motion.At(0)); var displacement=motion.LinearVelocity*duration;
+        // Support planes can move by at most integrated angular speed times
+        // the support derivative radius, and never by more than twice reach.
+        // Zero rotation naturally gives exact translated child AABBs.
+        var turn=Math.Min(2*motion.Reach,motion.AngularSpeedBound*motion.RotationalReach*duration);
+        var minimum=bounds.Minimum+new CollisionVector(Math.Min(0,displacement.X)-turn,
+            Math.Min(0,displacement.Y)-turn,Math.Min(0,displacement.Z)-turn);
+        var maximum=bounds.Maximum+new CollisionVector(Math.Max(0,displacement.X)+turn,
+            Math.Max(0,displacement.Y)+turn,Math.Max(0,displacement.Z)+turn);
+        if(!minimum.IsFinite||!maximum.IsFinite) throw new InvalidOperationException("Swept bounds exceed numerical range.");
+        return new(minimum,maximum);
     }
 
     public double DistanceLowerBound(CollisionBounds other)

@@ -24,7 +24,7 @@ public class RoundedSeparationTests
             var distance=.3+random.NextDouble()*1.10005;
             var a=At(new ConvexSphere(.7),RigidPose.Identity);
             var b=At(new ConvexSphere(.7),RigidPose.At(direction*distance));
-            var result=RoundedSeparation.Query(a,b);
+            var result=ConvexSeparation.Query(a,b);
             Assert.InRange(Math.Abs(result.LowerBound-(distance-1.4)),0,1e-10);
             Assert.InRange(Math.Abs(result.UpperBound-(distance-1.4)),0,1e-10);
             Near(-direction,result.Normal);
@@ -77,8 +77,12 @@ public class RoundedSeparationTests
     {
         var a=At(new ConvexBox(new(1,1,1)),RigidPose.Identity);
         var b=At(new ConvexBox(new(1,1,1)),RigidPose.At(new(.3,1.8,.1)));
-        var full=ConvexSeparation.Query(a,b); var core=RoundedSeparation.Query(a,b);
-        Assert.Equal(full,core);
+        var signed=ConvexSeparation.Query(a,b); var penetration=ConvexPenetration.Query(a,b);
+        Assert.Equal(-penetration.UpperDepth,signed.LowerBound);
+        Assert.Equal(-penetration.LowerDepth,signed.UpperBound);
+        Assert.Equal(penetration.Normal,signed.Normal);
+        Assert.Equal(penetration.PointA,signed.PointA);
+        Assert.Equal(penetration.PointB,signed.PointB);
     }
 
     [Fact]
@@ -95,6 +99,21 @@ public class RoundedSeparationTests
         Near(momentum,a.LinearVelocity*2+b.LinearVelocity*3);
         Assert.InRange(Math.Abs(energy-a.LinearVelocity.LengthSquared-1.5*b.LinearVelocity.LengthSquared),0,1e-8);
         Near(default,a.AngularVelocity); Near(default,b.AngularVelocity);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1e-10)]
+    public void CoincidentRoundedCoresProduceCertifiedSurfaceWitnesses(double offset)
+    {
+        var a=At(new ConvexSphere(.7),RigidPose.Identity);
+        var b=At(new ConvexSphere(.3),RigidPose.At(new(offset,0,0)));
+        var result=ConvexSeparation.Query(a,b);
+        Assert.Equal(ConvexSeparationStatus.Penetrating,result.Status);
+        Assert.InRange(result.Normal.Length,1-1e-12,1+1e-12);
+        Assert.InRange(offset-1,result.LowerBound,result.UpperBound);
+        Near(result.PointA-result.PointB,-result.Normal*(1-offset));
+        Assert.Equal(ContactManifoldStatus.Contact,ContactManifold.Query(a,b).Status);
     }
 
     private sealed class Capsule(double radius,double halfLength) : ConvexGeometry

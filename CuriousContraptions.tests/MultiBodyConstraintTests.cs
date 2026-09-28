@@ -61,7 +61,7 @@ public class MultiBodyConstraintTests
         var result=ImpulseSolver.Solve([row,contact]);
         Near(default(CollisionVector),a.LinearVelocity,1e-8);
         Near(-Y*.8,b.LinearVelocity,1e-8); Near(-Y*.4,guide.LinearVelocity,1e-8);
-        Assert.True(result.Iterations>1); Assert.True(contact.AccumulatedImpulse>0);
+        Assert.Equal(1,result.Iterations); Assert.True(contact.AccumulatedImpulse>0);
         Near(0,row.Speed,1e-8);
     }
 

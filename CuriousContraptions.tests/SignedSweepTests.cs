@@ -188,11 +188,14 @@ public class SignedSweepTests
     }
 
     [Fact]
-    public void NonfiniteThresholdAndUndefinedPlaneCannotReturnClear()
+    public void NonfiniteThresholdIsRejectedAndCoincidentPointsHaveACertifiedPlane()
     {
         var shape=Motion(new ConvexSphere(1),RigidPose.Identity);
         Assert.Throws<ArgumentOutOfRangeException>(()=>ConvexSweep.Cast(shape,shape,1,double.NaN));
         var point=Motion(new ConvexHull([default]),RigidPose.Identity);
-        Assert.Throws<InvalidOperationException>(()=>ConvexSweep.Cast(point,point,1,MinimumSeparation));
+        var result=ConvexSweep.Cast(point,point,1,MinimumSeparation);
+        Assert.Equal(ConvexSweepStatus.Clear,result.Status);
+        Assert.Equal(0,result.Separation.LowerBound);
+        Assert.Equal(0,result.Separation.UpperBound);
     }
 }

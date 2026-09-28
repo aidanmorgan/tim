@@ -27,6 +27,7 @@ public readonly record struct ConstraintJacobian(CollisionVector LinearA,Collisi
 public interface IImpulseConstraint
 {
     ReadOnlySpan<PhysicsBody> Bodies { get; }
+    IEnumerable<ImpulseConstraint> ScalarRows { get; }
     double Residual { get; }
     void Solve();
 }
@@ -34,6 +35,7 @@ public interface IImpulseConstraint
 public sealed class ImpulseConstraint : IImpulseConstraint
 {
     public ReadOnlySpan<PhysicsBody> Bodies=>Gradient.Bodies;
+    public IEnumerable<ImpulseConstraint> ScalarRows { get { yield return this; } }
     public ConstraintGradient Gradient { get; }
     public double TargetSpeed { get; }
     public double MinimumImpulse { get; }
@@ -73,7 +75,7 @@ public sealed class ImpulseConstraint : IImpulseConstraint
             return Gradient.Speed;
         }
     }
-    private double Error=>TargetSpeed-Speed-Softness*AccumulatedImpulse;
+    internal double Error=>TargetSpeed-Speed-Softness*AccumulatedImpulse;
     public double Residual
     {
         get
@@ -106,6 +108,10 @@ public sealed class ImpulseConstraint : IImpulseConstraint
         var increment=next-AccumulatedImpulse;
         Gradient.Apply(increment); AccumulatedImpulse=next;
     }
+    internal void CommitCoupledImpulse(double impulse)
+    {
+        AccumulatedImpulse=impulse; _started=true;
+    }
     public static ImpulseConstraint Contact(PhysicsBody a,PhysicsBody b,CollisionVector point,
         CollisionVector normalFromBToA,double restitution,double bounceThreshold)
     {
@@ -135,8 +141,20 @@ public static class ImpulseSolver
                     throw new ArgumentException("Body identity refers to multiple velocity states.");
                 else bodies[body.Id]=body;
         }
+        var scalarRows=new List<ImpulseConstraint>();
+        var uniqueRows=new HashSet<ImpulseConstraint>();
+        foreach(var constraint in constraints)
+            foreach(var row in constraint.ScalarRows)
+                if(uniqueRows.Add(row)) scalarRows.Add(row);
+        var pairs=new List<CoupledImpulsePair>();
+        for(var i=0;i<scalarRows.Count;i++)
+        for(var j=i+1;j<scalarRows.Count;j++)
+            if(scalarRows[i].InverseEffectiveMass>0&&scalarRows[j].InverseEffectiveMass>0&&
+                scalarRows[i].Gradient.Coupling(scalarRows[j].Gradient)!=0)
+                pairs.Add(new(scalarRows[i],scalarRows[j]));
         for(var iteration=1;iteration<=maximumIterations;iteration++)
         {
+            foreach(var pair in pairs) pair.Solve();
             foreach(var row in constraints) row.Solve();
             double residual=0;
             foreach(var row in constraints) residual=Math.Max(residual,row.Residual);

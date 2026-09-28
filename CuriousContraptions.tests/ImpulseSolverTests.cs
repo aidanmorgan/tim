@@ -90,7 +90,7 @@ public class ImpulseSolverTests
         var second=ImpulseConstraint.Contact(b,wall,X*.5,X,0,0);
         var result=ImpulseSolver.Solve([first,second]);
         Near(0,a.LinearVelocity.X); Near(0,b.LinearVelocity.X);
-        Assert.True(result.Iterations>1);
+        Assert.Equal(1,result.Iterations);
     }
 
     [Fact]

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace CuriousContraptions.Physics;
 
@@ -21,6 +22,7 @@ public readonly record struct ContactImpulse
 public sealed class ContactConstraint : IImpulseConstraint
 {
     public ImpulseConstraint Normal { get; }
+    public IEnumerable<ImpulseConstraint> ScalarRows { get { yield return Normal; } }
     public PhysicsBody A { get; }
     public PhysicsBody B { get; }
     public ReadOnlySpan<PhysicsBody> Bodies=>Normal.Bodies;

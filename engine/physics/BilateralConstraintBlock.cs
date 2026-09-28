@@ -9,6 +9,8 @@ namespace CuriousContraptions.Physics;
 /// convergence at offset anchors. Contacts remain coupled through the outer solve.</summary>
 public sealed class BilateralConstraintBlock : IImpulseConstraint
 {
+    // This block owns its accumulated impulses; its rows are solved together.
+    public IEnumerable<ImpulseConstraint> ScalarRows=>Array.Empty<ImpulseConstraint>();
     private readonly PhysicsBody[] _bodies;
     public ReadOnlySpan<PhysicsBody> Bodies=>_bodies;
     private readonly ImpulseConstraint[] _rows;

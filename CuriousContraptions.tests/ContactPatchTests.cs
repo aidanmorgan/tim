@@ -226,7 +226,7 @@ public class ContactPatchTests
     }
 
     [Fact]
-    public void ManifoldIncludesTheCcdSkinButRejectsDistantAndUndefinedContacts()
+    public void ManifoldIncludesTheCcdSkinAndCoincidentPointsButRejectsDistantContacts()
     {
         var box=new ConvexBox(new(1,1,1));
         var a=At(box,RigidPose.Identity);
@@ -237,7 +237,10 @@ public class ContactPatchTests
         Assert.All(manifold.Points.ToArray(),p=>Assert.InRange(p.Separation,.000049999,.000050001));
         Assert.Equal(ContactManifoldStatus.Clear,ContactManifold.Query(a,At(box,RigidPose.At(new(0,3,0)))).Status);
         var point=At(new ConvexHull([default]),RigidPose.Identity);
-        Assert.Throws<InvalidOperationException>(()=>ContactManifold.Query(point,point));
+        var coincident=ContactManifold.Query(point,point);
+        Assert.Equal(ContactManifoldStatus.Contact,coincident.Status);
+        Assert.Equal(0,Assert.Single(coincident.Points.ToArray()).Separation);
+        Assert.Equal(new CollisionVector(-1,0,0),coincident.Normal);
         Assert.Throws<ArgumentOutOfRangeException>(()=>ContactManifold.Query(a,b,-1));
     }
 

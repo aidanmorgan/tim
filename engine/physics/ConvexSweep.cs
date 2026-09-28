@@ -100,7 +100,13 @@ public static class ConvexSweep
             // worst possible closing rate is nonpositive, it certifies the rest
             // of the horizon, including rotation, without endpoint assumptions.
             if(closing<=0) return new(ConvexSweepStatus.Clear,duration,At(duration),iteration);
-            var step=(gap-minimumSeparation)/closing;
+            // Stop inside the existing event tolerance, leaving a certified
+            // positive margin above the forbidden separation. Landing exactly
+            // on that boundary can round into overlap and prevent a later
+            // separating correction. This reserve never widens the tolerance.
+            var clearance=gap-minimumSeparation;
+            var reserve=Math.Min(clearance*.5,2*queryTolerance);
+            var step=(clearance-reserve)/closing;
             var next=Math.Min(duration,time+step);
             // A support-plane chord minus its material-point curvature bound
             // certifies the whole interval. Body-fixed planes follow rotating

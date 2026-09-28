@@ -34,7 +34,7 @@ async (page) => {
          near(report.Energy,27/7); break;
        case Probe.ContactCoupling:
          expected=[0,-.8,-.4]; near(report.GuideSpin,0); near(report.Energy,.4);
-         if(report.Iterations<=1) throw Error("Contact was not coupled"); break;
+         if(report.Iterations!==1) throw Error("Two-row coupled solve did not converge in one iteration"); break;
        case Probe.BilateralChain: expected=[4/3,4/3,4/3]; near(report.Energy,8/3); near(report.GuideSpin,0); near(report.AngularMomentum,0); break;
        default: throw Error("Unsupported multi-body probe");
      }
