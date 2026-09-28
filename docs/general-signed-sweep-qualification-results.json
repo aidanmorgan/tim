@@ -1,0 +1,346 @@
+{
+  "testedBaseRevision": "9445209",
+  "changes": "Explicit signed sweep boundary, rounded-core support-motion bounds, and stable generic simplex projection/search direction in the commit containing this record.",
+  "scope": "Read-only engine qualification. The signed boundary is an explicit fixture input, not a gameplay difficulty change or a completed world-step implementation.",
+  "native": {
+    "passed": 1527,
+    "failed": 0,
+    "skipped": 0,
+    "command": "dotnet test CuriousContraptions.tests --no-restore --verbosity quiet"
+  },
+  "diagnosticsPublish": {
+    "exitCode": 0,
+    "command": "dotnet publish CuriousContraptions.web -p:PlaytestDiagnostics=true --no-restore --verbosity quiet"
+  },
+  "browser": {
+    "reports": [
+      {
+        "Probe": "SpinningSlide",
+        "Status": "Clear",
+        "Time": 1,
+        "Duration": 1,
+        "MinimumSeparation": -0.000001,
+        "InitialLower": 0,
+        "MidLower": 0,
+        "Lower": -1.2488980702399036e-16,
+        "Upper": 1.1427425830247815e-14,
+        "Iterations": 1,
+        "RotationalReach": 0,
+        "ExactCommittedPose": true,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "BoxSlide",
+        "Status": "Clear",
+        "Time": 1,
+        "Duration": 1,
+        "MinimumSeparation": -0.000001,
+        "InitialLower": 0,
+        "MidLower": 0,
+        "Lower": 0,
+        "Upper": 4.85722573273506e-15,
+        "Iterations": 1,
+        "RotationalReach": 0.8660254037844386,
+        "ExactCommittedPose": true,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "OrbitRecontact",
+        "Status": "Contact",
+        "Time": 0.04601811294129047,
+        "Duration": 0.05235987755982988,
+        "MinimumSeparation": -0.000001,
+        "InitialLower": -5.5185054696941526e-8,
+        "MidLower": 1.6396078037153345,
+        "Lower": -0.0000010000000000976658,
+        "Upper": -0.0000010000000000842668,
+        "Iterations": 27,
+        "RotationalReach": 1,
+        "ExactCommittedPose": true,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "GrazingReturn",
+        "Status": "Clear",
+        "Time": 6.283185307179586,
+        "Duration": 6.283185307179586,
+        "MinimumSeparation": -0.000001,
+        "InitialLower": -5.421558349479805e-8,
+        "MidLower": 1.9999999967013535,
+        "Lower": -1.3975532822601424e-8,
+        "Upper": 1.4706856466962436e-8,
+        "Iterations": 2387,
+        "RotationalReach": 1,
+        "ExactCommittedPose": true,
+        "ExactRestore": true,
+        "ExactReplay": true
+      }
+    ],
+    "general": [
+      {
+        "Probe": "PureRotation",
+        "Status": "Contact",
+        "Time": 0.0027025847588095144,
+        "Queries": 12
+      },
+      {
+        "Probe": "OpposingBodies",
+        "Status": "Contact",
+        "Time": 0.0037498749999999997,
+        "Queries": 2
+      },
+      {
+        "Probe": "CompoundPassage",
+        "Status": "Clear",
+        "Time": 1,
+        "Queries": 4
+      },
+      {
+        "Probe": "CompoundWall",
+        "Status": "Contact",
+        "Time": 0.2916499999975121,
+        "Queries": 4
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only signed-clearance engine qualification; no gameplay-part UI completion claimed."
+  },
+  "regressions": [
+    {
+      "recipe": "general-penetration-qualification.playwright.js",
+      "result": {
+        "reports": [
+          {
+            "Probe": "Sphere",
+            "Status": "Penetrating",
+            "LowerDepth": 1.1417424236758462,
+            "UpperDepth": 1.1417424236758464,
+            "WitnessError": 0,
+            "Iterations": 0
+          },
+          {
+            "Probe": "Box",
+            "Status": "Penetrating",
+            "LowerDepth": 1.5999999940395355,
+            "UpperDepth": 1.5999999940395355,
+            "WitnessError": 7.447602459741819e-16,
+            "Iterations": 11
+          },
+          {
+            "Probe": "Hull",
+            "Status": "Penetrating",
+            "LowerDepth": 1.5999999940395355,
+            "UpperDepth": 1.5999999940395355,
+            "WitnessError": 7.447602459741819e-16,
+            "Iterations": 11
+          }
+        ],
+        "errors": [],
+        "scope": "Read-only engine diagnostics; not gameplay part proof."
+      }
+    },
+    {
+      "recipe": "general-manifold-qualification.playwright.js",
+      "result": {
+        "reports": [
+          {
+            "Probe": "FlatImpact",
+            "Status": "Contact",
+            "Points": [
+              [
+                -1,
+                0,
+                1,
+                0
+              ],
+              [
+                -1,
+                0,
+                -1,
+                0
+              ],
+              [
+                1,
+                0,
+                1,
+                0
+              ],
+              [
+                1,
+                0,
+                -1,
+                0
+              ]
+            ],
+            "MaximumAnchorError": 0,
+            "LinearSpeed": 5.871109367812627e-9,
+            "AngularSpeed": 3.4630047171516748e-9,
+            "Residual": 7.788818770504413e-9,
+            "ExactRestore": true,
+            "ExactReplay": true
+          },
+          {
+            "Probe": "RotatedFaces",
+            "Status": "Contact",
+            "Points": [
+              [
+                -1,
+                0,
+                0.4142135623730949,
+                0
+              ],
+              [
+                -1,
+                0,
+                -0.4142135623730949,
+                0
+              ],
+              [
+                -0.4142135623730949,
+                0,
+                1,
+                0
+              ],
+              [
+                -0.4142135623730949,
+                0,
+                -1,
+                0
+              ],
+              [
+                0.4142135623730949,
+                0,
+                1,
+                0
+              ],
+              [
+                0.4142135623730949,
+                0,
+                -1,
+                0
+              ],
+              [
+                1,
+                0,
+                0.4142135623730949,
+                0
+              ],
+              [
+                1,
+                0,
+                -0.4142135623730949,
+                0
+              ]
+            ],
+            "MaximumAnchorError": 5.551115123125783e-17,
+            "LinearSpeed": 7.474110787736146e-9,
+            "AngularSpeed": 4.935113866033499e-9,
+            "Residual": 9.493783864183157e-9,
+            "ExactRestore": true,
+            "ExactReplay": true
+          },
+          {
+            "Probe": "Clear",
+            "Status": "Clear",
+            "Points": [],
+            "MaximumAnchorError": 0,
+            "LinearSpeed": 3,
+            "AngularSpeed": 0,
+            "Residual": 0,
+            "ExactRestore": true,
+            "ExactReplay": true
+          }
+        ],
+        "errors": [],
+        "scope": "Read-only engine diagnostics. Instantaneous response and body restore/replay, not resting-world or gameplay-part proof."
+      }
+    },
+    {
+      "recipe": "general-persistence-qualification.playwright.js",
+      "result": {
+        "reports": [
+          {
+            "Probe": "SingleSupport",
+            "Steps": 600,
+            "SolverTolerance": 1e-8,
+            "MaximumDrift": 6.76941855415641e-11,
+            "MaximumSpeed": 3.5075879511508064e-9,
+            "MaximumSpin": 2.0697202855685573e-9,
+            "MaximumResidual": 4.6566962605843615e-9,
+            "FirstIterations": 21,
+            "LaterMaximumIterations": 1,
+            "StableIds": true,
+            "ExactRestore": true,
+            "ExactReplay": true,
+            "ReleaseCleared": true
+          },
+          {
+            "Probe": "TwoBodyStack",
+            "Steps": 240,
+            "SolverTolerance": 1e-10,
+            "MaximumDrift": 7.086187190884336e-12,
+            "MaximumSpeed": 2.0888887740104901e-10,
+            "MaximumSpin": 8.274245170799614e-11,
+            "MaximumResidual": 9.791563062914227e-11,
+            "FirstIterations": 214,
+            "LaterMaximumIterations": 9,
+            "StableIds": true,
+            "ExactRestore": true,
+            "ExactReplay": true,
+            "ReleaseCleared": true
+          }
+        ],
+        "errors": [],
+        "scope": "Controlled engine support loops and read-only diagnostics, not a collision-complete world or gameplay-part UI proof."
+      }
+    },
+    {
+      "recipe": "general-trajectory-qualification.playwright.js",
+      "result": {
+        "report": {
+          "Status": "Contact",
+          "Time": 0.11325802404449103,
+          "Segments": 55,
+          "InitialSeparation": 1.165621957719782,
+          "FinalSeparation": 1.1261254060005894,
+          "ContactSeparation": 0.00010007381187392759,
+          "ExactCommittedPose": true
+        },
+        "errors": []
+      }
+    }
+  ],
+  "productionPublish": {
+    "exitCode": 0,
+    "command": "dotnet publish CuriousContraptions.web -c Release -p:PlaytestDiagnostics=false --no-restore --verbosity quiet"
+  },
+  "focusedTests": 17,
+  "retainedFailures": [
+    {
+      "phase": "Initial wide-floor spin/slide fixture",
+      "result": "GJK exhausted its 256-iteration budget at the initial contact.",
+      "resolution": "Replaced normal-equation simplex projection with re-orthogonalized QR."
+    },
+    {
+      "phase": "Same fixture after QR",
+      "result": "Endpoint GJK still stalled: lower=0, upper=3.868844076175008e-7; near-zero tangential witness subtraction selected the wrong support corner.",
+      "resolution": "Use the affine feature's geometric normal for search, retain actual convex witnesses for the upper bound, and require the current support plane to certify the lower bound. No tolerance or budget increase."
+    },
+    {
+      "phase": "Temporary diagnostic instrumentation",
+      "result": "Incorrect escaping inside an interpolated exception caused a compile failure.",
+      "resolution": "Corrected interpolation, then removed the verbose simplex dump after diagnosis. Bound values remain in exhaustion errors."
+    }
+  ],
+  "limitations": [
+    "Grazing full-revolution fixture needs 2387 sweep iterations; many-pair scene performance remains unqualified",
+    "Negative thresholds bound permitted overlap, not strict nonpenetration; world position correction and an explicit budget remain required",
+    "No world contact graph/time-loop integration yet",
+    "Persistent joints, routed ropes and hollow catalogue migration pending",
+    "Original gameplay solver remains; gameplay cutover and old-code deletion pending",
+    "Current per-part real-UI proofs for the new engine remain pending"
+  ]
+}

@@ -62,7 +62,7 @@ public class BodyTrajectoryTests
         var obstacle=new ConvexMotion(new(new ConvexSphere(.03),Transform3D.Identity),fixedBody.CreateTrajectory(.24));
         Assert.True(ConvexDistance.Query(beam.At(0),obstacle.At(0)).LowerBound>.01);
         Assert.True(ConvexDistance.Query(beam.At(.24),obstacle.At(.24)).LowerBound>.01);
-        var hit=ConvexSweep.Cast(beam,obstacle,.24);
+        var hit=ConvexSweep.Cast(beam,obstacle,.24,ConvexSweep.ContactDistance);
         Assert.Equal(ConvexSweepStatus.Contact,hit.Status);
         Assert.InRange(hit.Time,.02,.12);
         var expected=path.At(hit.Time);
@@ -84,7 +84,7 @@ public class BodyTrajectoryTests
         var target=path.At(.12).TransformPoint(X*1.5);
         var fixedBody=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.At(target),default,default);
         var obstacle=new CompoundMotion(new([new(new ConvexSphere(.03),Transform3D.Identity)]),fixedBody.CreateTrajectory(.24));
-        var hit=CompoundCollision.Cast(moving,obstacle,.24);
+        var hit=CompoundCollision.Cast(moving,obstacle,.24,ConvexSweep.ContactDistance);
         Assert.Equal(ConvexSweepStatus.Contact,hit.Status);
         Assert.Equal(new ColliderChildId(1),hit.ChildA);
         Assert.Equal(new ColliderChildId(0),hit.ChildB);

@@ -39,6 +39,9 @@ public abstract class ConvexGeometry
     public abstract CollisionVector Support(CollisionVector direction);
     public abstract SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance);
     public abstract double BoundingRadius { get; }
+    /// <summary>Radius of an exact Minkowski-summed ball. The remaining core
+    /// fits within BoundingRadius minus RoundingRadius, about the local origin.</summary>
+    public abstract double RoundingRadius { get; }
     public abstract InteriorBall InteriorBall { get; }
 }
 
@@ -53,6 +56,7 @@ public sealed class ConvexSphere : ConvexGeometry
     public override SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)=>
         new([new(new(0),Support(SupportFeature.UnitDirection(direction,planeTolerance)))]);
     public override double BoundingRadius=>Radius;
+    public override double RoundingRadius=>Radius;
     public override InteriorBall InteriorBall=>new(default,Radius);
     public override CollisionVector Support(CollisionVector direction)
     {
@@ -76,6 +80,7 @@ public sealed class ConvexBox : ConvexGeometry
         return SupportFeature.FromPoints(points,direction,planeTolerance);
     }
     public override double BoundingRadius=>Half.Length;
+    public override double RoundingRadius=>0;
     public override InteriorBall InteriorBall=>new(default,Math.Min(Half.X,Math.Min(Half.Y,Half.Z)));
     public override CollisionVector Support(CollisionVector direction)=>
         new(direction.X<0?-Half.X:Half.X,direction.Y<0?-Half.Y:Half.Y,direction.Z<0?-Half.Z:Half.Z);
@@ -87,6 +92,7 @@ public sealed class ConvexHull : ConvexGeometry
 {
     private readonly CollisionVector[] _points;
     public override double BoundingRadius { get; }
+    public override double RoundingRadius=>0;
     public override InteriorBall InteriorBall { get; }
     public ConvexHull(ReadOnlySpan<CollisionVector> points)
     {
@@ -127,6 +133,7 @@ public readonly struct ConvexInstance : IConvexFeatureSupport
     public ConvexGeometry Geometry { get; }
     public Transform3D Pose { get; }
     public double RadiusBound { get; }
+    public double RotationRadiusBound { get; }
     public InteriorBall InteriorBall { get; }
     public ConvexInstance(ConvexGeometry geometry,Transform3D pose)
     {
@@ -138,19 +145,26 @@ public readonly struct ConvexInstance : IConvexFeatureSupport
             Math.Abs(b.X.Dot(b.Z))>.00001||Math.Abs(b.Y.Dot(b.Z))>.00001||
             Math.Abs(b.Determinant()-1)>.0001)
             throw new ArgumentException("Collision instances require proper rigid transforms.",nameof(pose));
-        if(!double.IsFinite(geometry.BoundingRadius)||geometry.BoundingRadius<0)
+        if(!double.IsFinite(geometry.BoundingRadius)||geometry.BoundingRadius<0||
+            !double.IsFinite(geometry.RoundingRadius)||geometry.RoundingRadius<0||geometry.RoundingRadius>geometry.BoundingRadius)
             throw new ArgumentOutOfRangeException(nameof(geometry));
         var x=CollisionVector.From(b.X); var y=CollisionVector.From(b.Y); var z=CollisionVector.From(b.Z);
         var xy=Math.Abs(CollisionVector.Dot(x,y)); var xz=Math.Abs(CollisionVector.Dot(x,z)); var yz=Math.Abs(CollisionVector.Dot(y,z));
         // The maximum absolute row sum of B-transpose*B bounds its largest
         // eigenvalue, including float transform roundoff.
-        RadiusBound=geometry.BoundingRadius*Math.Sqrt(Math.Max(x.LengthSquared+xy+xz,
-            Math.Max(y.LengthSquared+xy+yz,z.LengthSquared+xz+yz)));
+        var maximum=Math.Max(x.LengthSquared+xy+xz,Math.Max(y.LengthSquared+xy+yz,z.LengthSquared+xz+yz));
+        RadiusBound=geometry.BoundingRadius*Math.Sqrt(maximum);
         var ball=geometry.InteriorBall;
         var minimum=Math.Min(x.LengthSquared-xy-xz,Math.Min(y.LengthSquared-xy-yz,z.LengthSquared-xz-yz));
         if(!double.IsFinite(minimum)||minimum<=0) throw new ArgumentException("Rigid transform has no positive interior-radius bound.",nameof(pose));
         InteriorBall=new(CollisionVector.From(pose.Origin)+x*ball.Center.X+y*ball.Center.Y+z*ball.Center.Z,
             ball.Radius*Math.Sqrt(minimum));
+        // For the rounded term h(n)=r*sqrt(n^T B B^T n), the derivative under
+        // unit angular travel is bounded by r*(lambdaMax-lambdaMin)/sqrt(lambdaMin).
+        // This retains float-basis anisotropy rather than pretending it is exactly rigid.
+        RotationRadiusBound=(geometry.BoundingRadius-geometry.RoundingRadius)*Math.Sqrt(maximum)+
+            geometry.RoundingRadius*(maximum-minimum)/Math.Sqrt(minimum);
+        if(!double.IsFinite(RotationRadiusBound)) throw new ArgumentOutOfRangeException(nameof(geometry));
         Geometry=geometry; Pose=pose;
     }
     public SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)

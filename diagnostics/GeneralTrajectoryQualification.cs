@@ -19,7 +19,7 @@ internal static class GeneralTrajectoryQualification
         var obstacle=new ConvexMotion(new(new ConvexSphere(.03),Transform3D.Identity),fixture.CreateTrajectory(.24));
         var initial=ConvexDistance.Query(moving.At(0),obstacle.At(0)).LowerBound;
         var final=ConvexDistance.Query(moving.At(.24),obstacle.At(.24)).LowerBound;
-        var hit=ConvexSweep.Cast(moving,obstacle,.24);
+        var hit=ConvexSweep.Cast(moving,obstacle,.24,ConvexSweep.ContactDistance);
         var expected=path.At(hit.Time);
         body.Advance(path,hit.Time);
         return new(hit.Status,hit.Time,path.SegmentCount,initial,final,hit.Separation.UpperBound,body.Pose==expected);

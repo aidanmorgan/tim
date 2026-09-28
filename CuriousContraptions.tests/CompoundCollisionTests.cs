@@ -27,7 +27,7 @@ public class CompoundCollisionTests
         var moving=new CompoundMotion(new([new(new ConvexSphere(.25),Transform3D.Identity)]),
             Path(RigidPose.At(new(0,height,0)),new(6,0,0)));
         var passage=new CompoundMotion(Passage(),Path(RigidPose.Identity));
-        var result=CompoundCollision.Cast(moving,passage,1);
+        var result=CompoundCollision.Cast(moving,passage,1,ConvexSweep.ContactDistance);
         Assert.Equal(expected?ConvexSweepStatus.Contact:ConvexSweepStatus.Clear,result.Status);
         if(expected)
         {
@@ -51,7 +51,7 @@ public class CompoundCollisionTests
         var moving=new CompoundMotion(new([new(capsule,Transform3D.Identity)]),
             Path(RigidPose.Identity,new(6,0,0),new(.1,.2,.3)));
         var passage=new CompoundMotion(Passage(),Path(RigidPose.Identity));
-        Assert.Equal(ConvexSweepStatus.Clear,CompoundCollision.Cast(moving,passage,1).Status);
+        Assert.Equal(ConvexSweepStatus.Clear,CompoundCollision.Cast(moving,passage,1,ConvexSweep.ContactDistance).Status);
     }
 
     [Fact]
@@ -60,12 +60,12 @@ public class CompoundCollisionTests
         var shape=new CompoundGeometry([new(new ConvexBox(new(2,.05,.05)),Transform3D.Identity)]);
         var moving=new CompoundMotion(shape,Path(RigidPose.Identity,spin:new(0,0,120),duration:.01));
         var far=new CompoundMotion(shape,Path(RigidPose.At(new(100,100,100))));
-        var miss=CompoundCollision.Cast(moving,far,.01);
+        var miss=CompoundCollision.Cast(moving,far,.01,ConvexSweep.ContactDistance);
         Assert.Equal(ConvexSweepStatus.Clear,miss.Status);
         Assert.Equal(0,miss.NarrowPhaseCalls);
         var near=new CompoundMotion(new([new(new ConvexBox(new(.05,.05,.05)),Transform3D.Identity)]),
             Path(RigidPose.At(new(1.5f*Mathf.Cos(.4f),1.5f*Mathf.Sin(.4f),0))));
-        var hit=CompoundCollision.Cast(moving,near,.01);
+        var hit=CompoundCollision.Cast(moving,near,.01,ConvexSweep.ContactDistance);
         Assert.Equal(ConvexSweepStatus.Contact,hit.Status);
         Assert.Equal(1,hit.NarrowPhaseCalls);
     }
@@ -76,7 +76,7 @@ public class CompoundCollisionTests
         Assert.Throws<ArgumentException>(()=>new CompoundGeometry([]));
         Assert.Throws<ArgumentException>(()=>new CompoundGeometry([default]));
         Assert.Throws<ArgumentOutOfRangeException>(()=>new ColliderChildId(-1));
-        Assert.Throws<InvalidOperationException>(()=>CompoundCollision.Cast(default,default,1));
+        Assert.Throws<InvalidOperationException>(()=>CompoundCollision.Cast(default,default,1,ConvexSweep.ContactDistance));
     }
 
     private sealed class Capsule(double radius,double halfLength) : ConvexGeometry
@@ -89,6 +89,7 @@ public class CompoundCollisionTests
                 radial+new CollisionVector(0,halfLength,0)],normal,planeTolerance);
         }
         public override double BoundingRadius=>radius+halfLength;
+        public override double RoundingRadius=>radius;
         public override InteriorBall InteriorBall=>new(default,radius);
         public override CollisionVector Support(CollisionVector direction)
         {

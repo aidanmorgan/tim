@@ -28,7 +28,7 @@ public sealed class CompoundGeometry
 }
 
 public readonly record struct CompoundSweepResult(ConvexSweepStatus Status,double Time,
-    ColliderChildId? ChildA,ColliderChildId? ChildB,ConvexDistanceResult? Separation,int NarrowPhaseCalls);
+    ColliderChildId? ChildA,ColliderChildId? ChildB,ConvexSeparationResult? Separation,int NarrowPhaseCalls);
 
 /// <summary>A conservative AABB derived from support points, not shape types.</summary>
 public readonly record struct CollisionBounds(CollisionVector Minimum,CollisionVector Maximum)
@@ -77,8 +77,9 @@ public readonly struct CompoundMotion
 /// their source part. Child indices are stable declaration-order identities.</summary>
 public static class CompoundCollision
 {
-    public static CompoundSweepResult Cast(CompoundMotion a,CompoundMotion b,double duration)
+    public static CompoundSweepResult Cast(CompoundMotion a,CompoundMotion b,double duration,double minimumSeparation)
     {
+        if(!double.IsFinite(minimumSeparation)) throw new ArgumentOutOfRangeException(nameof(minimumSeparation));
         if(!double.IsFinite(duration)||duration<0) throw new ArgumentOutOfRangeException(nameof(duration));
         var best=new CompoundSweepResult(ConvexSweepStatus.Clear,duration,null,null,null,0);
         var calls=0;
@@ -90,8 +91,8 @@ public static class CompoundCollision
             {
                 var second=b.Child(new(j));
                 var secondBounds=CollisionBounds.Swept(second,duration);
-                if(firstBounds.DistanceLowerBound(secondBounds)>ConvexSweep.ContactDistance+ConvexDistance.DefaultTolerance) continue;
-                var hit=ConvexSweep.Cast(first,second,best.Time);
+                if(firstBounds.DistanceLowerBound(secondBounds)>Math.Max(0,minimumSeparation)+ConvexDistance.DefaultTolerance) continue;
+                var hit=ConvexSweep.Cast(first,second,best.Time,minimumSeparation);
                 calls++;
                 if(hit.Status==ConvexSweepStatus.Clear) continue;
                 if(best.Status!=ConvexSweepStatus.Clear&&hit.Time>=best.Time) continue;
