@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using CuriousContraptions.Physics;
 
 namespace CuriousContraptions;
 
@@ -14,7 +16,11 @@ public readonly record struct WorldSweepResult(SphereSweepStatus Status, float D
 /// <summary>Direct-path geometry query. Air cannot pass through transparent solid proxies.</summary>
 public static class WorldGeometry
 {
-    private const float Epsilon=.0001f;
+    private static readonly ConditionalWeakTable<MachinePart,SceneTraceGeometry> TraceGeometry=new();
+    private static readonly CompoundGeometry RayPoint=new([new(new ConvexHull([default]),Transform3D.Identity)]);
+    private static readonly CompoundGeometry TraceWorkbench=new(
+        new[]{Workbench.Deck,Workbench.Base}.Select(box=>new ConvexInstance(new ConvexBox(CollisionVector.From(box.Half)),
+            new(Basis.Identity,box.At))).ToArray());
 
     /// <summary>Nearest finite-radius contact against all visible solid proxies and the workbench.
     /// Equal-distance contacts use workbench first, then ordinal part ID and proxy declaration order.
@@ -110,89 +116,33 @@ public static class WorldGeometry
     public static float Trace(TraceMedium medium, MachineWorld world, Vector3 origin, Vector3 direction, float range,
         MachinePart? emitter, MachinePart? receiver = null)
     {
-        if(!Enum.IsDefined(medium))throw new ArgumentOutOfRangeException(nameof(medium));
-        var closest = range;
-        foreach (var part in world.CollisionParts)
+        ArgumentNullException.ThrowIfNull(world);
+        if(!Enum.IsDefined(medium)) throw new ArgumentOutOfRangeException(nameof(medium));
+        if(!origin.IsFinite()||!direction.IsFinite()||direction.LengthSquared()==0||!float.IsFinite(range)||range<0)
+            throw new ArgumentException("A trace requires finite origin, nonzero direction and nonnegative range.");
+        var rayBody=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,RigidPose.At(CollisionVector.From(origin)),
+            CollisionVector.From(direction),default);
+        var ray=new CompoundMotion(RayPoint,rayBody.CreateTrajectory(range));
+        var stationary=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default).CreateTrajectory(range);
+        double closest=range;
+        void Test(CompoundGeometry geometry)
         {
-            if (!part.Visible || !part.PhysicsOwner.Visible || part == emitter || part.PhysicsOwner == emitter || part == receiver || part.PhysicsOwner == receiver) continue;
-            var inverse = part.Transform.AffineInverse();
-            var local = inverse * origin;
-            var ray = inverse.Basis * direction;
-            foreach (var box in part.Boxes.Where(b => medium==TraceMedium.Air || b.Opaque))
-                closest = BoxDistance(local - box.At, ray, box.Half, closest);
-            foreach (var hinge in part.HingedBodies)
-            {
-                var hingeInverse = hinge.Pose.AffineInverse();
-                closest = BoxDistance(hingeInverse * origin, hingeInverse.Basis * direction, hinge.Half, closest);
-            }
-            foreach (var sphere in part.Spheres)
-                closest = SphereDistance(local - sphere.At, ray, sphere.Radius, closest);
-            foreach (var tube in part.Tubes.Where(t => medium==TraceMedium.Air || t.Opaque))
-            {
-                var tubeInverse = tube.Pose.AffineInverse();
-                closest = tube.RayDistance(tubeInverse * local, tubeInverse.Basis * ray, closest);
-            }
-            if(medium==TraceMedium.Air)
-            {
-                foreach(var bend in part.Bends)
-                {
-                    var pose=bend.Pose.AffineInverse();
-                    closest=SurfaceDistance(pose*local,pose.Basis*ray,closest,p=>bend.Surface(p).Distance);
-                }
-                foreach(var frustum in part.Frustums)
-                {
-                    var pose=frustum.Pose.AffineInverse();
-                    closest=SurfaceDistance(pose*local,pose.Basis*ray,closest,p=>frustum.Surface(p).Distance);
-                }
-            }
-            if (part.Dynamic) closest = SphereDistance(local, ray, part.Radius, closest);
+            var result=CompoundCollision.Cast(ray,new(geometry,stationary),closest,0);
+            if(result.Status!=ConvexSweepStatus.Clear) closest=result.Time;
         }
-        closest = BoxDistance(origin - Workbench.Deck.At, direction, Workbench.Deck.Half, closest);
-        return BoxDistance(origin - Workbench.Base.At, direction, Workbench.Base.Half, closest);
-    }
-
-    private static float SurfaceDistance(Vector3 origin,Vector3 ray,float range,Func<Vector3,float> surface)
-    {
-        // Signed distance to the actual curved shell, not an opaque box around its bore.
-        // Advance never skips a nearer surface; epsilon makes tangencies terminate.
-        var speed=ray.Length();
-        if(speed<1e-8f)throw new ArgumentException("Geometry ray direction cannot be zero.");
-        for(var distance=0f;distance<range;)
+        foreach(var part in world.CollisionParts)
         {
-            var gap=surface(origin+ray*distance);
-            if(gap<=Epsilon)return distance;
-            distance+=gap/speed;
-        }
-        return range;
-    }
-    private static float BoxDistance(Vector3 origin, Vector3 ray, Vector3 half, float maximum)
-    {
-        var near = 0f;
-        var far = maximum;
-        for (var axis = 0; axis < 3; axis++)
-        {
-            if (Mathf.Abs(ray[axis]) < Epsilon)
+            if(!part.Visible||!part.PhysicsOwner.Visible||part==emitter||part.PhysicsOwner==emitter||
+                part==receiver||part.PhysicsOwner==receiver) continue;
+            if(!TraceGeometry.TryGetValue(part,out var geometry)||!geometry.Matches(part))
             {
-                if (Mathf.Abs(origin[axis]) > half[axis]) return maximum;
-                continue;
+                geometry=new(part);
+                TraceGeometry.Remove(part); TraceGeometry.Add(part,geometry);
             }
-            var a = (-half[axis] - origin[axis]) / ray[axis];
-            var b = (half[axis] - origin[axis]) / ray[axis];
-            near = Mathf.Max(near, Mathf.Min(a, b));
-            far = Mathf.Min(far, Mathf.Max(a, b));
-            if (near > far) return maximum;
+            var collider=geometry.For(medium);
+            if(collider is not null) Test(collider);
         }
-        return near;
-    }
-
-    private static float SphereDistance(Vector3 origin, Vector3 ray, float radius, float maximum)
-    {
-        var c = origin.LengthSquared() - radius * radius;
-        if (c <= 0) return 0;
-        var b = origin.Dot(ray);
-        var discriminant = b * b - ray.LengthSquared() * c;
-        if (discriminant < 0) return maximum;
-        var near = (-b - Mathf.Sqrt(discriminant)) / ray.LengthSquared();
-        return near >= 0 ? Mathf.Min(near, maximum) : maximum;
+        Test(TraceWorkbench);
+        return (float)closest;
     }
 }

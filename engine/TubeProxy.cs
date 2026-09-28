@@ -22,41 +22,4 @@ public readonly record struct TubeProxy(Transform3D Pose, float HalfLength, floa
         return inner < outer ? (-direction, -inner) : (direction, -outer);
     }
 
-    public float RayDistance(Vector3 origin, Vector3 ray, float maximum)
-    {
-        var radialSquared = origin.Y * origin.Y + origin.Z * origin.Z;
-        if (Mathf.Abs(origin.X) <= HalfLength && radialSquared >= InnerRadius * InnerRadius
-            && radialSquared <= OuterRadius * OuterRadius) return 0;
-        var nearest = maximum;
-        var innerSquared = InnerRadius * InnerRadius;
-        var outerSquared = OuterRadius * OuterRadius;
-        var halfLength = HalfLength;
-        void Candidate(float t, bool end)
-        {
-            if (t < 0 || t >= nearest) return;
-            var point = origin + ray * t;
-            var radiusSquared = point.Y * point.Y + point.Z * point.Z;
-            if (end ? radiusSquared >= innerSquared - .00001f && radiusSquared <= outerSquared + .00001f
-                : Mathf.Abs(point.X) <= halfLength + .00001f) nearest = t;
-        }
-        if (Mathf.Abs(ray.X) > .000001f)
-        {
-            Candidate((HalfLength - origin.X) / ray.X, true);
-            Candidate((-HalfLength - origin.X) / ray.X, true);
-        }
-        var a = ray.Y * ray.Y + ray.Z * ray.Z;
-        if (a > .000001f)
-        {
-            var b = origin.Y * ray.Y + origin.Z * ray.Z;
-            foreach (var radius in new[] { InnerRadius, OuterRadius })
-            {
-                var discriminant = b * b - a * (radialSquared - radius * radius);
-                if (discriminant < 0) continue;
-                var root = Mathf.Sqrt(discriminant);
-                Candidate((-b - root) / a, false);
-                Candidate((-b + root) / a, false);
-            }
-        }
-        return nearest;
-    }
 }
