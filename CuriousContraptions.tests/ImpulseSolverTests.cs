@@ -5,10 +5,10 @@ namespace CuriousContraptions.Tests;
 public class ImpulseSolverTests
 {
     private static readonly CollisionVector X=new(1,0,0),Y=new(0,1,0),Z=new(0,0,1);
-    private static ImpulseBody Dynamic(int id,CollisionVector center,CollisionVector velocity,
+    private static PhysicsBody Dynamic(int id,CollisionVector center,CollisionVector velocity,
         double mass=1,CollisionVector angular=default,InertiaTensor? inertia=null)=>
-        new(new(id),PhysicsMotionType.Dynamic,center,velocity,angular,mass,inertia??new InertiaTensor(1,1,1));
-    private static ImpulseBody Fixed(int id)=>new(new(id),PhysicsMotionType.Static,default,default,default);
+        new(new(id),PhysicsMotionType.Dynamic,RigidPose.At(center),velocity,angular,mass,inertia??new InertiaTensor(1,1,1));
+    private static PhysicsBody Fixed(int id)=>new(new(id),PhysicsMotionType.Static,RigidPose.Identity,default,default);
     private static void Near(double expected,double actual,double tolerance=1e-8)=>Assert.InRange(Math.Abs(expected-actual),0,tolerance);
     private static void Near(CollisionVector expected,CollisionVector actual,double tolerance=1e-8)=>Near(0,(expected-actual).Length,tolerance);
 
@@ -50,7 +50,7 @@ public class ImpulseSolverTests
     public void KinematicContactUsesPrescribedVelocityWithoutChangingTheDriver()
     {
         var load=Dynamic(0,X,default);
-        var driver=new ImpulseBody(new(1),PhysicsMotionType.Kinematic,default,X*2,default);
+        var driver=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,RigidPose.Identity,X*2,default);
         ImpulseSolver.Solve([ImpulseConstraint.Contact(load,driver,default,X,0,0)]);
         Near(X*2,load.LinearVelocity); Near(X*2,driver.LinearVelocity);
     }
@@ -158,7 +158,7 @@ public class ImpulseSolverTests
         Assert.Throws<ArgumentException>(()=>new InertiaTensor(1,1,-1));
         Assert.Throws<ArgumentException>(()=>new InertiaTensor(1,1,1,2));
         Assert.Throws<ArgumentException>(()=>Dynamic(0,default,default,mass:0));
-        Assert.Throws<ArgumentException>(()=>new ImpulseBody(new(0),PhysicsMotionType.Static,default,X,default));
+        Assert.Throws<ArgumentException>(()=>new PhysicsBody(new(0),PhysicsMotionType.Static,RigidPose.Identity,X,default));
         Assert.Throws<ArgumentOutOfRangeException>(()=>new PhysicsBodyId(-1));
         var a=Dynamic(0,default,default); var b=Fixed(1); var copy=Dynamic(0,default,default);
         Assert.Throws<ArgumentException>(()=>ImpulseConstraint.Contact(a,b,default,X*2,0,0));

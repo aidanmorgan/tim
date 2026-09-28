@@ -14,15 +14,15 @@ internal static class GeneralImpulseQualification
         var inertia=new InertiaTensor(1,1,1);
         if(probe==GeneralImpulseProbe.ElasticImpact)
         {
-            var a=new ImpulseBody(new(0),PhysicsMotionType.Dynamic,-x,x*3,default,2,inertia);
-            var b=new ImpulseBody(new(1),PhysicsMotionType.Dynamic,x,-x,default,3,inertia);
+            var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(-x),x*3,default,2,inertia);
+            var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.At(x),-x,default,3,inertia);
             var solved=ImpulseSolver.Solve([ImpulseConstraint.Contact(a,b,default,-x,1,0)]);
             return new(probe,a.LinearVelocity.X,b.LinearVelocity.X,b.AngularVelocity.Z,solved.Iterations,solved.MaximumResidual);
         }
         if(probe!=GeneralImpulseProbe.CoupledHinge) throw new System.ArgumentOutOfRangeException(nameof(probe));
-        var beam=new ImpulseBody(new(0),PhysicsMotionType.Dynamic,x,default,default,2,inertia);
-        var anchor=new ImpulseBody(new(1),PhysicsMotionType.Static,default,default,default);
-        var ball=new ImpulseBody(new(2),PhysicsMotionType.Dynamic,x*2+y,-y*3,default,1,inertia);
+        var beam=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(x),default,default,2,inertia);
+        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+        var ball=new PhysicsBody(new(2),PhysicsMotionType.Dynamic,RigidPose.At(x*2+y),-y*3,default,1,inertia);
         var pivot=new ImpulseConstraint(beam,anchor,ConstraintJacobian.AtPoint(beam,anchor,default,y),
             0,double.NegativeInfinity,double.PositiveInfinity);
         var result=ImpulseSolver.Solve([pivot,ImpulseConstraint.Contact(ball,beam,x*2,y,0,0)]);

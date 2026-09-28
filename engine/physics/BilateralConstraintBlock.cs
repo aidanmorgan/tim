@@ -8,8 +8,8 @@ namespace CuriousContraptions.Physics;
 /// convergence at offset anchors. Contacts remain coupled through the outer solve.</summary>
 public sealed class BilateralConstraintBlock : IImpulseConstraint
 {
-    public ImpulseBody A { get; }
-    public ImpulseBody B { get; }
+    public PhysicsBody A { get; }
+    public PhysicsBody B { get; }
     private readonly ImpulseConstraint[] _rows;
     private readonly double[,] _factor;
     private readonly double[] _scale,_impulses;
@@ -27,6 +27,7 @@ public sealed class BilateralConstraintBlock : IImpulseConstraint
             if(row is null||row.A!=A||row.B!=B||row.MinimumImpulse!=double.NegativeInfinity||
                 row.MaximumImpulse!=double.PositiveInfinity||row.AccumulatedImpulse!=0)
                 throw new ArgumentException("Joint block requires fresh bilateral rows sharing ordered body references.");
+            row.ValidatePose();
             _rows[i]=row;
             _scale[i]=Math.Sqrt(row.InverseEffectiveMass);
             if(!double.IsFinite(_scale[i])||_scale[i]<=0)

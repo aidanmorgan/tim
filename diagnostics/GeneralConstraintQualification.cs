@@ -13,25 +13,25 @@ internal static class GeneralConstraintQualification
     {
         var x=new CollisionVector(1,0,0); var y=new CollisionVector(0,1,0); var z=new CollisionVector(0,0,1);
         var inertia=new InertiaTensor(1,1,1);
-        var ground=new ImpulseBody(new(1),PhysicsMotionType.Static,default,default,default);
-        ImpulseBody body;
+        var ground=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+        PhysicsBody body;
         ImpulseSolveResult result;
         CollisionVector friction=default;
         switch(probe)
         {
             case GeneralConstraintProbe.SlidingFriction:
-                body=new(new(0),PhysicsMotionType.Dynamic,default,new(2.4,-2,3.2),default,1,inertia);
+                body=new(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,new(2.4,-2,3.2),default,1,inertia);
                 var contact=new ContactConstraint(body,ground,default,y,0,0,.5);
                 result=ImpulseSolver.Solve([contact]); friction=contact.TangentImpulse;
                 break;
             case GeneralConstraintProbe.MovingSlider:
-                body=new(new(0),PhysicsMotionType.Dynamic,z*3,default,default,1,inertia);
-                var rail=new ImpulseBody(new(1),PhysicsMotionType.Kinematic,default,default,y);
+                body=new(new(0),PhysicsMotionType.Dynamic,RigidPose.At(z*3),default,default,1,inertia);
+                var rail=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,RigidPose.Identity,default,y);
                 result=ImpulseSolver.Solve(JointConstraints.Slider(body,rail,
                     new(z*3,RigidRotation.Identity),new(default,RigidRotation.Identity)));
                 break;
             case GeneralConstraintProbe.OffsetJoint:
-                body=new(new(0),PhysicsMotionType.Dynamic,z*10,new(3,2,1),new(2,3,4),1,inertia);
+                body=new(new(0),PhysicsMotionType.Dynamic,RigidPose.At(z*10),new(3,2,1),new(2,3,4),1,inertia);
                 var frame=new JointFrame(default,RigidRotation.Identity);
                 result=ImpulseSolver.Solve(JointConstraints.Slider(body,ground,frame,frame));
                 break;

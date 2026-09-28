@@ -5,9 +5,9 @@ namespace CuriousContraptions.Tests;
 public class ContactConstraintTests
 {
     private static readonly CollisionVector Y=new(0,1,0);
-    private static ImpulseBody Body(CollisionVector velocity,InertiaTensor? inertia=null)=>
-        new(new(0),PhysicsMotionType.Dynamic,default,velocity,default,1,inertia??new InertiaTensor(1,1,1));
-    private static ImpulseBody Ground()=>new(new(1),PhysicsMotionType.Static,default,default,default);
+    private static PhysicsBody Body(CollisionVector velocity,InertiaTensor? inertia=null)=>
+        new(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,velocity,default,1,inertia??new InertiaTensor(1,1,1));
+    private static PhysicsBody Ground()=>new(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
     private static void Near(CollisionVector a,CollisionVector b,double tolerance=1e-8)=>Assert.InRange((a-b).Length,0,tolerance);
 
     [Theory]
@@ -86,8 +86,7 @@ public class ContactConstraintTests
     [Fact]
     public void DynamicPairFrictionPreservesTotalMomentum()
     {
-        var a=Body(new(4,-2,1)); var b=new ImpulseBody(new(1),PhysicsMotionType.Dynamic,
-            new(0,-2,0),default,default,2,new InertiaTensor(2,2,2));
+        var a=Body(new(4,-2,1)); var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.At(new(0,-2,0)),default,default,2,new InertiaTensor(2,2,2));
         var initial=a.LinearVelocity;
         ImpulseSolver.Solve([new ContactConstraint(a,b,new(0,-1,0),Y,0,0,.7)]);
         Near(initial,a.LinearVelocity+b.LinearVelocity*2);

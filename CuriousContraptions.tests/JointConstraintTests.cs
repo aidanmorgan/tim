@@ -5,9 +5,9 @@ namespace CuriousContraptions.Tests;
 public class JointConstraintTests
 {
     private static readonly CollisionVector X=new(1,0,0),Y=new(0,1,0),Z=new(0,0,1);
-    private static ImpulseBody Dynamic(int id,CollisionVector center,CollisionVector velocity,CollisionVector angular)=>
-        new(new(id),PhysicsMotionType.Dynamic,center,velocity,angular,1,new InertiaTensor(1,1,1));
-    private static ImpulseBody Fixed()=>new(new(1),PhysicsMotionType.Static,default,default,default);
+    private static PhysicsBody Dynamic(int id,CollisionVector center,CollisionVector velocity,CollisionVector angular)=>
+        new(new(id),PhysicsMotionType.Dynamic,RigidPose.At(center),velocity,angular,1,new InertiaTensor(1,1,1));
+    private static PhysicsBody Fixed()=>new(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
     private static JointFrame Frame(CollisionVector at=default,RigidRotation? rotation=null)=>new(at,rotation??RigidRotation.Identity);
     private static void Near(CollisionVector a,CollisionVector b,double tolerance=1e-8)=>Assert.InRange((a-b).Length,0,tolerance);
 
@@ -51,7 +51,7 @@ public class JointConstraintTests
     public void SliderIncludesRotationOfTheMovingRailAtAnOffset()
     {
         var a=Dynamic(0,Z*3,default,default);
-        var rail=new ImpulseBody(new(1),PhysicsMotionType.Kinematic,default,default,Y);
+        var rail=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,RigidPose.Identity,default,Y);
         ImpulseSolver.Solve(JointConstraints.Slider(a,rail,Frame(Z*3),Frame()));
         Near(X*3,a.LinearVelocity); Near(Y,a.AngularVelocity);
     }

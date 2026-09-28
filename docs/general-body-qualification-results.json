@@ -1,0 +1,24 @@
+{
+  "baseline": "934b464",
+  "scope": "Isolated body integration; not a migrated gameplay world",
+  "report": {
+    "Steps": 4800,
+    "Duration": 10,
+    "Center": [
+      2.0000000000001092,
+      2.9999999999999387,
+      4.0000000000002185
+    ],
+    "MomentumExact": true,
+    "MaximumRelativeEnergyError": 2.074595161929313e-7,
+    "Restored": true,
+    "Replayed": true
+  },
+  "errors": [],
+  "retainedBuildFailure": {
+    "code": "CS1501",
+    "file": "CuriousContraptions.tests/ContactConstraintTests.cs",
+    "cause": "Mechanical constructor migration nested a pose factory around a vector constructor.",
+    "resolution": "Corrected the call to RigidPose.At(new(0,-2,0)); no compatibility constructor added."
+  }
+}

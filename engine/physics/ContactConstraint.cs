@@ -8,8 +8,8 @@ namespace CuriousContraptions.Physics;
 public sealed class ContactConstraint : IImpulseConstraint
 {
     public ImpulseConstraint Normal { get; }
-    public ImpulseBody A=>Normal.A;
-    public ImpulseBody B=>Normal.B;
+    public PhysicsBody A=>Normal.A;
+    public PhysicsBody B=>Normal.B;
     public CollisionVector TangentImpulse=>_u*(_j0)+_v*(_j1);
     public double Friction { get; }
     private readonly CollisionVector _u,_v;
@@ -17,7 +17,7 @@ public sealed class ContactConstraint : IImpulseConstraint
     private readonly double _k00,_k01,_k11,_scale;
     private double _j0,_j1;
 
-    public ContactConstraint(ImpulseBody a,ImpulseBody b,CollisionVector point,CollisionVector normal,
+    public ContactConstraint(PhysicsBody a,PhysicsBody b,CollisionVector point,CollisionVector normal,
         double restitution,double bounceThreshold,double friction)
     {
         if(!double.IsFinite(friction)||friction<0) throw new ArgumentOutOfRangeException(nameof(friction));

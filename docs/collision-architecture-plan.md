@@ -125,3 +125,17 @@ A scalar-row offset-joint case initially exhausted 256 iterations. This failure 
 The full native suite passes **1,445 tests** with no failures/skips, and the production Release publish with diagnostics disabled succeeds.
 
 These are instantaneous constraint equations, not a completed dynamics engine. Still required: persistent body/joint state, inertia updates with pose, integration and split positional correction, complete rope routing/multiple endpoints, limit event timing, penetration/manifolds, compound hollow geometry, catalogue/world cutover, removal of every old solver path, and fresh per-part UI evidence. The current runtime still uses the old solver and must not be called migrated.
+
+## Full-replacement continuation: authoritative rigid body state
+
+Forward-refactored the new solver's temporary `ImpulseBody` into `PhysicsBody`, migrated every production/test/diagnostic caller, and deleted the old class and script identity. There is no alias, overload retaining the old constructor, or body synchronization adapter. Constructors now require an explicit `RigidPose`.
+
+The body owns pose, linear velocity and world angular momentum. Body-local inertia is rotated with pose; force/torque kicks and off-centre impulses act on momentum directly. Torque-free orientation uses bounded Lie-midpoint integration, with explicit failure on exhausted budgets. Static, kinematic and dynamic motion remain enum-typed. Snapshot restoration is validated before mutation, and pose revisions invalidate stale constraint geometry.
+
+**55 focused solver/body tests pass**, including ten new body tests: rotated inertia, force/torque integration, ten-second free rotation, time reversal, exact restore/replay, motion-type contracts, stale constraints and atomic failure. A constructor-edit compile failure was fixed by correcting its caller, not adding a compatibility signature; retained in [the evidence record](general-body-qualification-results.json).
+
+The [browser recipe](general-body-qualification.playwright.js) verifies 4,800 steps over ten seconds, exact world angular momentum, exact restore and replay, and maximum relative kinetic-energy error **2.074595161929313e-7** for the tested anisotropic free body. No browser errors were recorded. This is one measured integration case, not a general energy-preservation guarantee or gameplay part proof.
+
+The full native suite passes **1,455 tests**, and production Release publication with diagnostics disabled succeeds.
+
+**Next integration requirement:** the collision trajectory and the body's advance trajectory must agree. Existing constant-spin sweeps must not be used to certify a different torque-free rotating trajectory. Implement shared trajectory evaluation/bounds before world cutover. Still outstanding are penetration/manifolds, split positional correction, persistent joint/rope ownership, hollow catalogue geometry, world/caller migration, deletion of the original gameplay solver and fresh per-part UI proof.

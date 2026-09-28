@@ -5,9 +5,9 @@ namespace CuriousContraptions.Tests;
 public class BilateralConstraintBlockTests
 {
     private static readonly CollisionVector X=new(1,0,0),Y=new(0,1,0),Z=new(0,0,1);
-    private static ImpulseBody Body(int id,CollisionVector center,CollisionVector velocity,CollisionVector angular)=>
-        new(new(id),PhysicsMotionType.Dynamic,center,velocity,angular,2,new InertiaTensor(2,3,4,.2,.1,.3));
-    private static ImpulseBody Ground()=>new(new(2),PhysicsMotionType.Static,default,default,default);
+    private static PhysicsBody Body(int id,CollisionVector center,CollisionVector velocity,CollisionVector angular)=>
+        new(new(id),PhysicsMotionType.Dynamic,RigidPose.At(center),velocity,angular,2,new InertiaTensor(2,3,4,.2,.1,.3));
+    private static PhysicsBody Ground()=>new(new(2),PhysicsMotionType.Static,RigidPose.Identity,default,default);
     [Theory]
     [InlineData(1)]
     [InlineData(10)]

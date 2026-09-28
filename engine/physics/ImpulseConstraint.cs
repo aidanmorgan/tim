@@ -7,7 +7,7 @@ public readonly record struct ConstraintJacobian(CollisionVector LinearA,Collisi
     CollisionVector LinearB,CollisionVector AngularB)
 {
     public bool IsFinite=>LinearA.IsFinite&&AngularA.IsFinite&&LinearB.IsFinite&&AngularB.IsFinite;
-    public static ConstraintJacobian AtPoint(ImpulseBody a,ImpulseBody b,CollisionVector point,CollisionVector direction)
+    public static ConstraintJacobian AtPoint(PhysicsBody a,PhysicsBody b,CollisionVector point,CollisionVector direction)
     {
         if(!point.IsFinite||!direction.IsFinite||Math.Abs(direction.LengthSquared-1)>1e-10)
             throw new ArgumentException("Contact direction must be unit length and point finite.");
@@ -20,16 +20,16 @@ public readonly record struct ConstraintJacobian(CollisionVector LinearA,Collisi
 /// motors. Clamp the accumulated impulse, not the incremental correction.</summary>
 public interface IImpulseConstraint
 {
-    ImpulseBody A { get; }
-    ImpulseBody B { get; }
+    PhysicsBody A { get; }
+    PhysicsBody B { get; }
     double Residual { get; }
     void Solve();
 }
 
 public sealed class ImpulseConstraint : IImpulseConstraint
 {
-    public ImpulseBody A { get; }
-    public ImpulseBody B { get; }
+    public PhysicsBody A { get; }
+    public PhysicsBody B { get; }
     public ConstraintJacobian Jacobian { get; }
     public double TargetSpeed { get; }
     public double MinimumImpulse { get; }
@@ -37,8 +37,9 @@ public sealed class ImpulseConstraint : IImpulseConstraint
     public double Softness { get; }
     public double AccumulatedImpulse { get; private set; }
     public double InverseEffectiveMass { get; }
+    private readonly ulong _revisionA,_revisionB;
 
-    public ImpulseConstraint(ImpulseBody a,ImpulseBody b,ConstraintJacobian jacobian,
+    public ImpulseConstraint(PhysicsBody a,PhysicsBody b,ConstraintJacobian jacobian,
         double targetSpeed,double minimumImpulse,double maximumImpulse,double softness=0)
     {
         ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
@@ -46,7 +47,7 @@ public sealed class ImpulseConstraint : IImpulseConstraint
         if(!jacobian.IsFinite||!double.IsFinite(targetSpeed)||!double.IsFinite(softness)||softness<0||
             double.IsNaN(minimumImpulse)||double.IsNaN(maximumImpulse)||minimumImpulse>0||maximumImpulse<0)
             throw new ArgumentException("Invalid constraint declaration; impulse interval must include zero.");
-        A=a; B=b; Jacobian=jacobian; TargetSpeed=targetSpeed;
+        A=a; B=b; _revisionA=a.PoseRevision; _revisionB=b.PoseRevision; Jacobian=jacobian; TargetSpeed=targetSpeed;
         MinimumImpulse=minimumImpulse; MaximumImpulse=maximumImpulse; Softness=softness;
         InverseEffectiveMass=a.InverseMass*jacobian.LinearA.LengthSquared+
             b.InverseMass*jacobian.LinearB.LengthSquared+
@@ -55,9 +56,21 @@ public sealed class ImpulseConstraint : IImpulseConstraint
         if(!double.IsFinite(InverseEffectiveMass)||InverseEffectiveMass<0)
             throw new ArgumentException("Constraint mass is not representable.");
     }
-    public double Speed=>CollisionVector.Dot(Jacobian.LinearA,A.LinearVelocity)+
+    internal void ValidatePose()
+    {
+        if(A.PoseRevision!=_revisionA||B.PoseRevision!=_revisionB)
+            throw new InvalidOperationException("Constraint geometry is stale after a body pose change.");
+    }
+    public double Speed
+    {
+        get
+        {
+            ValidatePose();
+            return CollisionVector.Dot(Jacobian.LinearA,A.LinearVelocity)+
         CollisionVector.Dot(Jacobian.AngularA,A.AngularVelocity)+
         CollisionVector.Dot(Jacobian.LinearB,B.LinearVelocity)+CollisionVector.Dot(Jacobian.AngularB,B.AngularVelocity);
+        }
+    }
     private double Error=>TargetSpeed-Speed-Softness*AccumulatedImpulse;
     public double Residual
     {
@@ -85,7 +98,7 @@ public sealed class ImpulseConstraint : IImpulseConstraint
         var vb=B.AfterImpulse(Jacobian.LinearB*increment,Jacobian.AngularB*increment);
         A.CommitVelocity(va); B.CommitVelocity(vb); AccumulatedImpulse=next;
     }
-    public static ImpulseConstraint Contact(ImpulseBody a,ImpulseBody b,CollisionVector point,
+    public static ImpulseConstraint Contact(PhysicsBody a,PhysicsBody b,CollisionVector point,
         CollisionVector normalFromBToA,double restitution,double bounceThreshold)
     {
         if(!double.IsFinite(restitution)||restitution<0||restitution>1||
@@ -105,7 +118,7 @@ public static class ImpulseSolver
         ArgumentNullException.ThrowIfNull(constraints);
         if(maximumIterations<1||!double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(tolerance));
         // Distinct references may not masquerade as one body under the same identity.
-        var bodies=new Dictionary<PhysicsBodyId,ImpulseBody>();
+        var bodies=new Dictionary<PhysicsBodyId,PhysicsBody>();
         foreach(var row in constraints)
         {
             ArgumentNullException.ThrowIfNull(row);

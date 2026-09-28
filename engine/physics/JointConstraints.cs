@@ -27,22 +27,22 @@ public static class JointConstraints
         if(!a.Orientation.IsValid||!b.Orientation.IsValid||!double.IsFinite(correctionRate)||correctionRate<0)
             throw new ArgumentException("Joint frames and correction rate must be valid.");
     }
-    private static ImpulseConstraint Linear(ImpulseBody a,ImpulseBody b,JointFrame fa,JointFrame fb,
+    private static ImpulseConstraint Linear(PhysicsBody a,PhysicsBody b,JointFrame fa,JointFrame fb,
         CollisionVector axis,double correctionRate,AxisReference reference=AxisReference.World)=>new(a,b,
             new(axis,CollisionVector.Cross(fa.Anchor-a.Center,axis),
                 -axis,-CollisionVector.Cross((reference==AxisReference.BodyB?fa.Anchor:fb.Anchor)-b.Center,axis)),
             -correctionRate*CollisionVector.Dot(fa.Anchor-fb.Anchor,axis),
             double.NegativeInfinity,double.PositiveInfinity);
-    private static ImpulseConstraint Angular(ImpulseBody a,ImpulseBody b,CollisionVector axis,double target)=>
+    private static ImpulseConstraint Angular(PhysicsBody a,PhysicsBody b,CollisionVector axis,double target)=>
         new(a,b,new(default,axis,default,-axis),target,double.NegativeInfinity,double.PositiveInfinity);
 
-    public static IReadOnlyList<IImpulseConstraint> BallSocket(ImpulseBody a,ImpulseBody b,
+    public static IReadOnlyList<IImpulseConstraint> BallSocket(PhysicsBody a,PhysicsBody b,
         JointFrame fa,JointFrame fb,double correctionRate=0)
     {
         Validate(fa,fb,correctionRate);
         return [new BilateralConstraintBlock([Linear(a,b,fa,fb,X,correctionRate),Linear(a,b,fa,fb,Y,correctionRate),Linear(a,b,fa,fb,Z,correctionRate)])];
     }
-    public static IReadOnlyList<IImpulseConstraint> Hinge(ImpulseBody a,ImpulseBody b,
+    public static IReadOnlyList<IImpulseConstraint> Hinge(PhysicsBody a,PhysicsBody b,
         JointFrame fa,JointFrame fb,double correctionRate=0)
     {
         Validate(fa,fb,correctionRate);
@@ -62,7 +62,7 @@ public static class JointConstraints
         };
         return [new BilateralConstraintBlock(rows)];
     }
-    public static IReadOnlyList<IImpulseConstraint> Slider(ImpulseBody a,ImpulseBody b,
+    public static IReadOnlyList<IImpulseConstraint> Slider(PhysicsBody a,PhysicsBody b,
         JointFrame fa,JointFrame fb,double correctionRate=0)
     {
         Validate(fa,fb,correctionRate);
@@ -79,7 +79,7 @@ public static class JointConstraints
     /// <summary>Two unilateral velocity rows keep a coordinate inside its range
     /// over the upcoming interval. Error correction outside the range is explicit.
     /// The Jacobian must be the derivative of the supplied coordinate.</summary>
-    public static IReadOnlyList<IImpulseConstraint> Limits(ImpulseBody a,ImpulseBody b,ConstraintJacobian jacobian,
+    public static IReadOnlyList<IImpulseConstraint> Limits(PhysicsBody a,PhysicsBody b,ConstraintJacobian jacobian,
         double coordinate,double lower,double upper,double duration,double correctionRate=0)
     {
         if(!double.IsFinite(coordinate)||!double.IsFinite(lower)||!double.IsFinite(upper)||lower>upper||
@@ -92,7 +92,7 @@ public static class JointConstraints
             new ImpulseConstraint(a,b,jacobian,highTarget,double.NegativeInfinity,0)];
     }
 
-    public static ImpulseConstraint Rope(ImpulseBody a,ImpulseBody b,CollisionVector pointA,CollisionVector pointB,
+    public static ImpulseConstraint Rope(PhysicsBody a,PhysicsBody b,CollisionVector pointA,CollisionVector pointB,
         double maximumLength,double duration,double correctionRate=0)
     {
         if(!pointA.IsFinite||!pointB.IsFinite||!double.IsFinite(maximumLength)||maximumLength<=0||
