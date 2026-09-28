@@ -58,11 +58,13 @@ public sealed class PhysicsWorld
     private readonly PhysicsWorldSettings _settings;
     private PhysicsImpact[] _impacts=[];
     private PhysicsJointStop[] _jointStops=[];
+    private PhysicsMotorUse[] _motorUse=[];
     public PhysicsWorldPhase Phase { get; private set; }
     public double Time { get; private set; }
     public ulong StepIndex { get; private set; }
     public ReadOnlySpan<PhysicsImpact> Impacts=>_impacts;
     public ReadOnlySpan<PhysicsJointStop> JointStops=>_jointStops;
+    public ReadOnlySpan<PhysicsMotorUse> MotorUse=>_motorUse;
 
     public PhysicsWorld(IEnumerable<PhysicsObject> objects,IEnumerable<PhysicsJoint> joints,PhysicsWorldSettings settings)
     {
@@ -107,7 +109,7 @@ public sealed class PhysicsWorld
         _pairs=pairs.ToArray(); _positions=_pairs.Select(p=>(IPositionConstraint)p.Position).Concat(_joints).ToArray();
     }
 
-    public PhysicsStepResult Step(double duration)
+    public PhysicsStepResult Step(ReadOnlySpan<PhysicsMotorCommand> motors,double duration)
     {
         RequireIdle();
         if(!double.IsFinite(duration)||duration<=0||!double.IsFinite(Time+duration)||Time+duration<=Time)
@@ -115,6 +117,16 @@ public sealed class PhysicsWorld
         var countValue=Math.Ceiling(duration/_settings.MaximumStep);
         if(countValue<1||countValue>_settings.MaximumSubsteps) throw new ArgumentOutOfRangeException(nameof(duration),"World substep budget exceeded.");
         var count=(int)countValue; var step=duration/count;
+        var commands=motors.ToArray().OrderBy(m=>m.Joint.Index).ToArray();
+        if(commands.Select(c=>c.Joint).Distinct().Count()!=commands.Length) throw new ArgumentException("Only one motor command per joint is allowed.");
+        var budgets=new PhysicsMotorBudget[commands.Length];
+        for(var i=0;i<commands.Length;i++)
+        {
+            var joint=_joints.SingleOrDefault(j=>j.Id==commands[i].Joint);
+            if(joint is not PhysicsFrameJoint frame||frame.Kind==FrameJointKind.BallSocket)
+                throw new ArgumentException("Motor command must address a world-owned hinge or slider.");
+            budgets[i]=new(frame,commands[i],duration);
+        }
         var nextIndex=checked(StepIndex+1);
         var before=Capture();
         Phase=PhysicsWorldPhase.Stepping;
@@ -129,10 +141,16 @@ public sealed class PhysicsWorld
                     if(item.Body.MotionType==PhysicsMotionType.Dynamic)
                         item.Body.ApplyWrench(_settings.Gravity/item.Body.InverseMass,default,step);
                 double elapsed=0;
+                var actuationPending=true;
                 while(true)
                 {
                     var projector=new PositionProjector(_objects.Select(o=>o.Body),_pairs.Select(p=>p.Position),_settings.MaximumPenetration);
                     positionIterations+=PositionSolver.Solve(_positions,projector,_settings.PositionTolerance).Iterations;
+                    if(actuationPending)
+                    {
+                        foreach(var budget in budgets) budget.Apply(step);
+                        actuationPending=false;
+                    }
                     foreach(var pair in _pairs) pair.Contact.Prepare(step);
                     var constraints=_pairs.SelectMany(p=>p.Contact.PreparedContacts.ToArray()).Select(p=>(IImpulseConstraint)p.Constraint)
                         .Concat(_joints.SelectMany(j=>j.VelocityConstraints(_settings.PositionTolerance))).ToArray();
@@ -182,7 +200,7 @@ public sealed class PhysicsWorld
                     hitPair.Contact.BeginImpact();
                 }
             }
-            Time=before.Time+duration; StepIndex=nextIndex; _impacts=impacts.ToArray(); _jointStops=stops.ToArray();
+            Time=before.Time+duration; StepIndex=nextIndex; _impacts=impacts.ToArray(); _jointStops=stops.ToArray(); _motorUse=budgets.Select(b=>b.Report).ToArray();
             Phase=PhysicsWorldPhase.Idle;
             return new(count,events,sweeps,velocityIterations,positionIterations);
         }
@@ -202,7 +220,7 @@ public sealed class PhysicsWorld
     {
         RequireIdle();
         return new(this,_objects.Select(o=>o.Body.Snapshot()).ToArray(),_pairs.Select(p=>p.Contact.Capture()).ToArray(),
-            Time,StepIndex,_impacts,_jointStops);
+            Time,StepIndex,_impacts,_jointStops,_motorUse);
     }
     public void Restore(Snapshot snapshot)
     {
@@ -216,6 +234,7 @@ public sealed class PhysicsWorld
         for(var i=0;i<_pairs.Length;i++) _pairs[i].Contact.Restore(snapshot.Pairs[i]);
         Time=snapshot.Time; StepIndex=snapshot.StepIndex; _impacts=(PhysicsImpact[])snapshot.ImpactData.Clone();
         _jointStops=(PhysicsJointStop[])snapshot.StopData.Clone();
+        _motorUse=(PhysicsMotorUse[])snapshot.MotorData.Clone();
     }
     public sealed class Snapshot
     {
@@ -224,13 +243,14 @@ public sealed class PhysicsWorld
         internal PersistentContactPair.Snapshot[] Pairs { get; }
         internal PhysicsImpact[] ImpactData { get; }
         internal PhysicsJointStop[] StopData { get; }
+        internal PhysicsMotorUse[] MotorData { get; }
         public double Time { get; }
         public ulong StepIndex { get; }
         public ReadOnlySpan<PhysicsBodySnapshot> BodyStates=>Bodies;
         internal Snapshot(PhysicsWorld owner,PhysicsBodySnapshot[] bodies,PersistentContactPair.Snapshot[] pairs,
-            double time,ulong stepIndex,PhysicsImpact[] impacts,PhysicsJointStop[] stops)
+            double time,ulong stepIndex,PhysicsImpact[] impacts,PhysicsJointStop[] stops,PhysicsMotorUse[] motors)
         {
-            Owner=owner; Bodies=bodies; Pairs=pairs; Time=time; StepIndex=stepIndex; ImpactData=(PhysicsImpact[])impacts.Clone(); StopData=(PhysicsJointStop[])stops.Clone();
+            Owner=owner; Bodies=bodies; Pairs=pairs; Time=time; StepIndex=stepIndex; ImpactData=(PhysicsImpact[])impacts.Clone(); StopData=(PhysicsJointStop[])stops.Clone(); MotorData=(PhysicsMotorUse[])motors.Clone();
         }
     }
 }

@@ -24,7 +24,7 @@ public class PhysicsWorldTests
     {
         var ball=Dynamic(0,new(-5,0,0),new(1000,0,0));
         var world=World(Object(ball,Sphere),Wall(1,0));
-        var result=world.Step(.01);
+        var result=world.Step([],.01);
         Assert.Equal(1,result.Events);
         Near(-1000,ball.LinearVelocity.X);
         Assert.InRange(ball.AngularVelocity.Length,0,1e-8);
@@ -39,7 +39,7 @@ public class PhysicsWorldTests
         var a=Dynamic(0,new(-2,0,0),new(10,0,0));
         var b=Dynamic(1,new(2,0,0),new(-10,0,0));
         var world=World(Object(a,Sphere),Object(b,Sphere));
-        Assert.Equal(1,world.Step(.2).Events);
+        Assert.Equal(1,world.Step([],.2).Events);
         Near(-10,a.LinearVelocity.X); Near(10,b.LinearVelocity.X);
         Near(-a.Center.X,b.Center.X);
         Near(.149995,world.Impacts[0].Time);
@@ -51,7 +51,7 @@ public class PhysicsWorldTests
         var a=Dynamic(0,new(-2,3,0),new(10,0,0));
         var b=Dynamic(1,new(2,-3,0),new(-10,0,0));
         var world=World(Object(a,Sphere),Object(b,Sphere));
-        Assert.Equal(0,world.Step(.2).Events);
+        Assert.Equal(0,world.Step([],.2).Events);
         Near(0,a.Center.X); Near(0,b.Center.X);
         Near(10,a.LinearVelocity.X); Near(-10,b.LinearVelocity.X);
     }
@@ -62,12 +62,12 @@ public class PhysicsWorldTests
         var ball=Dynamic(0,default,new(10,0,0));
         var world=World(Object(ball,Sphere),Wall(1,-2),Wall(2,2));
         var before=world.Capture();
-        var result=world.Step(.8); var after=ball.Snapshot(); var impacts=world.Impacts.ToArray();
+        var result=world.Step([],.8); var after=ball.Snapshot(); var impacts=world.Impacts.ToArray();
         Assert.Equal(3,result.Events);
         world.Restore(before);
         Assert.Equal(before.BodyStates[0],ball.Snapshot());
         Assert.Equal(0,world.Time); Assert.Equal(0ul,world.StepIndex);
-        Assert.Equal(result,world.Step(.8));
+        Assert.Equal(result,world.Step([],.8));
         Assert.Equal(after,ball.Snapshot()); Assert.Equal(impacts,world.Impacts.ToArray());
     }
 
@@ -78,7 +78,7 @@ public class PhysicsWorldTests
         var world=new PhysicsWorld([Object(ball,Sphere),Wall(1,-2),Wall(2,2)],[],
             new(default,maximumStep:1,maximumEvents:1));
         var before=world.Capture();
-        Assert.Throws<InvalidOperationException>(()=>world.Step(.8));
+        Assert.Throws<InvalidOperationException>(()=>world.Step([],.8));
         Assert.Equal(before.BodyStates[0],ball.Snapshot());
         Assert.Equal(PhysicsWorldPhase.Idle,world.Phase);
         Assert.Equal(0,world.Time); Assert.Equal(0ul,world.StepIndex); Assert.Empty(world.Impacts.ToArray());
@@ -105,7 +105,7 @@ public class PhysicsWorldTests
         var floor=Object(new(new(1),PhysicsMotionType.Static,RigidPose.At(new(0,-.5,0)),default,default),
             new(new ConvexBox(new(10,.5,10)),Transform3D.Identity),0);
         var world=new PhysicsWorld([Object(body,box,0),floor],[],new(new(0,-9.8,0)));
-        for(var i=0;i<600;i++) world.Step(1.0/120);
+        for(var i=0;i<600;i++) world.Step([],1.0/120);
         Near(.5,body.Center.Y); Assert.InRange(body.LinearVelocity.Length,0,1e-7);
         Assert.InRange(body.AngularVelocity.Length,0,1e-7);
     }
@@ -116,7 +116,7 @@ public class PhysicsWorldTests
         var beam=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,RigidPose.At(default),default,new(0,0,120));
         var ball=Dynamic(1,new(1.5,.8,0));
         var world=World(Object(beam,new(new ConvexBox(new(2,.1,.1)),Transform3D.Identity)),Object(ball,Sphere));
-        Assert.True(world.Step(.01).Events>0);
+        Assert.True(world.Step([],.01).Events>0);
         Assert.True(ball.LinearVelocity.Length>1);
         Near(120,beam.AngularVelocity.Z);
         Assert.Equal(new PhysicsBodyId(0),world.Impacts[0].Pair.A);
@@ -133,7 +133,7 @@ public class PhysicsWorldTests
             new(new ConvexBox(new(.1,.5,2)),new(Basis.Identity,new(0,2,0))),
             new(new ConvexBox(new(.1,.5,2)),new(Basis.Identity,new(0,-2,0)))]);
         var world=World(Object(ball,Sphere),new(fixture,compound,new(1,0,0)));
-        Assert.Equal(collision?1:0,world.Step(.5).Events);
+        Assert.Equal(collision?1:0,world.Step([],.5).Events);
         if(collision)
         {
             Assert.Equal(new ColliderChildId(0),world.Impacts[0].Pair.ChildB);
@@ -186,7 +186,7 @@ public class PhysicsWorldTests
     public void UnrepresentableStepCannotSilentlyAdvanceClockWithoutBodies()
     {
         var world=new PhysicsWorld([],[],new(default,maximumStep:double.MaxValue));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>world.Step(double.Epsilon));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>world.Step([],double.Epsilon));
         Assert.Equal(0,world.Time);
     }
 
@@ -197,7 +197,7 @@ public class PhysicsWorldTests
         Assert.Throws<ArgumentException>(()=>World(a,a));
         var world=World(a);
         Assert.Throws<ArgumentException>(()=>world.Restore(World().Capture()));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>world.Step(double.NaN));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>world.Step(0));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>world.Step([],double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>world.Step([],0));
     }
 }

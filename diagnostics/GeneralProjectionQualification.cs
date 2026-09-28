@@ -66,7 +66,7 @@ internal static class GeneralProjectionQualification
         var before=world.Capture();
         GeneralProjectionOutcome Step()
         {
-            try { world.Step(.01); return GeneralProjectionOutcome.Applied; }
+            try { world.Step([],.01); return GeneralProjectionOutcome.Applied; }
             catch(InvalidOperationException) { return GeneralProjectionOutcome.Rejected; }
         }
         var outcome=Step(); var after=world.Capture();

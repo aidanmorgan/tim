@@ -30,13 +30,13 @@ internal static class GeneralJointBoundaryQualification
         ImpulseSolver.Solve(joint.VelocityConstraints(1e-7));
         var afterSolve=a.LinearVelocity.Length+a.AngularVelocity.Length;
         var world=new PhysicsWorld([Object(a),Object(b)],[joint],new(default,maximumStep:.01));
-        var before=world.Capture(); var result=world.Step(.01); var stops=world.JointStops.ToArray();
+        var before=world.Capture(); var result=world.Step([],.01); var stops=world.JointStops.ToArray();
         var after=world.Capture();
         var coordinate=rope?a.Center.X:((PhysicsFrameJoint)joint).Travel.Error;
         var finalSpeed=a.LinearVelocity.Length+a.AngularVelocity.Length;
         world.Restore(before);
         var restored=world.Capture().BodyStates.SequenceEqual(before.BodyStates)&&world.Time==before.Time&&world.StepIndex==before.StepIndex&&world.JointStops.Length==0;
-        var replay=world.Step(.01)==result&&world.JointStops.SequenceEqual(stops)&&world.Capture().BodyStates.SequenceEqual(after.BodyStates)&&world.Time==after.Time&&world.StepIndex==after.StepIndex;
+        var replay=world.Step([],.01)==result&&world.JointStops.SequenceEqual(stops)&&world.Capture().BodyStates.SequenceEqual(after.BodyStates)&&world.Time==after.Time&&world.StepIndex==after.StepIndex;
         return new(probe,stops.Single().Time,coordinate,speed,afterSolve,finalSpeed,result.Events,restored,replay);
     }
     private static GeneralJointBoundaryReport Rotating(GeneralJointBoundaryProbe probe)

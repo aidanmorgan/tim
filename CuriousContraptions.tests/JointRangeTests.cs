@@ -25,17 +25,17 @@ public class JointRangeTests
         var b=Fixed(1); var joint=Joint(kind,a,b,new(-.5,.5));
         var world=new PhysicsWorld([Object(a),Object(b)],[joint],new(default));
         var before=world.Capture();
-        world.Step(.01);
+        world.Step([],.01);
         Assert.InRange(Math.Abs(joint.Travel.Error-sign*.5),0,1e-7);
         Assert.InRange(a.LinearVelocity.Length+a.AngularVelocity.Length,0,1e-7);
         Assert.InRange(joint.Error(1e-8),0,1e-7);
         var after=world.Capture();
-        world.Restore(before); world.Step(.01);
+        world.Restore(before); world.Step([],.01);
         Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
         Assert.Equal(after.Time,world.Time);
         if(kind==FrameJointKind.Slider) a.ApplyImpulse(new(0,0,-sign),a.Center);
         else a.ApplyWrench(default,new(0,0,-sign*.1),1);
-        world.Step(.01);
+        world.Step([],.01);
         Assert.True(sign*joint.Travel.Error<.5-.009);
     }
 
@@ -120,7 +120,7 @@ public class JointRangeTests
         var localA=new JointFrame(new(-.2,-.1,-.3),RigidRotation.Identity);
         var joint=new PhysicsFrameJoint(new(0),kind,a,localA,b,Origin,ConnectedBodyCollision.Disabled,new(-.5,.5));
         var world=new PhysicsWorld([Object(a),Object(b)],[joint],new(default));
-        for(var i=0;i<12;i++) world.Step(1.0/120);
+        for(var i=0;i<12;i++) world.Step([],1.0/120);
         Assert.InRange(joint.Travel.Error,-.5000001,.5000001);
         Assert.InRange(joint.Error(1e-8),0,1e-7);
     }
@@ -133,7 +133,7 @@ public class JointRangeTests
         var joint=Joint(FrameJointKind.Slider,a,b,new(-.5,.5));
         var geometry=new CompoundGeometry([new(new ConvexBox(new(1,1,.001)),Transform3D.Identity)]);
         var world=new PhysicsWorld([Object(a),Object(b),new(wall,geometry,new(0,0,0))],[joint],new(default));
-        var result=world.Step(.01);
+        var result=world.Step([],.01);
         Assert.True(result.Events>0);
         Assert.InRange(a.Center.Z,.1988,.1991);
         Assert.InRange(a.LinearVelocity.Length,0,1e-8);

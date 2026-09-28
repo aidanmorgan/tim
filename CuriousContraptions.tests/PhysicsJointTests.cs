@@ -26,7 +26,7 @@ public class PhysicsJointTests
         body.Restore(body.Snapshot() with {Pose=new(body.Center,RigidRotation.FromRotationVector(new(.1,.2,0)))});
         var joint=Joint(kind,body,anchor);
         var world=new PhysicsWorld([Object(body),Object(anchor)],[joint],new(default));
-        world.Step(.01);
+        world.Step([],.01);
         Assert.InRange(joint.Error(1e-8),0,1e-7);
         Near(default,body.LinearVelocity); Near(default,body.AngularMomentum);
         Assert.Equal(RigidPose.Identity,anchor.Pose);
@@ -41,7 +41,7 @@ public class PhysicsJointTests
         var before=world.Capture();
         for(var i=0;i<240;i++)
         {
-            world.Step(1.0/120);
+            world.Step([],1.0/120);
             Assert.InRange(joint.Error(1e-8),0,1e-7);
             Near(default,body.PointVelocity(joint.FrameA.Anchor));
             Assert.InRange(Math.Abs(body.Center.Z),0,1e-8);
@@ -51,7 +51,7 @@ public class PhysicsJointTests
         var energy=.5*body.LinearVelocity.LengthSquared+.05*body.AngularVelocity.LengthSquared+9.8*body.Center.Y;
         Assert.True(energy<=1e-4);
         world.Restore(before);
-        for(var i=0;i<240;i++) world.Step(1.0/120);
+        for(var i=0;i<240;i++) world.Step([],1.0/120);
         Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
         Assert.Equal(after.Time,world.Time);
     }
@@ -62,7 +62,7 @@ public class PhysicsJointTests
         var body=Body(0,default,new(2,3,4),new(1,2,3)); var anchor=Fixed(1);
         var joint=Joint(FrameJointKind.Slider,body,anchor);
         var world=new PhysicsWorld([Object(body),Object(anchor)],[joint],new(new(1,2,3)));
-        for(var i=0;i<120;i++) world.Step(1.0/120);
+        for(var i=0;i<120;i++) world.Step([],1.0/120);
         Near(new(0,0,7),body.LinearVelocity);
         Near(default,body.AngularVelocity);
         Assert.InRange(joint.Error(1e-8),0,1e-7);
@@ -75,7 +75,7 @@ public class PhysicsJointTests
         var body=Body(0,default,new(1,2,3),new(2,3,4)); var anchor=Fixed(1);
         var joint=Joint(FrameJointKind.BallSocket,body,anchor);
         var world=new PhysicsWorld([Object(body),Object(anchor)],[joint],new(new(0,-9.8,0)));
-        world.Step(.1);
+        world.Step([],.1);
         Near(default,body.Center); Near(default,body.LinearVelocity); Near(new(2,3,4),body.AngularVelocity);
     }
 
@@ -87,7 +87,7 @@ public class PhysicsJointTests
         var body=Body(0,new(length,0,0),new(speed,0,0)); var anchor=Fixed(1);
         var rope=new PhysicsRopeJoint(new(0),body,default,anchor,default,1,ConnectedBodyCollision.Disabled);
         var world=new PhysicsWorld([Object(body),Object(anchor)],[rope],new(default));
-        world.Step(.01);
+        world.Step([],.01);
         Near(new(expected,0,0),body.LinearVelocity);
         Assert.InRange(rope.Error(1e-8),0,1e-7);
     }
@@ -112,7 +112,7 @@ public class PhysicsJointTests
         var joint=new PhysicsFrameJoint(new(0),FrameJointKind.BallSocket,a,Origin,b,Origin,ConnectedBodyCollision.Enabled,null);
         var world=new PhysicsWorld([Object(a),Object(b)],[joint],new(default));
         var before=a.Snapshot();
-        Assert.Throws<InvalidOperationException>(()=>world.Step(.01));
+        Assert.Throws<InvalidOperationException>(()=>world.Step([],.01));
         Assert.Equal(before,a.Snapshot()); Assert.Equal(0,world.Time);
     }
 
@@ -123,7 +123,7 @@ public class PhysicsJointTests
         var joint=Joint(FrameJointKind.Hinge,beam,anchor);
         var shape=new CompoundGeometry([new(new ConvexBox(new(2,.1,.1)),Transform3D.Identity)]);
         var world=new PhysicsWorld([new(beam,shape,new(0,0,0)),Object(anchor),Object(ball)],[joint],new(default));
-        var result=world.Step(.1);
+        var result=world.Step([],.1);
         Assert.True(result.Events>0);
         Assert.True(beam.AngularVelocity.Z<-.1);
         Assert.True(ball.LinearVelocity.Y>-10);

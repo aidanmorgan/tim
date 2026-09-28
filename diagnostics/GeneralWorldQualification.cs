@@ -49,7 +49,7 @@ internal static class GeneralWorldQualification
         var eventHistory=new PhysicsImpact[steps][]; var events=0;
         for(var i=0;i<steps;i++)
         {
-            results[i]=world.Step(duration); events+=results[i].Events;
+            results[i]=world.Step([],duration); events+=results[i].Events;
             eventHistory[i]=world.Impacts.ToArray();
         }
         var after=world.Capture();
@@ -58,7 +58,7 @@ internal static class GeneralWorldQualification
             world.Capture().BodyStates.SequenceEqual(before.BodyStates);
         var replay=true;
         for(var i=0;i<steps;i++)
-            replay &= world.Step(duration)==results[i]&&world.Impacts.SequenceEqual(eventHistory[i]);
+            replay &= world.Step([],duration)==results[i]&&world.Impacts.SequenceEqual(eventHistory[i]);
         replay &= world.Time==after.Time&&world.StepIndex==after.StepIndex&&
             world.Capture().BodyStates.SequenceEqual(after.BodyStates);
         return new(probe,events,steps,world.Time,[body.Center.X,body.Center.Y,body.Center.Z],

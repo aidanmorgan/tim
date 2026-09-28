@@ -55,7 +55,7 @@ internal static class GeneralJointQualification
         double error=0,residual=0; var events=0; var sweeps=0;
         for(var i=0;i<steps;i++)
         {
-            results[i]=world.Step(duration); impacts[i]=world.Impacts.ToArray();
+            results[i]=world.Step([],duration); impacts[i]=world.Impacts.ToArray();
             events+=results[i].Events; sweeps+=results[i].SweepIterations;
             error=Math.Max(error,joint.Error(1e-8));
             residual=Math.Max(residual,joint.VelocityConstraints(1e-7).Select(c=>c.Residual).DefaultIfEmpty(0).Max());
@@ -65,7 +65,7 @@ internal static class GeneralJointQualification
         var restored=world.Time==before.Time&&world.StepIndex==before.StepIndex&&world.Capture().BodyStates.SequenceEqual(before.BodyStates);
         var replay=true;
         for(var i=0;i<steps;i++)
-            replay &= world.Step(duration)==results[i]&&world.Impacts.SequenceEqual(impacts[i]);
+            replay &= world.Step([],duration)==results[i]&&world.Impacts.SequenceEqual(impacts[i]);
         replay &= world.Time==after.Time&&world.StepIndex==after.StepIndex&&world.Capture().BodyStates.SequenceEqual(after.BodyStates);
         return new(probe,steps,events,sweeps,error,residual,
             [body.Center.X,body.Center.Y,body.Center.Z],[body.LinearVelocity.X,body.LinearVelocity.Y,body.LinearVelocity.Z],

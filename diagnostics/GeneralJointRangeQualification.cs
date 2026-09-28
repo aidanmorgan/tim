@@ -32,17 +32,17 @@ internal static class GeneralJointRangeQualification
         else objects=[Object(a),Object(b)];
         var world=new PhysicsWorld(objects,[joint],new(default));
         var before=world.Capture();
-        var result=world.Step(.01);
+        var result=world.Step([],.01);
         var coordinate=joint.Travel.Error;
         var speed=a.LinearVelocity.Length+a.AngularVelocity.Length;
         var error=joint.Error(1e-8);
         var after=world.Capture();
         world.Restore(before);
         var restored=world.Capture().BodyStates.SequenceEqual(before.BodyStates)&&world.Time==before.Time&&world.StepIndex==before.StepIndex;
-        var replay=world.Step(.01)==result&&world.Capture().BodyStates.SequenceEqual(after.BodyStates)&&world.Time==after.Time&&world.StepIndex==after.StepIndex;
+        var replay=world.Step([],.01)==result&&world.Capture().BodyStates.SequenceEqual(after.BodyStates)&&world.Time==after.Time&&world.StepIndex==after.StepIndex;
         if(kind==FrameJointKind.Slider) a.ApplyImpulse(new(0,0,-sign),a.Center);
         else a.ApplyWrench(default,new(0,0,-sign*.1),1);
-        world.Step(.01);
+        world.Step([],.01);
         return new(probe,coordinate,joint.Travel.Error,speed,result.Events,error,restored,replay);
     }
 }

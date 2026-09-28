@@ -74,13 +74,13 @@ public class PositionProjectorTests
         var before=world.Capture();
         if(blocked)
         {
-            Assert.Throws<InvalidOperationException>(()=>world.Step(.01));
+            Assert.Throws<InvalidOperationException>(()=>world.Step([],.01));
             Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
             Assert.Equal(0,world.Time); Assert.Equal(0ul,world.StepIndex);
         }
         else
         {
-            world.Step(.01);
+            world.Step([],.01);
             Near(anchor.Center,a.Center);
             Assert.InRange(joint.Error(1e-8),0,1e-7);
         }

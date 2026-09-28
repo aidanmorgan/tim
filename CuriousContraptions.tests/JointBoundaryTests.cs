@@ -45,7 +45,7 @@ public class JointBoundaryTests
         var joint=new PhysicsFrameJoint(new(0),kind,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,new(-.5,.5));
         var world=new PhysicsWorld([Object(a),Object(b)],[joint],new(default,maximumStep:.01));
         var before=world.Capture();
-        var result=world.Step(.01);
+        var result=world.Step([],.01);
         var stop=Assert.Single(world.JointStops.ToArray());
         Assert.Equal(sign<0?JointBoundary.Lower:JointBoundary.Upper,stop.Boundary);
         Assert.InRange(Math.Abs(stop.Time-.00005),0,1e-10);
@@ -54,7 +54,7 @@ public class JointBoundaryTests
         Assert.InRange(a.LinearVelocity.Length+a.AngularVelocity.Length,0,1e-8);
         var after=world.Capture(); var stops=world.JointStops.ToArray();
         world.Restore(before); Assert.Empty(world.JointStops.ToArray());
-        Assert.Equal(result,world.Step(.01));
+        Assert.Equal(result,world.Step([],.01));
         Assert.Equal(stops,world.JointStops.ToArray());
         Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
     }
@@ -91,7 +91,7 @@ public class JointBoundaryTests
         var a=Body(0,default,new(100,0,0)); var b=Fixed(1);
         var rope=new PhysicsRopeJoint(new(0),a,default,b,default,1,ConnectedBodyCollision.Disabled);
         var world=new PhysicsWorld([Object(a),Object(b)],[rope],new(default,maximumStep:.02));
-        world.Step(.02);
+        world.Step([],.02);
         var stop=Assert.Single(world.JointStops.ToArray());
         Assert.InRange(Math.Abs(stop.Time-.01),0,1e-9);
         Assert.InRange(Math.Abs(a.Center.X-1),0,1e-7);
@@ -113,13 +113,13 @@ public class JointBoundaryTests
         var before=world.Capture();
         if(eventBudget==1)
         {
-            Assert.Throws<InvalidOperationException>(()=>world.Step(.01));
+            Assert.Throws<InvalidOperationException>(()=>world.Step([],.01));
             Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
             Assert.Equal(0,world.Time); Assert.Equal(0UL,world.StepIndex); Assert.Empty(world.JointStops.ToArray());
         }
         else
         {
-            Assert.Equal(2,world.Step(.01).Events);
+            Assert.Equal(2,world.Step([],.01).Events);
             var stops=world.JointStops.ToArray(); Assert.Equal(2,stops.Length);
             Assert.Equal(new PhysicsJointId(1),stops[0].Joint); Assert.Equal(new PhysicsJointId(0),stops[1].Joint);
             Assert.InRange(Math.Abs(stops[0].Time-.0025),0,1e-9);
@@ -147,7 +147,7 @@ public class JointBoundaryTests
         var before=world.Capture();
         for(var i=0;i<120;i++)
         {
-            world.Step(1.0/120);
+            world.Step([],1.0/120);
             Assert.InRange(rope.Error(1e-8),0,1e-7);
             Assert.InRange(a.LinearVelocity.LengthSquared,0,1.0000001);
         }
@@ -155,7 +155,7 @@ public class JointBoundaryTests
         Assert.InRange(Math.Abs(a.Center.Y-Math.Sin(1)),0,.01);
         var after=world.Capture(); var stops=world.JointStops.ToArray();
         world.Restore(before);
-        for(var i=0;i<120;i++) world.Step(1.0/120);
+        for(var i=0;i<120;i++) world.Step([],1.0/120);
         Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
         Assert.Equal(stops,world.JointStops.ToArray());
     }

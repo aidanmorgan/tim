@@ -91,7 +91,7 @@ public class RoundedSeparationTests
         var world=new PhysicsWorld([new(a,geometry,new(1,0,0)),new(b,geometry,new(1,0,0))],[],new(default,maximumStep:1));
         var momentum=a.LinearVelocity*2+b.LinearVelocity*3;
         var energy=a.LinearVelocity.LengthSquared+1.5*b.LinearVelocity.LengthSquared;
-        Assert.Equal(1,world.Step(.03).Events);
+        Assert.Equal(1,world.Step([],.03).Events);
         Near(momentum,a.LinearVelocity*2+b.LinearVelocity*3);
         Assert.InRange(Math.Abs(energy-a.LinearVelocity.LengthSquared-1.5*b.LinearVelocity.LengthSquared),0,1e-8);
         Near(default,a.AngularVelocity); Near(default,b.AngularVelocity);
