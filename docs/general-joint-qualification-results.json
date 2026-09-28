@@ -1,0 +1,438 @@
+{
+  "baseCommit": "dcee5c7c6439d76b4e2bdea089e67b60289943dc",
+  "scope": "World-owned joint declarations, shared response/projection and moving-plane sweep bounds. Not gameplay-part UI proof or constrained-path completion.",
+  "native": {
+    "passed": 1565,
+    "failed": 0,
+    "skipped": 0
+  },
+  "diagnosticsPublish": true,
+  "productionReleasePublish": true,
+  "joints": {
+    "reports": [
+      {
+        "Probe": "HingePendulum",
+        "Steps": 240,
+        "Events": 0,
+        "SweepIterations": 0,
+        "MaximumError": 9.670417688845134e-9,
+        "MaximumVelocityResidual": 8.881784197001252e-16,
+        "Position": [
+          0.5619301627267245,
+          -0.8271846784663627,
+          0
+        ],
+        "Velocity": [
+          3.0101512245233053,
+          2.044881646701358,
+          0
+        ],
+        "Spin": [
+          0,
+          0,
+          3.6390316491499792
+        ],
+        "PayloadVelocityY": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "Slider",
+        "Steps": 120,
+        "Events": 0,
+        "SweepIterations": 0,
+        "MaximumError": 4.625929269271485e-18,
+        "MaximumVelocityResidual": 1.232595164407831e-31,
+        "Position": [
+          0,
+          0,
+          5.5125000000000215
+        ],
+        "Velocity": [
+          0,
+          0,
+          7.000000000000043
+        ],
+        "Spin": [
+          0,
+          0,
+          0
+        ],
+        "PayloadVelocityY": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "SlackRope",
+        "Steps": 120,
+        "Events": 0,
+        "SweepIterations": 0,
+        "MaximumError": 0,
+        "MaximumVelocityResidual": 0,
+        "Position": [
+          0.6000000000000023,
+          0,
+          0
+        ],
+        "Velocity": [
+          0.1,
+          0,
+          0
+        ],
+        "Spin": [
+          0,
+          0,
+          0
+        ],
+        "PayloadVelocityY": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "TautRope",
+        "Steps": 120,
+        "Events": 0,
+        "SweepIterations": 0,
+        "MaximumError": 0,
+        "MaximumVelocityResidual": 0,
+        "Position": [
+          1,
+          0,
+          0
+        ],
+        "Velocity": [
+          0,
+          0,
+          0
+        ],
+        "Spin": [
+          0,
+          0,
+          0
+        ],
+        "PayloadVelocityY": null,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "CoupledImpact",
+        "Steps": 12,
+        "Events": 11,
+        "SweepIterations": 158,
+        "MaximumError": 0,
+        "MaximumVelocityResidual": 2.350988701644575e-38,
+        "Position": [
+          0,
+          0,
+          0
+        ],
+        "Velocity": [
+          0,
+          0,
+          0
+        ],
+        "Spin": [
+          -9.53665611610317e-24,
+          -1.1947925754356845e-22,
+          -9.17490211446844
+        ],
+        "PayloadVelocityY": -9.08245375479509,
+        "ExactRestore": true,
+        "ExactReplay": true
+      }
+    ],
+    "errors": [],
+    "scope": "Integrated engine joint/contact diagnostics; not catalogue part UI or constrained-trajectory completion proof."
+  },
+  "worldRegression": {
+    "reports": [
+      {
+        "Probe": "ThinWall",
+        "Events": 1,
+        "Steps": 1,
+        "Time": 0.01,
+        "Position": [
+          -6.020199800000423,
+          0,
+          0
+        ],
+        "Velocity": [
+          -1000,
+          0,
+          0
+        ],
+        "Spin": 0,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "RepeatedBounce",
+        "Events": 3,
+        "Steps": 1,
+        "Time": 0.8,
+        "Position": [
+          0.9394005999961192,
+          0,
+          0
+        ],
+        "Velocity": [
+          -10,
+          0,
+          0
+        ],
+        "Spin": 0,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "RestingBox",
+        "Events": 0,
+        "Steps": 600,
+        "Time": 5.000000000000038,
+        "Position": [
+          1.6666441062102047e-8,
+          0.5000000108786979,
+          -9.766718211312443e-9
+        ],
+        "Velocity": [
+          9.983225936976366e-9,
+          2.1757411258033145e-9,
+          -5.8502804729130175e-9
+        ],
+        "Spin": 3.145411804416517e-9,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "RotatingBeam",
+        "Events": 1,
+        "Steps": 1,
+        "Time": 0.01,
+        "Position": [
+          1.0611780329759095,
+          4.178017195785295,
+          0
+        ],
+        "Velocity": [
+          -49.17607350856022,
+          378.5535693658622,
+          0
+        ],
+        "Spin": 7.417861461156813e-13,
+        "ExactRestore": true,
+        "ExactReplay": true
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only integrated physics-world qualification, not gameplay-part UI proof."
+  },
+  "sweepRegression": {
+    "reports": [
+      {
+        "Probe": "SpinningSlide",
+        "Status": "Clear",
+        "Time": 1,
+        "Duration": 1,
+        "MinimumSeparation": -0.000001,
+        "InitialLower": 0,
+        "MidLower": 0,
+        "Lower": -1.2488980702399036e-16,
+        "Upper": 1.1427425830247815e-14,
+        "Iterations": 1,
+        "RotationalReach": 0,
+        "ExactCommittedPose": true,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "BoxSlide",
+        "Status": "Clear",
+        "Time": 1,
+        "Duration": 1,
+        "MinimumSeparation": -0.000001,
+        "InitialLower": 0,
+        "MidLower": 0,
+        "Lower": 0,
+        "Upper": 4.85722573273506e-15,
+        "Iterations": 1,
+        "RotationalReach": 0.8660254037844386,
+        "ExactCommittedPose": true,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "OrbitRecontact",
+        "Status": "Contact",
+        "Time": 0.046018112874384565,
+        "Duration": 0.05235987755982988,
+        "MinimumSeparation": -0.000001,
+        "InitialLower": -5.5185054696941526e-8,
+        "MidLower": 1.6396078037153345,
+        "Lower": -9.919712909423062e-7,
+        "Upper": -9.919712909423062e-7,
+        "Iterations": 9,
+        "RotationalReach": 1,
+        "ExactCommittedPose": true,
+        "ExactRestore": true,
+        "ExactReplay": true
+      },
+      {
+        "Probe": "GrazingReturn",
+        "Status": "Clear",
+        "Time": 6.283185307179586,
+        "Duration": 6.283185307179586,
+        "MinimumSeparation": -0.000001,
+        "InitialLower": -5.421558349479805e-8,
+        "MidLower": 1.9999999967013535,
+        "Lower": -1.3975532822601424e-8,
+        "Upper": 1.4706856466962436e-8,
+        "Iterations": 20,
+        "RotationalReach": 1,
+        "ExactCommittedPose": true,
+        "ExactRestore": true,
+        "ExactReplay": true
+      }
+    ],
+    "general": [
+      {
+        "Probe": "PureRotation",
+        "Status": "Contact",
+        "Time": 0.0027025848775589986,
+        "Queries": 11
+      },
+      {
+        "Probe": "OpposingBodies",
+        "Status": "Contact",
+        "Time": 0.0037498749999999997,
+        "Queries": 2
+      },
+      {
+        "Probe": "CompoundPassage",
+        "Status": "Clear",
+        "Time": 1,
+        "Queries": 4
+      },
+      {
+        "Probe": "CompoundWall",
+        "Status": "Contact",
+        "Time": 0.2916499999975121,
+        "Queries": 4
+      }
+    ],
+    "errors": [],
+    "scope": "Read-only signed-clearance engine qualification; no gameplay-part UI completion claimed."
+  },
+  "trajectoryRegression": {
+    "report": {
+      "Status": "Contact",
+      "Time": 0.11325802352619822,
+      "Segments": 55,
+      "InitialSeparation": 1.165621957719782,
+      "FinalSeparation": 1.1261254060005894,
+      "ContactSeparation": 0.00010007996725564052,
+      "ExactCommittedPose": true
+    },
+    "errors": []
+  },
+  "constraintRegression": {
+    "reports": [
+      {
+        "Probe": "SlidingFriction",
+        "Linear": [
+          1.7999999999999998,
+          0,
+          2.4000000000000004
+        ],
+        "Angular": [
+          0,
+          0,
+          0
+        ],
+        "FrictionImpulse": [
+          -0.6,
+          0,
+          -0.8
+        ],
+        "Iterations": 1,
+        "Residual": 2.220446049250313e-16
+      },
+      {
+        "Probe": "MovingSlider",
+        "Linear": [
+          3,
+          0,
+          0
+        ],
+        "Angular": [
+          0,
+          1,
+          0
+        ],
+        "FrictionImpulse": [
+          0,
+          0,
+          0
+        ],
+        "Iterations": 1,
+        "Residual": 0
+      },
+      {
+        "Probe": "OffsetJoint",
+        "Linear": [
+          4.440892098500626e-15,
+          0,
+          1
+        ],
+        "Angular": [
+          0,
+          0,
+          0
+        ],
+        "FrictionImpulse": [
+          0,
+          0,
+          0
+        ],
+        "Iterations": 1,
+        "Residual": 4.440892098500626e-15
+      }
+    ],
+    "errors": []
+  },
+  "retainedFailures": [
+    {
+      "test": "ImpactAndHingeReactInOneWorldSolve",
+      "stage": "Initial integration",
+      "failure": "Continuous sweep exhausted 4096 iterations"
+    },
+    {
+      "test": "ImpactAndHingeReactInOneWorldSolve",
+      "stage": "Stationary-plane quadratic certificate",
+      "failure": "Continuous sweep still exhausted 4096 iterations"
+    }
+  ],
+  "remaining": [
+    "Continuously certified joint correction/constrained paths",
+    "Joint limits and motors",
+    "Routed multi-endpoint ropes and coincident-gradient treatment",
+    "Warm-started joint caches and catalogue-scale performance",
+    "Catalogue/world/query cutover",
+    "Original solver deletion",
+    "Per-part actual-UI evidence"
+  ],
+  "sourceSha256": {
+    "engine/physics/PhysicsJoint.cs": "8f0bb2cb22f76c5cb5a4a18b7bdc6133d8afe2acb73bc8540d099219cd172dd5",
+    "engine/physics/JointEquations.cs": "abdaa263a4f808bda2b9a6b5b667c3a64b8554d37c4d82f8748e857e4d84a259",
+    "engine/physics/ConstraintMassMatrix.cs": "a24750f49361f9955f3d8c91ccc16defbcab638c8342c049f5b99df2c9df1cd4",
+    "engine/physics/PhysicsWorld.cs": "179a5fa2100da58866ab74ba6b33e4e40f2a27e3f3175120752e9e471b303360",
+    "engine/physics/ConvexSweep.cs": "1b10a3d58014b2fe5ce69465e451f9dd400b5b063ee24f6ffc3c89257747427c",
+    "engine/physics/BodyTrajectory.cs": "e1278c7210606fb7ea26fa92ac0647d0f32709b8224858ed36d1938d3a2db9a0",
+    "engine/physics/JointConstraints.cs": "30a58a6c134ad0c362171fa27d2f084a3f16c2f2197aaa20486aa9f9cb510d9d",
+    "engine/physics/BilateralConstraintBlock.cs": "393d5b9fc302f7146d422b45df64c01b8063a6ff8a9a9aaecbce8d8f732d0ad9",
+    "diagnostics/GeneralJointQualification.cs": "be146b41230c44b2eb8c646817a42ae2a3f1f2f86db3157783f3d4ef313e25bd",
+    "diagnostics/BackendQualificationDiagnostics.cs": "7a761a3be5320e60deee71171477c9f01035ee3b026bff98559039dab281b61a",
+    "diagnostics/GeneralWorldQualification.cs": "2a386047e137cfb6320919453c12f8fe087f292421df554d327698ee6085c3ae",
+    "CuriousContraptions.tests/PhysicsJointTests.cs": "57c1aff3ad4a46c5dd8d81a56cb6fadd561176a3efaf07e2131ea76dfc6940d9",
+    "CuriousContraptions.tests/BodyTrajectoryTests.cs": "ebd0e32eb3b15c1eabfdbd2be35670e8609924e39c44843410555a27a4efcc32"
+  }
+}

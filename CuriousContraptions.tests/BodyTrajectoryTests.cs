@@ -26,6 +26,31 @@ public class BodyTrajectoryTests
     }
 
     [Fact]
+    public void CurvatureIntervalsEndAtEveryConstantSpinBoundary()
+    {
+        var path=Body().CreateTrajectory(.4);
+        double time=0; var count=0;
+        while(time<path.Duration)
+        {
+            var end=path.SegmentEndAfter(time);
+            Assert.True(end>time);
+            var middle=(time+end)*.5;
+            var first=path.At(middle).Rotation*path.At(time).Rotation.Inverse();
+            var second=path.At(end).Rotation*path.At(middle).Rotation.Inverse();
+            Near(first.Apply(X),second.Apply(X),1e-10);
+            Near(first.Apply(Y),second.Apply(Y),1e-10);
+            Assert.Equal(end,path.SegmentEndAfter(middle));
+            time=end; count++;
+            Assert.True(count<=path.SegmentCount);
+        }
+        Assert.Equal(path.SegmentCount,count);
+        Assert.Equal(path.Duration,path.SegmentEndAfter(path.Duration));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>path.SegmentEndAfter(-1));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>path.SegmentEndAfter(double.NaN));
+        Assert.Equal(0,Body().CreateTrajectory(0).SegmentEndAfter(0));
+    }
+
+    [Fact]
     public void ChangingVelocityInvalidatesPreviouslySweptMotion()
     {
         var body=Body(); var path=body.CreateTrajectory(.1);

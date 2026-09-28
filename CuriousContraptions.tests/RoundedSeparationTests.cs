@@ -88,7 +88,7 @@ public class RoundedSeparationTests
         var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(-direction*2),direction*100,default,2,new(.2,.2,.2));
         var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.At(direction*2),-direction*50,default,3,new(.3,.3,.3));
         var geometry=new CompoundGeometry([new(new ConvexSphere(.5),Transform3D.Identity)]);
-        var world=new PhysicsWorld([new(a,geometry,new(1,0,0)),new(b,geometry,new(1,0,0))],new(default,maximumStep:1));
+        var world=new PhysicsWorld([new(a,geometry,new(1,0,0)),new(b,geometry,new(1,0,0))],[],new(default,maximumStep:1));
         var momentum=a.LinearVelocity*2+b.LinearVelocity*3;
         var energy=a.LinearVelocity.LengthSquared+1.5*b.LinearVelocity.LengthSquared;
         Assert.Equal(1,world.Step(.03).Events);

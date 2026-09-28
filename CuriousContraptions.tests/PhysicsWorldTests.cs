@@ -13,7 +13,7 @@ public class PhysicsWorldTests
     private static PhysicsObject Wall(int id,double x)=>
         Object(new(new(id),PhysicsMotionType.Static,RigidPose.At(new(x,0,0)),default,default),
             new(new ConvexBox(new(.01,10,10)),Transform3D.Identity));
-    private static PhysicsWorld World(params PhysicsObject[] objects)=>new(objects,new(default,maximumStep:1));
+    private static PhysicsWorld World(params PhysicsObject[] objects)=>new(objects,[],new(default,maximumStep:1));
     private static void Near(double expected,double actual,double tolerance=1e-6)=>Assert.InRange(Math.Abs(expected-actual),0,tolerance);
 
     [Fact]
@@ -72,7 +72,7 @@ public class PhysicsWorldTests
     public void ExhaustedEventBudgetRollsBackAllBodyAndClockState()
     {
         var ball=Dynamic(0,default,new(10,0,0));
-        var world=new PhysicsWorld([Object(ball,Sphere),Wall(1,-2),Wall(2,2)],
+        var world=new PhysicsWorld([Object(ball,Sphere),Wall(1,-2),Wall(2,2)],[],
             new(default,maximumStep:1,maximumEvents:1));
         var before=world.Capture();
         Assert.Throws<InvalidOperationException>(()=>world.Step(.8));
@@ -101,7 +101,7 @@ public class PhysicsWorldTests
         var body=Dynamic(0,new(0,.5,0));
         var floor=Object(new(new(1),PhysicsMotionType.Static,RigidPose.At(new(0,-.5,0)),default,default),
             new(new ConvexBox(new(10,.5,10)),Transform3D.Identity),0);
-        var world=new PhysicsWorld([Object(body,box,0),floor],new(new(0,-9.8,0)));
+        var world=new PhysicsWorld([Object(body,box,0),floor],[],new(new(0,-9.8,0)));
         for(var i=0;i<600;i++) world.Step(1.0/120);
         Near(.5,body.Center.Y); Assert.InRange(body.LinearVelocity.Length,0,1e-7);
         Assert.InRange(body.AngularVelocity.Length,0,1e-7);
@@ -182,7 +182,7 @@ public class PhysicsWorldTests
     [Fact]
     public void UnrepresentableStepCannotSilentlyAdvanceClockWithoutBodies()
     {
-        var world=new PhysicsWorld([],new(default,maximumStep:double.MaxValue));
+        var world=new PhysicsWorld([],[],new(default,maximumStep:double.MaxValue));
         Assert.Throws<ArgumentOutOfRangeException>(()=>world.Step(double.Epsilon));
         Assert.Equal(0,world.Time);
     }

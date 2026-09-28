@@ -68,6 +68,7 @@ public static class ConvexSweep
 {
     public const double ContactDistance=.0001;
     private const int MaximumIterations=4096;
+    private enum PlaneReference { World, BodyA, BodyB }
     public static ConvexSweepResult Cast(ConvexMotion a,ConvexMotion b,double duration,double minimumSeparation)
     {
         if(!double.IsFinite(minimumSeparation)) throw new ArgumentOutOfRangeException(nameof(minimumSeparation));
@@ -100,9 +101,50 @@ public static class ConvexSweep
             if(closing<=0) return new(ConvexSweepStatus.Clear,duration,At(duration),iteration);
             var step=(gap-minimumSeparation)/closing;
             var next=Math.Min(duration,time+step);
+            // A support-plane chord minus its material-point curvature bound
+            // certifies the whole interval. Body-fixed planes follow rotating
+            // faces rather than forcing a nearly resting pair into tiny steps.
+            var segmentEnd=Math.Min(duration,Math.Min(a.Trajectory.SegmentEndAfter(time),b.Trajectory.SegmentEndAfter(time)));
+            foreach(var reference in new[]{PlaneReference.World,PlaneReference.BodyA,PlaneReference.BodyB})
+            {
+                var end=segmentEnd;
+                while(end>next)
+                {
+                    var lower=PlaneIntervalLowerBound(a,b,time,end,normal,gap,reference);
+                    if(lower>minimumSeparation+queryTolerance) { next=end; break; }
+                    end=time+(end-time)*.5;
+                }
+            }
             if(next<=time) throw new InvalidOperationException("Convex sweep cannot make representable progress.");
             time=next;
         }
         throw new InvalidOperationException("Convex sweep did not converge; collision-free travel was not inferred.");
     }
+    private static double PlaneIntervalLowerBound(ConvexMotion a,ConvexMotion b,double start,double end,
+        CollisionVector normal,double startGap,PlaneReference reference)
+    {
+        var poseA0=a.Trajectory.At(start); var poseB0=b.Trajectory.At(start);
+        var poseA1=a.Trajectory.At(end); var poseB1=b.Trajectory.At(end);
+        var wa=a.AngularSpeedBound; var wb=b.AngularSpeedBound;
+        var relativeSpeed=(a.LinearVelocity-b.LinearVelocity).Length;
+        var distance=Math.Max((poseA0.Center-poseB0.Center).Length,(poseA1.Center-poseB1.Center).Length);
+        CollisionVector endNormal; double curvature;
+        switch(reference)
+        {
+            case PlaneReference.World:
+                endNormal=normal; curvature=wa*wa*a.Reach+wb*wb*b.Reach; break;
+            case PlaneReference.BodyA:
+                endNormal=(poseA1.Rotation*poseA0.Rotation.Inverse()).Apply(normal);
+                curvature=wa*wa*distance+2*wa*relativeSpeed+(wa+wb)*(wa+wb)*b.Reach; break;
+            case PlaneReference.BodyB:
+                endNormal=(poseB1.Rotation*poseB0.Rotation.Inverse()).Apply(normal);
+                curvature=wb*wb*distance+2*wb*relativeSpeed+(wa+wb)*(wa+wb)*a.Reach; break;
+            default: throw new ArgumentOutOfRangeException(nameof(reference));
+        }
+        if(!double.IsFinite(curvature)) throw new InvalidOperationException("Sweep curvature exceeds numeric range.");
+        var endGap=CollisionVector.Dot(endNormal,a.At(end).Support(-endNormal)-b.At(end).Support(endNormal));
+        var horizon=end-start;
+        return Math.Min(startGap,endGap)-curvature*horizon*horizon/8;
+    }
+
 }

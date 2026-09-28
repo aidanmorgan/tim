@@ -75,6 +75,16 @@ public sealed class BodyTrajectory
         var local=time-index*_step;
         return new(center,RigidRotation.FromRotationVector(_spins[index]*local)*_rotations[index]);
     }
+    /// <summary>End of the constant-spin segment containing the right-hand
+    /// neighbourhood of time. Curvature certificates must not cross a spin jump.</summary>
+    public double SegmentEndAfter(double time)
+    {
+        if(!double.IsFinite(time)||time<0||time>Duration) throw new ArgumentOutOfRangeException(nameof(time));
+        if(time==Duration) return Duration;
+        var index=Math.Min(_spins.Length-1,(int)(time/_step));
+        while(index<_spins.Length-1&&(index+1)*_step<=time) index++;
+        return index==_spins.Length-1?Duration:(index+1)*_step;
+    }
     internal void ValidateSource(PhysicsBody body)
     {
         if(!ReferenceEquals(body,_owner)||body.PoseRevision!=_revision||body.Snapshot()!=_source)

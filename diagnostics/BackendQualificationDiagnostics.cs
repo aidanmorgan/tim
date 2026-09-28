@@ -14,6 +14,8 @@ public partial class Workshop
     private void StartBackendQualification()
     {
 #if PLAYTEST
+        foreach(var probe in Enum.GetValues<GeneralJointProbe>())
+            GD.Print(BackendQualificationProtocol.JointPrefix+JsonSerializer.Serialize(GeneralJointQualification.Run(probe),BackendQualificationJson.Default.GeneralJointReport));
         foreach(var probe in Enum.GetValues<GeneralWorldProbe>())
             GD.Print(BackendQualificationProtocol.WorldPrefix+JsonSerializer.Serialize(GeneralWorldQualification.Run(probe),BackendQualificationJson.Default.GeneralWorldReport));
         foreach(var probe in Enum.GetValues<GeneralSignedSweepProbe>())
@@ -58,6 +60,7 @@ public partial class Workshop
 internal static class BackendQualificationProtocol
 {
     // External diagnostic wire identifiers, never domain behaviour selectors.
+    internal const string JointPrefix="CCGENERALJOINT ";
     internal const string WorldPrefix="CCGENERALWORLD ";
     internal const string SignedSweepPrefix="CCGENERALSIGNEDSWEEP ";
     internal const string PersistencePrefix="CCGENERALPERSISTENCE ";
@@ -76,6 +79,7 @@ internal sealed record BackendQueryReport(PhysicsBackendQualification.Probe Prob
 internal sealed record BackendMotionReport(PhysicsBackendMotionProbe.Experiment Experiment,
     PhysicsBackendMotionProbe.Frame[] Frames);
 [JsonSourceGenerationOptions(UseStringEnumConverter=true)]
+[JsonSerializable(typeof(GeneralJointReport))]
 [JsonSerializable(typeof(GeneralWorldReport))]
 [JsonSerializable(typeof(GeneralSignedSweepReport))]
 [JsonSerializable(typeof(GeneralPersistenceReport))]

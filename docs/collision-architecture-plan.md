@@ -272,3 +272,32 @@ Eight new native cases cover 600 analytic randomly oriented sphere pairs, tangen
 This closes the specifically recorded anchor-precision defect, not all possible geometry/numerics qualification. World joint/rope integration, catalogue-scale performance, gameplay cutover, original-solver deletion and affected-part UI evidence remain incomplete.
 
 The diagnostics-disabled Release publish succeeds. The refinement adds numeric geometry contracts, not string-based domain selectors; existing status/probe choices remain enums throughout their callers.
+
+## Full-replacement continuation: world-owned joints
+
+The world constructor now requires an explicit joint collection; the previous signature is removed and all current callers are migrated. Immutable body-local ball-socket, hinge, slider and endpoint-rope declarations have typed joint IDs and an explicit connected-body collision enum. The world validates exact body ownership, unique IDs and declarations, orders joints deterministically, and includes their fresh equations in the same global solve as contacts. A disabled collision declaration excludes that connected pair; unrelated contacts remain active.
+
+Geometric joint equations are shared between velocity response and nonlinear position correction. The existing scaled Cholesky algebra has been extracted into one mass-matrix implementation, not copied into another joint solver. Position projection applies configuration changes directly and preserves linear velocity and world angular momentum. It does not create temporary bodies or overwrite physical velocities to run a pseudo-velocity solve. Slack ropes have no positional equality and cannot push. The world also solves terminal substep configuration/velocity state; snapshots restore bodies and contact caches exactly while the joint declarations themselves are immutable.
+
+Retained integration failure: a ball hitting a hinged beam exhausted the unchanged 4,096-iteration continuous sweep budget after impact. A stationary-plane curvature bound alone also failed. The worst-case angular closing bound was forcing very short intervals while the contact face rotated away from that stationary plane. The correction adds **interval certificates**, not a touching-pair exclusion or a larger iteration budget:
+
+- For each material-point pair, a bound M on the second derivative of its plane projection gives a lower bound of min(endpoint gaps) - M*h²/8 throughout the interval.
+- The separating plane can be world-fixed or rotate with either body's captured path. For a plane fixed to A, the A-local support contribution is constant; the bound is omegaA²*D + 2*omegaA*relativeLinearSpeed + (omegaA+omegaB)²*reachB. D bounds the centre separation across the interval. B-fixed planes are symmetric.
+- Certificates stop at both paths' constant-spin segment boundaries. No curvature certificate crosses a spin discontinuity. Existing first-order support-plane certificates remain valid mathematical bounds in the same sweep; no alternate collision solver is selected.
+- Endpoint support gaps are necessary inputs to an interval bound, not an endpoint-only noncollision test.
+
+Thirteen added native cases verify frame correction without injected velocity, a 240-step hinge pendulum with exact replay, slider/free-rotation degrees of freedom, slack/taut/overextended ropes, explicit collision policy, invalid ownership/identities, a coupled ball-to-hinged-beam impact and every constant-spin segment boundary. The full native suite passes **1,565 tests**, zero failures/skips.
+
+Remaining requirements are not hidden: joint limits/motors and routed multi-endpoint ropes are not integrated; coincident endpoint gradients are explicitly rejected; joint impulse warm-start caches and catalogue-scale convergence/performance are not qualified. Free-flight intervals are certified, but nonlinear joint position projection is not yet a continuously swept constrained trajectory—large correction paths and thin-obstacle safety require further work before production cutover. Body/joint topology remains immutable per world. Gameplay still uses the original solver, which must be removed at catalogue/world migration, followed by fresh affected-part actual-UI proof.
+
+[Browser joint evidence](general-joint-qualification-results.json), using the [recorded recipe](general-joint-qualification.playwright.js), passes all five fixtures with exact restore/replay and no browser errors:
+
+- Hinge pendulum: maximum geometric error 9.670417688845134e-9 and velocity residual 8.881784197001252e-16 over 240 steps.
+- Slider: final axial position 5.5125000000000215, velocity 7.000000000000043, zero transverse velocity/spin.
+- Slack rope: free motion from 0.5 to 0.6000000000000023 at speed 0.1. Taut rope: stays at length 1 with zero outward velocity.
+- Coupled beam impact: 11 continuous contact events / 158 sweep iterations across 12 substeps, beam spin -9.17490211446844 and payload vertical velocity -9.08245375479509; pivot error zero.
+- Grazing-orbit regression now takes 20 sweep iterations (previously 2,387); release/recontact takes nine. Existing analytic event/clearance assertions still pass. Shared world, anisotropic-trajectory and constraint browser regressions pass.
+
+Terminal contact solving changes the 600-step resting-world fixture's final drift to roughly 2.2e-8 and speed to roughly 1.18e-8, still within its existing acceptance bounds. This is retained in the report, not claimed bit-identical to the previous solver ordering. Cold/warm convergence costs need further qualification.
+
+The diagnostics-disabled production Release publish succeeds. Joint kinds, connected-collision policies and plane-reference choices are enums; joint and body ownership uses typed identities throughout. No constructor compatibility overload or old/new solver switch was added.

@@ -20,61 +20,22 @@ public readonly record struct JointFrame
 /// zero pseudo-velocities, without introducing energy into physical velocities.</summary>
 public static class JointConstraints
 {
-    private enum AxisReference { World, BodyB }
-    private static readonly CollisionVector X=new(1,0,0),Y=new(0,1,0),Z=new(0,0,1);
-    private static void Validate(JointFrame a,JointFrame b,double correctionRate)
+    private static IReadOnlyList<IImpulseConstraint> Frames(FrameJointKind kind,PhysicsBody a,PhysicsBody b,
+        JointFrame fa,JointFrame fb,double correctionRate)
     {
-        if(!a.Orientation.IsValid||!b.Orientation.IsValid||!double.IsFinite(correctionRate)||correctionRate<0)
-            throw new ArgumentException("Joint frames and correction rate must be valid.");
-    }
-    private static ImpulseConstraint Linear(PhysicsBody a,PhysicsBody b,JointFrame fa,JointFrame fb,
-        CollisionVector axis,double correctionRate,AxisReference reference=AxisReference.World)=>new(a,b,
-            new(axis,CollisionVector.Cross(fa.Anchor-a.Center,axis),
-                -axis,-CollisionVector.Cross((reference==AxisReference.BodyB?fa.Anchor:fb.Anchor)-b.Center,axis)),
-            -correctionRate*CollisionVector.Dot(fa.Anchor-fb.Anchor,axis),
-            double.NegativeInfinity,double.PositiveInfinity);
-    private static ImpulseConstraint Angular(PhysicsBody a,PhysicsBody b,CollisionVector axis,double target)=>
-        new(a,b,new(default,axis,default,-axis),target,double.NegativeInfinity,double.PositiveInfinity);
-
-    public static IReadOnlyList<IImpulseConstraint> BallSocket(PhysicsBody a,PhysicsBody b,
-        JointFrame fa,JointFrame fb,double correctionRate=0)
-    {
-        Validate(fa,fb,correctionRate);
-        return [new BilateralConstraintBlock([Linear(a,b,fa,fb,X,correctionRate),Linear(a,b,fa,fb,Y,correctionRate),Linear(a,b,fa,fb,Z,correctionRate)])];
-    }
-    public static IReadOnlyList<IImpulseConstraint> Hinge(PhysicsBody a,PhysicsBody b,
-        JointFrame fa,JointFrame fb,double correctionRate=0)
-    {
-        Validate(fa,fb,correctionRate);
-        var axisA=fa.Orientation.Apply(Z); var axisB=fb.Orientation.Apply(Z);
-        var cross=CollisionVector.Cross(axisB,axisA); var sine=cross.Length;
-        var cosine=Math.Clamp(CollisionVector.Dot(axisA,axisB),-1,1);
-        // At exactly antiparallel axes there is no unique shortest swing axis.
-        // The declared frame X defines the half-turn, preserving authoring intent.
-        var error=sine>1e-14?cross*(Math.Atan2(sine,cosine)/sine):
-            cosine<0?fa.Orientation.Apply(X)*Math.PI:default;
-        var u=fa.Orientation.Apply(X); var v=fa.Orientation.Apply(Y);
-        var rows=new List<ImpulseConstraint>
-        {
-            Linear(a,b,fa,fb,X,correctionRate),Linear(a,b,fa,fb,Y,correctionRate),Linear(a,b,fa,fb,Z,correctionRate),
-            Angular(a,b,u,-correctionRate*CollisionVector.Dot(error,u)),
-            Angular(a,b,v,-correctionRate*CollisionVector.Dot(error,v))
-        };
+        if(!double.IsFinite(correctionRate)||correctionRate<0) throw new ArgumentOutOfRangeException(nameof(correctionRate));
+        var equations=JointEquations.Frames(kind,a,b,fa,fb);
+        var rows=new ImpulseConstraint[equations.Length];
+        for(var i=0;i<rows.Length;i++)
+            rows[i]=new(a,b,equations[i].Jacobian,-correctionRate*equations[i].Error,double.NegativeInfinity,double.PositiveInfinity);
         return [new BilateralConstraintBlock(rows)];
     }
+    public static IReadOnlyList<IImpulseConstraint> BallSocket(PhysicsBody a,PhysicsBody b,
+        JointFrame fa,JointFrame fb,double correctionRate=0)=>Frames(FrameJointKind.BallSocket,a,b,fa,fb,correctionRate);
+    public static IReadOnlyList<IImpulseConstraint> Hinge(PhysicsBody a,PhysicsBody b,
+        JointFrame fa,JointFrame fb,double correctionRate=0)=>Frames(FrameJointKind.Hinge,a,b,fa,fb,correctionRate);
     public static IReadOnlyList<IImpulseConstraint> Slider(PhysicsBody a,PhysicsBody b,
-        JointFrame fa,JointFrame fb,double correctionRate=0)
-    {
-        Validate(fa,fb,correctionRate);
-        var error=(fa.Orientation*fb.Orientation.Inverse()).RotationVector();
-        return [new BilateralConstraintBlock([
-            Linear(a,b,fa,fb,fb.Orientation.Apply(X),correctionRate,AxisReference.BodyB),
-            Linear(a,b,fa,fb,fb.Orientation.Apply(Y),correctionRate,AxisReference.BodyB),
-            Angular(a,b,X,-correctionRate*error.X),
-            Angular(a,b,Y,-correctionRate*error.Y),
-            Angular(a,b,Z,-correctionRate*error.Z)
-        ])];
-    }
+        JointFrame fa,JointFrame fb,double correctionRate=0)=>Frames(FrameJointKind.Slider,a,b,fa,fb,correctionRate);
 
     /// <summary>Two unilateral velocity rows keep a coordinate inside its range
     /// over the upcoming interval. Error correction outside the range is explicit.
@@ -95,16 +56,10 @@ public static class JointConstraints
     public static ImpulseConstraint Rope(PhysicsBody a,PhysicsBody b,CollisionVector pointA,CollisionVector pointB,
         double maximumLength,double duration,double correctionRate=0)
     {
-        if(!pointA.IsFinite||!pointB.IsFinite||!double.IsFinite(maximumLength)||maximumLength<=0||
-            !double.IsFinite(duration)||duration<=0||!double.IsFinite(correctionRate)||correctionRate<0)
-            throw new ArgumentException("Rope geometry and duration must be finite and positive.");
-        var delta=pointA-pointB; var length=delta.Length;
-        if(!double.IsFinite(length)||length==0)
-            throw new ArgumentException("Coincident rope endpoints have no defined constraint gradient.");
-        var axis=delta/length;
-        var slack=maximumLength-length;
-        var target=slack>=0?slack/duration:slack*correctionRate;
-        return new(a,b,new(axis,CollisionVector.Cross(pointA-a.Center,axis),
-            -axis,-CollisionVector.Cross(pointB-b.Center,axis)),target,double.NegativeInfinity,0);
+        if(!double.IsFinite(duration)||duration<=0||!double.IsFinite(correctionRate)||correctionRate<0)
+            throw new ArgumentException("Rope duration must be positive and correction rate nonnegative.");
+        var equation=JointEquations.Rope(a,b,pointA,pointB,maximumLength);
+        var target=equation.Error<=0?-equation.Error/duration:-equation.Error*correctionRate;
+        return new(a,b,equation.Jacobian,target,double.NegativeInfinity,0);
     }
 }

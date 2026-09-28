@@ -51,6 +51,7 @@ public sealed class PhysicsWorld
         ConvexInstance ShapeA,ConvexInstance ShapeB,PersistentContactPair Contact,ContactPositionConstraint Position,ColliderPairKey Key);
     private readonly PhysicsObject[] _objects;
     private readonly Pair[] _pairs;
+    private readonly PhysicsJoint[] _joints;
     private readonly IPositionConstraint[] _positions;
     private readonly PhysicsWorldSettings _settings;
     private PhysicsImpact[] _impacts=[];
@@ -59,13 +60,23 @@ public sealed class PhysicsWorld
     public ulong StepIndex { get; private set; }
     public ReadOnlySpan<PhysicsImpact> Impacts=>_impacts;
 
-    public PhysicsWorld(IEnumerable<PhysicsObject> objects,PhysicsWorldSettings settings)
+    public PhysicsWorld(IEnumerable<PhysicsObject> objects,IEnumerable<PhysicsJoint> joints,PhysicsWorldSettings settings)
     {
         ArgumentNullException.ThrowIfNull(objects); ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(joints);
+        var declarations=joints.ToArray();
+        if(declarations.Any(j=>j is null)) throw new ArgumentException("World joints cannot be null.",nameof(joints));
+        _joints=declarations.OrderBy(j=>j.Id.Index).ToArray();
+        if(_joints.Select(j=>j.Id).Distinct().Count()!=_joints.Length) throw new ArgumentException("World joint identities must be unique.");
         var supplied=objects.ToArray();
         if(supplied.Any(o=>o is null)) throw new ArgumentException("World objects cannot be null.",nameof(objects));
         _objects=supplied.OrderBy(o=>o.Body.Id.Index).ToArray(); _settings=settings;
         if(_objects.Select(o=>o.Body.Id).Distinct().Count()!=_objects.Length) throw new ArgumentException("World body identities must be unique.");
+        var owned=_objects.ToDictionary(o=>o.Body.Id,o=>o.Body);
+        foreach(var joint in _joints)
+            foreach(var body in new[]{joint.A,joint.B})
+                if(!owned.TryGetValue(body.Id,out var worldBody)||worldBody!=body)
+                    throw new ArgumentException("Joint refers to a body state not owned by this world.");
         var pairs=new List<Pair>();
         for(var a=0;a<_objects.Length;a++)
         for(var b=a+1;b<_objects.Length;b++)
@@ -73,6 +84,8 @@ public sealed class PhysicsWorld
             var first=_objects[a]; var second=_objects[b];
             // Two prescribed/immovable bodies cannot exchange a dynamic impulse.
             if(first.Body.MotionType!=PhysicsMotionType.Dynamic&&second.Body.MotionType!=PhysicsMotionType.Dynamic) continue;
+            if(_joints.Any(j=>j.Collision==ConnectedBodyCollision.Disabled&&
+                ((j.A==first.Body&&j.B==second.Body)||(j.B==first.Body&&j.A==second.Body)))) continue;
             var material=new ContactMaterial(Math.Max(first.Material.Restitution,second.Material.Restitution),
                 Math.Max(first.Material.BounceThreshold,second.Material.BounceThreshold),
                 Math.Sqrt(first.Material.Friction)*Math.Sqrt(second.Material.Friction));
@@ -85,7 +98,7 @@ public sealed class PhysicsWorld
                     new(first.Body,shapeA,second.Body,shapeB),new(first.Body.Id,ia,second.Body.Id,ib)));
             }
         }
-        _pairs=pairs.ToArray(); _positions=_pairs.Select(p=>(IPositionConstraint)p.Position).ToArray();
+        _pairs=pairs.ToArray(); _positions=_pairs.Select(p=>(IPositionConstraint)p.Position).Concat(_joints).ToArray();
     }
 
     public PhysicsStepResult Step(double duration)
@@ -113,7 +126,9 @@ public sealed class PhysicsWorld
                 {
                     positionIterations+=PositionSolver.Solve(_positions,_settings.PositionTolerance).Iterations;
                     foreach(var pair in _pairs) pair.Contact.Prepare(step);
-                    var constraints=_pairs.SelectMany(p=>p.Contact.PreparedContacts.ToArray()).Select(p=>(IImpulseConstraint)p.Constraint).ToArray();
+                    var jointDuration=elapsed<step?step-elapsed:step;
+                    var constraints=_pairs.SelectMany(p=>p.Contact.PreparedContacts.ToArray()).Select(p=>(IImpulseConstraint)p.Constraint)
+                        .Concat(_joints.SelectMany(j=>j.VelocityConstraints(jointDuration))).ToArray();
                     foreach(var pair in _pairs) pair.Contact.WarmStart();
                     velocityIterations+=ImpulseSolver.Solve(constraints,tolerance:_settings.VelocityTolerance).Iterations;
                     foreach(var pair in _pairs) pair.Contact.Complete(_settings.VelocityTolerance);
@@ -137,7 +152,7 @@ public sealed class PhysicsWorld
                         throw new InvalidOperationException("World collision event made no temporal progress.");
                     for(var i=0;i<_objects.Length;i++) _objects[i].Body.Advance(paths[i],travel);
                     elapsed=travel>=remaining?step:elapsed+travel;
-                    if(hitPair is null) break;
+                    if(hitPair is null) continue;
                     if(++events>_settings.MaximumEvents) throw new InvalidOperationException("World collision event budget exceeded.");
                     impacts.Add(new(hitPair.Key,Time+substep*step+elapsed,earliest.Separation));
                     // A fresh swept impact ends the preceding support estimate.

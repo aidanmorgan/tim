@@ -44,7 +44,7 @@ internal static class GeneralWorldQualification
                     new(new ConvexBox(new(2,.1,.1)),Transform3D.Identity))],
             _=>throw new ArgumentOutOfRangeException(nameof(probe))
         };
-        var world=new PhysicsWorld(objects,new(gravity,maximumStep:1));
+        var world=new PhysicsWorld(objects,[],new(gravity,maximumStep:1));
         var before=world.Capture(); var results=new PhysicsStepResult[steps];
         var eventHistory=new PhysicsImpact[steps][]; var events=0;
         for(var i=0;i<steps;i++)
