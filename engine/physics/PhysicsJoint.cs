@@ -54,33 +54,63 @@ public abstract class PhysicsJoint : IPositionConstraint
     }
 }
 
+/// <summary>Finite lower/upper travel bounds, in length units for sliders and
+/// radians for hinges. Null on a frame declaration means explicitly unbounded.</summary>
+public sealed record JointTravelRange
+{
+    public double Lower { get; }
+    public double Upper { get; }
+    public JointTravelRange(double lower,double upper)
+    {
+        if(!double.IsFinite(lower)||!double.IsFinite(upper)||lower>upper)
+            throw new ArgumentException("Joint travel bounds must be finite and ordered.");
+        Lower=lower; Upper=upper;
+    }
+    public double Violation(double coordinate)=>coordinate-Math.Clamp(coordinate,Lower,Upper);
+}
+
 public sealed class PhysicsFrameJoint : PhysicsJoint
 {
     public FrameJointKind Kind { get; }
+    public JointTravelRange? TravelRange { get; }
     public JointFrame LocalA { get; }
     public JointFrame LocalB { get; }
     public JointFrame FrameA=>World(A,LocalA);
     public JointFrame FrameB=>World(B,LocalB);
     public PhysicsFrameJoint(PhysicsJointId id,FrameJointKind kind,PhysicsBody a,JointFrame localA,
-        PhysicsBody b,JointFrame localB,ConnectedBodyCollision collision):base(id,a,b,collision)
+        PhysicsBody b,JointFrame localB,ConnectedBodyCollision collision,JointTravelRange? travelRange):base(id,a,b,collision)
     {
         if(!Enum.IsDefined(kind)||!localA.Orientation.IsValid||!localB.Orientation.IsValid)
             throw new ArgumentException("Joint kind and local frames must be valid.");
-        Kind=kind; LocalA=localA; LocalB=localB;
+        if(travelRange is not null&&(kind==FrameJointKind.BallSocket||
+            kind==FrameJointKind.Hinge&&(travelRange.Lower<=-Math.PI||travelRange.Upper>=Math.PI)))
+            throw new ArgumentException("Travel bounds require a slider or a hinge interval strictly inside the principal-angle branch.");
+        Kind=kind; LocalA=localA; LocalB=localB; TravelRange=travelRange;
     }
     private static JointFrame World(PhysicsBody body,JointFrame frame)=>
         new(body.Pose.TransformPoint(frame.Anchor),body.Pose.Rotation*frame.Orientation);
-    private JointEquation[] Equations()=>JointEquations.Frames(Kind,A,B,FrameA,FrameB);
+    public JointEquation Travel=>JointEquations.Travel(Kind,A,B,FrameA,FrameB);
+    private JointEquation[] Equations()
+    {
+        var equations=JointEquations.Frames(Kind,A,B,FrameA,FrameB);
+        if(TravelRange is null) return equations;
+        var travel=Travel; var error=TravelRange.Violation(travel.Error);
+        return error==0?equations:[..equations,new(travel.Jacobian,error)];
+    }
     public override IReadOnlyList<IImpulseConstraint> VelocityConstraints(double duration)
     {
         if(!double.IsFinite(duration)||duration<=0) throw new ArgumentOutOfRangeException(nameof(duration));
-        return Kind switch
+        IReadOnlyList<IImpulseConstraint> rows=Kind switch
         {
             FrameJointKind.BallSocket=>JointConstraints.BallSocket(A,B,FrameA,FrameB),
             FrameJointKind.Hinge=>JointConstraints.Hinge(A,B,FrameA,FrameB),
             FrameJointKind.Slider=>JointConstraints.Slider(A,B,FrameA,FrameB),
             _=>throw new InvalidOperationException("Undefined frame joint.")
         };
+        if(TravelRange is null) return rows;
+        var travel=Travel;
+        return [..rows,..JointConstraints.Limits(A,B,travel.Jacobian,travel.Error,
+            TravelRange.Lower,TravelRange.Upper,duration)];
     }
     public override double Error(double queryTolerance)=>Equations().Max(e=>Math.Abs(e.Error));
     public override void Project(double tolerance,PositionProjector projector)

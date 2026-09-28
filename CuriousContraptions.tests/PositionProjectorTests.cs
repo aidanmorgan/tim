@@ -68,7 +68,7 @@ public class PositionProjectorTests
         var a=Body(0,new(-1,0,0)); var anchor=Body(1,new(1,0,0),PhysicsMotionType.Static);
         var wall=Body(2,new(0,blocked?0:3,0),PhysicsMotionType.Static);
         var origin=new JointFrame(default,RigidRotation.Identity);
-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.BallSocket,a,origin,anchor,origin,ConnectedBodyCollision.Disabled);
+        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.BallSocket,a,origin,anchor,origin,ConnectedBodyCollision.Disabled,null);
         PhysicsObject Object(PhysicsBody body,ConvexInstance shape)=>new(body,new([shape]),new(0,0,0));
         var world=new PhysicsWorld([Object(a,Sphere),Object(anchor,Sphere),Object(wall,Wall)],[joint],new(default));
         var before=world.Capture();

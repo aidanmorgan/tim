@@ -12,7 +12,7 @@ public class PhysicsJointTests
     private static PhysicsObject Object(PhysicsBody body)=>new(body,
         new CompoundGeometry([new(new ConvexSphere(.1),Transform3D.Identity)]),new(0,0,0));
     private static PhysicsFrameJoint Joint(FrameJointKind kind,PhysicsBody a,PhysicsBody b,JointFrame? localA=null)=>
-        new(new(0),kind,a,localA??Origin,b,Origin,ConnectedBodyCollision.Disabled);
+        new(new(0),kind,a,localA??Origin,b,Origin,ConnectedBodyCollision.Disabled,null);
     private static void Near(CollisionVector expected,CollisionVector actual,double tolerance=1e-7)=>
         Assert.InRange((expected-actual).Length,0,tolerance);
 
@@ -109,7 +109,7 @@ public class PhysicsJointTests
     public void CollisionPolicyIsExplicitAndCanExposeAnImpossibleConstruction()
     {
         var a=Body(0,default); var b=Fixed(1);
-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.BallSocket,a,Origin,b,Origin,ConnectedBodyCollision.Enabled);
+        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.BallSocket,a,Origin,b,Origin,ConnectedBodyCollision.Enabled,null);
         var world=new PhysicsWorld([Object(a),Object(b)],[joint],new(default));
         var before=a.Snapshot();
         Assert.Throws<InvalidOperationException>(()=>world.Step(.01));
@@ -139,7 +139,7 @@ public class PhysicsJointTests
         var joint=Joint(FrameJointKind.Hinge,a,b);
         Assert.Throws<ArgumentException>(()=>new PhysicsWorld([Object(a),Object(b)],[Joint(FrameJointKind.Hinge,foreign,b)],new(default)));
         Assert.Throws<ArgumentException>(()=>new PhysicsWorld([Object(a),Object(b)],[joint,joint],new(default)));
-        Assert.Throws<ArgumentException>(()=>new PhysicsFrameJoint(new(0),(FrameJointKind)999,a,Origin,b,Origin,ConnectedBodyCollision.Disabled));
+        Assert.Throws<ArgumentException>(()=>new PhysicsFrameJoint(new(0),(FrameJointKind)999,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,null));
         Assert.Throws<ArgumentException>(()=>new PhysicsRopeJoint(new(0),a,default,b,default,0,ConnectedBodyCollision.Disabled));
     }
 }

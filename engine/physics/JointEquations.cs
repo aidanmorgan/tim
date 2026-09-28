@@ -46,6 +46,25 @@ public static class JointEquations
         }
     }
 
+    /// <summary>Coordinate and exact differential of the frame's free axis.
+    /// Hinge twist is the principal angle (-pi, pi]; an antiparallel swing has
+    /// no defined twist and is rejected rather than assigning an arbitrary stop.</summary>
+    public static JointEquation Travel(FrameJointKind kind,PhysicsBody a,PhysicsBody b,JointFrame fa,JointFrame fb)
+    {
+        ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
+        if(!fa.Orientation.IsValid||!fb.Orientation.IsValid) throw new ArgumentException("Joint frames must be valid.");
+        if(kind==FrameJointKind.Slider)
+            return Linear(a,b,fa,fb,fb.Orientation.Apply(Z),AxisReference.BodyB);
+        if(kind!=FrameJointKind.Hinge) throw new ArgumentOutOfRangeException(nameof(kind));
+        var q=fb.Orientation.Inverse()*fa.Orientation;
+        var denominator=q.W*q.W+q.Z*q.Z;
+        if(denominator<=1e-24) throw new InvalidOperationException("Antiparallel hinge frames have undefined twist.");
+        var gradient=fb.Orientation.Apply(new((q.W*q.Y+q.Z*q.X)/denominator,
+            (-q.W*q.X+q.Z*q.Y)/denominator,1));
+        var angle=Math.Atan2(2*q.Z*q.W,q.W*q.W-q.Z*q.Z);
+        return Angular(gradient,angle);
+    }
+
     public static JointEquation Rope(PhysicsBody a,PhysicsBody b,CollisionVector pointA,CollisionVector pointB,double length)
     {
         if(!pointA.IsFinite||!pointB.IsFinite||!double.IsFinite(length)||length<=0)
