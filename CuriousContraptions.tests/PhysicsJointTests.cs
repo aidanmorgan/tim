@@ -101,7 +101,7 @@ public class PhysicsJointTests
         Near(new(1.5,0,0),a.Center); Near(new(.5,0,0),b.Center);
         Near(default,a.LinearVelocity); Near(default,b.LinearVelocity);
         a.ApplyImpulse(new(-1,0,0),a.Center);
-        ImpulseSolver.Solve(rope.VelocityConstraints(.01));
+        ImpulseSolver.Solve(rope.VelocityConstraints(1e-7));
         Near(new(-1,0,0),a.LinearVelocity);
     }
 

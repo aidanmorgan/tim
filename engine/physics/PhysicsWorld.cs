@@ -40,6 +40,7 @@ public sealed class PhysicsWorldSettings
 }
 public readonly record struct ColliderPairKey(PhysicsBodyId A,ColliderChildId ChildA,PhysicsBodyId B,ColliderChildId ChildB);
 public readonly record struct PhysicsImpact(ColliderPairKey Pair,double Time,ConvexSeparationResult Separation);
+public readonly record struct PhysicsJointStop(PhysicsJointId Joint,JointBoundary Boundary,double Time);
 public sealed record PhysicsStepResult(int Substeps,int Events,int SweepIterations,int VelocityIterations,int PositionIterations);
 
 /// <summary>World-owned bodies, convex-child contact graph and shared event clock.
@@ -52,13 +53,16 @@ public sealed class PhysicsWorld
     private readonly PhysicsObject[] _objects;
     private readonly Pair[] _pairs;
     private readonly PhysicsJoint[] _joints;
+    private readonly (int A,int B)[] _jointBodies;
     private readonly IPositionConstraint[] _positions;
     private readonly PhysicsWorldSettings _settings;
     private PhysicsImpact[] _impacts=[];
+    private PhysicsJointStop[] _jointStops=[];
     public PhysicsWorldPhase Phase { get; private set; }
     public double Time { get; private set; }
     public ulong StepIndex { get; private set; }
     public ReadOnlySpan<PhysicsImpact> Impacts=>_impacts;
+    public ReadOnlySpan<PhysicsJointStop> JointStops=>_jointStops;
 
     public PhysicsWorld(IEnumerable<PhysicsObject> objects,IEnumerable<PhysicsJoint> joints,PhysicsWorldSettings settings)
     {
@@ -77,6 +81,8 @@ public sealed class PhysicsWorld
             foreach(var body in new[]{joint.A,joint.B})
                 if(!owned.TryGetValue(body.Id,out var worldBody)||worldBody!=body)
                     throw new ArgumentException("Joint refers to a body state not owned by this world.");
+        var indices=_objects.Select((o,i)=>(o.Body.Id,i)).ToDictionary(p=>p.Id,p=>p.i);
+        _jointBodies=_joints.Select(j=>(indices[j.A.Id],indices[j.B.Id])).ToArray();
         var pairs=new List<Pair>();
         for(var a=0;a<_objects.Length;a++)
         for(var b=a+1;b<_objects.Length;b++)
@@ -113,6 +119,7 @@ public sealed class PhysicsWorld
         var before=Capture();
         Phase=PhysicsWorldPhase.Stepping;
         var impacts=new List<PhysicsImpact>();
+        var stops=new List<PhysicsJointStop>();
         var events=0; var sweeps=0; var velocityIterations=0; var positionIterations=0;
         try
         {
@@ -127,9 +134,8 @@ public sealed class PhysicsWorld
                     var projector=new PositionProjector(_objects.Select(o=>o.Body),_pairs.Select(p=>p.Position),_settings.MaximumPenetration);
                     positionIterations+=PositionSolver.Solve(_positions,projector,_settings.PositionTolerance).Iterations;
                     foreach(var pair in _pairs) pair.Contact.Prepare(step);
-                    var jointDuration=elapsed<step?step-elapsed:step;
                     var constraints=_pairs.SelectMany(p=>p.Contact.PreparedContacts.ToArray()).Select(p=>(IImpulseConstraint)p.Constraint)
-                        .Concat(_joints.SelectMany(j=>j.VelocityConstraints(jointDuration))).ToArray();
+                        .Concat(_joints.SelectMany(j=>j.VelocityConstraints(_settings.PositionTolerance))).ToArray();
                     foreach(var pair in _pairs) pair.Contact.WarmStart();
                     velocityIterations+=ImpulseSolver.Solve(constraints,tolerance:_settings.VelocityTolerance).Iterations;
                     foreach(var pair in _pairs) pair.Contact.Complete(_settings.VelocityTolerance);
@@ -149,20 +155,34 @@ public sealed class PhysicsWorld
                         if(hitPair is not null&&hit.Time>=travel) continue;
                         travel=hit.Time; earliest=hit; hitPair=pair;
                     }
+                    PhysicsJoint? hitJoint=null; JointBoundary? hitBoundary=null;
+                    for(var i=0;i<_joints.Length;i++)
+                    {
+                        var endpoints=_jointBodies[i];
+                        var hit=_joints[i].Sweep(paths[endpoints.A],paths[endpoints.B],travel,_settings.PositionTolerance);
+                        sweeps+=hit.Iterations;
+                        if(hit.Status==JointSweepStatus.Clear||(hitPair is not null||hitJoint is not null)&&hit.Time>=travel) continue;
+                        travel=hit.Time; hitJoint=_joints[i]; hitBoundary=hit.Boundary; hitPair=null;
+                    }
                     if(travel<=0||elapsed+travel<=elapsed)
                         throw new InvalidOperationException("World collision event made no temporal progress.");
                     for(var i=0;i<_objects.Length;i++) _objects[i].Body.Advance(paths[i],travel);
                     elapsed=travel>=remaining?step:elapsed+travel;
-                    if(hitPair is null) continue;
-                    if(++events>_settings.MaximumEvents) throw new InvalidOperationException("World collision event budget exceeded.");
-                    impacts.Add(new(hitPair.Key,Time+substep*step+elapsed,earliest.Separation));
+                    if(hitPair is null&&hitJoint is null) continue;
+                    if(++events>_settings.MaximumEvents) throw new InvalidOperationException("World event budget exceeded.");
+                    if(hitJoint is not null)
+                    {
+                        stops.Add(new(hitJoint.Id,hitBoundary!.Value,Time+substep*step+elapsed));
+                        continue;
+                    }
+                    impacts.Add(new(hitPair!.Key,Time+substep*step+elapsed,earliest.Separation));
                     // A fresh swept impact ends the preceding support estimate.
                     // This also restores restitution after release/re-contact
                     // within one substep, without skipping the previously touching pair.
                     hitPair.Contact.BeginImpact();
                 }
             }
-            Time=before.Time+duration; StepIndex=nextIndex; _impacts=impacts.ToArray();
+            Time=before.Time+duration; StepIndex=nextIndex; _impacts=impacts.ToArray(); _jointStops=stops.ToArray();
             Phase=PhysicsWorldPhase.Idle;
             return new(count,events,sweeps,velocityIterations,positionIterations);
         }
@@ -182,7 +202,7 @@ public sealed class PhysicsWorld
     {
         RequireIdle();
         return new(this,_objects.Select(o=>o.Body.Snapshot()).ToArray(),_pairs.Select(p=>p.Contact.Capture()).ToArray(),
-            Time,StepIndex,_impacts);
+            Time,StepIndex,_impacts,_jointStops);
     }
     public void Restore(Snapshot snapshot)
     {
@@ -195,6 +215,7 @@ public sealed class PhysicsWorld
         for(var i=0;i<_objects.Length;i++) _objects[i].Body.Restore(snapshot.Bodies[i]);
         for(var i=0;i<_pairs.Length;i++) _pairs[i].Contact.Restore(snapshot.Pairs[i]);
         Time=snapshot.Time; StepIndex=snapshot.StepIndex; _impacts=(PhysicsImpact[])snapshot.ImpactData.Clone();
+        _jointStops=(PhysicsJointStop[])snapshot.StopData.Clone();
     }
     public sealed class Snapshot
     {
@@ -202,13 +223,14 @@ public sealed class PhysicsWorld
         internal PhysicsBodySnapshot[] Bodies { get; }
         internal PersistentContactPair.Snapshot[] Pairs { get; }
         internal PhysicsImpact[] ImpactData { get; }
+        internal PhysicsJointStop[] StopData { get; }
         public double Time { get; }
         public ulong StepIndex { get; }
         public ReadOnlySpan<PhysicsBodySnapshot> BodyStates=>Bodies;
         internal Snapshot(PhysicsWorld owner,PhysicsBodySnapshot[] bodies,PersistentContactPair.Snapshot[] pairs,
-            double time,ulong stepIndex,PhysicsImpact[] impacts)
+            double time,ulong stepIndex,PhysicsImpact[] impacts,PhysicsJointStop[] stops)
         {
-            Owner=owner; Bodies=bodies; Pairs=pairs; Time=time; StepIndex=stepIndex; ImpactData=(PhysicsImpact[])impacts.Clone();
+            Owner=owner; Bodies=bodies; Pairs=pairs; Time=time; StepIndex=stepIndex; ImpactData=(PhysicsImpact[])impacts.Clone(); StopData=(PhysicsJointStop[])stops.Clone();
         }
     }
 }

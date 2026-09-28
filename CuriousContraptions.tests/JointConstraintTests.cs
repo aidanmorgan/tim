@@ -73,13 +73,13 @@ public class JointConstraintTests
     [Theory]
     [InlineData(-1,-3,0)]
     [InlineData(1,3,0)]
-    [InlineData(0,3,1)]
-    [InlineData(0,-3,-1)]
+    [InlineData(0,3,3)]
+    [InlineData(0,-3,-3)]
     [InlineData(-1,1,1)]
-    public void LimitsAreUnilateralAndPredictTheNextInterval(double position,double speed,double expected)
+    public void LimitsAreUnilateralAndInactiveInTheInterior(double position,double speed,double expected)
     {
         var a=Dynamic(0,X*position,X*speed,default);
-        var rows=JointConstraints.Limits(a,Fixed(),new(X,default,-X,default),position,-1,1,1);
+        var rows=JointConstraints.Limits(a,Fixed(),new(X,default,-X,default),position,-1,1,1e-7);
         ImpulseSolver.Solve(rows);
         Near(X*expected,a.LinearVelocity);
     }
@@ -87,13 +87,13 @@ public class JointConstraintTests
     public void RopeOnlyTensionsAndPreservesMomentumBetweenDynamicEndpoints()
     {
         var a=Dynamic(0,X,X*3,default); var b=Dynamic(1,-X,-X,default);
-        var rope=JointConstraints.Rope(a,b,a.Center,b.Center,2,.1);
-        ImpulseSolver.Solve([rope]);
+        var rope=JointConstraints.Rope(a,b,a.Center,b.Center,2,1e-7);
+        ImpulseSolver.Solve(rope);
         Near(X,a.LinearVelocity); Near(X,b.LinearVelocity);
-        Assert.True(rope.AccumulatedImpulse<0);
+        Assert.True(Assert.IsType<ImpulseConstraint>(Assert.Single(rope)).AccumulatedImpulse<0);
         var slack=Dynamic(0,X,-X,default);
-        var free=JointConstraints.Rope(slack,Fixed(),X,default,2,.1);
-        ImpulseSolver.Solve([free]); Near(-X,slack.LinearVelocity); Assert.Equal(0,free.AccumulatedImpulse);
+        var free=JointConstraints.Rope(slack,Fixed(),X,default,2,1e-7);
+        ImpulseSolver.Solve(free); Near(-X,slack.LinearVelocity); Assert.Empty(free);
     }
     [Fact]
     public void RotationCompositionAndLogAreConsistent()
@@ -118,6 +118,6 @@ public class JointConstraintTests
         Assert.Throws<ArgumentException>(()=>new RigidRotation(0,0,0,0));
         Assert.Throws<ArgumentException>(()=>JointConstraints.Hinge(a,b,default,Frame()));
         Assert.Throws<ArgumentException>(()=>JointConstraints.Limits(a,b,new(X,default,-X,default),0,2,1,.1));
-        Assert.Throws<ArgumentException>(()=>JointConstraints.Rope(a,b,default,default,1,.1));
+        Assert.Empty(JointConstraints.Rope(a,b,default,default,1,1e-7));
     }
 }

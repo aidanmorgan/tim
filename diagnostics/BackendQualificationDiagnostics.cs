@@ -14,6 +14,8 @@ public partial class Workshop
     private void StartBackendQualification()
     {
 #if PLAYTEST
+        foreach(var probe in Enum.GetValues<GeneralJointBoundaryProbe>())
+            GD.Print(BackendQualificationProtocol.JointBoundaryPrefix+JsonSerializer.Serialize(GeneralJointBoundaryQualification.Run(probe),BackendQualificationJson.Default.GeneralJointBoundaryReport));
         foreach(var probe in Enum.GetValues<GeneralJointRangeProbe>())
             GD.Print(BackendQualificationProtocol.JointRangePrefix+JsonSerializer.Serialize(GeneralJointRangeQualification.Run(probe),BackendQualificationJson.Default.GeneralJointRangeReport));
         foreach(var probe in Enum.GetValues<GeneralProjectionProbe>())
@@ -64,6 +66,7 @@ public partial class Workshop
 internal static class BackendQualificationProtocol
 {
     // External diagnostic wire identifiers, never domain behaviour selectors.
+    internal const string JointBoundaryPrefix="CCGENERALJOINTBOUNDARY ";
     internal const string JointRangePrefix="CCGENERALJOINTRANGE ";
     internal const string ProjectionPrefix="CCGENERALPROJECTION ";
     internal const string JointPrefix="CCGENERALJOINT ";
@@ -85,6 +88,7 @@ internal sealed record BackendQueryReport(PhysicsBackendQualification.Probe Prob
 internal sealed record BackendMotionReport(PhysicsBackendMotionProbe.Experiment Experiment,
     PhysicsBackendMotionProbe.Frame[] Frames);
 [JsonSourceGenerationOptions(UseStringEnumConverter=true)]
+[JsonSerializable(typeof(GeneralJointBoundaryReport))]
 [JsonSerializable(typeof(GeneralJointRangeReport))]
 [JsonSerializable(typeof(GeneralProjectionReport))]
 [JsonSerializable(typeof(GeneralJointReport))]

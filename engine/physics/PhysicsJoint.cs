@@ -31,7 +31,8 @@ public abstract class PhysicsJoint : IPositionConstraint
             throw new ArgumentException("Joint requires distinct bodies, a dynamic participant and an explicit collision policy.");
         Id=id; A=a; B=b; Collision=collision;
     }
-    public abstract IReadOnlyList<IImpulseConstraint> VelocityConstraints(double duration);
+    public abstract IReadOnlyList<IImpulseConstraint> VelocityConstraints(double activationTolerance);
+    public abstract JointSweepResult Sweep(BodyTrajectory a,BodyTrajectory b,double duration,double tolerance);
     public abstract double Error(double queryTolerance);
     public abstract void Project(double tolerance,PositionProjector projector);
 
@@ -97,9 +98,9 @@ public sealed class PhysicsFrameJoint : PhysicsJoint
         var travel=Travel; var error=TravelRange.Violation(travel.Error);
         return error==0?equations:[..equations,new(travel.Jacobian,error)];
     }
-    public override IReadOnlyList<IImpulseConstraint> VelocityConstraints(double duration)
+    public override IReadOnlyList<IImpulseConstraint> VelocityConstraints(double activationTolerance)
     {
-        if(!double.IsFinite(duration)||duration<=0) throw new ArgumentOutOfRangeException(nameof(duration));
+        if(!double.IsFinite(activationTolerance)||activationTolerance<=0) throw new ArgumentOutOfRangeException(nameof(activationTolerance));
         IReadOnlyList<IImpulseConstraint> rows=Kind switch
         {
             FrameJointKind.BallSocket=>JointConstraints.BallSocket(A,B,FrameA,FrameB),
@@ -110,8 +111,10 @@ public sealed class PhysicsFrameJoint : PhysicsJoint
         if(TravelRange is null) return rows;
         var travel=Travel;
         return [..rows,..JointConstraints.Limits(A,B,travel.Jacobian,travel.Error,
-            TravelRange.Lower,TravelRange.Upper,duration)];
+            TravelRange.Lower,TravelRange.Upper,activationTolerance)];
     }
+    public override JointSweepResult Sweep(BodyTrajectory a,BodyTrajectory b,double duration,double tolerance)=>
+        JointBoundarySweep.Frame(this,a,b,duration,tolerance);
     public override double Error(double queryTolerance)=>Equations().Max(e=>Math.Abs(e.Error));
     public override void Project(double tolerance,PositionProjector projector)
     {
@@ -134,8 +137,10 @@ public sealed class PhysicsRopeJoint : PhysicsJoint
             throw new ArgumentException("Rope requires finite anchors and a positive length.");
         LocalA=localA; LocalB=localB; MaximumLength=maximumLength;
     }
-    public override IReadOnlyList<IImpulseConstraint> VelocityConstraints(double duration)=>
-        [JointConstraints.Rope(A,B,PointA,PointB,MaximumLength,duration)];
+    public override IReadOnlyList<IImpulseConstraint> VelocityConstraints(double activationTolerance)=>
+        JointConstraints.Rope(A,B,PointA,PointB,MaximumLength,activationTolerance);
+    public override JointSweepResult Sweep(BodyTrajectory a,BodyTrajectory b,double duration,double tolerance)=>
+        JointBoundarySweep.Rope(this,a,b,duration,tolerance);
     public override double Error(double queryTolerance)=>Math.Max(0,(PointA-PointB).Length-MaximumLength);
     public override void Project(double tolerance,PositionProjector projector)
     {

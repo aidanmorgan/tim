@@ -37,29 +37,32 @@ public static class JointConstraints
     public static IReadOnlyList<IImpulseConstraint> Slider(PhysicsBody a,PhysicsBody b,
         JointFrame fa,JointFrame fb,double correctionRate=0)=>Frames(FrameJointKind.Slider,a,b,fa,fb,correctionRate);
 
-    /// <summary>Two unilateral velocity rows keep a coordinate inside its range
-    /// over the upcoming interval. Error correction outside the range is explicit.
-    /// The Jacobian must be the derivative of the supplied coordinate.</summary>
+    /// <summary>Only currently active stops constrain velocity. Future arrival
+    /// is handled by the world's continuous boundary event clock.</summary>
     public static IReadOnlyList<IImpulseConstraint> Limits(PhysicsBody a,PhysicsBody b,ConstraintJacobian jacobian,
-        double coordinate,double lower,double upper,double duration,double correctionRate=0)
+        double coordinate,double lower,double upper,double activationTolerance)
     {
+        ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
+        if(a==b||a.Id==b.Id||!jacobian.IsFinite) throw new ArgumentException("Limit requires distinct bodies and a finite Jacobian.");
         if(!double.IsFinite(coordinate)||!double.IsFinite(lower)||!double.IsFinite(upper)||lower>upper||
-            !double.IsFinite(duration)||duration<=0||!double.IsFinite(correctionRate)||correctionRate<0)
-            throw new ArgumentException("Limit interval and duration must be finite and ordered.");
-        var lowError=coordinate-lower; var highError=upper-coordinate;
-        var lowTarget=lowError>=0?-lowError/duration:-lowError*correctionRate;
-        var highTarget=highError>=0?highError/duration:highError*correctionRate;
-        return [new ImpulseConstraint(a,b,jacobian,lowTarget,0,double.PositiveInfinity),
-            new ImpulseConstraint(a,b,jacobian,highTarget,double.NegativeInfinity,0)];
+            !double.IsFinite(activationTolerance)||activationTolerance<=0)
+            throw new ArgumentException("Limit interval and activation precision must be finite and ordered.");
+        var rows=new List<IImpulseConstraint>();
+        if(coordinate-lower<=activationTolerance) rows.Add(new ImpulseConstraint(a,b,jacobian,0,0,double.PositiveInfinity));
+        if(upper-coordinate<=activationTolerance) rows.Add(new ImpulseConstraint(a,b,jacobian,0,double.NegativeInfinity,0));
+        return rows;
     }
 
-    public static ImpulseConstraint Rope(PhysicsBody a,PhysicsBody b,CollisionVector pointA,CollisionVector pointB,
-        double maximumLength,double duration,double correctionRate=0)
+    public static IReadOnlyList<IImpulseConstraint> Rope(PhysicsBody a,PhysicsBody b,CollisionVector pointA,CollisionVector pointB,
+        double maximumLength,double activationTolerance)
     {
-        if(!double.IsFinite(duration)||duration<=0||!double.IsFinite(correctionRate)||correctionRate<0)
-            throw new ArgumentException("Rope duration must be positive and correction rate nonnegative.");
+        ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
+        if(a==b||a.Id==b.Id) throw new ArgumentException("Rope requires distinct body identities.");
+        if(!pointA.IsFinite||!pointB.IsFinite||!double.IsFinite(maximumLength)||maximumLength<=0||
+            !double.IsFinite(activationTolerance)||activationTolerance<=0||maximumLength<=activationTolerance)
+            throw new ArgumentException("Rope geometry and activation precision must be finite and consistent.");
+        if((pointA-pointB).Length<maximumLength-activationTolerance) return [];
         var equation=JointEquations.Rope(a,b,pointA,pointB,maximumLength);
-        var target=equation.Error<=0?-equation.Error/duration:-equation.Error*correctionRate;
-        return new(a,b,equation.Jacobian,target,double.NegativeInfinity,0);
+        return [new ImpulseConstraint(a,b,equation.Jacobian,0,double.NegativeInfinity,0)];
     }
 }

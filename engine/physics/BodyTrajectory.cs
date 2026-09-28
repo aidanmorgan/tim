@@ -85,6 +85,17 @@ public sealed class BodyTrajectory : IRigidTrajectory
         while(index<_spins.Length-1&&(index+1)*_step<=time) index++;
         return index==_spins.Length-1?Duration:(index+1)*_step;
     }
+    /// <summary>Right-hand segment spin (left-hand at the final endpoint).
+    /// This is the captured path derivative, not a newly integrated body velocity.</summary>
+    public CollisionVector AngularVelocityAt(double time)
+    {
+        if(!double.IsFinite(time)||time<0||time>Duration) throw new ArgumentOutOfRangeException(nameof(time));
+        if(time==Duration) return _spins[^1];
+        var index=Math.Min(_spins.Length-1,(int)(time/_step));
+        while(index<_spins.Length-1&&(index+1)*_step<=time) index++;
+        return _spins[index];
+    }
+
     internal void ValidateSource(PhysicsBody body)
     {
         if(!ReferenceEquals(body,_owner)||body.PoseRevision!=_revision||body.Snapshot()!=_source)

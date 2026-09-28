@@ -58,7 +58,7 @@ internal static class GeneralJointQualification
             results[i]=world.Step(duration); impacts[i]=world.Impacts.ToArray();
             events+=results[i].Events; sweeps+=results[i].SweepIterations;
             error=Math.Max(error,joint.Error(1e-8));
-            residual=Math.Max(residual,joint.VelocityConstraints(duration).Max(c=>c.Residual));
+            residual=Math.Max(residual,joint.VelocityConstraints(1e-7).Select(c=>c.Residual).DefaultIfEmpty(0).Max());
         }
         var after=world.Capture();
         world.Restore(before);

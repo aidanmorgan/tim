@@ -62,10 +62,10 @@ public class JointRangeTests
         var a=Body(0,RigidPose.Identity,kind==FrameJointKind.Slider?new(0,0,.1):default,
             kind==FrameJointKind.Hinge?new(0,0,.1):default);
         var b=Fixed(1); var free=Joint(kind,a,b,new(-.5,.5));
-        ImpulseSolver.Solve(free.VelocityConstraints(.01));
+        ImpulseSolver.Solve(free.VelocityConstraints(1e-7));
         Assert.InRange(Math.Abs(a.LinearVelocity.Z+a.AngularVelocity.Z-.1),0,1e-12);
         var locked=Joint(kind,a,b,new(0,0));
-        ImpulseSolver.Solve(locked.VelocityConstraints(.01));
+        ImpulseSolver.Solve(locked.VelocityConstraints(1e-7));
         Assert.InRange(a.LinearVelocity.Length+a.AngularVelocity.Length,0,1e-12);
     }
 
@@ -101,7 +101,7 @@ public class JointRangeTests
         var a=Body(0,RigidPose.At(new(0,0,.5)),new(0,0,2));
         var b=Body(1,RigidPose.Identity,new(0,0,-1));
         var joint=Joint(FrameJointKind.Slider,a,b,new(-.5,.5));
-        ImpulseSolver.Solve(joint.VelocityConstraints(.01));
+        ImpulseSolver.Solve(joint.VelocityConstraints(1e-7));
         Assert.InRange(Math.Abs(a.LinearVelocity.Z-.5),0,1e-12);
         Assert.Equal(a.LinearVelocity,b.LinearVelocity);
     }
