@@ -1,0 +1,23 @@
+{
+  "baseline": "b7efca8",
+  "scope": "Isolated solver probes; not gameplay part proof",
+  "reports": [
+    {
+      "Probe": "ElasticImpact",
+      "LinearA": -1.8000000000000007,
+      "LinearB": 2.2,
+      "AngularB": 0,
+      "Iterations": 1,
+      "Residual": 8.881784197001252e-16
+    },
+    {
+      "Probe": "CoupledHinge",
+      "LinearA": -1.71428571478738,
+      "LinearB": -0.8571428556378601,
+      "AngularB": -0.8571428591495198,
+      "Iterations": 8,
+      "Residual": 3.5116597407736094e-9
+    }
+  ],
+  "errors": []
+}

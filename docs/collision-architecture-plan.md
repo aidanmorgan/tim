@@ -6,7 +6,7 @@ Status: **executing; replacement is not yet complete**. Requested after the shap
 
 Adding a puzzle part must declare geometry, material, mass/inertia, motion constraints and component-specific forces/events. It must not add a part-pair or shape-pair collision solver. One world owns broad-phase candidate selection, narrow-phase contacts, continuous translation/rotation, contact response and joint/rope constraints. Preserve the scene graph, C# browser deployment, current visual style, author-controlled assistance, exact construction Reset and deterministic same-build replay.
 
-No optional legacy solver, fallback routing, compatibility aliases or hidden old/new runtime selection. Existing specialised production paths are removed at their forward cutover; their independently useful analytic tests remain reference oracles. Do not weaken tolerances or silently change hollow passages to filled hulls to obtain a green test suite.
+No optional legacy solver, fallback routing, compatibility aliases or hidden old/new runtime selection. Existing specialised production paths and their old solver implementations are removed at their forward cutover. Preserve independent physical requirements and analytic expectations in migrated tests, not copies of the removed algorithms. Do not weaken tolerances or silently change hollow passages to filled hulls to obtain a green test suite.
 
 ## Execution sequence and acceptance gates
 
@@ -59,7 +59,7 @@ The installed backend's native and browser results agree:
 | Pure rotation, 120 rad/s, obstacle at 0.4 rad | Passed through: angles 1 then 2 rad, zero recorded contacts |
 | Symmetric opposing bodies with CCD | Asymmetric trajectory; needs investigation before acceptance |
 
-**Decision for this increment:** unmodified packaged simulation is not qualified as the replacement. Implement and qualify a shared C# support-mapped collision pipeline. This is not a claim that every Godot configuration or alternative library fails. Packaged joint behaviour remains unqualified; full response/backend selection is still open until the general solver satisfies the remaining gates.
+**Decision for this increment:** unmodified packaged simulation is not qualified as the replacement. Implement and qualify a shared C# support-mapped collision pipeline. This is not a claim that every Godot configuration or alternative library fails. The replacement backend is the general C# pipeline. Packaged joint behaviour remains unqualified and is not relied on; the C# response layer must satisfy the remaining gates before cutover.
 
 Implemented in `engine/physics/`: immutable sphere/box/hull declarations, double-precision GJK distance bounds and witnesses, conservative rigid-motion sweeps including both bodies' angular motion, typed compound child identities, and conservative swept bounds. A test-only capsule needs only a support function, with no new pair algorithm. Numerical exhaustion throws rather than reporting clear. Initial overlap is explicitly not a penetration-depth result.
 
@@ -84,3 +84,20 @@ Production Release publish with `PlaytestDiagnostics=false` succeeded; probe sta
 - Fresh affected-part positive/negative/integration/Reset evidence, mobile motion/performance and deployment verification.
 
 Do not mark the full architecture or any unfinished part complete from this increment.
+
+## Full-replacement continuation: shared impulse response
+
+The active objective is the **entire engine replacement**, not delivery of the query foundation. Completion requires removal of the old collision/response code and forward migration of every caller, without shims, runtime selection or compatibility support.
+
+Implemented the shared response primitives in `ImpulseBody.cs` and `ImpulseConstraint.cs`:
+- Typed body identities and static/kinematic/dynamic motion; finite, positive-definite full 3D inertia.
+- One bounded Jacobian row for contacts, locks, limits, motors and compliant velocity constraints.
+- Accumulated-impulse clamping, restitution captured once, coupled iteration with a measured residual, explicit failure for unsolvable/nonconvergent constraints.
+- Both body velocity updates validated before committing an impulse.
+- No part-type or shape-type response dispatch.
+
+The formulation uses effective mass and accumulated impulses as described in [Catto's constraint formulation](https://box2d.org/files/ErinCatto_ModelingAndSolvingConstraints_GDC2009.pdf) and [Box2D's solver discussion](https://box2d.org/posts/2024/02/solver2d/). This implementation is 3D; these references do not prove its correctness.
+
+Fourteen focused native cases pass, covering elastic/inelastic momentum, off-centre angular momentum and energy, anisotropic inertia, moving kinematic surfaces, separating contacts, a coupled hinge/contact system, simultaneous contacts, accumulated-impulse reduction, bounded motors, softness and explicit invalid/nonconvergent failures. [Browser qualification](general-impulse-qualification-results.json) passes the same elastic and coupled-hinge equations: elastic velocities -1.8 and 2.2; coupled solve converges in eight iterations with residual 3.52e-9 or less. The [Playwright recipe](general-impulse-qualification.playwright.js) asserts these independently computed values. The full suite passed 1,413 cases before the additional non-finite-residual guard test; production Release publish also passed. The final focused run passed all 14 response tests, including that guard. These are isolated solver probes, not part behavioural proof.
+
+**Not yet implemented:** friction blocks, joint assembly/position stabilization, penetration/manifolds, persistent world state/integration, complete compound builders, catalogue/world cutover and obsolete-code removal. No gameplay part is newly marked complete from these solver-unit tests.
