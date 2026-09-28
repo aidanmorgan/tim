@@ -134,6 +134,7 @@ public readonly struct ConvexInstance : IConvexFeatureSupport
     public Transform3D Pose { get; }
     public double RadiusBound { get; }
     public double RotationRadiusBound { get; }
+    public double RoundingRadius { get; }
     public InteriorBall InteriorBall { get; }
     public ConvexInstance(ConvexGeometry geometry,Transform3D pose)
     {
@@ -155,8 +156,13 @@ public readonly struct ConvexInstance : IConvexFeatureSupport
         var maximum=Math.Max(x.LengthSquared+xy+xz,Math.Max(y.LengthSquared+xy+yz,z.LengthSquared+xz+yz));
         RadiusBound=geometry.BoundingRadius*Math.Sqrt(maximum);
         var ball=geometry.InteriorBall;
+        if(ball.Radius<geometry.RoundingRadius) throw new ArgumentException("Interior ball must contain the declared rounding ball.",nameof(geometry));
         var minimum=Math.Min(x.LengthSquared-xy-xz,Math.Min(y.LengthSquared-xy-yz,z.LengthSquared-xz-yz));
         if(!double.IsFinite(minimum)||minimum<=0) throw new ArgumentException("Rigid transform has no positive interior-radius bound.",nameof(pose));
+        // The minimum curvature radius of the transformed rounding ellipsoid
+        // is bounded below by r*sigmaMin^2/sigmaMax. Subtracting this ball
+        // leaves a convex support function, including float-basis anisotropy.
+        RoundingRadius=geometry.RoundingRadius*minimum/Math.Sqrt(maximum);
         InteriorBall=new(CollisionVector.From(pose.Origin)+x*ball.Center.X+y*ball.Center.Y+z*ball.Center.Z,
             ball.Radius*Math.Sqrt(minimum));
         // For the rounded term h(n)=r*sqrt(n^T B B^T n), the derivative under

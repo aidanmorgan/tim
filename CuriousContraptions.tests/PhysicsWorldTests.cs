@@ -24,6 +24,7 @@ public class PhysicsWorldTests
         var result=world.Step(.01);
         Assert.Equal(1,result.Events);
         Near(-1000,ball.LinearVelocity.X);
+        Assert.InRange(ball.AngularVelocity.Length,0,1e-8);
         Near(-6.0202,ball.Center.X,1e-5);
         Assert.Equal(PhysicsWorldPhase.Idle,world.Phase);
         Assert.Equal(.01,world.Time);

@@ -12,25 +12,18 @@ public sealed class ContactManifold
     private ContactManifold(ContactManifoldStatus status,CollisionVector normal,ContactPatchPoint[] points)
     { Status=status; Normal=normal; _points=points; }
 
-    /// <summary>Distance/penetration bounds choose the shared normal. Certified
-    /// witnesses participate in both supporting features on every query; this
-    /// preserves curved contacts within the query's bounded angular uncertainty.
+    /// <summary>Rounded-core distance/penetration bounds choose the shared
+    /// normal. Singleton features use their actual surface point; certified
+    /// witnesses participate in extended features before clipping.
     /// No pair dispatch or empty-patch substitution is used.</summary>
     public static ContactManifold Query<TA,TB>(TA a,TB b,double contactDistance=ConvexSweep.ContactDistance,
         double tolerance=ConvexDistance.DefaultTolerance)
         where TA:IConvexFeatureSupport where TB:IConvexFeatureSupport
     {
         if(!double.IsFinite(contactDistance)||contactDistance<0) throw new ArgumentOutOfRangeException(nameof(contactDistance));
-        var distance=ConvexDistance.Query(a,b,tolerance);
-        if(distance.LowerBound>contactDistance) return new(ContactManifoldStatus.Clear,distance.Normal,[]);
-        CollisionVector normal,pointA,pointB;
-        if(distance.Status==ConvexDistanceStatus.Separated)
-        { normal=distance.Normal; pointA=distance.PointA; pointB=distance.PointB; }
-        else
-        {
-            var penetration=ConvexPenetration.Query(a,b,tolerance);
-            normal=penetration.Normal; pointA=penetration.PointA; pointB=penetration.PointB;
-        }
+        var separation=RoundedSeparation.Query(a,b,tolerance);
+        if(separation.LowerBound>contactDistance) return new(ContactManifoldStatus.Clear,separation.Normal,[]);
+        var normal=separation.Normal; var pointA=separation.PointA; var pointB=separation.PointB;
         if(!normal.IsFinite||Math.Abs(normal.Length-1)>1e-10)
             throw new InvalidOperationException("A physical contact requires a defined unit normal.");
         var featureA=IncludeWitness(a.SupportingFeature(-normal,tolerance),pointA);
@@ -45,11 +38,10 @@ public sealed class ContactManifold
 
     private static SupportFeature IncludeWitness(SupportFeature feature,CollisionVector point)
     {
-        // A point feature has no contact extent. The certified witness refines
-        // its location; appending it would invent an edge from normal-query
-        // uncertainty and create nearly dependent, physically spurious rows.
-        if(feature.Vertices.Length==1)
-            return new([new(feature.Vertices[0].Id,point)]);
+        // A point feature has no contact extent. Preserve its actual supporting
+        // point: a simplex witness can lie inside a curved surface and produce
+        // an artificial torque arm even when its distance bound is accurate.
+        if(feature.Vertices.Length==1) return feature;
         var vertices=new SupportVertex[feature.Vertices.Length+1];
         var maximum=0;
         for(var i=0;i<feature.Vertices.Length;i++)

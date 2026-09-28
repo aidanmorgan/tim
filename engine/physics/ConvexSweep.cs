@@ -37,6 +37,7 @@ public readonly struct ConvexMotion
         private readonly ConvexInstance _instance;
         private readonly RigidPose _pose;
         internal AtTime(ConvexInstance instance,RigidPose pose) { _instance=instance; _pose=pose; }
+        public double RoundingRadius=>_instance.RoundingRadius;
         public InteriorBall InteriorBall=>new(_pose.TransformPoint(_instance.InteriorBall.Center),_instance.InteriorBall.Radius);
         public SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
         {

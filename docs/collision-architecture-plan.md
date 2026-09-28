@@ -254,3 +254,21 @@ Remaining world work is explicit: persistent joint/rope graph integration, colli
 The browser's 1,000-unit/s sphere-wall impact exposes a remaining anchor-precision issue: residual spin is **0.013327748504073852 rad/s**, although outgoing linear velocity is -999.9999999911186 units/s. The approximate distance witness introduces a small off-axis torque. This result is retained, not asserted to be a physically exact zero-spin collision. Generic contact-anchor refinement and quantified angular error remain required before full-engine completion. The test's current acceptance covers impact timing/response, not zero-spin analytic fidelity.
 
 The diagnostics-disabled production Release publish succeeds. New world/probe/lifecycle choices remain enums, body/child/contact identities remain typed, and string conversion is confined to the diagnostic JSON boundary. This is verified progress toward the active replacement goal, not its completion.
+
+## Full-replacement continuation: rounded-core contact anchors
+
+The high-speed sphere-wall regression now asserts angular speed <=1e-8 rad/s. It failed the preceding implementation's approximately 0.0133 rad/s result. A first attempt to keep actual singleton support points fixed that central impact but failed both existing mixed-shape manifold seeds (83 and 142): normal uncertainty still left curved/flat supporting features without an intersection. Those failures are retained here; the fix was not accepted on the narrow central-impact test alone.
+
+The generic manifold now queries signed separation of convex **cores**, then subtracts their declared Minkowski rounding radii and offsets the core witnesses onto the rounded surfaces. Single-vertex features retain their actual supporting surface point. Extended features still use certified witnesses and clipping. No shape-type inspection, pair registration, empty-patch fallback or increased tolerance is used. Radius zero follows the same equations for unrounded geometry.
+
+Core-plus-radius representations are also described in the official [Box2D collision documentation](https://box2d.org/documentation/md_collision.html). Our implementation uses the existing general support-mapped GJK/EPA algorithms and remains a separate C# implementation, not a Box2D integration.
+
+Float declaration bases retain their actual distortion. For local rounding radius r and singular-value bounds sigmaMin/sigmaMax, r*sigmaMin²/sigmaMax is a conservative lower bound on the transformed ball's minimum curvature radius. Removing that radius leaves a convex residual support function. An exact identity basis removes the full radius; non-orthogonal float roundoff stays in the residual core. The declared interior ball must contain the rounding ball so its contracted core interior certificate remains valid.
+
+Eight new native cases cover 600 analytic randomly oriented sphere pairs, tangent/overlapping/separated capsule line contacts, 500 distorted-basis core-support checks, unchanged zero-radius polyhedral queries, and dynamic/dynamic momentum, energy and zero-spin response. Together with the strengthened high-speed test and existing mixed-shape regressions, the full suite passes **1,552 tests**, zero failures/skips.
+
+[Browser refinement evidence](general-rounded-anchor-qualification-results.json), produced by the [new stricter recipe](general-rounded-anchor-qualification.playwright.js), reports exactly zero spin for the thin-wall and three-bounce sphere fixtures and 2.648813952269598e-13 rad/s for the rotating-beam sphere impact. Outgoing thin-wall velocity is exactly [-1000,0,0]. All fixtures retain exact restore/replay, with no browser errors. Manifold, persistent-support and signed-sweep browser regressions pass unchanged. Historical world evidence is preserved rather than overwritten.
+
+This closes the specifically recorded anchor-precision defect, not all possible geometry/numerics qualification. World joint/rope integration, catalogue-scale performance, gameplay cutover, original-solver deletion and affected-part UI evidence remain incomplete.
+
+The diagnostics-disabled Release publish succeeds. The refinement adds numeric geometry contracts, not string-based domain selectors; existing status/probe choices remain enums throughout their callers.
