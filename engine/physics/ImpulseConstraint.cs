@@ -144,6 +144,8 @@ public static class ImpulseSolver
             foreach(var row in constraints) residual=Math.Max(residual,row.Residual);
             if(residual<=tolerance) return new(iteration,residual);
         }
-        throw new InvalidOperationException("Constraint solve did not converge; remaining error was not discarded.");
+        double remaining=0;
+        foreach(var row in constraints) remaining=Math.Max(remaining,row.Residual);
+        throw new InvalidOperationException($"Constraint solve did not converge across {constraints.Count} rows; residual {remaining:R} exceeds {tolerance:R}.");
     }
 }

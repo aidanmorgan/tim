@@ -45,6 +45,11 @@ public sealed class ContactManifold
 
     private static SupportFeature IncludeWitness(SupportFeature feature,CollisionVector point)
     {
+        // A point feature has no contact extent. The certified witness refines
+        // its location; appending it would invent an edge from normal-query
+        // uncertainty and create nearly dependent, physically spurious rows.
+        if(feature.Vertices.Length==1)
+            return new([new(feature.Vertices[0].Id,point)]);
         var vertices=new SupportVertex[feature.Vertices.Length+1];
         var maximum=0;
         for(var i=0;i<feature.Vertices.Length;i++)

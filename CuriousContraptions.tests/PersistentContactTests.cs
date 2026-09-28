@@ -23,6 +23,28 @@ public class PersistentContactTests
     private static void Advance(PhysicsBody body,double duration)=>body.Advance(body.CreateTrajectory(duration),duration);
 
     [Fact]
+    public void NewSweptImpactClearsTheEpisodeButNeverReusesContactIdentities()
+    {
+        var body=Body(-Up); var floor=Ground(); var pair=Pair(body,floor,1);
+        Solve(pair,.01);
+        var ids=pair.Contacts.ToArray().Select(p=>p.Id).ToHashSet();
+        pair.BeginImpact();
+        Assert.Empty(pair.Contacts.ToArray());
+        body.Restore(body.Snapshot() with {LinearVelocity=-Up});
+        pair.Prepare(.01);
+        Assert.Throws<InvalidOperationException>(()=>pair.BeginImpact());
+        Assert.All(pair.PreparedContacts.ToArray(),p=>
+        {
+            Assert.Equal(ContactPersistence.New,p.Persistence);
+            Assert.DoesNotContain(p.Id,ids);
+        });
+        pair.WarmStart();
+        ImpulseSolver.Solve(pair.PreparedContacts.ToArray().Select(p=>p.Constraint).ToArray());
+        pair.Complete();
+        Near(Up,body.LinearVelocity);
+    }
+
+    [Fact]
     public void WarmStartProjectsIntoTheCurrentFrictionDiskAndCanBeRetracted()
     {
         var body=Body(); var floor=Ground();

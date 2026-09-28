@@ -151,6 +151,14 @@ public sealed class PersistentContactPair
             throw new InvalidOperationException("Prepared contacts are stale after a pose change.");
     }
 
+    /// <summary>A newly detected impact invalidates the preceding support
+    /// estimate and restitution episode, but never reuses its point identities.</summary>
+    public void BeginImpact()
+    {
+        Require(ContactPairPhase.Idle);
+        _contacts=[]; _duration=0;
+    }
+
     public Snapshot Capture()
     {
         Require(ContactPairPhase.Idle);

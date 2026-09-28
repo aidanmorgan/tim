@@ -158,6 +158,14 @@ public sealed class PhysicsBody
         if(elapsed==0||MotionType==PhysicsMotionType.Static) return;
         SetPose(pose,AngularMomentum);
     }
+    /// <summary>Constraint projection changes configuration, not physical linear
+    /// velocity or world angular momentum. The rotated inertia is refreshed.</summary>
+    internal void CorrectPose(CollisionVector translation,CollisionVector rotation)
+    {
+        if(MotionType!=PhysicsMotionType.Dynamic) throw new InvalidOperationException("Only dynamic poses can be projected.");
+        if(!translation.IsFinite||!rotation.IsFinite) throw new ArgumentException("Pose correction must be finite.");
+        SetPose(new(Pose.Center+translation,RigidRotation.FromRotationVector(rotation)*Pose.Rotation),AngularMomentum);
+    }
     private void SetPose(RigidPose pose,CollisionVector momentum)
     {
         var inertia=MotionType==PhysicsMotionType.Dynamic?LocalInertia.Rotated(pose.Rotation):default;
