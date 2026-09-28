@@ -1,0 +1,73 @@
+{
+  "baseline": "3cb6143",
+  "scope": "Isolated solver probes; gameplay runtime not migrated",
+  "reports": [
+    {
+      "Probe": "SlidingFriction",
+      "Linear": [
+        1.7999999999999998,
+        0,
+        2.4000000000000004
+      ],
+      "Angular": [
+        0,
+        0,
+        0
+      ],
+      "FrictionImpulse": [
+        -0.6,
+        0,
+        -0.8
+      ],
+      "Iterations": 1,
+      "Residual": 2.220446049250313e-16
+    },
+    {
+      "Probe": "MovingSlider",
+      "Linear": [
+        3,
+        0,
+        0
+      ],
+      "Angular": [
+        0,
+        1,
+        0
+      ],
+      "FrictionImpulse": [
+        0,
+        0,
+        0
+      ],
+      "Iterations": 1,
+      "Residual": 0
+    },
+    {
+      "Probe": "OffsetJoint",
+      "Linear": [
+        4.440892098500626e-15,
+        0,
+        1
+      ],
+      "Angular": [
+        0,
+        0,
+        0
+      ],
+      "FrictionImpulse": [
+        0,
+        0,
+        0
+      ],
+      "Iterations": 1,
+      "Residual": 4.440892098500626e-15
+    }
+  ],
+  "errors": [],
+  "retainedFailure": {
+    "test": "JointConstraintTests.FrameCorrectionPointsTowardAlignmentIncludingHalfTurns",
+    "result": "Constraint solve did not converge; remaining error was not discarded.",
+    "source": "Scalar joint rows before BilateralConstraintBlock",
+    "resolution": "Replace scalar joint assembly with a scaled coupled matrix solve. Correct the offset-anchor assertion to check anchor velocity, not center velocity; angular velocity contributes at the anchor."
+  }
+}

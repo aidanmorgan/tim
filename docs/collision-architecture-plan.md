@@ -100,4 +100,28 @@ The formulation uses effective mass and accumulated impulses as described in [Ca
 
 Fourteen focused native cases pass, covering elastic/inelastic momentum, off-centre angular momentum and energy, anisotropic inertia, moving kinematic surfaces, separating contacts, a coupled hinge/contact system, simultaneous contacts, accumulated-impulse reduction, bounded motors, softness and explicit invalid/nonconvergent failures. [Browser qualification](general-impulse-qualification-results.json) passes the same elastic and coupled-hinge equations: elastic velocities -1.8 and 2.2; coupled solve converges in eight iterations with residual 3.52e-9 or less. The [Playwright recipe](general-impulse-qualification.playwright.js) asserts these independently computed values. The full suite passed 1,413 cases before the additional non-finite-residual guard test; production Release publish also passed. The final focused run passed all 14 response tests, including that guard. These are isolated solver probes, not part behavioural proof.
 
-**Not yet implemented:** friction blocks, joint assembly/position stabilization, penetration/manifolds, persistent world state/integration, complete compound builders, catalogue/world cutover and obsolete-code removal. No gameplay part is newly marked complete from these solver-unit tests.
+**Remaining at that increment (superseded by subsequent progress below):** friction blocks, joint assembly/position stabilization, penetration/manifolds, persistent world state/integration, complete compound builders, catalogue/world cutover and obsolete-code removal. No gameplay part is newly marked complete from these solver-unit tests.
+
+## Full-replacement continuation: friction and joint assembly
+
+Implemented:
+- A shared constraint interface for scalar rows, coupled joint blocks and contact friction.
+- A full 2x2 tangent-mass solve constrained to a circular Coulomb disk, including off-centre angular response and changing normal-impulse budgets.
+- Double-precision rigid rotations and world-space joint frames.
+- Ball-socket, hinge and slider assembly; bilateral blocks use diagonally scaled Cholesky factorization instead of iterating their internal equations independently.
+- Unilateral coordinate limits and a two-endpoint tension-only rope equation. Slider equations include rotation of the carrier's axis at displaced anchors.
+- Explicit rejection of singular blocks, invalid frames and undefined coincident-endpoint rope gradients. No diagonal regularization or alternate solver is used.
+
+Focused verification: **45 response/constraint cases pass**, comprising the existing 14 impulse cases, 10 friction cases, 16 joint/rotation cases and 5 block-solver cases. Tests include arbitrary hinge orientation, half-turn alignment, rotating carriers, offsets up to 100 units, momentum, slip/stick, direction invariance, decreasing friction budgets and coupled hinge/friction contact.
+
+A scalar-row offset-joint case initially exhausted 256 iterations. This failure is retained in [the evidence record](general-constraint-qualification-results.json); introducing a coupled matrix block resolved it without raising the iteration budget. The offset-anchor correction assertion was also corrected to include angular point velocity.
+
+[Browser probes](general-constraint-qualification.playwright.js) pass:
+- Diagonal sliding ends at velocity (1.8, 0, 2.4), friction impulse (-0.6, 0, -0.8).
+- A rotating slider carrier gives its load velocity (3, 0, 0) and angular velocity (0, 1, 0).
+- The offset joint retains only axial velocity (0, 0, 1).
+- All three converge in one outer iteration, with maximum residual below 5e-15 and no browser errors.
+
+The full native suite passes **1,445 tests** with no failures/skips, and the production Release publish with diagnostics disabled succeeds.
+
+These are instantaneous constraint equations, not a completed dynamics engine. Still required: persistent body/joint state, inertia updates with pose, integration and split positional correction, complete rope routing/multiple endpoints, limit event timing, penetration/manifolds, compound hollow geometry, catalogue/world cutover, removal of every old solver path, and fresh per-part UI evidence. The current runtime still uses the old solver and must not be called migrated.

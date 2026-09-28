@@ -18,7 +18,15 @@ public readonly record struct ConstraintJacobian(CollisionVector LinearA,Collisi
 
 /// <summary>One bounded Jacobian row, shared by contacts, joint locks, limits and
 /// motors. Clamp the accumulated impulse, not the incremental correction.</summary>
-public sealed class ImpulseConstraint
+public interface IImpulseConstraint
+{
+    ImpulseBody A { get; }
+    ImpulseBody B { get; }
+    double Residual { get; }
+    void Solve();
+}
+
+public sealed class ImpulseConstraint : IImpulseConstraint
 {
     public ImpulseBody A { get; }
     public ImpulseBody B { get; }
@@ -92,7 +100,7 @@ public sealed class ImpulseConstraint
 public readonly record struct ImpulseSolveResult(int Iterations,double MaximumResidual);
 public static class ImpulseSolver
 {
-    public static ImpulseSolveResult Solve(IReadOnlyList<ImpulseConstraint> constraints,int maximumIterations=256,double tolerance=1e-8)
+    public static ImpulseSolveResult Solve(IReadOnlyList<IImpulseConstraint> constraints,int maximumIterations=256,double tolerance=1e-8)
     {
         ArgumentNullException.ThrowIfNull(constraints);
         if(maximumIterations<1||!double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(tolerance));

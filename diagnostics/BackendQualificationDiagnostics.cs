@@ -14,6 +14,8 @@ public partial class Workshop
     private void StartBackendQualification()
     {
 #if PLAYTEST
+        foreach(var probe in Enum.GetValues<GeneralConstraintProbe>())
+            GD.Print(BackendQualificationProtocol.ConstraintPrefix+JsonSerializer.Serialize(GeneralConstraintQualification.Run(probe),BackendQualificationJson.Default.GeneralConstraintReport));
         foreach(var probe in Enum.GetValues<GeneralImpulseProbe>())
             GD.Print(BackendQualificationProtocol.ImpulsePrefix+JsonSerializer.Serialize(GeneralImpulseQualification.Run(probe),BackendQualificationJson.Default.GeneralImpulseReport));
         foreach(var probe in Enum.GetValues<GeneralCollisionProbe>())
@@ -44,6 +46,7 @@ public partial class Workshop
 internal static class BackendQualificationProtocol
 {
     // External diagnostic wire identifiers, never domain behaviour selectors.
+    internal const string ConstraintPrefix="CCGENERALCONSTRAINT ";
     internal const string ImpulsePrefix="CCGENERALIMPULSE ";
     internal const string GeneralPrefix="CCGENERALCCD ";
     internal const string QueryPrefix="CCBACKENDQUERY ";
@@ -54,6 +57,7 @@ internal sealed record BackendQueryReport(PhysicsBackendQualification.Probe Prob
 internal sealed record BackendMotionReport(PhysicsBackendMotionProbe.Experiment Experiment,
     PhysicsBackendMotionProbe.Frame[] Frames);
 [JsonSourceGenerationOptions(UseStringEnumConverter=true)]
+[JsonSerializable(typeof(GeneralConstraintReport))]
 [JsonSerializable(typeof(GeneralImpulseReport))]
 [JsonSerializable(typeof(GeneralCollisionReport))]
 [JsonSerializable(typeof(BackendQueryReport))]
