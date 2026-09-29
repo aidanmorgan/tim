@@ -31,7 +31,7 @@ public static class RequirementDiscovery
             records.Add(new(new(RequirementOrigin.Catalogue,new(ids[0].Groups[1].Value)),
                 Path.GetRelativePath(root.FullName,path),title.Groups[1].Value,Hash(text)));
         }
-        records.AddRange(Fixtures(File.ReadAllText(Path.Combine(root.FullName,CampaignPath))));
+        records.AddRange(DiscoverFixtures(root).Select(fixture=>fixture.Source));
         foreach(var fullPath in Directory.EnumerateFiles(Path.Combine(root.FullName,DocumentationPath),ResearchPattern).Order(StringComparer.Ordinal))
         {
             var path=Path.GetRelativePath(root.FullName,fullPath);
@@ -68,10 +68,12 @@ public static class RequirementDiscovery
         }
         RequireUnique(result);return result;
     }
-    public static IReadOnlyList<SourceRequirement> Fixtures(string json)
+    public static IReadOnlyList<FixtureRequirement> DiscoverFixtures(DirectoryInfo root)=>
+        Fixtures(File.ReadAllText(Path.Combine(root.FullName,CampaignPath)));
+    public static IReadOnlyList<FixtureRequirement> Fixtures(string json)
     {
         using var document=JsonDocument.Parse(json);
-        var result=new List<SourceRequirement>();
+        var result=new List<FixtureRequirement>();
         foreach(var level in document.RootElement.EnumerateArray())
         {
             var levelId=new RequirementId(level.GetProperty("id").GetString()!);
@@ -81,11 +83,11 @@ public static class RequirementDiscovery
                 var id=new RequirementId(part.GetProperty("id").GetString()!);
                 var kind=new RequirementId(part.GetProperty("kind").GetString()!);
                 var key=new RequirementId(levelId.Value+"/"+id.Value);
-                result.Add(new(new(RequirementOrigin.Fixture,key),CampaignPath+"#"+key.Value,
-                    kind.Value+" in "+levelId.Value,Hash(part.GetRawText())));
+                result.Add(new(new(new(RequirementOrigin.Fixture,key),CampaignPath+"#"+key.Value,
+                    kind.Value+" in "+levelId.Value,Hash(part.GetRawText())),new(RequirementOrigin.Catalogue,kind)));
             }
         }
-        RequireUnique(result);return result;
+        RequireUnique(result.Select(fixture=>fixture.Source));return result;
     }
     public static void RequireUnique(IEnumerable<SourceRequirement> records)
     {

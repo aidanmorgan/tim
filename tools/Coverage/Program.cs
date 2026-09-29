@@ -1,26 +1,42 @@
 using System.Text.Json;
 using CuriousContraptions.Coverage;
 
-if(args.Length is <1 or >2)
-{
-    Console.Error.WriteLine("Usage: Coverage <repository-root> [inventory.json]");
-    return 1;
-}
 try
 {
-    var sources=RequirementDiscovery.Discover(new DirectoryInfo(args[0]));
-    if(args.Length==1)
+    if(args.Length is <2 or >3)throw new ArgumentException(
+        "Usage: Coverage <inventory|audit-inventory|elements|audit-elements> <repository-root> [manifest.json]");
+    var operation=args[0] switch
     {
-        Console.WriteLine(JsonSerializer.Serialize(CoverageAudit.Seed(sources),CoverageJson.Options));
-        return 0;
+        "inventory"=>CoverageOperation.Inventory,"audit-inventory"=>CoverageOperation.AuditInventory,
+        "elements"=>CoverageOperation.Elements,"audit-elements"=>CoverageOperation.AuditElements,
+        _=>throw new ArgumentException("Unsupported coverage operation.")
+    };
+    var audit=operation is CoverageOperation.AuditInventory or CoverageOperation.AuditElements;
+    if(args.Length!=(audit?3:2))throw new ArgumentException("Incorrect argument count for coverage operation.");
+    var root=new DirectoryInfo(args[1]);
+    var sources=RequirementDiscovery.Discover(root);
+    switch(operation)
+    {
+        case CoverageOperation.Inventory:
+            Write(CoverageAudit.Seed(sources));return 0;
+        case CoverageOperation.Elements:
+            Write(ElementAudit.Seed(sources,RequirementDiscovery.DiscoverFixtures(root)));return 0;
+        case CoverageOperation.AuditInventory:
+            var inventory=Read<CoverageInventory>(args[2]);
+            var summary=CoverageAudit.Analyze(sources,inventory);
+            Write(summary);return summary.SourceInventoryCurrent?0:2;
+        case CoverageOperation.AuditElements:
+            var elements=Read<ElementManifest>(args[2]);
+            var report=ElementAudit.Analyze(sources,RequirementDiscovery.DiscoverFixtures(root),elements);
+            Write(report);return report.LinksCurrent?0:2;
+        default:throw new ArgumentOutOfRangeException(nameof(operation));
     }
-    var inventory=JsonSerializer.Deserialize<CoverageInventory>(File.ReadAllText(args[1]),CoverageJson.Options)
-        ??throw new InvalidDataException("Null inventory.");
-    var report=CoverageAudit.Analyze(sources,inventory);
-    Console.WriteLine(JsonSerializer.Serialize(report,CoverageJson.Options));
-    return report.SourceInventoryCurrent?0:2;
 }
 catch(Exception error) when(error is IOException or JsonException or ArgumentException or InvalidOperationException)
 {
     Console.Error.WriteLine(error.Message);return 1;
 }
+static T Read<T>(string path)=>JsonSerializer.Deserialize<T>(File.ReadAllText(path),CoverageJson.Options)
+    ??throw new InvalidDataException("Null coverage document.");
+static void Write<T>(T value)=>Console.WriteLine(JsonSerializer.Serialize(value,CoverageJson.Options));
+enum CoverageOperation { Inventory, AuditInventory, Elements, AuditElements }

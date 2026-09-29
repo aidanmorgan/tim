@@ -5,11 +5,13 @@ A read-only C# preparation tool for TODO's canonical coverage ledger and PERF-23
 ```sh
 dotnet build tools/Coverage.Tests -c Release
 dotnet tools/Coverage.Tests/bin/Release/net10.0/Coverage.Tests.dll -noColor
-dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll /path/to/repository
-dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll /path/to/repository /path/to/inventory.json
+dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll inventory /path/to/repository
+dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-inventory /path/to/repository /path/to/inventory.json
+dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll elements /path/to/repository
+dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-elements /path/to/repository /path/to/elements.json
 ```
 
-One argument prints a newly seeded JSON inventory to stdout. Two arguments audit an existing inventory against freshly discovered sources. Exit 0 means successful discovery or current source inventory; exit 2 means missing, orphaned or changed sources; exit 1 means invalid input. No command overwrites an inventory or migrates formats.
+The required operation is enum-checked at the CLI boundary. inventory and elements print newly seeded JSON to stdout; audit-inventory and audit-elements audit a supplied file against freshly discovered sources. The previous positional-only invocation is removed, with no alias or format inference. Exit 0 means successful discovery or current scoped source links; exit 2 means missing, orphaned or changed sources/links; exit 1 means invalid input. No command overwrites an inventory or migrates formats.
 
 Discovery covers numeric element, thermal, radiation and GAP anchors in TODO.md, every parts/catalog/*.tres definition, every locked authored fixture instance in content/puzzles.json, and every docs/*research.md contract. Counts are discovered, never fixed. Catalogue entries and fixture instances remain separate obligations; matching titles never imply equivalent elements or shared proof. A changed requirement block, definition, fixture configuration or research contract invalidates its saved content hash.
 
@@ -26,3 +28,13 @@ SourceInventoryCurrent only verifies the scoped inventory against input files. C
 Read-only execution on the then-current uncommitted migration discovers 669 sources: 216 element, 37 thermal, 22 radiation, 18 GAP, 72 catalogue, 300 fixture and four research contracts. Audit reports all 669 unreviewed, zero changed/missing/orphaned and CompletionProven false. These are dated source counts, not baseline-commit counts, implementation counts or current proof. The local inventory is separate from this independently buildable tool publication because the underlying migration inputs are not yet published.
 
 Retained exploration failures: an initial console capture was truncated by a 1000-token output limit; it was rerun with adequate capture and parsed completely. Earlier shell exploration used a nonexistent levels directory and an unmatched engine/Ids* glob; no source was written by those commands. All test executions passed. This tooling change does not change a game part or simulation; native tests do not substitute for the still-required per-part browser evidence.
+
+## Catalogue mapping increment
+
+29 September 2026. The typed ElementManifest records each catalogue identity separately and binds every locked authored fixture to its actual catalogue key, read from the authored JSON boundary. Same title/script does not merge variants. Each fixture remains an individual source obligation whose evidence lives in the source inventory; catalogue evidence does not qualify its fixtures.
+
+Seeding retains every non-catalogue/non-fixture source separately in UnresolvedSources. Mapping audits reject duplicate element identities, invalid fixture ownership, missing bindings and hiding catalogue entries in unresolved specifications. Changed catalogue/fixture/source records invalidate LinksCurrent. Modes and Processes are explicit review states; Reviewed rejects because this initial schema has no substantiating mode/process contract records. This is still incomplete canonical semantic reconciliation, not proof of all named elements or supported modes.
+
+Current migration seed: 72 separate catalogue elements, 300 fixture bindings and 297 unresolved source obligations. All 72 mode reviews and all 72 process reviews remain pending; CompletionProven remains false. Future specification-to-element equivalence must be explicit and preserve every source requirement. Do not close a family, claim implementation, or infer physics support from this mapping.
+
+Final Release build: zero warnings/errors. Expanded suite: 16/16, 0.096 seconds. Added cases cover same-title variants, correct ownership, preserved unresolved specifications, missing elements/fixtures, changed configurations, duplicate/wrong/unknown ownership, hidden catalogue requirements, unsupported review claims and typed JSON round-trip/required fields. Runtime game code is unchanged; browser proof remains required for every game element.

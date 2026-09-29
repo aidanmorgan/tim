@@ -35,9 +35,9 @@ public class InventoryTests
               {"id":"c","kind":"ramp","locked":false,"position":[0,3,0]}]}]
             """;
         var rows=RequirementDiscovery.Fixtures(json);
-        Assert.Equal(2,rows.Count);Assert.NotEqual(rows[0].Key,rows[1].Key);
+        Assert.Equal(2,rows.Count);Assert.NotEqual(rows[0].Source.Key,rows[1].Source.Key);
         var changed=RequirementDiscovery.Fixtures(json.Replace("[0,1,0]","[0,4,0]"));
-        Assert.NotEqual(rows[0].Hash,changed[0].Hash);
+        Assert.NotEqual(rows[0].Source.Hash,changed[0].Source.Hash);
         Assert.Equal(rows[1],changed[1]);
     }
     [Fact]
