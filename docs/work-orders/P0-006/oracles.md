@@ -1,0 +1,90 @@
+# Independent lifecycle and failure oracles
+
+These are required expected outcomes, derived from the transaction contract rather than fitted
+to runtime output. The Design fixture checks finite mode/schema/arithmetic models only.
+P0-014/020/032 must inject these boundaries in actual code/worker/UI paths and retain each attempt.
+
+## Fixed authority and resource specimen
+
+Before: RuntimeSession S1, generation11, revision40, tick20, mode Paused; canonical construction C0
+has entities41/99, bodies1001/7001, joint5001, geometry9001 revision3; body1001 in internal slot0,
+body7001 slot1. Pending command IDs11/7 and11/8, completed11/6 unacknowledged; query11/4 pending
+required40, query11/3 Found required39 retained. Stream31 has next sequence10 and committed event9
+pending recipient A. Body allocator next8001, local free order[3,2]; animation generation7 has
+instance101 on slot0/version4, free order[2,1], writer(target501,Rotation)→101, no pending sample.
+B construction C0, level L0, selection41, settings/undo/camera/baselines U0, persisted save D0.
+Clock display epoch1 and histories H0. Diagnostic attempt count0.
+This is a typed abstract specimen, not imported gameplay state or a fabricated runtime observation.
+RNG set empty for current production; future RNG-using law adds exact algorithm/state/draw tuple.
+
+C1 differs independently: entity41 removed, body1001 removed, body8001 reuses internal slot0,
+joint5001 detached, newgeometry9002 revision4 for body8001, typed link to99 removed, target501
+may reuse browser slot only with a new descriptor and animation instance102. New level L1/settingsU1
+and construction allocator8002 are explicit candidate data. No output uses slot0 as public identity.
+
+## Finite failure-point × mutation matrix
+
+For each named MutationFamily (M01–M28) from mutations.md, apply every applicable point F01–F12 below; mark actual
+inapplicability with source reason (for example audio irreversibility is recipient-only).
+A complete vector comparison covers AuthorityExact and OwnerResourcesExact separately.
+No single participant rollback test certifies the composition.
+
+| Point | Injected boundary | Expected before/after and terminal observation |
+| --- | --- | --- |
+| F01 | Schema/identity/range rejected before admission | Exact before vector; no accepted sequence, result reservation or new installed resource. Typed rejected admission. |
+| F02 | After admission, before candidate preparation | Authority/resources as before plus exactly one admitted request reservation; queued is not complete. Cancel resolves target once if requested. |
+| F03 | Candidate allocation/validation fails before enrollment | Old authority and B U0/C0/D0 exactly; candidate ownership0 after disposal. Semantic rejection has its own result; unexpected exception only Fault, original request pending. |
+| F04 | Participant N capture fails | Restore participants0..N-1 in reverse order; capture N must not have changed authority. No output/event/new revision; raw capture error retained. |
+| F05 | Any reversible mutation before sealing outputs | Restore full authority/topology/maps/free lists/queues and reservations to pre-attempt; staged event10 disappears and next sequence remains10; request remains pending. |
+| F06 | Complete-output capacity or serialization fails before commit | Same as F05; no successful physical mutation lacking its output. Capacity result only for semantic rejection outside a failed tick. |
+| F07 | Immediately before non-fallible commit region | Same as F05; all candidate stores are unpublished. Commit region must contain no injectable external callback/allocation/serialization. |
+| F08 | Immediately after authority commit, before transfer/result delivery | New complete authority survives; reserved Applied result and event10 each exist once. Lost delivery can retransmit same identity; no physical reapplication or rollback. |
+| F09 | Recipient topology/binding/property application or resource disposal fails | S remains committed; B operation pending/Indeterminate, controls usable, last complete display held. No claim that old authority was restored. Explicit recovery. |
+| F10 | Any participant restore fails | Attempt all other admitted restores; retain original+restore errors; IntegrityLost, no new usable seed, no success result; explicit session restart only. |
+| F11 | Worker process death before/after commit with result missing | B cannot distinguish commit; outstanding operation Indeterminate, old session retired. No automatic retry/replay; exact-once across crash is not promised. |
+| F12 | Storage save transaction fails/crashes | D0 or complete newD1 only; failed transaction keeps D0. S snapshot result remains distinct from durable storage success. |
+
+A caught semantic failure of a Load does not change existing pending11/7,11/8 or query11/4.
+Successful Reset/Load produces generation12, tick0, revision41; pending11/7,11/8 become
+InvalidatedByBarrier, pending query11/4 becomes Cancelled with required40, completed query11/3
+remains Found required39 and11/6 remains its original result. Barrier command's own Applied result
+uses original generation11 and resulting12. New12/1 cannot alias old11/1. No old event9 is applied
+after the new generation's completion; old recipient disposal/ack still releases its exact reservation.
+Successful Reset uses C0/U0 construction baselines; successful Load uses C1/L1/U1.
+Identity/generation advancement is exact, not epsilon-based.
+
+## Named positive/control/boundary traces
+
+| Oracle | Positive / meaningful control / boundary |
+| --- | --- |
+| O01 Mode totality | Five modes ×16 commands; Faulted split explicitly tests ReversibleFailure vs IntegrityLost. Unknown enum tags reject; Step count0/2 reject,1 applies one tick. |
+| O02 Dependent Run | Create/Connect committed revision8 then Run depending on final edit; rejected dependency yields DependencyFailed and no Run snapshot. Lost result retransmission never starts a second Run. |
+| O03 Pause/Step/Resume | At tick20 Pause stops before21; paused ExactTick21 stays pending; Step executes21 once, then Paused; Resume's wall anchor begins at21/120, not previous wall elapsed. |
+| O04 Completion | Tick3599→3600 stops at30s; early Goal stops at its own committed tick. Resume/Save from Completed InvalidMode. Reset restores C0 exactly. |
+| O05 Failed Load UI | Malformed/unknown format, invalid graph, overlap, capacity and resource failure before commit each leave level/picker/selection/undo/precision/friction/C0/D0 unchanged. Postcommit resource loss is distinct F09, never passed as atomic failed Load. |
+| O06 Command/query first terminal | Pending barrier dispositions as above; completed Found remains Found; Cancel after completion Unsupported/AlreadyCommitted as family specifies. Reordered old replies release only their own original reservations. |
+| O07 Duplicate/cancellation | Repeated same pending ID has one reservation; conflicting bytes reject; cancel-before-commit gives target Cancelled and own Applied; cancel-after-commit never reverses effect. |
+| O08 Stale identity after reuse | Old(11,1001) and old animation(7,101,target501) cannot resolve new(12,8001)/(8,102) despite same slot0; stale lease BufferId cannot return credit to reused allocation with a new BufferId. |
+| O09 Registration rollback | Fail second of three RGB registrations: zero new writers/slots active; old versions/free order exact; attempted external IDs remain burned. Capacity at2517 outputs rejects while2516 fits per P0-005. |
+| O10 Occurrence/Presented | Event9 duplicate produces one impulse; early Presented at.1s leaves wave distance1.2 then2.4 at.2s; unseen age.7s holds minimum distance; matching late receipt permits finish, stale reused instance receipt does nothing. |
+| O11 Clock golden | Probe100/150.2/150.3/100.7ms with .01ms endpoint precision gives offset[49.58,50.22], expanded[49.455,50.345] after250ms. Sample175 with own.01ms uncertainty maps[124.645,125.555]. Quantization-only overlap/touching accepts, true disjointness rejects; negative RTT, mapped halfwidth>1ms,>500ms age and reversal reject. |
+| O12 Coherent histories | At physical times0,.008333333,.016666667 and matching A bracket, T=.0125 gives midpoint between physical ticks1/2. Missing A bracket holds whole dependent world, no new parent with old child. Topology change seeds endpoints, no interpolation through removed body. |
+| O13 Memory |3*(44057+6773+6773)+1024=173833<=196608 includes world and UI streams;44057/6773/22009 needs219541 and rejects.3*(32597+32597)+1024=196606 fits; add1 payload byte→196609 rejects. Aggregate edge/staging/role quotas stay8MiB. |
+| O14 Overload/fairness | At due5ticks execute4 then service controls; pending Reset applies before another batch. Debt100ms allowed boundary,>100ms explicit fault. No dropped tick/silent elapsed clamp. Reliable age>50ms fails metrics;500ms stall stops;1000ms no reply faults. |
+| O15 Crash/recovery | Crash S or A with pending request, transfer and detached lease; old session never credits replacement; disposal unconfirmed at1000ms blocks restart, no second pool. Explicit fresh Load only. |
+| O17 Simultaneous UI/world retirement | UI7/world8 total128 results rejects additional input without dropping outcomes;127 permits UI7. New world9 result admission waits for old8 acknowledgement/Return, then windows7/9;10 waits again. Navigation serializes both namespace retirements. Old/new histories never coexist in copied storage; peak173833 for specified256+256 fixture. |
+| O16 Exact repeated lifecycle |20 Run/Reset+Save/Load and20 level transitions: exact C0 typed configuration, links, baselines; zero old-generation resources; baseline workers/listeners/leases; post-GC growth<=1MiB. Distinct target/mode cases each retain UI evidence. |
+
+Runtime recipes must use actual Chrome UI controls and read-only observations:
+construct both linked parts at known locations with ordinary placement/drag controls, configure
+the named supported modes, capture typed placed configuration, press Run, observe intended and
+negative/control behavior plus motion, then Reset and Save/Load and compare exact canonical
+construction. Inject transport faults through the reviewed test transport boundary, never set
+game authority/import a solution/use numeric placement menus. Pause/Step/recovery controls are
+implemented by P0-020 before these recipes execute; their absence today is an implementation
+prerequisite, not permission to fake interaction. P0-032 retains every delayed/reordered/duplicate/
+saturated/crashed attempt with actual revision/bundle/worker hashes and raw results.
+
+Commands for required-now Design checks are in tools/LifecycleContract/README.md.
+The same-source ten native failures and recorded browser failures remain untouched; no positive
+fixture row above is an observed browser pass.

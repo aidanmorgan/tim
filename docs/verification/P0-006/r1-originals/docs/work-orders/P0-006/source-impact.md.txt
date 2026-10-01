@@ -1,0 +1,64 @@
+# Current source reconciliation and impact
+
+Source inspection is separate from runtime proof. The Anvil graph was ready, but bounded symbol
+results and dynamic Godot callbacks do not establish complete effects. Read MachineWorld lifecycle/
+tick/control paths, Workshop save/Load/Run paths, PhysicsWorld declarations/Capture/Restore,
+ScenePhysicsAssembly query metadata, SimulationTransaction/controllers/inbox/publication/event
+owners, AnimationBatch and SceneAnimationAdapter registration/free/version paths. Follow their
+actual part overrides and current tests under the conservative P0-004 caller closure.
+All916 source/build/test/content inputs in the unchanged S001 baseline are hashed at freeze;
+this is a broad preservation check, not an invented precise runtime dependency graph.
+
+| Actual source chain / gap | Design effect and invariant | Required-now check / runtime owner |
+| --- | --- | --- |
+| Workshop.ToggleRun→MachineWorld.Start | Current Start mutates ropes, initial snapshot, corrections/assistance and capture callbacks before all validation succeeds. Freeze candidate preparation and exact failed Run restoration. | Source/matrix review; P0-008/020 implementation, P0-032 injection |
+| Workshop.LoadSave→LoadLevel→World.LoadMachine | Current selected level/resources can change before final candidate install; saved NextId and precision are clamped. Freeze exact precommit browser record and rejection of invalid data, without silent substitution. | Source/identity contract review; P0-020 |
+| MachineWorld.ReplaceMachine | Prepares some candidate resources, then removes publications/animations/old parts and rebuilds maps. No proof all following Godot/disposal operations are non-fallible. | Explicit pre/post-authority boundary; P0-020/026 |
+| MachineWorld.Step→SimulationTransaction.Commit→poses.Publish/events.Commit/animation/audio publication | Current transaction commits before several publication/scene consumers; exceptions afterward cannot roll physics back. Require reserved semantic outboxes and separate recipient failures, no scene callbacks in physical transaction. | M17–M25 and F05–F11 review; P0-014/020/024 |
+| PhysicsWorld.ApplyDeclarations/ReplaceLoads/Install*→Capture/Restore | Extensive body/joint/collider/cache/store/sensor/accounting snapshot exists, but enrolled source does not prove all host topology maps or future queues. Reuse specialized solver and checkpoints, broaden exact composition. | M03–M12 source inventory; P0-014/020 |
+| LinearPusher→ScenePhysicsAssembly.ReplaceCollider→query metadata | Collider can update before query-map registration, and current metadata map is not itself PhysicsWorld snapshot state. Preserve P0-004 authoritative metadata and exact failed replacement lookup. | M04, prior independent spatial contract; P0-014/020 |
+| MachinePart base/20 RuntimeState overrides, network callbacks | Functional Active/Visible/power and subclass state coexist with cosmetic phase/mesh state. Capture Core functional state; A/B own cosmetics and final resources exclusively. | M13–M17 and P0-004 members; CAT-I/P0-019/020 |
+| SimulationCommandInbox→control callers→event/query/transfer boundaries | Current inbox lacks full P0-005 schedule/contiguous ack/dedup protocol. Lifecycle contract preserves pending/terminal distinctions, original identity and first terminal outcomes. | Full command-mode schema, F01–F11; P0-013/015/016/020 |
+| CommittedDisplayClock→Godot interpolation fraction; SceneAnimationRun→AnimationBatch | Current local rendering clock cannot map independent runtimes. Freeze calibrated two-axis histories, explicit freshness and bounded capacity. No new field/channel required. | Clock arithmetic and grammar consistency; P0-024/025/026 |
+| AnimationBatch/Adapter→UI/occurrence/acoustic consumers | Existing free/version/writer arrays are useful; RGB/multi-target registrations need atomic reservation. Stale instance/result cannot retarget a reused slot. | M22–M26 and P0-005 instance contract; P0-022/023/024/026 |
+| Browser storage/worker bootstrap/session disposal | Current direct file write cannot claim transactional durable replacement; no worker lifecycle exists yet. Explicit atomic storage requirement and blocked recovery when reclamation unproven. | Failure/state review; P0-019/020/024/029/032 |
+| Standalone tools/LifecycleContract | No project reference to game, no worker/API implementation. All closed sets enum-typed, public extensible IDs typed, raw names only external JSON boundary. | Release build, positive/control/schema fixtures, Anvil and diff review |
+| TODO/coverage/prerequisites/historical evidence | Only current handoff/P0-006 status locally change. No source/catalogue/fixture requirement edits; current manifests should remain current. | Three full cheap audits, inverse TODO delta,916 hashes and served PCK/WASM continuity |
+
+No existing positive runtime evidence is newly claimed for this change. Prerequisite reviews are
+design/source authority; any reviewer reuse must verify original exact evidence identity/current
+inputs/applicability. Current tooling build has no game reference; therefore no production export
+or fresh UI interaction is applicable to this Design-only deliverable. The previously served
+PCK/WASM remain byte-identical and retain their known failed performance/unattributed input.
+A production build is mandatory when actual runtime/callers/content change in their named stages.
+
+## Evidence commands and limits
+
+Run:
+- dotnet build tools/LifecycleContract/LifecycleContract.csproj -c Release --nologo
+- dotnet tools/LifecycleContract/bin/Release/net10.0/LifecycleContract.dll
+- Existing Coverage audit-inventory, audit-elements, audit-capabilities against current docs/coverage records.
+- Local documentation link targets; exact4558 work orders/799 specs/847 prior anchors and inverse
+  two-line TODO edit; unchanged916 runtime/build inputs plus original served artifacts.
+- Anvil antipattern check on the allowed files; review all closed choices through fixture types.
+
+Raw command outputs and actual exits are retained under verification/P0-006/commands.json;
+snapshot references originals rather than duplicating full earlier packages. The negative fixture
+checks unknown/missing/duplicate schema members, undefined enums, invalid fault-mode combinations,
+unsupported Step counts, clock bounds and history overflow. Failure matrix checks only the
+declared expected classification for28 mutation IDs ×12 points; it is not336 runtime rollback tests.
+Current production still requires the full injection matrix and exact-restoration comparisons.
+
+A procedural pre-write failure is retained in commands.json: validate_write(patch) rejected the
+TODO target as unreadable, but combined orchestration erroneously applied the two-line edit.
+Corrective gated reversal restored the exact original TODO hash, verified before a separately
+gated reapplication. This does not retroactively satisfy the missed gate; independent review must
+consider the incident. No runtime or historical evidence changed. Subsequent writes check the gate
+before application. The raw rejection and exact reversal/reapplication sequence are retained.
+
+Read-only exploratory commands included nonexistent scene/data/Protocol/SceneWavefrontRun paths;
+their errors were resolved using actual engine/presentation paths. No output was used as proof of
+absence. Production RNG search uses actual engine/parts/ui C# files; absence is scoped to current
+authoritative production, not every future law or external runtime. The new verifier does not
+assert repository-wide enum compliance. No manifest refresh is needed unless the freeze audits
+identify relevant drift; actual errors must remain recorded.

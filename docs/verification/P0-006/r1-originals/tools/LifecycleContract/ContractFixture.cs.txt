@@ -1,0 +1,134 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace CuriousContraptions.LifecycleDesign;
+
+// Design-only compiler-checked choices. No production runtime references.
+public enum HostMode { Building=1, Running=2, Paused=3, Completed=4, Faulted=5 }
+public enum Integrity { Intact=1, ReversibleFailure=2, IntegrityLost=3 }
+public enum CommandKind
+{
+    ReplaceConstruction=1, CreateEntity=2, ReplaceEntity=3, RemoveEntity=4, Connect=5,
+    Disconnect=6, BinaryInput=7, ScalarInput=8, Pulse=9, Run=10, Pause=11,
+    Resume=12, Step=13, Reset=14, Save=15, Cancel=16
+}
+public enum Disposition { Apply=1, WaitForTick=2, InvalidMode=3 }
+public enum FailurePoint
+{
+    Schema=1, Admitted=2, Candidate=3, Capture=4, Mutation=5, Seal=6,
+    BeforeCommit=7, AfterCommit=8, Recipient=9, Restore=10, ProcessDeath=11, Storage=12
+}
+public enum AuthorityResult { Unchanged=1, Committed=2, IntegrityLost=3, Unknown=4 }
+public enum UiResult { Unchanged=1, Pending=2, Indeterminate=3 }
+public readonly record struct MutationId(int Value);
+public readonly record struct Generation(long Value);
+public readonly record struct StableId(ulong Value);
+public readonly record struct Slot(int Value);
+public readonly record struct Binding(Generation Generation, StableId Id, Slot Slot);
+public readonly record struct Decision(Disposition Disposition, HostMode Mode);
+public readonly record struct FailureExpectation(AuthorityResult Authority, UiResult Ui);
+public sealed record Schema(
+    [property:JsonRequired] HostMode Mode,
+    [property:JsonRequired] Integrity Integrity,
+    [property:JsonRequired] CommandKind Command,
+    [property:JsonRequired] uint StepTicks);
+public sealed record ClockInterval(decimal Offset, decimal Uncertainty);
+public static class ContractFixture
+{
+    static readonly JsonSerializerOptions JsonOptions = new()
+    { UnmappedMemberHandling=JsonUnmappedMemberHandling.Disallow };
+    public static Schema Read(string json)
+    {
+        using var doc=JsonDocument.Parse(json);
+        if(doc.RootElement.ValueKind!=JsonValueKind.Object) throw new JsonException("Object required.");
+        var keys=new HashSet<string>(StringComparer.Ordinal); // External JSON field-name boundary only.
+        foreach(var property in doc.RootElement.EnumerateObject())
+            if(!keys.Add(property.Name)) throw new JsonException("Duplicate field.");
+        var value=JsonSerializer.Deserialize<Schema>(json,JsonOptions)??throw new JsonException("Object required.");
+        Validate(value);
+        return value;
+    }
+    public static void Validate(Schema value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        if(!Enum.IsDefined(value.Mode)||!Enum.IsDefined(value.Integrity)||!Enum.IsDefined(value.Command))
+            throw new ArgumentException("Unknown enum.");
+        if((value.Mode==HostMode.Faulted)==(value.Integrity==Integrity.Intact))
+            throw new ArgumentException("Fault mode and integrity disagree.");
+        if(value.StepTicks!=(value.Command==CommandKind.Step?1u:0u))
+            throw new ArgumentException("Only one whole Step tick is supported.");
+    }
+    public static Decision Decide(Schema value)
+    {
+        Validate(value);
+        if(value.Integrity==Integrity.IntegrityLost)
+            return new(Disposition.InvalidMode,value.Mode);
+        return value.Command switch
+        {
+            CommandKind.ReplaceConstruction or CommandKind.Reset => new(Disposition.Apply,HostMode.Building),
+            CommandKind.Cancel => new(Disposition.Apply,value.Mode),
+            CommandKind.CreateEntity or CommandKind.ReplaceEntity or CommandKind.RemoveEntity or
+                CommandKind.Connect or CommandKind.Disconnect or CommandKind.Save
+                => value.Mode==HostMode.Building?new(Disposition.Apply,HostMode.Building):
+                    new(Disposition.InvalidMode,value.Mode),
+            CommandKind.BinaryInput or CommandKind.ScalarInput or CommandKind.Pulse
+                => value.Mode switch
+                {
+                    HostMode.Running => new(Disposition.Apply,HostMode.Running),
+                    HostMode.Paused => new(Disposition.WaitForTick,HostMode.Paused),
+                    _ => new(Disposition.InvalidMode,value.Mode)
+                },
+            CommandKind.Run => value.Mode==HostMode.Building?new(Disposition.Apply,HostMode.Running):
+                new(Disposition.InvalidMode,value.Mode),
+            CommandKind.Pause => value.Mode==HostMode.Running?new(Disposition.Apply,HostMode.Paused):
+                new(Disposition.InvalidMode,value.Mode),
+            CommandKind.Resume => value.Mode==HostMode.Paused?new(Disposition.Apply,HostMode.Running):
+                new(Disposition.InvalidMode,value.Mode),
+            CommandKind.Step => value.Mode==HostMode.Paused?new(Disposition.Apply,HostMode.Paused):
+                new(Disposition.InvalidMode,value.Mode),
+            _ => throw new ArgumentException("Unknown command.")
+        };
+    }
+    public static FailureExpectation Expected(FailurePoint point,MutationId mutation)
+    {
+        if(!Enum.IsDefined(point)||mutation.Value is <1 or >28)
+            throw new ArgumentException("Unknown failure or mutation identity.");
+        return point switch
+        {
+            FailurePoint.AfterCommit => new(AuthorityResult.Committed,UiResult.Pending),
+            FailurePoint.Recipient => new(AuthorityResult.Committed,UiResult.Indeterminate),
+            FailurePoint.Restore => new(AuthorityResult.IntegrityLost,UiResult.Indeterminate),
+            FailurePoint.ProcessDeath => new(AuthorityResult.Unknown,UiResult.Indeterminate),
+            FailurePoint.Admitted => new(AuthorityResult.Unchanged,UiResult.Pending),
+            _ => new(AuthorityResult.Unchanged,UiResult.Unchanged)
+        };
+    }
+    // Milliseconds in this independent arithmetic oracle; wire timestamps are integer nanoseconds.
+    public static ClockInterval Calibrate(decimal b0,decimal w1,decimal w2,decimal b3,
+        decimal endpointPrecision,decimal age)
+    {
+        if(b0<0||w1<0||w2<w1||b3<b0||b3-b0<w2-w1||
+            endpointPrecision<0||endpointPrecision>.1m||age<0||age>500)
+            throw new ArgumentException("Invalid clock observation.");
+        var low=w2-b3;var high=w1-b0;
+        var uncertainty=(high-low)/2+2*endpointPrecision+age*.0005m;
+        if(uncertainty>1)throw new ArgumentException("Mapping uncertainty exceeded.");
+        return new((low+high)/2,uncertainty);
+    }
+    public static long HistoryBytes(long physical,long animation)
+    {
+        if(physical is <80 or >65536||animation is <80 or >65536)
+            throw new ArgumentException("Invalid envelope size.");
+        var bytes=checked(3*(physical+animation)+512);
+        if(bytes>192*1024)throw new ArgumentException("Combined history capacity exceeded.");
+        return bytes;
+    }
+    public static Slot Resolve(ReadOnlySpan<Binding> bindings,Generation installed,Generation requested,StableId id)
+    {
+        if(installed.Value<=0||requested!=installed||id.Value==0)throw new ArgumentException("Stale identity.");
+        foreach(var binding in bindings)
+            if(binding.Generation==installed&&binding.Id==id)return binding.Slot;
+        throw new ArgumentException("Removed identity.");
+    }
+}
+

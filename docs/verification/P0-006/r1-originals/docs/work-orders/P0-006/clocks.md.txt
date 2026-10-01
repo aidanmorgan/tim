@@ -1,0 +1,164 @@
+# Numerical clocks, histories and overload
+
+No worker timer callback or render fraction defines elapsed time. All clocks use monotonic
+context-local readings converted at the boundary to P0-005 nonnegative I64 nanoseconds.
+Retain integer ticks; physical seconds are tick/120, four outer substeps per tick.
+There is no simulation slow-motion mode. Presentation-time rate1 and simulation-time rate1
+while Running are distinct domains; paused simulation time is constant.
+Animation definitions retain their explicit Presentation or Simulation clock.
+
+## Calibration and uncertainty
+
+B maps S and A independently using the existing ClockProbe/ClockReply fields; no S↔A clock
+message, new wire field or assumed common performance.timeOrigin. A needs no monotonic S clock
+to interpret an authoritative tick. For probe timestamps b0,w1,w2,b3, all converted to ns:
+r=(b3-b0)-(w2-w1) must be nonnegative; w2>=w1, b3>=b0.
+The worker-minus-browser offset lies in [w2-b3,w1-b0].
+Estimate its midpoint; uncertainty is half its width plus both timestamp quantization bounds.
+Quantization bound is measured/configured for the actual platform, at most100000ns per endpoint;
+otherwise calibration is Unsupported/Clock fault, not an invented precise timestamp.
+A current sample's browser-time interval is [w-offsetUpper,w-offsetLower].
+
+Collect8 valid probes, spaced10ms at startup, retain the most recent8 (one outstanding per peer;
+lost probe expires after250ms). Select the valid probe with smallest uncertainty, newest on ties.
+Reject negative RTT, wrong sequence/session/clock generation, timestamp reversal and duplicate
+reply. Retain original raw times/rejections. Refresh every250ms in foreground. Conservatively
+expand offset interval by500ppm of elapsed B monotonic time since that probe; this is a frozen
+maximum drift assumption requiring independent actual-clock qualification, not established by
+a fitting procedure. Reject any new probe interval disjoint from the drift-expanded old interval;
+ClockSuspect stops interpolation and requires fresh8-probe calibration. Do not silently rescale
+physics or rewrite timestamp history. At >500ms since selected probe or uncertainty>1ms, mapping
+is invalid. Recovery never treats expired mapping as a zero-error estimate. A mapping accepted by
+this arithmetic still needs independently measured <=1ms error for qualification (P0-025/032/034).
+
+Example (ms): b0=100,w1=150.2,w2=150.3,b3=100.7:
+r=.6, offset[49.6,50.2], midpoint49.9, halfwidth.3.
+With .01ms bound at each endpoint, initial uncertainty.32ms;
+after250ms drift adds.125ms→.445ms. w=175.0 maps to B125.1±.445ms.
+b3=100.05 gives negative r and rejects. A probe with uncertainty1.001ms rejects.
+At clock counter overflow/reversal or worker restart invalidate the clock generation and entire
+affected history; a new runtime session is required for producer restart. No interpolation across it.
+
+## Wall and simulation axes
+
+PhysicalState carries authoritative simulation time and a SimulationMonotonic capture stamp.
+AnimationSamples carries AnimationMonotonic capture stamp and the existing envelope world
+generation/tick/revision of its exact last complete S feedback. Standalone UI has world generation0
+and tick/revision0. This assigns existing envelope fields, adding no channel or layout.
+Each A evaluation uses one immutable complete physical sample plus admitted occurrence state;
+Simulation-clock evaluators use that sample's tick/120 with no wall-time extrapolation.
+Presentation-clock evaluators use A monotonic elapsed from their generation origin.
+A may evaluate at60Hz while S ticks120Hz; missed cosmetic evaluations do not drop reliable events.
+
+B retains both axes for each A sample. Simulation-bound records are indexed by that envelope's
+feedback tick, presentation-bound records by mapped A capture time. A captures one atomic batch
+after controls then feedback, preserving capture/sequence order per P0-005. Repeated same feedback
+tick provides no new simulated time; B keeps the newest complete sample at that tick for
+same-tick cosmetic controls. B does not relabel it as newly committed physical motion.
+Actual physical wall age uses S capture time; simulation-feedback wall age additionally includes
+the referenced S capture time (resolved from retained stamped metadata), never A's newer timestamp.
+If the referenced S stamp is unavailable, feedback-age evidence and synchronized application are
+Incomplete/pending, not zero-age. Recipient stores retain that stamp within the budgets below.
+A sample's feedback revision must refer to the exact installed S topology and same world generation.
+
+Choose one requested display wall time D=Bnow-16,666,667ns (fixed delay).
+Determine the bracket of complete S samples by mapped capture time, then interpolate their
+authoritative simulation times to obtain T. All physical poses and simulation-bound cosmetic
+records use this same T. Simulation discontinuity (generation/topology/Run/Reset/Load or explicit
+clock invalidation) reseeds endpoints and never interpolates across it. Boolean/enums/events
+are step-valued from the latest commit <=T; scalar physical quantities are held at that commit
+unless their registered definition explicitly declares continuous interpolation. Rigid poses
+use position lerp and shortest-arc normalized rotation interpolation; full affine baselines remain
+captured values, not quaternion-normalized geometry. Purely cosmetic scalar records interpolate
+their compatible samples; event occurrence identity is never interpolated.
+
+A Simulation-clock bracket must contain T; otherwise hold the previous complete coherent
+display state (physical parent and all dependent cosmetics together). Autonomous UI samples may
+still advance at D; they do not depend on a world. Presentation-clock cosmetics attached to a
+physical parent use their bracket at D composed with the parent at T in the declared order.
+If any required bracket or mapped timestamp is missing/invalid, do not independently clamp each
+body/channel to a different time. No extrapolation or reconstruction of physics from animations.
+Last successful T and D are nondecreasing in a generation. An invalid/stalled mapping holds;
+recalibration seeds a new display epoch before resuming, never rewinds a prior epoch.
+
+Pause/Completed applies the last committed endpoint immediately on the matching result/event and
+reseeds both endpoints to it; Simulation-clock effects hold there. Presentation-time autonomous
+effects continue while visible. Step applies the exact new endpoint once and reseeds; Resume
+starts a new wall-to-simulation segment at the paused tick without adding paused elapsed time.
+The matching Pause/Step result and full sample must refer to the same or explicitly later terminal
+commit; never display an earlier tick as completion. B maps goal event revision/tick to the same
+endpoint. Pause does not remove or acknowledge undelivered occurrences.
+
+## Finite recipient histories and memory
+
+Keep at most3 complete S physical samples and3 complete A samples in B. These are copied immutable
+records charged to B's existing256KiB retained-wire role budget, not an uncounted derived cache.
+Reserve192KiB for histories including referenced S clock-stamp metadata,32KiB for retained
+request/result/occurrence and registration wire values,32KiB for packing/decoding scratch.
+Admission condition is 3*P + 3*A +512 <=196608 bytes, where P/A include complete envelope
+bytes at installed maximum subscription/output capacities, not observed sparse/hidden samples.
+The512-byte metadata reservation contains the fixed timestamp/reference/endpoint value records.
+Managed object/allocator overhead also counts toward resident/linear memory separately.
+
+The P0-005 velocity-rich positive (P=44057,A=6773) yields152490+512=153002 bytes.
+At P=23497,A=6773 the requirement is90810+512=91322 bytes.
+At P=A=65536 the requirement is393728 bytes and installation rejects Capacity before any
+binding changes even though each envelope separately satisfies64KiB. This is an explicit
+combined admission restriction under the existing quota, not relaxed quotas.
+No dynamically dropping required records/history slots or alternate history policy.
+
+A reserves two complete S feedback samples plus exact referenced-stamp/occurrence metadata inside
+its existing768KiB role quota; at maximum2*65536=128KiB leaves640KiB for other retained payloads/
+scratch. S retains output/result/events within its1MiB. Every count and byte admission must pass;
+installed evaluator/core state is separately resident state, never a hiding place for wire copies.
+One active1MiB transfer staging per recipient and six512KiB edge pools remain P0-005's8MiB total.
+Direct validation/copy from the owned incoming lease must fit fixed scratch; no extra64KiB decode
+buffer outside accounting. Topology transfer/history installation uses pre-reserved candidate
+memory and releases old generation after completion, within peak—not merely steady-state—caps.
+If simultaneous old/new bounded histories cannot fit, retire old histories after authority commit
+while holding the last already-applied scene; keep new operation pending until seed arrives.
+Never retain hidden copies for rollback of an already committed replacement.
+
+On receive, retain newest ordered complete samples; discard oldest only within the installed ring
+capacity, returning the original transport lease. Rendering slower than receipt may miss a bracket;
+that produces the coherent hold above, not array mixing. History shortage is measured and failing
+age/performance remains visible. Depth is finite correctness policy, not a claim the target is met.
+At120Hz three physical samples span16.666667ms; three60Hz A samples span33.333333ms.
+Missing deliveries can exhaust either. P0-025/034 must measure whether the fixed delay/history meets
+33.3ms p95/50ms p99 age at both60/90Hz on the declared workloads; native arithmetic cannot pass it.
+
+## Scheduling, visibility and overload
+
+S wakes independently, computes whole due ticks from monotonic elapsed at120Hz and executes at
+most4 ticks per scheduler turn, then yields to control/returns. Each tick retains four substeps.
+No skipped tick, adaptive physics dt or renderer-driven catch-up. Debt remains measured; if debt
+exceeds100ms stop scheduling new ticks at the last commit, emit sticky Capacity fault and enter
+ReversibleFailure. Explicit Reset/Load/recovery is needed; never silently erase debt and resume.
+A evaluates at60Hz independently, at most1 evaluation per turn at actual elapsed clock time.
+Missed cosmetic samples may be replaced, not reliable occurrences; analytic evaluator phase is
+advanced to current admitted clock time, with existing present-once rules preserved.
+
+Every scheduler turn services returns first, then up to8 control envelopes, then up to8 data
+envelopes before its bounded evaluation/tick group. Rotate the finite incoming edges round-robin;
+no permanently preferred peer. Pending controls force a yield between whole ticks, not interruption
+of a transaction. Target foreground service gap<=8.333334ms S,<=16.666667ms A; actual gap/CPU is
+recorded. These algorithmic limits do not promise OS scheduling or cancel a long synchronous solver.
+>50ms unexplained application work remains P0-003 failure even if watchdog eventually recovers.
+
+A history age>50ms or reliable age>50ms immediately flags stale/performance failure while keeping
+UI controls responsive; it is not a new acceptable latency. Bracket shortage freezes affected world
+display. At500ms unresolved reliable stall stop S as above;1000ms missing liveness faults Worker.
+A stall does not synchronously block physical computation; eventual bounded event/output capacity
+can backpressure S before commit. Do not discard reliable physical events to keep ticking.
+
+On page hidden, B requests Pause via ordinary lifecycle control and hides cosmetic targets through
+existing SetVisible requests. If browser scheduling is suspended before those arrive, no invented
+Pause acknowledgement: S continues only until its own bounded debt/backpressure rules stop it.
+No hidden-tab performance pass. Foreground resumes calibration, validates session/result identities,
+seeds coherent histories and remains paused/faulted until explicit Resume/Reset. Autonomous
+presentation phase uses elapsed monotonic time; hidden intervals skip sampling, not phase identity.
+Present-once wavefronts/impulses remain bounded and held until actual visibility receipt or explicit
+Remove/Reset; merely becoming visible, a timeout, or an expired natural lifetime is not a receipt.
+Reduced-motion selects declared cosmetic policies at registration, never changes physical clocks,
+topology, inputs, solver tolerances or authoritative outcomes.
+

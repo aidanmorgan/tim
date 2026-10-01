@@ -1,0 +1,83 @@
+# Source-backed mutation and restoration inventory
+
+This inventory classifies current mutation surfaces, not just public method names. The exact
+P0-004 member/caller shards remain the exhaustive declaration reference; the frozen P0-006
+snapshot hashes current source closure. Current scene/solver/controller callbacks are traversed
+conservatively through every catalogue override and checkpoint participant. No static search proves
+runtime transaction coverage. The matrix below tells P0-014/020/032 what must be enrolled/proven.
+
+All Core/Host mutations share one simulation transaction at the applicable boundary. Browser and
+Animation own separate transactions and reliable results; they cannot roll back a committed S tick.
+Stable public IDs/generations never expose local indices. Failed reversible operations restore the
+exact pre-operation allocator state/order; attempted wire AnimationInstanceIds remain burned under
+P0-005, separately from reusable internal slots. Counter exhaustion rejects before mutation.
+
+| ID / current source surface | Mutable set and exact restoration requirement | Target owner / implementation |
+| --- | --- | --- |
+| M01 MachineWorld.AddPart/AttachPart/RemovePart, Connect/Disconnect; Workshop drag/edit/undo; MachinePart.Configure | Parts, internal bodies, connections/typed ports, goals, settings, declaration order, stable entity/capability IDs and next-ID high-water mark; remove restores dependent links. Preview is separate. | Compiler candidate→Core; browser authoring registry separate; P0-008/020 |
+| M02 MachineWorld.Start/Restore/LoadMachine/ReplaceMachine | Installed world pointer, initial construction, generation/revision/tick/mode/won, participant enrollment, all maps/lists below; failed preparation never clears old state or frees old parts. | S Host lifecycle; P0-020 |
+| M03 WorldGeometry.CapturePhysicsAssembly; ScenePhysicsAssembly constructor/maps | Body/joint IDs, declarations, objects, initial joints, surfaces, body ownership/index maps, immutable reference bindings, query owner/geometry maps. Candidate transfers once to Core; no browser reference in installed maps. | P0-007/008/014 |
+| M04 ScenePhysicsAssembly.ReplaceCollider → PhysicsWorld.ApplyColliderUpdates; LinearPusherPart.ObservePhysics | Collider object/material/participation/revision AND query metadata keyed by the installed geometry identity; old snapshot lookup must still resolve its original metadata. Failed mutation removes newly staged metadata and restores exact map contents/refcounts. | Core joint participant; P0-014/020 |
+| M05 PhysicsWorld.ApplyDeclarations/ChangedJoints/ReplaceJoints; ClutchPart.PreparePhysics; impact effects | Attach/replace/detach declarations, sorted joint set, joint→body map, angular-travel map, constraint/source dependencies, invalidated contact-pair cache. Current body set is immutable per PhysicsWorld; body creation/removal rebuilds a candidate at construction boundary. | Core; P0-013/014/020 |
+| M06 PhysicsWorld.ReplaceLoads | All effort/elastic/gas/damping/drag/guide/rotary/transfer/compliant/spring declarations; compliant states, spring latch states and source bindings; retain registered laws and supply identity. Failed family validation installs none. | Core; P0-014/020 |
+| M07 PhysicsWorld.ReplaceSurfaces | Driven surface declarations and expired contact-pair cache. Failure restores both, not only visible belt geometry. | Core; P0-014/020 |
+| M08 PhysicsWorld.InstallServos/SetServoMode | Servo dictionary, joint declaration relation, target/mode/controller state; initialization and later supported control changes belong to same world. | Core; P0-014/019/020 |
+| M09 InstallContactLoadSensors/InstallTiltSensors/InstallResidenceSensors/InstallPassageSensors | Declaration dictionaries, contact/tilt readings, residence phase/dwell, passage key/armed state, collider revision markers and queued passage events. Restore declaration/state pairs atomically. | Core; P0-014/020 |
+| M10 InstallEnergyStores/InstallGasNodes, ChargeEnergyStore/ReleaseEnergyStore/ReleaseSpring | Energy/gas inventories, stored mass/energy, spring latch/compression/energy, applied impulse, related joint changes, source/transfer accounting. Rejected release cannot consume energy or leave detached latch. | Core; P0-014/020 |
+| M11 PhysicsWorld.Step/ApplyImpulse/ApplyAngularImpulse/ApplyPoweredImpulse and contact callbacks | Every body pose/velocity/angular momentum, sleep/ownership state where present; Time/StepIndex; impacts/joint stops; effect cooldown/snapshot; motion path; motor/transfer/source totals/use/error/residuals/angular travel. Full snapshot equality after failure. | Core; P0-014/020 |
+| M12 PhysicsWorld contact pairs, PersistentContactPair, BodyBoundsTree/CompoundBoundsTree | Contact warm state, pair key/collider revisions, constraint references, spatial node bounds and traversal scratch. Canonical physics order independent of hash/tree traversal. Either restore owned cache values or deterministically rebuild before any observable query; scratch has no external alias. Rebuild must preserve canonical authority and counted allocations; it is not an alternate solver. | Core; P0-007/014/019 |
+| M13 SimulationTimers | Declarations/index map, timer phase/start/deadline/elapsed output/count and captured tick/boundary; arrays remain shared batched owner. | Core; P0-019/020 |
+| M14 SimulationOscillators/SimulationCounters/SimulationLatches/SimulationState<T> | Oscillator power/tick/pulse sequence, counter totals, latch pending Set/Reset requests/boundary, typed input cells and checkpoint values. Requests queued during a tick are not committed outcomes. | Core; P0-019/020 |
+| M15 MachineWorld scene timer/oscillator/counter/latch/binary/scalar maps; ElectricalRuntime/Network | Stable capability→internal slot maps, declarations, source bindings, input state/power sets, network reductions and routing state; no captured MachinePart crosses worker boundary. Compilation and failed generation install preserve prior maps. | Core/Compiler; P0-008/019/020 |
+| M16 MachinePart.BaseRuntimeCheckpoint and all RuntimeState overrides | Active, authoritative participation currently coupled to Visible, powered ports plus each functional subclass field/state. Split visual restoration out; include internal bodies and newly created participants before first mutation. | Core; P0-014/019/020 and CAT-I children |
+| M17 MachineWorld.AdvanceTick/TickObservablesCheckpoint | Ticks/running/won, Events dictionary, tick impacts, optical paths, LastPhysicsStep; pending physical activation dispatch and domain load lists (_forces/_motors/_elastic/_effort/_damping/_drag/_guide/_transfer/_rotary) at substep boundaries. Either restore scratch cursors or clear/rebuild before retry from unchanged authority. | Core/Host; P0-014/019/020 |
+| M18 SimulationCommandInbox and MachineWorld.Controls | Pending ring contents/head/count, accepted sequence, result head/count/content, dependency state, generation/revision, reserved ordinary/lifecycle slots/bytes and ack watermarks. Transport receipts are separate; tick failure retains pending command and no committed result. | S Host; P0-013/015/016/020 |
+| M19 CommittedPoseBuffer (including Enums/Compliant) | Previous/current/pending arrays, stamp, motion interval writer counts, topology membership, compliant/contact and enum registrations, read lease tokens/counts; stage/discard/publish/remove boundaries. Failed tick leaves last published values/leases unchanged. Retained current local lease is never transferred between contexts. | Producer S and distinct recipient B/A; P0-014/025 |
+| M20 CommittedEventStream; SceneOccurrenceRun; SceneOscillatorFeedback; SceneAcousticRun producer | Ring head/count/staged count, sequence/commit stamp, reliable recipient cursors/reservations, occurrence source maps and all immutable payloads. Rollback restores producer next sequence; recipient ack releases only original committed event. Barrier invalidates old transient delivery, not acknowledged result identities. | S Host producer; P0-014/023/024/020 |
+| M21 Query/transfer/result ledgers required by P0-005 | Original request generation/ID/required revision/kind, first terminal result, partial chunk/digest/offset/seal, cancel state, per-recipient cursor, allocation BufferId/sequence/direction/category/phase and byte/count reservations. These are target ledgers absent from current sync runtime, not source completeness claims. | Each endpoint exclusively; P0-016/020/024 |
+| M22 AnimationBatch.Register/RegisterFollow/RegisterImpulses/RegisterOscillation/Remove/Reset and controls | Slots, versions, active/free arrays and exact order/counts, writer map, samples/count, generation/clocks, playback/visibility/endpoints/rates, impulse capacity/queue/present-once state and oscillation state. Atomic multichannel registration reserves all before changing any. Failure preserves existing bindings. | A Kernel/Host; P0-022/023/024 |
+| M23 SceneAnimationAdapter.Register/Bind*/RemoveAnimation/RemoveTarget/Reset | B target identity→slot map, slot versions/free list, dirty list, property claims, captured transforms/colours/visibility/alpha capability, parent/resource lifetimes and immutable descriptor maps. Remove retires instance immediately in B; failed A removal cannot reactivate it. | Browser presenter; P0-026 |
+| M24 SceneAnimationRun/SceneOccurrenceRun/SceneAcousticMotionRun/SceneAcousticWavefrontRun recipient | Feedback maps/cursors, active impulse/occurrence IDs, pending occurrence queues, wavefront ring allocation/instance descriptor identities, lifetime/Presented status; envelope dedup and semantic ack. Early Presented does not terminate natural propagation; expired unseen retains bounded reservation. | A phase state; B ring resources; P0-023/024/026 |
+| M25 SceneAcousticRun recipient/audio | Player/resource/source maps, playback attempt and uncertain-tail state, admitted event cursor. Audio cannot be physically undone; acknowledgement means admission, never guaranteed audibility. No retry that can duplicate already-attempted audio after crash. | B; P0-026/032 |
+| M26 ScenePoseBatch/ScenePoseMap/CommittedDisplayClock; WorkshopAnimation | B history endpoints, mapped clock intervals/epoch, final transform/property writes; separate UI generation/animations. Restored construction means exact original affine transform/colour/visibility and typed bindings, not merely close pose. | B/A split; P0-025/026 |
+| M27 Workshop.Save/LoadSave/LoadLevel/undo/selection/navigation | Entire browser record listed in lifecycle.md; persisted record replacement and chosen source identity; registration/listener/resource disposal. Save storage failure preserves old bytes. Failed precommit Load preserves current selected puzzle and construction. | B coordinator; P0-020/026 |
+| M28 PerformanceRecorder, web Program/runtime boot, signals/listeners | Per-context diagnostic counters/buffers are diagnostic, not authority; failed attempts stay recorded. Worker/session/listener/canvas resource creation/disposal is counted exactly; no second worker pool during unresolved termination. | Each actual context, B orchestration; P0-019/024/029/032 |
+
+M16's actual current RuntimeState override closure is Bellows, Bell, BeamCombiner, Bumper,
+BallDetector, Cannon, ImpactLever, Trampoline, Clutch, Spring, LightReceiver, OpticalLogic,
+SolarPanel, Laser, Windmill, SoundMeter, WindChimes, Speaker, WoundSpring and Pulley.
+Base state applies to every collision part/internal body, not just these20 overrides.
+P0-004's per-member map is the detailed field inventory; unknown/new fields reopen enrollment
+proof. Pulley cosmetic angle and trampoline mesh patches move to A/B, while physical spring,
+contact/activity and controller state stay Core. Keep every CAT variant sharing these sources.
+
+## State that must not be confused
+
+There is no current solver body free list: _objects is fixed and _objectIndices immutable
+for a world. A future internal compacted pool must restore its free order/versions exactly and
+remain hidden behind stable IDs. AnimationBatch and SceneAnimationAdapter do have explicit free
+arrays/version counters; preserve them in registration rollback. Failed local slot allocation may
+restore its slot version; an attempted external instance ID is still burned, preventing delayed
+traffic alias. Existing committed removal followed by slot reuse never revives the old handle.
+
+Source search over production engine/parts/ui found no System.Random, RandomNumberGenerator,
+GD.Rand*, or RNG state used in authoritative stepping. Therefore current RNG checkpoint set is
+empty, not an omitted requirement. RuntimeSession secure identity generation is external identity,
+not physical randomness. If a named future law introduces RNG, its typed algorithm ID and complete
+state/stream/draw count become owned transaction/replay state before that law can pass; seeded
+reinitialization on rollback is forbidden. Test-only random fixtures are not runtime RNG ownership.
+
+A restoration comparison has three explicit sets:
+AuthorityExact includes all Core state, topology/identity maps, canonical order, pending physical
+work, tick/revision and committed producer state. OwnerResourcesExact includes live participant/
+binding/lease registrations and allocation/free-list ownership, including no leaked failed candidate.
+DiagnosticsAppendOnly retains error/high-water/attempt information and may increase on a failure;
+it must not influence physical replay. Raw unused scratch bytes are not authority, but any retained
+reference/slot/cursor that can affect later behavior belongs to one of the first two sets.
+No epsilon for either exact set. Process death is a separate Indeterminate outcome, not rollback.
+
+All topology/capability changes reserve publication membership and byte size before committing.
+Required output unable to fit means no commit, never a successful mutation followed by silent drop.
+Callbacks/serialization/resource disposal after authority commit are recipient work with their own
+explicit failure result. This inventory does not certify the current MachineWorld participant list.
+
