@@ -1,0 +1,59 @@
+{
+  "workId": "P0-004",
+  "kind": "IndependentFinalPreservationReceipt",
+  "reviewerAgent": "/root/p0_004_review",
+  "reviewerSession": "01a0f7d2-92c9-7e11-9fbf-3ea247ea179c",
+  "implementationAgent": "/root/p0_004",
+  "implementationSession": "01a0f7b9-0ecd-74b2-81ce-361031596a36",
+  "date": "2026-10-02",
+  "snapshot": "docs/verification/P0-004/snapshot-r3.json",
+  "snapshotSha256": "5e6d99943d7f3b81f065fc5d6485c89c63f9acb8bb2e29ef2d2291048723b2ea",
+  "terminalReview": "docs/verification/P0-004/review.md",
+  "reviewEvidenceCommit": "2c826f3378c8368710af562b2b7624cae8162732",
+  "reviewEvidenceParent": "275849a102ff91f3f4984e8fd9ab8bf138df48d1",
+  "reviewPublication": {
+    "remoteCommand": "git ls-remote origin refs/heads/main",
+    "remoteResult": "2c826f3378c8368710af562b2b7624cae8162732 refs/heads/main",
+    "allowedFiles": [
+      "docs/verification/P0-004/reviewer-pre-freeze.md",
+      "docs/verification/P0-004/review-r1.md",
+      "docs/verification/P0-004/reviewer-r1-results.json",
+      "docs/verification/P0-004/review-r2.md",
+      "docs/verification/P0-004/reviewer-r2-results.json",
+      "docs/verification/P0-004/review.md",
+      "docs/verification/P0-004/reviewer-r3-results.json",
+      "docs/verification/P0-004/reviewer-publication.json",
+      "docs/verification/P0-004/reviewer-probes/r1-Program.cs.txt",
+      "docs/verification/P0-004/reviewer-probes/r1-Review.csproj.txt",
+      "docs/verification/P0-004/reviewer-probes/r2-Program.cs.txt",
+      "docs/verification/P0-004/reviewer-probes/r2-Review.csproj.txt"
+    ],
+    "pathCount": 12,
+    "blobMismatches": [],
+    "indexEmpty": true,
+    "commitExitCode": 0,
+    "pushExitCode": 0
+  },
+  "todoPreservation": {
+    "path": "TODO.md",
+    "changedLines": [
+      65,
+      160
+    ],
+    "beforeSha256": "bf868b0951c53f8156e92d88d139a6b57f4ecfdd8645c18ec2c719a1d31c4014",
+    "afterSha256": "4436305d1bf3dd237ea1cc84e7db179d5adf5afe68c30ba7f365e15b6aaa9dd5",
+    "originalReversedSha256": "ce513fdfc6f1cf34578ee323ee4783949ffb34bb7fee0aec3e39c91f0bfdd619",
+    "recipe": "Read current TODO; replace exactly lines 65 and 160 with snapshot-r3.todoReversal.changes[*].after. SHA256 must equal beforeSha256. Apply each captured after-to-before inverse exactly once; SHA256 must equal originalReversedSha256. Count literal work-, execution- and sequence- HTML IDs.",
+    "workAnchors": 3711,
+    "executionAnchors": 847,
+    "totalOrders": 4558,
+    "specificationAnchors": 799,
+    "semanticReview": "Only handoff/status changed: current terminal review/publication links, retained failures, P0-005 next eligible. Native/browser/device/worker/per-part/save and 150-level scope explicitly remain open.",
+    "published": false,
+    "verdict": "Pass"
+  },
+  "impactReuse": "Status-only TODO change cannot alter Ownership source, schema, bindings, frozen contracts or runtime. Earlier independent R3 checks remain applicable; no redundant build/audit needed.",
+  "runtimeQualified": false,
+  "verdict": "Pass",
+  "nextEligible": "P0-005"
+}
