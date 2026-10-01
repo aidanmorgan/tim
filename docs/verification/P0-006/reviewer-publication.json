@@ -1,0 +1,23 @@
+{
+  "workId": "P0-006",
+  "criterion": "A09",
+  "verdict": "Pass",
+  "scope": "Design/tooling publication only",
+  "reviewer": {
+    "agent": "/root/p0_006_review",
+    "session": "01a0f88e-63e6-7fc1-8879-5f1bb7f8fc96"
+  },
+  "snapshot": "snapshot-r2.json",
+  "snapshotSha256": "6d979c318fd06ad68961bfbd420d282124a6df46aa2e3a0dd91ba5d6e9798051",
+  "verification": {
+    "cmd": "python3 - <<'PY'\nimport subprocess,json,pathlib,hashlib\ncommit='90437a5d80aa0570dfe11d5b9e3d8b3e9ea95a4b'; parent='854bbc71dc528c0e083389ffbabc3d5df71423f6'\ngit=lambda *args:subprocess.check_output(['git',*args])\ns=json.load(open('docs/verification/P0-006/snapshot-r2.json'));approved=dict(s['publicationAllowlist']);approved['docs/verification/P0-006/snapshot-r2.json']='6d979c318fd06ad68961bfbd420d282124a6df46aa2e3a0dd91ba5d6e9798051'\nactualParent=git('rev-parse',commit+'^').decode().strip();remote=git('ls-remote','origin','refs/heads/main').decode().split()[0];paths=set(git('diff-tree','--no-commit-id','--name-only','-r',commit).decode().splitlines())\nassert actualParent==parent and remote==commit and paths==set(approved)\nassert all(hashlib.sha256(git('show',commit+':'+p)).hexdigest()==v for p,v in approved.items())\nh=lambda p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()\nassert all(h(p)==v for p,v in s['relevantInputHashes'].items());b=json.load(open('docs/s001-source-baseline.json'));assert all(h(p)==v for p,v in b['sourceEntries']);assert all(h(p)==v for p,v in b['hashes'].items() if 'AppBundle' in p)\nindex=git('diff','--cached','--name-only').decode();assert not index\nprint(json.dumps({'commit':commit,'parent':actualParent,'remoteMain':remote,'paths':len(paths),'allApprovedBlobsMatch':True,'relevantInputs':len(s['relevantInputHashes']),'runtimeInputs':len(b['sourceEntries']),'bundlesUnchanged':True,'index':index,'snapshotSha256':h('docs/verification/P0-006/snapshot-r2.json')}))\nPY",
+    "result": {
+      "chunk_id": "c8f1da",
+      "wall_time_seconds": 1.163990083,
+      "exit_code": 0,
+      "original_token_count": 96,
+      "output": "{\"commit\": \"90437a5d80aa0570dfe11d5b9e3d8b3e9ea95a4b\", \"parent\": \"854bbc71dc528c0e083389ffbabc3d5df71423f6\", \"remoteMain\": \"90437a5d80aa0570dfe11d5b9e3d8b3e9ea95a4b\", \"paths\": 22, \"allApprovedBlobsMatch\": true, \"relevantInputs\": 136, \"runtimeInputs\": 916, \"bundlesUnchanged\": true, \"index\": \"\", \"snapshotSha256\": \"6d979c318fd06ad68961bfbd420d282124a6df46aa2e3a0dd91ba5d6e9798051\"}\n"
+    }
+  },
+  "deployedChecks": "No deployed runtime artifact exists for this Design-only scope. Runtime worker/browser/physical-device gates remain open."
+}
