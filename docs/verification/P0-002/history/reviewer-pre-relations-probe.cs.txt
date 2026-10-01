@@ -1,0 +1,40 @@
+#:property TargetFramework=net10.0
+#:property ImplicitUsings=enable
+#:property Nullable=enable
+#:project /Users/aidan/dev/personal/tim/tools/Coverage/Coverage.csproj
+using CuriousContraptions.Coverage;
+using System.Text.Json;
+var root=new DirectoryInfo("/Users/aidan/dev/personal/tim");
+var sources=RequirementDiscovery.Discover(root);
+var original=CapabilityInputs.Read(root,Path.Combine(root.FullName,"docs/coverage/engine-capabilities.json"));
+var expected=CapabilityInputs.Discover(root,sources);
+var results=new List<object>();
+void Probe(ReviewCase label,Func<CapabilityInventory,CapabilityInventory> mutate)
+{
+ try {
+  var input=JsonSerializer.Deserialize<CapabilityInventory>(JsonSerializer.Serialize(original,CoverageJson.Options),CoverageJson.Options)!;
+  var changed=mutate(input);
+  var result=CapabilityAudit.Analyze(sources,changed,expected,path=>File.ReadAllText(Path.Combine(root.FullName,path.Value)));
+  results.Add(new {label,accepted=true,result});
+ } catch(Exception error) { results.Add(new {label,accepted=false,error=error.GetType().FullName,message=error.Message}); }
+}
+Probe(ReviewCase.Control,x=>x);
+Probe(ReviewCase.DeleteDeclaredDependencies,x=>x with {Capabilities=x.Capabilities.Select(c=>c with {Dependencies=[]}).ToArray()});
+Probe(ReviewCase.DeleteResearchChildren,x=>x with {Bindings=x.Bindings.Select(b=>b.Source.Origin==RequirementOrigin.Research?b with {RequiredChildren=[]}:b).ToArray()});
+Probe(ReviewCase.DeleteCurrentPartArtifacts,x=>x with {Consumers=x.Consumers.Select(c=>c.Kind==ConsumerKind.CurrentPart?c with {Artifacts=[]}:c).ToArray()});
+Probe(ReviewCase.DowngradeCatalogueConsumerAndDeleteSymbols,x=>x with {Consumers=x.Consumers.Select(c=>c.Source.Origin==RequirementOrigin.Catalogue?c with {Kind=ConsumerKind.FutureDeclaration,Symbols=[]}:c).ToArray()});
+Probe(ReviewCase.ReclassifyEngineObligations,x=>x with {Bindings=x.Bindings.Select(b=>b.Kind==ObligationKind.Engine?b with {Kind=ObligationKind.ProductWorkflow}:b).ToArray()});
+Probe(ReviewCase.DeletePartialCapabilitySymbols,x=>x with {Capabilities=x.Capabilities.Select(c=>c.Availability==CapabilityAvailability.Partial?c with {CurrentSymbols=[]}:c).ToArray()});
+Probe(ReviewCase.ReplaceCatalogueScriptWithUnrelatedValidSymbol,x=>x with {Consumers=x.Consumers.Select(c=>c.Source.Origin==RequirementOrigin.Catalogue?c with {Symbols=[x.Capabilities.Single(k=>k.Capability==EngineCapability.RigidBodyDynamics).CurrentSymbols[0]]}:c).ToArray()});
+Probe(ReviewCase.AddSecondConsumerForSameSource,x=>{
+ var source=x.Consumers.First(c=>c.Kind==ConsumerKind.CurrentPart);
+ var duplicate=source with {Id=new ConsumerId(new RequirementId("review/duplicate-consumer"))};
+ return x with {Consumers=[..x.Consumers,duplicate],Bindings=x.Bindings.Select(b=>b.Source==source.Source?b with {Consumers=[..b.Consumers,duplicate.Id]}:b).ToArray()};
+});
+Probe(ReviewCase.AddUnrequiredCatalogueChild,x=>{
+ var parent=new SourceKey(RequirementOrigin.Catalogue,new RequirementId("ball"));
+ var child=new SourceKey(RequirementOrigin.Catalogue,new RequirementId("tennis"));
+ return x with {Bindings=x.Bindings.Select(b=>b.Source==parent?b with {RequiredChildren=[..b.RequiredChildren,child]}:b).ToArray()};
+});
+Console.WriteLine(JsonSerializer.Serialize(results,new JsonSerializerOptions {WriteIndented=true}));
+enum ReviewCase {Control,DeleteDeclaredDependencies,DeleteResearchChildren,DeleteCurrentPartArtifacts,DowngradeCatalogueConsumerAndDeleteSymbols,ReclassifyEngineObligations,DeletePartialCapabilitySymbols,ReplaceCatalogueScriptWithUnrelatedValidSymbol,AddSecondConsumerForSameSource,AddUnrequiredCatalogueChild}
