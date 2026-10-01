@@ -101,3 +101,9 @@ Reviewer independently ran:
 - Anvil reviewer-record check returned0warnings, local backend, daemonStatus not-wired; this is not repository-wide compliance.
 
 A11 is Pass. No newly deployed runtime is part of this amendment, and no production-origin runtime proof was replaced by a receipt. P0-002 may now become eligible under the register. Updating active deliverable status remains implementation work requiring the paired workflow; this reviewer-only terminal record is the independent gate, not an edit to the frozen contract or TODO.
+
+## Local TODO receipt reconciliation
+
+Independent read-only review of implementer status/handoff delta: Pass. Current TODO SHA-256 `31a963fbb0091ae4e5d08bcbc0705259ab47373d15c4cb72ee42abe5c1f6a469`. Reversing only the two receipt/status text replacements in memory exactly reproduces approved prior SHA-256 `ce7624edd6fc1219e30a6ae67226e59b58a6d923714beb5dffdb94f78ef087eb`. Independently counted4558numbered anchored rows, oneP0-001anchor and no undefined line. Acceptance criteria, historical failures and scope are byte-preserved. The handoff and P0-001 row correctly cite the terminal Baseline Pass and887a157 receipt, while retaining runtime/qualification failures. P0-002 readiness is now consistent with the terminal gate.
+
+The reviewed TODO delta stays local and unstaged: HEAD lacks the externally rewritten register/handoff contexts, so publishing this delta alone is not possible without publishing unrelated external work. This is a receipt/status reconciliation, not a new runtime deliverable. Review-only evidence through the preceding terminal verdict was published as `7350fc34f4fd8d66dbe26e9b1408b489c693d824`; reviewer independently verified remote main matched that commit and its only added path was this review record.
