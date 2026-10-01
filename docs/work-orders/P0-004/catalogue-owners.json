@@ -1,0 +1,1007 @@
+[
+  {
+    "Source": {
+      "Value": "parts/BallPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "ball",
+        "Implementation": {
+          "Value": "CAT-001-I"
+        },
+        "Proof": {
+          "Value": "CAT-001-V"
+        }
+      },
+      {
+        "Catalogue": "balloon",
+        "Implementation": {
+          "Value": "CAT-003-I"
+        },
+        "Proof": {
+          "Value": "CAT-003-V"
+        }
+      },
+      {
+        "Catalogue": "bowling",
+        "Implementation": {
+          "Value": "CAT-014-I"
+        },
+        "Proof": {
+          "Value": "CAT-014-V"
+        }
+      },
+      {
+        "Catalogue": "tennis",
+        "Implementation": {
+          "Value": "CAT-064-I"
+        },
+        "Proof": {
+          "Value": "CAT-064-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BallDetectorPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "ball_detector",
+        "Implementation": {
+          "Value": "CAT-002-I"
+        },
+        "Proof": {
+          "Value": "CAT-002-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BasketPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "basket",
+        "Implementation": {
+          "Value": "CAT-004-I"
+        },
+        "Proof": {
+          "Value": "CAT-004-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BatteryPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "battery",
+        "Implementation": {
+          "Value": "CAT-005-I"
+        },
+        "Proof": {
+          "Value": "CAT-005-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BeamCombinerPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "beam_combiner",
+        "Implementation": {
+          "Value": "CAT-006-I"
+        },
+        "Proof": {
+          "Value": "CAT-006-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BeamShutterPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "beam_shutter",
+        "Implementation": {
+          "Value": "CAT-007-I"
+        },
+        "Proof": {
+          "Value": "CAT-007-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BeamSplitterPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "beam_splitter",
+        "Implementation": {
+          "Value": "CAT-008-I"
+        },
+        "Proof": {
+          "Value": "CAT-008-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BellPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "bell",
+        "Implementation": {
+          "Value": "CAT-009-I"
+        },
+        "Proof": {
+          "Value": "CAT-009-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BellowsPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "bellows",
+        "Implementation": {
+          "Value": "CAT-010-I"
+        },
+        "Proof": {
+          "Value": "CAT-010-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/ColourFilterPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "blue_filter",
+        "Implementation": {
+          "Value": "CAT-011-I"
+        },
+        "Proof": {
+          "Value": "CAT-011-V"
+        }
+      },
+      {
+        "Catalogue": "green_filter",
+        "Implementation": {
+          "Value": "CAT-031-I"
+        },
+        "Proof": {
+          "Value": "CAT-031-V"
+        }
+      },
+      {
+        "Catalogue": "red_filter",
+        "Implementation": {
+          "Value": "CAT-055-I"
+        },
+        "Proof": {
+          "Value": "CAT-055-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/LightReceiverPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "blue_receiver",
+        "Implementation": {
+          "Value": "CAT-012-I"
+        },
+        "Proof": {
+          "Value": "CAT-012-V"
+        }
+      },
+      {
+        "Catalogue": "cyan_receiver",
+        "Implementation": {
+          "Value": "CAT-021-I"
+        },
+        "Proof": {
+          "Value": "CAT-021-V"
+        }
+      },
+      {
+        "Catalogue": "green_receiver",
+        "Implementation": {
+          "Value": "CAT-032-I"
+        },
+        "Proof": {
+          "Value": "CAT-032-V"
+        }
+      },
+      {
+        "Catalogue": "light_receiver",
+        "Implementation": {
+          "Value": "CAT-038-I"
+        },
+        "Proof": {
+          "Value": "CAT-038-V"
+        }
+      },
+      {
+        "Catalogue": "magenta_receiver",
+        "Implementation": {
+          "Value": "CAT-040-I"
+        },
+        "Proof": {
+          "Value": "CAT-040-V"
+        }
+      },
+      {
+        "Catalogue": "red_receiver",
+        "Implementation": {
+          "Value": "CAT-056-I"
+        },
+        "Proof": {
+          "Value": "CAT-056-V"
+        }
+      },
+      {
+        "Catalogue": "white_receiver",
+        "Implementation": {
+          "Value": "CAT-068-I"
+        },
+        "Proof": {
+          "Value": "CAT-068-V"
+        }
+      },
+      {
+        "Catalogue": "yellow_receiver",
+        "Implementation": {
+          "Value": "CAT-072-I"
+        },
+        "Proof": {
+          "Value": "CAT-072-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/ElectricalLogicPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "both_gate",
+        "Implementation": {
+          "Value": "CAT-013-I"
+        },
+        "Proof": {
+          "Value": "CAT-013-V"
+        }
+      },
+      {
+        "Catalogue": "electrical_nand",
+        "Implementation": {
+          "Value": "CAT-024-I"
+        },
+        "Proof": {
+          "Value": "CAT-024-V"
+        }
+      },
+      {
+        "Catalogue": "electrical_nor",
+        "Implementation": {
+          "Value": "CAT-025-I"
+        },
+        "Proof": {
+          "Value": "CAT-025-V"
+        }
+      },
+      {
+        "Catalogue": "electrical_or",
+        "Implementation": {
+          "Value": "CAT-026-I"
+        },
+        "Proof": {
+          "Value": "CAT-026-V"
+        }
+      },
+      {
+        "Catalogue": "electrical_xor",
+        "Implementation": {
+          "Value": "CAT-027-I"
+        },
+        "Proof": {
+          "Value": "CAT-027-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/BumperPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "bumper",
+        "Implementation": {
+          "Value": "CAT-015-I"
+        },
+        "Proof": {
+          "Value": "CAT-015-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/CannonPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "cannon",
+        "Implementation": {
+          "Value": "CAT-016-I"
+        },
+        "Proof": {
+          "Value": "CAT-016-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/ClockPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "clock",
+        "Implementation": {
+          "Value": "CAT-017-I"
+        },
+        "Proof": {
+          "Value": "CAT-017-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/ClutchPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "clutch",
+        "Implementation": {
+          "Value": "CAT-018-I"
+        },
+        "Proof": {
+          "Value": "CAT-018-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/ConveyorPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "conveyor",
+        "Implementation": {
+          "Value": "CAT-019-I"
+        },
+        "Proof": {
+          "Value": "CAT-019-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/CounterPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "counter",
+        "Implementation": {
+          "Value": "CAT-020-I"
+        },
+        "Proof": {
+          "Value": "CAT-020-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/DelayPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "delay",
+        "Implementation": {
+          "Value": "CAT-022-I"
+        },
+        "Proof": {
+          "Value": "CAT-022-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/DominoPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "domino",
+        "Implementation": {
+          "Value": "CAT-023-I"
+        },
+        "Proof": {
+          "Value": "CAT-023-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/FanPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "fan",
+        "Implementation": {
+          "Value": "CAT-028-I"
+        },
+        "Proof": {
+          "Value": "CAT-028-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/FlashlightPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "flashlight",
+        "Implementation": {
+          "Value": "CAT-029-I"
+        },
+        "Proof": {
+          "Value": "CAT-029-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/FunnelPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "funnel",
+        "Implementation": {
+          "Value": "CAT-030-I"
+        },
+        "Proof": {
+          "Value": "CAT-030-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/HoldTimerPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "hold_timer",
+        "Implementation": {
+          "Value": "CAT-033-I"
+        },
+        "Proof": {
+          "Value": "CAT-033-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/ImpactLeverPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "impact_lever",
+        "Implementation": {
+          "Value": "CAT-034-I"
+        },
+        "Proof": {
+          "Value": "CAT-034-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/LampPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "lamp",
+        "Implementation": {
+          "Value": "CAT-035-I"
+        },
+        "Proof": {
+          "Value": "CAT-035-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/LaserPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "laser",
+        "Implementation": {
+          "Value": "CAT-036-I"
+        },
+        "Proof": {
+          "Value": "CAT-036-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/LatchPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "latch",
+        "Implementation": {
+          "Value": "CAT-037-I"
+        },
+        "Proof": {
+          "Value": "CAT-037-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/LinearPusherPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "linear_pusher",
+        "Implementation": {
+          "Value": "CAT-039-I"
+        },
+        "Proof": {
+          "Value": "CAT-039-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/MirrorPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "mirror",
+        "Implementation": {
+          "Value": "CAT-041-I"
+        },
+        "Proof": {
+          "Value": "CAT-041-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/MotorPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "motor",
+        "Implementation": {
+          "Value": "CAT-042-I"
+        },
+        "Proof": {
+          "Value": "CAT-042-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/OpticalLogicPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "optical_and",
+        "Implementation": {
+          "Value": "CAT-043-I"
+        },
+        "Proof": {
+          "Value": "CAT-043-V"
+        }
+      },
+      {
+        "Catalogue": "optical_nand",
+        "Implementation": {
+          "Value": "CAT-044-I"
+        },
+        "Proof": {
+          "Value": "CAT-044-V"
+        }
+      },
+      {
+        "Catalogue": "optical_nor",
+        "Implementation": {
+          "Value": "CAT-045-I"
+        },
+        "Proof": {
+          "Value": "CAT-045-V"
+        }
+      },
+      {
+        "Catalogue": "optical_or",
+        "Implementation": {
+          "Value": "CAT-046-I"
+        },
+        "Proof": {
+          "Value": "CAT-046-V"
+        }
+      },
+      {
+        "Catalogue": "optical_xor",
+        "Implementation": {
+          "Value": "CAT-047-I"
+        },
+        "Proof": {
+          "Value": "CAT-047-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/PipePart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "pipe",
+        "Implementation": {
+          "Value": "CAT-048-I"
+        },
+        "Proof": {
+          "Value": "CAT-048-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/PipeBendPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "pipe_bend_45",
+        "Implementation": {
+          "Value": "CAT-049-I"
+        },
+        "Proof": {
+          "Value": "CAT-049-V"
+        }
+      },
+      {
+        "Catalogue": "pipe_bend_90",
+        "Implementation": {
+          "Value": "CAT-050-I"
+        },
+        "Proof": {
+          "Value": "CAT-050-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/PoweredGatePart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "powered_gate",
+        "Implementation": {
+          "Value": "CAT-051-I"
+        },
+        "Proof": {
+          "Value": "CAT-051-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/PressurePlatePart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "pressure_plate",
+        "Implementation": {
+          "Value": "CAT-052-I"
+        },
+        "Proof": {
+          "Value": "CAT-052-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/PulleyPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "pulley",
+        "Implementation": {
+          "Value": "CAT-053-I"
+        },
+        "Proof": {
+          "Value": "CAT-053-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/RampPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "ramp",
+        "Implementation": {
+          "Value": "CAT-054-I"
+        },
+        "Proof": {
+          "Value": "CAT-054-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/ReverseTransmissionPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "reverse_transmission",
+        "Implementation": {
+          "Value": "CAT-057-I"
+        },
+        "Proof": {
+          "Value": "CAT-057-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/RopeAnchorPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "rope_anchor",
+        "Implementation": {
+          "Value": "CAT-058-I"
+        },
+        "Proof": {
+          "Value": "CAT-058-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/SolarPanelPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "solar_panel",
+        "Implementation": {
+          "Value": "CAT-059-I"
+        },
+        "Proof": {
+          "Value": "CAT-059-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/SoundMeterPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "sound_meter",
+        "Implementation": {
+          "Value": "CAT-060-I"
+        },
+        "Proof": {
+          "Value": "CAT-060-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/SpeakerPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "speaker",
+        "Implementation": {
+          "Value": "CAT-061-I"
+        },
+        "Proof": {
+          "Value": "CAT-061-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/SpringPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "spring",
+        "Implementation": {
+          "Value": "CAT-062-I"
+        },
+        "Proof": {
+          "Value": "CAT-062-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/SwitchPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "switch",
+        "Implementation": {
+          "Value": "CAT-063-I"
+        },
+        "Proof": {
+          "Value": "CAT-063-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/TrampolinePart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "trampoline",
+        "Implementation": {
+          "Value": "CAT-065-I"
+        },
+        "Proof": {
+          "Value": "CAT-065-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/WallPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "wall",
+        "Implementation": {
+          "Value": "CAT-066-I"
+        },
+        "Proof": {
+          "Value": "CAT-066-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/WeightPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "weight",
+        "Implementation": {
+          "Value": "CAT-067-I"
+        },
+        "Proof": {
+          "Value": "CAT-067-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/WindChimesPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "wind_chimes",
+        "Implementation": {
+          "Value": "CAT-069-I"
+        },
+        "Proof": {
+          "Value": "CAT-069-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/WindmillPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "windmill",
+        "Implementation": {
+          "Value": "CAT-070-I"
+        },
+        "Proof": {
+          "Value": "CAT-070-V"
+        }
+      }
+    ]
+  },
+  {
+    "Source": {
+      "Value": "parts/WoundSpringPart.cs"
+    },
+    "Variants": [
+      {
+        "Catalogue": "wound_spring",
+        "Implementation": {
+          "Value": "CAT-071-I"
+        },
+        "Proof": {
+          "Value": "CAT-071-V"
+        }
+      }
+    ]
+  }
+]

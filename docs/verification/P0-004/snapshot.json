@@ -1,0 +1,131 @@
+{
+  "workId": "P0-004",
+  "revision": "r1",
+  "head": "eeeb932734ccd9034020592f0da7a87b619cbe3f",
+  "implementation": {
+    "agent": "/root/p0_004",
+    "session": "01a0f7b9-0ecd-74b2-81ce-361031596a36"
+  },
+  "reviewer": {
+    "agent": "/root/p0_004_review",
+    "session": "01a0f7d2-92c9-7e11-9fbf-3ea247ea179c"
+  },
+  "scopedDiffSha256": "1da8fc8b8035db5b80991c16c999032845d85dddeb7325c07d1b9d54b686e586",
+  "scopedDiffMethod": "Sorted publicationAllowlist: tracked git diff HEAD; untracked git diff --no-index /dev/null; concatenate raw bytes. Snapshot itself excluded.",
+  "publicationAllowlist": {
+    "docs/verification/P0-004/commands.json": "4b00a74d45199db8d0dbf931aaed05ab57c18640c8458ff19d13f16c601bf7da",
+    "docs/verification/P0-004/compiler-context-1.json": "9b6f3076b3f4db91444a17829d0bb8c10ab2db768864b195882dc565f7a86feb",
+    "docs/verification/P0-004/compiler-context-2.json": "408ae6ab6e9eb44316941632b64ecc78c9b73be97906aaa2809d14550c670795",
+    "docs/verification/P0-004/compiler-context-3.json": "ac795a51be814ca38a50c1c0740584e481080138825080a91b55365bd75f0c64",
+    "docs/verification/P0-004/compiler-context-4.json": "1e803fd3a807a051c2617d2d53c0b150ea1eb9875446ca2034587cefc1ce6382",
+    "docs/verification/P0-004/compiler-references.json": "9f1b0507963de6d3626bd70d70ef68dbb37c70ac411e020de4aca7b4b58c3fd5",
+    "docs/verification/P0-004/implementation.md": "e71268ce495fa8a7a1e7839de6a220b04be005a05ac1134714d2b2d29141763d",
+    "docs/verification/P0-004/initial-build-failure.log": "0e1124ca035d1e84462150be31baa7265a41f8dd385a4666c606a77380e08de6",
+    "docs/work-orders/P0-004/analysis-bounds.md": "e1029495ac1a8301435249badd5c488b03e909bd4b7a4a08db4884878d0e7230",
+    "docs/work-orders/P0-004/assemblies.md": "8bf770fe419283576e82de11fdc6d7dd743516fa2725de4cf224e45d59859b14",
+    "docs/work-orders/P0-004/catalogue-owners.json": "ef48e49543ed72a9b2bacd92fdddbcc0f3fdf08c58e2ae0b27eb6a126a7c7c8a",
+    "docs/work-orders/P0-004/contract.md": "3ea52c8cc35eab06b85e7a5bef041b31f6514648c921bf6c935a82893be47431",
+    "docs/work-orders/P0-004/ownership/index.json": "f026d6f4d8cbe1fce4361e21759edbb9855a652b27dee6994e455ec5f8aae100",
+    "docs/work-orders/P0-004/ownership/part-001.json": "00e81e430c362b8074f90009e67d771a9b3e8a306e117c339841abcb46092b82",
+    "docs/work-orders/P0-004/ownership/part-002.json": "ce0647374a4472ed70db5f541d040f7c47340bd042c62584f004fb269631e19f",
+    "docs/work-orders/P0-004/ownership/part-003.json": "b0574d6aafa46a92a342064386c799fe84ca2a8dc2bd0fe10a9908b352360a93",
+    "docs/work-orders/P0-004/ownership/part-004.json": "40b3334c7a88162ebe05479841a6e85dd27cb2b35b28d9c110931a3faac64a8d",
+    "docs/work-orders/P0-004/ownership/part-005.json": "6ceed138550b028ea0bc2cb6428793d70df56a2f7f10618c13fc2b343b7f7c5d",
+    "docs/work-orders/P0-004/ownership/part-006.json": "c137e8a83a0dcb8fb8e30518e4c8d872c8f5998939fef5afb519e905467ab8dc",
+    "docs/work-orders/P0-004/ownership/part-007.json": "755fd73a46ab20e1e63e4e61fedae0bedaea823fd81ae5f4ad946864f908ce76",
+    "docs/work-orders/P0-004/ownership/part-008.json": "b144238fab32482a30eca06bfebe5f5fa5ba3de284ed5a238418c77535bd686e",
+    "docs/work-orders/P0-004/ownership/part-009.json": "d0f8bace1cef86754efd6f3781e845ccc9dfe4686ba2c42a8e7e4fae181c6e58",
+    "docs/work-orders/P0-004/ownership/part-010.json": "93c700b4b8cd52cd43bc12c2acfdfe35254db2fa75b7eb2bd876ad6ea236da07",
+    "docs/work-orders/P0-004/ownership/part-011.json": "fc3e367b94c032218f8b6c5b032bdad81331e9fda8407f5f7a5d28d5edbd37f8",
+    "docs/work-orders/P0-004/ownership/part-012.json": "367e25b717a2ffa5c6ff06fc7702e26057f8c5927f37723400edfa2167f02adc",
+    "docs/work-orders/P0-004/ownership/part-013.json": "c77f3a200fd81fa7b2df43bea78c4167f49547efffa8632071398d39a2c92826",
+    "docs/work-orders/P0-004/ownership/part-014.json": "57f29d60ac68eb22221635c8d1a28ba37913699718930bf0b19d84e42dfbe028",
+    "docs/work-orders/P0-004/ownership/part-015.json": "c8ac341342e0781c91d24f3d4f07db11f23bcc678fb43a169a2a9ee9b80fe065",
+    "docs/work-orders/P0-004/ownership/part-016.json": "93ce4927e8d6cd0f0e8e3b32c68007065966558e4c5764df01e336b9b2ad7001",
+    "docs/work-orders/P0-004/ownership/part-017.json": "ad600de6b4e88e7f58f89df2e7faa440ea7536b30c5a4897c93885a53cbdcaba",
+    "docs/work-orders/P0-004/ownership/part-018.json": "7895f33b8f525b2b85371129f68a0f5977a6d34c718935f63a63736b7d9da074",
+    "docs/work-orders/P0-004/ownership/part-019.json": "37029df03ff201d81baf266b9aa1fb4cca937cc90c91b76e23cd66e05ed7cb73",
+    "docs/work-orders/P0-004/ownership/part-020.json": "10eebeb5f01ff90e9c93583dafaef8875b3f38d7c044c3039a8dd9acedfc91df",
+    "docs/work-orders/P0-004/ownership/part-021.json": "f6343e62ca39b1e78088a37bc5fda8dfbaf580df6377f40fef1253022109db3b",
+    "docs/work-orders/P0-004/ownership/part-022.json": "06dc5d389c70e257274c1f6b7977c511f2a06ca1503caed0e91c5d0e2b94d8fe",
+    "tools/Ownership/Ownership.csproj": "95dfa8710de7af913992a82b8d84005991cf70272037c570b99808b8b3ea223c",
+    "tools/Ownership/OwnershipAudit.cs": "0f9d45f798eda9b07dfb74e188d125868c5c45d271cbb27b17930d6847ee8cd8",
+    "tools/Ownership/OwnershipModel.cs": "5b33d4b9e0fbd087ff8425362f5ac9707d0c920f212bd630cc9afe163228914d",
+    "tools/Ownership/OwnershipOracles.cs": "7959c2e9617685a31b50b8cedd88d9625fe8a356a76bf9b343aff09463d6e481",
+    "tools/Ownership/OwnershipPolicy.cs": "91ea3815414b4537a6cefff60d408eebdc71f7c549b464be720a0371f8e8b670",
+    "tools/Ownership/Program.cs": "44ecc4e1193a58e936648b40a4eda5c6deb9c1564ca73b8b4f571c639d1ac413",
+    "tools/Ownership/README.md": "a0ad0a5fcd92c2f1136dd19ca7b559119d6829a6079e1c065e39eead5fdebfcc",
+    "tools/Ownership/SourceInventory.cs": "11b0e1cd60864a6bf6d257b325d79f6e4488d86920ba6aa1cb2ef855d59f2ec5"
+  },
+  "relevantInputReferences": {
+    "AGENTS.md": "4facb4186397f4e7738746e9511130ae605daed425248770450521a2dfc2ffee",
+    "TODO.md": "6392a4d9f21f41354d6facab73af6beee497db1e2d7daf37f52a00f3b7885124",
+    "global.json": "a7677f93f4c9367ccee574dc14240116191a317fc9d3b2616806c7c5645a75fa",
+    "Directory.Build.props": "549d2120e64f3e0f1c1af86832759a50f082ea82d4a7254cb5cc780d4f387fa7",
+    "Directory.Build.targets": "ce9e471a414fd8ca236d709ccf79333b1e1af8cb735b8a1947c9c1c12d69c263",
+    "CuriousContraptions.csproj": "bdcd6f1de8e038aa92ea7ef702add55b60f12c3c6a6dd1d9dab3c647615c8ffd",
+    "CuriousContraptions.tests/CuriousContraptions.tests.csproj": "53864272540d0aba08c0c9243fdff4c64b85f632239ce4b27efc502e7ac4b419",
+    "export_presets.cfg": "4e509d40237e590e68103b1fcb7b9070f71fa863b1e8ebca9dbb7ce1d24308d2",
+    "project.godot": "1a10a78e962c33ff2eae3e575b5c03561c3cc06402f0a73f340080772d7e5ed6",
+    "docs/browser-physics-performance.md": "225c95dc77536d677a49064de8e744191dad9b6b3ce0c830b69f4cd5c6c850c3",
+    "docs/simulation-presentation-bridge.md": "8108b3199fee87a0ea893318393423bd0a4da72c3f6f939ab9e155116cbdc708",
+    "docs/collision-architecture-plan.md": "44faf48ca05a22cf1abbd902460531123ee281a9d794b38b94ff364894ae7f33",
+    "docs/batched-animation-ownership.md": "e6341054d46cc83b7a1721341e1c839df99236cd528ec2f368b75855aead2645",
+    "docs/scene-animation-adapter.md": "562c4d525687ebb7ceb5ceb01a43df4954e59cedfdd190adc368f2edb7c379b0",
+    "docs/physics-mutation-boundary.md": "392d26154423265982a51283d97177abc27b92fdad34dda9dfec7e4ff91e2453",
+    "docs/verification/P0-002/reuse-state.md": "22077ec1129b29dd1ba779e002a3db6a5b5bbe2575860d35247daf02bb304229",
+    "docs/verification/P0-002/review.md": "c970cca5ea2efd46174f2a6c7190c364093c2fc38e4e51bd64734078ddce44f6",
+    "docs/verification/P0-003/review.md": "d2694cb69971a7801f07a397d1722510c783533e3b20eabc00b0e8011f40fb39",
+    "docs/verification/P0-003/snapshot-r2.json": "cd0c4d0e47d79dad9c4dff81d4f056a2213d6ee337dc36a0d9d9d1df88983465",
+    "docs/s001-source-baseline.json": "ff75e5c02f6e9b63601dc163cf5b58bb994255fc535a49b6f2b118795af2250d",
+    "docs/coverage/engine-capabilities.json": "6692ba6dc58012a765969dd3d826d352d7a77cda718498921f4aceb01843bc64",
+    "docs/coverage/source-inventory.json": "ea1a856e24cc85e576da4019ededca59fb1812953389bc45e5266ad76adcb6e4",
+    "docs/coverage/catalogue-elements.json": "88cf9d6db21c889778b295a07353ee3ad0d17762c43a9a7ab2689a5cecd382f2",
+    "tools/Coverage/bin/Release/net10.0/Coverage.dll": "8f66dbcf16aa1b4559d87dafdc140a0779c1020f2454c4790fab2cd9bd9d53ce"
+  },
+  "runtimeBaseline": {
+    "reference": "docs/s001-source-baseline.json",
+    "sourceEntries": 916,
+    "currentMatches": 916
+  },
+  "ownership": {
+    "index": "docs/work-orders/P0-004/ownership/index.json",
+    "members": 4386,
+    "sources": 1808,
+    "memberUses": 332228,
+    "calls": 333066,
+    "conservativeContextCallers": 18551,
+    "bindingErrors": 0,
+    "runtimeQualified": false,
+    "semanticApproval": "Pending independent review"
+  },
+  "localOnly": {
+    "TODO.md": "6392a4d9f21f41354d6facab73af6beee497db1e2d7daf37f52a00f3b7885124",
+    "AGENTS.md": "4facb4186397f4e7738746e9511130ae605daed425248770450521a2dfc2ffee"
+  },
+  "todoReversal": {
+    "changes": [
+      {
+        "before": "**Current handoff — 1 October 2026:** Order 3 / [P0-003 measurement freeze](docs/work-orders/P0-003/contract.md) has [terminal independent Design/tooling Pass](docs/verification/P0-003/review.md): deliverable `d0a70e6931a1f74c07b1cdc0ab01499efc9f41c0`, published review `a284bd933c2c764f3d824abe7b35c547df018763`. Independent verification passed 35 tests, 33 adversarial cases, tooling/main-caller builds and scoped preservation/audits. P0-004 is next eligible. Normal clean-checkout tooling/integrated reproduction still requires unpublished linked-source prerequisites; reconstructed evidence is not ordinary checkout proof. Runtime native 66/76 retains ten failures; physical/combined Chrome p95 83.6/83.7 ms and compliant production p95 150.1 ms fail, and unexpected inputs remain unattributed. Runtime workers, actual presentation/CPU/GPU/memory observability, physical-device budgets, per-part/mode Run/Reset/save proof and all 150 campaign levels remain open.",
+        "after": "**Current handoff — 1 October 2026:** Order 4 / [P0-004 ownership freeze](docs/work-orders/P0-004/contract.md) is implemented for independent Design review; publication and terminal verdict remain pending. The owner recorded 4,386 assignments, zero compiler-binding errors, a passing production ownership audit, 21 negative oracles and three passing current Coverage audits; these are scoped tooling results, not semantic approval or runtime qualification. P0-003 retains its [published terminal Pass](docs/verification/P0-003/review.md). Normal clean-checkout integrated reproduction still requires unpublished runtime prerequisites. Native 66/76 retains ten failures; physical/combined Chrome p95 83.6/83.7 ms and compliant production p95 150.1 ms fail, and unexpected inputs remain unattributed. Worker contexts, actual presentation/CPU/GPU/memory measures, physical-device budgets, every part/mode Run/Reset/save proof and all 150 campaign levels remain open."
+      },
+      {
+        "before": "| 4 | <a id=\"work-p0-004\"></a>**P0-004 — Freeze assemblies and exclusive state/property ownership** | [P0-003](#work-p0-003) | [P0-002](#work-p0-002) | Name portable geometry/core, construction compiler, protocol, simulation host, animation kernel/host and Godot presenter boundaries; every mutable field/property has one owner and all callers are mapped. Preserve one solver owner per authoritative quantity, typed stable identity/generation and value-only bindings; storage slots/order are internal. Map reuse/extraction of existing timer/animation/spatial/transaction owners before replacing any path. | Independent contract/oracle review; zero unresolved required choices, missing units, unnamed children or unknown prerequisites; negative schema fixture rejects. | [Design](#stage-gates) / Open | Fresh agent **P0-004**; work-order + criterion artifacts |",
+        "after": "| 4 | <a id=\"work-p0-004\"></a>**P0-004 — Freeze assemblies and exclusive state/property ownership** | [P0-003](#work-p0-003) | [P0-002](#work-p0-002) | Name portable geometry/core, construction compiler, protocol, simulation host, animation kernel/host and Godot presenter boundaries; every mutable field/property has one owner and all callers are mapped. Preserve one solver owner per authoritative quantity, typed stable identity/generation and value-only bindings; storage slots/order are internal. Map reuse/extraction of existing timer/animation/spatial/transaction owners before replacing any path. | Independent contract/oracle review; zero unresolved required choices, missing units, unnamed children or unknown prerequisites; negative schema fixture rejects. | [Design](#stage-gates) / Independent review pending; unpublished | Dedicated owner + distinct reviewer; [contract](docs/work-orders/P0-004/contract.md), [owner evidence](docs/verification/P0-004/implementation.md); runtime/performance unqualified |"
+      }
+    ],
+    "reversedSha256": "ce513fdfc6f1cf34578ee323ee4783949ffb34bb7fee0aec3e39c91f0bfdd619",
+    "orders": 4558,
+    "specifications": 799,
+    "originalExecutionAnchors": 847
+  },
+  "evidence": "docs/verification/P0-004/commands.json",
+  "publicationDependent": [
+    "Approved implementation commit has exact allowlist plus this canonical snapshot",
+    "Remote main identity and parent match",
+    "Every approved Git blob matches",
+    "Independent terminal review; no runtime deployment behavior is claimed"
+  ],
+  "sdkVersion": "10.0.401",
+  "cleanCheckoutIntegrated": "Incomplete: unpublished runtime prerequisites remain; no archived fallback is supported"
+}

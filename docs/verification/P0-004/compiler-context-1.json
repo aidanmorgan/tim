@@ -1,0 +1,3253 @@
+{
+  "Kind": 1,
+  "Symbols": [
+    "GODOT",
+    "GODOT_OSX",
+    "GODOT_MACOS",
+    "GODOT_PC",
+    "GODOT4",
+    "GODOT4_7",
+    "GODOT4_7_2",
+    "GODOT4_OR_GREATER",
+    "GODOT4_0_OR_GREATER",
+    "GODOT4_1_OR_GREATER",
+    "GODOT4_2_OR_GREATER",
+    "GODOT4_3_OR_GREATER",
+    "GODOT4_4_OR_GREATER",
+    "GODOT4_5_OR_GREATER",
+    "GODOT4_6_OR_GREATER",
+    "GODOT4_7_OR_GREATER",
+    "GODOT4_7_0_OR_GREATER",
+    "GODOT4_7_1_OR_GREATER",
+    "GODOT4_7_2_OR_GREATER",
+    "TRACE",
+    "TWODOG_WEB_BOOT",
+    "PLAYTEST",
+    "RELEASE",
+    "NET",
+    "NET10_0",
+    "NETCOREAPP",
+    "NET5_0_OR_GREATER",
+    "NET6_0_OR_GREATER",
+    "NET7_0_OR_GREATER",
+    "NET8_0_OR_GREATER",
+    "NET9_0_OR_GREATER",
+    "NET10_0_OR_GREATER",
+    "NETCOREAPP1_0_OR_GREATER",
+    "NETCOREAPP1_1_OR_GREATER",
+    "NETCOREAPP2_0_OR_GREATER",
+    "NETCOREAPP2_1_OR_GREATER",
+    "NETCOREAPP2_2_OR_GREATER",
+    "NETCOREAPP3_0_OR_GREATER",
+    "NETCOREAPP3_1_OR_GREATER"
+  ],
+  "Assembly": {
+    "Value": "CuriousContraptions"
+  },
+  "Language": 1400,
+  "Output": 2,
+  "Nullable": 3,
+  "Unsafe": true,
+  "Checked": false,
+  "CompilePaths": [
+    {
+      "Value": ".godot/mono/temp/obj/Release/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs"
+    },
+    {
+      "Value": ".godot/mono/temp/obj/Release/CuriousContraptions.AssemblyInfo.cs"
+    },
+    {
+      "Value": "CuriousContraptions.web/TwoDogWebBoot.cs"
+    },
+    {
+      "Value": "diagnostics/BackendQualificationDiagnostics.cs"
+    },
+    {
+      "Value": "diagnostics/ExactPlaytestEnumConverter.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralBodyQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralCollisionQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralConstraintQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralHollowQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralImpactEffectQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralImpulseQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralJointBoundaryQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralJointQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralJointRangeQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralManifoldQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralMotorQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralMultiBodyQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralPenetrationQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralPersistenceQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralProjectionQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralRoutedRopeQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralSignedSweepQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralSpatialQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralTrajectoryQualification.cs"
+    },
+    {
+      "Value": "diagnostics/GeneralWorldQualification.cs"
+    },
+    {
+      "Value": "diagnostics/PerformanceProtocol.cs"
+    },
+    {
+      "Value": "diagnostics/PhysicsBackendMotionProbe.cs"
+    },
+    {
+      "Value": "diagnostics/PhysicsBackendQualification.cs"
+    },
+    {
+      "Value": "engine/AcousticAudio.cs"
+    },
+    {
+      "Value": "engine/Acoustics.cs"
+    },
+    {
+      "Value": "engine/AirflowNetwork.cs"
+    },
+    {
+      "Value": "engine/BendProxy.cs"
+    },
+    {
+      "Value": "engine/BinaryCircuit.cs"
+    },
+    {
+      "Value": "engine/BodyDynamics.cs"
+    },
+    {
+      "Value": "engine/BodySlot.cs"
+    },
+    {
+      "Value": "engine/ChimeAssembly.cs"
+    },
+    {
+      "Value": "engine/ConnectionPort.cs"
+    },
+    {
+      "Value": "engine/ElectricalNetwork.cs"
+    },
+    {
+      "Value": "engine/FrustumProxy.cs"
+    },
+    {
+      "Value": "engine/IResizablePart.cs"
+    },
+    {
+      "Value": "engine/LightNetwork.cs"
+    },
+    {
+      "Value": "engine/LogicGate.cs"
+    },
+    {
+      "Value": "engine/MachineData.cs"
+    },
+    {
+      "Value": "engine/MachineEvent.cs"
+    },
+    {
+      "Value": "engine/MachinePart.Transaction.cs"
+    },
+    {
+      "Value": "engine/MachinePart.cs"
+    },
+    {
+      "Value": "engine/MachineWorld.Controls.cs"
+    },
+    {
+      "Value": "engine/MachineWorld.Transaction.cs"
+    },
+    {
+      "Value": "engine/MachineWorld.cs"
+    },
+    {
+      "Value": "engine/MechanicalNetwork.cs"
+    },
+    {
+      "Value": "engine/OpticalColour.cs"
+    },
+    {
+      "Value": "engine/OpticalNetwork.cs"
+    },
+    {
+      "Value": "engine/PartArt.cs"
+    },
+    {
+      "Value": "engine/PartAssistance.cs"
+    },
+    {
+      "Value": "engine/PartDefinition.cs"
+    },
+    {
+      "Value": "engine/PartOrientation.cs"
+    },
+    {
+      "Value": "engine/PartParameterName.cs"
+    },
+    {
+      "Value": "engine/PartParameterState.cs"
+    },
+    {
+      "Value": "engine/PartParameterValues.cs"
+    },
+    {
+      "Value": "engine/PartRegistry.cs"
+    },
+    {
+      "Value": "engine/PerformanceContracts.cs"
+    },
+    {
+      "Value": "engine/PerformanceRecorder.cs"
+    },
+    {
+      "Value": "engine/RopeNetwork.cs"
+    },
+    {
+      "Value": "engine/SceneBinaryInputDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneBooleanObservation.cs"
+    },
+    {
+      "Value": "engine/SceneCollisionGeometry.cs"
+    },
+    {
+      "Value": "engine/SceneCompliantSurface.cs"
+    },
+    {
+      "Value": "engine/SceneContactLoadSensorDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneCounterDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneDrivenSurface.cs"
+    },
+    {
+      "Value": "engine/SceneElectricalContact.cs"
+    },
+    {
+      "Value": "engine/SceneElectricalSource.cs"
+    },
+    {
+      "Value": "engine/SceneEnergyStoreDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneEnumObservation.cs"
+    },
+    {
+      "Value": "engine/SceneImpactEffect.cs"
+    },
+    {
+      "Value": "engine/SceneJointDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneLatchDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneLatchedSpringDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneMechanicalTransferBindings.cs"
+    },
+    {
+      "Value": "engine/SceneOrientation.cs"
+    },
+    {
+      "Value": "engine/SceneOscillatorDeclaration.cs"
+    },
+    {
+      "Value": "engine/ScenePassageSensorDeclaration.cs"
+    },
+    {
+      "Value": "engine/ScenePhysicsAssembly.cs"
+    },
+    {
+      "Value": "engine/SceneResidenceSensorDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneRopeJoint.cs"
+    },
+    {
+      "Value": "engine/SceneRotaryShaft.cs"
+    },
+    {
+      "Value": "engine/SceneScalarInputDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneScalarObservation.cs"
+    },
+    {
+      "Value": "engine/SceneServoDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneTiltSensorDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneTimerDeclaration.cs"
+    },
+    {
+      "Value": "engine/SceneTransmissionJoint.cs"
+    },
+    {
+      "Value": "engine/SimulationCounters.cs"
+    },
+    {
+      "Value": "engine/SimulationLatches.cs"
+    },
+    {
+      "Value": "engine/SimulationOscillators.cs"
+    },
+    {
+      "Value": "engine/SimulationState.cs"
+    },
+    {
+      "Value": "engine/SimulationTimers.cs"
+    },
+    {
+      "Value": "engine/SimulationTransaction.cs"
+    },
+    {
+      "Value": "engine/SlidingBlade.cs"
+    },
+    {
+      "Value": "engine/SpringParameter.cs"
+    },
+    {
+      "Value": "engine/TubeMouth.cs"
+    },
+    {
+      "Value": "engine/TubeProxy.cs"
+    },
+    {
+      "Value": "engine/Workbench.cs"
+    },
+    {
+      "Value": "engine/WorldGeometry.cs"
+    },
+    {
+      "Value": "engine/bridge/BinaryInputCommand.cs"
+    },
+    {
+      "Value": "engine/bridge/BodyPoseRead.cs"
+    },
+    {
+      "Value": "engine/bridge/BodyQueryRead.cs"
+    },
+    {
+      "Value": "engine/bridge/BooleanRead.cs"
+    },
+    {
+      "Value": "engine/bridge/CommittedDisplayClock.cs"
+    },
+    {
+      "Value": "engine/bridge/CommittedEventStream.cs"
+    },
+    {
+      "Value": "engine/bridge/CommittedPoseBuffer.Compliant.cs"
+    },
+    {
+      "Value": "engine/bridge/CommittedPoseBuffer.Enums.cs"
+    },
+    {
+      "Value": "engine/bridge/CommittedPoseBuffer.cs"
+    },
+    {
+      "Value": "engine/bridge/ElectricalInputRead.cs"
+    },
+    {
+      "Value": "engine/bridge/PoseReferenceBinding.cs"
+    },
+    {
+      "Value": "engine/bridge/ScalarRead.cs"
+    },
+    {
+      "Value": "engine/bridge/SimulationCommandInbox.cs"
+    },
+    {
+      "Value": "engine/physics/AccelerationDrive.cs"
+    },
+    {
+      "Value": "engine/physics/AccelerationSolver.cs"
+    },
+    {
+      "Value": "engine/physics/AdiabaticGasDischarge.cs"
+    },
+    {
+      "Value": "engine/physics/AdmissibleImpulseResponse.cs"
+    },
+    {
+      "Value": "engine/physics/AirJetBoundaryPath.cs"
+    },
+    {
+      "Value": "engine/physics/AirJetGeometry.cs"
+    },
+    {
+      "Value": "engine/physics/AirJetStreamlinePath.cs"
+    },
+    {
+      "Value": "engine/physics/AlignedPowerPort.cs"
+    },
+    {
+      "Value": "engine/physics/AngularPathMeasure.cs"
+    },
+    {
+      "Value": "engine/physics/AxialDampingLoad.cs"
+    },
+    {
+      "Value": "engine/physics/AxialEffortLoad.cs"
+    },
+    {
+      "Value": "engine/physics/AxialElasticLoad.cs"
+    },
+    {
+      "Value": "engine/physics/AxialElasticPotential.cs"
+    },
+    {
+      "Value": "engine/physics/AxialGasGeometry.cs"
+    },
+    {
+      "Value": "engine/physics/AxialGasLoad.cs"
+    },
+    {
+      "Value": "engine/physics/AxialGasPotential.cs"
+    },
+    {
+      "Value": "engine/physics/BilateralConstraintBlock.cs"
+    },
+    {
+      "Value": "engine/physics/BilateralResponseMap.cs"
+    },
+    {
+      "Value": "engine/physics/BodyBoundsTree.cs"
+    },
+    {
+      "Value": "engine/physics/BodyDragLoad.cs"
+    },
+    {
+      "Value": "engine/physics/BodyTrajectory.cs"
+    },
+    {
+      "Value": "engine/physics/BodyWrench.cs"
+    },
+    {
+      "Value": "engine/physics/CompliantContactLoad.cs"
+    },
+    {
+      "Value": "engine/physics/CompliantContactState.cs"
+    },
+    {
+      "Value": "engine/physics/CompositePowerPort.cs"
+    },
+    {
+      "Value": "engine/physics/CompoundBoundsTree.cs"
+    },
+    {
+      "Value": "engine/physics/CompoundCollision.cs"
+    },
+    {
+      "Value": "engine/physics/CompressionSpringPotential.cs"
+    },
+    {
+      "Value": "engine/physics/ConfigurationTrajectory.cs"
+    },
+    {
+      "Value": "engine/physics/ConstantAxialEffortLoad.cs"
+    },
+    {
+      "Value": "engine/physics/ConstrainedPoweredImpulse.cs"
+    },
+    {
+      "Value": "engine/physics/ConstraintAcceleration.cs"
+    },
+    {
+      "Value": "engine/physics/ConstraintGradient.cs"
+    },
+    {
+      "Value": "engine/physics/ConstraintMassMatrix.cs"
+    },
+    {
+      "Value": "engine/physics/ContactConstraint.cs"
+    },
+    {
+      "Value": "engine/physics/ContactForce.cs"
+    },
+    {
+      "Value": "engine/physics/ContactGap.cs"
+    },
+    {
+      "Value": "engine/physics/ContactKinematics.cs"
+    },
+    {
+      "Value": "engine/physics/ContactManifold.cs"
+    },
+    {
+      "Value": "engine/physics/ContactPatch.cs"
+    },
+    {
+      "Value": "engine/physics/ContactSlipPath.cs"
+    },
+    {
+      "Value": "engine/physics/ContactSlipSweep.cs"
+    },
+    {
+      "Value": "engine/physics/ConvergingGasNozzle.cs"
+    },
+    {
+      "Value": "engine/physics/ConvexDistance.cs"
+    },
+    {
+      "Value": "engine/physics/ConvexGeometry.cs"
+    },
+    {
+      "Value": "engine/physics/ConvexPenetration.cs"
+    },
+    {
+      "Value": "engine/physics/ConvexPose.cs"
+    },
+    {
+      "Value": "engine/physics/ConvexRounded.cs"
+    },
+    {
+      "Value": "engine/physics/ConvexSeparation.cs"
+    },
+    {
+      "Value": "engine/physics/ConvexSweep.cs"
+    },
+    {
+      "Value": "engine/physics/CoupledImpulsePair.cs"
+    },
+    {
+      "Value": "engine/physics/CylindricalRegion.cs"
+    },
+    {
+      "Value": "engine/physics/DrivenSurface.cs"
+    },
+    {
+      "Value": "engine/physics/ForcePrediction.cs"
+    },
+    {
+      "Value": "engine/physics/GasNozzleTransit.cs"
+    },
+    {
+      "Value": "engine/physics/GasPredictionWork.cs"
+    },
+    {
+      "Value": "engine/physics/GuideSupportBoundaryPath.cs"
+    },
+    {
+      "Value": "engine/physics/HollowGeometry.cs"
+    },
+    {
+      "Value": "engine/physics/IRigidTrajectory.cs"
+    },
+    {
+      "Value": "engine/physics/IdealGasMaterial.cs"
+    },
+    {
+      "Value": "engine/physics/ImpulseConstraint.cs"
+    },
+    {
+      "Value": "engine/physics/ImpulseSweepAcceleration.cs"
+    },
+    {
+      "Value": "engine/physics/JetTransferForcePath.cs"
+    },
+    {
+      "Value": "engine/physics/JetTransferImpedance.cs"
+    },
+    {
+      "Value": "engine/physics/JointBoundarySweep.cs"
+    },
+    {
+      "Value": "engine/physics/JointConstraints.cs"
+    },
+    {
+      "Value": "engine/physics/JointEquations.cs"
+    },
+    {
+      "Value": "engine/physics/LinearRigidTrajectory.cs"
+    },
+    {
+      "Value": "engine/physics/LipschitzBoundarySweep.cs"
+    },
+    {
+      "Value": "engine/physics/MaterialContact.cs"
+    },
+    {
+      "Value": "engine/physics/MechanicalPortSpeedPath.cs"
+    },
+    {
+      "Value": "engine/physics/MechanicalPowerPort.cs"
+    },
+    {
+      "Value": "engine/physics/MechanicalSourceRating.cs"
+    },
+    {
+      "Value": "engine/physics/MechanicalTransferBoundaryPath.cs"
+    },
+    {
+      "Value": "engine/physics/MechanicalTransferImpulse.cs"
+    },
+    {
+      "Value": "engine/physics/MechanicalTransferLedger.cs"
+    },
+    {
+      "Value": "engine/physics/MechanicalTransferLoad.cs"
+    },
+    {
+      "Value": "engine/physics/MechanicalTransferSource.cs"
+    },
+    {
+      "Value": "engine/physics/MotorPredictionSupply.cs"
+    },
+    {
+      "Value": "engine/physics/NonlinearIteration.cs"
+    },
+    {
+      "Value": "engine/physics/NozzleCoupledJetReceiver.cs"
+    },
+    {
+      "Value": "engine/physics/PersistentContactPair.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsBody.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsColliderUpdate.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsContactLoadSensor.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsEnergyStore.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsGasNode.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsImpactEffects.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsJoint.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsJointChange.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsLatchedSpring.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsLoadSet.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsMotionHistory.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsMotorCommand.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsPassageSensor.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsResidenceSensor.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsRopeJoint.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsServo.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsSpatialWork.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsTiltSensor.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsTransmissionJoint.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsWorld.cs"
+    },
+    {
+      "Value": "engine/physics/PhysicsWrenchCommand.cs"
+    },
+    {
+      "Value": "engine/physics/PlanarGuideBoundaryPath.cs"
+    },
+    {
+      "Value": "engine/physics/PlanarGuideLoad.cs"
+    },
+    {
+      "Value": "engine/physics/PointTrace.cs"
+    },
+    {
+      "Value": "engine/physics/PositionConstraints.cs"
+    },
+    {
+      "Value": "engine/physics/PositionEquation.cs"
+    },
+    {
+      "Value": "engine/physics/PositionProjector.cs"
+    },
+    {
+      "Value": "engine/physics/PositiveDemandBudget.cs"
+    },
+    {
+      "Value": "engine/physics/PoweredImpulse.cs"
+    },
+    {
+      "Value": "engine/physics/PredictionSamples.cs"
+    },
+    {
+      "Value": "engine/physics/PrescribedBodyMotion.cs"
+    },
+    {
+      "Value": "engine/physics/QuinticRigidTrajectory.cs"
+    },
+    {
+      "Value": "engine/physics/RigidPose.cs"
+    },
+    {
+      "Value": "engine/physics/RigidPoseTrajectory.cs"
+    },
+    {
+      "Value": "engine/physics/RigidRotation.cs"
+    },
+    {
+      "Value": "engine/physics/RotaryCaptureDeclaration.cs"
+    },
+    {
+      "Value": "engine/physics/RotaryCaptureForcePath.cs"
+    },
+    {
+      "Value": "engine/physics/RotaryCaptureMaterial.cs"
+    },
+    {
+      "Value": "engine/physics/RotaryCaptureSweep.cs"
+    },
+    {
+      "Value": "engine/physics/ScalarBoundarySweep.cs"
+    },
+    {
+      "Value": "engine/physics/SealedGasState.cs"
+    },
+    {
+      "Value": "engine/physics/SegmentOcclusionSweep.cs"
+    },
+    {
+      "Value": "engine/physics/StoredFlowSource.cs"
+    },
+    {
+      "Value": "engine/physics/SupportFeature.cs"
+    },
+    {
+      "Value": "engine/physics/SupportFootprint.cs"
+    },
+    {
+      "Value": "engine/physics/TangentQuadratic.cs"
+    },
+    {
+      "Value": "engine/physics/TransferResidualTotals.cs"
+    },
+    {
+      "Value": "engine/physics/TransferSpeedPath.cs"
+    },
+    {
+      "Value": "engine/physics/TransferStepError.cs"
+    },
+    {
+      "Value": "engine/physics/WrenchPathWork.cs"
+    },
+    {
+      "Value": "engine/presentation/AnimationBatch.cs"
+    },
+    {
+      "Value": "engine/presentation/AnimationFollowDefinition.cs"
+    },
+    {
+      "Value": "engine/presentation/AnimationImpulseDefinition.cs"
+    },
+    {
+      "Value": "engine/presentation/AnimationOscillationDefinition.cs"
+    },
+    {
+      "Value": "engine/presentation/ScalarExtentDefinition.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneAcousticMotionRun.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneAcousticRun.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneAcousticWavefrontRun.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneAnimationAdapter.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneAnimationRun.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneEnumBinding.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneLightConeRun.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneOccurrenceRun.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneOpticalPreviews.cs"
+    },
+    {
+      "Value": "engine/presentation/SceneOscillatorFeedback.cs"
+    },
+    {
+      "Value": "engine/presentation/ScenePoseAsset.cs"
+    },
+    {
+      "Value": "engine/presentation/ScenePoseBatch.cs"
+    },
+    {
+      "Value": "parts/BallDetectorPart.cs"
+    },
+    {
+      "Value": "parts/BallPart.cs"
+    },
+    {
+      "Value": "parts/BasketPart.cs"
+    },
+    {
+      "Value": "parts/BatteryPart.cs"
+    },
+    {
+      "Value": "parts/BeamCombinerPart.cs"
+    },
+    {
+      "Value": "parts/BeamShutterPart.cs"
+    },
+    {
+      "Value": "parts/BeamSplitterPart.cs"
+    },
+    {
+      "Value": "parts/BellPart.cs"
+    },
+    {
+      "Value": "parts/BellowsPart.cs"
+    },
+    {
+      "Value": "parts/BumperPart.cs"
+    },
+    {
+      "Value": "parts/CannonPart.cs"
+    },
+    {
+      "Value": "parts/ClockPart.cs"
+    },
+    {
+      "Value": "parts/ClutchPart.cs"
+    },
+    {
+      "Value": "parts/ColourFilterPart.cs"
+    },
+    {
+      "Value": "parts/ConveyorPart.cs"
+    },
+    {
+      "Value": "parts/CounterPart.cs"
+    },
+    {
+      "Value": "parts/DelayPart.cs"
+    },
+    {
+      "Value": "parts/DominoPart.cs"
+    },
+    {
+      "Value": "parts/ElectricalLogicPart.cs"
+    },
+    {
+      "Value": "parts/FanPart.cs"
+    },
+    {
+      "Value": "parts/FlashlightPart.cs"
+    },
+    {
+      "Value": "parts/FunnelPart.cs"
+    },
+    {
+      "Value": "parts/HoldTimerPart.cs"
+    },
+    {
+      "Value": "parts/ImpactLeverPart.cs"
+    },
+    {
+      "Value": "parts/LampPart.cs"
+    },
+    {
+      "Value": "parts/LaserPart.cs"
+    },
+    {
+      "Value": "parts/LatchPart.cs"
+    },
+    {
+      "Value": "parts/LightReceiverPart.cs"
+    },
+    {
+      "Value": "parts/LinearPusherPart.cs"
+    },
+    {
+      "Value": "parts/MirrorPart.cs"
+    },
+    {
+      "Value": "parts/MotorPart.cs"
+    },
+    {
+      "Value": "parts/OpticalLogicPart.cs"
+    },
+    {
+      "Value": "parts/PipeArt.cs"
+    },
+    {
+      "Value": "parts/PipeBendPart.cs"
+    },
+    {
+      "Value": "parts/PipePart.cs"
+    },
+    {
+      "Value": "parts/PoweredGatePart.cs"
+    },
+    {
+      "Value": "parts/PressurePlatePart.cs"
+    },
+    {
+      "Value": "parts/PulleyPart.cs"
+    },
+    {
+      "Value": "parts/RampPart.cs"
+    },
+    {
+      "Value": "parts/ReverseTransmissionPart.cs"
+    },
+    {
+      "Value": "parts/RopeAnchorPart.cs"
+    },
+    {
+      "Value": "parts/SolarPanelPart.cs"
+    },
+    {
+      "Value": "parts/SoundMeterPart.cs"
+    },
+    {
+      "Value": "parts/SpeakerPart.cs"
+    },
+    {
+      "Value": "parts/SpringPart.cs"
+    },
+    {
+      "Value": "parts/SwitchPart.cs"
+    },
+    {
+      "Value": "parts/TrampolinePart.cs"
+    },
+    {
+      "Value": "parts/WallPart.cs"
+    },
+    {
+      "Value": "parts/WeightPart.cs"
+    },
+    {
+      "Value": "parts/WindChimesPart.cs"
+    },
+    {
+      "Value": "parts/WindmillPart.cs"
+    },
+    {
+      "Value": "parts/WoundSpringPart.cs"
+    },
+    {
+      "Value": "ui/ConnectionChoice.cs"
+    },
+    {
+      "Value": "ui/LightConeVisual.cs"
+    },
+    {
+      "Value": "ui/MechanicalBeltVisual.cs"
+    },
+    {
+      "Value": "ui/OpticalPathVisual.cs"
+    },
+    {
+      "Value": "ui/PlacementShadows.cs"
+    },
+    {
+      "Value": "ui/PlaytestDiagnostics.cs"
+    },
+    {
+      "Value": "ui/PulleyRopeRoute.cs"
+    },
+    {
+      "Value": "ui/RopeVisual.cs"
+    },
+    {
+      "Value": "ui/RotationGizmo.cs"
+    },
+    {
+      "Value": "ui/TubePlacementSnap.cs"
+    },
+    {
+      "Value": "ui/Workshop.cs"
+    },
+    {
+      "Value": "ui/WorkshopAnimation.cs"
+    },
+    {
+      "Value": "ui/WorkshopConnections.cs"
+    },
+    {
+      "Value": "ui/WorkshopGuidance.cs"
+    },
+    {
+      "Value": "ui/WorkshopIcons.cs"
+    }
+  ],
+  "GeneratedPaths": [
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.GodotPluginsInitializerGenerator/GodotPlugins.Game.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BallDetectorPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BallPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BasketPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BatteryPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BeamCombinerPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BeamShutterPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BeamSplitterPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BellPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BellowsPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BumperPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.CannonPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ClockPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ClutchPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ColourFilterPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ConveyorPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.CounterPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.DelayPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.DominoPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ElectricalLogicPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.FanPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.FlashlightPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.FunnelPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.HoldTimerPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ImpactLeverPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LampPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LaserPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LatchPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LightConeVisual_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LightReceiverPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LinearPusherPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachinePart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MirrorPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MotorPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.OpticalLogicPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.OpticalPathVisual_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PartDefinition_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PhysicsBackendMotionProbe_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PipeBendPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PipePart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PlacementShadows_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PoweredGatePart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PressurePlatePart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PulleyPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.RampPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.RopeAnchorPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.RopeVisual_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.RotationGizmo_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SolarPanelPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SoundMeterPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SpeakerPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SpringPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SwitchPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.TrampolinePart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.WallPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.WeightPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.WindChimesPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.WindmillPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.WorkshopButton_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.Workshop_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.WoundSpringPart.GuidedPlunger_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.WoundSpringPart_ScriptMethods.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/AssemblyScriptTypes.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BallDetectorPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BallPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BasketPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BatteryPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BeamCombinerPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BeamShutterPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BeamSplitterPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BellPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BellowsPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BumperPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.CannonPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.ClockPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.ClutchPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.ColourFilterPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.ConveyorPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.CounterPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.DelayPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.DominoPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.ElectricalLogicPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.FanPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.FlashlightPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.FunnelPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.HoldTimerPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.ImpactLeverPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.LampPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.LaserPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.LatchPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.LightConeVisual_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.LightReceiverPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.LinearPusherPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.MachinePart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.MachineWorld_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.MirrorPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.MotorPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.OpticalLogicPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.OpticalPathVisual_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.PartDefinition_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.PhysicsBackendMotionProbe_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.PipeBendPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.PipePart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.PlacementShadows_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.PoweredGatePart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.PressurePlatePart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.PulleyPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.RampPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.RopeAnchorPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.RopeVisual_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.RotationGizmo_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.SolarPanelPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.SoundMeterPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.SpeakerPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.SpringPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.SwitchPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.TrampolinePart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.WallPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.WeightPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.WindChimesPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.WindmillPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.Workshop_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.WoundSpringPart_ScriptPath.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BallDetectorPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BallPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BasketPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BatteryPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BeamCombinerPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BeamShutterPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BeamSplitterPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BellPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BellowsPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BumperPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.CannonPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.ClockPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.ClutchPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.ColourFilterPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.ConveyorPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.CounterPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.DelayPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.DominoPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.ElectricalLogicPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.FanPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.FlashlightPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.FunnelPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.HoldTimerPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.ImpactLeverPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.LampPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.LaserPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.LatchPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.LightConeVisual_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.LightReceiverPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.LinearPusherPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.MachinePart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.MachineWorld_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.MirrorPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.MotorPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.OpticalLogicPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.OpticalPathVisual_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.PartDefinition_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.PhysicsBackendMotionProbe_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.PipeBendPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.PipePart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.PlacementShadows_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.PoweredGatePart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.PressurePlatePart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.PulleyPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.RampPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.RopeAnchorPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.RopeVisual_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.RotationGizmo_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.SolarPanelPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.SoundMeterPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.SpeakerPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.SpringPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.SwitchPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.TrampolinePart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.WallPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.WeightPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.WindChimesPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.WindmillPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.WorkshopButton_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.Workshop_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.WoundSpringPart.GuidedPlunger_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.WoundSpringPart_ScriptProperties.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BallDetectorPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BallPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BasketPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BatteryPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BeamCombinerPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BeamShutterPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BeamSplitterPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BellPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BellowsPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BumperPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.CannonPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.ClockPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.ClutchPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.ColourFilterPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.ConveyorPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.CounterPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.DelayPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.DominoPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.ElectricalLogicPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.FanPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.FlashlightPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.FunnelPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.HoldTimerPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.ImpactLeverPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.LampPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.LaserPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.LatchPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.LightConeVisual_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.LightReceiverPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.LinearPusherPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.MachinePart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.MachineWorld_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.MirrorPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.MotorPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.OpticalLogicPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.OpticalPathVisual_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PartDefinition_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PhysicsBackendMotionProbe_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PipeBendPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PipePart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PlacementShadows_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PoweredGatePart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PressurePlatePart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PulleyPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.RampPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.RopeAnchorPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.RopeVisual_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.RotationGizmo_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SolarPanelPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SoundMeterPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SpeakerPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SpringPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SwitchPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.TrampolinePart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WallPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WeightPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WindChimesPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WindmillPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WorkshopButton_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.Workshop_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WoundSpringPart.GuidedPlunger_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WoundSpringPart_ScriptPropertyDefVal.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BallDetectorPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BallPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BasketPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BatteryPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BeamCombinerPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BeamShutterPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BeamSplitterPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BellPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BellowsPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BumperPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.CannonPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ClockPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ClutchPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ColourFilterPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ConveyorPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.CounterPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.DelayPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.DominoPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ElectricalLogicPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.FanPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.FlashlightPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.FunnelPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.HoldTimerPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ImpactLeverPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LampPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LaserPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LatchPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LightConeVisual_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LightReceiverPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LinearPusherPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MachinePart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MachineWorld_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MirrorPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MotorPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.OpticalLogicPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.OpticalPathVisual_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PartDefinition_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PhysicsBackendMotionProbe_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PipeBendPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PipePart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PlacementShadows_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PoweredGatePart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PressurePlatePart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PulleyPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RampPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RopeAnchorPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RopeVisual_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RotationGizmo_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SolarPanelPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SoundMeterPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SpeakerPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SpringPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SwitchPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.TrampolinePart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WallPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WeightPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WindChimesPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WindmillPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WorkshopButton_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.Workshop_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WoundSpringPart.GuidedPlunger_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WoundSpringPart_ScriptSerialization.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BallDetectorPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BallPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BasketPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BatteryPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BeamCombinerPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BeamShutterPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BeamSplitterPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BellPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BellowsPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BumperPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.CannonPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ClockPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ClutchPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ColourFilterPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ConveyorPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.CounterPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.DelayPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.DominoPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ElectricalLogicPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.FanPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.FlashlightPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.FunnelPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.HoldTimerPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ImpactLeverPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LampPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LaserPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LatchPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LightConeVisual_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LightReceiverPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LinearPusherPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MachinePart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MachineWorld_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MirrorPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MotorPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.OpticalLogicPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.OpticalPathVisual_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PartDefinition_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PhysicsBackendMotionProbe_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PipeBendPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PipePart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PlacementShadows_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PoweredGatePart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PressurePlatePart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PulleyPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.RampPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.RopeAnchorPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.RopeVisual_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.RotationGizmo_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.SolarPanelPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.SoundMeterPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.SpeakerPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.SpringPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.SwitchPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.TrampolinePart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.WallPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.WeightPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.WindChimesPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.WindmillPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.WorkshopButton_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.Workshop_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.WoundSpringPart.GuidedPlunger_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.WoundSpringPart_ScriptSignals.generated.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.BackendMotionReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.BackendQueryReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Boolean.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.ContactManifoldStatus.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.ConvexPenetrationStatus.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.ConvexSweepStatus.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Double.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.DoubleArray.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.DoubleArrayArray.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Experiment.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Frame.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.FrameArray.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralBodyReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralCollisionProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralCollisionReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralConstraintProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralConstraintReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralHollowProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralHollowReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralImpactEffectOutcome.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralImpactEffectProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralImpactEffectReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralImpulseProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralImpulseReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralJointBoundaryProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralJointBoundaryReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralJointProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralJointRangeProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralJointRangeReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralJointReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralManifoldProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralManifoldReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralMotorProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralMotorReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralMultiBodyProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralMultiBodyReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralPenetrationProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralPenetrationReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralPersistenceProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralPersistenceReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralProjectionOutcome.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralProjectionProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralProjectionReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralRoutedRopeProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralRoutedRopeReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralSignedSweepProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralSignedSweepReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralSpatialOutcome.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralSpatialProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralSpatialReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralTrajectoryReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralWorldProbe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GeneralWorldReport.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.GetJsonTypeInfo.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Int32.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Int32Array.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Int64.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.NullableBoolean.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.NullableConvexSweepStatus.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.NullableDouble.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.NullableInt32.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.PhysicsJointId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.PhysicsMotorUse.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Probe.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.PropertyNames.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.RoutedRopeOutcome.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.Single.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.SingleArray.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/BackendQualificationJson.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.Boolean.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.ConnectionDomain.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.ConnectionSpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.DictionaryStringInt32.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.DictionaryStringSingle.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.GetJsonTypeInfo.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.GoalKind.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.GoalSpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.Int32.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.InternalBodyRole.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.InternalBodySpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.ListConnectionSpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.ListGoalSpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.ListInternalBodySpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.ListPartDifficulty.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.ListPartSpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.ListPuzzleData.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.MachineData.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.NullableSingle.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.NullableSocketId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PartDifficulty.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PartOrientation.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PartSpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PropertyNames.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PuzzleData.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.SavedMachine.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.Single.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.SingleArray.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.SocketId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.String.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Boolean.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.CannonPhase.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.CannonShotResult.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ConnectionDomain.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ConnectionSpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.DictionaryStringSingle.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Double.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.FrameJointKind.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.GetJsonTypeInfo.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Int32.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Int64.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListConnectionSpec.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestBody.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestButton.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestCannon.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestCounter.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestElectrical.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestFrameJoint.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestHandle.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestLatch.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestMechanical.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestOscillator.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestPart.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestTimer.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestUiPart.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestWoundSpring.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.NullableDouble.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.NullableSingle.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.NullableSocketId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.NullableSpringTriggerResult.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PerformanceMetric.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PerformanceOutcome.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PerformanceRunId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PerformanceStage.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PhysicsBodyId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PhysicsJointId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestBody.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestButton.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestCannon.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestCounter.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestElectrical.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestFrame.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestFrameJoint.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestHandle.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestLatch.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestMechanical.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestOscillator.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPart.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPartIdentity.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceBatch.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceCounter.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceCounterArray.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceSample.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceSampleArray.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestResult.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestRun.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestTimer.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestUi.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestUiPart.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestWoundSpring.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PropertyNames.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationCounterId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationCounterPhase.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchPhase.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchRequests.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationOscillatorId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationOscillatorPhase.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationTimerId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationTimerPhase.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Single.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SingleArray.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SocketId.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SpringTriggerResult.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.String.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.TimerBoundary.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.TimerCompletionPolicy.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.WoundSpringPhase.g.cs"
+    },
+    {
+      "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.g.cs"
+    }
+  ],
+  "ReferencePaths": [
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.CSharp.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.VisualBasic.Core.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.VisualBasic.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.Win32.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.Win32.Registry.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.AppContext.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Buffers.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.Concurrent.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.Immutable.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.NonGeneric.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.Specialized.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.Annotations.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.DataAnnotations.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.EventBasedAsync.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.TypeConverter.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Configuration.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Console.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Core.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Data.Common.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Data.DataSetExtensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Data.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Contracts.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Debug.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.DiagnosticSource.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.FileVersionInfo.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Process.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.StackTrace.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.TextWriterTraceListener.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Tools.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.TraceSource.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Tracing.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Drawing.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Drawing.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Dynamic.Runtime.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Formats.Asn1.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Formats.Tar.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Globalization.Calendars.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Globalization.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Globalization.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Compression.Brotli.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Compression.FileSystem.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Compression.ZipFile.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Compression.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.AccessControl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.DriveInfo.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.Watcher.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.IsolatedStorage.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.MemoryMappedFiles.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Pipelines.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Pipes.AccessControl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Pipes.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.UnmanagedMemoryStream.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.AsyncEnumerable.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.Expressions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.Parallel.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.Queryable.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Memory.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Http.Json.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Http.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.HttpListener.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Mail.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.NameResolution.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.NetworkInformation.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Ping.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Quic.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Requests.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Security.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.ServerSentEvents.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.ServicePoint.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Sockets.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebClient.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebHeaderCollection.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebProxy.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebSockets.Client.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebSockets.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Numerics.Vectors.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Numerics.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ObjectModel.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.DispatchProxy.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Emit.ILGeneration.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Emit.Lightweight.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Emit.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Metadata.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.TypeExtensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Resources.Reader.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Resources.ResourceManager.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Resources.Writer.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.CompilerServices.Unsafe.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.CompilerServices.VisualC.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Handles.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.InteropServices.JavaScript.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.InteropServices.RuntimeInformation.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.InteropServices.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Intrinsics.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Loader.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Numerics.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.Formatters.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.Json.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.Xml.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.AccessControl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Claims.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Algorithms.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Cng.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Csp.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Encoding.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.OpenSsl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.X509Certificates.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Principal.Windows.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Principal.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.SecureString.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ServiceModel.Web.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ServiceProcess.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Encoding.CodePages.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Encoding.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Encoding.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Encodings.Web.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Json.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.RegularExpressions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.AccessControl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Channels.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Overlapped.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Tasks.Dataflow.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Tasks.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Tasks.Parallel.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Tasks.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Thread.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.ThreadPool.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Timer.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Transactions.Local.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Transactions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ValueTuple.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Web.HttpUtility.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Web.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Windows.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.Linq.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.ReaderWriter.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.Serialization.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XDocument.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XPath.XDocument.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XPath.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XmlDocument.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XmlSerializer.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/WindowsBase.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/mscorlib.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/netstandard.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.godotsharp.editor/4.7.2.91/lib/net10.0/GodotSharpEditor.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.godotsharp/4.7.2.91/lib/net10.0/GodotSharp.dll"
+    }
+  ]
+}

@@ -1,0 +1,2716 @@
+{
+  "Sources": [
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceCounterArray.g.cs"
+      },
+      "Sha256": "a17eb1b165512faa08eac493508368f81fe4f66a2e661160bec2c40a291fdb2c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceSample.g.cs"
+      },
+      "Sha256": "456d03e38e671f836f6fc309106a516e081e36f73b70bdb2eff6bc5ea120fb16"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceSampleArray.g.cs"
+      },
+      "Sha256": "28c3923e8e84a4f0bf6ce3098bf9562cdb683853b5859d6d34c1eec257309496"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestResult.g.cs"
+      },
+      "Sha256": "4847a93e81d302b9dbd965369e8e0049414a3354355f01fafcf3521b88f7a0a6"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestRun.g.cs"
+      },
+      "Sha256": "f2baaa68807f9895a2b1cb72d14f828825578777607219bb331244bb4307f442"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestTimer.g.cs"
+      },
+      "Sha256": "8b87d238b18640a468e7b39081ba177437bde4ba16c862b0e1588ad1e6eea6dd"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestUi.g.cs"
+      },
+      "Sha256": "8f8b4c7fa7c2613729212d656ca120c568b3599d1257839bd865c1829fbaabed"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestUiPart.g.cs"
+      },
+      "Sha256": "35bae73506023f8b93954df3b9f272bcdcb6d154b7bfe7df02f53e262a89831c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestWoundSpring.g.cs"
+      },
+      "Sha256": "64807e14b71510379d05e01a24c00b92e07eb9d3760aac08f26f38d1fb624514"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PropertyNames.g.cs"
+      },
+      "Sha256": "e2d4884f1100c2888b694eb0722f0feb02f6ad7b61bfac1e596b24c1a676f40e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationCounterId.g.cs"
+      },
+      "Sha256": "8b181dfff3e8623c9ad3395a2a9ba12dd14d79e00b4bec84777b2a51ad119fee"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationCounterPhase.g.cs"
+      },
+      "Sha256": "8d12b1bf364f8762ac16b857ff3fee11fc5b8894f34d6407328e781502fff6db"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchId.g.cs"
+      },
+      "Sha256": "b34d1ba7c3894d76a61c0ce39928683afbe43158ad2a6688959df149b5a6e86f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchPhase.g.cs"
+      },
+      "Sha256": "8020eb109093d6f7f605e61763d7fb55783e683e5c9544aebcd8dc41df53fdf3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchRequests.g.cs"
+      },
+      "Sha256": "9fe74e0d57ebe55c4799e88e7d2e17c3e60e3636601ec5eab63fe5c50426617f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationOscillatorId.g.cs"
+      },
+      "Sha256": "c0a9f0143e16b14da33860441774e8eea4a3f4559c179dde5dd63399eaf0f7d8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationOscillatorPhase.g.cs"
+      },
+      "Sha256": "9521fb0bcbef90673acae69a50ea4e1bfe89becf033e392c33361ab162ba6366"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationTimerId.g.cs"
+      },
+      "Sha256": "ab5905a0e9fc59f7a84a76ee4fb5cd8d53294d7c4c43155df9ffa42f5f42ea71"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationTimerPhase.g.cs"
+      },
+      "Sha256": "9757d8305019443868fcc55d36cef1038c390f01080c21282bf115beae177ab7"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Single.g.cs"
+      },
+      "Sha256": "99073cffbfcbbf5ad2a9ce114ded985dbe6ff928b1618341daf67a6fe342fb05"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SingleArray.g.cs"
+      },
+      "Sha256": "119942bc4dc5d6de313a8e6a33f55e802b43bb3fbf758b7681a7d8db4317b691"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SocketId.g.cs"
+      },
+      "Sha256": "723bceebe2cccf42c0d10d33d0e67230cf014323a83ecada13fb5d56c6915c13"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SpringTriggerResult.g.cs"
+      },
+      "Sha256": "8922966d6eb4e089cfdd654a08511508dc7a07f058b7e83598aeeac4908bd758"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.String.g.cs"
+      },
+      "Sha256": "6ff2577d43aaf6d418533936926f817715f2d54686826dc128188dfe1efaa5f8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.TimerBoundary.g.cs"
+      },
+      "Sha256": "46b3e1a40458dd0797bffab29bece0d3d113505133d91227b70e3185e504e933"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.TimerCompletionPolicy.g.cs"
+      },
+      "Sha256": "15581d8f4bab32d36087010248f76cf2f5c1dbefcfe62468f2897bd7884a3bb2"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.WoundSpringPhase.g.cs"
+      },
+      "Sha256": "f50f67bbc56e737545228524c4ea5c5bbf4c6bac45b8eed317df0d0686e24b4e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.g.cs"
+      },
+      "Sha256": "054c83f718b9bc53c34100653104c42899c99a3a9efeb542237a23d671225984"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.GodotPluginsInitializerGenerator/GodotPlugins.Game.generated.cs"
+      },
+      "Sha256": "998be1841a82cbcece02b12e420ef7f6e35572574afcd873dde21c7e825d2330"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BallDetectorPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "60b74034ff676466ee7993be6bc149f10cb79738c15f7ec543c2c9d40a615856"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BallPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "241b1fcd9eedee1f697e05d08917c6651c7d4a85c5768d26526b4e8f5db644da"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BasketPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "9b09395e8621be7c3c356887d31ab2e9952bc5c79db58d87229888bb9b51af00"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BatteryPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "3ee1c34e81b078eec2b4f8c7cd8d96c7cdd3327cef4ae553be54c1c0ad12016e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BeamCombinerPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "3a993dd0db0cb786a195916d32e0aaaf8aeba0f6a5802140603bfbf5b85b5f0d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BeamShutterPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "78b05f6e78d19ce2cc968b01a5bf7f42eda6296326003984f22ecc215e527786"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BeamSplitterPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "52574ca42973629b8061a085f221c6e299c4791971753356733a62bc6e347d15"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BellPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "c4727e93726ddbe8e0514510cf3b1f795f47a5211385224500b444f77f4275fb"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BellowsPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "39178f55bee181ccd95bd07b72c6d03c7f463e0c476f825b3cc228820464bf1f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BumperPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "a53690aaa3c7ab7b14adc83b2372eebd31883f78784d7003300f69cd98fabcc0"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.CannonPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "f527dfac4aff4f024d1b8aca6b0396cf3ed46a83c053f4e9e93837b3ad33a92d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ClockPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "d8dc9c4fa8f729e227e775b4392bb49ce7f4ad4667cb7670caa6a35cddfdd17d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ClutchPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "63daa3c07ba928c1ece8afa051a4caf3e462befd0fb7a6794ce0a8ce12a9083c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ColourFilterPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "72a7cc5282a2f2e6a667ac44162c4a607caa8d1735aa3bd3de708a7c14f4c50d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ConveyorPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "f62f7f1791f088ffb1e40e193b55a50f743e1efaf3deaecf411f8893aad57744"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.CounterPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "b23784cf43c189daa76f259bbcac659aece1616db02baa615f04d2669e9a1eae"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.DelayPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "bba08d6147eead2fb7057f74f4219a3acf38853f0c72c4b41749b77f96429fcd"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.DominoPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "fcc9de50f28ce330dae0382b3ffaf759a78705546543dadbc00e33cb0c9f5132"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ElectricalLogicPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "46efa2e38918099004f5d52a2b87425ef40f9291132dfa6edb0b5aa9f683bd26"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.FanPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "71dbf2d92fb844070ea55fa4244ca33119a587c95aea748f134e9756017bff5e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.FlashlightPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "24190792d4d494c3d187958b78a8c5d078d72b137f681c43c6944623b48a7483"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.FunnelPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "f185a1624f0e6651d2a59962634a6e91f8cfbb96dfe62be2773b19b7595d3258"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.HoldTimerPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "826324fac99f7e6329d33a4a037f6e1d08d5d75934abcf667ffcd843fc019b41"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ImpactLeverPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "e401f99060382c0a5b9c98fb692611bf9b6a9510a6bc7636ad95aff3fe89c6d9"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LampPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "4e4ca3b7d9b8a60d1ed6d799405566fc662bfb4b4365d8db9567ca0acaa2dad7"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LaserPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "13a8a6c90a7bef60247423f2efeb58a8d23581de414ab19e628536d13d7c0e2f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LatchPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "ef2790fe0044645c9b672710dade2d808dd7a8e001d5606129160491d536b3a1"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LightConeVisual_ScriptMethods.generated.cs"
+      },
+      "Sha256": "9eb05f08331e91435597176440a4f5ecb72b6a007a830a36f31ebb6a065efb6b"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LightReceiverPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "abef6807c42cdb8adc845fab57b75d189d16fa9f85ef002559e3df34effbf606"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.LinearPusherPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "93f0923fe8c924a93654b0c737b9c27e90cefcc8c0c91df039de701472a192b0"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachinePart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "5357bf4c8a4b251563389fa1787d0e5da9850ae5f0dd9d19c811d9a8f9dadc4c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs"
+      },
+      "Sha256": "fa9305389f0a972358975564386968af4f05818f0bd70e3ff7ba8831b08eb763"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptMethods.generated.cs"
+      },
+      "Sha256": "99e481c5c3569e1bc4f5c3a6eb7b82bf2970741d42aa352c8fcf2d510be62b7d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MirrorPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "23dc3bccdcccfa340733f143fbcfcbe7b8821a3b7f457e4831dc6b33deeacb88"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MotorPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "d0e911208decd2220e3ee813ce43398b7c95c1ed39f75ca35697462eaf3501de"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.OpticalLogicPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "e9a8cc10be9f4ca48d89a122982a8e144e681bcfee9db8cea1d3fdc563c03356"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.OpticalPathVisual_ScriptMethods.generated.cs"
+      },
+      "Sha256": "11e59c4c51f3cba081738ab7f3d84849c38200f8848188577556856a7260252d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PartDefinition_ScriptMethods.generated.cs"
+      },
+      "Sha256": "e769261cd57a694e83397dfd422f9dd24ff9f1869d41bf6f3170504ac7652548"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PipeBendPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "83198fb4fb30a4be55704e0c0c46b5badaccc288fed4e3f4534f89bc9535d363"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PipePart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "5fc9537f42d38a8097051ff20c2b9cd0588c0592eaa2e3d0265b8ecaab59d89f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PlacementShadows_ScriptMethods.generated.cs"
+      },
+      "Sha256": "4f1e2fe708c681956901bd2fe7234de65d9b426643fc1b34dd1b5c628a2148ed"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PoweredGatePart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "9153d5aee9189a5ab154ba8bfd6b285e11f98b143539c6ea5e899f11d3359172"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PressurePlatePart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "2cd1719dcd6badde21ed639f99b391aecf566cc70c65eb0f6a95c583c861e46d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.PulleyPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "ff4fa116244bb896803a10adbcaa9b219797948a12cd66e77fefbc4701332b03"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.RampPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "bb78aa6935c8c453daba12a7d5fc6f3fd61be6270f9e64387414a2a0883055aa"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "7bbffc6e795c4a57b74da7a35baaee5130e6383194d3c9f37e27f1dad3df2857"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.RopeAnchorPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "708ead68f7e3d4730d4a86ba70573e03d1d67a486975e5fb13d9b339670bbff7"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.RopeVisual_ScriptMethods.generated.cs"
+      },
+      "Sha256": "6b49cfe9c333437beba12fe4915679a057bb4a63248dff308878afe5da8b600d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.RotationGizmo_ScriptMethods.generated.cs"
+      },
+      "Sha256": "7be31e5a7dd6f905507e7ac60306858286ff96336bf90ae1aa23ec2e2fe1fab8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SolarPanelPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "1b077852b76e9679832bf2ad97f82d840b05356fb350fe593bb466e197306515"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SoundMeterPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "bb304959c5f93756059178948261f2c30812bf805a16cda6e79ed31e868d11d8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SpeakerPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "3ca1c552c906e35f2dc3e5b87a7040d3c14ec5c59d865d5bb99a7d5107036870"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SpringPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "b5cf3befa8f77a6ffee43a74bdc73b39e8417309ae44a5b8918adf34e1868d97"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.SwitchPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "6d634457ab8bd03a58042e5af05451360f3cdd4f725d867968c9f5cbb735d2df"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.TrampolinePart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "6b0ae5bfbdc12f49d81f05f14b6f86153fde059f02807f52a341d3f52bfafbe3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.WallPart_ScriptMethods.generated.cs"
+      },
+      "Sha256": "bd76c181ebf8011955bd795f0549bab767dd5bdb78affbf0f948cc2e749a4c3f"
+    }
+  ],
+  "Assignments": [
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoDeclaration.Joint"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "fb486cd85526f957db0773df17838093c4e1a3d52fb36ab260fd9a964e7d1ff2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoDeclaration.MaximumEffort"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8717a425cf80ec41bbd09743720097d0f6ba86b30433fd9bc48e8ddd28c47d40"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoDeclaration.MaximumPower"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9ff6ba0c483c6ae52e8eb524a3dbb4272284a17f7883dcea2b54419a3010c9e3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoDeclaration.MaximumSpeed"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1075e67abd27eb12720b1f1fd1f75eab851bac6545a9bb9f952f1d953ee72dcd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoState.ActiveRange"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2da9833473aa56c0d1117683678116b1b6d14ef6d0b7b31fd054ed2ed849804c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoState.CommandSpeed"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0658491857ec9d56db5b2685866438e89bf9829615dfbedb75878949f2496c25"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoState.Declaration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "88fcd4b31d3dee4c7eee98f2dce73b4ef202ddcb35718c663fa23ff79d689dbe"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoState.Guide"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "04f505729d6199b1dbb170fe47c3d687fbf58498482ec865179c7a2137e757f0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoState.HoldCoordinate"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "109fe404a259a82787d5447c067fd46fd316d86664abc720d71d804a20f7499d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoState.Mode"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "dc37401ac471302b59cfa1b38899861450022f02c942a6d6d61f21e48107603e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsServoState.Range"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b7654b52ea3e198c4bbbfd06df767206bdbb67a5de75c5637469bff79ba8d594"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSpatialWork.BodyCandidatePairs"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0d1aadb5ea41424002bfe27c5cc78df490bdf696afa6b466e36547fcc75372ea"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSpatialWork.BodyLeafTests"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "308acbea347f79334c3b72d56d5178416ca88a5044007d7c5fdb795334d23cc6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSpatialWork.BodyNodeTests"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "750f13f4abfb0e9a88eb8f47ae0d24035c2b32b657070dae3551d421fb184662"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSpatialWork.BodyQueries"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ea24edc9f0f6fe2159cb1cddad9fd9c80eef013e9db94c37b21785b785974b54"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSpatialWork.CompoundCandidatePairs"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "79830b1915ffdaebcbe154a46b7379c18712dca3d138d592932fbc3e40a049c3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSpatialWork.CompoundLeafTests"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "40bcaac9a684d693d3e7cc5cf1c87dacd4c3cb9a55fd78daaa6c967e6f3137ff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSpatialWork.CompoundNodeTests"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7e0ba3cd27e49b7f43f3587fce7f5d7b106803d142c6dcaf8398ef23cf53f93f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSpatialWork.CompoundQueries"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9aae501e1549f4ece4b2cd42c32f5f1884824114417961a00e6d8e6495b50221"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.Events"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b0dcda100d0ad4db7b85dbbb50d53f442a5ed17375f0d27497ef295598938843"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.MaximumPredictionCoordinates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "86efb0e229a4ae1116085ee8ca8d59c8a1332ec870528afab0d238e74e1d56e0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.PositionIterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2ec187d19adb816ca36d439aef1e61e705ee71ea4ee317b33c4420e7a1b869d1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.PredictionCalls"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "070425b66486e335fbbf4dbb39bbccfd9af7d20fa4203bdccbffd86225d88548"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.PredictionConstraints"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2b05deec3bb502c46873ee188ba23061666136a7d0476d1663ea26ab1768f8c5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.PredictionMidpoints"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "acc463d9f29f7d8f38e21d966dca0cf4fbf83cc8a801a3f4de097f4fa3212671"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.PredictionNewtonIterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6d9cc84f2e961e800328dd66244b51f8d2aed46d563e7b21a53db1c0e64cd445"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.SpatialWork"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "00a7049777eca97b9758a00a276afab98927c4669df733552056f327e79cc295"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.Substeps"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "388d2aa49e5d4c14589cd53e4f96af942863d39ac80dbefc19808e6ab0bebc61"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.SweepIterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "fe84985dd241f07194253c5bc43a18c352ef767629873e2b682acd38882222a2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsStepResult.VelocityIterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8bc38699f989ca5ee0e9258883e94a999516ed09ee567a46558a2cf23ae51657"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSurfaceContact.Direction"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "04a3e826752b32782d7254e9575c9ee346e4cb04a5b672fa98788c99a568e6fd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSurfaceContact.Drive"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5e0cac753d6160e6c45b6dee1e31fd26c957c53d905a3a57fb42093be8671987"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSurfaceContact.Point"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ef175791d785717a4439b7d8e5967598e880402028e571b06d7a1ca72da152dc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSurfaceContact.Receiver"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "713de2876e797df02badd4a13352b1fd2b8b864e6dde7f8283f59c9143a33c81"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsSurfaceContact.SurfaceSpeed"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2b81ab00505a37fff41180a2fabe4e44d41a3d3568019e52730e0df58bf5fca7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTiltSensor.Body"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f94851a45d401c3b510dd2854a186c1451330e23c6fa2c2d8f27a1ffd19d91d9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTiltSensor.LocalDirection"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f49bbd806f38a98fc468707a14a9f2324457d44ac474a6ed1d818974d1588bdb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTiltSensor.ThresholdCosine"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "797a10e6a90285d8601adbce37d538bea95eb4b6730772fddd487525fa99088d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTiltState.Declaration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9a268633ee60c4e7615c924b967b43f16f8221add07ccba15c45282077ea0ee6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTiltState.Phase"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3a7a9ccc2dff3815edb1e73f97fb65e00d10ea9d255cbf3fe2695736aba5d38e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTiltState.ReferenceDirection"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "24be92452ee256f5b4b858fb9b71a93f9d15623c2709f93a53bee818d5a364e3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTiltState.TriggerTime"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ba0d707715b96c2d35735e091f52bfab232943cf23d632479ba35bc8e99940a8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTransmissionJoint.Dependencies"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ee2cae4c909cc55d966481e2194e672c03c9c62e49159478b6063aa4c10ec187"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTransmissionJoint.Engagement"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7cb1a1a696069eef56f114f5d72cb17a47af0aecdf756c7d9f9d1c29f29376a6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTransmissionJoint.Input"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6f22c716b5703c4e128505c0200075d645aaea5ec0cc2e0eeed523408846a3cc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTransmissionJoint.Output"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "82a8263694293520bd305fdc0694006dab598e3f809a8ad8027a333a5251c1c7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTransmissionJoint.Ratio"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cd94f4426a12eccaf44af729bca4469ec23e5322984e016a4e50155ea4b7bf84"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsTransmissionJoint.SpeedError"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d4a350046785557a47dc62cb2dd6fc7d7a0169d0619d2f5ea9d4227b098102d9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.CompliantContacts"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "52cd5391f7b7af834971549ebc69787239baed76ca6aaca3e641066b2d781308"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.CompliantEntries"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "16037653b2e7694598666e4608045f76064183cc8dbd67244c771848060b8125"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.ContactLoadSensors"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d738a419e368a81e92c0a3fa9263213d73e698d0b46f2c8585e44397fe13807f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.EnergyStores"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8d42430a26f8078b845d7825a93d2e36ebebc1a3676eff2c100de09455ae422d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.GasNodes"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "45af3e636ecd5c002e894995cda0b5da2fffe05c72310908cfbea02ed5947347"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.ImpactInput.Approach"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "43efdb3456cd8e4ee1f68ab7aa0e737c415b75f7e09b17b202503a4acc405d97"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.ImpactInput.BeforeA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "38e159155bca72ca4233a81cc23a154b6e9c80d60f2c5c5921cb8c65d36f6134"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.ImpactInput.BeforeB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "bd588566f03d2852ce56e32ce1c52f1e312f8e2ad1aae226d11661d0059d15bd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.ImpactInput.Impact"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "41d209cd86a5c236eb81e24568142bacd50571c4269d38096e848e0a9507227f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.ImpactInput.Pair"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0fced180dfc06b9857c8568fb337ec4859f433f19f325d5302e1e9928746b17b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Impacts"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1a409cde3a7efc6ca88d036a20654b2a59cc6b979b47c5d9f5f9880188b8f900"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Joints"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "af50bafff4649eb3f1861071024c64f6772e0da97f4cd820e3dc3f30df997fc3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.JointStops"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "74c73a93e726dc0a6e4a25532c180e749a46eb62cb6c52de4ada46d7ac55f85d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.LastMotion"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8dd600795f28ab1e63f537b10cc41eb570f7010da10ed1aa1c4f78f9761f2895"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Loads"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "41c0f4a1795b20c50a0cca014a3974ee9a45622f2a12522eb258944d2e1a4126"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.MotorTotals"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e7f20f97125042a0964e129057d63336d30f6d83ebd1dc9558224ac5a81710c2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.MotorUse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "10bde52ab68d98f78787d62ff362688a8ff81ac7eecaf8bc2daf658f48f96688"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.A"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cc5b3d2346ddf5231b4756126bd888b8f0a8fa1b88813fd1aec453b4e444f588"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.B"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "643063a09880e050a0ccfcfbbfa859564022d0306b2712aea47473f26eb2d929"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.ChildA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c8056dbf29a26951e1ef8ac06b7676f282ad17759db61ecb546a7f44e61ee28f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.ChildB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5ea9ce95acb99c63771659c61ce2f8e9bcfbba5e12b7b338afbe5fb72428e7de"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.Contact"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7b213f157a058706becf44e67494f649708e2c2eebc3959155ac17b24281a271"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.Key"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "55b855a99501b9fcb16a3fd1f1175263e44df5c0d00b5af4e7632c332f33ad05"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.Position"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ae688c7e20538d91e6187e9ffe9658be1587b14c3946ca94ffbb319f56bd6179"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.ShapeA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3eca58e02640a14c192ab8833a4a24a96e4f6e577b9a55769e45d0fe81450ea4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Pair.ShapeB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b51cb485caf471c3a65c8127692e226aaf86bdd2bf4a6cad8d93e920c7d40e2c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.PassageEvents"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "79f185583be3622f7208e5446d81942c3a57dee38171b27a18d788070a549690"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.PassageStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8e836fadb2977e4c0d86f81c94cc46f92494f59889e5cf7a800890857e88c347"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Phase"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "65999b2ee5a8ac3fabbc4760b2c705d267d89c7453b19cfe91ae9c4cf57533f1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.ResidenceStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e50b8207f1d78c5f3b8ae8fbc86c358a83c2a1ab1ba3feff88ebf6c2f4e1e38a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.RetainedContactPairs"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f77e778e2adeb1df7ff7dfae8b31955008a85b43f4c89d18be116a805c55a582"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Servos"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "669f0fced60b956173e8d9c982756661ee89e2f9d705b36ef4d28ef3a2ac3f97"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.AngularTravelData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "534ebeb37e7d64039c6851b9bdfcf4dd29edb33b07dd96e222c0ea76c637a095"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.AngularTravelStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a6f64730f3e052819ee9bc5f260c64ccad5a8dbdb39998db93cc15b939f54da2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Bodies"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2322e5e1378a473b674ac41fac3195885463da521a30c048adac1aa1f55c7881"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.BodyStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0f9926c1b951b01abbdcdaafec6aa7e4a2eef47dfb3a8b3ad3fe751a7cf5b99d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.ColliderRevisions"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6c02b71d82e0f9e197b20b23ed67b9ed9f7fdab138308b2252b2e8b09556db25"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.CompliantData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5d89abfae6658922e0197055450d010d5156fce07cfae1afaa3cbd31caf7fd56"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.CompliantEntryData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "556a2539a41469c11c9b7503df3de5c0c0035ff7fb0bb88c463ceadc6d48a3ea"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.CompliantStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7b8196dbbd2e28b16efad294f59cb1f51f972d95d660013b04565e8a8daba0d9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.ContactLoadSensorData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "84966d39ac5f5e0e5e74a92c8c505f11d17ac7c7cbef4db8a0dc36e492ed2226"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.ContactLoadSensors"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d37101553370fd396a0f9df42dee684919827d9f69d6be6860f2769a66b39269"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.EffectData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2abaebcd092acdb1f36e4452512fa3ccede3b803526f0beffcc2cf377f3e6d05"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.EnergyData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "aacd9a394a2ba53da424180518846ee20548114d11eb1f1171ba88560d6d9e0b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.EnergyStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4f2bbd35f755148d91e56339a93adb645a7de063a22425a6209077754c44d68a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.GasData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "be9df92421894cb828b8a168585b1e4b56055a3700fdc3e7d2a0ae243319300f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.GasStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "63371cc159d2eed87b07d714753a5e87d2878b3ce0f1d363e8f9419dd766bb95"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.ImpactData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e16951c3668219d8b78793291a7a6ad6401fa8d5c9078686654b964e219b7c12"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Joints"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ff63374c8ea2bb00cf041fa06e90833c6bd01095339a2ba4ccf82269078abcd7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Loads"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e628f3cdd91095bb7747a91fbe0dd1b8c6c542c6b08a7b05846a994ec9c4380f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Motion"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9f8bf82fca6ecabbc617ede7fd78436d92ee85b338b448bf1553e649bd820726"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.MotorData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1758524071a5245fd80c8ed7a126c1a7123b990417f08e08742c2fcfd1858131"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.MotorTotalData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1b91243951b020bb722ef9ede4a669daeef8220947d1270650b044ab64977f9b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.MotorTotals"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a532e4b794dbc3bd529011fa1830094c57b6fd6cc078d4055380e6b5cc81687d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Objects"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "452f0187a441c681f46ef04c8b91bd1a73e39f37beb8c302df0e2c6b65a23269"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Owner"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6f5542c2bca62403e1f185ed35f8a22f52960cd19354a31fecb687500c0e24f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Pairs"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a8e76e0779e68bb1f6cfbe9e9415539728ebd7741c29795ab73f9167523b8a61"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Participation"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "400fd43cd05f0be98c6fed247496811b7b87dbe71bc8404b3c2211cd8a5143bc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.PassageEventData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b3b24cf5c7f07737478d0e429c1e5d77d3f637c317b2b2d36dbebc0a7f3db8f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.PassageEvents"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "808848533c5723c564c96956d082d5beb11cb119bd249ab58bf01dafa7234920"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.PassageSensorData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "092c0b09ac3732dfc505f03240811ceb9e56fdf8c210b22151f63e828ca9ac27"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.PassageStateData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1c7ad0c3a5e8f53684038fa58995ee299b3e58d65746314da5b4439e30fc01c3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.PassageStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7eb90ca9b9b4e3656881a54a5f04409f31924c8e95e07506295c40cac83bd857"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.ResidenceSensorData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a3f86cf0588502f8c6f37b54c0e956705fd24fb1e7fdacf645122a63856d9253"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.ResidenceStateData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d6ef3c046fa874d3ee613337ad5c2bae92241d85d235d7bb3b871cc7200024ff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.ResidenceStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "649061dcbb14a4916b5350308935f085d6a5f6b25d3e654e017867ce7143e497"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.ServoData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9c84631e37e5a42c0033aa09caa070d0671fe724bed5c78a3ad7659cf5817e10"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Servos"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cff959475ba19adc2193dad05cf338b0bf654b62cf5053b5181fd81beb20a6fb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.SourceBindingData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0c2702ee0682b692eab295e93b28aea5773188b55b4d7a392dd1178f8bdaef37"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.SourceTotalData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "72bec393e24acd6e4e44b8dc444da0a4ebe9b2b6f326062754439050b6fffd41"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.SourceTotals"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ee4b4e60c917551ebe583af01c84d0852bc833fba94875d6a1f57b88547856e8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.SourceUse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cb1dc5dde8692ac123c71dac7de6cafd2408ba01ed89981e245ace99920f5143"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.SourceUseData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a00fd93a5af453d9ae8c028c3f18b1423da4035d9e71f6b927b54ec9da4be52f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.SpringData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "07c8b830971ae8b4fea1f0552385fd511990c89896d2131595bd226bdf89e19f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Springs"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "223a393878b32ba76072ac7e7c5b3738d7e5eb2f2ac82000578a34ba626a62a1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.StepIndex"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5db3e4dbede639135fd1799b7023629a8bd76bf4cabc3111e6eee66fd4f105f0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.StopData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9cf589c62320e1cf2741e35cbd5bdc61b3a4944fd564ceadffb40ccb79e58814"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Surfaces"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "da26ebdf852f1092a112584c66c7e4d75c7f086a3c2f918567dd9bb456842e57"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TiltData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "26cd6feec5940ddba7883c85bdf70868a0900067c4e9dfa9625cba609641f47c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TiltStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d1be9b001f839ad5bdce162310ba6fce965eb3d922359932c05bd5f318cae35a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.Time"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c285f96dac3b80d16a908ac703281a91d3a0f9e5ff71dde62a162f34cf87a050"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferBodyImpulseData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "500db97441d9fd22f4fed3ed31b667c08fc6b30a6461d790760a1296ab7e2d45"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferBodyImpulses"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8a62c51a6b52659f1f16109a37c55e9989688212492d39bc7d01d0f819f934f3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferError"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b4605079b6ffaf4dee3cad17b714d538cf8331919a2c52187a9f0670d2e0373e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferResidualTotal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8a850e374c575b579c0b1d8b0fdd2f4ac11262da7e2b5f5b46fc89ca5fd68552"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferResidualUse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a08c6b250069f12a72d121edb6f516cd635d9e5717e56becf5a9c56b2a9615c8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferTotalData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ec3f20158f65f8838b6451b80d003909193c3a7ad917dea6d3b8f0a40e80e0f3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferTotals"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4c6e264d95ee9bb89649f63104bf8644a7ab68a8a8a3a56fc0483a43a56390f7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferUse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c340b4217ce6dd328f60763f75056cefb17fdba19e675c26ec95970f094a89fa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Snapshot.TransferUseData"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ddc621a7b905cdcee984f29a949412080bd8282d3044bd11f2b0392ee3b7cdf1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.SourceTotals"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "fecf3d39a7834ffe3a6578dbdf5d93d032f9c70f384119bac91a6d22e6497bcb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.SourceUse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3dc842a6d5a6f82d7dbb13a2c249855255f2c356a5941c0dc03ef254cfb6a83f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Springs"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "07175b2ad19a69f17a132edd76c5d5214a968e1c9f3001557dc0a6cbe3761ffc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.StepIndex"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "42931d99e49cc6f94b0479bde8ec67c3fc2220feb03ab1fa7cdaad14c0f32414"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Surfaces"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "dc7a5644096413b236144814ec27dba112bdfa615d2294db84f125c6985a516f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.TiltStates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "684d540d84fbf6f63ffb763bc8ff1496fa630bed8457af1a3f1b4cb4973ca94a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.Time"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "659a109f5ef4ad242d9003ff832fc83aa246ee27c9cc5df680aeb318fc12412b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.TransferBodyImpulses"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "082a47cf191c162594fa391dfbfb54ac7b9b6896b48efee75881f6d228694f7b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.TransferError"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7cadff8a7578f326a9d3d0d332790d24457c96bee5815d45422128e8cdf4f662"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.TransferResidualTotal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4576bc89095d54e409dc2aaeb71d9a3ac389b922e7367fee796d6aafb03fcfd1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.TransferResidualUse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f60a0981cfcdb74b73dc7f6a4399a9a30a891bbc7d0a740f64ee80ed0438c8c2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.TransferTotals"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b7015334d0348fa27a013d8ff45933a0334b50d50c8ffa6ad9ebcb19ead2c3dd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorld.TransferUse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "de0edef4cf173a5f42930d69530e467672798cdd04608a640890a50b7a45f256"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.AccelerationTolerance"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0dbf503696c6fb4d29c5c45c959c9a26a253db35b9da196bcafc8b3eaa00cf1e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.Gravity"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1f3a1066bd3c58391db1f4552dee80949ff9cc43179d1d0cef814c8181add95c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.MaximumEvents"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "04ced800fc4ecf71dfec6a0fbcb039521165ab4f44589e115ed091ecd054b9cc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.MaximumMotionIntervals"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "936f7e7557cf439ea25967d0529218836fe31b22b8709c5e345e9cb7af80887a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.MaximumPenetration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5bd6d954aeb83d617111b4eac847dc1734941b586ed46307b46e7f27ef711daf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.MaximumStep"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5dc3ca2556bd87fb0d7d975dc336212c4ee33e9eefd491437131c629cd235f38"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.MaximumSubsteps"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c244d93db6d4b6c07b9b7031edfcb967611011250999cb2d07e3ad1fb5873f89"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.MotorWorkTolerance"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cd13e0a10eb47162299d479a0ecdbd6b4c7d2b98fdc8f8751a2a76bb319c6202"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.PositionTolerance"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "57ea9a6036388ae73167e82c15f4737c1ad935d1826382684d158b97759ee443"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWorldSettings.VelocityTolerance"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e1428226266fffce2a558a5116eac9c61af27c6106b658359641471dfba5f8e9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWrenchCommand.Body"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ea4fcc8cd706f24e53702310bc154dbb95b28a1148bb229a72e0948cdd784f3e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWrenchCommand.Force"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ab753346e16616f84792a3ff314fdc9dc4e996c616e1cd94b10ffc43fa964dde"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PhysicsWrenchCommand.Torque"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2e59def67610596687395eb74cd509f9753d1df3c96957d3da00af2e8817c5c5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideBoundaryPath.Duration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b13c6201d2e0da34468a5e3ba59809ca86374d77287a43e4e951bc213e86e72b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideLoad.Body"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8db91f75ad60f177c59697cd86aa7241f3a028cf5754b8938e0b530c184a123f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideLoad.Frame"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7e31b20d8858682861c8c57564191611af4268c78d842a3e4e5e27caca6150c4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideLoad.HalfX"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7d66626038139b9530a537daaad789094a6a9249a1f311deb4a1871599caf7b9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideLoad.HalfZ"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8f721a075182b3a95ea1915153751e6e7eb8a395386a47948fd384c4157a7989"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideLoad.MaximumAcceleration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d594274ed42f7153e6f98b3a5487d6d6082c92ac071637d771ee5201b51aed90"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideLoad.MaximumHeight"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "14d68ea99e1aa466938a1eb72f7df4543dfde5d7fce854a8e17811c417e456b3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideLoad.MinimumHeight"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a90f6a40a9142bd3eb547308347f60263ee4524ddf01b379cbe78ac6c0b5bfa6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideLoad.MinimumSupportHeight"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "67a2aa09f728900e3bd4271851969ce4c2a8cdb35a843e1cc5abb4458179b5ca"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideSweepResult.Boundary"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8ee5e1cf7c37e3bb7ecfbe729d0520920c4a0ebd63dc8ee4045213c1bce2f53c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideSweepResult.Iterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e8c35938c1d4549fbcfcc3d85ac4cc4b6272af94273ccde0dc95e8cc73c8294e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideSweepResult.Status"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4f8fbcaae0db979b892a477674d3081e4393e31d2a1b19b2623b4893cdffb441"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PlanarGuideSweepResult.Time"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ed89c8a1c486fa3e7eb8a7dc35cc2875b4b183ae2f76f044eefb7b7ca66b4b8b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PointPowerPort.Body"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "745327a25d4dda7f31fc2bd4b936fedbf686b7973c5a7d1d76be88030ce2f750"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PointPowerPort.Frame"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1bcea10c1a9c5385dfda2f1f6cce4086887909eb2736faddcc75d79df8b93805"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PointPowerPort.FrameLocalAxis"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ab62865c801d70253404a95a9dae6c570268419b19b968208e1983835e3bb1d8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PointPowerPort.LocalPoint"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f6857c8ef36abca48a0e08ae30514ae867a13023ae99c60343a6fc2e1d2f389e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PointTrace.Closest"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1abdf24e9029e8f88f52e53391141f3ccf4723cafc4517a8ea962d076aaed1dc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PositionEquation.Error"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "31a260647d822574edf893bd157971689ef29f9286a441e02beb6033b4ca88cb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PositionEquation.Gradient"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1be5fd39f8af077a30e3b73353423ac2bf10eeee517b83a7647d6eed5bb9d658"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PositionProjector.ClippedCorrections"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "dd1c767cd56eeb3b0288cccdeca86caead2c9d17b7595d7576c1ed239ffe9d94"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PositionProjector.SweepIterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5b7ab8634c186089bb145c4d3ca94024960944efab3ce3446321ce8860c5ed99"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PositionSolveResult.Iterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d22ea02c3bc81adff2da0babce684e1efa590aa84622825e5ce5365b09267f64"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PositionSolveResult.MaximumError"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "62e97c76859299f23b664a15aea57e82f5013e37395c1172cf1f587557cac11f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PoweredImpulse.Candidate.Dissipated"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "84b7690e33ba8cf07e0fcbf036148968465984c6f36d63801f0745613393959e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PoweredImpulse.Candidate.Impulse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "96e84c6af6e401096de793fc6bb79b3f0b0bb464ea0502715dd895d7ebddbb15"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PoweredImpulse.Candidate.Speed"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "49f9efb663dbbe8494297636df9b29dad304494dcbc058dd28af0e35b95a3779"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PoweredImpulse.Candidate.Supplied"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "90a4e7131046db0d2547b8bc8ee5f92bb7c28b5939756232aa5005e2567803c1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PoweredImpulse.Candidate.Updates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2cb4116430238afa8fa4782aab6f8a7cdc6c8c88aa17d01294ea33bda3c59362"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PoweredImpulseResult.DissipatedWork"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "dc617477ba9d3b2029830ab6219df95e1525da805c91c7264d568617c3e7b6af"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PoweredImpulseResult.Impulse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "21b6be26c902acaef30eb1c27d18d6bcb6fddb5ffd76669e369d5e8142a47ed3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PoweredImpulseResult.SuppliedWork"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "53eb34170150c80648c1f2cf584edc39000803ad6af61598c8cae2dfb5696edb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PredictedMotorUse.AbsoluteImpulse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d4509b6feebc4bbe6d664f2c87acd7ef3c9a9cbef6d146b3d2c51c08cdf17c4c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PredictedMotorUse.Effort"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d4870cc57f0432b7b42770939e156717a943fac9f12d9f965cf8c83118f942a0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PredictedMotorUse.Joint"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ac629decb1d8ee003a96e8350c12fcd2b0e6b276bc2c1133ce6952020a1ea409"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.PredictedMotorUse.Work"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1dfe87e3fee5b3f1066d41ebc006fc8ce0f93c341dc5c18ecad3df1711e5325d"
+    }
+  ]
+}

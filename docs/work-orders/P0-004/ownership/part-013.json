@@ -1,0 +1,2716 @@
+{
+  "Sources": [
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LampPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "0a016806c248eb44f36cb20936cd49aa8fd9eec099aadc96652899e204ade688"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LaserPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "04047bdc73181b8e511f59de2800819d109aa2d6885ad8ae0fb061d3ebd1fe89"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LatchPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "a54aa7bedd71d179f9c83305cd5dd9ebd42e8454b2fe75415d2eb0b25ebca830"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LightConeVisual_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "61d16eb38df8a4d52ba3489774c8c234c4e59ca0b3d1d81b558ca9ae5ef66e91"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LightReceiverPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "31de8c88e4d9641ac4f82372cdec4d88dd1c8846daf04af884d934fbcfc9ced1"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LinearPusherPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "eff51baee37561be95705482352215b1a0d78d2ce6ff8aad3eb9638b9d583175"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MachinePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "f7984701e1cc2ef356c51f8c332d9d8991fd5b4b177fd9a6d54c541097e87a85"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MachineWorld_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "102087f8cb08215c9d7ed05754bbb229c5e0e308b9ef5222bb0983cb8d6bf610"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "903b9306d70e731bd5abf8e8c4529564419ddffd6d66f197cd250a4598a37ee8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MirrorPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "0dbfb7b3d836b70a9730582655ae9551419e20b2a0648d262599b8d2f7c18a01"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MotorPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "504d54662736b1676f0993fb2535db754af7ac707856909ed2d2d26989890821"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.OpticalLogicPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "53ea734ef408ef80dce5ce4f7c5207fe5c9103e6bc4bb268a76af75cb4bb9a16"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.OpticalPathVisual_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "634bec8035b22b9de6ca7e3430713739925220d28076217a28be92a36acc451c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PartDefinition_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "104da07245b4ec96670bbfc10487f4eee6701b4a76b7f083ecf1f9cf52c05790"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PhysicsBackendMotionProbe_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "130df5d71783af435cc6b2c72a102c3b36164c70fe737f27c6eccd42b50222a9"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PipeBendPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "00658f1974cdfeca4dc3e169192ebc76cf1f6feef7b7c6f97485e746c38937df"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PipePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "b2bb17633472533473cbf9740db1145721cb4958b53b37504fc85e58ac4b85fd"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PlacementShadows_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "b2cf975feb1ce70249c37cbe435f6aac06c193f03c11aa2749546aac7cae5aa3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PoweredGatePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "68ebf5a9b31a44c1dd54fdd549690e295b5a6180b8a3b4275a739bfa3d742331"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PressurePlatePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "9f59a5fd6916d3c7ec1fdb154d42395c9578cc6f4f84925d826825adcb70b585"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PulleyPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "496ba50c0ab179e6bb5efe2df08cf3cd7c1e5a8d49fc78401f12dab90a2fce3a"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RampPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "33d7aa86de9420f43e6ef9a0316f7d9c61d56d22bfacc0b25f6e3cff74386309"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "9baad6639a16476f0358b7b43bfb1b1a2c1ee7d4ecbbe47033aa98b4f73d9ed0"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RopeAnchorPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "8ab4b5b4993f8a3994f216ff1ce56bb50d649c766d62ee56ee3e638a6f43d3c5"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RopeVisual_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "f9fea190e8958d698243161c801cb63b183ae05ba4bf66f474ab17a999ac3cc4"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RotationGizmo_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "0902a1ccfac9d3089b5f972cf8746942dd9221a55db3bd549045296ab6b37924"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SolarPanelPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "7547a70d86053d964f8923bbbf98c2bad4d46ff2fe6535db044da2ca70cf47d6"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SoundMeterPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "3ac5a29e194596729cee6e49d9e24c77eba08c8ef27c94510648b5fcd6bc4385"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SpeakerPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "889670e388fb7b7d1db829f9702407f66f31c1945976e9629772818afdd3de4e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SpringPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "2fda6f9d78c78b1ff25469f680b3dcf6c0bf7b74a2b9bf61b0a94024080f49b3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SwitchPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "e111d1c37296f81ba0956446481bab781a64baf5cad5bda5bfbfa40e768d3469"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.TrampolinePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "dbb5e669e32cfb469e31ffdc891b61d66530f869494a8eeeb3779176fb0c8a43"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WallPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "1636fd87d141973734173126a27549de895f114f3a067fabd4d631254ce0d4aa"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WeightPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "e76270bc38388e81b495c1b63a3cc29b0f3a4bfa096ecaadb10e90057716a323"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WindChimesPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "616f7600f2fa3cd0f86579c803310a5d5d03d975b03e1aef80e4ebee0b54cfdd"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WindmillPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "a71f6eec28fb92dc7f5a11ddbf669533d1fa83bc7259d0e03a9cc22f6d1d0e02"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WorkshopButton_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "5f42bda82b36d417040ffb5b1afde469431b10f32f3ca7d665103f9d7981fc38"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.Workshop_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "cad0232126ce5b6daff51db4fa5adbea7be9970636f2277ecdd66d709a09a57b"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WoundSpringPart.GuidedPlunger_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "78bdb8767b90c3b3ade216bfa6114d0759c6cb5ee7464d25268d8b224943d578"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WoundSpringPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "96bff5a6a1be2821d5f7c141396ea3781d1960add82df6bbfad6cac7bd9e8c9d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BallDetectorPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "4c0c3207c847528a9b868e8cd991ef92cc90136abaf09baa34b8bc7049c6f07a"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BallPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "63b0dcb67e230d169f1e234d7c3f469ad0d7186f8a103dbdc40944ae10cb8658"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BasketPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "2dfc7607ad03080bd75d8775f73a5948064ac0ba4d293220e3c5f52e3dfcab72"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BatteryPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "455b6e4b7e350c0d8866fa38c8d2e4f2a179a863d3c5dbc4594ec962ef29a039"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BeamCombinerPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "996ae9d3c0082fb6e1f4d5cadf24e3c081e131cacabf9a21a2ab57df3a7834f1"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BeamShutterPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "3753722d699deb63d15e93e3035ebfe53e42953af38ed56850e82486d3de9959"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BeamSplitterPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "8affc01dd1d4c8766723369e9332d475087412a785c7e38a28b09c559fc60dfe"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BellPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "cd5a8874489d7d9f026afbb8f9a7d5a43f38ba25a48769428c20ec7c5a34031f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BellowsPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "6dd5cfae64ea492be5b7a0251b351f15d4b5d465acf8208169baee6a396246e3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BumperPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "4621d6c96a9e61dea34291580c4a86d39a900a32825fad52cd95a8386aa82465"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.CannonPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "e61188b2ca949042296687b84f1a0044789b33a4e84d1548d4d207810f25bd38"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ClockPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "193183d0d06020488347a0b06d168d5d37c8845758e48daada5b9273a6291e7e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ClutchPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "4439060ec222b68430b45c8f62c12f696102e53aa4083f2a22e77268d6eb301e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ColourFilterPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "422f1916bd7bcad9dfcd281e9db49d3ca4fec98dd8176e0adbe3ff00f63f26a9"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ConveyorPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "238c106edd2a0829a619415fdb3a20bfcacc514aa41cf7b61d185331d86d89a3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.CounterPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "c398fbc1308280c0a19774918af34d40c8bc54dd44489a931fc3676e658bcd25"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.DelayPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "128e89d126739af4e482b6c9e086ba73abcee4d7439a0758bdb6498d3878f62f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.DominoPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "6f8340728df2350d72c76de56d2520da3437594dd04a54e5dd831e8987d0193d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ElectricalLogicPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "08568d76ca5a352b055486726aa001ddf1aed24d58ffcc5227e4ee09064d5202"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.FanPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "36e21c4bf5cb8fa365d8def35bb08807fc87ebabc5fb5aac38381f4335c84431"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.FlashlightPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "a6b8a8caf8e22e846e3d4fa203a0190f75f194ea84b5a179a1fdda396f830087"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.FunnelPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "fa7fca27b3b3bfca1fe989d969ef165534e364b3812c13f4e904a560d4592907"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.HoldTimerPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "3c5a19f6d401e110af5b45aa7742988bac4239f8a89c634f37187157674ad4e2"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.ImpactLeverPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "95165147d424e963ac2b8599b9cadaed7b8031d53d8e67060f193008ed08d9d9"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LampPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "0976442dc916d02eafd2c7dfd9e78398090fa2558c2dd2d23bfd7ecb266b125b"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LaserPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "dae849e6ef35f83c3175e60a8761e695af11c72f6c903b6b511f0c9747ec2e46"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LatchPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "8b24037b70de63e4aa56dd926d9cae63b3eedb616265aefdf48e74b30a00d6ea"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LightConeVisual_ScriptSignals.generated.cs"
+      },
+      "Sha256": "4cbf5482955be440d8f186df52fe30a543dc206556e268442c46d6cb7eedd4a2"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LightReceiverPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "0262fab6c16206cab3591fe313c79e01dc845c8e1b539d8550ca9fab27a3455d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.LinearPusherPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "dd936eecae5adf93b6e843f9873854ab5159cfa82881b4677f7c228dec670433"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MachinePart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "e3ee24e6cdb6a24cefe45423dd79e8f60311990471faa0f1df9804cf95bb5739"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MachineWorld_ScriptSignals.generated.cs"
+      },
+      "Sha256": "1635535ead79505e9e2265c7ada33e8bf7371379ba216ee66c6ac9d3a1d83523"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptSignals.generated.cs"
+      },
+      "Sha256": "24f633696e68dd348cc060564373b6225f0f3c2288d403e5d1d25745578ac517"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MirrorPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "cd80454e21293e845b4408d833a8ed11b19cebc7ef05c8c77caa6a76560aaf26"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.MotorPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "e5c4a38dab90d29921e9d821d108a350f7d0d27915bf5234899967b46a0c0ab5"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.OpticalLogicPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "0da77eb66e8b13c736ad3b805a730dfb1e00ef1428290ed20d6c4be64f58a357"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.OpticalPathVisual_ScriptSignals.generated.cs"
+      },
+      "Sha256": "851adeadbd5259d9c10593f6e637b8a22f971199b96faeda0f6834307bcdcbdd"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PartDefinition_ScriptSignals.generated.cs"
+      },
+      "Sha256": "3bc8f6870026994211dc9e0c4959b74d58844c85d87e3706b1d2f2c3bbad990c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PhysicsBackendMotionProbe_ScriptSignals.generated.cs"
+      },
+      "Sha256": "95ad7d8b1371c579727bdbba9e9289f02ed7ced1acd51dd7a3ee77d120e77850"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PipeBendPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "13e3b5635bafa2b47e56a7e7f48e248686b0a497cc107207458a0484fc6b4e09"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PipePart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "ff2d8981cc7107fc887f8e4bd58ecf8b163fff7c92bfe676dc8cc52e406515b8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PlacementShadows_ScriptSignals.generated.cs"
+      },
+      "Sha256": "980914bc0ebf85978e216c546018e98badab2889d051afd31eaf25fa26f3c3e8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PoweredGatePart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "6512efd7c1b9dfa12289acbbdf2eeb7b69e662a62c470749e4780a28b90f4345"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PressurePlatePart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "28a9b8881d76ecaa24f8473207dd695507b34421a0ecc164a55aab811af36e17"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.PulleyPart_ScriptSignals.generated.cs"
+      },
+      "Sha256": "011dc6a284c6625d2523a0252908855924878e0ac68c52285ed99788bdb6593c"
+    }
+  ],
+  "Assignments": [
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConfigurationTrajectory.AngularSpeedBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "64b72d069c098aaeb5101def86d9b8f2d2e5bcff8c1e1685fec8ffd0e569ad32"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConfigurationTrajectory.Duration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "51a1421cf61baee9af35ae04a911413d81ac7669219bd0d8d4d01efe24459a76"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConfigurationTrajectory.LinearAccelerationBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5933d80084566ca5cb0c921cdac3759045d19c722da1780460dc060286e45ecc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConfigurationTrajectory.RotationVector"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3ee16976e2c6bdcd11d612d3c8f7b6bc74c66c5d5d2136aa1a7925686f6b50a5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConfigurationTrajectory.StartPose"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8d6bc1689875c47537ec6b6a431cda389526c6b9baffc3a2dddc78881a939c2d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConfigurationTrajectory.Translation"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2f62a6317e465299532b2a50f8b7826c93e088b58ce78f5dafde46ca6cb32960"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstantAxialEffortLoad.Effort"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "581847acd917c22a474d57e4e0a57cde195fbeaee67a13c940d93fd55145495d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstantTransferSpeedPath.Duration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "044e3ee5207fc20ab07716eaffc3d8eb8936b039f5b16ba3ccf455bf4b46d5e8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstantTransferSpeedPath.Speed"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "575786476f39a592e5c6e89b60bcfc194d438f03328a7d2e0e663862753cdce5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintAcceleration.ConvectiveAcceleration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7fc02ff4cc1c70e767fd9a0f417cc5cb592a5b1feb050aa628b0be707d30790c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintAcceleration.Gradient"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "fd71ad0a92d97f98509735717a776ca502f102cf965183a66383cfd9ba6aec92"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintAcceleration.Relation"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "138ec3d21a76089525fc581f16e6e2ca395623902ca856ce058721c868ca00e6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintGradient.Bodies"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "026bc68c9be19d7517cd9d0495ecfe60d14bf1ee78653e74268827f6f5beebeb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintGradient.Speed"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "28d8ae0a055579f2bd94edd32f5e00f90668d84cd984c0f6e5bb1bc8000b1ed3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintGradient.Terms"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4ec5ede84b3d7b677d903ffc299f69663ffdf622b141bd1ef3a914b735e25983"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintJacobian.AngularA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5e9687834b6981b858b4e66d923bcfdf552dd3204afdc331b37c11de940272be"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintJacobian.AngularB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "42909ac1fc491b6d6b31a9f8f8b7c2830032e5b712dc8f96b1e7dd79d72fa578"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintJacobian.IsFinite"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3de6186f105cebd227a1d848a16c00989fa193294d0dc740cac3d44a08a823e3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintJacobian.LinearA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e644971f2c14b0e3d9e1e7efbda2c5d62dd88e0318c13db5b21b67de424135ac"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintJacobian.LinearB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "983619df912d56f3a6bf5072251fcdc5b45e1051eeb30649dde10055311f81e1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintMassMatrix.Count"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2035faa61380c0d47d782a63f8c85152404cf8e67e8c681f177894f573dad926"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintMassMatrix.Rank"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6f80cd82f1c790ea1103554abcfde2e9383404c12bf796888ca0ff3fa6200620"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintTerm.Angular"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "73fea26b1794e240b7933fab280aa97c8bc754a85e68ecc681f5cfa6b56d6f9b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintTerm.Body"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "60e321d03330142afad9f81f67d0654e06fa2310a0e2bb3e654c3e221c3e9821"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConstraintTerm.Linear"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "66ce75435203afa3fd7f40b157976005c1a16af53a6c155f82e95df9161846f3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.Bodies"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3ca223e82cb542e5fa579e9e6a2195b2dc69075bffbe8e3b96ad987d5583df57"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.Diagnostic"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c75974b036ce25e5cb1c489df35a2fce64f0db4ab45bfbc40ae37defd23e148d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.Friction"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "eceec978b642c7ca2eeea4e03e27634f604745f07b1669287f6d9a09a16955c4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.Impulse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "edec450b297a9baaa819bd723aff6eeb083472a66c032ce372d25e91f4a685fa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4e9777a22b8fd90317ecc59d1a601e82d473a18761df230ad91dbaa802e2f892"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.Radius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a4b54a894fc81095be172121295a7a0f534dfda6ca7442ed2f559c3d0ef5acb5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.Residual"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f44cd9c53d4d682a172f488b67a7dd6d19c6cfb77b7774b769c9a56e8a2d9372"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.ScalarRows"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "202c4a482f6dfeba69443b9e559ae049ebd0d8abcf14a6728880d029306dfc05"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.TangentCoordinates"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2873144a947f89945da397cc9786e09950bd2904db601fbe33b7420c476f060e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.TangentGradients"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e5f596c50721b5a7f7c5ca2939a2b3d7fa270d729d535cffeb4fb21c8e1df0d4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactConstraint.TangentImpulse"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cecb1c1bb64b44aab96010dc83b22264a07bd2769c2fe20c75a7fe401ba9926c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactForce.Friction"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "dd877cd5e29b78de6bb9017b0655ae5ee09d348993af73590b02d2b866a6160f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactForce.Kinematics"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b87fdf0b34aae7195d6738f98211c68051571c30d2a350fa37a00eaee57ecfd5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactForce.NormalBias"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6a56c1374be0f3bbcb00705d4944439b13e0263cc56f93f53860a0666965ec69"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactForce.PhysicalSlip"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "67929cb3a2597570294462b72e9274d6f76de1ba39c2c28dd226b2f55aa807d1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactForce.Regime"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e03cd621743707eb270e8a808a8f19591288e45fa3f6471acdccff3135e73c9f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactForce.TangentBias"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "926385a38c8122239e0b5f75082e201c59a416b4969dfbbbc95c59018227ba08"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.A"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e789793fb43ccd0b93bb2a6b3b4b675bb74dbc35b584d70ca6f49d91e1ea36bc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.B"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "925d5d251bc5e15b92eeebe20e651d78cb6f115472f82a12701ed9fbce98e028"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.ConvectiveAcceleration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ddb417a076192c4a4dadb853f57e667cdc3130722ca50df0e9afea254c5821f3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Feature.Edge"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1a13819ff48140c47a283854d8a8a1fd8a535a84c6e25b0973730371bc5f6ba6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Feature.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2c2dc08692e3dfbc37d907178833e49dd09081957fd3fe66089a6b13a7f8259e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Feature.Rank"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b6cb060e11833cf51d46ba79743afcb6fa522f70bf057760ff72218df73b8b02"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Feature.Width"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "13fdfdf9bcaf3ee19320da2588ffca5ebe43ee70ba7706b95c42ae838b3deb61"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Gradient"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8511e54c86e86bcc9637cf0578661248df40a275ccb3cbe069eea549883cf7b1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6303a24fcad8ed39b35554f4673a9972e8a5d3d13bec79b13db5b2cf0ecdc0fb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.NormalConstraint"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a56e95b351ba87d38f9634aeb85c2bd1f43ccc83343968089cbb1264114b28e1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.NormalJacobian"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4e2b7ddbcfb549ebbaf2f081671976de4b9888f796483064ea2b12799fa91ad5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.NormalVelocity"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e5a8b6c30e6e60bcceb0f1c5265565ae73900721738e74b9b8afce56b4b298b4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Point"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "07d10414f6d49ae6bccd6ace14d12342578e7e78459f491775cc7540f3aa35ec"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.PointVelocity"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "595e123e8d5e5503fe2da5073af0130e8f3e63b0acd18f448bb7e4f461358722"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Rate"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c28314c65282f83927ede8133fa36b684c491edd540c5873653fb6c216306c6e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Scalar.First"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "bb04e8cbd652b1c3d48d56b64dc9d5aebc0a7832b2b738691ef2a7835ba9a727"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Scalar.Second"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9457ac3fdba23ca9d7c8455b5d0449800eca780c47d370ecff9cc592ede3fff7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Scalar.Value"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2c6155b00d78916f93c6a9021c2bdec4692be67450b6ddaff0a32635314a9eb3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Separation"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9ea129a17a2c3e428862244e29652ebe024128a97545541d915518ebc157eafb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.SurfaceSlip"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "262807fe769436f09ba3c0788de9762eb5a99232ef70348e8dcae471b2c2124e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.TangentialBias"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "aaf90807d82f1409278b9c376862d3f29e721e5e0d203a868e1ae46e17485f11"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Vector.First"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cf4b47add43e25dd1115f58a9d095344f2dfeee98b551ea704e4710ba10dad89"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Vector.Second"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1a7deb01c80c7d8a7cf6c468c129d294ffb31f4f1c62ed5de7f5a1045da6d1cd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactGap.Vector.Value"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c3b26e45ec4af6a4bc1da9ac68b5a904f73247be9a66aa71feadacdf104d6b2b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactImpulse.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f6f6b707b57c313b19a0b8ebb8a3238cf7be62c16d8230d0daee9d6ea149b4b5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactImpulse.Tangent"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ec805f1809ee5a0cc4fe143e8c41b15371f2bd089c54a59ca5557bbb04d1bacb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactKinematics.Bodies"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9d438308516940d45a69a0bbcc29582bf191bbd595aee1fe01f6baeff1ac9100"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactKinematics.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b72ccd416af2168d0741a9852a76f3a70f6d212f19e0820ffe9c79717d33fc2e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactKinematics.NormalGradient"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "81ef90d66e7ddb83e54ca58de574bcdc31749081b5c0ee9a4856ca2cbc37ecb7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactKinematics.Slip"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c7cdb3ac14fffec4b208e1f1205b70d749871f8ec75e407d8e3e2dc6319becd4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactKinematics.TangentU"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7cf0f87567bb0aaf1e019565b5733698d1cae3fd30f037b2a2d4e5869925e64c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactKinematics.TangentV"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d469063ddd0ad3d594e159b5fcbf2ba27be291045ce108880e8a375897f66fae"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactKinematics.U"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4cf5dd8e3da725da9addd9e92942838929d2a24b19b50197a9a1719c23355756"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactKinematics.V"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "72b4276308ae64959d23c8acced54a66648b0ad053f2408f24c8a53fedf90fb7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactManifold.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "19dbc17dc0ecfc6de11847c0cdb9479835fcb2dd7a8cc4609ab66f803532e6ec"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactManifold.Points"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "02bdefc58f791b0e2c692dbb5c5d1afbbe31e38b7f4a1bed438123387fa756f7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactManifold.Status"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a0a038519f4101cb18dbf2dbf5be2c9b88b2cc6d5fdd741d7188edda283cca46"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactMaterial.BounceThreshold"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "55fa1dd2e10e87e67b676cfe76d8a853427413f8091cecea7db5a34f040223ef"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactMaterial.Friction"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ed952f767aa6a4f73825fa51366e1c535fd61711afa3bbae29a7e0876d99b734"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactMaterial.Restitution"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "522e9205fa0dcd756fda43ba01dcfb7ffeab776b968da51592fa2a3054140121"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ce8a52f8d32299a5194d5b25cbe7358f054f53972c3da88cdf6741b5a8933f54"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.PlanePoint.LengthSquared"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b3d9c493cf9798c4830c52e00a478f2f38e03a02f2049b14fe64837c3a20d944"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.PlanePoint.X"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5a5d59f7ebc01e7ec570d66c0df5236309da1a8797f754507646098038aaca3a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.PlanePoint.Y"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f28804cfa1d533fe4e8c07906190b6e3a5196dd394087b9dbb63a85a01570b6e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.Points"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "df88a1d122d5b2fe536aab8b8472ff84ba9f34dfcd6d363c443f87fc5e0f8cf5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.Vertex.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "bbbcf56b011660c2db6b5d67a028964b27f3dfeac4a2adce5c8856ec51a82ba5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.Vertex.PairedWorld"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e2d5c5affd54ede5d4abe7dc54c508b5d7394295990aa4bdf7ba11d3ad2bc384"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.Vertex.Plane"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ecb22f4ba9f72faf237963222085665eebc12c21964c9b8f5ea8d2f16f9006ad"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatch.Vertex.World"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "983db1f6812de9d1d9ea95366f53b4bf148320464f07e6216a5389823af8a3ff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatchPoint.PointA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "13cf31969a02e6915caed1624783468a33d0993a01be34acb389148f26067a81"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatchPoint.PointB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e004b223411270f5e545458cbb091475822522fe29b90bbc6f0ed7633bd9ddfc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPatchPoint.Separation"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4631924821aad1d7827f2702dea888bfab03d5ae926235bb126edc0178006e06"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPointId.Value"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "629d52ee1d8cfcaa4d0e1a9edd66336f80ebedeea8d56979ef347b0bb6b13e52"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPositionConstraint.A"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ef4559cf6a128f41da1bf8aa753df4600c7967f570fc7cb4de01aa621ae626ed"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPositionConstraint.B"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e8c5711bb7d833ffdcaeec0be987fc78795064090315c68e837525441fb852a2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactPositionConstraint.Bodies"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "53ad7ed877f79034dd4495c0573890b4a7b423a0cd894c06a1151d9d0e72623a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipBounds.Curvature"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "14a743fdc0f3bd82452782a141e8aef95d5ce364e4f5c66e18ef404b997bd8eb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipBounds.NormalCurvature"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d95575c8405ee50e491b62eeec98f7e42cda630514c5a0178bc3ef8f462f6300"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipBounds.NormalRate"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b17a90bf555985267dd47a25bb039000d050fce455ce72ff32acb5f3e61c1484"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipBounds.Rate"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a5f91e1e56480aef3e5c7cbed88d5997c6717a1f122991baad79cb411a952d18"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipPath.Duration"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "900b2bdcb91f522bd0291be8d634443dad9e7d4766cdba01b1ec1d3dc0c5ac2f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipResult.Iterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cd3249c5a6111ac4987632d709860cc760e59df8ff765367ab20b1f3906d9d87"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipResult.Status"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6b968ece78817ceb215671c12919ef99021fcb6e951b1c40c0bd348ca0b479de"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipResult.Time"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b95025d1061b5211fa42a2bc2a62603a5ba91999a6a0ee06d5dd7fedeed0b25b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipSample.Derivative"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "43bbbb01fb2d3387a2db4eb6346e7491f489bd2e38cffcd427d33e1c12d609f7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ContactSlipSample.Slip"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a46809ae30776562a20ffb3a57acfa9c21531d2bbc9c34524b293822db52d6a1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvergingGasNozzle.Area"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f5f7fb71259d6cfc2adfacece7bba1fd9dead7b967af1123f0c3d791271d03a4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexBox.BoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "59600c041d20ff9f92a70d3babe0e4e2e49b631b63c5c43d5c26db849adf6f9e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexBox.Half"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3d0d2080d014de303d37b3a896cec226c5aa31ea050a11840420cd836ac582da"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexBox.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4bb9c5be1c8a36ac1f5eb76d87b269b881667aafafbc26439534dcbe9957da6e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexBox.RoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2333a87f3844c2584f6f8b66f440861ad8f755973501bd1dfef7716bd6c2c05d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistance.Vertex.A"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "245fe85d55d04e8e60bb070251c1b10b66289525956cc0a9d944d2949a3307c5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistance.Vertex.B"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1a4f4bfbf0cfa31cc3caa9e4775db614409f03f4030777e372e9be798e66979a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistance.Vertex.Difference"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "933373f57e3b0a3d420fc1db3dadb131e9fb6fd38f3b03ab54464ce80fc57e7c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistanceResult.Iterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "920da6fd413cc4c91555f991c39b611a49fa70e0d25fca22518f304865e3098a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistanceResult.LowerBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6983e89d9c7abcf678a33d72a490fd6b45288063f4da04feae309177c2ff3879"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistanceResult.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "77bbf60ed5a41c8757584781b91838ddc4b868b724dc52b60a1fc47c32fa04aa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistanceResult.PointA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "45f4a6a68fe4c7060aa6a209deef0e04e1e0968186477b99eb4bf9470874cbe8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistanceResult.PointB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "42600e2c2978361899a76d1b7ce50c5e809241110d5913dfa776a702e35cee90"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistanceResult.Status"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "726a84d02ded64176e39737cb4c7d4e6ad36d9eaa012e1723c26ae04f2e9c40a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexDistanceResult.UpperBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ec4d139b7ea4cea3a6bfb7876c800c8a29def74cee10180778b5ae9343f5afc9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexGeometry.BoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7876dc43fa294fd8aca76dfef71a3b1fb194e78949ef7d2b5e8484b4cf0aab4a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexGeometry.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "26e32803de77b7dad2c99edb127ed3209e294654e1d6e3bb63e6115e31daca46"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexGeometry.RoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d5abc56c4f9f23b756440cda3103e05e3fefd0e13cbb69c75d8ccf1c52145cad"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexHull.BoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2d243358d0623236b234ee24d9799a999f653a5f2ed7589ec82361f190770727"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexHull.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "29c8b0559c0ca31b1ac96bb0a69796562fc838d3e205c62ce00b18c5cf803235"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexHull.RoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7e1ec4be25cf4cc44535594b6b4817e92fc0ff77db1a19ba154fea8da393e6dc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexInstance.Geometry"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "d7d3b101199067ed84390f63e8d1ae549e274178d9802f84757605162a44de74"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexInstance.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1a071a3fd5fc733dfe25c18c45bce667aa78f0dbb23525adc9f92b28e82a264b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexInstance.Pose"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "94d28b36b71a937a83b746acece3ba5f24317ede50d398a0198e07e1c7f45529"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexInstance.RadiusBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "27353ca3a1a69d19782f13c563c83ba51c71681465e4303d1007fc687b756cf6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexInstance.RotationRadiusBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0bf165d5388d5a738aef7e73dd3bee6ce28b89aa888ae52e3c7711ddda89c889"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexInstance.RoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0297e3226effaf2e19296f200ed5473a955e6b298f5b75f0c83b038d2f0bf098"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexMotion.AngularAccelerationBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cba47870764ae27ad1424e6010cece5a6f4f90a9a7c23646e79875232806cf8f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexMotion.AngularSpeedBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e03684221c4c5fbc8c5f68b8c9a203a900d5d7023d00806b1ee75c99eff3a1b5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexMotion.CenterAtStart"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "eeb4cc9aa0c15030899da2a3ffcc253fded8585c8142ffc258dc242a08350cd7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexMotion.Instance"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "745d294b871c9c8c864cbf1f770c15a240b01d4c6c1c20d353f9b178af6cbc7e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexMotion.LinearAccelerationBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e9b4e47674505a494cbfe391ff4a1133bab561d1bfe0364a0f33073bab5cbc76"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexMotion.Reach"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f89d30b62c090d4741e8b614dfb9ed958a54c0dab8dc58b6c67212c96f500256"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexMotion.RotationalReach"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b17bb2d549b3560b72f6141414ddd6dfb47a45b7b9820f55a8c5019aafacfa5a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexMotion.Trajectory"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ca8ff4fa84cda9a5658a95a8e72712575bfb6eedf10da4ae5b522b79319de537"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetration.Edge.A"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "bd50a8a1de917894323b6775284d42d1ede0fad479deb3c8c6fbd05b667cbbac"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetration.Edge.B"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "27d928af032ee15135ea9b175b114d1274f039c976b6d7f4edc5e98321afaff2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetration.Face.A"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a95523d82a211a52639c9157859b2f1e1eabce805cf0c46593fc5dc0832b0b8c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetration.Face.B"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3c503f9d10e1bbc2bf920b0131c6a5f2d8e4212cade430e86f4ddf2c5fc89c33"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetration.Face.C"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "86cc2d7e115ebe08e091a1a815c591c6c60d2e4d51d9e820b5036c48699494ca"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetration.Face.Distance"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "66a8142e0f661094442822a9833678989823b11747c023d259276fbaced057b9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetration.Face.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "79a756c6a41329306ff49faadfe4ab9357775cb4e29fbb426b6ea760f0f62ec1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetrationResult.Iterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "97b0167881e4a31e4e28b44e2194e074f77a9423b55eb5a27d4d5e52a6f3fc8b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetrationResult.LowerDepth"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3f3d67b11b58729ad62e84b331045c011b5e2b1c9b365fd53e92c93b072fa8a7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetrationResult.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1d6248c88d25d7aeb1e611939068c89fc9e1c4286e81f2bd390afa01259eed51"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetrationResult.PointA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4c21455b4b1235b91e333ce6cda8b3dcd5da23faebb33df9c7afd1e538da9f5d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetrationResult.PointB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "094326e66016c9667e73c5e6d60bd5e08840a943ec377055c59a707cfac02c98"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetrationResult.Status"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a73f2eba9219ed05dce6cead80da29ee6809118fe7b4c1da3fb65ee63ac88d7d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPenetrationResult.UpperDepth"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9459816aecab2a223cf83f13cb3caeade6fe6dce23afde8a36f9b13fb714ed1b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPose.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2514eaa467aeba5641e777a50681aa11f6c7773677c647a2c6834974ffd7b304"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexPose.RoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "874e208d4225fb301b4f9477211c3a9a5b576b2912402e3889e0a41883b82820"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexRounded.BoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "89c1aa087d23cf08a1af5c2224200af75b7f2b44c02566baea91f5d2fcc13a80"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexRounded.Core"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3fedde69a939528d56a1d7116d5f5660294d00a08bb842cc97e64b4177f4867b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexRounded.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "31b01ab4f22f03b4ecd7ce676216f7fee418874a7d3ddeaff1a58729e7b0750a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexRounded.Radius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cedc50b5897fec8dcf8f84a86a1c4b433f5fdbae6567217956802954bcd45d7c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexRounded.RoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7214758b5858668ac259c3f65ae18ef7533ddcd0a23b352c57b0cf9d1d1245ed"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSeparation.Core`1.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1a43bc446b352a636ec258d1a316c3e912db49799994fab859c2a4ef9f9f69d2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSeparationResult.Iterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a31e357c7a7144a78288b42dc76520b668d845f15c13f0c98875966201c8f4f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSeparationResult.LowerBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0f133dc813a8f3ab8f1ea62148f2838de0fa7192c90025ee5ec72afffc5718b3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSeparationResult.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "29fe2217edee71d1170e56481977abae48a3f23dfde70ba337a8739907d45064"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSeparationResult.PointA"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "89a40302b9f29f8c844142d422fd75445932f64f99e2d413878635eb9d9e19f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSeparationResult.PointB"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ce4bbff50a73e35f1b0a29e5299755900d425b1068ae9879d834f72f69a95e6d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSeparationResult.Status"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "823a5d619d83fbc90ef8977338b80782f263c1b7cfe1a96bf0f56b24a4e687ce"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSeparationResult.UpperBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "b065edd8ed58d2a6053ccc2731b358c8c96dfe58981c1058e5abbc0d17027b08"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSphere.BoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7ee47a5a8bede1d127eb0774a282ab8d9d2e77f9c91da742c8bfad0ec5ddc135"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSphere.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1a74ed0d6ee2f0dcfad3342a4e251d8cc36bed896136929354022dba7e521909"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSphere.Radius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a6129e0d2b0ac838122b3d6d6c0af5a96464496b29e4f79d795c2fc94a5c217b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSphere.RoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "7decc84d0cfef8538ca6816557167be888526abe08a9d7b19b25aaac2f30e089"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSweepResult.Iterations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e5b854670fca3c811c0b7dd9148c7b80ddfd3d950227bd982a04ac61a1708469"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSweepResult.Separation"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0e334491fc0da0c2e0498011bf691e83ead92cbd6e043e3c466ed1104b8264df"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSweepResult.Status"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5f43e361ee25769557ddae5e729a3326a9a74e525e3ac0ca4111cc8c19422658"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.ConvexSweepResult.Time"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5d8cd6b753eea482cdaef86744ffe02d9d273a3c8f6c4f216fa1f21566019e06"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalExtent.Bounds"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9ee018e2c8bbfa9cf06a498f94f9548b8fc1d8ce92875f20188f6188798fd93e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalExtent.RadialLowerBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "239ec4607ba1d3088de48fa89df1f00ae6205a0c47ab8932b269ff1eb731a7c3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalExtent.RadialUpperBound"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e7e94b47510cd9b6f943fc36a5a1d757a26d5198b7d7c34259fe0d3c0b73679a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.HalfLength"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "aaf67f388936d2df03abc74823a5eefb8f67fed06324ec2c22555d49fd0a66b3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2a92177dc6de07869af7fd57b1c58b05ef56dad269cca63c71ccd01ef462c1b8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.LocalChild.InteriorBall"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "79ba5ace9eadadbc7c43fe7d3bb5998ee496106df97d487e2463d6486524d03d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.LocalChild.RoundingRadius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "44d38b14485163bced6d328c0e75ab31c1d64d6ac8f226f63b6df1d6fa5f33fa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.Plane.Height"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4576329d773926f36041678061e8ad196297045686107eeb52591cb6972ebe9d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.Plane.Normal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8e84a68badaf5371c7764f689bb56e4e39ded691dfc43e266e8a5c63c99c2c52"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.Radius"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4cefa9d6dfb7c5c953d8ad419d10fa48f434e648d549c6de802712b75b39524f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.Sector.A"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "11d2550ecbfa995652cc24a29d5a11d1b91c12d347a024f9ef14ce2ee6daf455"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.Sector.B"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c38df5b32fbbab59f55da00b7c65563b46a1950fa94e42339aecefc2965072a7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.CylindricalRegion.Sector.Upper"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "cc90d7ac0e3e283e6711bd4b679840cd1308644ab3e3d5831ada57c52a1ebcd2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.DrivenSurface.Axis"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a3d0282f7c265de449e7003b6aa2b1a94710f34e4055ff933f43aee1644d3415"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.DrivenSurface.Carrier"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "00954ab2a56d1f1025339ba9ef015c111a67a4d65af353379f22ca96e03e3616"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.DrivenSurface.Direction"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5c48f1dc39489a410c21207292b1053b10852e88aa3de894022c0a89b758797a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.DrivenSurface.Drive"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "6145b91c50a605b5cfbb5f1bbed73f2440c94e9942a535b1be4e4225ea151a28"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.DrivenSurface.LocalDirection"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "bbb4012723049ee6999871147b85107eaf151dc3d0a249dc6c2965dd12ea3654"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.DrivenSurface.LocalNormal"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "075b0c9e2afd0e575ea8ea7a60b92231a291c25c8289f0756020e3961032cb76"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Physics.DrivenSurface.Shaft"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "502d646481d83cc65347a4e10c97a0a0f1916c44e2c4f5b5cb7c55a26e635477"
+    }
+  ]
+}

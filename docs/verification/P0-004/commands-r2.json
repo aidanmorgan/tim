@@ -1,0 +1,533 @@
+{
+  "workId": "P0-004",
+  "revision": "r2",
+  "implementation": {
+    "agent": "/root/p0_004",
+    "session": "01a0f7b9-0ecd-74b2-81ce-361031596a36"
+  },
+  "commands": [
+    {
+      "command": "dotnet build tools/Ownership/Ownership.csproj -c Release --no-restore",
+      "exitCode": 0,
+      "stdout": [
+        "Ownership -> /Users/aidan/dev/personal/tim/tools/Ownership/bin/Release/net10.0/Ownership.dll",
+        "Build succeeded.",
+        "0 Warning(s)",
+        "0 Error(s)",
+        "Time Elapsed 00:00:01.83"
+      ]
+    },
+    {
+      "command": "dotnet tools/Ownership/bin/Release/net10.0/Ownership.dll --oracles",
+      "exitCode": 0,
+      "result": {
+        "Positive": true,
+        "NegativeCount": 22,
+        "Results": [
+          {
+            "Attack": 0,
+            "Rejected": true
+          },
+          {
+            "Attack": 1,
+            "Rejected": true
+          },
+          {
+            "Attack": 2,
+            "Rejected": true
+          },
+          {
+            "Attack": 3,
+            "Rejected": true
+          },
+          {
+            "Attack": 4,
+            "Rejected": true
+          },
+          {
+            "Attack": 5,
+            "Rejected": true
+          },
+          {
+            "Attack": 6,
+            "Rejected": true
+          },
+          {
+            "Attack": 7,
+            "Rejected": true
+          },
+          {
+            "Attack": 8,
+            "Rejected": true
+          },
+          {
+            "Attack": 9,
+            "Rejected": true
+          },
+          {
+            "Attack": 10,
+            "Rejected": true
+          },
+          {
+            "Attack": 11,
+            "Rejected": true
+          },
+          {
+            "Attack": 12,
+            "Rejected": true
+          },
+          {
+            "Attack": 13,
+            "Rejected": true
+          },
+          {
+            "Attack": 14,
+            "Rejected": true
+          },
+          {
+            "Attack": 15,
+            "Rejected": true
+          },
+          {
+            "Attack": 16,
+            "Rejected": true
+          },
+          {
+            "Attack": 17,
+            "Rejected": true
+          },
+          {
+            "Attack": 18,
+            "Rejected": true
+          },
+          {
+            "Attack": 19,
+            "Rejected": true
+          },
+          {
+            "Attack": 20,
+            "Rejected": true
+          },
+          {
+            "Attack": 21,
+            "Rejected": true
+          }
+        ],
+        "SemanticFlows": [
+          {
+            "Flow": 0,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 0,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 1,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 1,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 2,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 2,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 3,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 3,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 4,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 4,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 5,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 5,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 6,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 6,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 7,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 7,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 8,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 8,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 9,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 9,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          },
+          {
+            "Flow": 10,
+            "Authorization": 0,
+            "Access": 3,
+            "Accepted": true
+          },
+          {
+            "Flow": 10,
+            "Authorization": 1,
+            "Access": 3,
+            "Accepted": false
+          }
+        ]
+      }
+    },
+    {
+      "command": "dotnet tools/Ownership/bin/Release/net10.0/Ownership.dll --audit . docs/work-orders/P0-004/ownership/index.json",
+      "chunk_id": "ce5ffd",
+      "wall_time_seconds": 0.000008042,
+      "exit_code": 0,
+      "original_token_count": 43,
+      "output": "{\"SourceCount\":1820,\"MemberCount\":4386,\"UseCount\":332135,\"ContractCurrent\":true,\"RuntimeQualified\":false,\"BindingErrors\":0,\"CallCount\":333066,\"ContextCallerCount\":18551}\n"
+    },
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-capabilities . docs/coverage/engine-capabilities.json",
+      "chunk_id": "6da9ce",
+      "wall_time_seconds": 0.000003875,
+      "exit_code": 0,
+      "original_token_count": 47,
+      "output": "{\n  \"Sources\": 1471,\n  \"Capabilities\": 71,\n  \"Consumers\": 1471,\n  \"Modes\": 104,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"Changed\": 0,\n  \"InventoryCurrent\": true,\n  \"RuntimeQualified\": false\n}\n"
+    },
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-inventory . docs/coverage/source-inventory.json",
+      "chunk_id": "eaa5fb",
+      "wall_time_seconds": 0.179162208,
+      "exit_code": 0,
+      "original_token_count": 39,
+      "output": "{\n  \"Sources\": 1471,\n  \"Unreviewed\": 1471,\n  \"Changed\": 0,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"SourceInventoryCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+    },
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-elements . docs/coverage/catalogue-elements.json",
+      "chunk_id": "31a640",
+      "wall_time_seconds": 0.231673333,
+      "exit_code": 0,
+      "original_token_count": 46,
+      "output": "{\n  \"Elements\": 72,\n  \"Fixtures\": 302,\n  \"UnresolvedSources\": 1097,\n  \"PendingModeReviews\": 72,\n  \"PendingProcessReviews\": 72,\n  \"LinksCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+    },
+    {
+      "command": "anvil check --format json <55 enumerated publicationAllowlist paths>",
+      "exitCode": 0,
+      "result": {
+        "version": "1.0.0",
+        "timestamp": "2026-10-01T15:29:46.981052+00:00",
+        "files": [
+          "docs/verification/P0-004/commands-r2.json",
+          "docs/verification/P0-004/commands.json",
+          "docs/verification/P0-004/compiler-context-1.json",
+          "docs/verification/P0-004/compiler-context-2.json",
+          "docs/verification/P0-004/compiler-context-3.json",
+          "docs/verification/P0-004/compiler-context-4.json",
+          "docs/verification/P0-004/compiler-references.json",
+          "docs/verification/P0-004/implementation.md",
+          "docs/verification/P0-004/initial-build-failure.log",
+          "docs/verification/P0-004/ownership-reversal-r2.json",
+          "docs/verification/P0-004/r1-originals/docs/verification/P0-004/implementation.md.txt",
+          "docs/verification/P0-004/r1-originals/docs/work-orders/P0-004/analysis-bounds.md.txt",
+          "docs/verification/P0-004/r1-originals/docs/work-orders/P0-004/assemblies.md.txt",
+          "docs/verification/P0-004/r1-originals/docs/work-orders/P0-004/contract.md.txt",
+          "docs/verification/P0-004/r1-originals/tools/Ownership/OwnershipOracles.cs.txt",
+          "docs/verification/P0-004/r1-originals/tools/Ownership/OwnershipPolicy.cs.txt",
+          "docs/verification/P0-004/r1-originals/tools/Ownership/SourceInventory.cs.txt",
+          "docs/verification/P0-004/snapshot.json",
+          "docs/verification/P0-004/web-source-r2.json",
+          "docs/work-orders/P0-004/analysis-bounds.md",
+          "docs/work-orders/P0-004/assemblies.md",
+          "docs/work-orders/P0-004/catalogue-owners.json",
+          "docs/work-orders/P0-004/contract.md",
+          "docs/work-orders/P0-004/ownership/index.json",
+          "docs/work-orders/P0-004/ownership/part-001.json",
+          "docs/work-orders/P0-004/ownership/part-002.json",
+          "docs/work-orders/P0-004/ownership/part-003.json",
+          "docs/work-orders/P0-004/ownership/part-004.json",
+          "docs/work-orders/P0-004/ownership/part-005.json",
+          "docs/work-orders/P0-004/ownership/part-006.json",
+          "docs/work-orders/P0-004/ownership/part-007.json",
+          "docs/work-orders/P0-004/ownership/part-008.json",
+          "docs/work-orders/P0-004/ownership/part-009.json",
+          "docs/work-orders/P0-004/ownership/part-010.json",
+          "docs/work-orders/P0-004/ownership/part-011.json",
+          "docs/work-orders/P0-004/ownership/part-012.json",
+          "docs/work-orders/P0-004/ownership/part-013.json",
+          "docs/work-orders/P0-004/ownership/part-014.json",
+          "docs/work-orders/P0-004/ownership/part-015.json",
+          "docs/work-orders/P0-004/ownership/part-016.json",
+          "docs/work-orders/P0-004/ownership/part-017.json",
+          "docs/work-orders/P0-004/ownership/part-018.json",
+          "docs/work-orders/P0-004/ownership/part-019.json",
+          "docs/work-orders/P0-004/ownership/part-020.json",
+          "docs/work-orders/P0-004/ownership/part-021.json",
+          "docs/work-orders/P0-004/ownership/part-022.json",
+          "docs/work-orders/P0-004/r2-boundaries.md",
+          "tools/Ownership/Ownership.csproj",
+          "tools/Ownership/OwnershipAudit.cs",
+          "tools/Ownership/OwnershipModel.cs",
+          "tools/Ownership/OwnershipOracles.cs",
+          "tools/Ownership/OwnershipPolicy.cs",
+          "tools/Ownership/Program.cs",
+          "tools/Ownership/README.md",
+          "tools/Ownership/SourceInventory.cs"
+        ],
+        "hasBlockingWarnings": false,
+        "executionTimeMs": 143,
+        "checksRun": [
+          "secret-detection",
+          "antipattern-scan"
+        ],
+        "notifications": [],
+        "warnings": [],
+        "summary": {
+          "total": 0,
+          "errors": 0,
+          "warnings": 0,
+          "info": 0,
+          "suppressed": 0
+        }
+      }
+    }
+  ],
+  "retainedFailures": [
+    {
+      "kind": "InitialSemanticFixture",
+      "chunk_id": "bdb04e",
+      "wall_time_seconds": 0.302462541,
+      "exit_code": 134,
+      "original_token_count": 120,
+      "output": "Unhandled exception. System.InvalidOperationException: Reference-flow authorization differs from its source-derived policy.\n   at Ownership.OwnershipOracles.CheckReferenceFlows() in /Users/aidan/dev/personal/tim/tools/Ownership/OwnershipOracles.cs:line 183\n   at Ownership.OwnershipOracles.Run() in /Users/aidan/dev/personal/tim/tools/Ownership/OwnershipOracles.cs:line 120\n   at Program.<Main>$(String[] args) in /Users/aidan/dev/personal/tim/tools/Ownership/Program.cs:line 18\n",
+      "disposition": "Fixture gave the authorized CaptureCheckpoint method a new array-return signature; corrected fixture distinguishes existing signatures from new mutable-return signatures."
+    },
+    {
+      "kind": "FixtureBuild",
+      "exitCode": 1,
+      "stdout": [
+        "OwnershipOracles.cs(154,54): error CS1733: Expected expression",
+        "OwnershipOracles.cs(157,21): error CS1525: Invalid expression term 'private'",
+        "OwnershipOracles.cs(156,18): error CS1073: Unexpected token 'private'",
+        "Build FAILED.",
+        "0 Warning(s)",
+        "3 Error(s)",
+        "Time Elapsed 00:00:01.53"
+      ],
+      "disposition": "Corrected raw interpolated string prefix; subsequent clean build passed."
+    },
+    {
+      "kind": "StaleBinaryProbe",
+      "chunk_id": "92cea6",
+      "wall_time_seconds": 0.30773075,
+      "exit_code": 134,
+      "original_token_count": 120,
+      "output": "Unhandled exception. System.InvalidOperationException: Reference-flow authorization differs from its source-derived policy.\n   at Ownership.OwnershipOracles.CheckReferenceFlows() in /Users/aidan/dev/personal/tim/tools/Ownership/OwnershipOracles.cs:line 183\n   at Ownership.OwnershipOracles.Run() in /Users/aidan/dev/personal/tim/tools/Ownership/OwnershipOracles.cs:line 120\n   at Program.<Main>$(String[] args) in /Users/aidan/dev/personal/tim/tools/Ownership/Program.cs:line 18\n",
+      "disposition": "Executed old binary after failed fixture build; not current-source verification."
+    },
+    {
+      "kind": "CaptureTransport",
+      "exitCode": 0,
+      "outputBytesReturned": 1048607,
+      "omittedBytes": 1220604,
+      "disposition": "Tool transport truncated full metadata JSON. Repeated capture with a read-only delta projection; 1569 changed fingerprints,12 added source inputs,no deleted sources,zero diagnostics. Production audit independently rebuilt and passed."
+    },
+    {
+      "kind": "PreWriteWarnings",
+      "disposition": "Web evaluation raw stdout was one oversized JSON string; reformatted into stdout lines and full-content gate allowed. Full TODO content gate returned backend-unavailable block; no write occurred until bounded complete status-line patch gate allowed. No suppression or scan-limit increase."
+    }
+  ],
+  "reconciliation": {
+    "ownerChanges": [
+      {
+        "id": "F:CuriousContraptions.MachineWorld._acoustics",
+        "from": 7,
+        "to": 4
+      },
+      {
+        "id": "F:CuriousContraptions.MachineWorld._animations",
+        "from": 7,
+        "to": 4
+      },
+      {
+        "id": "F:CuriousContraptions.MachineWorld._booleanObservations",
+        "from": 7,
+        "to": 4
+      },
+      {
+        "id": "F:CuriousContraptions.MachineWorld._enumObservations",
+        "from": 7,
+        "to": 4
+      },
+      {
+        "id": "F:CuriousContraptions.MachineWorld._physicsAssembly",
+        "from": 7,
+        "to": 4
+      },
+      {
+        "id": "F:CuriousContraptions.MachineWorld._scalarObservations",
+        "from": 7,
+        "to": 4
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.BodyPublicationRead.Activity",
+        "from": 3,
+        "to": 4
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.BodyPublicationRead.Pose",
+        "from": 3,
+        "to": 4
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.BodyPublicationRead.Query",
+        "from": 3,
+        "to": 4
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.BodyPublicationRead.Velocity",
+        "from": 3,
+        "to": 4
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.CommittedEventId.Generation",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.CommittedEventId.Sequence",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.CommittedEventId.Stream",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.EnumObservationSlot`1.Index",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.EnumRead`1.Key",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.EnumRead`1.Value",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.EnumReadKey`1.Owner",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.EnumReadKey`1.Slot",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.PoseReadStamp.Generation",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.PoseReadStamp.Revision",
+        "from": 4,
+        "to": 3
+      },
+      {
+        "id": "P:CuriousContraptions.Bridge.PoseReadStamp.SimulationTime",
+        "from": 4,
+        "to": 3
+      }
+    ],
+    "compilerContextAndReferenceIdentity": "Equal to R1 compiler-context-1..4.json and compiler-references.json; no duplicate copies.",
+    "r1Preservation": "Seven source/doc originals hash-match R1; ownership-reversal-r2.json reconstructs exact hashes of all22 changed shards.",
+    "web": "web-source-r2.json; source reconciliation only, no web build or semantic context claim.",
+    "runtimeQualified": false
+  },
+  "preservation": {
+    "runtimeBaselineInputs": 916,
+    "runtimeBaselineMatches": 916,
+    "todoOrders": 4558,
+    "todoSpecifications": 799,
+    "originalExecutionAnchors": 847,
+    "reversedTodoSha256": "ce513fdfc6f1cf34578ee323ee4783949ffb34bb7fee0aec3e39c91f0bfdd619",
+    "r1ChangedShardsReconstructed": 22,
+    "r1OriginalFilesHashMatched": 7
+  }
+}

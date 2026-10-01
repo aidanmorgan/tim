@@ -1,0 +1,2716 @@
+{
+  "Sources": [
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.NullableSocketId.g.cs"
+      },
+      "Sha256": "a6482d82b569d1dc0fab8b758ca5aba7f26a883bc4a0af69f41b24c4d60ad860"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PartDifficulty.g.cs"
+      },
+      "Sha256": "a0831c8bbdac47c86aba2538737701e4e40c9d07934a86147f555f0ca97fd56e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PartOrientation.g.cs"
+      },
+      "Sha256": "36c27c86c816466f1b391c02f91fb987e55cceda5eb10fafa24fb6195348591d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PartSpec.g.cs"
+      },
+      "Sha256": "d6e599f51873795d5a99cb2cf28cff1d8e8eb1011537b0377f223c74eea3f9df"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PropertyNames.g.cs"
+      },
+      "Sha256": "6ccef908d1936e3e4f765c7068b5f0df86dfb027655fec6fdf9ef8d1525ff931"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.PuzzleData.g.cs"
+      },
+      "Sha256": "eec3c537ea40795da902b40b0aea343fb485e8fee46839788460466e63532f6f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.SavedMachine.g.cs"
+      },
+      "Sha256": "c0fc852fc3757438d275bfa52d76f5b8eb8e487f9534a428cd18a58910b23188"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.Single.g.cs"
+      },
+      "Sha256": "2b8497a1a6da941e547715955297171310088d42e3f6f321b8540007de6cd39e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.SingleArray.g.cs"
+      },
+      "Sha256": "8d6e9a2f509a332381b8cd89fdab24fd0406ab3db1efeb6e9e0696fba42c939c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.SocketId.g.cs"
+      },
+      "Sha256": "8477a84005d0d654b5e983ff7265e9dbfddf8abf4b8a8ad2e60c93ca16c2c283"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.String.g.cs"
+      },
+      "Sha256": "6874e947fb3351ea72009d8143eb0f648dff523df24eadba5a5307a812e0d030"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/MachineJson.g.cs"
+      },
+      "Sha256": "803c23bff08f9fc6dddb9bb808949af3a7b1802983b1f3807f9d55bda290aa32"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Boolean.g.cs"
+      },
+      "Sha256": "af162c0b02a368d06f8b43466ed1826d3a04c7ef62b59e5137bdfc4d60c87760"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.CannonPhase.g.cs"
+      },
+      "Sha256": "1ab6febe0d02e852f4cf2df277998b095f11ad5b8ee487906da9370b9acc1bad"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.CannonShotResult.g.cs"
+      },
+      "Sha256": "04254961f8792fc0e6c513956166fb67d57b4d477debca5516329ba4f283f68d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ConnectionDomain.g.cs"
+      },
+      "Sha256": "3704d65e2868ef84d5af34eda2c46945e563774ffc20926fa133afd752a67706"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ConnectionSpec.g.cs"
+      },
+      "Sha256": "cb705d32e0ee58282cd17ab568757aa06312d89397c27bb625d1e9535744ef55"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.DictionaryStringSingle.g.cs"
+      },
+      "Sha256": "e7cf25f5fa3a630f7accc6f5298718b334407866e5349ad58072bba0f35b256c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Double.g.cs"
+      },
+      "Sha256": "1ed79e8baeabdfa2e22ccf48834c3f01da7da8a67e82d327699f8f025e1a0643"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.FrameJointKind.g.cs"
+      },
+      "Sha256": "1a77360a06c4dfe5ad4925535e32fc9b3165b10b484c3e66e9a3c0273d9efaca"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.GetJsonTypeInfo.g.cs"
+      },
+      "Sha256": "bf93e358031dee38e3a9b4cdf19d9e16da535614ced2ec2c62d27d736a76c0d5"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Int32.g.cs"
+      },
+      "Sha256": "81527f7c0f545b5f222bb39861f72abae61765caa36b8d28047f66dc0cb2b9ac"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Int64.g.cs"
+      },
+      "Sha256": "af0094cf162e53a9a695760b3e0fc122a16093a45cb97557a143dec0730863fc"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListConnectionSpec.g.cs"
+      },
+      "Sha256": "ed775cf08539fbdefe58add440ebe6b83402210cd03bbc19d6094d3b3bb85f1c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestBody.g.cs"
+      },
+      "Sha256": "ae0f7723c0fe249a44dab18da107a90a04704f9ac18528a7b7eb02dd3cf69787"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestButton.g.cs"
+      },
+      "Sha256": "d0a7a0b215c27229dc489436c7398e4b960778919dbeeb8fa89f82d61a53e2df"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestCannon.g.cs"
+      },
+      "Sha256": "627082747bc4f44fd3c7db0ba1a14318699278b425471c1c6e5b73c3b14f9fd7"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestCounter.g.cs"
+      },
+      "Sha256": "6b71fa2b358c4cdb4144e505d8aa39f488cf05eda46164fcc1261fa2b93fbe3b"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestElectrical.g.cs"
+      },
+      "Sha256": "2bfff8a644971eef00ea75b86e8d9c992f36d584e93daeaacca40306f1d86d9d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestFrameJoint.g.cs"
+      },
+      "Sha256": "f575db41f261c7b3bbe923fe6feaa1d8e14972ee8470862b933d71764e4c5e8d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestHandle.g.cs"
+      },
+      "Sha256": "74fa067344fd96de7ed7d5b203ef83f33dfaf150237e1529250f2f5f925d3e95"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestLatch.g.cs"
+      },
+      "Sha256": "c78cba711cbb6dfea1449a43f4877ae5631e344f699a25e4e913a43d3073de8c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestMechanical.g.cs"
+      },
+      "Sha256": "9292227a2f284365cb49703745ec6cd6302fc32e9ac0a6c64d5308829bbbcfd7"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestOscillator.g.cs"
+      },
+      "Sha256": "d4bb71c2a259fef1a4c1a8529cb92ef4537bf8b895182728c9b001b45664ef57"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestPart.g.cs"
+      },
+      "Sha256": "9771ff9e15be5f96ba3b9986fc436929463b0b07d8c577eb6dbd8d4ff4914b99"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestTimer.g.cs"
+      },
+      "Sha256": "fbe05b6979623b28beaa4444ab4d55f1f436872d46411db498ea3332ff69a8fa"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestUiPart.g.cs"
+      },
+      "Sha256": "5445fca04d6c0b88f5791cd197b7644a34e7fc48e8f812e2b2766d2e4bf7a93d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.ListPlaytestWoundSpring.g.cs"
+      },
+      "Sha256": "87d26d8fa70acffbf2904ca81fd4f781dbebf02e0fc52b770d108516afa733a6"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.NullableDouble.g.cs"
+      },
+      "Sha256": "2b144d84272bf90393af63a6cca19b529e94aeb9aba6a257a7b9622f9f255e81"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.NullableSingle.g.cs"
+      },
+      "Sha256": "e719cb323ba7c3c68d7650e5488162603494a4e12e90a7fab5252ab124488b0a"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.NullableSocketId.g.cs"
+      },
+      "Sha256": "6f30bbae2947017e610368b5e5d766175a3737721f9b7e3f31eb3649d1875501"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.NullableSpringTriggerResult.g.cs"
+      },
+      "Sha256": "a9e1ca07afbd8e60aed29d89d5f95c3f72809cc70d0e0c1b96e740dc3c4aa6ed"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PerformanceMetric.g.cs"
+      },
+      "Sha256": "4498a82a984466a1bf2cafb1666ade2424c42f30c88f2552df01c69dcc185b3b"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PerformanceOutcome.g.cs"
+      },
+      "Sha256": "427c6d120138638d08b8bb5122c822f3bd66bc01360c26faa6a32dba2e532e78"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PerformanceRunId.g.cs"
+      },
+      "Sha256": "f14d1b249c920e121790ae9f1ea963f7039700c272ce391dda96c0c68687dbb8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PerformanceStage.g.cs"
+      },
+      "Sha256": "ffb0982e6240e918747e7256120c77c4fd2ff394aa87422b54a734fe76b557f5"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PhysicsBodyId.g.cs"
+      },
+      "Sha256": "ba85f29af502351c9349b4bcb7cd1e681ca64bdeb62da3e66beafa4d0c314c65"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PhysicsJointId.g.cs"
+      },
+      "Sha256": "2d4cb337e0fe3c6b931967594c1e7dfb04b00a3910e8e6299d077fffee19d6cf"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestBody.g.cs"
+      },
+      "Sha256": "97c2163381e51d90c509d3a8c8e5a89c520e01487286517968388f671cb0173c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestButton.g.cs"
+      },
+      "Sha256": "060f067b30c405e013c58a67974f49318a4ce198d6fb775a3e38f5070a19896f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestCannon.g.cs"
+      },
+      "Sha256": "cb2e4e00200e84d4b080f446b53476423f8b8e885fe06e13fb3753764783c725"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestCounter.g.cs"
+      },
+      "Sha256": "af16ffc00aede7e1cd82c9afda72ff0a9a7692efb3ffff653741af0f86b4537c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestElectrical.g.cs"
+      },
+      "Sha256": "844b850698b44424427ab3516974f1f79f0f93a14b67abea9a233b082be76651"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestFrame.g.cs"
+      },
+      "Sha256": "30ffbbe52e2fcef612ece64b2204285920612b3da10e0ee583f649e0ba85a611"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestFrameJoint.g.cs"
+      },
+      "Sha256": "05b390a87babd197115834c8723d613cac5dd119e3ec6d71e1afa68b743a29ea"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestHandle.g.cs"
+      },
+      "Sha256": "e6a22cdf4e77788baa72025e101cb67ae23bb06372239b697c9514aae7bd4b62"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestLatch.g.cs"
+      },
+      "Sha256": "f810d3345e5032a08015512e4b4198d8e1dc39ceda5af71858f5591bef73c3a3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestMechanical.g.cs"
+      },
+      "Sha256": "70661ebe50e83198c15a2d05c8fe1046ad2f5170aac97c27fa1e2047e2639b70"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestOscillator.g.cs"
+      },
+      "Sha256": "aac2df25d118a8fad6393f351c4d8e7801fe59f263e92e1b0282965def0cfad2"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPart.g.cs"
+      },
+      "Sha256": "817e6b29f3663e6f1d18fb2daf469e0886b97314690f346fcce352f5890dfb86"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPartIdentity.g.cs"
+      },
+      "Sha256": "bb9d5b6045e282245452f10390eb041e484f138197b4c58e38137a149b504aef"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceBatch.g.cs"
+      },
+      "Sha256": "6793a423d884fca02ed400ed5a1ebcb26fd365cd0869664d4a4c97202ce259bf"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceCounter.g.cs"
+      },
+      "Sha256": "319cdff03c5d02ff617d52c7401290600fdf53e68203178c772d982f7f787186"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceCounterArray.g.cs"
+      },
+      "Sha256": "a17eb1b165512faa08eac493508368f81fe4f66a2e661160bec2c40a291fdb2c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceSample.g.cs"
+      },
+      "Sha256": "456d03e38e671f836f6fc309106a516e081e36f73b70bdb2eff6bc5ea120fb16"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestPerformanceSampleArray.g.cs"
+      },
+      "Sha256": "28c3923e8e84a4f0bf6ce3098bf9562cdb683853b5859d6d34c1eec257309496"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestResult.g.cs"
+      },
+      "Sha256": "4847a93e81d302b9dbd965369e8e0049414a3354355f01fafcf3521b88f7a0a6"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestRun.g.cs"
+      },
+      "Sha256": "f2baaa68807f9895a2b1cb72d14f828825578777607219bb331244bb4307f442"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestTimer.g.cs"
+      },
+      "Sha256": "8b87d238b18640a468e7b39081ba177437bde4ba16c862b0e1588ad1e6eea6dd"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestUi.g.cs"
+      },
+      "Sha256": "8f8b4c7fa7c2613729212d656ca120c568b3599d1257839bd865c1829fbaabed"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestUiPart.g.cs"
+      },
+      "Sha256": "35bae73506023f8b93954df3b9f272bcdcb6d154b7bfe7df02f53e262a89831c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PlaytestWoundSpring.g.cs"
+      },
+      "Sha256": "64807e14b71510379d05e01a24c00b92e07eb9d3760aac08f26f38d1fb624514"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.PropertyNames.g.cs"
+      },
+      "Sha256": "e2d4884f1100c2888b694eb0722f0feb02f6ad7b61bfac1e596b24c1a676f40e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationCounterId.g.cs"
+      },
+      "Sha256": "8b181dfff3e8623c9ad3395a2a9ba12dd14d79e00b4bec84777b2a51ad119fee"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationCounterPhase.g.cs"
+      },
+      "Sha256": "8d12b1bf364f8762ac16b857ff3fee11fc5b8894f34d6407328e781502fff6db"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchId.g.cs"
+      },
+      "Sha256": "b34d1ba7c3894d76a61c0ce39928683afbe43158ad2a6688959df149b5a6e86f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchPhase.g.cs"
+      },
+      "Sha256": "8020eb109093d6f7f605e61763d7fb55783e683e5c9544aebcd8dc41df53fdf3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationLatchRequests.g.cs"
+      },
+      "Sha256": "9fe74e0d57ebe55c4799e88e7d2e17c3e60e3636601ec5eab63fe5c50426617f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationOscillatorId.g.cs"
+      },
+      "Sha256": "c0a9f0143e16b14da33860441774e8eea4a3f4559c179dde5dd63399eaf0f7d8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationOscillatorPhase.g.cs"
+      },
+      "Sha256": "9521fb0bcbef90673acae69a50ea4e1bfe89becf033e392c33361ab162ba6366"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationTimerId.g.cs"
+      },
+      "Sha256": "ab5905a0e9fc59f7a84a76ee4fb5cd8d53294d7c4c43155df9ffa42f5f42ea71"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SimulationTimerPhase.g.cs"
+      },
+      "Sha256": "9757d8305019443868fcc55d36cef1038c390f01080c21282bf115beae177ab7"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.Single.g.cs"
+      },
+      "Sha256": "99073cffbfcbbf5ad2a9ce114ded985dbe6ff928b1618341daf67a6fe342fb05"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SingleArray.g.cs"
+      },
+      "Sha256": "119942bc4dc5d6de313a8e6a33f55e802b43bb3fbf758b7681a7d8db4317b691"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/System.Text.Json.SourceGeneration/System.Text.Json.SourceGeneration.JsonSourceGenerator/PlaytestJson.SocketId.g.cs"
+      },
+      "Sha256": "723bceebe2cccf42c0d10d33d0e67230cf014323a83ecada13fb5d56c6915c13"
+    }
+  ],
+  "Assignments": [
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneEnumObservationKey`1.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "f8044760b941bba61a37df6ad21cba1445042569cf194b804dcc1bb847ad9a0b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.A"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "45336f72fb63c8e552cd373919245bd27b9045d8f7ebdbfc216c972455ab79fb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.B"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "c3916cb8c3b214af159fd97d5694a8fe5a7ffa2bd331a542169683918613a6cb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.Collision"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "01375f977cef83fd187858aff975288b03e0efb880b518540d26bc5a60cf2f5d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.Dependencies"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "f04883907d4b1de6e5571da0f3a8aae81fd6587de42f20f81dc9dc8cd154a94e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.Direction"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "8f844393128c5475b4d4e5876e19a6b89a2a8559c200cb36182879802a0501db"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.Kind"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "da53b0a4eb16bcd5492373f9c10a27f75621554953afb8580832f4e5fba6c6ac"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.LocalA"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "b96c4e640bc11ae6124840d4070e2f0acdf5de53c0f16f3b0d2e7995fed8053d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.LocalB"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "d1692286d343ad4e3f8aae0da25f8b2b33a813e23c4656a82de9aca56b71c515"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneFrameJoint.Travel"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "79dda65e3d7ab6703663acbab0553cedb7b457f0760762099c47791fb47ef7f5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneImpactEffect.Notice.Other"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "85c67547d0a5e19d463a46f5813bbc2f1f8e0ef4300e3fe27416f32e83c72bdf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneImpactEffect.Notice.OtherMass"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "767831bd290c6ab69babd508fd72b6857fdc707af751ffb77b88939254db2e15"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneImpactEffect.Notice.Point"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "55c44be8c415bf2b20bd68f5aacbf35cd3f05503b819651cfbc157abaa21af29"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneImpactEffect.Notice.SelfLocalPoint"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5884c37231bcb8979940466bafa2926d1a96b7b7a50f431002a6ff3079c55b5d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneImpactEffect.Notice.Speed"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "58e8f64868e31c8a5025618587c519b15a774eaff309174bc4793b5287cec72c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneImpactEffect.Owner"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1e0f02d6be044584a33ff60b6e625fcf5aa39ca504efcd6ffb1cb77c56e40bab"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneImpactEffect.State.Last"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "da6b25613086cb190ee63854448c88c83f5a62bda962dbf2f263c6a2d9c81a8b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneImpactEffect.State.Notices"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9cdfb76eb4f70662b1ed11cae0a7572a912f303fa229a81924b15e90211368e3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneJointDeclaration.Dependencies"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "260be69a144b9f2557665941428a8399e2862684ca6fdd21795da2da37d3b796"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneJointDeclaration.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "49e3a4710da4cea75252b97e149620531fdd0729320875a0582cd40a72a18b16"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneJointKey.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "2f79da32a41215094651fbfd716f375f580560ff6394d7d29c3e9d3f196b6483"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneJointKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "84264e7c1e2264cd116e29ef242530ba9ab649b88409a06ecada081ef1fba9fc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneLatchDeclaration.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "518676663f902ac93d4cf20b12d413e47deb8d5a7ed5ae407332c756ed18b9de"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneLatchedSpringDeclaration.Guide"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "394d483bef69e4341b727cd25c6a629cfedd2ac2f2a0a3d6a0c0c07ffb170a86"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneLatchedSpringDeclaration.Stiffness"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "d021bebb97d250cb5ae3632c9e9c30fd70ce425071f73bd2a9fa4fd25b336503"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneLatchedSpringDeclaration.Stroke"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "e80fb638b1d40eecbb6b03a8b8dbb1902e88b5f5b05e42d62cf10cd1eba9cb53"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneLatchedSpringDeclaration.Transmission"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "a8b30ee6291d6a32d8ca12da4123c33871c2dc807e5702378cb7d00aacacede4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneLatchKey.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "ea67aae7d8bc7839f9167b53463e507fe7b7c0ddc0fae3cc050ed10c8a0235f2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneLatchKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "02f6d3f87285457fbac9f3b6feb9c5a9ceb08ae82dc1bdc01acab1320328876e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneMechanicalReceiverKey.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "f2fe8f75e20c3c48e8c231f446bcb186a48fd936f8c0be6f23896706fd84e37c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneMechanicalReceiverKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "80ef9eefd0b193f664f0d8e97ddc4e7f8718a5ed1b54cbaa62b0411acbac285f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneMechanicalSourceKey.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "7577223a0478e188de9c48a4134ba6948d1a8ad2bafb16234847b6a24fa7cc43"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneMechanicalSourceKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "ef90f32e3a514d68d37cc9cd9e7bc15cb1896e23608ebc0ebd7514371c8fd77c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneMechanicalTransferBindings.ReceiverIndex.Value"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "aab1a4f233179a223050434659c0a1f290b7cb29d6fbb62561f9cbc8faeb01da"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneOscillatorDeclaration.IntervalSeconds"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "8d09aa6e7695db8cab26798ed52e39f70c0bc85d3e3054ef30bc2b306cfc70d8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneOscillatorDeclaration.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "f854568bc55d5ef61e1fdaec36249762a622437f4cba7d51e8d1cb67c13a47c3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneOscillatorDeclaration.PowerInput"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "61b37786ffff895c4fea818737ce32f2c1c66399ccf54e27a238a38ce31a9b80"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneOscillatorKey.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "69696438201a63d91971506e3d9ec9d4523f5a9eb97bc2721da1d0b8a123c3b5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneOscillatorKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "613c5d48b0b3bac2eae8e5401af948b7bbb1daf36c10891bcc466ad94471a154"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneOscillatorObservation.Oscillator"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "b55a91eb5308c898e2856c659daf513cde4d20c646514fe987877c66d6034d92"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneOscillatorObservation.Quantity"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "f6f14a801e8fdeaf5297cfeb90c54256de1e58bc5c66df0dedc976c5aeb065ca"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneOscillatorObservation.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "9a3bbb64ef3712dc35d67886630d6acc74f3d2c2335e28ca6a4cb5064c08df0c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePassageSensorDeclaration.Frame"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "cd5559eae543047d2dbd65ae1daa14e2c41003cd545706004e4ff1d179b517e8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePassageSensorDeclaration.Radius"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "10153ec70810eef2fd6623e179007be8396fafa7d7ce09f7f138c0d4d3c6c7ff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePassageSensorDeclaration.RearmClearance"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "74d57e1c69d5628ce3b13ff267a5661357f2b66b1ab425a24686e647b2b65c36"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePhysicsAssembly.Bodies"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 0,
+      "MemberSha256": "39e293de79e1ad82fc899676b872ba13721a1c309c311757795c6bdc6388430b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePhysicsAssembly.Declarations"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 0,
+      "MemberSha256": "ab3a26e20dd55f058ff3778e80de1a2d648d632bbb27844bd0021b5d3150021f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePhysicsAssembly.InitialJoints"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 0,
+      "MemberSha256": "54011368970ddd6af64065b047c7885cfb31bddfe25f838c06c3bd9ceea5be34"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePhysicsAssembly.LastPresentation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "a60f2c8b803dd5a1eab85342e573b7967d08fdd0a7f28e89638bcc0a9bb15d4a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePhysicsAssembly.Objects"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 0,
+      "MemberSha256": "342fcb7c39a2c153b139235b7bbad38b36b08012c11bba2114038d921d90afdd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePhysicsAssembly.PresentationTargets"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "e74f1a6fa0372a14b01cdd8e1e95dfa35a8eeb0928e0e705cc8b358ca0827950"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.ScenePhysicsAssembly.Surfaces"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 0,
+      "MemberSha256": "b6be3768f63c87a27dc3cafd476d9fe51120d6f9ea092b9df79819bfe0edc532"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneResidenceSensorDeclaration.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "137879e9f873c22a3c04a025d31c62c2e00e0cb1522af2f746be94be8c771bab"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneResidenceSensorDeclaration.Dwell"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "1d56a289e33b76f58d06c3abfd741ce7f9cc4af723004552f32466657d3e61b4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneResidenceSensorDeclaration.Frame"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "8cd7b75f4def0b38713c36ef105cebf4de28d1d31404b25ce2ef7fe5d48df320"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneResidenceSensorDeclaration.MaximumSpeed"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "23873cc33d7bce3f28e5c56610ae0f4e14186da2186848328fc1b1df3d96d8ef"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneResidenceSensorDeclaration.Region"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "ab9a0232a0b296a9e1060eb867b7647904c00ea8e0670fdb8b4648084b6eced2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneRopeAnchor.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "1fb912b580f89dbd7da7c0e9105bea66d3febafe80c3e50808a612d26b7972de"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneRopeAnchor.LocalPosition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "5eea3f672b74ee2bb4289024d9e58cb30f90122bd2b2430708bc7688a4f8ff02"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneRopeJoint.Anchors"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "bf1ad9d056822eddea79c75505ccd998e9fc2d96a8fea9dd5c46e2f5aed5eaa9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneRopeJoint.Collision"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "12b2cc4470b674d2087b6b0e11935d0c73443fff27c2a1ac9ee6f6ae715ebc50"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneRopeJoint.Dependencies"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "caf20ff235d672de5f0083db1d2c9a532744481ca57688e7367734771bc7d05c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneRopeJoint.MaximumLength"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "26d467e764aa1522e0407ffcf7eeec3f486210f2b08be4a3b8c40ed9a8853b37"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarInputDeclaration.Initial"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "90973dd5661bee753b72dadef8ce42c80636ce279507792d83822d3d9ced2410"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarInputDeclaration.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "877c905b31edaa54fcb2fd9d6230073884146d3cc330a807a69f55703d1b7936"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarInputDeclaration.Maximum"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "4c694c48cc2279fac1deaadf693a82541e7e6e006d4b78e21a481bbe92acb2b3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarInputDeclaration.Minimum"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "32928b0ebeb6d96a39ccd6953e8f71c345d6429319ec4fe83724fce1153680f4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarInputKey.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "08d7d14adc73afb5565f73e1c82ad1f2a41a3c38c13032ba0fe3db820aca202c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarInputKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "32ad475de0089b99e9e64ee48a2a03b6d52c462181516a47c090d64c55e10ba8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservation.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "5119428eb0c1ca4336ca0ce1d03daf9eade1ca179c7c1907421f1722a60769f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservation.Source"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "25a3fc89aa50f198911dc4b56982353ec9807b57711cad2c0c9dd0e924b64a44"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservation.Unit"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "3fd705ff1af67ec4540502379c2eccb59f186094088e070052dc444790f1fbe5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservationKey.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "a7b29d0060601855d4f99132b7fee573a7a10b59ceafc6a99a39a49a16618461"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservationKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "0c1f2c92916477c395b994fd6c437bddb82464c2d45ab48153623a5dc1e5a622"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.EnergyBinding.Body"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "2e9a5854ae092179fb2d531644498f9efe3386b354861ea74bb0dec3b5dccbda"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.EnergyBinding.Quantity"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "922afa5c1cc08bac0aa1a17480fd0f3d283242cc5b5c9d39d99d36f2b8c9928b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.EnergyBinding.ReadIndex"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "0450afb6c740af7c5b04729442672ed65379efad5d6d7548ede9523c78811c9c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.OscillatorBinding.Id"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "6f8c085498dcebcbabe8539a03b7751204b0e51dc2e18869ab8fbc63df67e659"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.OscillatorBinding.Quantity"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "a9fd278cd276043ca677b760331355ece8178d851d3b8da82504f50e33d6c7b4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.OscillatorBinding.ReadIndex"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "cfb3ab787a42602d6f0e85e2d1c28cbda7865fa8b8e08de5794ea3a8a2351c3c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.TimerBinding.Id"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "bf5df19a1c35d991e352b9dc9f25239e0dc8d9c3bd4eeee2900a03e2eb150025"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.TimerBinding.Quantity"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "3aa884fe98528edbfb200765b10c01767ea4214caedcfc7db07db9dc7a759872"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneScalarObservations.TimerBinding.ReadIndex"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "c9945e1621544c2c6da703aab89c6a692863c7b6b805af986d3904235d10a530"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneServoDeclaration.Acceleration"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "6d83204161dca2ac04b6c32fd0d6ad678573342da652d44b99fe684a9edbaf71"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneServoDeclaration.Joint"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "967006c95931b5e0c95ce1c06659df59b60deb9735a12457cd0ecfeaca288447"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneServoDeclaration.MaximumEffort"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "074117ade3711f019a93cbd0d44e94d1c7fdebc0d15da2085c39d5e39129a7ea"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneServoDeclaration.MaximumPower"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "dac456df4d4fc693cf37d8402bf28db08e2722c0cd62de27390c5a9386dea04e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneServoDeclaration.MaximumSpeed"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "de7c84503d1b5f41325b938dcd68f49fb6169af1c97e14b55c6c52bff0a2faf8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTiltSensorDeclaration.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "b08ad2cc402cb8f19374f38350f35f0abf75fae5fd3b6c33abb45c3e5cb1bd41"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTiltSensorDeclaration.LocalDirection"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "cb70ae54fadcf8be7d342c7b5a6cb54f8b156d7ba5228c601c6c1e17c99195f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTiltSensorDeclaration.ThresholdCosine"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "3b676297b2be0ed81b8e7f67fe90c54c902f855fef83bc86a014945bfabee816"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerDeclaration.Boundary"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "8af22aeb82c2df224e9813982893822b08290f81405cec8fe857e4a45485bd5d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerDeclaration.Completion"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "b2a0e5a85ad364ad66f63bfd0c1035bacef2ee424995f248a2487b3ccf48ccc3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerDeclaration.DurationSeconds"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "46cb2b888488d2be2aaee176e6261e707fb469a671771a8c2ff5b5f42c2bee31"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerDeclaration.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "d831493709a1a429a0c828e4d10b38071cd2febc524f2d9dfe5cb886b32b3844"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerDeclaration.Signal"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "68c4dfe66e57c16d61332970987969c60c7141e214573e76f9fc2d905ed611c6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerKey.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "807372c739c6d9e68a8dde2ac348e31668229a02429600bc4eb7d359d3ae4c47"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "93022895317acdff32d0fa60fedb96c7dbcb811db29d8ffc1d216ec45f19d58d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerObservation.Quantity"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "00bf0a2f3354c6cc0a8dd6708dfb2aadb9f9c5ed747713159e4349705f008e27"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerObservation.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "4722167e79886209525b63b3287dd0d52bcaac298acb556bf189d404a2db26b4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTimerObservation.Timer"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "d0dd5e9cc4a713c0757250aa17101841a28e3cccef60c0ab414655cdf46bb76f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTransmissionJoint.Dependencies"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "d5173ab535f65c3aa4a49e2f25689fc8bc151adeb4857a709b5e6c22ed083908"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTransmissionJoint.Engagement"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "63c07a10d0b961a6232329eae027229fbcc0917a56af49fe0323b71e771e721d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTransmissionJoint.Input"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "d5d4504773215af58c2837b9406ed348fe58452af244d0cafd96391f83a3934d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTransmissionJoint.Output"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "ee07ff53c2269222f40345408e770353d267646933cf5002110c2e10284f813d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SceneTransmissionJoint.Ratio"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "1ee75577a9f98163e33e80dd255e54def5b3d77532e26d4820d975d80784bf30"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterDeclaration.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8aed3fad43f70f13eaed3e87bf94beacaeef2bba0de3e6debc46deeaddf7b0b5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterDeclaration.Target"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "09b949784bb57347912f53ab168114cff03f05a3b4cef5d754b1bdc30f293deb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterId.Index"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "446ff617b7f79f9d11df17309a9f9c7c245bf244cc4df27aa97b71a5f72c5f74"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounters.PublicationReads"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "bb3211e99ebee872d30113cc5e619035f6926a522ef7dbe3e6444feba094acfb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterSnapshot.Owner"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2c049348e5b2940e725a639cd42a4bc61eadd02b3b672343ad0cbeb6dde07419"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterSnapshot.States"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a6679181f3177e7811fc7c3359d31656e49038b1ffc8b0562afa0e1f737e8814"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterState.Count"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "0227eeb652e782c603f3358082153fa8a0024bdeb940f3e1ebcc62639ba67133"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterState.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "767b61a9d95cd31069af98e54ac944b179b3704de492c8e4e6b51619bd695c5b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterState.Phase"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2a8e228fcc14897d8a63d6bdb429f5d1a0b8fe8c480ed2369f74020190b8f47f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationCounterState.Target"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "88f8823fd7f3e7878671daf2dbf460e3858459314997f356d915a57b9a0f9a42"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatches.Tick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ec1c12d8d2bac1ec01cea9cbcc6ac16dbd988d8f7c7820871b6436dfd3203299"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatchId.Index"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9aea99c669b63e8bf25aad794be7f3d46844056309dc33a1e774a7056b6ef3cb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatchSnapshot.Owner"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9b3c3c037fd139f619258132fbf7b46020c351eb435912e9eb22d094528140f9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatchSnapshot.States"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4b962cca56831f57c809cc830bcaf08895941a8fcc7c360b0bad3bf5bbd2e44e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatchSnapshot.Tick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "407ec6b1d6e5d3e6345fd461a7aedaccbde21375827fe51f56c3f83daeed60f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatchState.CurrentRequests"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9d98ad7e3e1d4889f86760c16211deb27d9e938d8515e43d635f858761750b71"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatchState.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ff88b7e188ff1f58c9510f107d993c1d65327daa2b6c8092722a048d26f43ac9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatchState.NextRequests"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "028fb729bf9eb7500128c1f101b2c66aae55e43928bf804328236be18195b2f5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationLatchState.Phase"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "54fa465dfddeaacf875927693df3e1964a953afb83111efd0d86cfc3151c2e9b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorDeclaration.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "c942ffb9919035438a232eb2048179bb45e9b3008598976755c544597ecd8018"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorDeclaration.IntervalTicks"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "346f77d276f6667cb6cacf860b115ff5b6060ccec6c55777f3d19aaff11262a4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorId.Index"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3d4400f58379e29329f067057e7fd4293c3ff4d8915a881cd2ab838545d0d094"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorInput.Enabled"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "556d1e8b75d5e259e8f0a125f4b12192696df8b2ffd106aeb384f934b6aec8d0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorInput.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "54b6d08dc695894817eda49799ed4f0381e924f11565d2a48714cd11795b3993"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorPulse.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "1b47bc324dbdba0b471beb7c7d2a3fc8321688549e4c66d5b5d3800aaffb7809"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorPulse.Sequence"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "21409d0bb50e750f690146abf87a3ca9b1bc32c854eee96ff3f8783cc5c977fd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorPulse.Tick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "704e5967bca4a81533d973505f2a34e6f8361906b2b579da36a8579f46d33916"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillators.Tick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "28d28cd3c53c1fed00205bad6a51a8bd6a0a3bc08c7c8f2fef78e4846a682cc7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorSnapshot.Owner"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "03f3872c2ec96175f6b3f16e667d5c0dfb869f9a30cba010f2def07e14104154"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorSnapshot.States"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "58dab4f933d6aa3ac4ae1052068eec0402e73db983fe3773746d478f8be8d2e6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorSnapshot.Tick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "38ed9668660c72a80b248de40bb1443bbf2269df289e1c6c277f2a8b962eebd1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorState.DueTick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8899a4be51f6d2d79bf8c09e6a1c2f639eae3780ff481a3474617cf882f0c661"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorState.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4fc3745953e455a3cb77caf17aa99b466a33f2733aa35bc80c27e0fc38b57578"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorState.LastPulseTick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "05872fd85ce142f6e05be9d85be54f2e01705ddf7fb42fd93498fde5c499b3bc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorState.Phase"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "af9d3e5d4dbfbce8da0156e84233658dc33e2c283d104471f26ca5d872815f01"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationOscillatorState.PulseCount"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "4d7ea7b570f86c3bec5ddbeaa6fd4837c805c583858f3be5a5501ecc508b65b8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationState`1.Value"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "72e46309ad393485009a68502b43fdf42b828f53beaa79a867509d8f12f4e13b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerDeclaration.Boundary"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "a228f77a7f7d349b0898fa064518dca65800ca12f5942d64a5fb6718a4ea67de"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerDeclaration.Completion"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "02c6f4d4763a5d7f4b8977dc24e32d16c93ec1de4a843a03d58150087ac3ccb1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerDeclaration.DurationTicks"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "2c2964a7008d5dac8eb6ae91699bc39f0bfc77d2e83cf66f5e4c44f6b18f6806"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerDeclaration.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "050b07d9fa94d1889a0e438b9fecbade6825b65b2ec6105ff5a26a22fe66e37d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerElapsed.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e011a5590388e30243a748ecad094f677681bdc56a03b40f1fff12e089935b61"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerElapsed.Tick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "3f0de3da3bc3a39304c6f4fee1d84966decc7c8faff634a0b3c53f424afbe0f7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerId.Index"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "dcbf2d10b5125ecc6b80987ddf035282312819ae3631ecc6c077dd06e4d42a08"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimers.Boundary"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "43a533d3f784d01acfcf7a6993b19544553ce6f008e71ea806cc83e3f2442252"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimers.PublicationReads"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "65df88109741ba3fcf1d4cb10b7b5f9db456b5529c62279b12be0ec35608d2b6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimers.Tick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "80808a0c8b2cd21355b99ef1db974106488337dd105d5c5bd628234700d158ed"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerSnapshot.Boundary"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9a574925190531003353f701601c2696ec3647bb5740364560257e949bc91f15"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerSnapshot.Owner"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "5ec71f80eebe30f1e697860246c695a2b9c6eea93e802628da256a0cc1da3bdc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerSnapshot.Tick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "de892a594122cbd6820279f890a9c4e24fa646d67f69088922e8d6b5ff149c1c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerSnapshot.Values"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "f5e7c5075272c1263a03586dc41bfcc368f4d7589a5d4e24eed09c0a54cea167"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerState.DueTick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "8132c9385da930500ebb28956335332168f6f8080ba18d4f12c500ec235ceab6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerState.Id"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "140a9cc7c671f0325ff1d9397bdcf8a2cd3dcb2bfeeeb79e079106683911d945"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerState.Phase"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "9a021c8d58fac6f9afc21a7c92c0a2358e02e5cdea0e98a0b10c9b99a0bb896f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTimerState.StartedTick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "69639d727900f09125a54d509185267800bd0dddfe52d5d415b11037eb19233a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTransaction.Phase"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "75281a26aa6766a33244325a9cecc86acc266e5efac3f5f053791a4bd0a198cd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SimulationTransactionParticipant.TransactionPhase"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "ab4fb4bc48008ed9f439d36b59f4ce7839493d56f7747554f4b7a6eb3ead8e18"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SlidingBlade.InitialDynamics"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "fd2bb73b29a07cf9408768c94ca8dda5e8aff9be81e8611a6c9be2c4ff3f0c84"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SlidingBlade.Stroke"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "P0-019"
+      },
+      "Rule": 0,
+      "MemberSha256": "e21822fe1380e07e33d801c99d72cc7807781a798475fd263e1057faa17d07f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SolarPanelPart.ColourAnimations"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-059-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "7539ff332dd6f158126e93c32851a77fce89d063c5d84d02f7601808cc5bfc44"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SolarPanelPart.ConnectionPorts"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-059-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "6aba1bbb0551c4976f6c1bd101a09dec0f2dd18d76a21d2a09e275f6e8e7f8b2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SolarPanelPart.ElectricalSources"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-059-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "fa3d62ca2e5c92125069270b5be52dcc94836d19b5b12b03a9dbfe590588ca78"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SolarPanelPart.Irradiance"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-059-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "80ece8755414fe24a7c50ee4ab6fdbc9ecb97492485d9461a1daf510d4f3eb2b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SolarPanelPart.LightSamples"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-059-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "dfbba22f422afcdd1d5d80456838003c3a01b75be11092a1b8c2d4a3478e0bd5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SolarPanelPart.RuntimeState"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-059-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "7cacc21f5dc282259165cf31c424f755151c8188c2c6dc69c1b98c87b6725dd2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SolarPanelPart.ScalarObservations"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-059-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "5a289b045a0f7a231a52568c6a5897de2618ac39fc5fa0b307da9e5abdbc299c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.AboveThreshold"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "faa88e864d2a25bf845e949d69ac1a76fd52329f222f7ca56eebe2a1d143c0ca"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.AcousticTarget"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "047d0aff49fda74035b56514d895a391b0a5b276d7f7dcd8e8cd28bad403210b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.CanSendActivation"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "4e92b0f6f6cd31a3f4ec0c5a333d5c55c166c5e4daf7e34772ec119eed4a2e42"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.ColourAnimations"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "9916fec87491df9924304531821b0bc89a95a91b6e78b2ef3dfc90af7e672f89"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.ConnectionPorts"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "bcc27f452b961bf70c632fef1e0335d0816988f9962cee2773bbcfc34ccbfc41"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.ElectricalRoutes"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "5f56420829aea5d5ff4c4bcf6aed00a4c4975bf4eae70ccf69f133adcdc04a17"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.Level"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "08bd3d51a3f912a5b0bc5d1f6f63648f4f275313317d3625a588236aed2aeee7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.RuntimeState"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "21ffb39a305f3c83b6a9ba3b584c196c652f0b1286efd553fd97e9d06139c52c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.ScalarObservations"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "19aac2acff6379f87448584ad98b9e9390a28428cc8012721bdcb0411e9422d8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.ScalarRotationAnimations"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "a86024b583312f49363dd0f719404ec385a89d28c10f07ccec2f085f21849f17"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.Threshold"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "795af6d6e373ac473e19452da870bc59c7362fe1d8acf2abc27e6cff057ab0e8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SoundMeterPart.TriggerCount"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-060-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "844700dbeb01afe2e8fad69c60668e92419fe0ca7603e4c4bfab75d30b228a0f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.AcousticMotions"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "9bd5ab342ba5e52701d348f26d6cbd2b3cfcd4bb503a5ccf39b15eeab52799dc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.AcousticPlayback"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "f4f37b75acc91a5440a2b4dde28ce3d508a26b1206fa93b25d99336bf6d24d04"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.AcousticPulses"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "02f77cc7cfe0ca6a4f31ffaf3c8ebc95e7e279a96270f804a7bed9875d1d242b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.AcousticWavefronts"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "4d561bf2dd05e21e52996f31878615b8c005e9b4392ead40c8f9592759e21893"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.CanReceiveActivation"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "f3d574c97d76d7b617fedc0a3e9aa038e6b1c082e8c04cbec6cb63d4979b5543"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.ConnectionPorts"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 3,
+      "MemberSha256": "c64382be0e4b806b7ae7d91e648e22dae5e067dd0b479fc809ef986d71befb78"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.LastPulseTick"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "4bd984c70ba854f1c9e9815cb93836c1d7823e61469d143c3d902b24f988f0ae"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.PulseCount"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "4a00bcce042a1324bcc5f8a1858350ad91270a097fd9b44ae2c341606407f254"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.RuntimeState"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "40b23bd63a00f81f76a00024dc37172d7ebe11e1e4f314396bca4b2f00eefe9d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpeakerPart.Tone"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-061-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "dbbd299be22d76eea387a1f83feec7242e1dd2ec3c90ef6998d4f9a702fc9eff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SphereProxy.At"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "75352c06cfd1eee36ddb4f3bb121cbbfe4298950b9a9ce0541dcddf228c88ca7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SphereProxy.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "9e25ffd9b43a9d9be43d38493d0d7145d7e556461e821eafb71a560f41feebb6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SphereProxy.Radius"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-008"
+      },
+      "Rule": 3,
+      "MemberSha256": "b657db8c540ed3ef2e1a5bab2f0a12aff3f3dba8cf045e2b0d5e9915c7581797"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpringPart.Coordinate"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-062-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "9faa7027b0e7957d65bd8e8cefc92d1f32b56e24eb2c141ade0f6d554d21b8ef"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpringPart.Elastic"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-062-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "a6f7f1692e83d4310452fbeae4fe8e6d484ae5234d768d565abc19e27fec18af"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.SpringPart.HitCount"
+      },
+      "Owner": 1,
+      "Migration": {
+        "Value": "CAT-062-I"
+      },
+      "Rule": 0,
+      "MemberSha256": "5f0bbf153bcc57b65b283602e56eb6f9e76e35d9dfd6205c421ed3e6a9a89407"
+    }
+  ]
+}

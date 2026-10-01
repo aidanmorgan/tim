@@ -1,0 +1,113 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
+
+namespace Ownership;
+
+public static class OwnershipOracles
+{
+    private static readonly SourcePath Source = new("engine/SimulationTimers.cs");
+    private static readonly MemberId Member = new("F:CuriousContraptions.SimulationTimers._states");
+    private static readonly CallerId Caller = new("M:CuriousContraptions.SimulationTimers.CaptureCheckpoint");
+    private static readonly WorkId Task = new("P0-022");
+    private enum Attack
+    {
+        MissingMember, DuplicateMember, UnknownMember, UnknownOwner, UnknownRule,
+        UnknownTask, WrongPlacement, StaleSource, MissingSource, DuplicateSource,
+        StaleWriterFingerprint, StaleContentsFingerprint, UnauthorizedWriter, ReferenceContentsOmitted, ValidButWrongOwner, SceneReferenceCrossing, MissingOwnerField, UnknownField, DuplicateJsonField, NullAssignment, BindingErrors
+    }
+
+    public static object Run()
+    {
+        var member = new StateMember(Member, Source, 4, new("System.Double[]"), StorageForm.Field,
+            StorageMutability.ReferencedStorage, false, [new(Source, 8, Caller, StateAccess.Call)]);
+        var source = new SourceInput(Source, new string('a', 64));
+        var snapshot = new OwnershipSnapshot([source], [member]);
+        var assignment = new OwnershipAssignment(Member, AssemblyOwner.SimulationCore, Task,
+            OwnershipRule.SimulationAuthority, OwnershipAudit.Fingerprint(member));
+        var contract = new OwnershipContract([source], [assignment]);
+        contract = OwnershipAudit.Decode<OwnershipContract>(JsonSerializer.Serialize(contract, OwnershipAudit.Json));
+        var tasks = new HashSet<WorkId> { Task };
+        OwnershipAudit.Validate(snapshot, contract, tasks);
+        var results = new List<object>();
+        foreach (var attack in Enum.GetValues<Attack>())
+        {
+            var rejected = false;
+            try
+            {
+                var candidate = contract;
+                var observed = snapshot;
+                switch (attack)
+                {
+                    case Attack.MissingMember: candidate = contract with { Assignments = [] }; break;
+                    case Attack.DuplicateMember: candidate = contract with { Assignments = [assignment, assignment] }; break;
+                    case Attack.UnknownMember: candidate = contract with { Assignments = [assignment with { Member = new("F:Fixture.Unknown.Values") }] }; break;
+                    case Attack.UnknownOwner: candidate = contract with { Assignments = [assignment with { Owner = (AssemblyOwner)999 }] }; break;
+                    case Attack.UnknownRule: candidate = contract with { Assignments = [assignment with { Rule = (OwnershipRule)999 }] }; break;
+                    case Attack.UnknownTask: candidate = contract with { Assignments = [assignment with { Migration = new("P0-Unknown") }] }; break;
+                    case Attack.WrongPlacement: candidate = contract with { Assignments = [assignment with { Owner = AssemblyOwner.AnimationKernel }] }; break;
+                    case Attack.StaleSource: candidate = contract with { Sources = [source with { Sha256 = new string('b', 64) }] }; break;
+                    case Attack.MissingSource: candidate = contract with { Sources = [] }; break;
+                    case Attack.DuplicateSource: candidate = contract with { Sources = [source, source] }; break;
+                    case Attack.StaleWriterFingerprint:
+                        observed = snapshot with { Members = [member with { Uses = [..member.Uses,
+                            new(Source, 9, new("M:Fixture.Other.Mutate"), StateAccess.ReferenceEscape)] }] }; break;
+                    case Attack.StaleContentsFingerprint:
+                        observed = snapshot with { Members = [member with { Mutability = StorageMutability.ConstructionValue }] }; break;
+                    case Attack.UnauthorizedWriter:
+                        var changedWriter = member with { Uses = [..member.Uses,
+                            new(Source, 9, new("M:Fixture.Other.Mutate"), StateAccess.ReferenceEscape)] };
+                        observed = snapshot with { Members = [changedWriter] };
+                        candidate = contract with { Assignments = [assignment with { MemberSha256 = OwnershipAudit.Fingerprint(changedWriter) }] };
+                        break;
+                    case Attack.ReferenceContentsOmitted:
+                        var changedContents = member with { Mutability = StorageMutability.ConstructionValue };
+                        observed = snapshot with { Members = [changedContents] };
+                        candidate = contract with { Assignments = [assignment with { MemberSha256 = OwnershipAudit.Fingerprint(changedContents) }] };
+                        break;
+                    case Attack.ValidButWrongOwner:
+                        candidate = contract with { Assignments = [assignment with {
+                            Owner = AssemblyOwner.AnimationKernel, Rule = OwnershipRule.AnimationAuthority }] };
+                        break;
+                    case Attack.SceneReferenceCrossing:
+                        var scene = member with
+                        {
+                            Id = new("F:CuriousContraptions.Presentation.SceneAnimationAdapter.Target.Object"),
+                            Type = new("Godot.GodotObject")
+                        };
+                        observed = snapshot with { Members = [scene] };
+                        candidate = contract with { Assignments = [assignment with
+                        {
+                            Member = scene.Id, Owner = AssemblyOwner.Protocol, Rule = OwnershipRule.ImmutableContract,
+                            MemberSha256 = OwnershipAudit.Fingerprint(scene)
+                        }] };
+                        break;
+                    case Attack.DuplicateJsonField:
+                        var sourceJson = JsonSerializer.Serialize(source, OwnershipAudit.Json);
+                        _ = OwnershipAudit.Decode<SourceInput>(sourceJson.Insert(1,
+                            JsonSerializer.Serialize(nameof(SourceInput.Sha256)) + ":" + JsonSerializer.Serialize(source.Sha256) + ","));
+                        break;
+                    case Attack.NullAssignment:
+                        candidate = contract with { Assignments = [null!] };
+                        break;
+                    case Attack.BindingErrors:
+                        observed = snapshot with { Diagnostics = [new(InspectionContext.ProductionRelease,
+                            new("CS0001"), Source, 1, "Unresolved fixture binding.")] };
+                        break;
+                    case Attack.MissingOwnerField:
+                        var document = JsonSerializer.SerializeToNode(contract, OwnershipAudit.Json)!;
+                        document[nameof(OwnershipContract.Assignments)]![0]!.AsObject().Remove(nameof(OwnershipAssignment.Owner));
+                        candidate = document.Deserialize<OwnershipContract>(OwnershipAudit.Json)!; break;
+                    case Attack.UnknownField:
+                        candidate = JsonSerializer.Deserialize<OwnershipContract>("{\"Unsupported\":true}", OwnershipAudit.Json)!; break;
+                    default: throw new InvalidOperationException("Unimplemented oracle.");
+                }
+                OwnershipAudit.Validate(observed, candidate, tasks);
+            }
+            catch (InvalidDataException) { rejected = true; }
+            catch (JsonException) { rejected = true; }
+            if (!rejected) throw new InvalidOperationException($"Ownership oracle accepted attack {attack}.");
+            results.Add(new { Attack = attack, Rejected = rejected });
+        }
+        return new { Positive = true, NegativeCount = results.Count, Results = results };
+    }
+}

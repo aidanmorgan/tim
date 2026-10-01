@@ -1,0 +1,2716 @@
+{
+  "Sources": [
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PipeBendPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "a5bab9e7c8a730957f59c1ecd554f64cdb325bbd6da87f75ffa692403a88585e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PipePart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "34c0029d0382cd3a9c23e17edb7c71a80238804d2cec6a8a52cf6605148e9f4d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PlacementShadows_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "82d41f7890d33a980b7a78b5aff9791b84a6dadb105b970cd465a002980d5cc5"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PoweredGatePart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "7da2a8d046005b3c3b920d8b878695d49272ac0df58477ae75d875a1bdf0d50d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PressurePlatePart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "6c9a28b51ab35896fd813483c5365a9b0843484f57b38d5bb00b8f0675059be0"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.PulleyPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "1667163ec3f273186cbe53ea9c0ad1692bf68cec2b0b35b72b97fd9cf3a93207"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.RampPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "bbbb0ca00bf7045b5fe38a0a1119621a964b8e531e0b2c767959b7f2ac1f1780"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "1bc2a6787b70e58eb0b0702d0f73f5a2f472fcdfb28d956304bded67a4b745c9"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.RopeAnchorPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "fb3980da5be7371377012dee373a215c8746f18a107bcea91e620eb527b99d15"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.RopeVisual_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "7734f0870e13da79b492fadedf0944fd7b4bd9fd3d6b798e6c2dfeae54e0284b"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.RotationGizmo_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "ba878f834e7f64d1955c2c0a76fe7682c63454f68d332e4cebc9ff10270fa5a7"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SolarPanelPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "08b83169dfb4258e74604a74ec7662f7a5e9b52073bde0d26c130d9d8fdf5f99"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SoundMeterPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "a7711a2d049db10c174ee4db0213e06da85f287c299ed43a1cc8d21caed4b410"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SpeakerPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "3600432d6c8f74e4b491d56fdc26ce018576c1f9f9bd86e01f5d3f9d8532891e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SpringPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "c5b2f2240a0d41a82495fe0b1375ff9127e600f8b674f71ca191455dfd1842dc"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.SwitchPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "8e3453119424af7b52104c4110aa63e094ff1f30c8463042236af152cfaa70e7"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.TrampolinePart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "91664d7383549b8de085a5a84197dae6f4c5b8358545f08ff9206aa5ca11dad8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WallPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "cb97fea8414ce483c6b1a0ed2bec22031bd1988c8c637457632b033b50ce3d7e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WeightPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "b972b375f75c2391175edf381173c8f12f5ff1d4e4654b1c6efc12b832531425"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WindChimesPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "42e60931bb1dbb0de9778cd4b2c1fbba4cd988921a6ffe10c11aee3013779fd5"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WindmillPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "800a5526199125cf3854438de82f5feabd64bd7604b25040287c3b05ca2bf7fe"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WorkshopButton_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "359feb0dcd2ceebb72fa4ce2948163e0f6c1d36b6bcb2310302152b956f841bc"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.Workshop_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "3073926c00f68baa0e3218bc0c89781f459eed84d671d8076893f18636921ea0"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WoundSpringPart.GuidedPlunger_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "3d8fb68119e9ccc16c6693d3542a2f0ec3a7b14fce410d0e0614326492481527"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.WoundSpringPart_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "07e64cc1e2209713ff66f138d5b7a0e86b5dd3cb8dcc0b49cf78171ac7296a8e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BallDetectorPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "cbac35e8f8a322c6232a5da7e93dd955bbdcf934885a62a96c71478f0c0c328e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BallPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "4bd683b465e57df45e857d986a70fc5ad8ee8abf5c0856f53f06fbc73f9ce733"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BasketPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "a7ff2a595309adb053b40574264d1272cf4a04d1c3a6eece6b7c0ab614055c5e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BatteryPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "6378cc2b9dd221ae9799e8c2fd42aefddb1f2a0433a37425d7959272a7b5c2fb"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BeamCombinerPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "e9492b1f4bc54decb5aff8d36541fe9df461413c4e542e795ba411697bc07159"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BeamShutterPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "490dcdc016731ce284746ebe2e123f8aa732f9e0959ff7df0978d5f06bf2f70d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BeamSplitterPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "f0bb5ffaf52893796275aa946015424393d92b17bc1211789af0d25ff791e5bb"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BellPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "a3e051eac1c8a2d1d2f72b7871a5dc3d50a69e984e3067808f0ddc78c01f53ed"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BellowsPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "8c0678b675d6dbc3be7c6e6668cb7bac6580197bf06df9ef57d86ddcb64ee8d0"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BumperPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "bc4b2d512f66952e2f10582b3f5236bfc6438315af8d376249b2e5b4d176c380"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.CannonPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "964afdcb286a87730a311bdd0050c08b2528142eb02ce81e83bc827325c59251"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ClockPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "38eef00517ffaf545b8454066f8debc43f24ca611e1da2538787081e1a7c0107"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ClutchPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "8521525413f268b3f5591673eb2b202675d93fe2b82f261b9a62cfcd0d7b0137"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ColourFilterPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "c5e65a039a716edfb1bf9405f8a65ef02c7d77bd9cc6102ae2d0b3f87d6dc238"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ConveyorPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "7776718491aaea6d4356cc6f66512e2c994c26752f5e630dcccf00fdfa11814c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.CounterPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "5c931bb6f8a690eb673112b75152a072583c8f559e8423cb0d03e42fa457231f"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.DelayPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "c7bd74f345e539b4412afbc393adba33fd90c6024b52cb3351f202728e2ef7d9"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.DominoPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "0d955595a3d1bffe8e500f56ec0e6f437ca4e940a7512009c5b8fe362db73ccc"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ElectricalLogicPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "5d50d9fcab086bf063077e85dae1748a0d6724231e7114d55a5bb35d45eb1a65"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.FanPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "ec1f91dca5dc939f03051f218e53ff9dc580e59ccf0bb807f7c54414c18dbc80"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.FlashlightPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "89a9016ad811ba13f5967c286df53609a2e99965de786c1202e9c600678294eb"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.FunnelPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "bac9383decaefff9560d5974572a6d8e81cfc481b7c8c72bd3e2904cb07eece2"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.HoldTimerPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "8d65aceac26ea76a5acf99eb08055f6edab0e782a7e50add8e921af342936921"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ImpactLeverPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "a8fda6de1056032d1f597be60a38719111db5569473878079d712a6c952e104d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LampPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "0a016806c248eb44f36cb20936cd49aa8fd9eec099aadc96652899e204ade688"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LaserPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "04047bdc73181b8e511f59de2800819d109aa2d6885ad8ae0fb061d3ebd1fe89"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LatchPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "a54aa7bedd71d179f9c83305cd5dd9ebd42e8454b2fe75415d2eb0b25ebca830"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LightConeVisual_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "61d16eb38df8a4d52ba3489774c8c234c4e59ca0b3d1d81b558ca9ae5ef66e91"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LightReceiverPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "31de8c88e4d9641ac4f82372cdec4d88dd1c8846daf04af884d934fbcfc9ced1"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.LinearPusherPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "eff51baee37561be95705482352215b1a0d78d2ce6ff8aad3eb9638b9d583175"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MachinePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "f7984701e1cc2ef356c51f8c332d9d8991fd5b4b177fd9a6d54c541097e87a85"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MachineWorld_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "102087f8cb08215c9d7ed05754bbb229c5e0e308b9ef5222bb0983cb8d6bf610"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MechanicalBeltVisual_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "903b9306d70e731bd5abf8e8c4529564419ddffd6d66f197cd250a4598a37ee8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MirrorPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "0dbfb7b3d836b70a9730582655ae9551419e20b2a0648d262599b8d2f7c18a01"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.MotorPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "504d54662736b1676f0993fb2535db754af7ac707856909ed2d2d26989890821"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.OpticalLogicPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "53ea734ef408ef80dce5ce4f7c5207fe5c9103e6bc4bb268a76af75cb4bb9a16"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.OpticalPathVisual_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "634bec8035b22b9de6ca7e3430713739925220d28076217a28be92a36acc451c"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PartDefinition_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "104da07245b4ec96670bbfc10487f4eee6701b4a76b7f083ecf1f9cf52c05790"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PipeBendPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "00658f1974cdfeca4dc3e169192ebc76cf1f6feef7b7c6f97485e746c38937df"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PipePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "b2bb17633472533473cbf9740db1145721cb4958b53b37504fc85e58ac4b85fd"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PlacementShadows_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "b2cf975feb1ce70249c37cbe435f6aac06c193f03c11aa2749546aac7cae5aa3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PoweredGatePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "68ebf5a9b31a44c1dd54fdd549690e295b5a6180b8a3b4275a739bfa3d742331"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PressurePlatePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "9f59a5fd6916d3c7ec1fdb154d42395c9578cc6f4f84925d826825adcb70b585"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.PulleyPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "496ba50c0ab179e6bb5efe2df08cf3cd7c1e5a8d49fc78401f12dab90a2fce3a"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RampPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "33d7aa86de9420f43e6ef9a0316f7d9c61d56d22bfacc0b25f6e3cff74386309"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.ReverseTransmissionPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "9baad6639a16476f0358b7b43bfb1b1a2c1ee7d4ecbbe47033aa98b4f73d9ed0"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RopeAnchorPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "8ab4b5b4993f8a3994f216ff1ce56bb50d649c766d62ee56ee3e638a6f43d3c5"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RopeVisual_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "f9fea190e8958d698243161c801cb63b183ae05ba4bf66f474ab17a999ac3cc4"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.RotationGizmo_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "0902a1ccfac9d3089b5f972cf8746942dd9221a55db3bd549045296ab6b37924"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SolarPanelPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "7547a70d86053d964f8923bbbf98c2bad4d46ff2fe6535db044da2ca70cf47d6"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SoundMeterPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "3ac5a29e194596729cee6e49d9e24c77eba08c8ef27c94510648b5fcd6bc4385"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SpeakerPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "889670e388fb7b7d1db829f9702407f66f31c1945976e9629772818afdd3de4e"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SpringPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "2fda6f9d78c78b1ff25469f680b3dcf6c0bf7b74a2b9bf61b0a94024080f49b3"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.SwitchPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "e111d1c37296f81ba0956446481bab781a64baf5cad5bda5bfbfa40e768d3469"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.TrampolinePart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "dbb5e669e32cfb469e31ffdc891b61d66530f869494a8eeeb3779176fb0c8a43"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WallPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "1636fd87d141973734173126a27549de895f114f3a067fabd4d631254ce0d4aa"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WeightPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "e76270bc38388e81b495c1b63a3cc29b0f3a4bfa096ecaadb10e90057716a323"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WindChimesPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "616f7600f2fa3cd0f86579c803310a5d5d03d975b03e1aef80e4ebee0b54cfdd"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WindmillPart_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "a71f6eec28fb92dc7f5a11ddbf669533d1fa83bc7259d0e03a9cc22f6d1d0e02"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.WorkshopButton_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "5f42bda82b36d417040ffb5b1afde469431b10f32f3ca7d665103f9d7981fc38"
+    }
+  ],
+  "Assignments": [
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticBinding.Player"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "f7580deceffefc63b3406840ede34448d653889ffe8be85be59b8ab5c9c903ce"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotion.Axis"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "d67187a90db22f2aec3595afbbfc51da906c97e4c01093dadca72abe8771e537"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotion.Definition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "39716a2073b96d6382ea9b05cbb589583f5dd697d04c19ef8eb9d705b827b142"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotion.Direction"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "a44bb29d9406f2d2df7c5175cef5faed52ea38819461aa8dc14ae1196d49cfdc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotion.Property"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fd2f6d11e242a01114ae164fb8202d9aba7a7aa9d1b8c3af74933c5056683ae1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotion.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "757d0e2317202df4897fdabfa550f1864710ce541712c672a6f1976437cccd1f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotionRun.Binding.Animation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fa856cdb17f5d439ca24d8a0f329903348d9e224c0475f4fc41a859bca934158"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotionRun.Binding.Clock"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0f6e6a7f5a1bb307792782562d56c3a69dd277825d23c1e81d1b8bcd5391c09d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotionRun.Binding.Direction"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "6d5d2b9492ddc1caa51fd4662bda2ba0d52f33ea30934e2481082b37f319e48d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotionRun.Binding.Node"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "ca4ad9ffe698805e374849d2deb04fb9029da3244cc0b4ecaf5a3c82676b1f90"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotionRun.Binding.Parent"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "dfda0d15120933090485257a3f87c2a5fd62a7892dcac83f1083288920cd770d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotionRun.Binding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "d20dc1a51995ba9e07ad907c42afcd389c2bc3036a99c79fc049dba84d0b6765"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticMotionRun.Wavefronts"
+      },
+      "Owner": 6,
+      "Migration": {
+        "Value": "P0-023"
+      },
+      "Rule": 7,
+      "MemberSha256": "7d90b9927891a4f53ededc2b8b9f50beb3902ee03aac6619b893996b2c4e50a7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.Capacity"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "38e8441ad56f047e98524415191a75dfbb986316252fe697589105a22f9cfca2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.Cue.Source"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "7da6e6601a02faf5c79fd5dc9e7b6ac5e8df26e45453162bba3ef320c3b2992f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.Cue.Strength"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "c83047a5d2e6e437224b684e1ffb4bf17732c67e834e594756a07f5d12a3ea6c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.Cue.Tone"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "ecbad136b9f93ec0dd098dc7cafa6acc3ab11b5988f816b1f08e7e76e5865749"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.Failure"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "6c783766a906e00da4940f694098212ef50e683ab262d58daedef0277462e213"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.HighWaterMark"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0ccaeac5bfb491eedce59737734f52caff53d1fc91f77cd4ed848905b3f18066"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.Phase"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "10ed76084742c3ca3c1cf1f8664d89e1723d836ba3d4ab82c5607c20db7a9e09"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.PublishedCount"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "6d51036660fe933f643e2ea5e4292a0c3332a8b0f6a8587769f711777114b522"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.Source.Binding"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fea6decc6ed1729490404d59658824b90a2274918b5752500174c6ec2ebaf67f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.Source.Part"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "230b90faa89df63841482b0e3838e754ed8e8de92dfba0bbbc70b60e0a891086"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.SourceId.Index"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "3cb866b6134bf85b4408ec2cfb405a6287cdb70454e83c4709fb51c898c20938"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticRun.UnconfirmedCount"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "dfebee8dfc79962700e749c69922ba160963680c64ded5c1d52b2cebf234b14c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefrontRun.Entry.Pulse"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "e237ee16b36ccc0101be35a3e359cd58c46a8edafc6df75bf59d3d6a3ff5423c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.Capacity"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "cf60cdff607361fc62c3fb808d077be3d8f591aacdd252999a1a694586f8ae7a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.InitialRadius"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "84f0adc14b3702c351f5a5fe8dce5c23c425d059bf3baf1e7eb0dc1c9e754627"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.MinimumDistance"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b85d30b097e343a033f83291cc5afd64dca73245e86a3cf5166493a4598cad2d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.Opacity"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "c1be46fd69e846e947356bc855997784113b76abd7816127b13f9e8815ed3f05"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.Pattern"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "caad5991ddf9c2866b737b5705dbd1563aa3e8739042234a0aad94e2c73ff54e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.RadiusPerDistance"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "eb316212a47db123c330ef021c915cba1101afe06666b3480deb993b9232f833"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.Response"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "bd6d2301ec8dd13c610ea3c071463a77407b5f634ae62ca77cf3b3c8688201ab"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.Rings"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "483508056426a0a306353e31c3ae914695d7a020faa65fa46127cfb96c3b3593"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAcousticWavefronts.Thickness"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8f591c8be3c6ce473cececd371de058aeef33d1736c2a7ef232eba58522fd37f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAngularVelocityAnimation.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "dd5d8e0516ce79e0c209913844ade9b8eddddef52fb870dd918e683c6c89c9aa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAngularVelocityAnimation.Clock"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8cc2ebe45cb9d79d57dd3db2ed939f1124a9aa96f56b7625a82a649023a03ace"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAngularVelocityAnimation.Direction"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "2c1c72f518c2e8662a3b80c272fbf90814ba711b48511b26535adb0214270dfd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAngularVelocityAnimation.Reference"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "64216fcd24b197330e56285d7f9e5ab9fdad3b9a73a5c2c7b8aca09f4ad788b2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAngularVelocityAnimation.SourceAxis"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "16eabc0017822b40969d85a67c509c57e6fccdfec236ad8c99016b00f6c38998"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAngularVelocityAnimation.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "ebbe683f37462faec584809244126ed4b41d8195e79076f9768c5554e073ea9b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAngularVelocityAnimation.TargetAxis"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "629ff482363efcbe178431d5f595cd8a40a85fc6d95cea7f6efead6e9d0b0e45"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationAdapter.AnimationCount"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "37dd4f1e3e8e2c94ebae2ae6d06819040b476036b4cd121add86e1a79a78b28f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationAdapter.Generation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "1114001b76c660753a0f84a86138426de1c3efa478b9c6d04b44585b12533069"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationAdapter.SceneObjectId.Value"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "17ba676eb54117e803ed3e00c3ad9abbae984f2759a401e1275037fca93188ad"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationAdapter.TargetCount"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "a53106dd77f335bedff0db0736c525a7250318199e7b779ed10b995d2e854801"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationFrameWork.Animation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "a094922ae120c279432c8af8d82fb0ad15e5bce6914ec960a6cd067f4863bb53"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationFrameWork.ColourWrites"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "5ec0eb511caed78aa21c273aeca9d9e2f2c9bad9c782c6b16ba19116ab3093bf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationFrameWork.TransformWrites"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8902bb5c97a2e5ae8aed2b987870ad7b38a98d5c82778b555a957f6441968bee"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationFrameWork.VisibilityWrites"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "446c0a775957ff81466d6340145d0c3168fab3245da59b69fd9af8a951147ab7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.AcousticMotion"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "31574ec94bf2adf316392cede7866a8f0132938d4d45d0f4d6fd93d8079fd1ec"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Animation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "cc53e0bbbe4ad12d91631cec35ef54cb7d1b7719b409d23070ed6cdac1c59b46"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Boolean"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "959b6d95bc40a3a79f5a4d17a678933ff78fc7e74efa514a6f1d928b20136c37"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Counter"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "12dce9a2082758e90ee81017d3d2ae2eb04a4713d85b91b3204e49c8d08aee53"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Definition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "f6b13e709e56041e020de2a470520c0a24416dced269c592b2029691cc13c334"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Drive"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "6e1052db97e864637917458260a8bae183a248f80cd5d784344be2cd89d39782"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Feedback"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0e5551fa19255b7e6a458e2915cf897a218dbd3954595783663be90c9db152f6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Input"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "28b538a74e8e56a6831c9bf65dd64edb1829b202cd496066422ab32f4f18ed76"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Material"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "84e6b4dca41bac631d71f677f5c9e81ebecde31b8defaa4e13f9e7d64096eb38"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "a31ff9dc3ba61ba5b46868c3f64d21275b8c8baa05222d79adc38e67c4f1aa2a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Scalar"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "ecc86080f00597cfcba8af9c49ad14545d5bc7afafa027d1578f05d0df6e137a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "69e3e6d58d97a482917c02c4ec37e0c5593846dbe2e967c122f066d0d1d013f5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Binding.VisibilityTarget"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "04bad80bc8e61b5b3f57eca619c43772c044239ca480b988fcefa0433117db31"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ColourFollowBinding.Animation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "9f6b388928f36f800e13b5ce95afe935c1eb1deb4bc2f2baad20ee49994e6ce6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ColourFollowBinding.Boolean"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "6731ae1454a9f2fcf944061fdf9607c26a933d6449839f036d31e76ef4ee69ee"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ColourFollowBinding.Clock"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "eb4625aceee8192b35dc5f1585558318cb4bdd46a7cb8609213cbeccc123f8f1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ColourFollowBinding.Feedback"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "adda55f1b5de537a2e9f197c0e712caf8c58f75d8516cbfa4c54c7edd7a644f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ColourFollowBinding.Material"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b2c92422886f2991306c6a4e8b1e85e6432761bbfa39bc273e8cd16f00ba5fc4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ColourFollowBinding.Node"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "58da4a6740b06dbc7b194e1c6083d2e8e284d334639ee249bafb7a9ecd3426a5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ColourFollowBinding.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b90816ed123de37130fd9c2be27e2317a639fefad8152e2634366429ce038730"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ColourFollowBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "5c956d24b6675aa9b514c5f65e59ebf432be921dcefcb7eac2f555c1a262572b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.CounterBinding.Id"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "7c11a76b398a457c1f2900c0f703ea7006f9478de778174319cb7dbc83708831"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.CounterBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "f56085860e155d54e826d1337a7c2e14d280427136dedb9f6bac24df7aec4e7a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.CounterBinding.Threshold"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "42f15d152225ae201be16cc1b883b323451c9d75ae87ed1bd3e0bb728e442d7f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ExtentBinding.InputFrom"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "ad11c1634a5b104be9e94612471b07ec7ec64b0d83938558a2cc527023dc2a9b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ExtentBinding.InputTo"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "53788ec78770ec0c554ee0ddf21339b8602bd0dad0c76bfca64838cf4972ba5b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ExtentBinding.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "c2a7b1e566648616d5111ab8687c1736827d6463e6d6cb9a176ae46f716167c6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ExtentBinding.Node"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "93ea632fa5cda924d27983a58b810be5177267711a9199c4c5afaced9cd2bc2a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ExtentBinding.Parent"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "41cbaf8fdb1eac97ec622536abd6d5ed7ef98503fd7995af104cbd924ce8548e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ExtentBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "5af65351944ddb2784ec60ccb1c4fe015a1659904eefb9b761f7ac194f2b2aca"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ExtentBinding.Unit"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b8a408b28e00a534649e1038997db1a66d5669d130e262a06558ae10f27d1291"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ExtentBinding.Visibility"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b1a014d521def4a92c5b6b3c50d3330111ab0c7dd768b8d3e0b00140353d3165"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.Animation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "dccb74f6b231b727545b7e1b7457b49267b68194b6d044423357a7a3607c4e90"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.Definition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "7c0e4d4f69590c66de93e49818d3fa993f2be5240bc003aeb24fda8844fdd2e2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.InputFrom"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "beda0e18164e0af6ab6d574f3a6aed087069f5398e54660d6abe753e9850ebc1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.InputTo"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "4cc604212574a1d9436b5253cc113c66d426d5543e475bd012ce407b851b8377"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8452f67cf2238ef68a60b9e92341f73b82813a105bfe4cdf0a0962a9d29dfd9b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.Mapping"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "d3be06940c5c59d09629f8ef4cf3c1be3500e9196deb3895ed71921a1a994504"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "dfd0fe448bed62cc8bbe31c3abaecb9888903c10114762cf6f22aadde73bddf2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.Unit"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "3da6f99e250cae7edb932009417ef941987dbf6cb87f3e7e318cb2e1ac921f34"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.FollowBinding.VisibilityTarget"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "79f56c60a333f4ee10be1a7cad5d33aa80beec847a5801ad781a3a83520d9acf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.LastFrame"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8ef4abc334e95e198aaec2658524cad831f1666bf5ef6b84fb63b28c636efb35"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.Occurrences"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0dc6e11497e71ecabdbe1c8aef95d67501b331c0716845e499ef69887bab9c19"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.Animation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0fb9103f542b08a06126e6a9737c93e5c29e64254e98b910fd7749993b7fc573"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "78def3f56842ee7864b757496a6030c8faa2920b1ec09f74e4037ab20ab5223e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.Clock"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "6f82cbe9904ed1cd918b8acd999ec7db77fbc86c4c576774bc44078f07818042"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.Direction"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "1ce0854fff90d43025d54b4a6b548474f938eb21ec2d887dd540104ec3538ed4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b2e581a1a6b8eb7430258888a87362acfa5146b291e8ffb8fa046ddcd649c0e4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.Reference"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "9e67d0fc767c1d94248bde10769b4bbddd5321ce849ea9faab7f1eb03cddb042"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.SourceAxis"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "301c56521e94fe602078c8182442b0c5ceec6b9533687046d2f8df81870faeec"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "ed9f8acc80c810f931c5b6638d3d4fb22cb8d84c1f38ba86381d15c058140e54"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RateBinding.VisibilityTarget"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "e5d9b52f495cf248297e7c141212990c52da13e34565e53869549134d03242c9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RotationBinding.AngleFrom"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0ef8196972b467ec4c08fb77b43be1bf4cc4c2a66ea971150de42ba47a5d6dac"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RotationBinding.AngleTo"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "c55a2a0cb4ea7fd8a2786cf2abaae26e4fa6d0ef185b981281a5a1c6ca167f0c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RotationBinding.InputFrom"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "73953f5f59cf394d5337e64deb56913b20ea93d93feb4e2b0ccb5a59bad29763"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RotationBinding.InputTo"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "de0db8e429425347382afaa7de8bda58c76384e9cf985057c3ad0bffe970da71"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RotationBinding.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "5c80d6b841c6d3015eab0b1ebdf135d5e7a0dd69b1014bff2054a30edd9eaa08"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RotationBinding.Node"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "9921c8d7be3cbedde30ccd3b614ac4c4f73f1959cf5557269dd274f1a524d32c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RotationBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "2d9d72bf5a230192f12fe7d7f599f6d702bc9cf75f0b34b5ec588adeb0368e15"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.RotationBinding.Unit"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "68a5fcb9397fd2fcfe20393cbd6abdc683956ea1e5ec66aa240c2ef3a51fb3e2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ScalarBinding.Key"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fe61eadc895f4637be5718cd2a4e408aed091e9db3aecbd66e08522157e90c94"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ScalarBinding.Threshold"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "75b60a577079678df92669a04c8807dccf94b9a6e4a7a892999b499461213108"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.ScalarBinding.Unit"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "cc3863f6ce7b7535a4618a03ae031f532dfeee8245d46bd7ac8cd833c4090d39"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Blue"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "26130dae115ac474388b37c4ef16b6a2c4f400ea7ef2216b60e2cff9c2482327"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Clock"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "54b67ac0cd388b057c4fa28e4d88e0e1b18024130889ee1c31ef7d2dbebf877c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Green"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "38c96aeaa5c7a8eb3580d72ae99c0427f4e635a3dea01e1dce27ee83f9ece080"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Inactive"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "d6f599fc56c485d8bf18ba667915c650928b568723698f64e1800b2659d5579e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Material"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "c7ffc65cbba3d01d3923ee6cfc3ed9c3b7653993440fb0ffe4349543b7728058"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Node"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fad684728a45dec9cc53eda16c22fcac66d136662a3acc837c793c717ea390eb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "3730206262e6f1d092cc56358d893b6bb39917bbad5ce9a467e4beedadaf0406"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Red"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "7343b3f60552b58e98379637417a333eef43e4bde9c1f8d19d6e1d981d42e4c0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.SpectralBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "f1a7dcb84ead5c653df46e8217419d3d744a87f4f4e426ddee4472da0baf1cff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.TargetObjectId.Value"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "add2e52299c6705440feff164bd16f732c7b56bbd129bdcf5e3bbf2b43a6a32f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.TimerColourBinding.Material"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0d55552a42035ca478c59d094d9cb9e7cfeb348dd5aec9d92ed8423bee2cbe63"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.TimerColourBinding.Node"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "a865076f97944d93a5226f9b8b1096c6835fe2a8d9661f561fa93fce99676987"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.TimerColourBinding.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "84c9c72b7ed6edc8c6c03c7a6c0d72da597fd2ddb884b13badcf8e59a2932db0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.TimerColourBinding.Palette"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8085e7113aeec35cf3d5f83cb4a5fe3dd45b5b04cc1c61c0759400b5b1db9271"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.TimerColourBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "5eb03ad619a89b3e9edc7d2a76c09a52d071b31461710cadc730475e36c82320"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationRun.TimerColourBinding.Timer"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "373552553030e6920d64fde804647387a887f578ae3a56995ef1814383de971b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.Autonomous"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "efc7d525284cb00e415ca7358ed1da2ee283f2b7d96b8e742ee569d9d4687997"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.Counter"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "2dab7d9973565332d2e0f6c4c74ade175b5b9f839c4b126ec52606167ce9ef49"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.Input"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "a4ac971db41bc6b7dcca6c3abf8741e1096ec82976687a554cf5b335a9eb14a0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.Kind"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "4dbd2e9f2c66e90b4809bc6f6c9756f086d477b2f85c5e08962628e21b27d12e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.Observation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "7286d473dfb7c6f3e6af23ba66f0599b0f2f4592ce9f35ce9c47ef9727c774d4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.OwnerActive"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "750b20913794a3aaea6e29f62bf216564d5624bc81fa63196b0cbcddeec70349"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.Scalar"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b32887f86b55e910b51cbac0fdee667b75bc43b502877b0c16ca40a042e79cb2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.ScalarThreshold"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8382a61082c19a7a4e3badffaf25061a6956ebe227ca92dbce0e3237bea1d351"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.Threshold"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "5e445ab5755dfa717eacacd27d9b0fa1a7e1351158d739749ebd2b58b74c460b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationSignal.Unit"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "063d3aadbaaf21950679a0c00890d70ad02efa40f70011b0b1d7c2215670e64a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationTargetHandle.Generation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "99d3e23cbf3589baa0ceef44ab2488f39ba3d5025986afd3de60a17540456d59"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationTargetHandle.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "05b56551b2e64efddef4c5a55e7151de4ec970eea9a47493afde59f744b4a25e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationTargetHandle.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8701bd1520532a3338f076291d81837767c45b06fa46670eb30210292d1e32f0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneAnimationTargetHandle.Version"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "aadf39863fedc26968dadda49c02b14a527734c53a41e368597b513c42a42507"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourAnimation.Definition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "91e68be4615f364405111f8f86a81d4962d3c529ab43a90d99fad292a06acad1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourAnimation.Drive"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0fe756ff8983b6558a5717afb1d391209edae5b75d13d6053969efdb5fe996e8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourAnimation.Feedback"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "d7a278b1c4c4e6cf9534327db3905028c5beb2369a312f99ae467f114d41dbb6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourAnimation.From"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "8d7259346c5bd0f0f3a3539d17778d55fa9ed8692df1ab3d41e1731adbd9eda6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourAnimation.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0ce0803c9dff847c5cd7dfc23a1f9764d37b92a2b295ba0cbec0677c1473e652"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourAnimation.To"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "1d0d58387590defe5975be43ae4fa769dddac1a1fdcb1eb3cec2bbefc3129b28"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourFollow.Definition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fdd3ca41699c6087a6322887d2c8f23cdda3d8afe3d3e6128a941dce77df3584"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourFollow.From"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "cf40e02a4da6abecf4ffde5b3ad1ab43a667a80cb320200078fec0e8a4d7f421"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourFollow.Signal"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "0ba4a1bb85f5f312d4469102f73d444d55a9081826a600f9f9a7a593cb7a2e25"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourFollow.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "ecb009fde95f3b2ef4fd1fe0ba42630be6c10e36a947c10b5de32b0ecb9ab900"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourFollow.To"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "c7492ebeb6ef0c117ae5017cc4bad1e442a19eb9949674ee0803848f9c68c89a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourFollowSignal.Kind"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b125564abcb66f338cba96c8971de067326771b3e83c4360ab811181edecf56c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourFollowSignal.Observation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fef895813ab6b05006f4859167a28ac00992f4b0442c7a08e300b2b3a7dab128"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneColourFollowSignal.OwnerActive"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "aabf40fedfdfaa39c15ed1a4329379ace43328fa4072c9b43cc7f36779976b07"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneEnumBinding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "6c3ba504103692f67b876e99a453983bcc169863be1782d3e958f2ef6d458698"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneEnumColour`1.Colours"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fd8d50ad02ee027bdb7631caae6f713b9e2385ec850a2a53baa0e898e6399515"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneEnumColour`1.Source"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "f5b2aca0749eb2eb3a2c0e5b5306a75eb362946b0725b78cbcd32c834a1a9de8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneEnumRotation`1.Angles"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "de6b5b586a982ff946cfffc1be8252a6e5ea4ce66ffe9ebee58adb8f0ade1562"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneEnumRotation`1.Axis"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "effcc6d18c5292878c8d6cfc4981871638455bee8d3b9400434e9f5ebab0df3d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneEnumRotation`1.Source"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "7b1fca53f05e0196b5d55a02b6fe341826e41736991f5f5383dc03a2a0170d59"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneLightCone.Source"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "2cd4cb155664cfaf27ce8883b1c516666bcd2fbd9bf86a3f1c615517ca2ceac3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneLightCone.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "b31626b09dbec430b339df87ae4ce991d3181b8f093bc12a711bb298b7b59aef"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneLightConeRun.Binding.BaselineVisible"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "248e48d0e802ee783e7715cf223e55add93b50860278f0d6d928596e6da4730e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneLightConeRun.Binding.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "427acefbb3e5bf7bb7eed4a62c5478a13726cd69a935ad17b9f0b3f4d5ae3abf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneLightConeRun.Binding.Root"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "7dcada0a9503fd7efd4aac59f484b7f7426b4662aa559488b88cb07981f94bff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneLightConeRun.Binding.Source"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "2cf1b5c332defcfb44f4555e2a2c75d435084729a29475bba22531aba7c0c727"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneLightConeRun.Binding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "acc141cddb8581c87c06438517e26a1296b24b7636cb29cfae082cee9cc09e9d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneLightConeRun.TargetIdentity.Value"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "5feb28d3d2cfb126949495e19db0a4d68ca0fc80b44051a5814ce2b81cfc02bf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceAnimation.Axis"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "5e2fc6c6c9c27e7638320b3e564849d1f2e3b2212d5be9d52d9fca56fa0f31de"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceAnimation.Channel"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "6a1cbfcbbac4bcefbabeddf3525c6535d5af8f77d303ce9327bad91a4f0c72c0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceAnimation.Definition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "4a079c531db7a96817add2f517db5afd5471bb4ed33f85482c0b894c3f1defeb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceAnimation.From"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "23448298253c62f7597fc12c6b7d928f2dc373242b0e64bfedb405e5cf440d73"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceAnimation.Peak"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "4f65d3a2f1ee088700f182e7cf19dfdccc8b60575d9be8ff4af5401a0aea272a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceAnimation.Source"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "15efb67d30c13af8cfc29b149984bd3d4fb6053bda4aaffc6bc5c54b0ec9be9a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceAnimation.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "32a34e95dc504516b5abb05cd1bd2478196805fdc30a712ebbbd0dbe176bbad9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceAnimation.To"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "822a1b4d8951ea9c17d788de1208e53cec94d84a6d7cf50931e4df36b5f53f71"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceKey.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "97d4b7424c5bb6d044fe19827b87d477e604421fc3e93594b48f6e2c66da97aa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceKey.Slot"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "304ca86bb4905af7f888e16a7a5f4bb742511a1a04d1e4d6e2357dd312591a7d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRead.Animation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "686908373883c404f5afe0196e0e0a7f9a08bac546f0f3c0656838f2c01e4ba7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRead.Occurrences"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "57ceefcfedd5b5a05a4c709f9cbb2f904f03e2cb68e71e87c53af16dedf3b382"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Binding.Animation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "1ee538265f9aa7c3dea7586e2b20c00dc3a56e58436eaf220b6bee05fef1cd2d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Binding.Capacity"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "415103a14a0cfe4860e590c239fbc7359848a09ab608330faff6bd0e9168bd90"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Binding.Clock"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "cc84849e1666ba09cd262203ce444c411cc54ff38813df4bcf5afa98127c5031"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Binding.Material"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "4304a97778318ed5eee695a731a5af87677cd918054f94f78d0fc671330f978b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Binding.Node"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "50172b84b83fe70950568d7af548159bcee9bc237972d1f515202ed1ba7bfb20"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Binding.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "3b81c187f8283f585e2f9048be2dd3566062d8a6717f496bc77a99872c56fe64"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Binding.Parent"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "a0973c641747b39f7ebaa59a47d4e1262f573adecdcc371632584bc2a0170577"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Binding.Target"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "fa5a5da6659fed29b11a83e1152e8d0bae4bcc22ea7314db6dd00c6c2ac65cd0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Failure"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "00a431def85f920d94eb446a511b322eb6af6d533bbc322b23217e3f131fb167"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.HighWaterMark"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "c4b5cdf996ab48755b9c8261e5af89640504192b32618fe3b8ad98796f574873"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.ObjectId.Value"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "15a64e491616b5b738064b25e0a284dbba169e5f9f1f97908ce8d7d558bdfa09"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Phase"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "3066b023a8327d58765d5e37ccff8e11ceab9523a67052733664f3889e23f0a2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.PublishedCount"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "94b07f866584e7f0012a462d579a366004c2bf9e7cab381c08477f3f80f8ff31"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Pulse.Source"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "79d8882c3b18b5f093cea924f02b70ac8b76fd048e959ad0e29e1ba94896a487"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.Pulse.Strength"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "cf800c7301a813cd782551bd82ed8e1c62efee0a57fba1115bfe58ded99ab98d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.SourceId.Index"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-026"
+      },
+      "Rule": 2,
+      "MemberSha256": "4cc8da04f542a4c9c637f8475318a27827c564a818d9b1b410025639af96d321"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.SceneOccurrenceRun.UnconfirmedCount"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-014"
+      },
+      "Rule": 7,
+      "MemberSha256": "3d3a55b1314d4b4d2af5f0e3a4235235e28e1c36266b64ea8d1d81add6f902d6"
+    }
+  ]
+}

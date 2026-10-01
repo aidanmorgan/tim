@@ -1,0 +1,84 @@
+# P0-004 finite source-analysis contract
+
+The census and assignment data are a Design inventory, not an alias-analysis theorem or proof that
+current callbacks already execute in workers. A policy pass has two distinct layers: schema/membership
+integrity and independently reviewed semantic placement. The source-derived owner guards and
+timer-storage caller/readonly-content guards reject specific wrong assignments after fingerprints
+are refreshed; they do not automatically establish the other thousands of assignments as correct.
+
+R2 adds semantic operation classification through conversions/parentheses and checks every timer
+reference recipient, including Read. Refreshed fingerprints cannot authorize an unknown reader.
+See [the R2 boundary reconciliation](r2-boundaries.md) for the separately compiled web entry point;
+it is source-reconciled outside the four semantic contexts and their zero-error claim.
+
+## Included calls and conservative closure
+
+SourceInventory records field/property/event/record/indexer declarations, primary-constructor
+parameters, compiler-bound direct uses, member use sites and compiler method identities.
+Initializer/default state belongs to the declaring owner; generated auto-property backing storage
+belongs to the corresponding property. Compile contexts use actual MSBuild input/reference and
+generated sources. Every semantic error is retained and blocks the audit. An error-free compilation
+still does not make a flow-insensitive census a precise points-to analysis.
+
+Call edges include invocation/construction, referenced method groups and conservative property
+accessor edges. Each edge records source/line/context, caller, target and enum-typed dispatch scope.
+The finite ConservativeContextCallers set contains declared source methods/accessors/local functions
+plus all observed use/call contexts, including generated and test consumers.
+
+Apply these explicit closure rules when reviewing a member's callers:
+
+1. Start at every recorded member use. A reference-bearing member may escape even when its syntactic
+   access is labelled Read; that label does not prove a pure read or immutable contents.
+2. Follow named call edges transitively in either consumer/callee direction as appropriate to the
+   affected invariant. Getter/setter edges are deliberately conservative, not branch-exact.
+3. VirtualFamily, InterfaceFamily and ContextDelegates expand conservatively to the entire recorded
+   context caller set. No unrecorded choice of a single concrete override is allowed. This over-approximation
+   explicitly includes all authored physics callbacks, checkpoint implementations and registered
+   presentation bindings; it is expensive as an impact boundary but finite.
+4. An escaped reference includes possible mutations by its receiving caller and the same conservative
+   context set. Local assignments, parameter passing, ref/out, returned aliases, collection mutators,
+   closures and iterator state do not create a second owner. They remain borrowed capabilities of the
+   member's declared owner. A precise alias chain is not claimed by the UseSite array.
+5. External calls are opaque effects. Their reference arguments remain in the conservative escape
+   boundary; inherited Godot state and resource lifetime stay browser-owned. Unknown external behavior
+   cannot authorize transfer of a live Node, delegate, solver reference or mutable backing array.
+   Portable extraction must delete those dependencies and prove the actual compile/runtime boundary.
+
+This is an explicit conservative mapping for Design review, not a claim that every listed candidate
+really writes every field. The exact source lines remain independently inspectable. Every member
+still needs a source-justified ownership assignment and migration transformation; a wrong assignment
+to another valid enum cannot be excused by this closure.
+
+## Source-derived dispatch/lifetime reconciliation
+
+| Current callers/family | Ownership and extraction consequence |
+| --- | --- |
+| MachineWorld Run/step/Reset, MachinePart BeforeNetworks/PreparePhysics/ObservePhysics/PhysicsImpact/ObserveContact and catalogue overrides | Simulation callbacks become generic core capabilities; the conservative family includes every CAT-I/V variant. Scene scripts retain authoring/resources only. Browser Visible currently affects query/initial eligibility and fallen-body handling, so replace it with core participation before removing the callbacks. |
+| SimulationTransaction participants and RuntimeCheckpoint overrides | Capture/restore callback lifetime is bounded by the simulation world/generation. Replace captured MachinePart owners with same-context simulation participant references; reverse restoration includes topology/identity maps, free lists and pending outputs, not just property values. |
+| BodySlot Func providers and SceneRotaryShaft.Slot captures | These escape their creating invocation and live with the browser construction registry. They are evaluated for value capture and never cross the protocol. Removing a construction generation invalidates its captures and bindings. |
+| PositionContactQuery, BodyBoundsTree bounds provider, nonlinear residual/constraint callbacks | Same-context simulation query/solver callbacks; borrowed geometry/state is owned by the querying world. Their caller family cannot be treated as a browser-to-worker RPC by retaining a delegate. |
+| AnimationBatch registration/sample writers and SceneAnimationAdapter target/dirty registries | Kernel owns mutable evaluator/free/sample storage. Browser owns Godot target resources and final application. Split current nested bindings into typed IDs/value definitions and browser-only object tables. |
+| Committed-event producer reservation and occurrence/audio/wavefront recipients | Producer mutation is host-local and transaction-bound. Each recipient owns its admission/acknowledgement/lifetime state. Current synchronous scene calls must become value publication, not shared checkpoint participants. |
+| Generated JSON metadata/default caches and Godot property/signal/StringName code | Browser serialization/type/object registries own generated mutable caches and resources. Current generated dispatch participates in the conservative call graph. No generated code is evidence of a portable codec or transferable object. |
+
+## Compiler-context and failure boundaries
+
+The earlier directory-only test census omitted linked audit and package/generated inputs; its
+semantic capture also lacked friend attributes and generated JSON/Godot members. Those probe
+diagnostics remain failed exploratory evidence. The corrected tool performs ordinary production and
+test rebuilds for Release and PLAYTEST, captures compiler-generated files in its ignored obj/binding
+directory, and parses each context with its actual assembly name, language/nullable/unsafe/checked/
+output settings, defines, Compile inputs and references. No fabricated attributes, source stubs or
+error suppression is used. The generated directory is owned disposable build output, cleared before
+each capture so stale generated files cannot silently re-enter the input set.
+
+Current conditional branches are additive PLAYTEST/TWODOG_WEB_BOOT or DEBUG || PLAYTEST; Release plus
+PLAYTEST covers their authored member union, with TWODOG_WEB_BOOT supplied by the real game project.
+This assertion is a current-source bound, not a permanent assumption: a new conditional branch or
+configuration changes the contract and requires fresh coverage review.
+
+Build-generated binding sources and external package/reference hashes are retained separately in
+each compilation context. The ownership census covers project-authored members; generated/framework
+state has the explicit owners above. Rebuild output is not a browser production export, and neither
+zero semantic errors nor these conservative caller sets qualify runtime scheduling, rollback,
+Run/Reset/save, isolation, or device performance.

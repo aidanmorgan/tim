@@ -1,0 +1,173 @@
+# P0-004 assembly and state contract
+
+This is the selected target. Today the game still compiles into CuriousContraptions.dll and
+MachineWorld/scene callbacks execute in the Godot context. No separate-context or performance
+qualification is implied.
+
+The [R2 declaration, producer-reference and web lifecycle reconciliation](r2-boundaries.md) is normative.
+It corrects the retained R1 placement defects. The [spatial authority closure](spatial-authority.md)
+additionally corrects R2-F01, including installed collider metadata, producer pose scratch and solver-backed queries.
+The assignment map uses both corrections.
+
+## Assembly graph
+
+Names below are the exact target C# assembly names. Namespace extraction follows their role.
+Arrows name allowed project references; no reverse reference or dynamically loaded scene dependency
+is permitted. All target libraries use the pinned net10.0 toolchain.
+
+| Boundary / assembly | Allowed dependencies | Owns |
+| --- | --- | --- |
+| Geometry / CuriousContraptions.Geometry | BCL only | Portable double vectors, rigid poses/rotations and affine basis values. Pure value operations; invocation-local scratch, no global world or Godot conversion. |
+| Protocol / CuriousContraptions.Protocol | Geometry | Enum discriminants, typed stable IDs/generations/revisions, command/result/read/event and typed declaration values. Schema location is not an execution owner. |
+| SimulationCore / CuriousContraptions.Simulation | Geometry, Protocol | Laws, specialized collision/spatial solvers, networks, stores, controllers, timers, sensors/objectives, authoritative participation and transaction participants. |
+| ConstructionCompiler / CuriousContraptions.Construction | Geometry, Protocol, Simulation | Validated value declaration graph to newly owned simulation state and deterministic bindings. Runs under the simulation worker; never invokes scene callbacks. |
+| SimulationHost / CuriousContraptions.SimulationHost | Geometry, Protocol, Simulation, Construction | Dedicated WASM worker lifecycle, admission, scheduler/debt, publication reservations, transport endpoint, acknowledgement/replay order and diagnostics. |
+| AnimationKernel / CuriousContraptions.Animation | Geometry, Protocol | Existing AnimationBatch evaluator, clips/easing/oscillators/impulses, active/free/sample storage and property-writer registration. |
+| AnimationHost / CuriousContraptions.AnimationHost | Geometry, Protocol, Animation | Separate WASM worker clock, endpoint, lifecycle, coarse physical feedback and animation sample publication. |
+| GodotPresenter / CuriousContraptions (current game assembly) | Geometry, Protocol | Input, authored scene capture/conversion, scene/resource registry, previews, committed interpolation, final property application, audio, UI and WebGL host. |
+
+The presenter loses references to Simulation/Construction/Animation implementation assemblies at
+cutover. It may share portable values and protocol contracts, not call solver/evaluator methods.
+The two worker entry assemblies import only their respective graph; no Godot/2dog payload enters
+either worker. Tests may reference internal owners explicitly through friend assemblies.
+P0-007 extracts existing CollisionVector/RigidRotation/RigidPose and the portable affine value;
+specialized Convex*, sweep, manifold, constraint, body hierarchy and conservation algorithms remain
+simulation algorithms rather than being replaced by a generic storage system.
+
+Scene conversion belongs to the presenter. Existing ConvexInstance Transform3D includes the original
+float basis's anisotropy; capture its complete basis as portable numeric values. Quaternion
+normalization is not an equivalent conversion. P0-007 must prove exact captured support/query
+behavior, including nonorthonormal float bases, before deleting the Godot methods.
+
+## Ownership is per instance and lifetime
+
+A field reference and the object it names are distinct. SimulationHost may own a reference to a
+SimulationCore world while only that world's declared simulation owners mutate its values.
+Borrowed views do not confer mutation rights. IReadOnlyList and readonly array fields are not
+deep immutability. The owning instance controls their backing storage, aliases, pool lease,
+generation, mutation phase and disposal. Mutable static caches must be runtime-local with an
+explicit lifecycle; no worker may mutate another runtime's cache.
+
+Protocol values have no scheduler. A producer exclusively builds an envelope/buffer, freezes it
+before publication, and relinquishes transferred ownership. Each fan-out recipient gets its own
+owned immutable copy/transfer; no writable managed-heap alias crosses a runtime.
+The transfer allocator alone recycles a buffer after every required acknowledgement, never while a
+reader can use it. An immutable received physical sample is a derived read value, not a second
+authoritative solver store. P0-005/014/016/018 own the concrete bounded encoding/transport proof.
+
+Compiler state is invocation-owned on the simulation worker until atomic installation. Failure
+discards the candidate without mutating the prior generation. Mutable declaration arrays are copied
+into the candidate; no retained scene instance, delegate, closure, Godot resource or authored
+collection reaches live simulation. The browser capture adapter resolves current BodySlot/
+SceneBodyKey providers before sending values. Runtime callbacks never re-enter those providers.
+
+## Mixed current controllers: mandatory forward replacement
+
+| Current storage and callers | Target ownership and replacement | Required implementation owner |
+| --- | --- | --- |
+| MachineWorld._physics, timers/oscillators/counters/latches, forces/motors/load lists, events/impacts, networks and tick observables | SimulationCore owns authoritative contents. SimulationHost owns the world lifecycle reference. Remove part callbacks from stepping after generic process extraction; no renderer polling drives them. | P0-008, named capability children from P0-002, P0-014/015/019/020 |
+| MachineWorld.Phase/Running/Ticks/Won, control inbox/results, _initial, command generation and revision | Host lifecycle and replay order; simulation tick/outcome remain core values. Construction save snapshot is committed authoritative data, never scene transforms. Presenter reads acknowledgements and derived status only. | P0-015/019/020 |
+| MachineWorld._parts/_bodies and Registry; scene-key dictionaries and scene declarations | Scene registry and capture adapters remain presenter-owned. Compiler allocates stable value identities and runtime topology; the current scene-object-to-runtime-index maps are replaced with typed generation-stamped bindings, not exported. | P0-008/026 |
+| MachineWorld._committedPoses/_compliantReads and observation builders | Core/host owns coherent committed publication. Presenter owns immutable received/interpolation history; producer buffer storage is not shared. | P0-014/018/025 |
+| MachineWorld._displayClock/DisplaySimulationTime, recipient animation/audio bindings, _opticalVisual/_opticalPreviews | Presenter owns interpolation/application/resources. Animation evaluator state moves into AnimationKernel/Host. Neither value influences physical queries, conservation or win detection. | P0-022–026 (implementation); P0-006 (clock contract) |
+| MachinePart.Active/_poweredInputs/BaseStateCheckpoint and part RuntimeCheckpoint subclasses | Generic simulation participants own functional values; exact checkpoint storage stays with the same owner. Part declarations configure those participants; a scene script ceases to implement runtime physics. | Named current-consumer children, P0-020 (implementation); P0-032 (proof) |
+| MachinePart.BaseStateCheckpoint._visible, WorldGeometry initial/query participation, MachineWorld fallen-body transition | Current Visible is gameplay-coupled. Replace eligibility with enum-typed simulation participation; checkpoint that authoritative enum. Publish it to a presenter binding which alone writes Godot.Visible. Selection, offscreen culling and cosmetic visibility cannot change eligibility. | P0-008/020/026 (implementation); P0-032 (proof) |
+| ScenePhysicsAssembly._bodies/_objects/_initialJoints/_surfaces and Body lookup | Compiler creates candidate simulation objects/topology and transfers their arrays to Core atomically. Installed metadata, body/joint maps and runtime joints have one Core owner. Scene lookup becomes stable-ID lookup; callers cannot retain live bodies across the bridge. | P0-008/014 |
+| ScenePhysicsAssembly._presenter/_poseBatch/PresentationTargets/_presentationFrame | Presenter-owned scene resources and application counters. Physics placement/query validity comes from generation/revision-stamped authoritative queries, not this cache. | P0-026 |
+| SceneAnimationAdapter._batch with _targets/_identities/_versions/_free/_dirty | Extract the existing batch into AnimationKernel; retain node/material target registry and dirty property writes in presenter. Worker target IDs are not local slots or Godot instance IDs. | P0-022–026 |
+| SceneAnimationRun and acoustic/occurrence runs: Node references plus handles/phase/event cursors | Node/audio/resource bindings stay in presenter; cosmetic phase/active instances move to animation worker; reliable event cursors belong to the consuming endpoint. Publish value-only samples. | P0-022–026 and named animation-consumer rows |
+
+Visible trace is concrete: WorldGeometry's WorldBodyDeclaration initial participation,
+CaptureBodies construction filtering and CaptureSpatialState query path currently inspect
+owner.Visible && owner.PhysicsOwner.Visible. MachineWorld's fallen-body handling updates
+CollisionParticipation.Disabled and scene visibility; StateHash includes visibility.
+The new authoritative participation value must govern all those physical/query eligibility paths
+and deterministic hash/replay. Run captures authored participation; failed ticks restore it;
+Reset restores exact construction participation and bindings; save captures construction values
+at an acknowledged barrier. Disabling cosmetics or hiding a node cannot disable a collider.
+
+Inherited Godot fields are not copied to workers. Transform, Visible, material parameters and audio
+playback belong to browser objects. A physical-pose binding claims a target/property once; animation
+claims only a different cosmetic child/channel. The presenter composes physical parent plus cosmetic
+child in fixed declared order and applies the final property once. Duplicate claims reject atomically,
+including registration in reverse order. Display text/node names never choose behavior.
+
+## Stable identity and canonical order
+
+External entity/body/connection/timer/animation-target/asset identities are strongly typed and
+generation-stamped. Local arrays, free-list slots, declaration traversal order and Godot instance IDs
+are never save IDs, wire IDs or physical tie-breakers. No implicit index aliases are supported.
+P0-005 freezes widths/encoding, including the full 64-bit C#/JS boundary and rejection rules.
+
+The construction graph canonicalizes explicit typed authored identity, then declared typed local
+capability identity. Commands apply by recorded effective tick, named phase and admitted sequence.
+Within a phase, process kind is an enum and participants use stable identity order. Coupled reductions
+use a fixed declared stable-key order, including contact pairs ordered by their two stable body IDs
+and collider child IDs. Broad-phase traversal only selects candidates; it cannot order physical
+results. Do not replace specialized solver pivots/certificates without their independent numerical
+proof. The same immutable order definition is used by replay and transaction enrollment.
+
+Transactions capture participants in that canonical dependency/identity order and restore admitted
+participants in reverse. Restore includes affected values, topology/ID maps, free lists, pending
+structural operations/events/results and RNG state where RNG is actually used. Reserved publication
+capacity belongs to the transaction; failure exposes no success occurrence or new identity.
+A command buffer alone does not restore mutations. Restore failure faults the host after attempted
+restoration of every admitted participant; it cannot silently continue with a partly restored world.
+
+## Clocks, units and budgets
+
+Simulation owns integer 120 Hz ticks and four outer substeps initially. Animation evaluates on its
+own monotonic clock at initial 60 Hz; renderer application follows display cadence. Physical units,
+numeric/conservation tolerances, buffer/memory/startup caps and 60/90 FPS limits are exactly those
+frozen by P0-003, not new tolerances chosen here. Cosmetic angles are radians, translations metres,
+opacity/scale/blends dimensionless, and durations/timestamps seconds with explicit clock domain/
+origin/generation. Frame counters and storage indices have no time units. P0-006 freezes mapping,
+uncertainty and pause/visibility scheduling details; it cannot recombine execution contexts.
+
+
+## Concrete mixed-type transformations
+
+These are mandatory extraction operations, not permission to transmit the existing class instances.
+The assignment index records one primary implementing child per current member. Shared scripts
+retain every CAT-NNN-I/V variant through the P0-002 catalogue map; one primary source owner does not
+give each variant a duplicate runtime store. P0-009/P0-030 are audits, P0-032 is proof and P0-029
+publishes built workers; none substitutes for an extraction child.
+
+| Current group | Exact forward replacement and authority |
+| --- | --- |
+| BodySlot delegates; SceneRotaryShaft.Slot captured providers; scene-key capture maps | Browser registry owns these retained closures and their referenced nodes until construction removal. Resolve them at a capture barrier into portable pose/dynamics/material/participation values and typed entity/body/joint IDs with generation. Do not retain a delegate in the compiler or simulation. The compiler owns newly allocated body/joint arrays after validation; simulation owns installed contents. |
+| ScenePhysicsAssembly live PhysicsBody/PhysicsObject/joint/surface arrays | Compiler candidate owns references during assembly, transfers them once at successful installation; discarded candidates cannot escape. Scene declaration/by-body/joint lookup maps split into browser identity registry and compiler stable-ID lookup, with no shared mutable dictionary. Presentation caches remain derived browser resources. _queryGeometry is authoritative installed Core metadata, not a browser cache; _queryOwners and the complete replacement/rollback/publication chain follow the spatial authority contract. |
+| BodyQueryRead.Solid/Opaque and CompoundGeometry/indexer shapes | This existing record is an in-process simulation query view, not a wire contract. Keep its live immutable geometry references inside SimulationCore; Protocol contains typed geometry-resource identity, collider revision and portable query/result values. Placement/optical callers request stamped authoritative queries; browser preview geometry cannot alter solver validity. P0-007 owns portable geometry and this contract boundary; P0-014/016/026 own subsequent publication/encoding/application. |
+| MachinePart checkpoints, Cannon held/departing payloads, WoundSpring plunger | Replace functional MachinePart references with simulation-owned entity/body ID plus generation. Checkpoints retain simulation participant references only within that owner. WoundSpring internal scene-body list, GuidedPlunger scene parent/mechanism and visual latch/payload nodes stay browser registry objects. Core plunger dynamics and latch state have one generic body/process owner. |
+| Trampoline patches and mesh dirtiness | Presenter owns copied contact patches solely for mesh deformation. Core owns committed compliant contact state, energy, functional contact count and Active. Derive those physical observations from core state before publication; never use presenter patch count to set physics eligibility. Mesh dirty flags and their visual restoration leave physical checkpoints. |
+| Pulley wheel angle; PressurePlate glow | AnimationKernel owns cosmetic integrated angle/easing, with explicit animation clock and generation. Pulley receives typed signed rope-displacement feedback; it has no independent physical inertia state. Plate Active remains a simulation contact result. Their Node/material channels are applied only by presenter. |
+| BallDetector pulse/countdown and observed-step cursors | The countdown currently determines functional Active, so its authoritative duration/phase remains core; only the visual indicator curve moves to animation. Core event deduplication and bounce/impact cursors remain transaction participants. |
+| SceneImpactEffect cooldowns/notices and electrical observation sources | Core owns cooldowns, deferred physical notices and state-cell bindings. Replace scene body keys and callback targets with typed IDs and compiled generic processes. Host assembles immutable read batches from those sources; it cannot mutate their functional cells. |
+| SceneAnimationRun bindings, counters, follow/rate arrays and clocks | AnimationHost owns value-only registration, visibility decisions and coarse feedback cursors. Split each nested binding into stable target/property ID, definition and clock metadata versus browser-only Node/Material references. AnimationKernel alone owns evaluator slots, active/free lists and output samples. Pose/extents/rotation physical channels in presenter consume committed physical history, not animation-owned physics. |
+| SceneOccurrenceRun producer events/reservations and animation consumer state | SimulationHost owns reliable event reservation, producer sequence and committed outbox. AnimationHost owns recipient admission, deduplication, follow/impulse state and presentation clock. Replace synchronous polling of SceneAnimationAdapter impulse capacity during a physical transaction with bounded producer reservation and recipient acknowledgement. No browser method is a simulation transaction participant. |
+| SceneAcousticRun._events versus Source.Binding/_streams/playback bookkeeping | SimulationHost owns the producer committed event stream; its payload is typed source ID, tone, strength and stamp, never SourceId.Index as a wire identity. Browser owns AudioStreamPlayer3D, wave assets, playback attempt/uncertain-tail state and disposal. Split producer reservation failure from irreversible audio-delivery failure; recipient acknowledgements cannot rewrite a committed physical tick. Source.Part becomes stable identity in the producer and stays a node only in the browser registry. |
+| SceneAcousticMotionRun and SceneAcousticWavefrontRun nested state | AnimationHost owns receipt sequence, pending/current occurrence lists and admissions; AnimationKernel owns per-occurrence cosmetic phase/lifetime. Ring meshes, materials, parents, baseline transforms and final samples stay browser-owned. Producer physical commit and consumer cosmetic admission are separate reliable endpoints, not shared transaction state. |
+| ElectricalNetwork._parts/Socket.Part, MechanicalNetwork.Link.From/To, OpticalNetwork.SurfaceSample.Part, OpticalReception.Receiver and RopeSocket.Part | Core stores typed capability/endpoint/entity identities and owned generic network state. Compiler resolves authored ports once; browser MachinePart instances and scene-key lookup tables never enter the installed networks. AirflowSample.Body becomes a core body ID/read reference, not a BodySlot delegate bundle. ElectricalRuntime.Assembly becomes the installed simulation topology interface and its Scene* input/timer/latch/counter maps become typed generation-stamped capability maps. |
+| Core Godot.Vector3/Transform3D values, optical colour power and acoustic/airflow geometry | P0-007 supplies portable numeric/affine values; CAT-I and P0-019 callers replace Godot values throughout core state, checkpoints, queries and reductions. Optical power uses an explicit portable channel-power value, not a colour material. Scene conversion occurs once at capture/application boundaries and preserves the original float-basis geometry. Bellows.PlateTransform, ImpactLever.BeamTransform and WindChimes.PendulumTransform/SailPosition are current node observations and remain presenter views; authoring Wall/Pipe dimensions remain browser configuration, copied as immutable construction declarations. |
+| PerformanceRecorder and static caches | Recording storage is local to the executing context: simulation host captures physical/publication measures; animation host captures evaluation/publication; presenter captures application/render scheduling and browser measures. Transport immutable typed samples for aggregation. A measurement copy never becomes a second authoritative state store. Static geometry/resource caches retain their declared context and explicit reset/disposal lifetime. |
+
+Ordinary local scratch lasts one call; escaping closures and iterator state do not. BodySlot and
+SceneRotaryShaft providers are browser-lifetime capture objects as above. Solver PositionContactQuery,
+BodyBoundsTree bounds providers, nonlinear residual/constraint functions and transaction callbacks
+remain within the simulation owner, with captured participant lifetime bounded by the owning world
+or synchronous query. They are neither serializable bindings nor evidence of worker isolation.
+Generated Godot backing/event state remains external browser state; project properties represent
+their authored getter/setter contract, not a claim that source enumeration discovers engine internals.
+
+## Existing shared owners to retain
+
+The independently reviewed [P0-002 reuse census](../../verification/P0-002/reuse-state.md) is the
+source of the exact four implementation hashes and original evidence; this contract reuses those
+algorithms rather than replacing them with an ECS or new storage framework.
+
+| Existing owner | Retained storage, lifetime and required migration |
+| --- | --- |
+| SimulationTimers | _declarations, _states, _elapsed, _checkpoint and _indices remain one SimulationCore owner, including checkpoint tick/boundary. Publication is a copied value view. Current local ID/index lookup becomes an internal map behind stable generation-stamped timer identity; P0-019/020 implement worker stepping and exact rollback. |
+| AnimationBatch | _slots, active/free lists, writer registrations, sample arrays, versions and generation remain one AnimationKernel owner. AnimationHandle's local owner/slot/version is never a wire or save identity. P0-022 extracts this evaluator; P0-023/024 own feedback, lifecycle and worker transport. |
+| BodyBoundsTree | _root and specialized Node.Bounds/count/hierarchy remain owned by the simulation query/world, with same-context bounds providers. Preserve the spatial algorithm. Candidate traversal cannot determine canonical contact/reduction order. P0-007 removes Godot numeric coupling; P0-019 owns execution. |
+| SimulationTransaction | Unique participant enrollment and capture, reverse restore of admitted participants, and fail-closed restore-failure behavior remain core mechanisms. A current participant list does not prove full topology/free-list/event/RNG coverage. P0-020 adds exact lifecycle rollback and P0-032 independently attacks it. |

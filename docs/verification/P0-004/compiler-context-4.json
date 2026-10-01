@@ -1,0 +1,1884 @@
+{
+  "Kind": 2,
+  "Symbols": [
+    "TRACE",
+    "RELEASE",
+    "NET",
+    "NET10_0",
+    "NETCOREAPP",
+    "NET5_0_OR_GREATER",
+    "NET6_0_OR_GREATER",
+    "NET7_0_OR_GREATER",
+    "NET8_0_OR_GREATER",
+    "NET9_0_OR_GREATER",
+    "NET10_0_OR_GREATER",
+    "NETCOREAPP1_0_OR_GREATER",
+    "NETCOREAPP1_1_OR_GREATER",
+    "NETCOREAPP2_0_OR_GREATER",
+    "NETCOREAPP2_1_OR_GREATER",
+    "NETCOREAPP2_2_OR_GREATER",
+    "NETCOREAPP3_0_OR_GREATER",
+    "NETCOREAPP3_1_OR_GREATER"
+  ],
+  "Assembly": {
+    "Value": "CuriousContraptions.tests"
+  },
+  "Language": 1400,
+  "Output": 0,
+  "Nullable": 3,
+  "Unsafe": false,
+  "Checked": false,
+  "CompilePaths": [
+    {
+      "Value": "../../../.nuget/packages/2dog.xunit/4.7.2.91/build/FailOnGodotErrors.Assembly.cs"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.xunit/4.7.2.91/build/GodotCollection.cs"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.xunit/4.7.2.91/build/GodotErrorChecks.cs"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.xunit/4.7.2.91/build/GodotHeadlessCollection.cs"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.Assembly.cs"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.xunit/4.7.2.91/build/GodotTestFramework.cs"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.xunit/4.7.2.91/build/HeadlessCollection.cs"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.xunit/4.7.2.91/build/RenderingCollection.cs"
+    },
+    {
+      "Value": "../../../.nuget/packages/xunit.v3.core.mtp-v1/3.2.2/_content/DefaultRunnerReporters.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AccelerationDriveTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AccelerationSolverTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AcousticEmitterCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AcousticMotionBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AcousticMotionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AcousticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AcousticWavefrontBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AcousticWavefrontTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ActuatorBodyGeometryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AdiabaticGasDischargeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AdmissibleImpulseResponseTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AirJetBoundaryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AirJetGeometryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AirJetOcclusionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AirJetWorldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AirflowConservationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AlignedPowerPortTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AngularPathMeasureTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AngularPowerPortTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AngularVelocityAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AnimationBatchTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AnimationEndpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AnimationFollowTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AnimationImpulseTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AnimationOscillationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AnimationPulseEnvelopeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AnimationRateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ArtworkBoundsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AssistanceOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AssistancePhysicsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AssistanceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AuthoredOrientationSceneTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AxialDampingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AxialEffortTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AxialElasticPotentialTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AxialGasPotentialTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/AxialMotionOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BallDetectorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BasicTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BasketGuideTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BasketResidenceOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BeamCombinerTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BeamShutterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BeamSplitterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BellTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BellowsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BilateralConstraintBlockTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BilateralResponseMapTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BilateralResponseProjectionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BilateralScratchTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BinaryCircuitTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BodyBoundsTreeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BodyDiagnosticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BodyDragTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BodyDynamicsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BodyLocalBoxTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BodyPoseReadTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BodySlotTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BodyTrajectoryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BooleanAnimationSignalTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BooleanColourBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BooleanObservationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BothGateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BumperOccurrenceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/BumperTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CampaignProgressTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CannonChamberGeometryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CannonDiagnosticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CannonEnergyOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CannonFeederTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CannonRuntimeCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CannonTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CannonWorkloadTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ClockPendulumTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ClockPulseFeedbackTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ClockTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ClutchTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ColourOpticsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommandAcknowledgementTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedActivityTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedBooleanTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedCompliantContactTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedCounterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedDisplayClockTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedElectricalTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedEnumTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedEventStreamTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedFeedbackAdapterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedLightConeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedPoseBufferTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedPoseWorldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedPublicationMemoryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedScalarTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedTimerTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedTraceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CommittedVelocityTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompliantContactStateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompliantContactTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompliantSurfaceBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompositePowerPortTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompoundBoundsAllocationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompoundCollisionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompoundOverlapTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompoundWorldSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CompressionTransferSupplyTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConnectionChoiceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConnectionPortTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConstrainedPoweredImpulseTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConstraintMassScratchTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConstructionLifecycleTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConstructionResetTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConstructionSnapshotTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ContactConstraintTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ContactForceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ContactFrictionBudgetTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ContactGapTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ContactMaterialTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ContactParticipationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ContactPatchTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ContactSlipSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConvergingGasNozzleTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConvexDistanceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConvexPenetrationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConvexPoseTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConvexRoundedTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConvexSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConveyorRuntimeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ConveyorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CoreSupportTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CounterAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CounterDiagnosticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CounterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CoupledFrictionContactTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CoupledImpulseTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/CylindricalRegionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/DelayPresentationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/DelayTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/DisplayClockIntegrationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/DominoOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/DominoPhysicsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/DrivenContactTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/DrivenSurfaceWorldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ElasticWorldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ElectricalAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ElectricalContactBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ElectricalLogicTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ElectricalPlanTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ElectricalSourceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ElectricalTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/EnergyObservationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/EnumContractTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/EnumObservationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/EnumPresentationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ExplicitPoseReferenceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/FixtureParts.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/FlashlightContactTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/FlashlightPresentationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/FlightCampaignTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/FloorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ForcedTrajectoryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/FrictionBoundaryConvergenceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/FrustumBoxIntersectionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/FunnelTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/GasChamberWorldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/GasNozzleTransitTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/GeometryQueryScene.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/GuideSupportBoundaryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/HingeConstructionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/HoldTimerPresentationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/HoldTimerTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/HollowBoxTestProbe.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/HollowGeometryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/HollowSurfaceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpactFrameTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpactLeverFrustumObstructionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpactLeverObstructionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpactLeverSphereObstructionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpactLeverTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpactLeverTubeObstructionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpactRuntimeCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpulseSolverTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ImpulseTransformAdapterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/InitialEnergyStoreTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/InitialParticipationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/JetReceiverFieldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/JetTransferForcePathTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/JetTransferImpedanceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/JointBoundaryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/JointConstraintTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/JointDiagnosticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/JointRangeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LaserAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LatchAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LatchDiagnosticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LatchTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LeverFixture.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LightConeBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LightTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LinearAirflowSupplyTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LinearPusherTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LinearRigidTrajectoryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LoadConstructionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/LogicGateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MachineStepLifecycleTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MappedImpulseTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalDiagnosticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalPortSpeedPathTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalPowerPortTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalRuntimeCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalSourceBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalSourceLedgerTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalSourceRatingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalTransferBoundaryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalTransferFieldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalTransferLedgerTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalTransferLoadTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalTransferSaturationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalTransferWorkTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MechanicalWorkTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MirrorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MotorAccountingOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MotorIndicatorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MotorPredictionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/MultiBodyConstraintTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/NativeSceneFixture.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/NativeSceneStartupTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/NetworkSpatialOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/NonlinearIterationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/NozzleCoupledJetReceiverTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ObjectiveOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OccurrenceBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OpticalControlCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OpticalLogicTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OpticalObservationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OpticalPortsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OpticalPreviewBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OpticalPreviewPresentationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OpticalRuntimeCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OpticalTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OscillationAdapterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/OscillatorObservationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ParameterValidationOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PartOrientationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PartParameterNameTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PartRuntimeCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PerformanceAuditTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PerformanceRecorderTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PersistentContactTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsBackendQualificationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsBodyOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsBodyTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsCalibrationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsColliderUpdateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsContactLoadSensorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsEnergyStoreTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsGasNodeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsImpactEffectTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsImpactJointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsJointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsJointUpdateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsLatchedSpringTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsLoadSetTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsMotionHistoryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsMotorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsMutationVisibilityTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsPassageSensorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsResidenceSensorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsServoTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsSpatialWorkTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsTiltSensorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsWorldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PhysicsWrenchTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PipeBendTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PipeResizeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PipeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PivotContactReproductionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PlanarGuideBoundaryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PlanarGuideTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PlaytestAuditTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PoseSamplingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PositionProjectorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PoweredGateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PredictionSamplesTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PreparedConfigurationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PrescribedBodyTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PrescribedCollisionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PressureContactOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PressurePlateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PublicationAllocationStressTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PulleyRopeRouteTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PulseEnvelopeAdapterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/PusherServoOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/QuinticTrajectoryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ReceiverAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RemainingReadingCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RenderCadenceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RequiredPhysicsParameterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RgbAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RigidPoseTrajectoryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RopeOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RopeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotaryCaptureDeclarationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotaryCaptureForcePathTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotaryCaptureMaterialTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotaryCaptureMotionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotaryTransmissionPartTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotatingBoxObstacleSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotatingBoxSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotatingFrustumSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotatingTubeSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RotorAirflowSupplyTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RoundedSeparationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RoutedRopeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RuntimeBinaryInputTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RuntimePhysicsCutoverTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/RuntimeQueryOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SampledPresentationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SampledTraceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ScalarBoundarySweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ScalarObservationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneAcousticRunTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneAnimationAdapterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneAnimationEndpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneAnimationRunTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneBodyDynamicsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneBodyGeometryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneColourAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneGeometryUpdateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneImpulseAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneJointDeclarationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneJointIdentityTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneMechanicalTransferTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ScenePlungerBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/ScenePoseBatchTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SceneRopeBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SealedGasStateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SegmentOcclusionSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SharedContactMigrationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SharedHingeMechanicsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SharedImpactRequirementsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SharedSphereSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SignedSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SimulationCommandInboxTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SimulationCountersTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SimulationLatchesTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SimulationOscillatorsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SimulationTimersTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SimulationTransactionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SlidingBladeDynamicsTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SlidingBladeOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SocketIdentityTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SolarAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SoundMeterAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SoundMeterCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SoundMeterTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SourceRotorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SpatialCandidateTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SpectralBindingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SpringAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SpringboardLessonTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/StoredFlowBoundaryTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/StoredFlowRoundingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/StoredFlowSourceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/StoredFlowWorldTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SupplyControl.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SupportFootprintTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/SurfaceMotorBudgetTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TangentQuadraticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TimerDiagnosticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TimerObservationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TrampolineCampaignTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TrampolineOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TrampolinePipeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TrampolineRopeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TrampolineRuntimeCheckpointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TrampolineSkinTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TrampolineStackTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TrampolineTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TransferBodyImpulseTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TransferRatingRoundingTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TransferSourceStallTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TransferStepErrorTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TranslationAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TransmissionJointTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TubeBoxIntersectionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/TubePlacementSnapTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WallLessonTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WallTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WindChimeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WindmillTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorkshopAnimationTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorkshopInteractionTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorkshopLifetimeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorldAngularTravelTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorldFlightTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorldPlacementTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorldPoweredImpulseTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorldSweepShapeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorldSweepTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WorldTraceTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WoundSpringBrowserWorkloadTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WoundSpringCampaignTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WoundSpringDiagnosticTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WoundSpringOwnershipTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WoundSpringRuntimeTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WoundSpringTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/WrenchPathWorkTests.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/obj/Release/net10.0/CuriousContraptions.tests.AssemblyInfo.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/obj/Release/net10.0/CuriousContraptions.tests.GlobalUsings.g.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/obj/Release/net10.0/SelfRegisteredExtensions.cs"
+    },
+    {
+      "Value": "CuriousContraptions.tests/obj/Release/net10.0/XunitAutoGeneratedEntryPoint.cs"
+    },
+    {
+      "Value": "tools/Performance/PerformanceAudit.cs"
+    },
+    {
+      "Value": "tools/Playtest/Audit.cs"
+    }
+  ],
+  "GeneratedPaths": [],
+  "ReferencePaths": [
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.CSharp.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.VisualBasic.Core.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.VisualBasic.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.Win32.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/Microsoft.Win32.Registry.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.AppContext.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Buffers.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.Concurrent.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.Immutable.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.NonGeneric.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.Specialized.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Collections.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.Annotations.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.DataAnnotations.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.EventBasedAsync.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.TypeConverter.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ComponentModel.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Configuration.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Console.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Core.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Data.Common.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Data.DataSetExtensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Data.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Contracts.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Debug.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.DiagnosticSource.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.FileVersionInfo.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Process.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.StackTrace.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.TextWriterTraceListener.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Tools.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.TraceSource.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Diagnostics.Tracing.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Drawing.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Drawing.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Dynamic.Runtime.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Formats.Asn1.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Formats.Tar.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Globalization.Calendars.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Globalization.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Globalization.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Compression.Brotli.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Compression.FileSystem.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Compression.ZipFile.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Compression.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.AccessControl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.DriveInfo.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.Watcher.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.FileSystem.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.IsolatedStorage.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.MemoryMappedFiles.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Pipelines.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Pipes.AccessControl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.Pipes.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.UnmanagedMemoryStream.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.IO.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.AsyncEnumerable.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.Expressions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.Parallel.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.Queryable.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Linq.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Memory.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Http.Json.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Http.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.HttpListener.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Mail.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.NameResolution.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.NetworkInformation.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Ping.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Quic.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Requests.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Security.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.ServerSentEvents.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.ServicePoint.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.Sockets.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebClient.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebHeaderCollection.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebProxy.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebSockets.Client.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.WebSockets.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Net.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Numerics.Vectors.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Numerics.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ObjectModel.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.DispatchProxy.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Emit.ILGeneration.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Emit.Lightweight.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Emit.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Metadata.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.TypeExtensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Reflection.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Resources.Reader.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Resources.ResourceManager.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Resources.Writer.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.CompilerServices.Unsafe.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.CompilerServices.VisualC.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Handles.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.InteropServices.JavaScript.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.InteropServices.RuntimeInformation.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.InteropServices.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Intrinsics.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Loader.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Numerics.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.Formatters.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.Json.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.Xml.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.Serialization.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Runtime.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.AccessControl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Claims.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Algorithms.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Cng.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Csp.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Encoding.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.OpenSsl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.Primitives.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.X509Certificates.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Cryptography.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Principal.Windows.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.Principal.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.SecureString.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Security.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ServiceModel.Web.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ServiceProcess.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Encoding.CodePages.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Encoding.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Encoding.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Encodings.Web.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.Json.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Text.RegularExpressions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.AccessControl.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Channels.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Overlapped.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Tasks.Dataflow.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Tasks.Extensions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Tasks.Parallel.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Tasks.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Thread.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.ThreadPool.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.Timer.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Threading.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Transactions.Local.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Transactions.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.ValueTuple.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Web.HttpUtility.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Web.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Windows.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.Linq.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.ReaderWriter.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.Serialization.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XDocument.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XPath.XDocument.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XPath.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XmlDocument.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.XmlSerializer.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.Xml.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/System.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/WindowsBase.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/mscorlib.dll"
+    },
+    {
+      "Value": "../../../../../opt/homebrew/Cellar/dotnet/10.0.401/libexec/packs/Microsoft.NETCore.App.Ref/10.0.12/ref/net10.0/netstandard.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.engine/4.7.2.91/lib/net10.0/twodog.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.godotsharp.editor/4.7.2.91/lib/net10.0/GodotSharpEditor.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/2dog.godotsharp/4.7.2.91/lib/net10.0/GodotSharp.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.applicationinsights/2.23.0/lib/netstandard2.0/Microsoft.ApplicationInsights.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.bcl.asyncinterfaces/6.0.0/lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.codecoverage/18.10.1/lib/net8.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testing.extensions.telemetry/1.9.1/lib/net9.0/Microsoft.Testing.Extensions.Telemetry.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testing.extensions.trxreport.abstractions/1.9.1/lib/net9.0/Microsoft.Testing.Extensions.TrxReport.Abstractions.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testing.platform.msbuild/1.9.1/lib/net9.0/Microsoft.Testing.Extensions.MSBuild.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testing.platform/1.9.1/lib/net9.0/Microsoft.Testing.Platform.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testplatform.testhost/18.10.1/lib/net8.0/Microsoft.TestPlatform.CommunicationUtilities.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testplatform.testhost/18.10.1/lib/net8.0/Microsoft.TestPlatform.CoreUtilities.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testplatform.testhost/18.10.1/lib/net8.0/Microsoft.TestPlatform.CrossPlatEngine.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testplatform.testhost/18.10.1/lib/net8.0/Microsoft.TestPlatform.PlatformAbstractions.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testplatform.testhost/18.10.1/lib/net8.0/Microsoft.TestPlatform.Utilities.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testplatform.testhost/18.10.1/lib/net8.0/Microsoft.VisualStudio.TestPlatform.Common.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testplatform.testhost/18.10.1/lib/net8.0/Microsoft.VisualStudio.TestPlatform.ObjectModel.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/microsoft.testplatform.testhost/18.10.1/lib/net8.0/testhost.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/xunit.v3.assert/3.2.2/lib/net8.0/xunit.v3.assert.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/xunit.v3.common/3.2.2/lib/netstandard2.0/xunit.v3.common.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/xunit.v3.core.mtp-v1/3.2.2/lib/net8.0/xunit.v3.mtp-v1.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/xunit.v3.extensibility.core/3.2.2/lib/netstandard2.0/xunit.v3.core.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/xunit.v3.runner.common/3.2.2/lib/netstandard2.0/xunit.v3.runner.common.dll"
+    },
+    {
+      "Value": "../../../.nuget/packages/xunit.v3.runner.inproc.console/3.2.2/lib/net8.0/xunit.v3.runner.inproc.console.dll"
+    },
+    {
+      "Value": ".godot/mono/temp/bin/Release/CuriousContraptions.dll"
+    }
+  ]
+}
