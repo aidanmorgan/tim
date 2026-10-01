@@ -1,0 +1,1961 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "task/sequence-task-501"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-501"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        }
+      ],
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S556",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-502"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-502"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S557",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-503"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-503"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "ThermalStress",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S558",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-504"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-504"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        }
+      ],
+      "Capabilities": [
+        "FiniteLedger",
+        "HeatPumping",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S559",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-505"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-505"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "ProofOwner": "S560",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-506"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-506"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        }
+      ],
+      "Capabilities": [
+        "FiniteLedger",
+        "PhaseStorage",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S561",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-507"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-507"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        }
+      ],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "MaterialCoating",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S562",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-508"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-508"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S563",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-509"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-509"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        }
+      ],
+      "Capabilities": [
+        "CapillaryTransport",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S421",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-510"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-510"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalDissipation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S564",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-511"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-511"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S471",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-512"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-512"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        }
+      ],
+      "Capabilities": [
+        "GeometryQuery",
+        "PhaseTopology",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S565",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-513"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-513"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S566",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-514"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-514"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        }
+      ],
+      "Capabilities": [
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S491",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-515"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-515"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        }
+      ],
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "LiquidBoiling",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S716",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-516"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-516"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "HeatPumping",
+        "LiquidFreezing",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S717",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-517"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-517"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/OpticalNetwork.cs",
+          "Symbol": "OpticalNetwork",
+          "FileHash": "56d9045431d66b7ea75004c9dcfb047f2d03ef46234f715696537e93dd985e00"
+        }
+      ],
+      "Capabilities": [
+        "ChemicalReaction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S718",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-518"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-518"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S719",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-519"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-519"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction",
+        "VaporCondensation"
+      ],
+      "ProofOwner": "S720",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-520"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-520"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/ContactConstraint.cs",
+          "Symbol": "ContactConstraint",
+          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ContactImpulse",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S721",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-521"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-521"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        },
+        {
+          "Path": "engine/physics/ContactConstraint.cs",
+          "Symbol": "ContactConstraint",
+          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+        }
+      ],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S722",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-522"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-522"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/BodyDragLoad.cs",
+          "Symbol": "BodyDragLoad",
+          "FileHash": "900a10597fec7356034c9991bd6491a13ccbb143dafefc3cd3ba018820aa64bf"
+        }
+      ],
+      "Capabilities": [
+        "AerodynamicDrag",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S723",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-523"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-523"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        }
+      ],
+      "Capabilities": [
+        "CapillaryTransport",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "LiquidEvaporation",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S724",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-524"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-524"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/ContactConstraint.cs",
+          "Symbol": "ContactConstraint",
+          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsTransmissionJoint.cs",
+          "Symbol": "PhysicsTransmissionJoint",
+          "FileHash": "c41b1aed2031ea428b0498f37c78aa12ac1f7a67febd2320263fe4916c476c77"
+        }
+      ],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "ShaftTorque",
+        "SlidingFriction",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S725",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-525"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-525"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "ProofOwner": "S726",
+      "Artifacts": []
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-501"
+      },
+      "SourceHash": "7e7f6031e192a1ead266bcac5a9cd5673b0aa7b6b126b5bb3530f0d2a49ef46c",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-501"
+        }
+      ],
+      "ProofOwner": "S556",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-502"
+      },
+      "SourceHash": "cf817fbe97a9615ff3d316d8507ebaf483a01a22a32dbcbb622591d53a91f582",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-502"
+        }
+      ],
+      "ProofOwner": "S557",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-503"
+      },
+      "SourceHash": "3a7038e1b17246acdaacb0200de27b3bad2bf920cd16331c3cfa0679c29f319e",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "ThermalStress",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-503"
+        }
+      ],
+      "ProofOwner": "S558",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-504"
+      },
+      "SourceHash": "03a21fb7b73f126f95eac95fd7cafab534dafec7136f53abc35921d865f48e5b",
+      "Kind": "Engine",
+      "Capabilities": [
+        "FiniteLedger",
+        "HeatPumping",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-504"
+        }
+      ],
+      "ProofOwner": "S559",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-505"
+      },
+      "SourceHash": "0004ae1adc502bc69388bd2fdf84a3b6cc233832217ce1eab1005d56cb4ec1b4",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-505"
+        }
+      ],
+      "ProofOwner": "S560",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-506"
+      },
+      "SourceHash": "a6f04e49196673f540a68c9284868285cd7c4671fae159c0f3b5bcc03e74d4f5",
+      "Kind": "Engine",
+      "Capabilities": [
+        "FiniteLedger",
+        "PhaseStorage",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-506"
+        }
+      ],
+      "ProofOwner": "S561",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-507"
+      },
+      "SourceHash": "8594dd4bc954bd9d5792a3c78a39a697cd310e7885b03c6645a4ed6365259a5d",
+      "Kind": "Engine",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "MaterialCoating",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-507"
+        }
+      ],
+      "ProofOwner": "S562",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-508"
+      },
+      "SourceHash": "eb3bc8a696414a73159ebb921874f8eff4206a0d00dd68e1a64e076f81ee17e3",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-508"
+        }
+      ],
+      "ProofOwner": "S563",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-509"
+      },
+      "SourceHash": "e6ef6eca7731a4418d94e522b5932b622ea9cbf2e29f49dc99ba1e15cb89e7d5",
+      "Kind": "Engine",
+      "Capabilities": [
+        "CapillaryTransport",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-509"
+        }
+      ],
+      "ProofOwner": "S421",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-510"
+      },
+      "SourceHash": "892b482f8c1c2a519dd8eeabe0f42623dcecb0a39bfdbe0c6ebb1425e171abda",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalDissipation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-510"
+        }
+      ],
+      "ProofOwner": "S564",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-511"
+      },
+      "SourceHash": "f01c62e43a72814bc0eb845ef3c615a1d12b69b2f8531cd478d838176be4ef89",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-511"
+        }
+      ],
+      "ProofOwner": "S471",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-512"
+      },
+      "SourceHash": "4dff433ce540aaba70850e9427a89a24b96640fc7c8ade6c2dfb2f118a110afb",
+      "Kind": "Engine",
+      "Capabilities": [
+        "GeometryQuery",
+        "PhaseTopology",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-512"
+        }
+      ],
+      "ProofOwner": "S565",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-513"
+      },
+      "SourceHash": "8519722e5d8978b502749e2a0adbbe27e7c73723db7fc3cc681f2fb889209e2b",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-513"
+        }
+      ],
+      "ProofOwner": "S566",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-514"
+      },
+      "SourceHash": "21ea6dc6b68340f848a378fddff72d9efab390d13267fb5f0aa133835af23045",
+      "Kind": "Engine",
+      "Capabilities": [
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-514"
+        }
+      ],
+      "ProofOwner": "S491",
+      "ScopeReason": "Engine requirement retains its source-specific delivery/audit owner; capability contracts separately name mandatory pre-product engine implementation and proof owners. CurrentSymbols enumerate the current shared services consumed by this engine requirement, not a claim that its task-local implementation or proof is complete.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-515"
+      },
+      "SourceHash": "47f3b2620f26e2d3593c0a20eaca4a683d7d7c8f28bf00f6ac4b445ed146c1be",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "LiquidBoiling",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-515"
+        }
+      ],
+      "ProofOwner": "S716",
+      "ScopeReason": "Finite reacting/heated/stored-hot sources share vessel heat, liquid boiling and vapor transport with fuel/water/enthalpy balance. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-01"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-04"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-17"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-26"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-516"
+      },
+      "SourceHash": "2615cf355c9699873ef5726ea96c654ff4a7c83f70d5ef15036214979c430652",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "HeatPumping",
+        "LiquidFreezing",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-516"
+        }
+      ],
+      "ProofOwner": "S717",
+      "ScopeReason": "Powered heat pumping rejects removed heat plus work; passive cold pack shares finite water freezing/enthalpy model. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-12"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-13"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-29"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-517"
+      },
+      "SourceHash": "9934c63969c155657549035cdfcb9324b9e3487665ec19de092c655bf41f1de3",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ChemicalReaction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-517"
+        }
+      ],
+      "ProofOwner": "S718",
+      "ScopeReason": "Concentrated absorbed light raises finite combustible enthalpy until generic ignition; no lens/target callback. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-06"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-32"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-518"
+      },
+      "SourceHash": "ed3f0037aab9f6f13a3ad52ba10cf5f441e34d1fdab5c7df9c0e888851010b86",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-518"
+        }
+      ],
+      "ProofOwner": "S719",
+      "ScopeReason": "Generic piston transfers finite vapor pressure work to a resisting load and conserves inlet/exhaust material. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-19"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-519"
+      },
+      "SourceHash": "8f1779a07164d2fe6b6510228dc658afca805a2f42964b4ac49463f6ba0f0e66",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction",
+        "VaporCondensation"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-519"
+        }
+      ],
+      "ProofOwner": "S720",
+      "ScopeReason": "Condenser removes vapor sensible/latent enthalpy into a declared sink and returns conserved liquid without free cyclic work. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-18"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-520"
+      },
+      "SourceHash": "437c53b1d437e91bff0b13dea33ce9e6b434ab75c6b76c0e59fc02549b6973cb",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ContactImpulse",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-520"
+        }
+      ],
+      "ProofOwner": "S721",
+      "ScopeReason": "Differential strain changes actual electrical contact while the downstream load remains separately supplied. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-22"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-521"
+      },
+      "SourceHash": "699d57bca31475d439a78092dd5d97d4ebd619fd9b5c1d2e1f7a2ad70fedc205",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-521"
+        }
+      ],
+      "ProofOwner": "S722",
+      "ScopeReason": "Loss of solid fraction removes actual support and yields conserved meltwater; disconnected heating cannot release cargo. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-14"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-15"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-522"
+      },
+      "SourceHash": "239a7f6deaa1cc64a7dbc4c8576f944929dfa84ad32a6c32209f9fc6b0ee3ec3",
+      "Kind": "Engine",
+      "Capabilities": [
+        "AerodynamicDrag",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-522"
+        }
+      ],
+      "ProofOwner": "S723",
+      "ScopeReason": "Actual airflow changes exchange toward ambient; no below-ambient cooling without an additional valid process. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-10"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-523"
+      },
+      "SourceHash": "cde622ce77471f996771b257ba1b2b49b943dad62d63d416bab1f802020d0ee5",
+      "Kind": "Engine",
+      "Capabilities": [
+        "CapillaryTransport",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "LiquidEvaporation",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-523"
+        }
+      ],
+      "ProofOwner": "S724",
+      "ScopeReason": "Porous feed and humidity-limited evaporation export finite material/latent energy; dry/exhausted/saturated controls are distinct. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-28"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-524"
+      },
+      "SourceHash": "303916010d9c879de5016f1c69d725be9d970df6172ee8d2f0744461c6193f3c",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "ShaftTorque",
+        "SlidingFriction",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-524"
+        }
+      ],
+      "ProofOwner": "S725",
+      "ScopeReason": "Removed shaft/contact work enters heat storage; stationary stall cannot generate friction heat. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-05"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-26"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-525"
+      },
+      "SourceHash": "9b27d63513fece7cdb9e2a0bae4a10bbc34df6dc584e5ca2ea3e19e8ff960d4c",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-525"
+        }
+      ],
+      "ProofOwner": "S726",
+      "ScopeReason": "Finite hot/cold stores supply bounded electrical conversion; equal-temperature/depleted/disconnected controls preclude free power. This is cross-domain engine integration proof; each physical declaration remains independently owned.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-26"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-30"
+          }
+        }
+      ]
+    }
+  ],
+  "Modes": []
+}
+

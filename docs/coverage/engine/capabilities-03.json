@@ -1,0 +1,4077 @@
+{
+  "Capabilities": [
+    {
+      "Capability": "AnimationLifecycle",
+      "ModelBoundary": "One typed property writer, explicit autonomous/feedback clocks, overlap/cancel/visibility/generation ownership.",
+      "Units": [
+        "Second",
+        "Dimensionless"
+      ],
+      "DesignOwner": "P0-006",
+      "ProofOwner": "P0-032",
+      "Availability": "Partial",
+      "CurrentSymbols": [
+        {
+          "Path": "engine/presentation/SceneAnimationAdapter.cs",
+          "Symbol": "SceneAnimationAdapter",
+          "FileHash": "32ae6f5f992fefb7c3bbba14d0bed796995624fbb4dac0390c373e03ba9e942b"
+        }
+      ],
+      "IndependentOracle": "Reset and old feedback cannot revive retired targets; reduced-motion and offscreen re-entry preserve authority.",
+      "Dependencies": [
+        "AnimationEvaluation",
+        "ResourceLifetime"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-038"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-044"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-045"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-046"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-051"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-053"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-055"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-265"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-297"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-298"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-302"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-304"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-313"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-314"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-533"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-792"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "ball_detector"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_combiner"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bell"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "blue_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "both_gate"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bumper"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "cannon"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "clock"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "counter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "cyan_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "electrical_nand"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "electrical_nor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "electrical_or"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "electrical_xor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "fan"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "flashlight"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "green_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "hold_timer"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "laser"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "latch"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "light_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "magenta_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "motor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_and"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_nand"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_nor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_or"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_xor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "red_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "solar_panel"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "sound_meter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "speaker"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "white_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "wind_chimes"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "wound_spring"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "yellow_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_return/bumper"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "battery_motor/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "switched_motor/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "conveyor_courier/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "belt_relay/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "reverse_belt/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_motor/torch"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_motor/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_shadow/torch"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_shadow/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_solar/torch"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_solar/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane2_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane1_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane2_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane2_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane2_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane3_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_then_release/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/launcher"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "P0-023"
+      ]
+    },
+    {
+      "Capability": "PhaseTopology",
+      "ModelBoundary": "Transfer ownership/geometry of solid/liquid/gas without duplication and update collision, ports, mass and inertia; partial transitions remain represented.",
+      "Units": [
+        "Kilogram",
+        "CubicMetre",
+        "Joule"
+      ],
+      "DesignOwner": "S565-D",
+      "ProofOwner": "S565-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Material inventory before/after phase topology is identical; no duplicated handles, mass or collision.",
+      "Dependencies": [
+        "TopologyTransaction"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-251"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-447"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-448"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-449"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-450"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-451"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-452"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-461"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-462"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-469"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-492"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-493"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-494"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-495"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-496"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-497"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-498"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-512"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-515"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-516"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-519"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-521"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-523"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-531"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-645"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-646"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-647"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-648"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-657"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-658"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-659"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-738"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-739"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-092"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-093"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-094"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-095"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-104"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-105"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-106"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-185"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-186"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-13"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-14"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-15"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-16"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-17"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-18"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-27"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-28"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-35"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S565-I"
+      ]
+    },
+    {
+      "Capability": "TemperatureStrength",
+      "ModelBoundary": "Evaluate material strength from thermodynamic state, then use generic stress/fracture/joint models; a warm but unloaded body need not break.",
+      "Units": [
+        "Pascal",
+        "Kelvin"
+      ],
+      "DesignOwner": "S566-D",
+      "ProofOwner": "S566-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Declared strength curve changes failure threshold, while unloaded warm body remains intact.",
+      "Dependencies": [
+        "SensibleHeat",
+        "StructuralFracture"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-429"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-450"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-513"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-16"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-21"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/radiation-component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S566-I"
+      ]
+    },
+    {
+      "Capability": "SensibleHeat",
+      "ModelBoundary": "Relate enthalpy and temperature through material heat capacity outside phase transitions; energy and temperature are not interchangeable counters.",
+      "Units": [
+        "Kelvin",
+        "Joule"
+      ],
+      "DesignOwner": "S491-D",
+      "ProofOwner": "S491-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Outside phase change, heat equals mass times integrated heat capacity over temperature.",
+      "Dependencies": [
+        "FiniteLedger"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-153"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-201"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-243"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-251"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-281"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-364"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-396"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-397"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-398"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-399"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-400"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-401"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-402"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-403"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-404"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-405"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-428"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-429"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-435"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-436"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-437"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-438"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-439"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-440"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-441"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-442"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-443"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-444"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-445"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-446"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-447"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-448"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-449"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-450"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-451"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-452"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-455"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-456"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-457"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-458"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-459"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-460"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-461"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-462"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-463"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-464"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-465"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-466"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-467"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-468"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-469"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-470"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-471"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-485"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-488"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-489"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-490"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-491"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-492"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-493"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-494"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-495"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-496"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-497"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-498"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-499"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-500"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-501"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-502"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-503"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-504"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-505"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-506"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-510"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-513"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-514"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-515"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-516"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-517"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-519"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-520"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-521"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-522"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-523"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-524"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-525"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-526"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-527"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-528"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-531"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-532"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-645"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-646"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-647"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-648"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-657"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-658"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-659"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-696"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-697"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-698"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-699"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-700"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-701"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-702"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-703"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-704"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-705"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-706"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-707"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-726"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-727"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-728"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-763"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-764"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-765"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-766"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-767"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-092"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-093"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-094"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-095"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-104"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-105"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-106"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-143"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-144"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-145"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-146"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-147"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-148"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-149"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-150"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-151"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-152"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-153"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-154"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-173"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-174"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-175"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-210"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-211"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-212"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-213"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-214"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-01"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-02"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-03"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-04"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-05"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-06"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-07"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-08"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-09"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-10"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-11"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-12"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-13"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-14"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-15"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-16"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-17"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-18"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-21"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-22"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-23"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-24"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-25"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-26"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-27"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-28"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-29"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-30"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-31"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-32"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-33"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-34"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-35"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-36"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-37"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-20"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-21"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_combiner"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_splitter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "blue_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "green_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "mirror"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "red_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "solar_panel"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/radiation-component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S491-I"
+      ]
+    },
+    {
+      "Capability": "ElasticStorage",
+      "ModelBoundary": "Joint-bound elastic potential and compliant contact store finite work; no target-relative launch impulse.",
+      "Units": [
+        "Metre",
+        "Newton",
+        "Joule"
+      ],
+      "DesignOwner": "S109-D",
+      "ProofOwner": "P0-031",
+      "Availability": "Partial",
+      "CurrentSymbols": [
+        {
+          "Path": "engine/physics/AxialElasticLoad.cs",
+          "Symbol": "AxialElasticLoad",
+          "FileHash": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+        }
+      ],
+      "IndependentOracle": "Independent potential difference equals force work; doubled mass cannot double the available charge.",
+      "Dependencies": [
+        "JointConstraint",
+        "FiniteLedger"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-017"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-018"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-060"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-061"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-062"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-078"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-085"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-090"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-108"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-113"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-115"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-116"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-117"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-118"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-119"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-122"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-123"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-125"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-126"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-144"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-159"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-163"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-171"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-180"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-200"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-212"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-218"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-219"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-220"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-238"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-277"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-306"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-309"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-312"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-368"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-369"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-370"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-375"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-376"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-379"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-380"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-381"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-393"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-394"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-395"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-458"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-467"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-468"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-586"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-747"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-768"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-033"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-194"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-215"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-24"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-33"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-34"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_shutter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bellows"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "linear_pusher"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "powered_gate"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "spring"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "trampoline"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "wound_spring"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/launcher"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "ready_to_rebound/spring_1"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S069-I",
+        "S104-I",
+        "S109-I",
+        "S110-I"
+      ]
+    },
+    {
+      "Capability": "FiniteWorkActuation",
+      "ModelBoundary": "Shared constrained impulse/effort allocation accounts for finite available work and force/stroke limits.",
+      "Units": [
+        "Newton",
+        "NewtonMetre",
+        "Joule",
+        "Second"
+      ],
+      "DesignOwner": "S149-D",
+      "ProofOwner": "P0-031",
+      "Availability": "Partial",
+      "CurrentSymbols": [
+        {
+          "Path": "engine/physics/PhysicsMotorCommand.cs",
+          "Symbol": "PhysicsMotorCommand",
+          "FileHash": "7db02b46846202b3e5a120e8eb2305c0fb85c579a903617bb49c987aae155ad3"
+        }
+      ],
+      "IndependentOracle": "Independent constrained mass response and supply debit; locked actuator cannot spend useful work on forbidden motion.",
+      "Dependencies": [
+        "JointConstraint",
+        "FiniteLedger"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-017"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-019"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-063"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-064"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-065"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-074"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-075"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-078"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-079"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-080"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-082"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-083"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-086"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-090"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-095"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-097"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-098"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-099"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-100"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-101"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-102"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-103"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-105"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-106"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-107"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-108"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-111"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-112"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-114"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-117"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-118"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-119"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-122"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-123"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-124"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-126"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-130"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-131"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-132"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-134"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-135"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-144"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-149"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-152"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-154"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-155"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-156"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-157"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-158"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-159"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-162"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-163"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-164"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-165"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-171"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-172"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-180"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-192"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-193"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-194"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-195"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-196"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-197"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-198"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-199"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-205"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-206"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-212"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-213"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-214"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-215"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-216"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-217"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-219"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-222"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-223"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-225"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-229"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-237"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-238"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-239"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-244"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-276"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-284"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-304"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-309"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-310"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-311"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-350"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-351"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-352"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-353"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-354"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-363"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-366"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-367"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-368"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-369"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-370"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-371"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-372"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-373"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-375"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-376"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-382"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-389"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-393"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-394"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-395"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-414"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-468"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-537"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-575"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-576"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-606"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-607"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-608"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-609"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-610"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-613"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-614"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-615"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-616"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-617"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-618"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-620"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-622"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-623"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-629"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-631"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-632"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-633"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-634"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-635"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-636"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-638"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-639"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-640"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-641"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-643"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-645"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-646"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-647"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-648"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-653"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-656"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-657"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-658"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-659"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-661"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-662"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-715"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-716"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-717"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-718"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-719"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-720"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-721"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-737"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-748"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-752"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-753"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-754"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-755"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-756"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-762"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-770"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-771"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-772"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-773"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-777"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-790"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-791"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-022"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-023"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-053"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-054"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-055"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-056"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-057"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-060"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-061"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-062"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-063"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-064"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-065"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-067"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-069"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-070"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-076"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-078"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-079"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-080"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-081"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-082"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-083"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-085"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-086"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-087"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-088"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-090"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-092"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-093"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-094"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-095"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-100"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-103"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-104"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-105"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-106"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-108"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-109"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-162"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-163"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-164"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-165"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-166"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-167"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-168"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-184"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-195"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-199"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-200"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-201"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-202"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-203"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-209"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-34"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-06"
+        },
+        {
+          "Origin": "Gap",
+          "Id": "gap-04"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "basket"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_shutter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bumper"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "cannon"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "clutch"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "conveyor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "fan"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "linear_pusher"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "motor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "powered_gate"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "reverse_transmission"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "windmill"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "wound_spring"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "first_principles/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_mail/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_forward/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "third_dimension/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bumper_sidekick/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bumper_depth/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_return/bumper"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_return/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_and_bumper/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "battery_motor/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "switched_motor/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "conveyor_courier/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "conveyor_courier/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "belt_relay/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "belt_relay/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "belt_relay/relay"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "reverse_belt/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "reverse_belt/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_motor/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_shadow/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_solar/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "clear_pipe/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "gentle_bend/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "quarter_bend/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "joined_pipe/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_deliveries/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_deliveries/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_and_roll/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_and_roll/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane2_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "catch_and_signal/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_and_dominoes/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_and_chain/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane1_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_routes/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_routes/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cross_breezes/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cross_breezes/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_springs/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_springs/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane3_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane3_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane2_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_conveyor_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane2_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane3_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane2_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane3_motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_then_release/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_then_release/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/motor"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/launcher"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "a_gentle_rebound/receiver"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/radiation-component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S093-I",
+        "S140-I",
+        "S149-I",
+        "S156-I"
+      ]
+    },
+    {
+      "Capability": "FieldForce",
+      "ModelBoundary": "Typed magnetic/electric field and material response with bounded source work and particle response.",
+      "Units": [
+        "Metre",
+        "Newton",
+        "Joule"
+      ],
+      "DesignOwner": "LAW-FIELD-D",
+      "ProofOwner": "LAW-FIELD-V",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Material substitution, field reversal, zero field and finite source work against independently calculated paths.",
+      "Dependencies": [
+        "RigidBodyDynamics",
+        "FiniteLedger"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-371"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-382"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-393"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-422"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-613"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-060"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-14"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/radiation-component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "LAW-FIELD-I"
+      ]
+    },
+    {
+      "Capability": "GranularTransport",
+      "ModelBoundary": "Bounded conserved discrete grains with real openings, collision and size distributions; jam is physical.",
+      "Units": [
+        "Kilogram",
+        "Metre",
+        "Second"
+      ],
+      "DesignOwner": "LAW-GRANULAR-D",
+      "ProofOwner": "LAW-GRANULAR-V",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Count/mass conservation; mixed-size aperture separation, empty source and blocked outlet controls.",
+      "Dependencies": [
+        "ContactImpulse",
+        "FiniteLedger",
+        "TopologyTransaction"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-539"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-540"
+        },
+        {
+          "Origin": "Gap",
+          "Id": "gap-06"
+        },
+        {
+          "Origin": "Gap",
+          "Id": "gap-07"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "LAW-GRANULAR-I"
+      ]
+    },
+    {
+      "Capability": "ProgrammableController",
+      "ModelBoundary": "Typed finite-state sensing and intent, deterministic tick/event order and finite actuator supply; no scripts.",
+      "Units": [
+        "Dimensionless",
+        "Second",
+        "Joule"
+      ],
+      "DesignOwner": "LAW-CONTROLLER-D",
+      "ProofOwner": "LAW-CONTROLLER-V",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Complete finite transition table, absent condition and exhausted source; no direct pose mutation.",
+      "Dependencies": [
+        "SignalPropagation",
+        "TimedCommand"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-629"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-631"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-632"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-633"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-634"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-635"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-636"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-638"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-639"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-640"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-641"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-643"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-076"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-078"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-079"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-080"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-081"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-082"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-083"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-085"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-086"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-087"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-088"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-090"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "LAW-CONTROLLER-I"
+      ]
+    },
+    {
+      "Capability": "ObjectiveEvaluation",
+      "ModelBoundary": "Quantity, rate-window, ordered occurrence and protected end-state predicates observe committed authority.",
+      "Units": [
+        "Dimensionless",
+        "Second",
+        "Kilogram"
+      ],
+      "DesignOwner": "LAW-GOALS-D",
+      "ProofOwner": "LAW-GOALS-V",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Independent event timeline rejects reversed, duplicate, transient and premature outcomes.",
+      "Dependencies": [
+        "ReliablePublication"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-017"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-079"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-080"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-081"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-086"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-105"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-111"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-124"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-145"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-177"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-204"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-262"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-263"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-285"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-315"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-316"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-317"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-318"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-319"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-320"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-321"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-322"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-323"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-324"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-325"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-326"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-327"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-328"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-329"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-330"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-331"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-332"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-333"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-334"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-335"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-336"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-337"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-338"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-339"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-340"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-341"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-342"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-343"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-344"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-351"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-352"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-353"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-361"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-382"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-392"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-402"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-408"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-418"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-433"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-471"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-529"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-544"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-549"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-553"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-673"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-674"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-675"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-676"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-771"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-772"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-773"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-777"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-120"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-121"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-122"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-123"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-37"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-10"
+        },
+        {
+          "Origin": "Gap",
+          "Id": "gap-11"
+        },
+        {
+          "Origin": "Gap",
+          "Id": "gap-16"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "basket"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "first_principles/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "power_trip/lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_mail/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_forward/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "third_dimension/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_signal/lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_signal/lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bumper_sidekick/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bumper_depth/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_return/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_and_bumper/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "conveyor_courier/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "belt_relay/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "reverse_belt/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "counterweight/lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "pulley_depth/lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_signal/lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "clear_pipe/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "gentle_bend/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "quarter_bend/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "joined_pipe/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_deliveries/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_deliveries/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_and_roll/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_and_roll/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "catch_and_signal/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "catch_and_signal/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_and_dominoes/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_and_chain/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_signals/lane1_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_signals/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_routes/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_routes/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cross_breezes/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cross_breezes/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_springs/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_springs/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spatial_signals/lane1_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spatial_signals/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane3_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane1_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane3_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane3_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "signals_and_chain/lane1_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "signals_and_chain/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane3_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane1_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane3_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane1_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane3_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bridges_and_signal/lane2_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane1_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane3_lamp"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_then_release/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "a_gentle_rebound/receiver"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/radiation-component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "LAW-GOALS-I"
+      ]
+    }
+  ],
+  "Consumers": [],
+  "Bindings": [],
+  "Modes": []
+}

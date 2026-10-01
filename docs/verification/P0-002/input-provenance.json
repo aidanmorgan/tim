@@ -1,0 +1,3624 @@
+{
+  "capturedUtc": "2026-10-01T12:13:44.037590+00:00",
+  "head": "d99b5dc88dda943513e8813b03307428f3b7bcfa",
+  "scope": "Required working inventory inputs; existing runtime/tool declarations are provenance inputs, not all publication deliverables.",
+  "cleanCheckoutIntegratedVerdict": "Incomplete",
+  "cleanCheckoutMethod": "Read-only git show HEAD:path compared byte-for-byte SHA256 against working required inputs; no copied/fallback snapshot and no remote integrated CLI pass claimed.",
+  "counts": {
+    "Same": 174,
+    "Different": 82,
+    "Absent": 258
+  },
+  "todoSequenceAnchors": {
+    "working": 799,
+    "cleanHead": 0
+  },
+  "requiredInputs": [
+    {
+      "path": "AGENTS.md",
+      "workingSha256": "0403a2f8a57433bc4b6872b3ebd078e4ebaa907ffa8dfb01c09948a56b001981",
+      "workingBytes": 12405,
+      "cleanHeadSha256": "5754d03feb9569b74987bca2dd01c8e8288b6fd39fa5910cf8e20df69dda7d5e",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "content/puzzles.json",
+      "workingSha256": "877c11056b1777177759a93f230b692038c33631b19d41fc933eee5e615d2d4d",
+      "workingBytes": 866802,
+      "cleanHeadSha256": "d733094407fd3a14e36c8e8630e18e94e42e10aef23bb6a48e6682d875df14ae",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "CuriousContraptions.csproj",
+      "workingSha256": "bdcd6f1de8e038aa92ea7ef702add55b60f12c3c6a6dd1d9dab3c647615c8ffd",
+      "workingBytes": 2763,
+      "cleanHeadSha256": "d91069fb997658510c26fb878ccfae843e3b4bd191e974409416c1bea47d891e",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "CuriousContraptions.tests/AnimationBatchTests.cs",
+      "workingSha256": "18aaf5d938d4b639c82d2d9b7798a255b9b415e806f841ebdae972a3328a7456",
+      "workingBytes": 17219,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "CuriousContraptions.tests/BodyBoundsTreeTests.cs",
+      "workingSha256": "e5e98338dea878542ca5e3ce2e08b979c111fd62f7cb897f59b0b68815f80423",
+      "workingBytes": 5471,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "CuriousContraptions.tests/SimulationTimersTests.cs",
+      "workingSha256": "976bc84481cd06240b693749d90348005df7b4bcabe9bff853e36b5ab2ed4ac1",
+      "workingBytes": 7873,
+      "cleanHeadSha256": "3ce206200f00588b648a6d7ba6ebc4fe13eb328d5b0eb9ca0fc967bee5acbc21",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "CuriousContraptions.tests/SimulationTransactionTests.cs",
+      "workingSha256": "8858f496162c0afffbba3ba0651ee25480375e9f8511a04ea8af95c266b1bfe3",
+      "workingBytes": 8666,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/actuator-supply-reset.md",
+      "workingSha256": "82683a756d21ff78e9d6537fdc4cc7dd6794b8dfb1d0eef816a98a80026e0f76",
+      "workingBytes": 3336,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/adiabatic-gas-discharge.md",
+      "workingSha256": "713337d7d42daa6b525cfad1363625b70c223aba756f3dd5d0727003f8a5da86",
+      "workingBytes": 4712,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/admissible-impulse-response.md",
+      "workingSha256": "dbc7b0bff21e5cbf52fd21157462fe01f92bf2ae5331047e4360b35bb2d8a601",
+      "workingBytes": 3867,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/airflow-conservation-regression.md",
+      "workingSha256": "870428a11506fa6d857e3a2c820cb9ac398bb79c4d3c09a14bb5901e92c99cd3",
+      "workingBytes": 5729,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/airflow-point-force-integration.md",
+      "workingSha256": "ebaba425f57f9477927ea483dafc2e52e255695bc36e2b08a4c2dd58605a3d97",
+      "workingBytes": 23725,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/angular-path-measure.md",
+      "workingSha256": "b4bb122969f2c77dc8701690b5e57f9c321eb8b61ad4805659cce88d7efe96f3",
+      "workingBytes": 3699,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/arbitrary-body-powered-impulse.md",
+      "workingSha256": "6edd926b2fe3617bbca913c7bee36ee479380e8e118310cb21127e2a146e2f20",
+      "workingBytes": 6384,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/atomic-physics-load-set.md",
+      "workingSha256": "3a56f73ba89f65d81e28fbeb6411c14993aebe2865b6b1cdd49fccec1dabf224",
+      "workingBytes": 6207,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/authored-motion-save-integration.md",
+      "workingSha256": "e348af37cace2d415c396c3c462b74c0566ed685792a96bcfc65f55010780913",
+      "workingBytes": 12509,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/axial-gas-potential.md",
+      "workingSha256": "1fa96e8c1be1b9688b7570ad99ca981f2ff40896642f17205c9ffc9d8331b6e8",
+      "workingBytes": 4074,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/basket-moving-frame-integration.md",
+      "workingSha256": "2541cb3000f18f7b26efd0acea73ada15d069b11ddaae10bb04a6f24d0a7b344",
+      "workingBytes": 22107,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/bellows-configured-transfer.md",
+      "workingSha256": "d87c31e506aef7b18ad076ba4bf8330c922e331be0d747fd05f6efc9688fdd56",
+      "workingBytes": 3121,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/bellows-shared-elastic-return.md",
+      "workingSha256": "67fa3724256221b58a66bff7ed26d18c1eeaf44169577505bce9407d4d5d1eeb",
+      "workingBytes": 8369,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/bellows-shared-runtime.md",
+      "workingSha256": "97c4cacf2057a27cf486cd02d221110ee1aa75ab332deb5b3b0ee3b31799a20c",
+      "workingBytes": 6541,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/bellows-transport-trace.md",
+      "workingSha256": "e92f86fccaa7e3daa26f89f83c363c3717342d8c1b1efbd2cd0beb3808864c42",
+      "workingBytes": 3026,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/bellows-verification.md",
+      "workingSha256": "95721b3694a4ec4d9fe473eeab603811645859b960e0cf9b0bfa2393bbb3092a",
+      "workingBytes": 5438,
+      "cleanHeadSha256": "95721b3694a4ec4d9fe473eeab603811645859b960e0cf9b0bfa2393bbb3092a",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/bilateral-impulse-response.md",
+      "workingSha256": "c6ccbde10ffe3cee40e01a6ecbdac19dcadcd7daa8c63a53c8fd9375e5353fd5",
+      "workingBytes": 6161,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/bilateral-motor-integration.md",
+      "workingSha256": "75b2f80b046fb2f7585e888d7159791abf22bd3a877f276868514ba91e45bd40",
+      "workingBytes": 5413,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/bilateral-response-map.md",
+      "workingSha256": "6c63c3d6a2df8c874a702bb467577d63548ae9c28616b4d29741770799014c7a",
+      "workingBytes": 6798,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/bilateral-response-retirement.md",
+      "workingSha256": "931796ad18d29485703276e3141533f3937581276c77a611efae1c9b442660c6",
+      "workingBytes": 3587,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/blade-force-ownership.md",
+      "workingSha256": "ae3c43f411a1ea099dfbf7688de69a28909cc339ae93f104b1c180bdf1907287",
+      "workingBytes": 2731,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/blocked-motor-work-regression.md",
+      "workingSha256": "c20b593a9b8dbee1e8826283ce7c3e8f702306c6a0286eeb5340fdda89f39351",
+      "workingBytes": 3848,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/body-local-boxes.md",
+      "workingSha256": "f048afbc02b3960ab0641357736910699253903f016d00d5bc60bdd75dee235d",
+      "workingBytes": 3904,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/body-telemetry-ownership.md",
+      "workingSha256": "a2eba76af445ad8e057c822dcbd916b05cfeeeffdd7f87ef62eab1b81228f7b0",
+      "workingBytes": 3313,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/browser-physics-performance.md",
+      "workingSha256": "225c95dc77536d677a49064de8e744191dad9b6b3ce0c830b69f4cd5c6c850c3",
+      "workingBytes": 51362,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/browser-playtest.md",
+      "workingSha256": "c80e6245f475b5aebdb1493be09d834038800211b9a95027bc2beb8090a24515",
+      "workingBytes": 111685,
+      "cleanHeadSha256": "c80e6245f475b5aebdb1493be09d834038800211b9a95027bc2beb8090a24515",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/cannon-obstruction-migration.md",
+      "workingSha256": "40791747ddbb0fcad014d337b5f25ee6faab31d83f8228edb06a9ec7927b1ce8",
+      "workingBytes": 24826,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/cannon-reload-migration.md",
+      "workingSha256": "6cbc6882a687b29b3870e74e922650d335a1a4ce25935c6a7aec16a21d7fcae6",
+      "workingBytes": 3679,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/cannon-shared-actuation.md",
+      "workingSha256": "cf602d4a75cfaad0cacb0c71d4ecf230623e4df7949a3988846269c311981403",
+      "workingBytes": 6410,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/cannon-spatial-ownership.md",
+      "workingSha256": "0688d56ef75660ea10a4792187b9d495b1c392124c27f92de6197793c8f87b45",
+      "workingBytes": 3158,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/cannon-trigger-boundary-migration.md",
+      "workingSha256": "e2bbe151df269878a327dc5b557b73ebbced4a2dfbc16923d20b252642fd72fc",
+      "workingBytes": 13717,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/cannon-verification.md",
+      "workingSha256": "585036e221dcccfb30d8f458254d09a47d881b0db39764cf3b89eb054acead3c",
+      "workingBytes": 26715,
+      "cleanHeadSha256": "585036e221dcccfb30d8f458254d09a47d881b0db39764cf3b89eb054acead3c",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/canonical-authored-orientation.md",
+      "workingSha256": "a3fc1faaaf6e5e5f94274dba41948547429d1c5fce19b29d3af108d6dc5e238a",
+      "workingBytes": 6991,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/clutch-verification.md",
+      "workingSha256": "c8ecee3424917db2c42aa1fa1633c807cf6da93d837fed90087c4bee7131893a",
+      "workingBytes": 6621,
+      "cleanHeadSha256": "c8ecee3424917db2c42aa1fa1633c807cf6da93d837fed90087c4bee7131893a",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/collider-update-integration.md",
+      "workingSha256": "cdf7f2b57b81652d495013238617a334a1f67580211573e3ad56a1c31c3c3166",
+      "workingBytes": 5782,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/collision-architecture-plan.md",
+      "workingSha256": "44faf48ca05a22cf1abbd902460531123ee281a9d794b38b94ff364894ae7f33",
+      "workingBytes": 90470,
+      "cleanHeadSha256": "99e925c8cd77992364d9f384819be4aed2c103a26b1ee8ea9961b95472a29620",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "docs/colour-filter-construction-migration.md",
+      "workingSha256": "17087c83bac4f2b907c9ef9dd7bc15fc2de7894a7cb454801f394f825c998533",
+      "workingBytes": 11994,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/component-research.md",
+      "workingSha256": "82e11cc0f666149208643eded033517a1ff241fbca47296e5f763c3c64824902",
+      "workingBytes": 25876,
+      "cleanHeadSha256": "fecb0c80bdd06f16319973737b2214f572c981aa3d8d9612fc3c9e1d87612eac",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "docs/compound-query-scratch.md",
+      "workingSha256": "21616b41b57adaf5cca7e6703e074359d64c35c1f97a5f756d37f3b473377bbb",
+      "workingBytes": 7537,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/compound-world-sweeps.md",
+      "workingSha256": "b9c9073e6c2220a6b20444dbd98aa4ae549b7f5d55d4784d267f1d3af1c2281a",
+      "workingBytes": 4793,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/configure-physics-ownership.md",
+      "workingSha256": "023ecfe6a2387cba457f8fd3b53c51429eaa88ffc0f9bc36983d454b951aba63",
+      "workingBytes": 2296,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/conserved-jet-transfer.md",
+      "workingSha256": "0e50e057f5ddc2c0879244202a680c028ef413fa02a59ff2df00df595974b27e",
+      "workingBytes": 13358,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/constrained-motor-integration.md",
+      "workingSha256": "2ffd0e0eaae7ca4c0cdd0a86e6b0026abd2b142a78ad6bccf3942a0a7f5f0cc4",
+      "workingBytes": 20966,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/constraint-mass-scratch.md",
+      "workingSha256": "f7884dd1b46560caaf767ccb07193d2a9cd4efe4166f16ad6ef55b6f1898dcb1",
+      "workingBytes": 6452,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/construction-lifecycle.md",
+      "workingSha256": "62fae8fa8f0b70380273a18154534b88315344a56a3b91b9183253c32be2756f",
+      "workingBytes": 3604,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/construction-preparation-ownership.md",
+      "workingSha256": "805dec2e78d8fcc613dc676f113f3acc5269834b2af5bef83b30f36204a4806d",
+      "workingBytes": 18024,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/contact-coupling-repair.md",
+      "workingSha256": "d48c584d4ec59abf9b50f0d3e3cbbfc774c1cbc53676c28ef8970d6f0d363e2c",
+      "workingBytes": 6638,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/contact-local-ownership.md",
+      "workingSha256": "a9128b835dc0bde0e9e9972af6d16eb54d5191541c3081a30e887a8d9c9b3ebe",
+      "workingBytes": 3486,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/contact-normal-motor-integration.md",
+      "workingSha256": "9dc4a68afea89623748b54413713ea1b08171ed9c1c1af344d229c6cfa384dc6",
+      "workingBytes": 20234,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/contact-participation.md",
+      "workingSha256": "a40617b09bc063223fc86075ff3821152360ba07175beff8ab7d14c7bdd4fca1",
+      "workingBytes": 2509,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/contact-residual-investigation.md",
+      "workingSha256": "feb9f9c0e62f7e5b4159adb0656a04a0899b4324ab1174b3542926d4cf2b161b",
+      "workingBytes": 6326,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/contact-scratch.md",
+      "workingSha256": "0d508f53d0cfb5bc4b7edcb6991e18a45b2ce9d755f16cdda5bc704767fc614c",
+      "workingBytes": 7901,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/continuous-world-loads.md",
+      "workingSha256": "bd30b3f1799043555258caea5365d6a45eb269b5fa41aa177ad54473d7dac9cd",
+      "workingBytes": 7622,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/converging-gas-nozzle.md",
+      "workingSha256": "e1066d29a4cea353d2fe3a10043d6e40d1b3ba1a3c623fdb49b34cdabf248646",
+      "workingBytes": 4062,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/conveyor-shared-runtime.md",
+      "workingSha256": "fe7daa3bc481b344001d810e54ed369d0eb9b129a7d32104e129e5e2741aa233",
+      "workingBytes": 4578,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/counter-gate-authored-motion.md",
+      "workingSha256": "7c1a04748135673336a6c4d056b7f643e3cce3d05db6adacebe0c700cbe42f69",
+      "workingBytes": 2934,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/coupled-acceleration-integration.md",
+      "workingSha256": "87157d22b183a17361b451dddafe9cb6beadb04165d2225c57ff2a1a08e115bb",
+      "workingBytes": 38178,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/coupled-motor-load-regression.md",
+      "workingSha256": "4f8fab6ce3fc860283d4899645b0f2fdf735ce681ed89670123ff66fc70827f8",
+      "workingBytes": 5723,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/coupled-motor-preparation.md",
+      "workingSha256": "9bfee0eb9dbc5cde1a50500f8e98634391d847f5c662ca12d0de72089c388748",
+      "workingBytes": 16094,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/coupled-support-prediction-seed.md",
+      "workingSha256": "affe683386e00cc171deec92a7ea3fd20d8175dfb831138e429ea9c6ec9eb95a",
+      "workingBytes": 16660,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/current-ramp-ui-20260929.md",
+      "workingSha256": "7ef714722d0d52be13d4fe0819dd1f60dc8d29e59dfb8243cb81bb49ee8b55b3",
+      "workingBytes": 4965,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/cylindrical-chamber-geometry.md",
+      "workingSha256": "14f7dc556d018d1b702cc26ee7bc0517b344d83599bad5a0267355d5dd882543",
+      "workingBytes": 4794,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/detector-spatial-ownership.md",
+      "workingSha256": "e9eab38d8868bf85e13cfdfbb51bc0e67d427a6e67a29f79bc11c2667e7a6f26",
+      "workingBytes": 3048,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/domino-shared-runtime.md",
+      "workingSha256": "9fda82cfe9eb065e7a7f026b4d6f8293ade3f46ace1a3b1bdbf06ad6555ce809",
+      "workingBytes": 6124,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/driven-surface-contact-core.md",
+      "workingSha256": "51b78540159854b1667a2977b0d0edb68aed3c5e3e0acca48ddf8911dc7c00c7",
+      "workingBytes": 7672,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/driven-transmission-loop-integration.md",
+      "workingSha256": "3f07ce6361c6fa4fee2ae33d03f37f35f3c06622ae3687579befd87e4529d161",
+      "workingBytes": 4107,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/electrical-fixture-ownership.md",
+      "workingSha256": "855d78c519ee9bd28ec5999b5c899a0130348e823e0734842a31d1a63c646817",
+      "workingBytes": 3005,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/extensible-body-slots.md",
+      "workingSha256": "c0b251a557c9e6702aac216635e10bab0608b0b8a41783ba46baf6ac1ff8ae6d",
+      "workingBytes": 5991,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/fast-drag-investigation.md",
+      "workingSha256": "b0b702adbbc9efb3e8c9e5f366e4a7f028626cae401d6735f56742fdd5a0bf4e",
+      "workingBytes": 2431,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/finite-gas-foundation.md",
+      "workingSha256": "f71d2ed14735968ec671490f38d6aaed3f45c1981dfb9b3459981e7af25f14b7",
+      "workingBytes": 4526,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/finite-interval-support.md",
+      "workingSha256": "8620371c77a1e97a0cd15283096d3e7fddcd7c43a4bd78f174fb0016bee1b313",
+      "workingBytes": 3035,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/finite-nozzle-transit.md",
+      "workingSha256": "e4eb6b24dd8261ca2e235439fc1b8758a31ed846a90a462304c42e8c7d322cef",
+      "workingBytes": 7184,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/fixed-topology-power-controls.md",
+      "workingSha256": "9eaeac0264fe6102894bf79f38a7ec504ed47bac408b9e7c47e7dfc790e3b0f9",
+      "workingBytes": 3940,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/flight-browser-regressions.md",
+      "workingSha256": "76e0e983c27c59be908412e1762216050a84cfaf49ab5889be0147feb44bf0a2",
+      "workingBytes": 18777,
+      "cleanHeadSha256": "76e0e983c27c59be908412e1762216050a84cfaf49ab5889be0147feb44bf0a2",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/force-input-integration.md",
+      "workingSha256": "539c5c2bb7f80617da732566b516ab619a0235a0e04ac43eca3ee01d9c4fce56",
+      "workingBytes": 3705,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/forced-trajectories.md",
+      "workingSha256": "290ee41933e4d5a1d97784868088b6a5413ceee47514a2a3a83c75e15503fd74",
+      "workingBytes": 7384,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/friction-helper-retirement.md",
+      "workingSha256": "951c25ac132b7010cfcff049f86fac1399821ee7ffcf5ffd88679245c13470b8",
+      "workingBytes": 4664,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/full-physics-regression-2026-09-29.md",
+      "workingSha256": "6a8881b70640527c6fa00af9500f64b95fedcc33de9d36b0d2673e546f7f8615",
+      "workingBytes": 4586,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/full-replacement-current-verification.md",
+      "workingSha256": "2453f72d68c5fc0bb541b1f36c6307873008dd03795f6784b856bd3910407ec0",
+      "workingBytes": 3380,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/gameplay-tick-lifecycle.md",
+      "workingSha256": "8dddb58c2aac7a644f6d65805f3d2a5f4082143826fe11311a3168864d6718c8",
+      "workingBytes": 27229,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/gas-chamber-rotation.md",
+      "workingSha256": "10ffffa019cf2ab3e68206c404e24c0707d0a72b1a9eb141fbb193450da0eeb4",
+      "workingBytes": 2717,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/gas-chamber-world.md",
+      "workingSha256": "34c00eabc8e2874d0fea610048c0a0a37f7a40a79dccf0c6e8d97cfd521e4494",
+      "workingBytes": 4573,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/gas-endpoint-correction.md",
+      "workingSha256": "0dd022d44b285dbb262a2e48d0eeff8ed25679fb76afc93368cbc3752f730fcd",
+      "workingBytes": 2463,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/gas-interval-work.md",
+      "workingSha256": "87b9c4278cb9a46c56ed81c122d55b0d1a33273b07ad54d56eae09f80bee6803",
+      "workingBytes": 3453,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/gate-authored-collision-migration.md",
+      "workingSha256": "68a44de0801b34df81697017759776284914d2e81c3367c52a9ab229276456b0",
+      "workingBytes": 50687,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/general-hollow-qualification-results.json",
+      "workingSha256": "e3f611a43431444ffd7cb063c0038957f09e84a6957fd6876db8c63227631530",
+      "workingBytes": 52903,
+      "cleanHeadSha256": "e3f611a43431444ffd7cb063c0038957f09e84a6957fd6876db8c63227631530",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-joint-boundary-qualification-results.json",
+      "workingSha256": "e941615ab892fa8ccdee4b3198d30b57cf1d719ee824634e3aa6dc53b4223b75",
+      "workingBytes": 16837,
+      "cleanHeadSha256": "e941615ab892fa8ccdee4b3198d30b57cf1d719ee824634e3aa6dc53b4223b75",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-joint-qualification-results.json",
+      "workingSha256": "4e4d4853382edf375628c5d4375fc762e3126f125431b07d6091935722faf49d",
+      "workingBytes": 11374,
+      "cleanHeadSha256": "4e4d4853382edf375628c5d4375fc762e3126f125431b07d6091935722faf49d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-joint-range-qualification-results.json",
+      "workingSha256": "6437af22b71c897710f59a515a9943185399087ef7a429c8f692a82011fff742",
+      "workingBytes": 10935,
+      "cleanHeadSha256": "6437af22b71c897710f59a515a9943185399087ef7a429c8f692a82011fff742",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-motor-qualification-results.json",
+      "workingSha256": "8408c6116c2d82b2856435a35730dc0b1810c349854b76fdb217b61544251693",
+      "workingBytes": 18346,
+      "cleanHeadSha256": "8408c6116c2d82b2856435a35730dc0b1810c349854b76fdb217b61544251693",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-multi-body-qualification-results.json",
+      "workingSha256": "7684a8577eb705b9c1723fda93506e6b263807468b766751b735703a1bfcd591",
+      "workingBytes": 27537,
+      "cleanHeadSha256": "7684a8577eb705b9c1723fda93506e6b263807468b766751b735703a1bfcd591",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-physics-capability-audit.md",
+      "workingSha256": "85750abef106406cda269e35583c70230795185899671ba11fa08e0888e72a23",
+      "workingBytes": 18660,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/general-projection-qualification-results.json",
+      "workingSha256": "1cf8f6b69102732b5abed0e45b9531bc9207d0025e1c0ae21f3cf3b257d919a4",
+      "workingBytes": 13082,
+      "cleanHeadSha256": "1cf8f6b69102732b5abed0e45b9531bc9207d0025e1c0ae21f3cf3b257d919a4",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-rounded-anchor-qualification-results.json",
+      "workingSha256": "fd265ffea296fe25bd450d0422a70035f65bc360f7e9fc6226c49cd365e7316a",
+      "workingBytes": 9393,
+      "cleanHeadSha256": "fd265ffea296fe25bd450d0422a70035f65bc360f7e9fc6226c49cd365e7316a",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-routed-rope-qualification-results.json",
+      "workingSha256": "49a705daf602cb0344dbd6aa43d53c02179ebb36876d31af91b9530e1190730d",
+      "workingBytes": 27825,
+      "cleanHeadSha256": "49a705daf602cb0344dbd6aa43d53c02179ebb36876d31af91b9530e1190730d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-spatial-qualification-results.json",
+      "workingSha256": "473cce0b742800da2188317014c2e2cdbaf5e3d974a16cc18ab4d613473edd9b",
+      "workingBytes": 54099,
+      "cleanHeadSha256": "473cce0b742800da2188317014c2e2cdbaf5e3d974a16cc18ab4d613473edd9b",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/general-world-qualification-results.json",
+      "workingSha256": "2c16ee6970d4f09b06eb0ef06c0bf9d0e1d2f2b61822f7a039ee2ea97673f993",
+      "workingBytes": 10359,
+      "cleanHeadSha256": "2c16ee6970d4f09b06eb0ef06c0bf9d0e1d2f2b61822f7a039ee2ea97673f993",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/hollow-sweep-retirement.md",
+      "workingSha256": "cb5d6644460e9576c3797a361a9c651daaec9ba945830a78ba2b5c816bc2a2df",
+      "workingBytes": 5967,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/immutable-connections.md",
+      "workingSha256": "8b9f867a387dddcbad47bb571aa6abc7352ef00dde55f135bb06e454827469a5",
+      "workingBytes": 4064,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/impact-effect-integration.md",
+      "workingSha256": "996ca37e76d7b66bb013157d0699dabfd6fdff62ca67a34160421c0de34b00e3",
+      "workingBytes": 6214,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/impact-joint-integration.md",
+      "workingSha256": "d2f23832f1f084de426922cff8dce1dda169494b8b83fc04e293377f61cac0e4",
+      "workingBytes": 6945,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/impact-lever-frustum-verification.md",
+      "workingSha256": "f35d3a80b71400b0771e05807e5a6cc1754674fcf1b20c03efa26598903df13b",
+      "workingBytes": 5846,
+      "cleanHeadSha256": "f35d3a80b71400b0771e05807e5a6cc1754674fcf1b20c03efa26598903df13b",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/impact-lever-obstruction-verification.md",
+      "workingSha256": "989e831e1973bdb0222b6e723e34d0ef04385ebb6711972f1a9770872ea11336",
+      "workingBytes": 7477,
+      "cleanHeadSha256": "989e831e1973bdb0222b6e723e34d0ef04385ebb6711972f1a9770872ea11336",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/impact-lever-sphere-verification.md",
+      "workingSha256": "5d22fb4d3fac00fd80e52b4fdaa5b19163ac34385c7562cd2a7a1790bd50528d",
+      "workingBytes": 5590,
+      "cleanHeadSha256": "5d22fb4d3fac00fd80e52b4fdaa5b19163ac34385c7562cd2a7a1790bd50528d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/impact-lever-tube-verification.md",
+      "workingSha256": "502f76a54164f1104a155cc197cde0c97423f685c48b2b037c0c66e2e4c72e23",
+      "workingBytes": 7296,
+      "cleanHeadSha256": "502f76a54164f1104a155cc197cde0c97423f685c48b2b037c0c66e2e4c72e23",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/impact-lever-verification.md",
+      "workingSha256": "098ae627250ee0a75e135b4e38ef85a3b9dc3c2d1d922c46f0f2858246911ca4",
+      "workingBytes": 14641,
+      "cleanHeadSha256": "098ae627250ee0a75e135b4e38ef85a3b9dc3c2d1d922c46f0f2858246911ca4",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/impact-motor-budget-verification.md",
+      "workingSha256": "6b72fd988cd99974f96aff3c2462585c4dd25b80ac5b4c951cdcf03bff7afd7f",
+      "workingBytes": 3123,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/independent-mass-normalization.md",
+      "workingSha256": "34be1c39a92a47b572c71dc0b82b6e01967df8e58a426ce18f4b48df2e3091b5",
+      "workingBytes": 27499,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/initial-motion-reset.md",
+      "workingSha256": "64e7a2489e46290df08bf0ba076318db855cc939c1e505f97fa3c5fde0f94038",
+      "workingBytes": 2869,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/initial-participation.md",
+      "workingSha256": "1c4799a2e95c35941203019536fd8b734291517b15359ffe157458d58bc6ca00",
+      "workingBytes": 3158,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/initial-velocity-boundary.md",
+      "workingSha256": "906d5149280cb361cce988b0d08def4b83e3ae78f1a3988ebde60af231014eac",
+      "workingBytes": 4528,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/internal-motion-save-integration.md",
+      "workingSha256": "5f3abb85ddd354110c26d439f5c20d6d714bd3db450a95f97049f053c460998d",
+      "workingBytes": 13811,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/joint-boundary-support-prediction.md",
+      "workingSha256": "44896d2156bf3835be190b396337d1e7e9478af253b4ead691c84bc6265db0ba",
+      "workingBytes": 18582,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/joint-direction-sweep.md",
+      "workingSha256": "2c46d5f970a66f5c2b7f1bf0d8e1c805eeb475f7d49f8abe87f6461f54b1bbf6",
+      "workingBytes": 6952,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/joint-lifecycle-integration.md",
+      "workingSha256": "e4352782c58875f13d3a7eca79326eb8d67af9407ab576ca9cd1a22ec1895ea4",
+      "workingBytes": 5536,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/launch-energy-verification.md",
+      "workingSha256": "3c12c27937194535965ff7af201ae5dddd46fdb8694dcf43966e887255bf2a17",
+      "workingBytes": 3322,
+      "cleanHeadSha256": "3c12c27937194535965ff7af201ae5dddd46fdb8694dcf43966e887255bf2a17",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/lever-shared-runtime.md",
+      "workingSha256": "c55e6f9007a4c2e589c5de5259a2ab166300601e72db2289048ac9a26f05c5d5",
+      "workingBytes": 9270,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/linear-airflow-cutover.md",
+      "workingSha256": "1686a2c8a4848d0daddde9ed48c6c01962b0a2a7fac77639c9b796653f2fa346",
+      "workingBytes": 2681,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/linear-pusher-shared-runtime.md",
+      "workingSha256": "223ceb69a5ebcb0b4687f51bb11abbb2caef810c5e4f3544a67ba1ccc8c6c9bf",
+      "workingBytes": 6839,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/linear-pusher-verification.md",
+      "workingSha256": "588917eb4429951547b874a29d8e4f798c35b5d5bc005aade43d04f2007be8f5",
+      "workingBytes": 9291,
+      "cleanHeadSha256": "588917eb4429951547b874a29d8e4f798c35b5d5bc005aade43d04f2007be8f5",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/live-blade-guide-integration.md",
+      "workingSha256": "fd4a1c0537ec26844f231e0d0dd6b8b4b7ac7e54a5b4452ed15c6d84c99f2820",
+      "workingBytes": 12451,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/live-blade-guide-native-result.md",
+      "workingSha256": "f1d54a8babfcf0c8637be986f67b4eef0968a86c7b335019f262484c36658c84",
+      "workingBytes": 15278,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/local-body-pose.md",
+      "workingSha256": "554de71c83f247b72105faca54cfb06eeee31d5ff6ef081b85170ef555aefe96",
+      "workingBytes": 4546,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-authored-placement.md",
+      "workingSha256": "9f7031cbe11f546b0d864835926ee364bbc64d94d64916201f5f587f291eb6b4",
+      "workingBytes": 3171,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-network-cutover.md",
+      "workingSha256": "77103ce2d4680dbf696fee39803d401937f9dff0124077938df1910a38e28e28",
+      "workingBytes": 11679,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-port-curvature.md",
+      "workingSha256": "ca9f514c3d3e5ea99957d28cef4350cdd6ee6b43d8637abd7348e1676166c92b",
+      "workingBytes": 3903,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-port-speed-bounds.md",
+      "workingSha256": "d2e2e66dd33eddd73a990ed86465dd2f86867d0696317c19881b81951abfd256",
+      "workingBytes": 4931,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-source-ledger.md",
+      "workingSha256": "ded246a51e1f13579a8a9d3d92e683d5955fe7f7da818064c810e4490f75474e",
+      "workingBytes": 3156,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-source-ownership.md",
+      "workingSha256": "f551daedc2f848943f2c7e707a8dde1945c72b588e64a7a789af6af5418acc31",
+      "workingBytes": 3356,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-source-path-power.md",
+      "workingSha256": "e3910b8222e7791103093537062ca65e6c5fdb437f29c7c67b95116d35127898",
+      "workingBytes": 2997,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-source-rating.md",
+      "workingSha256": "19dded84c1410ba4dee05c3dbb0ccee331494abf2a2f7818cb58e6be443661c7",
+      "workingBytes": 3916,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-transfer-ledger.md",
+      "workingSha256": "2df613be6417b4eee646d077f08ceac928c2f9b1c44df198749f47a0a53003a4",
+      "workingBytes": 2956,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mechanical-transfer-work-results.md",
+      "workingSha256": "ed8a5e751ddb5a78720aec0808c99e3ee269996c1d75ec7d5307fa8f42ee2e8d",
+      "workingBytes": 2778,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/mixed-mechanical-transfer.md",
+      "workingSha256": "9e0102912e7ffe2d1217f80d8a15dac47e6c08b0a5195345050ca93e2e573640",
+      "workingBytes": 3375,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/motor-contact-load-verification.md",
+      "workingSha256": "86d496d6647eaec9a0653858d22e4eb22ca4d60dea3bab4632c8d51b9e6fb446",
+      "workingBytes": 3290,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/motor-mass-coupling-islands.md",
+      "workingSha256": "c99c27248a7378c7b2e272a2f8f7565ad73438d591c5bc69a9bc0e127d81a86f",
+      "workingBytes": 33602,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/motor-power-limits.md",
+      "workingSha256": "bda229d94d36f2b1ec74a3d70de24446ff570ef6bc5025027e354e5902d638a6",
+      "workingBytes": 7041,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/moving-trampoline-contact-frame.md",
+      "workingSha256": "7b08c655433dc7936ea17c13c6544d22d75b96a286b87e0410075bd4e88e2b2b",
+      "workingBytes": 11687,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/moving-trampoline-native-follow-up.md",
+      "workingSha256": "afaae530d3c2ee52190457a2c984fd17e7243586d46cb7dd27dcdb358c8bc498",
+      "workingBytes": 34915,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/network-spatial-ownership.md",
+      "workingSha256": "a5ea91b19a25c59b59c4003b2ccd3c4bc2ed4e7f24645613e384c76c9421fee7",
+      "workingBytes": 4059,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/nonlinear-support-prediction.md",
+      "workingSha256": "f59a515a4f3c061630c490e3a151bd6f204bdaafa1fea93e6efd9372df96685b",
+      "workingBytes": 5022,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/obsolete-sphere-impact-removal.md",
+      "workingSha256": "5a94270e5933ca5a9fc4ee05ff1ce75f66d8a9fcea19b5bd9492dec89aae6f26",
+      "workingBytes": 4302,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/optical-fixture-ownership.md",
+      "workingSha256": "340ec46fe7c5fa919298a04caedf3ac6edc739c90dad636ca892e8f6ad70883e",
+      "workingBytes": 4127,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/optical-output-ownership.md",
+      "workingSha256": "dd56df7e7db5d6b7fd3fdeeb62aae50ec9763f342d67dddfb761a2edae4afcf3",
+      "workingBytes": 2735,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/owned-axial-motion-readings.md",
+      "workingSha256": "555463965b5c0cb30760701303eeba819f2ca46b38c86a0ab3dabeed9471ef81",
+      "workingBytes": 6518,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/owned-hold-timers.md",
+      "workingSha256": "d8b03a86fd870603ba42134762cae1fcf0744c99361e081c08c04d38957bbddc",
+      "workingBytes": 9670,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/passive-spring-energy-regression.md",
+      "workingSha256": "6c4be8083bdd0c592b1a15ca967f82cbf3c743b9b38f39cbaed0112bc2f57e2f",
+      "workingBytes": 36838,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/performance-audit.md",
+      "workingSha256": "12c52e792518f5b607abd19e74dd19e010c6232a8e70a5693c0ae35d70edb8ca",
+      "workingBytes": 6704,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/performance-counters.md",
+      "workingSha256": "3a76ee70b75c1489aaa9b4be5a7b68224b03da3cf180d1bd784f5847e8f61886",
+      "workingBytes": 6437,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/performance-run-identity.md",
+      "workingSha256": "3019e80ad44e51628475d5675ffe5b1e2e0b9e1a73043a2bf86e53ed447f348f",
+      "workingBytes": 5599,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/performance-stages.md",
+      "workingSha256": "11b43816507700313bc4f794d8cd769a80d2ee26efd24e2a6ad0533a54c8d4bf",
+      "workingBytes": 6676,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/physics-mutation-boundary.md",
+      "workingSha256": "392d26154423265982a51283d97177abc27b92fdad34dda9dfec7e4ff91e2453",
+      "workingBytes": 4491,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/physics-puzzle-gap-audit.md",
+      "workingSha256": "b50e04e11d7e8c1454084daaf8f244cda14d19174ec3716e2daf2f8dff41b00c",
+      "workingBytes": 23430,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/placed-part-ownership.md",
+      "workingSha256": "247f82e2c297a8832313164ebb08748b344b9a2f5c89a3248216d54639768ca8",
+      "workingBytes": 4370,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/plunger-transmission-test-migration.md",
+      "workingSha256": "0a51fb71708895223aac584f110a4c8a4e15b14c1e85648b1975a6fcf777acc0",
+      "workingBytes": 13157,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/prediction-constraint-work.md",
+      "workingSha256": "23c67ae2549dca991906c2604c75147552f78b59c4c11efac13a0a8b7b8f23d5",
+      "workingBytes": 7378,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/predictor-air-driven-effort.md",
+      "workingSha256": "d20fe7b98d9a890678ca52c3fa0fb37f64376ac34a7dadd6b2b1755582beb8fd",
+      "workingBytes": 6066,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/predictor-airflow-boundaries.md",
+      "workingSha256": "49de6940b078d0b909fd9adda79801f1c69dac5908d3960c20c056f7d7727a5e",
+      "workingBytes": 7056,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/predictor-bellows-supply.md",
+      "workingSha256": "a8705103cd9cee85b6c473dc523d7eb8667af6b2113c1b634a5165ce84832709",
+      "workingBytes": 6063,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/predictor-endpoint.md",
+      "workingSha256": "d753bc23bf50955df7e43e68d763da7fe3e0c2465a21bbfe495e9796324039df",
+      "workingBytes": 6341,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/predictor-guide-boundaries.md",
+      "workingSha256": "fbffcdc2ec88609108901bf764331765838beaa134a19d9bcee5c1c77577228d",
+      "workingBytes": 5815,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/predictor-work.md",
+      "workingSha256": "a0a740230f5dec01169581f2f10d0244f8bfe9a8ff598ab39180e869fe4e0fe7",
+      "workingBytes": 7422,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/prescribed-body-integration.md",
+      "workingSha256": "11220486b339a9bbe7f6aa1fd5d27b1660064e3e28cf7279f4e22eabce0270b2",
+      "workingBytes": 5174,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/prescribed-obstruction.md",
+      "workingSha256": "31304d856bfbed4a2febcd3225c468cab629ec40078349c755588635103f088d",
+      "workingBytes": 4173,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/prescribed-trajectory-foundation.md",
+      "workingSha256": "032cf723cdf4307cab6f51b10621cdd18ca374474ed9d8e923e6d7862e3dd7ee",
+      "workingBytes": 4147,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/pressure-contact-ownership.md",
+      "workingSha256": "19655eb59eab2c022f7cc666afd6e06cc2d7e8912801dfe697cdea2baf2583df",
+      "workingBytes": 3578,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/pusher-collider-ownership.md",
+      "workingSha256": "bff2aa047683757bdf2e0eba184933f15fe780437c5958a890569f1215ce0dc6",
+      "workingBytes": 2847,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/radiation-component-research.md",
+      "workingSha256": "435252ba4152d3fff5d80cc886d9a423a4c0af655826f60ff313521fef96017d",
+      "workingBytes": 37708,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/rank-revealing-constraint-mass.md",
+      "workingSha256": "0e7c24b6cf914005322b71f6e65e647c06fa11f3a9af51545f75443ed63102d9",
+      "workingBytes": 20027,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/readonly-connections.md",
+      "workingSha256": "99ec62422fe23697fc0bf862c70259dcb69c4b426c757ac6c75912a6342299ae",
+      "workingBytes": 3858,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/reference-baseline.md",
+      "workingSha256": "3b904e9eda1d88bd151340c78385118a8bcf9de36e935f04d130807d42d09f94",
+      "workingBytes": 8224,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/remaining-scene-impulse-migration.md",
+      "workingSha256": "b7f7bf8fbca77207de1a878d6c28b481183bccbddf7ef0815e0aeeaaf385ab43",
+      "workingBytes": 27828,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/required-physics-parameters.md",
+      "workingSha256": "a5f012ddc30f4208a517d8eb022a3fcf691621614cf7ee7067dac5caad8b4c39",
+      "workingBytes": 4018,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/research.md",
+      "workingSha256": "5a57c152579839308e6fc9017740b60c22b860cd76a27ba484a91be02d4f91ac",
+      "workingBytes": 33015,
+      "cleanHeadSha256": "5a57c152579839308e6fc9017740b60c22b860cd76a27ba484a91be02d4f91ac",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/research/ecs-assessment.md",
+      "workingSha256": "577b060faa902bcb9808f55dab6c99dad6816b36c7ff6c9938f92f117170bf80",
+      "workingBytes": 17804,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/reset-snapshot-ownership.md",
+      "workingSha256": "cfedc65b5390ad5a3738d10845bd596ba8110e64eaad94052c041954b50f3d62",
+      "workingBytes": 3027,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/resize-physics-ownership.md",
+      "workingSha256": "07708eeae939e0a737fa12618541131bcc97ee72ca6cde46d22e207f010aaa2a",
+      "workingBytes": 2669,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/retired-scene-contact-removal.md",
+      "workingSha256": "856caa6c37ca2889f28518ac34e979f41f07b44712c03b71f160cab95081b284",
+      "workingBytes": 4043,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/rope-route-ownership.md",
+      "workingSha256": "3ffee3c5066f063fe66e99a82086da85de3c9e3136f54ccabbbffb6acfb792bb",
+      "workingBytes": 3263,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/rope-scene-solver-removal.md",
+      "workingSha256": "4af678b368df47b4ddb2112d27702294b9d8f9334a1e288c0ba65309b3672f80",
+      "workingBytes": 2274,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/rope-socket-position-retirement.md",
+      "workingSha256": "ffa4878fdc5edcd2bff46e0f5e15fbacb12458dd40d6805fd01cef97c3ec8fc6",
+      "workingBytes": 19006,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/rope-visual-ownership.md",
+      "workingSha256": "b412451fef5a7336f1ab94da441d645a0223c83be8aa9fe34681cf7da2c28ab2",
+      "workingBytes": 2669,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/rotary-transmission-parts.md",
+      "workingSha256": "2c2e647b4a050b67a965b70f1562b2fadb47a56fa213720cdb96cbec0be71a8a",
+      "workingBytes": 6149,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/rotor-airflow-contract.md",
+      "workingSha256": "5b4afd962eddf989413efd4cadd858fd2d46e7b9b9ca0943971eac00df21e955",
+      "workingBytes": 16588,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/runtime-geometry-updates.md",
+      "workingSha256": "7aa2001be3a1712238b53f701e9333a5efa84790b98affdcedb15e27cff5fa1b",
+      "workingBytes": 3949,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/runtime-physics-cutover.md",
+      "workingSha256": "31e302f08c6221af3145c36238134c432c7f5044e5238e729eb6f3968a53f508",
+      "workingBytes": 7059,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/runtime-query-ownership.md",
+      "workingSha256": "a300cdadecb3f8fcab9bd81c571cf5050e23a9673ec0db5a654d25f332674f05",
+      "workingBytes": 6543,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/runtime-signature-ownership.md",
+      "workingSha256": "144c66e72ea820d398124b0a4b61c9988ae094692b6c17e42322967842774358",
+      "workingBytes": 3188,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/s001-animation-pacing.json",
+      "workingSha256": "c8fd8a5e79e08e8d34445a1836a7dc7b1614869b42a6daae2d955aca3f089460",
+      "workingBytes": 60848,
+      "cleanHeadSha256": "c8fd8a5e79e08e8d34445a1836a7dc7b1614869b42a6daae2d955aca3f089460",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/s001-combined-pacing.json",
+      "workingSha256": "065d7be3f3b6020b344fe787152b0ec15c9e833b22db2ac227a3683b36e0a2c6",
+      "workingBytes": 12773,
+      "cleanHeadSha256": "065d7be3f3b6020b344fe787152b0ec15c9e833b22db2ac227a3683b36e0a2c6",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/s001-native-baseline.xml",
+      "workingSha256": "1ed77cf9af6279eec9cd5caf0edd630a8a7ff20347173531e07785a439b65d12",
+      "workingBytes": 63014,
+      "cleanHeadSha256": "1ed77cf9af6279eec9cd5caf0edd630a8a7ff20347173531e07785a439b65d12",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/s001-source-baseline.json",
+      "workingSha256": "ff75e5c02f6e9b63601dc163cf5b58bb994255fc535a49b6f2b118795af2250d",
+      "workingBytes": 125483,
+      "cleanHeadSha256": "ff75e5c02f6e9b63601dc163cf5b58bb994255fc535a49b6f2b118795af2250d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/scene-body-dynamics.md",
+      "workingSha256": "31850f522caa820e4bb31280c0c575409584e8dca0911246c0da7642a9d72240",
+      "workingBytes": 5673,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-body-geometry-integration.md",
+      "workingSha256": "8cfa5107f8d51459fccfc087fdc754f7efc2978463e6511fb59fdaa39ade081a",
+      "workingBytes": 6522,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-contact-hook-removal.md",
+      "workingSha256": "afb1c5616d3a05ffa638d4fce2e32987cd6299f463f25dfaa4e146f90d7593dc",
+      "workingBytes": 5619,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-contact-materials.md",
+      "workingSha256": "2421ff9cab2e78ecd7e2a9f061f05ac2efcdd16f81b6970470276f85ce1cbd39",
+      "workingBytes": 6065,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-impulse-ownership-migration.md",
+      "workingSha256": "c2b0360a59c7a94c0a0a61aebd7bafc1297e9e232364360b5ae2c642d971b989",
+      "workingBytes": 44903,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-joint-binding.md",
+      "workingSha256": "ed6c338b8bb926fcd42fc04ad780b51db176a4491395fa0b59b42bf47cd8616e",
+      "workingBytes": 5517,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-joint-identity.md",
+      "workingSha256": "a607ddf93b0bf09e08484ef51db44a77950c21f70f6480159ea056f653057c92",
+      "workingBytes": 3572,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-joint-impulse-ownership.md",
+      "workingSha256": "c2982564000a4aba26321476cb945dbf70b56a2c8b7733c4043f44247c676874",
+      "workingBytes": 11959,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-ownership-fixture-migration.md",
+      "workingSha256": "4f339954cc87f3d07767d784c823584ffa0b5f319268777541d7b6e172d43cfa",
+      "workingBytes": 3691,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-plunger-binding.md",
+      "workingSha256": "0b7d5a3e26c418cdd0102a85417ee331c51ab4d4ed7a28f3f3a86b0c20b756c6",
+      "workingBytes": 5042,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/scene-rope-binding.md",
+      "workingSha256": "ed2eb158f64a4013dfbfac61d64fd2d7b462488ef64948eab1b2a80822fee49e",
+      "workingBytes": 7124,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/selection-verification.md",
+      "workingSha256": "13eb2be540a0b1c9375da022991a0ace466f1e78651a734eafe04adef8c8673e",
+      "workingBytes": 3105,
+      "cleanHeadSha256": "13eb2be540a0b1c9375da022991a0ace466f1e78651a734eafe04adef8c8673e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/shaft-ui-proof.md",
+      "workingSha256": "9d82bc00380ab531e3fd84ad813eb648060bd354e6d7f3ac9481cd6383942e86",
+      "workingBytes": 8909,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shape-aware-guide-boundaries.md",
+      "workingSha256": "4774fc016fade87cc72ff6dcee2408d4b893d7ad7f23fd08549cd359fb43e110",
+      "workingBytes": 5372,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-airflow-foundation.md",
+      "workingSha256": "d90bb674997b8438f16c8f1de9f2b5468efe3dec2a046100324aa7052e7623dc",
+      "workingBytes": 4680,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-airflow-integration.md",
+      "workingSha256": "61711f7ff1b79a5c42922ec6af3bccdf2798dcb251ae98a24efef2fe24d90c7a",
+      "workingBytes": 6396,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-axial-damping-integration.md",
+      "workingSha256": "1e1b68aa999271ccc78a93bff3b1e13a2c3c4859d7d57eb89aa59caa92b40620",
+      "workingBytes": 17235,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-axial-effort.md",
+      "workingSha256": "b83aad590f57303a056555ba74acc517eb57507a0e5e725e2c5ca728909e8d6b",
+      "workingBytes": 5848,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-axial-elastic-potential.md",
+      "workingSha256": "4c221febb8aa70ef2224ae843508a93d2aa8cb9b36a6d9835974ca9a6f4f61da",
+      "workingBytes": 14486,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-basket-guidance.md",
+      "workingSha256": "717ee6e536a6f466f3d194726c1b143345ea9616f570622bbb1cb41ad6ae85f8",
+      "workingBytes": 25741,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-body-drag-integration.md",
+      "workingSha256": "ab16c5cedc32d98c373dfaad2f58125dea7209d15e5b3b29067644423c3883a2",
+      "workingBytes": 20577,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-body-mutation-ownership.md",
+      "workingSha256": "eed19682636c8c5f5d2db1e828396ce35fa081d8c37615d47ded0683feaeb1f2",
+      "workingBytes": 5296,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-compliant-collider-ownership.md",
+      "workingSha256": "cd999cabe4d06cf8e0f7335977527fe6d921e1b4e7e555d44c03eb5810688b6f",
+      "workingBytes": 5262,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-construction-validation.md",
+      "workingSha256": "92ee2073d2c4abd0ce1c7c8cc49d0363155c029ebcc1d6e62bc517cafabb420f",
+      "workingBytes": 4116,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-contact-joint-row-integration.md",
+      "workingSha256": "13d3ea7250263f470d643ecc2a89dde4e0ce28eb975d81758c7f77017fe7ba63",
+      "workingBytes": 36248,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-elastic-world-integration.md",
+      "workingSha256": "d95fd8db18d860ede2c0950230ccde5a89849bb4b859cfb45f1f95909e7f187d",
+      "workingBytes": 14398,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-hinge-impulse-ownership.md",
+      "workingSha256": "8f3dcdb9bce80ecb13d4e7bd6937c84493464eb2c9ab4c7e0d1bf67a7cddfd0f",
+      "workingBytes": 5221,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-impact-moving-frame-integration.md",
+      "workingSha256": "2877a9932b3cc80017aff94c48b65a40b628eb2c2de0d8da27b4d64aa9c1bba7",
+      "workingBytes": 12070,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-impact-moving-frame.md",
+      "workingSha256": "cb3bf33ea93fe221752e6e87aee974552a5cacc8dad43d77ec3479125553e276",
+      "workingBytes": 13121,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-joint-velocity-assembly.md",
+      "workingSha256": "610045f90caa1985e761771be0a3dd1b8014cffa13af053633d2bf47b8629354",
+      "workingBytes": 19913,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-scalar-boundary-search.md",
+      "workingSha256": "ac5fddc1a6371202d2ce1bee052225f5e188e8ec35aefb395584b80b5778ce83",
+      "workingBytes": 4064,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-sliding-blade-return.md",
+      "workingSha256": "bb19e2918aef748b75935ba396ae218d5a0cf1b6b50055a1ec3c0ba7d7b4c11c",
+      "workingBytes": 6206,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-sweep-migration.md",
+      "workingSha256": "579b7f73842626c19b8f9273ff7ecc525908856350993d49ec0a7cefea549bbd",
+      "workingBytes": 7811,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-sweep-retirement.md",
+      "workingSha256": "111fcb105b95e339be055b5763b253488034c2c1cb451fd003d6a7dbe0e850f9",
+      "workingBytes": 5034,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-trace-verification.md",
+      "workingSha256": "0c6b6934178c9ba12c3fd57fd9e2839a0d78a369aa77fb8c2ce22994aa3a9d47",
+      "workingBytes": 4221,
+      "cleanHeadSha256": "0c6b6934178c9ba12c3fd57fd9e2839a0d78a369aa77fb8c2ce22994aa3a9d47",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/shared-trampoline-compliant-force.md",
+      "workingSha256": "2a5b63a87bdbaddbf62f515a10741d1d55412a65fef81de5d6f459cd7fbb8675",
+      "workingBytes": 28403,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-velocity-authority.md",
+      "workingSha256": "cfb0ffa4001c626bef743acf84e5fbb2f00d20e3bb54fbc88c752f2dfd342f9e",
+      "workingBytes": 5547,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-world-powered-impulse.md",
+      "workingSha256": "e66146c340612859b1b9845cd7579db433e58cce4607e7b49b03fc00f3611595",
+      "workingBytes": 4247,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shared-world-reentrant-guards.md",
+      "workingSha256": "6ba0cac2e91375451e9a266d501e76713c1bbc0959329919c6126fbf61e92065",
+      "workingBytes": 2577,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shifted-friction-scaling.md",
+      "workingSha256": "41c56a6f1f7d5c272ddb8be2fb78b96808bf5fa44386dabe63cda3c82f3929b0",
+      "workingBytes": 20868,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/shutter-orientation-ui.md",
+      "workingSha256": "3640094df8579aa81e804b38eca235da91f8fe489e4dc1985745a92854279e5b",
+      "workingBytes": 5948,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/simulation-presentation-bridge.md",
+      "workingSha256": "8108b3199fee87a0ea893318393423bd0a4da72c3f6f939ab9e155116cbdc708",
+      "workingBytes": 22672,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/sliding-blade-ownership.md",
+      "workingSha256": "283a4370e251a6e395cb62d336f43656204b544aaec63257ea00891a8da05847",
+      "workingBytes": 3384,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/slip-curvature-certificates.md",
+      "workingSha256": "5a7f964ed3b0d7c880eb765bf2b87fda8d3e771626367e8f0d70a962c65b10dd",
+      "workingBytes": 5126,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/slip-transition-events.md",
+      "workingSha256": "290f453bb2e7484e82deaea953a6a673a682656c6ca41a9c438dde88da78fed5",
+      "workingBytes": 7957,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/socket-enum-verification.md",
+      "workingSha256": "a922b0986a1014221c8c71bf2e4d5ac913605e9881116d97ecb9d3f5ea956d31",
+      "workingBytes": 5155,
+      "cleanHeadSha256": "a922b0986a1014221c8c71bf2e4d5ac913605e9881116d97ecb9d3f5ea956d31",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/source-rotor-integration.md",
+      "workingSha256": "f9bd05ecb53b69265e4ca62859a1ddfada0b7b8e3441dc138d8c6365c76a532c",
+      "workingBytes": 6212,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/spatial-work.md",
+      "workingSha256": "b92d60abc6ef0465c5341018f55392e6043c3ec4b00c9caf2894f0580a0dcb94",
+      "workingBytes": 7375,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/sphere-sweep-verification.md",
+      "workingSha256": "a1ecd3c8be26e34fdad8ec5bb960b0657442ebe6dda98a1f195ea06a1fd2b8d1",
+      "workingBytes": 3088,
+      "cleanHeadSha256": "a1ecd3c8be26e34fdad8ec5bb960b0657442ebe6dda98a1f195ea06a1fd2b8d1",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/springboard-precharged-verification.md",
+      "workingSha256": "3a228b493b1cd85ea05294852c273dbd25b8fe71fd6a3dc62ea6644ce301363d",
+      "workingBytes": 6168,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/static-shell-retirement.md",
+      "workingSha256": "79a5ab2c13b2098c2fa93ae973c6eb403b2b7f615091caac2c11601666203f60",
+      "workingBytes": 5196,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/stored-flow-allocation.md",
+      "workingSha256": "c18d6b148db8b2eab2338d4c1fb8cb84193b9e75080ee8a985520f0103e6cf97",
+      "workingBytes": 3418,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/support-force-integration.md",
+      "workingSha256": "24bfe9eed7eb9155bca19bef7aeb6917588c7c515a36cc96b84a5cf548777c87",
+      "workingBytes": 7639,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/surface-helper-retirement.md",
+      "workingSha256": "0ecdc0d3381fbb9085f3fe1645d359d122c8e8773829df6e9e34bdf63e90d11b",
+      "workingBytes": 4888,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/tangent-quadratic-prototype.md",
+      "workingSha256": "37572f02f76782710edd3902ced0baf56aad735239239ab31d6abfd218f3413f",
+      "workingBytes": 1496,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/thermal-component-research.md",
+      "workingSha256": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5",
+      "workingBytes": 8452,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/tiny-constraint-and-grazing-contact.md",
+      "workingSha256": "d321e4052b47da3ff94452cd292273c285f0188a4e3188f1abb548e024473d05",
+      "workingBytes": 2633,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/trampoline-motion-correction.json",
+      "workingSha256": "4885be8dc0a24212f61bc15a336634d62628baabed15e4ded02a44906ee3e4df",
+      "workingBytes": 41836,
+      "cleanHeadSha256": "4885be8dc0a24212f61bc15a336634d62628baabed15e4ded02a44906ee3e4df",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/trampoline-motion-review.json",
+      "workingSha256": "6818eb9197096542e533c13fd76c5e0648b7b1fb46b280e9528829198f4e83b9",
+      "workingBytes": 41695,
+      "cleanHeadSha256": "6818eb9197096542e533c13fd76c5e0648b7b1fb46b280e9528829198f4e83b9",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/trampoline-shared-runtime.md",
+      "workingSha256": "0ce81ef30366710e6022fe622b2506bd212c5aed441d15f93e71e4d38690a973",
+      "workingBytes": 6300,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/trampoline-verification.md",
+      "workingSha256": "91a07c63b7649a231e634bf5233227fdb0205cab046965331572453a1d443ade",
+      "workingBytes": 21530,
+      "cleanHeadSha256": "91a07c63b7649a231e634bf5233227fdb0205cab046965331572453a1d443ade",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/transfer-boundary-scheduling.md",
+      "workingSha256": "495db560646611ef03b9c0857a541755b422644f98687adf0732abc0d3bddaff",
+      "workingBytes": 4891,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/transfer-source-stall.md",
+      "workingSha256": "31afa4c8e19a1d28e832220581fd47d25f982d7411a7c3675b5a41ae363b1856",
+      "workingBytes": 10111,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/transmission-scene-integration.md",
+      "workingSha256": "afa6e9c95131d7032b37dbf2895a93f388e7383ecbc12687882be9e5bf4bcf60",
+      "workingBytes": 5437,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/tube-snap-physics-ownership.md",
+      "workingSha256": "f11d883d73f3f9efc93076a0630d89497ae18fefb5620af6f7cf91c8ee27b66b",
+      "workingBytes": 2537,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/typed-reset-identities.md",
+      "workingSha256": "1d78186d9f90b501b786ea68dfc6d9bf2322765d9d6f0c61cedfadd0d5b4abaf",
+      "workingBytes": 2082,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/unified-airflow-sampling.md",
+      "workingSha256": "fb7a06e8d356638c67f6189f6cbcba0d4e9189a1b43346476da4ab8df7aafdaf",
+      "workingBytes": 4815,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/wind-chimes-shared-runtime.md",
+      "workingSha256": "78ad15c181d5e47fc010e4816f524d748e96ee20e6e0a683af119960b0bb9c7b",
+      "workingBytes": 7409,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/windmill-shared-resistance.md",
+      "workingSha256": "c724d8ab368e5abc9a1df47cc90ad1b22c08bb28e4e7b9d128b619a4d60eb86d",
+      "workingBytes": 42208,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/windmill-verification.md",
+      "workingSha256": "e87034763e5e8664984ca48c06ce3d3e49fadcdb39f2d7b88a98731828d56d78",
+      "workingBytes": 6961,
+      "cleanHeadSha256": "e87034763e5e8664984ca48c06ce3d3e49fadcdb39f2d7b88a98731828d56d78",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "docs/world-angular-travel.md",
+      "workingSha256": "6d7a5ff1d772848a90c4f29382680cdd2638700dde0481dfa91294a00546ef4e",
+      "workingBytes": 7020,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-body-index.md",
+      "workingSha256": "46055ee7d626739733e3adafcacc2f6d1857217af003f0bd32ee353715c0a056",
+      "workingBytes": 6303,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-gas-binding.md",
+      "workingSha256": "82e1944db725016164602b50b25d0c17ac68c791e83e57e0e833507a26d01457",
+      "workingBytes": 4643,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-gas-ownership.md",
+      "workingSha256": "164e8d9a17201da819275905387b17d9493770c2c94a97823049dc649c946e69",
+      "workingBytes": 3049,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-basket-residence.md",
+      "workingSha256": "39400458963e720ab3d12d2cf71d1f4bddf96505343f09ec4e0d0b835306644b",
+      "workingBytes": 5068,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-compliant-contact.md",
+      "workingSha256": "17027cf76b3f72324cd2f3a6cd24a267a051b12b541981994fcfff445e435474",
+      "workingBytes": 6209,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-contact-load-sensors.md",
+      "workingSha256": "0344d382d153e9e40b61bd6f379ea3338c182adfa074951ca204b60894de5b62",
+      "workingBytes": 6137,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-energy-stores.md",
+      "workingSha256": "2f2b17e9504cbdb2a18a6f1a69e93c0c73c579d36dcca33fcb6ea628fc820e8e",
+      "workingBytes": 4864,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-gameplay-impulses.md",
+      "workingSha256": "d0869356936399622748f80c3b57e965e4511d87277db6fa66f32f55c44c4271",
+      "workingBytes": 25780,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-joint-release.md",
+      "workingSha256": "ae522993ad533055c0beded8d56fdda5d3d7d07044b66d3f0d33620278a30c0b",
+      "workingBytes": 4077,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-latched-spring.md",
+      "workingSha256": "978bd8fc222a67d76b6222ee2878d5d9600d3c782503af8b105d9e836f2569fa",
+      "workingBytes": 6975,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-motor-accounting.md",
+      "workingSha256": "52ea0285ab0a2568e987e19bab836d408e91af147e7647538672cf841c8616dc",
+      "workingBytes": 5575,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-passage-sensors.md",
+      "workingSha256": "abc904c0b00565286cfdf21d7f43b6f8d1e83244b68cf6ac44d0971c577c4818",
+      "workingBytes": 4729,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-owned-tilt-sensors.md",
+      "workingSha256": "04b6ffd59864c359175314f03bd26902f8011eda7e897207fdf95f655e174132",
+      "workingBytes": 5723,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/world-placement.md",
+      "workingSha256": "456c46e1515b551abb1adc011cca2fab81a3de4cf1f4c231bac91da5233afe7a",
+      "workingBytes": 7702,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/wound-spring-shared-runtime.md",
+      "workingSha256": "4117b6042f51207beae74a4fdfd7899a9e4af1b7c31cb65fd54a6e54e665b7e3",
+      "workingBytes": 5845,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "docs/wound-spring-verification.md",
+      "workingSha256": "d35c4aa0d10b916a33b00a40021e59dc69d3fae2639d4c7c0fda3c24e08bb265",
+      "workingBytes": 71792,
+      "cleanHeadSha256": "d35c4aa0d10b916a33b00a40021e59dc69d3fae2639d4c7c0fda3c24e08bb265",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "engine/Acoustics.cs",
+      "workingSha256": "5b5702fcc3b279f3480610b98053a3c241da1f741be01ae231a0127990ed4f89",
+      "workingBytes": 3860,
+      "cleanHeadSha256": "2ff9da699d862e8b78282993bae02cba6a81ea8251d7a17ab8ab9f87c4e2a3b3",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/BinaryCircuit.cs",
+      "workingSha256": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf",
+      "workingBytes": 8996,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/bridge/CommittedPoseBuffer.cs",
+      "workingSha256": "eee96e783fadc86370e3cd4f03bbee1dfd49d3995a2e90d38159a5aa2f6456a4",
+      "workingBytes": 30527,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/bridge/SimulationCommandInbox.cs",
+      "workingSha256": "b222a46a88369ed540970e9e817b620f0fbcc378d59eeca730e3e9e8c634e421",
+      "workingBytes": 6814,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/ConnectionPort.cs",
+      "workingSha256": "3f90b9372d8302fdd97bdd26eee866e0e4e06d0fb59144b6f9cecf8a9d67cb28",
+      "workingBytes": 3190,
+      "cleanHeadSha256": "c9f1bb4dfea1c4a5abe2a86463d5f40e2079267ac7929e46e2abe1b0319470b1",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/ElectricalNetwork.cs",
+      "workingSha256": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c",
+      "workingBytes": 6980,
+      "cleanHeadSha256": "5e1e267e9d2237e58c882077fd77c865ccf7f6355be2005e99ee93723c8feb4b",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/LogicGate.cs",
+      "workingSha256": "3d5b37e56e59534c0f9aa5ee4ba093547af88f6dfdb2a9f739e47deff732f7a4",
+      "workingBytes": 3223,
+      "cleanHeadSha256": "7f2680c6ce27ca9b3639d6aa1285930f38f87821e754eb4b7620506651b348da",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/MachineData.cs",
+      "workingSha256": "bb79fe06776ba78225e8b6d99d0fb3a7fed5bed21be687a793e52c2fea95c7f9",
+      "workingBytes": 9116,
+      "cleanHeadSha256": "e6fcb885b7155341ae9b9e773ab0135ccb19c43bb085437d9c47fbf55432163b",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/MachineWorld.cs",
+      "workingSha256": "b30ac2da81c120a17b9ccf13a6e8bf03ac1f2f5f39da1af31103be6b30a0dfcf",
+      "workingBytes": 50556,
+      "cleanHeadSha256": "215f635d586c6c8ac80503b175897daa16637f9af89f754f68ad3fb5dd36334a",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/OpticalColour.cs",
+      "workingSha256": "289e91607b160ba20c7a30997625c5f353f60c737c2c54bad39741a06fef3d40",
+      "workingBytes": 3173,
+      "cleanHeadSha256": "289e91607b160ba20c7a30997625c5f353f60c737c2c54bad39741a06fef3d40",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "engine/OpticalNetwork.cs",
+      "workingSha256": "56d9045431d66b7ea75004c9dcfb047f2d03ef46234f715696537e93dd985e00",
+      "workingBytes": 10772,
+      "cleanHeadSha256": "4279d65cf118cbbabbece9fdc436c2e2d9b3c1425cfef42c2a21f2feb81ace4f",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/PartAssistance.cs",
+      "workingSha256": "3f402a006142003224907e37db8490f7ef83d47688e7738454161108ada5fae4",
+      "workingBytes": 5275,
+      "cleanHeadSha256": "3e18345c27d861a8c0e4e00673527372cdc51ab671e839d20dffd1150bac925a",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/PerformanceRecorder.cs",
+      "workingSha256": "a6b743e5181fbbf7420fc5b97061ddb301559103ea768814890a7a95a54452f1",
+      "workingBytes": 10411,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/physics/AxialElasticLoad.cs",
+      "workingSha256": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240",
+      "workingBytes": 1152,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/physics/AxialGasLoad.cs",
+      "workingSha256": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86",
+      "workingBytes": 1912,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/physics/BodyBoundsTree.cs",
+      "workingSha256": "5ad8d50300f761ca0084f1ca366610ecb7a4068b8fa91d6020003d1cf1911057",
+      "workingBytes": 6303,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/physics/BodyDragLoad.cs",
+      "workingSha256": "900a10597fec7356034c9991bd6491a13ccbb143dafefc3cd3ba018820aa64bf",
+      "workingBytes": 1522,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/physics/CompoundCollision.cs",
+      "workingSha256": "6cbfe6ef72b979ad43d5c79beb5edbe30ab3456861c60e92047a474d832672a1",
+      "workingBytes": 6800,
+      "cleanHeadSha256": "36046e24a51c12dadc1776b8b210892c93f256f7bc2a917ca678d04fcdd07939",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/physics/ContactConstraint.cs",
+      "workingSha256": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2",
+      "workingBytes": 13341,
+      "cleanHeadSha256": "905a330d99f4cc1b97106b7cba5e3731fafa321907c73384f3901e89cb890053",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/physics/PhysicsEnergyStore.cs",
+      "workingSha256": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c",
+      "workingBytes": 2928,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/physics/PhysicsJoint.cs",
+      "workingSha256": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c",
+      "workingBytes": 12532,
+      "cleanHeadSha256": "338aee09b521c33a2eddcc3882135b2121a9b2e785863cd3a3bf431a040308bd",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/physics/PhysicsMotorCommand.cs",
+      "workingSha256": "7db02b46846202b3e5a120e8eb2305c0fb85c579a903617bb49c987aae155ad3",
+      "workingBytes": 6171,
+      "cleanHeadSha256": "0d5a599d20ab64d20ea45ac9a0d98f929d039d7d9bf23132a14d3e791b36dc8d",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/physics/PhysicsRopeJoint.cs",
+      "workingSha256": "84c805b91d9d3040db5930a39594b0d47bcfb6594b5f0e677d3e840e29f617a2",
+      "workingBytes": 7703,
+      "cleanHeadSha256": "f4f6899efe03c388e30ba5d8efc65b3ec6a1f9ce45623f7c94a1302be5db996b",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/physics/PhysicsTransmissionJoint.cs",
+      "workingSha256": "c41b1aed2031ea428b0498f37c78aa12ac1f7a67febd2320263fe4916c476c77",
+      "workingBytes": 4857,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/physics/PhysicsWorld.cs",
+      "workingSha256": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563",
+      "workingBytes": 99089,
+      "cleanHeadSha256": "e11bdb25601a44c4fb78bda2c0acbace68ae3827b5bba5d76bb5de02e76cb0b0",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/presentation/AnimationBatch.cs",
+      "workingSha256": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f",
+      "workingBytes": 28396,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/presentation/SceneAnimationAdapter.cs",
+      "workingSha256": "32ae6f5f992fefb7c3bbba14d0bed796995624fbb4dac0390c373e03ba9e942b",
+      "workingBytes": 39857,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/ScenePhysicsAssembly.cs",
+      "workingSha256": "8bbddc61c760ca73ad3abc344eb22ca9e637996aa5c7d881899bbaf9505bd738",
+      "workingBytes": 15475,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/SimulationTimers.cs",
+      "workingSha256": "5a2eeb403b921c21d73463f33edf01d00f3a71a170ff8bd180b736e714763f56",
+      "workingBytes": 7530,
+      "cleanHeadSha256": "cb1c9e5220f70ec5ba7d008a4f2c92afe8e20630dc3f0a4f8fbd9edc268e4681",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "engine/SimulationTransaction.cs",
+      "workingSha256": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9",
+      "workingBytes": 5592,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "engine/WorldGeometry.cs",
+      "workingSha256": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c",
+      "workingBytes": 15537,
+      "cleanHeadSha256": "f7ace78eaff04c15d15d92efe4445f0221ee25f1314809e62f28e7f31008210d",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BallDetectorPart.cs",
+      "workingSha256": "b80d81060a7a4c350086c2fb40b5cb5bc8c53d6d28fd797be87ec7c9a98802b9",
+      "workingBytes": 3809,
+      "cleanHeadSha256": "b9fa8b57fca7a091d6ac1e8b5bb8839adca9313e54140f574681ce89bd1ed9b7",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BallPart.cs",
+      "workingSha256": "eb6b583f0de2d7daa527e67d86710d6e0ee3b24492a3f9e346bbfe74977d569b",
+      "workingBytes": 1412,
+      "cleanHeadSha256": "019ce6657b04049970c480f0aa8a67dfea35b6da79fe6adc1b5ff23954c726b5",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BasketPart.cs",
+      "workingSha256": "81e139c516cc867dd942b6ec4de5f561985b39636b461ffb481842b99bdef781",
+      "workingBytes": 3602,
+      "cleanHeadSha256": "f671b9e8eec214d113e2d3347617a7316515cca66da9385de5a20da2d499756e",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BatteryPart.cs",
+      "workingSha256": "a0a910b8f99c3f2330a62765b07a76ecc6f2ce531dce9fa0bec943e2a595ca10",
+      "workingBytes": 1619,
+      "cleanHeadSha256": "f3fde048a9d4bd4570fbdb97dff627ca73b5ae4fa6441b42ba820977748ed463",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BeamCombinerPart.cs",
+      "workingSha256": "b6b65a99eb518896e737457c7878abdec7bf6f9eafb76987b9cf0c8d4c189b18",
+      "workingBytes": 3942,
+      "cleanHeadSha256": "6ab950e260b95bd2d14bb355bba45e8ffc4f2da5f907ee0c92086c51c106867a",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BeamShutterPart.cs",
+      "workingSha256": "b5c2a772ecc9257cafb7d751c3c860717466d0446ef4a3fd6c79b75926fe827d",
+      "workingBytes": 2886,
+      "cleanHeadSha256": "7b53d230f2a88f3f151365d6126a614b86776bc8510c7e2f6d90f83cdcbadd46",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BeamSplitterPart.cs",
+      "workingSha256": "29601924a30f81e0dfd288b31a7782badda17244a7c04cb3a619c8335f8820c9",
+      "workingBytes": 1836,
+      "cleanHeadSha256": "6e79f241fe51f6a8f17e7e6be1db82f933bb7246910d6f74cae762f9e6323c1a",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BellowsPart.cs",
+      "workingSha256": "250a8ced660205e165f0ffd18269ac46547e12c52b3d8a0c7f509e2acf4a42a1",
+      "workingBytes": 9228,
+      "cleanHeadSha256": "ab8cbf88346b86c2dfd2fb2953f1e9969301d66b342205e9a0152fd76fee41d2",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BellPart.cs",
+      "workingSha256": "a4cfd293b606338bfe051367445d1fb72b9fa3ded03f2fe5145f009d4a1b7ff4",
+      "workingBytes": 5838,
+      "cleanHeadSha256": "4a7cecc77eda1f0b3ace874dbeb552df33b3e00e8033974d6bfc1c82b2214aaf",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/BumperPart.cs",
+      "workingSha256": "07c49b0aa0df0cb164e6a1ceb23946db8ff93d41a708f755f081a0396c635d3c",
+      "workingBytes": 4238,
+      "cleanHeadSha256": "56d185f57f3619b33cadc410288db0910eadab67280b2f804df4eb1b9b6cc693",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/CannonPart.cs",
+      "workingSha256": "003894ecfcc0a636919219c8390766925a91bac14ab7ffe37ceea554cdf536f8",
+      "workingBytes": 13860,
+      "cleanHeadSha256": "39d6fad7f9f3ad127c41d60ffe4bf43e40ae2721474e50340c69f97e32e9f6df",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/catalog/ball_detector.tres",
+      "workingSha256": "e9f798e0d234cdd77824a9a967627efee669005d04c46b50d711f858c06f52ba",
+      "workingBytes": 616,
+      "cleanHeadSha256": "e9f798e0d234cdd77824a9a967627efee669005d04c46b50d711f858c06f52ba",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/ball.tres",
+      "workingSha256": "f8c7ca73e7bc327c3766df96ebd86da77675d2794eddd111db77a170dad634fd",
+      "workingBytes": 559,
+      "cleanHeadSha256": "4768a7f5cda845286b951e7550178d3e9f637c1e99952f50083ceb02ecc862f9",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/catalog/balloon.tres",
+      "workingSha256": "3c0278b964c6bf270cbb281aa65a91b0d6679a05a940a363ac3560f21ab94833",
+      "workingBytes": 557,
+      "cleanHeadSha256": "3c0278b964c6bf270cbb281aa65a91b0d6679a05a940a363ac3560f21ab94833",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/basket.tres",
+      "workingSha256": "df69f69e6c96d09ce33dd5ce3b0a20cbb9c33f4422c191a518c7ec5475f2272f",
+      "workingBytes": 487,
+      "cleanHeadSha256": "df69f69e6c96d09ce33dd5ce3b0a20cbb9c33f4422c191a518c7ec5475f2272f",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/battery.tres",
+      "workingSha256": "218d90d540672e207ba780b640f7647f0204aa5cf0470d5fe7fd1cd0c32cab84",
+      "workingBytes": 515,
+      "cleanHeadSha256": "218d90d540672e207ba780b640f7647f0204aa5cf0470d5fe7fd1cd0c32cab84",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/beam_combiner.tres",
+      "workingSha256": "2111e63e73faf5c0770029fd6153d33002cbc9994196074a73573c9969d73558",
+      "workingBytes": 588,
+      "cleanHeadSha256": "2111e63e73faf5c0770029fd6153d33002cbc9994196074a73573c9969d73558",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/beam_shutter.tres",
+      "workingSha256": "053ade08f0ce0191395a5506c3036b6983a57dd9ec5d361ee35f2fd8243abde2",
+      "workingBytes": 611,
+      "cleanHeadSha256": "053ade08f0ce0191395a5506c3036b6983a57dd9ec5d361ee35f2fd8243abde2",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/beam_splitter.tres",
+      "workingSha256": "c63cc7bd74d85289a666bfac06e10eee3279ec8a66ebaab13b5ac81067edf0e0",
+      "workingBytes": 618,
+      "cleanHeadSha256": "c63cc7bd74d85289a666bfac06e10eee3279ec8a66ebaab13b5ac81067edf0e0",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/bell.tres",
+      "workingSha256": "bf85936feb5833f7e9eab7f179eabc8bd6ff780df75de88ac644b93fb4fead2d",
+      "workingBytes": 711,
+      "cleanHeadSha256": "bf85936feb5833f7e9eab7f179eabc8bd6ff780df75de88ac644b93fb4fead2d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/bellows.tres",
+      "workingSha256": "53f2a63c19aeb1406a8c756b91a4368ff4f40c336a300362bbb43f1cec4e3144",
+      "workingBytes": 768,
+      "cleanHeadSha256": "558fbdb0ec427d65f711776f285281f7ce0be923f00df93036a712639f3206b5",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/catalog/blue_filter.tres",
+      "workingSha256": "432325dff4b6490333031dcc403e208dbff8f1c060922a2782370fba5a5d8aab",
+      "workingBytes": 495,
+      "cleanHeadSha256": "432325dff4b6490333031dcc403e208dbff8f1c060922a2782370fba5a5d8aab",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/blue_receiver.tres",
+      "workingSha256": "bd981abe68083bd102fb8c65d48209c3a70329e6b041661f8483bd396973ca7b",
+      "workingBytes": 552,
+      "cleanHeadSha256": "bd981abe68083bd102fb8c65d48209c3a70329e6b041661f8483bd396973ca7b",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/both_gate.tres",
+      "workingSha256": "1f36f740ecb5b836f110025bbba3f35d9b87415eb8163a5fa005c7857890a608",
+      "workingBytes": 625,
+      "cleanHeadSha256": "1f36f740ecb5b836f110025bbba3f35d9b87415eb8163a5fa005c7857890a608",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/bowling.tres",
+      "workingSha256": "8d6c1b881e22f0999990fcd5add5140cc0f9635cd354c7e91868850f372a2266",
+      "workingBytes": 560,
+      "cleanHeadSha256": "6bea6cca707d70fe5cbf43178d9cadb369a03b7aa099a3306fc54d536e2881e4",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/catalog/bumper.tres",
+      "workingSha256": "bb32a4d9e77c65b061c3c3d84427523eb33d27f2aea3501d5e24fd1082e07247",
+      "workingBytes": 513,
+      "cleanHeadSha256": "bb32a4d9e77c65b061c3c3d84427523eb33d27f2aea3501d5e24fd1082e07247",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/cannon.tres",
+      "workingSha256": "12ac80b4b99cdb250665de435c6bdd09a5f920f4895c1004301b4fc833072b9d",
+      "workingBytes": 706,
+      "cleanHeadSha256": "12ac80b4b99cdb250665de435c6bdd09a5f920f4895c1004301b4fc833072b9d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/clock.tres",
+      "workingSha256": "29247e22f1e0b43aea6200a6d6727d89e440362fe8f6e236350a3b83b9d864a8",
+      "workingBytes": 624,
+      "cleanHeadSha256": "29247e22f1e0b43aea6200a6d6727d89e440362fe8f6e236350a3b83b9d864a8",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/clutch.tres",
+      "workingSha256": "a3bf9aa347ad7a51b7d5ae7b90d2a83ad18d30c9869b2665931f84131ee4c25a",
+      "workingBytes": 753,
+      "cleanHeadSha256": "a3bf9aa347ad7a51b7d5ae7b90d2a83ad18d30c9869b2665931f84131ee4c25a",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/conveyor.tres",
+      "workingSha256": "37330fbd6df5006fc953110280bf23d5f6ed1b0cbeeb8aacfc6f597e59cd9165",
+      "workingBytes": 632,
+      "cleanHeadSha256": "1be9f34db7743cb4c9b148ea427ff48f2a06743d3a90bc2bd09873703de75f7e",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/catalog/counter.tres",
+      "workingSha256": "cb35b0698da0c477205357a83479cd8129694e611db015d2226a2efa4be8b011",
+      "workingBytes": 613,
+      "cleanHeadSha256": "cb35b0698da0c477205357a83479cd8129694e611db015d2226a2efa4be8b011",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/cyan_receiver.tres",
+      "workingSha256": "182ec6928b2645bfa40b3e1fc17e5d880702eeed0fbeb2614c36f290872814f7",
+      "workingBytes": 588,
+      "cleanHeadSha256": "182ec6928b2645bfa40b3e1fc17e5d880702eeed0fbeb2614c36f290872814f7",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/delay.tres",
+      "workingSha256": "ea07ab2e171a8d23ab9439d546553b27d22dced1dc905cd54955f23cdbd1cc01",
+      "workingBytes": 602,
+      "cleanHeadSha256": "ea07ab2e171a8d23ab9439d546553b27d22dced1dc905cd54955f23cdbd1cc01",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/domino.tres",
+      "workingSha256": "31ac6d3ef191c56b649cfe3c5e55bf0d71131713680c574ffb4491245151309f",
+      "workingBytes": 505,
+      "cleanHeadSha256": "eb7103dae7b2476ab0b12f93b1778d9b8d91bd4bd7f8ed9ff41c28df7cf78520",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/catalog/electrical_nand.tres",
+      "workingSha256": "7a903ed388a3b8351336de526df87bd53e6eef44ae1ebab0ea373a1f5ffa4280",
+      "workingBytes": 600,
+      "cleanHeadSha256": "7a903ed388a3b8351336de526df87bd53e6eef44ae1ebab0ea373a1f5ffa4280",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/electrical_nor.tres",
+      "workingSha256": "ca0440068d8b8d5689c68d21025319b54d27b7257ca6588a64c4c9f9c37e35d2",
+      "workingBytes": 590,
+      "cleanHeadSha256": "ca0440068d8b8d5689c68d21025319b54d27b7257ca6588a64c4c9f9c37e35d2",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/electrical_or.tres",
+      "workingSha256": "c21613ae06c710cd0a7af326f7f6ffe807464264d46587643533ddf751ea0add",
+      "workingBytes": 586,
+      "cleanHeadSha256": "c21613ae06c710cd0a7af326f7f6ffe807464264d46587643533ddf751ea0add",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/electrical_xor.tres",
+      "workingSha256": "30dc6e617442e7e52661a4b160523cc5dae07faa96c8b017c6f113f6e491f9ea",
+      "workingBytes": 598,
+      "cleanHeadSha256": "30dc6e617442e7e52661a4b160523cc5dae07faa96c8b017c6f113f6e491f9ea",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/fan.tres",
+      "workingSha256": "3578b58e91477f015ba49f353781e1e78802a047f55c4231be3559ae261bd003",
+      "workingBytes": 674,
+      "cleanHeadSha256": "3578b58e91477f015ba49f353781e1e78802a047f55c4231be3559ae261bd003",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/flashlight.tres",
+      "workingSha256": "0c9971f2042b51c565adb20a24f91615bff7604913d75ea51111cb35ca256c14",
+      "workingBytes": 571,
+      "cleanHeadSha256": "0c9971f2042b51c565adb20a24f91615bff7604913d75ea51111cb35ca256c14",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/funnel.tres",
+      "workingSha256": "9bd4f33bcfc192b2fb620c5351a7adf81d8a1232ff44a635ae3115639677cfad",
+      "workingBytes": 558,
+      "cleanHeadSha256": "9bd4f33bcfc192b2fb620c5351a7adf81d8a1232ff44a635ae3115639677cfad",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/green_filter.tres",
+      "workingSha256": "2349528e90c16c7c5887e8df1ed4dbd000cbe6eb60177ff34660b059740d3585",
+      "workingBytes": 499,
+      "cleanHeadSha256": "2349528e90c16c7c5887e8df1ed4dbd000cbe6eb60177ff34660b059740d3585",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/green_receiver.tres",
+      "workingSha256": "0495b5cbc67a3f2710d00bd5bc398b55ab046a15bdb076fe05125515ad16ba4d",
+      "workingBytes": 556,
+      "cleanHeadSha256": "0495b5cbc67a3f2710d00bd5bc398b55ab046a15bdb076fe05125515ad16ba4d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/hold_timer.tres",
+      "workingSha256": "d3810f761c5171996d546b2bed3acd2ccc71b70a0d0f0331e0479ab566d12f0e",
+      "workingBytes": 630,
+      "cleanHeadSha256": "d3810f761c5171996d546b2bed3acd2ccc71b70a0d0f0331e0479ab566d12f0e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/impact_lever.tres",
+      "workingSha256": "914efe014d9784bb2284e58526d5b0d80613cbcc21cc02e0d988c20222a62fe2",
+      "workingBytes": 655,
+      "cleanHeadSha256": "914efe014d9784bb2284e58526d5b0d80613cbcc21cc02e0d988c20222a62fe2",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/lamp.tres",
+      "workingSha256": "7c9736a11966da94e88f97679b53f6c240923429f9e2214fe1d358de3f705011",
+      "workingBytes": 474,
+      "cleanHeadSha256": "7c9736a11966da94e88f97679b53f6c240923429f9e2214fe1d358de3f705011",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/laser.tres",
+      "workingSha256": "3801e4d80bc7267a89cc6d203fcbda846d72611adb462411c4987ec9f4f632c8",
+      "workingBytes": 569,
+      "cleanHeadSha256": "3801e4d80bc7267a89cc6d203fcbda846d72611adb462411c4987ec9f4f632c8",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/latch.tres",
+      "workingSha256": "1adabe680450a72e2502a3e69000ced7df47858f27f25d5370f7941e8cfd9731",
+      "workingBytes": 582,
+      "cleanHeadSha256": "1adabe680450a72e2502a3e69000ced7df47858f27f25d5370f7941e8cfd9731",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/light_receiver.tres",
+      "workingSha256": "210dbf1ecb84b2d73adc89cb0ad3a04aa39217ae7db7316c93ad33188c368e21",
+      "workingBytes": 608,
+      "cleanHeadSha256": "210dbf1ecb84b2d73adc89cb0ad3a04aa39217ae7db7316c93ad33188c368e21",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/linear_pusher.tres",
+      "workingSha256": "726905e64c91898450aaed80f4c590d9aa5dd05d67bcc090ffde182ea581ff6c",
+      "workingBytes": 842,
+      "cleanHeadSha256": "726905e64c91898450aaed80f4c590d9aa5dd05d67bcc090ffde182ea581ff6c",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/magenta_receiver.tres",
+      "workingSha256": "82175a5fcf04c04619bbd281be5bce29499f38e1c3900ef92995b9b55eb756d6",
+      "workingBytes": 597,
+      "cleanHeadSha256": "82175a5fcf04c04619bbd281be5bce29499f38e1c3900ef92995b9b55eb756d6",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/mirror.tres",
+      "workingSha256": "6069de054292e4de6a684a6128dc6788f002d3d376ba1c8d0627ccf5a1fa3743",
+      "workingBytes": 589,
+      "cleanHeadSha256": "6069de054292e4de6a684a6128dc6788f002d3d376ba1c8d0627ccf5a1fa3743",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/motor.tres",
+      "workingSha256": "7c7aebd0ea67026255a84f523ae08bdee651b732410ea7c5e1c0ef30f6dec291",
+      "workingBytes": 527,
+      "cleanHeadSha256": "7c7aebd0ea67026255a84f523ae08bdee651b732410ea7c5e1c0ef30f6dec291",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/optical_and.tres",
+      "workingSha256": "8887ef5bdee47f2c0d320f086b20d73723190f92ecaaaee787664df108d28be5",
+      "workingBytes": 615,
+      "cleanHeadSha256": "8887ef5bdee47f2c0d320f086b20d73723190f92ecaaaee787664df108d28be5",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/optical_nand.tres",
+      "workingSha256": "9c25e23de21b9ee0b4a4a6fd5af039063858abcb008028283b1569fcb4d00d8e",
+      "workingBytes": 629,
+      "cleanHeadSha256": "9c25e23de21b9ee0b4a4a6fd5af039063858abcb008028283b1569fcb4d00d8e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/optical_nor.tres",
+      "workingSha256": "4e2509c17cdda54adfd6f9b23de8b3c45b7d7cabec20517d61bb6448e31928f5",
+      "workingBytes": 619,
+      "cleanHeadSha256": "4e2509c17cdda54adfd6f9b23de8b3c45b7d7cabec20517d61bb6448e31928f5",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/optical_or.tres",
+      "workingSha256": "bce852c2e375ebc2424408078e1eb809afac4aa6ea20696d37e2c46b0790bee6",
+      "workingBytes": 615,
+      "cleanHeadSha256": "bce852c2e375ebc2424408078e1eb809afac4aa6ea20696d37e2c46b0790bee6",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/optical_xor.tres",
+      "workingSha256": "f3e718164e85d2083c0190ef69a52f4f51ce83c7e2a628bdfb017632eb1265f8",
+      "workingBytes": 627,
+      "cleanHeadSha256": "f3e718164e85d2083c0190ef69a52f4f51ce83c7e2a628bdfb017632eb1265f8",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/pipe_bend_45.tres",
+      "workingSha256": "b787554a7fca587978888a9459de219948d6b09192bcca136b55784b43c28ce5",
+      "workingBytes": 549,
+      "cleanHeadSha256": "b787554a7fca587978888a9459de219948d6b09192bcca136b55784b43c28ce5",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/pipe_bend_90.tres",
+      "workingSha256": "ceebb6592dd7223686cf9f47b89af8384daa74937bebfc14eda462f2bf96b268",
+      "workingBytes": 549,
+      "cleanHeadSha256": "ceebb6592dd7223686cf9f47b89af8384daa74937bebfc14eda462f2bf96b268",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/pipe.tres",
+      "workingSha256": "f288907f3a723e161713f41c3ab658264b5a2508ac2112fd94d802cf498d6b5f",
+      "workingBytes": 581,
+      "cleanHeadSha256": "f288907f3a723e161713f41c3ab658264b5a2508ac2112fd94d802cf498d6b5f",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/powered_gate.tres",
+      "workingSha256": "a2fb206ed52c7e5e0145f0bc6c3efae979a8ede67d4eab810617b148599873b3",
+      "workingBytes": 555,
+      "cleanHeadSha256": "a2fb206ed52c7e5e0145f0bc6c3efae979a8ede67d4eab810617b148599873b3",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/pressure_plate.tres",
+      "workingSha256": "4560b7046f272c2c56e9a96ea747167540999e1583a1266501a4a1757f472514",
+      "workingBytes": 634,
+      "cleanHeadSha256": "4560b7046f272c2c56e9a96ea747167540999e1583a1266501a4a1757f472514",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/pulley.tres",
+      "workingSha256": "eb2cf68a1b5939e51fb5b31c367c4da45c8727bf085f9912a426d66da7b6be45",
+      "workingBytes": 523,
+      "cleanHeadSha256": "eb2cf68a1b5939e51fb5b31c367c4da45c8727bf085f9912a426d66da7b6be45",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/ramp.tres",
+      "workingSha256": "63b4436b866b6fdb4646fae39c05e2a224c9bf9b0d16ba59f30c720808516300",
+      "workingBytes": 510,
+      "cleanHeadSha256": "63b4436b866b6fdb4646fae39c05e2a224c9bf9b0d16ba59f30c720808516300",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/red_filter.tres",
+      "workingSha256": "5977aaa2cd13b9d4b1cfca2326193ee09c750cf9f26ea2894bb572a24817af6f",
+      "workingBytes": 491,
+      "cleanHeadSha256": "5977aaa2cd13b9d4b1cfca2326193ee09c750cf9f26ea2894bb572a24817af6f",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/red_receiver.tres",
+      "workingSha256": "148ad7a66ec9d9ebb07cdef4a392a951dff5999a58e2c46e778bdc9265898982",
+      "workingBytes": 548,
+      "cleanHeadSha256": "148ad7a66ec9d9ebb07cdef4a392a951dff5999a58e2c46e778bdc9265898982",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/reverse_transmission.tres",
+      "workingSha256": "f58d5f96c4a2622b710f2c8edd916b5bbd86ad7adf459faff10fc5877cc41fab",
+      "workingBytes": 602,
+      "cleanHeadSha256": "f58d5f96c4a2622b710f2c8edd916b5bbd86ad7adf459faff10fc5877cc41fab",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/rope_anchor.tres",
+      "workingSha256": "9b258c020a52526e34eb66d70f15365266641bd5df005173356a18f4eae2de0c",
+      "workingBytes": 512,
+      "cleanHeadSha256": "9b258c020a52526e34eb66d70f15365266641bd5df005173356a18f4eae2de0c",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/solar_panel.tres",
+      "workingSha256": "aab4138d594476c2832f299ee9f10573f817c59b347d3b81ff595490548bb747",
+      "workingBytes": 570,
+      "cleanHeadSha256": "aab4138d594476c2832f299ee9f10573f817c59b347d3b81ff595490548bb747",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/sound_meter.tres",
+      "workingSha256": "0e6f1abb9e7caa84f0a412726747186fbdeaf042754394ccc6602916fb80111c",
+      "workingBytes": 668,
+      "cleanHeadSha256": "0e6f1abb9e7caa84f0a412726747186fbdeaf042754394ccc6602916fb80111c",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/speaker.tres",
+      "workingSha256": "c3f246ec8069e5c0025dd8eab70554a55f6309f51837574b1d011834aa7372cd",
+      "workingBytes": 671,
+      "cleanHeadSha256": "c3f246ec8069e5c0025dd8eab70554a55f6309f51837574b1d011834aa7372cd",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/spring.tres",
+      "workingSha256": "6a28ee116cf16b7fa1873ab9e5f9b35a406992a3f3ed81e65b6b44b76e4fd425",
+      "workingBytes": 553,
+      "cleanHeadSha256": "2473b42e59e1da058b78ebb86987f33a8c4d830abef1a94a705dd7dd193a21b5",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/catalog/switch.tres",
+      "workingSha256": "f569f3fe143263a9af0d33b6b271ac3b824f9e1bfa973c9cba7378d24cb76f6a",
+      "workingBytes": 487,
+      "cleanHeadSha256": "f569f3fe143263a9af0d33b6b271ac3b824f9e1bfa973c9cba7378d24cb76f6a",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/tennis.tres",
+      "workingSha256": "0fc54557c2ddd0dd7ef9561ff53004953508dc27de5fa643b0b3f6252792ddf0",
+      "workingBytes": 553,
+      "cleanHeadSha256": "602464dab089f1f6c733e454e56a74a1e5ac67ef5ef839393510c039c3c6ec23",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/catalog/trampoline.tres",
+      "workingSha256": "86a24cdde1fb0248d7517bcfc80439b5c96a843442512c523c69ddc28e6603d6",
+      "workingBytes": 706,
+      "cleanHeadSha256": "86a24cdde1fb0248d7517bcfc80439b5c96a843442512c523c69ddc28e6603d6",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/wall.tres",
+      "workingSha256": "b3506a3083bce1ac27e35f2e928782806de2d9998b3684eed17e4baaf4183e06",
+      "workingBytes": 554,
+      "cleanHeadSha256": "b3506a3083bce1ac27e35f2e928782806de2d9998b3684eed17e4baaf4183e06",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/weight.tres",
+      "workingSha256": "320acc234eadf4c900c0c21d68241b32315e7698676894e99f8fb83fc50df424",
+      "workingBytes": 543,
+      "cleanHeadSha256": "320acc234eadf4c900c0c21d68241b32315e7698676894e99f8fb83fc50df424",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/white_receiver.tres",
+      "workingSha256": "695137482ede51729b0d928eaff5a96734dfedddcc1cfadca89001a7e738e147",
+      "workingBytes": 591,
+      "cleanHeadSha256": "695137482ede51729b0d928eaff5a96734dfedddcc1cfadca89001a7e738e147",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/wind_chimes.tres",
+      "workingSha256": "56cb19f1216af51659b1b30cdde0e3b8dd5d154bc5a97bdbba3641dd55667faf",
+      "workingBytes": 657,
+      "cleanHeadSha256": "56cb19f1216af51659b1b30cdde0e3b8dd5d154bc5a97bdbba3641dd55667faf",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/windmill.tres",
+      "workingSha256": "10d4bc24e84230265ae9aca26b516a3c8d1ded531c02348ae49c0df860046113",
+      "workingBytes": 766,
+      "cleanHeadSha256": "10d4bc24e84230265ae9aca26b516a3c8d1ded531c02348ae49c0df860046113",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/wound_spring.tres",
+      "workingSha256": "251ed62f1d0366e0a06c5c7c055bec31360429a89b2cc9ef10b4e6d7a3c76645",
+      "workingBytes": 648,
+      "cleanHeadSha256": "251ed62f1d0366e0a06c5c7c055bec31360429a89b2cc9ef10b4e6d7a3c76645",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/catalog/yellow_receiver.tres",
+      "workingSha256": "b4500904d81320b8faeca958e3c85baef6d5dd6e4dc9fbe2e311458d377388d4",
+      "workingBytes": 594,
+      "cleanHeadSha256": "b4500904d81320b8faeca958e3c85baef6d5dd6e4dc9fbe2e311458d377388d4",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/ClockPart.cs",
+      "workingSha256": "633fb899fc8bd02314102ded3cd7462aa73cdcdc2850cc9589f60068249aabef",
+      "workingBytes": 4332,
+      "cleanHeadSha256": "602aab845785f221eecb40907d8eb71eb44dc5d88cac55b5572865bd9feb2dc9",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/ClutchPart.cs",
+      "workingSha256": "9d80789759c1b47522754e1ff79a14e3508bc195fc897ecd35a9acf4d7f8beb0",
+      "workingBytes": 6075,
+      "cleanHeadSha256": "ee8b0e05eb732ae03617f26967780527dac7ff81d8a7d6435c5ad62ff7f30e13",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/ColourFilterPart.cs",
+      "workingSha256": "13b83121c4bee401b2af5fcf7004b9644a199c68af2e8da3e2c430218c7ed2e5",
+      "workingBytes": 2023,
+      "cleanHeadSha256": "d258fb3a07a96fa54051e1cad2f1024f4d61cce567081d46bc5b26cf19b4afb6",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/ConveyorPart.cs",
+      "workingSha256": "9246b67c683952f3ddd9b5269666f3676da51f2e31c54d06f6629b3c413faef7",
+      "workingBytes": 8167,
+      "cleanHeadSha256": "a35ff9780ee132e3ae984be89a200b0b1a6a22020870680ff729cd0a1f5410e6",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/CounterPart.cs",
+      "workingSha256": "73395a92275dad6e5691a3563587fb551ed86bffac7d7c353ee9f3390263a3e2",
+      "workingBytes": 4100,
+      "cleanHeadSha256": "c63dfbdcefe83ab5b9b8ccc506f9b1f006477524713773817009f5215b674043",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/DelayPart.cs",
+      "workingSha256": "7eb881e69647291c6d95c7158be5864123d2000cacc669cd034db62a69f448b7",
+      "workingBytes": 4363,
+      "cleanHeadSha256": "92c59763a9a0b49424c2a7eca6d097ee372ab77449a6e0e69833d7b7707615e1",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/DominoPart.cs",
+      "workingSha256": "9e3714761849629d5566c08c59624f1a30428e79d64ac360224cc03789eaea07",
+      "workingBytes": 2387,
+      "cleanHeadSha256": "378506be3f9c199827d09d79af98aca0f0550d1b0d102a267956b4747674ad44",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/ElectricalLogicPart.cs",
+      "workingSha256": "ac5c64a9ccfba538bc8e365330cc92c17fd71a2c7f9fadf6960187a333261ae7",
+      "workingBytes": 5148,
+      "cleanHeadSha256": "2a9036fde97b8d76d3b42e98b1f1d1476b216e5590d4e20f7d220b0055b4b164",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/FanPart.cs",
+      "workingSha256": "8e881673975afce8197988e1a14d5af01ab62cd53325d1be7e90c24b422684a7",
+      "workingBytes": 3386,
+      "cleanHeadSha256": "b42bb457eb1848395ab5f7ae6456fa9d73e75dfcb8ed35ccad84b1937a5a4c45",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/FlashlightPart.cs",
+      "workingSha256": "c04cd0d629a13939bd79495f8ece9bf0073b7906e5301ceb0da21208c654da2f",
+      "workingBytes": 3059,
+      "cleanHeadSha256": "492abcb41f8d1030cc8c32f25b830fa345b6194b0daa8497c6cd5de5bdeecde3",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/FunnelPart.cs",
+      "workingSha256": "8d2fdb065b86d978c985a76069477443fc99d370e8eff654f832cc670f968fb2",
+      "workingBytes": 1607,
+      "cleanHeadSha256": "59f85e9885ca2e9dfe1cc83ebe98757028959e2d03c3b50d77c15d393b0830c8",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/HoldTimerPart.cs",
+      "workingSha256": "c7c9ca6d54e24b206795d96ab6f1a4f8a551bf58f9e12e3f89b4151085777841",
+      "workingBytes": 4564,
+      "cleanHeadSha256": "89f6a620aa23f738fbfb7aba67da3a5adca0914d6e47dc52769d365ef3ba3209",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/ImpactLeverPart.cs",
+      "workingSha256": "99437c441629d880f74abf03c4b2a412dba234b468e5afbe664df803fcb2894c",
+      "workingBytes": 4725,
+      "cleanHeadSha256": "5db45b325a5a472090fd19cb6d939571d1ee6027b26929eea03560c7ced0ca04",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/LampPart.cs",
+      "workingSha256": "47693db8879e98048e4a26593f8a828406aaf3545a71bf8443e115663eb8d057",
+      "workingBytes": 808,
+      "cleanHeadSha256": "cd95d8b37b7e764199901701664c0716d9b3a5f1806e46cab7af8b4bec496eed",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/LaserPart.cs",
+      "workingSha256": "3db3f78b74bf5e9c4d7b389b179d91cbef07019217a050280efb04933e6a65da",
+      "workingBytes": 3262,
+      "cleanHeadSha256": "258893d35f0a2ebae8b1d6754cfcd73bca73e3596fdc786df650309c162f093f",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/LatchPart.cs",
+      "workingSha256": "1553c1cd066e16ef5e5a05f83baffc6a3a37cdbac5e3d6928f40ad808b6e7e39",
+      "workingBytes": 4038,
+      "cleanHeadSha256": "424c94c8c2d8d257b8857ff3fbc775526990f841bed7e381e66d78028617fd3f",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/LightReceiverPart.cs",
+      "workingSha256": "4388de5f1648c28c6ee7d0667dd390f56bede650ec42ba7cddbc3fbefd661337",
+      "workingBytes": 3605,
+      "cleanHeadSha256": "513c1e1ca97ae488e0422a50fc31c9f96bdb2727d60ce60ec40f930bb7855935",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/LinearPusherPart.cs",
+      "workingSha256": "35fa75cb8cf0b5cd04774e5235253d271afb8b494c8b8529efaf6f949c835d36",
+      "workingBytes": 10001,
+      "cleanHeadSha256": "2e7b32801f834fab61a7030e0ea65bb17816139bb1422fa1ba4a53b1aae8be26",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/MirrorPart.cs",
+      "workingSha256": "dcadd32aa25f121b5730b57ff0d6e13a2937f8cda5e582a51d17ab29e1bc5db9",
+      "workingBytes": 1461,
+      "cleanHeadSha256": "6c47801f61ef5a43cc725772bb9ef93a6375822905929f262a9f8bdc37e85ac6",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/MotorPart.cs",
+      "workingSha256": "c1654bf4906e791549e41e6bee95a6ed89743a7a836b6b73264ab13bd7b5a10e",
+      "workingBytes": 6195,
+      "cleanHeadSha256": "b89254e373b1170e476413a133ebf07ec74d31ed9113b656b85fb3f91f6785b3",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/OpticalLogicPart.cs",
+      "workingSha256": "1852887a4e76b38f74bd283eb121c61124a98b1d6caed83bce8a9fb9406709f9",
+      "workingBytes": 6228,
+      "cleanHeadSha256": "bf78c25f9be37d20afb7b2d9800610c3c43557204600f175b8b106077fd2e6e8",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/PipeBendPart.cs",
+      "workingSha256": "c57d2cde0672acb8c558ca8a12c959752d60d3748db270c04288608bb83c3063",
+      "workingBytes": 3662,
+      "cleanHeadSha256": "1822ec89bcca5b02dc1d09ae2f6a424fa93349ace39367d1c05fa55609d658b2",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/PipePart.cs",
+      "workingSha256": "ad7849390a686c5232fa3534ba332e48bfee3155ebab097e3e3a7111f55dd68d",
+      "workingBytes": 3157,
+      "cleanHeadSha256": "e63479b03ecdf6a75e93a8c72f047996f83e413ab356f88df27b413a0dc9d6ce",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/PoweredGatePart.cs",
+      "workingSha256": "6dce355534ed615bdf63d990d81883e72de4ec210b16cbc11f962467112a0f22",
+      "workingBytes": 3497,
+      "cleanHeadSha256": "a64dac3f792013d290608844e61307fcda171a7085e6789e2acb048a918cbbe9",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/PressurePlatePart.cs",
+      "workingSha256": "0af7499870719aee4a09f4262a1667a2e502a1508dcd2fa7df140e084d91a257",
+      "workingBytes": 3592,
+      "cleanHeadSha256": "a9034e01c763deb68f477faa8aa88d5259dd3fe8418f3889e90bfad2ef2f4240",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/PulleyPart.cs",
+      "workingSha256": "df0794fabc169f7c29ef69f11103e10f675ac71e4a2fb8c8aa7d94568e5583ce",
+      "workingBytes": 1856,
+      "cleanHeadSha256": "3136974da829bdb58a944980c282719710139f23822e003f51b4334d74fb7324",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/RampPart.cs",
+      "workingSha256": "66cc4c367783aa98e66d759aed61469e94e64a9d475b002c56fa354d7ec103f8",
+      "workingBytes": 1004,
+      "cleanHeadSha256": "a1f278b997b023025b4d0176d48e067c5e45e810fffa135ae304dd7323ea3011",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/ReverseTransmissionPart.cs",
+      "workingSha256": "5ddef8f7ee5e11b1ef7827c7b3242b042a896a9cad17ba342c353cfaf3af97ba",
+      "workingBytes": 2797,
+      "cleanHeadSha256": "3f96318a262d4307aa909cf388e310aa95b4b5a56a0248a8c7a886b41ee84c85",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/RopeAnchorPart.cs",
+      "workingSha256": "2f718041268dec4c9da33ff7fa88288aeb4b00c22c1b9f1bca1b83ccb962e840",
+      "workingBytes": 675,
+      "cleanHeadSha256": "2f718041268dec4c9da33ff7fa88288aeb4b00c22c1b9f1bca1b83ccb962e840",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/ball_detector.tscn",
+      "workingSha256": "4cbed228898bd87fbba99e93f84db3415c39917e3802469c2a5c864818f683e7",
+      "workingBytes": 178,
+      "cleanHeadSha256": "4cbed228898bd87fbba99e93f84db3415c39917e3802469c2a5c864818f683e7",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/ball.tscn",
+      "workingSha256": "13321bde9eb3cc18735aea86c55a86510bbfd68feb2fc011997359e18ffe9917",
+      "workingBytes": 161,
+      "cleanHeadSha256": "13321bde9eb3cc18735aea86c55a86510bbfd68feb2fc011997359e18ffe9917",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/basket.tscn",
+      "workingSha256": "1df00f9ed22e6512cdfc61b130e76f06888a5aba354c8a530ff6426449edeff1",
+      "workingBytes": 165,
+      "cleanHeadSha256": "1df00f9ed22e6512cdfc61b130e76f06888a5aba354c8a530ff6426449edeff1",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/battery.tscn",
+      "workingSha256": "93477fafa2b6d4f18baec1881a9f85ba7e5d9dd6b12732f09b6812232d6adcec",
+      "workingBytes": 167,
+      "cleanHeadSha256": "93477fafa2b6d4f18baec1881a9f85ba7e5d9dd6b12732f09b6812232d6adcec",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/beam_combiner.tscn",
+      "workingSha256": "425867c0eec5c4312e097f85f6e39dce537ded82e9d7fb20ced6fd68ef9ff6bd",
+      "workingBytes": 176,
+      "cleanHeadSha256": "425867c0eec5c4312e097f85f6e39dce537ded82e9d7fb20ced6fd68ef9ff6bd",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/beam_shutter.tscn",
+      "workingSha256": "c16018a8e42602deec56152a29db70cdc47276f60c7a6f341e6598c5fe5adbd4",
+      "workingBytes": 174,
+      "cleanHeadSha256": "c16018a8e42602deec56152a29db70cdc47276f60c7a6f341e6598c5fe5adbd4",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/beam_splitter.tscn",
+      "workingSha256": "0a414c5e4214bd95c43a0a869b08ff85c72cefd5bbe21d219fb406050f149e13",
+      "workingBytes": 176,
+      "cleanHeadSha256": "0a414c5e4214bd95c43a0a869b08ff85c72cefd5bbe21d219fb406050f149e13",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/bell.tscn",
+      "workingSha256": "e3f4982efa2b4a9138f93775059ea2322d901024ab0904edf0fee9d952d7696b",
+      "workingBytes": 159,
+      "cleanHeadSha256": "e3f4982efa2b4a9138f93775059ea2322d901024ab0904edf0fee9d952d7696b",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/bellows.tscn",
+      "workingSha256": "b0dba3bcb8f5e7de918d204ec9e9c275d831f37071cfd2a9dbcad2e620131c61",
+      "workingBytes": 165,
+      "cleanHeadSha256": "b0dba3bcb8f5e7de918d204ec9e9c275d831f37071cfd2a9dbcad2e620131c61",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/blue_filter.tscn",
+      "workingSha256": "1d9563e9ed8ce81c6d8eae2d84b2407bd3c0d95f8c675cc530dd0c7677e81e26",
+      "workingBytes": 185,
+      "cleanHeadSha256": "1d9563e9ed8ce81c6d8eae2d84b2407bd3c0d95f8c675cc530dd0c7677e81e26",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/blue_receiver.tscn",
+      "workingSha256": "4754e96767dfe1e1dff0c45566bc66d760e0be87c473e46e01193a30ae67442e",
+      "workingBytes": 188,
+      "cleanHeadSha256": "4754e96767dfe1e1dff0c45566bc66d760e0be87c473e46e01193a30ae67442e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/both_gate.tscn",
+      "workingSha256": "6c79055189cb4cc633bdc3b9811d9b1e924ed2ef0a2622acc71303dc4ea89faf",
+      "workingBytes": 175,
+      "cleanHeadSha256": "6c79055189cb4cc633bdc3b9811d9b1e924ed2ef0a2622acc71303dc4ea89faf",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/bumper.tscn",
+      "workingSha256": "92a06ec418689269207e01772be8ddd2d12ca0ba807ef52272f699884f083faf",
+      "workingBytes": 165,
+      "cleanHeadSha256": "92a06ec418689269207e01772be8ddd2d12ca0ba807ef52272f699884f083faf",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/cannon.tscn",
+      "workingSha256": "34dbde4daf26e13905f2202ba2f73cb1771f3abf3391c672fcea21ad87ef451c",
+      "workingBytes": 163,
+      "cleanHeadSha256": "34dbde4daf26e13905f2202ba2f73cb1771f3abf3391c672fcea21ad87ef451c",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/clock.tscn",
+      "workingSha256": "a555f1a491413e4e2c4fe15c614f14774cc356ef6f51a211e4d41beb1c287f00",
+      "workingBytes": 163,
+      "cleanHeadSha256": "a555f1a491413e4e2c4fe15c614f14774cc356ef6f51a211e4d41beb1c287f00",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/clutch.tscn",
+      "workingSha256": "65522d64a668cdd6706431e609ee17d739b243509bf1189328ab847369122c8e",
+      "workingBytes": 163,
+      "cleanHeadSha256": "65522d64a668cdd6706431e609ee17d739b243509bf1189328ab847369122c8e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/conveyor.tscn",
+      "workingSha256": "6fbdc14864fcd3da8b8e28f0738cf5ae02126e94236343ac69905b55a9e0c496",
+      "workingBytes": 170,
+      "cleanHeadSha256": "6fbdc14864fcd3da8b8e28f0738cf5ae02126e94236343ac69905b55a9e0c496",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/counter.tscn",
+      "workingSha256": "b35f55c37c2e5a4a3ba7173eb09aab28e0c9da35735b7a5ba9f0b6baab1dbedb",
+      "workingBytes": 167,
+      "cleanHeadSha256": "b35f55c37c2e5a4a3ba7173eb09aab28e0c9da35735b7a5ba9f0b6baab1dbedb",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/cyan_receiver.tscn",
+      "workingSha256": "a86dcd58bc0e1088815f864e9cb92b7504f2623b02f83a99685e6cde08e9d84d",
+      "workingBytes": 188,
+      "cleanHeadSha256": "a86dcd58bc0e1088815f864e9cb92b7504f2623b02f83a99685e6cde08e9d84d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/delay.tscn",
+      "workingSha256": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+      "workingBytes": 163,
+      "cleanHeadSha256": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/domino.tscn",
+      "workingSha256": "b736bec4de6e4e8edf48328153473d287141ef9080ef7ad66c6c0a74db920111",
+      "workingBytes": 165,
+      "cleanHeadSha256": "b736bec4de6e4e8edf48328153473d287141ef9080ef7ad66c6c0a74db920111",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/electrical_nand.tscn",
+      "workingSha256": "13278fac709ffe0fe491ee40f68125500819cfd887842d9e9b27a6ab0f7935b4",
+      "workingBytes": 195,
+      "cleanHeadSha256": "13278fac709ffe0fe491ee40f68125500819cfd887842d9e9b27a6ab0f7935b4",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/electrical_nor.tscn",
+      "workingSha256": "b95ddd98dd800cbc3b083d40f54d7136055ede8081ec39ca317d6383e92f7b50",
+      "workingBytes": 194,
+      "cleanHeadSha256": "b95ddd98dd800cbc3b083d40f54d7136055ede8081ec39ca317d6383e92f7b50",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/electrical_or.tscn",
+      "workingSha256": "b83960aa60aab82e48db8390942da73165fa84c293c08017e43708adf86a462e",
+      "workingBytes": 193,
+      "cleanHeadSha256": "b83960aa60aab82e48db8390942da73165fa84c293c08017e43708adf86a462e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/electrical_xor.tscn",
+      "workingSha256": "3da5583a8d8c5b4a70519d9323f4eab3f41672192147e617cbadb96d24655903",
+      "workingBytes": 194,
+      "cleanHeadSha256": "3da5583a8d8c5b4a70519d9323f4eab3f41672192147e617cbadb96d24655903",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/fan.tscn",
+      "workingSha256": "a34f0e3f192ab0c9862ae394f4708f90809915f581476654f36e733d58ea3fb1",
+      "workingBytes": 159,
+      "cleanHeadSha256": "a34f0e3f192ab0c9862ae394f4708f90809915f581476654f36e733d58ea3fb1",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/flashlight.tscn",
+      "workingSha256": "0aa7907437eec6a8088c8cbe1a3573e188f559b39d4b20c51f8b994b3eb4338c",
+      "workingBytes": 173,
+      "cleanHeadSha256": "0aa7907437eec6a8088c8cbe1a3573e188f559b39d4b20c51f8b994b3eb4338c",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/funnel.tscn",
+      "workingSha256": "2308c0e17a1c5cbf6cb195d96c71d0a0e6b97cc0ca50dee0230b0f288645e8b0",
+      "workingBytes": 165,
+      "cleanHeadSha256": "2308c0e17a1c5cbf6cb195d96c71d0a0e6b97cc0ca50dee0230b0f288645e8b0",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/goal_light.tscn",
+      "workingSha256": "a16691a93d8ac76f70e44ee7211fbe11ac9212851210ba8f6bb6aed95e1bd539",
+      "workingBytes": 167,
+      "cleanHeadSha256": "a16691a93d8ac76f70e44ee7211fbe11ac9212851210ba8f6bb6aed95e1bd539",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/green_filter.tscn",
+      "workingSha256": "0d92f56f8cf671aca20415ccfadab00cd3ab397b3eab8c2d12af68b82a078e04",
+      "workingBytes": 186,
+      "cleanHeadSha256": "0d92f56f8cf671aca20415ccfadab00cd3ab397b3eab8c2d12af68b82a078e04",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/green_receiver.tscn",
+      "workingSha256": "93b8afa6c10b47c3c92e88e522b9ef41604d49d8af7edf68afb5eef7200b3762",
+      "workingBytes": 189,
+      "cleanHeadSha256": "93b8afa6c10b47c3c92e88e522b9ef41604d49d8af7edf68afb5eef7200b3762",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/hold_timer.tscn",
+      "workingSha256": "df76625a5b23128ae4dbeae938775acb2b0e5e31449c679fc412193ec58c2fcd",
+      "workingBytes": 172,
+      "cleanHeadSha256": "df76625a5b23128ae4dbeae938775acb2b0e5e31449c679fc412193ec58c2fcd",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/impact_lever.tscn",
+      "workingSha256": "41b06b6aae1efadfc762b9962afe80641c767b026d146849e1078a7f1e274725",
+      "workingBytes": 173,
+      "cleanHeadSha256": "41b06b6aae1efadfc762b9962afe80641c767b026d146849e1078a7f1e274725",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/laser.tscn",
+      "workingSha256": "4658148932c1e3a7648c9a32c1a380b207bb6d9866dfa431d9e7a4e9ad51cd01",
+      "workingBytes": 161,
+      "cleanHeadSha256": "4658148932c1e3a7648c9a32c1a380b207bb6d9866dfa431d9e7a4e9ad51cd01",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/latch.tscn",
+      "workingSha256": "a636715026c57d167b733f072f1c5585f2876e0ddf05bf79b804d10e1b12340f",
+      "workingBytes": 163,
+      "cleanHeadSha256": "a636715026c57d167b733f072f1c5585f2876e0ddf05bf79b804d10e1b12340f",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/light_receiver.tscn",
+      "workingSha256": "11c492273b373d8b201223d49a1de335e4b7de1c5774edf8b43867ed436054b2",
+      "workingBytes": 178,
+      "cleanHeadSha256": "11c492273b373d8b201223d49a1de335e4b7de1c5774edf8b43867ed436054b2",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/linear_pusher.tscn",
+      "workingSha256": "66227f14acfde09e1efe83f464d8acbdc11a4e07428bb8cc3377618333217fe9",
+      "workingBytes": 175,
+      "cleanHeadSha256": "66227f14acfde09e1efe83f464d8acbdc11a4e07428bb8cc3377618333217fe9",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/magenta_receiver.tscn",
+      "workingSha256": "906c6d12ffea8c15d8992dd96b0491da6a6c67b2476dc9a3dfce53eb77acb3f2",
+      "workingBytes": 191,
+      "cleanHeadSha256": "906c6d12ffea8c15d8992dd96b0491da6a6c67b2476dc9a3dfce53eb77acb3f2",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/mirror.tscn",
+      "workingSha256": "38e8a9d666861b79c5615ae304d2dd62d1934de32f46015245e26ac2182d9834",
+      "workingBytes": 163,
+      "cleanHeadSha256": "38e8a9d666861b79c5615ae304d2dd62d1934de32f46015245e26ac2182d9834",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/motor.tscn",
+      "workingSha256": "4ea044af82217cc306f29d925b0d6a7f60ea4d3684b8cf82db2ae120be5ce259",
+      "workingBytes": 163,
+      "cleanHeadSha256": "4ea044af82217cc306f29d925b0d6a7f60ea4d3684b8cf82db2ae120be5ce259",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/optical_and.tscn",
+      "workingSha256": "05379ccc88aa83d4172b003f5082eb5de571aaddd89b180498e332abd6a1c670",
+      "workingBytes": 188,
+      "cleanHeadSha256": "05379ccc88aa83d4172b003f5082eb5de571aaddd89b180498e332abd6a1c670",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/optical_nand.tscn",
+      "workingSha256": "e9feab011cf263c99ded10b1bdc57528ecdb33a9e3d762ef2a2987373ffbcff7",
+      "workingBytes": 189,
+      "cleanHeadSha256": "e9feab011cf263c99ded10b1bdc57528ecdb33a9e3d762ef2a2987373ffbcff7",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/optical_nor.tscn",
+      "workingSha256": "034e949ce9765d38f941411507fcd32ccee5d090a89afdbe29ed0cb8c2b4b72e",
+      "workingBytes": 188,
+      "cleanHeadSha256": "034e949ce9765d38f941411507fcd32ccee5d090a89afdbe29ed0cb8c2b4b72e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/optical_or.tscn",
+      "workingSha256": "62ef06934c1462907cd33dac53d3ffe82fd6df6320badd8dc5abff43bda1aeb1",
+      "workingBytes": 187,
+      "cleanHeadSha256": "62ef06934c1462907cd33dac53d3ffe82fd6df6320badd8dc5abff43bda1aeb1",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/optical_xor.tscn",
+      "workingSha256": "a9190fce216d2aa241ec0a783487671626edc05b0944563a4237cb136189fecb",
+      "workingBytes": 188,
+      "cleanHeadSha256": "a9190fce216d2aa241ec0a783487671626edc05b0944563a4237cb136189fecb",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/pipe_bend_45.tscn",
+      "workingSha256": "c00d238f003d180f8e5a380277e85c86ce58209489520c793d58ae6b513566cb",
+      "workingBytes": 188,
+      "cleanHeadSha256": "c00d238f003d180f8e5a380277e85c86ce58209489520c793d58ae6b513566cb",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/pipe_bend_90.tscn",
+      "workingSha256": "36cb6ab91df0e3ee945e7a7115339618397dc4b83ebe0d5c4cb5fc777738c4df",
+      "workingBytes": 188,
+      "cleanHeadSha256": "36cb6ab91df0e3ee945e7a7115339618397dc4b83ebe0d5c4cb5fc777738c4df",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/pipe.tscn",
+      "workingSha256": "a69cd503c4d64d607e727be8f919fed3a91342c409349afb2f3eb338b1304c4e",
+      "workingBytes": 161,
+      "cleanHeadSha256": "a69cd503c4d64d607e727be8f919fed3a91342c409349afb2f3eb338b1304c4e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/powered_gate.tscn",
+      "workingSha256": "2ca7ae2ea15fa6e7902ef31b6430190870ec2476c5872e5033e0a5c1dbf977c0",
+      "workingBytes": 176,
+      "cleanHeadSha256": "2ca7ae2ea15fa6e7902ef31b6430190870ec2476c5872e5033e0a5c1dbf977c0",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/pressure_plate.tscn",
+      "workingSha256": "323114ad0377fb4d11e2b4f96bf83393c9fc875ff2a5ee174bbdce50b917fc7d",
+      "workingBytes": 180,
+      "cleanHeadSha256": "323114ad0377fb4d11e2b4f96bf83393c9fc875ff2a5ee174bbdce50b917fc7d",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/pulley.tscn",
+      "workingSha256": "a2c5b0d9abbf3de2aeceab340da86751ca5cc6cf50515c31af67e35644a61064",
+      "workingBytes": 165,
+      "cleanHeadSha256": "a2c5b0d9abbf3de2aeceab340da86751ca5cc6cf50515c31af67e35644a61064",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/ramp.tscn",
+      "workingSha256": "c649a18b2c62fac88b3603ae9537db50cd69cf2b61bf3ddf9861dee3d9b5f857",
+      "workingBytes": 161,
+      "cleanHeadSha256": "c649a18b2c62fac88b3603ae9537db50cd69cf2b61bf3ddf9861dee3d9b5f857",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/red_filter.tscn",
+      "workingSha256": "ec14f22ddbe00b4c874561fc7509bf0df4ac63717ee362173364f87df54d83d9",
+      "workingBytes": 184,
+      "cleanHeadSha256": "ec14f22ddbe00b4c874561fc7509bf0df4ac63717ee362173364f87df54d83d9",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/red_receiver.tscn",
+      "workingSha256": "4ba3709af5a7990942abbe0c0745f52963a83ecce2b2eb7517cc40456605f1e8",
+      "workingBytes": 187,
+      "cleanHeadSha256": "4ba3709af5a7990942abbe0c0745f52963a83ecce2b2eb7517cc40456605f1e8",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/reverse_transmission.tscn",
+      "workingSha256": "d78c05f0317e7004b98ba20e4a911bd5658ba741d2de8a1940e97006122f8ea3",
+      "workingBytes": 192,
+      "cleanHeadSha256": "d78c05f0317e7004b98ba20e4a911bd5658ba741d2de8a1940e97006122f8ea3",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/rope_anchor.tscn",
+      "workingSha256": "15b258aa38412d65018b32958cf6cb9bcc4c7aa5204cf75af4d0bf4519f2c0a9",
+      "workingBytes": 174,
+      "cleanHeadSha256": "15b258aa38412d65018b32958cf6cb9bcc4c7aa5204cf75af4d0bf4519f2c0a9",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/solar_panel.tscn",
+      "workingSha256": "a268937d230fdac936b01ea87eb6971ab032e1927ba2b3b51a664ef900294fb6",
+      "workingBytes": 174,
+      "cleanHeadSha256": "a268937d230fdac936b01ea87eb6971ab032e1927ba2b3b51a664ef900294fb6",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/sound_meter.tscn",
+      "workingSha256": "940c52f4395e1f23229c077678c7b1682cacc385b725a7158640cea98979426e",
+      "workingBytes": 172,
+      "cleanHeadSha256": "940c52f4395e1f23229c077678c7b1682cacc385b725a7158640cea98979426e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/speaker.tscn",
+      "workingSha256": "1e758d32410c543484737ea3c13b00a54d5c97fe9f0210ab15706e6a9858a7e1",
+      "workingBytes": 165,
+      "cleanHeadSha256": "1e758d32410c543484737ea3c13b00a54d5c97fe9f0210ab15706e6a9858a7e1",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/spring.tscn",
+      "workingSha256": "bcf1620b536ccb6db78292f0233176ffad047331b930a489f9761c3f289f4f3e",
+      "workingBytes": 165,
+      "cleanHeadSha256": "bcf1620b536ccb6db78292f0233176ffad047331b930a489f9761c3f289f4f3e",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/switch.tscn",
+      "workingSha256": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+      "workingBytes": 165,
+      "cleanHeadSha256": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/trampoline.tscn",
+      "workingSha256": "4f9a892b2a463939fe1f3f68210ae29844b598ec9b1619b27b633b21e2459458",
+      "workingBytes": 171,
+      "cleanHeadSha256": "4f9a892b2a463939fe1f3f68210ae29844b598ec9b1619b27b633b21e2459458",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/wall.tscn",
+      "workingSha256": "0672c5347fa260053c0c5ee794281ac96c1b6768e33a469d801413e8f2878217",
+      "workingBytes": 161,
+      "cleanHeadSha256": "0672c5347fa260053c0c5ee794281ac96c1b6768e33a469d801413e8f2878217",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/weight.tscn",
+      "workingSha256": "9ced50a61476435d5e09f00b5b9ab242d056ebc86f79957aa44f9584b925d126",
+      "workingBytes": 165,
+      "cleanHeadSha256": "9ced50a61476435d5e09f00b5b9ab242d056ebc86f79957aa44f9584b925d126",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/white_receiver.tscn",
+      "workingSha256": "3fc0ebbb29e19ddf056c6376d078c895ff57c6166556189f9950ea9307e0798a",
+      "workingBytes": 189,
+      "cleanHeadSha256": "3fc0ebbb29e19ddf056c6376d078c895ff57c6166556189f9950ea9307e0798a",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/wind_chimes.tscn",
+      "workingSha256": "8b5e8b3a2297296bdebfabc0adc40122c670153aa6cd6c0ea778cacb4333fef3",
+      "workingBytes": 172,
+      "cleanHeadSha256": "8b5e8b3a2297296bdebfabc0adc40122c670153aa6cd6c0ea778cacb4333fef3",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/windmill.tscn",
+      "workingSha256": "dcc3e40453dea2c35ed905d422590bbe9baec07f68ba1933e7896e44a36f1bb1",
+      "workingBytes": 167,
+      "cleanHeadSha256": "dcc3e40453dea2c35ed905d422590bbe9baec07f68ba1933e7896e44a36f1bb1",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/wound_spring.tscn",
+      "workingSha256": "1a6033a0a93376c044db0f7336f5c485bfdbc86135a2def3cba539d009b5bb03",
+      "workingBytes": 173,
+      "cleanHeadSha256": "1a6033a0a93376c044db0f7336f5c485bfdbc86135a2def3cba539d009b5bb03",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/scenes/yellow_receiver.tscn",
+      "workingSha256": "7997f2b1516dfaaaec2ac00cc12ebb27936a35ef5754bd5de51b6780b9c0a052",
+      "workingBytes": 190,
+      "cleanHeadSha256": "7997f2b1516dfaaaec2ac00cc12ebb27936a35ef5754bd5de51b6780b9c0a052",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "parts/SolarPanelPart.cs",
+      "workingSha256": "8f7eb5e50ee1ae45e31e3e3fa00accb52956acd8e72d485b6b7cb8af75c9efd2",
+      "workingBytes": 3180,
+      "cleanHeadSha256": "21735b9a009158e050ae5f4cb12fd5c00fec074dd1c05744c36b92a10006586c",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/SoundMeterPart.cs",
+      "workingSha256": "f35cd8a919b652c0d8bda2477f69e282fe57bed0718b0f8c073a250d6d1cc2ae",
+      "workingBytes": 5314,
+      "cleanHeadSha256": "8893c238d65bccb4965b7af30f016489e76fcbf67eb546a5f0e53109127b4d7f",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/SpeakerPart.cs",
+      "workingSha256": "b66cea5b793618894a1c80a99051338ff86b2d0126ad049aecff739c125d81cb",
+      "workingBytes": 6136,
+      "cleanHeadSha256": "1967c4d30120641250fb09442f85f980ed8a85cf957599f22e48e3948ceab507",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/SpringPart.cs",
+      "workingSha256": "cb05b6ffa6c32cf5e2af19703ac720a478386f7480a0be5301c2146bfb502022",
+      "workingBytes": 6483,
+      "cleanHeadSha256": "70a737e63da56785980c2fbc4588878c80fb6a30fb7bacdd41e965af6afc3c34",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/SwitchPart.cs",
+      "workingSha256": "54fdb37358cf55782854b5c661db48c304569e0d5dd97833fb4c00cce830beb6",
+      "workingBytes": 1708,
+      "cleanHeadSha256": "56cb9362e25cc517f898bcdf9c687f432a80efc9d8306e929b1eded81ed6203e",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/TrampolinePart.cs",
+      "workingSha256": "aa768257e06704c014714670fad7e8ccc62cbb82e11ca55d25b414a43137b8ed",
+      "workingBytes": 9383,
+      "cleanHeadSha256": "ceaffbbf72689d507cca6de1df6ead69c535c80784e5addc2ab66341dfc0c99d",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/WallPart.cs",
+      "workingSha256": "b3209860002009295a5c0ba9329432525cfdc76d76da33b2be81dc6212990656",
+      "workingBytes": 1859,
+      "cleanHeadSha256": "8686b90599e4fd0eb068adf704f488e2aa82b2eb32a8c85e6a7b4c3c155cc764",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/WeightPart.cs",
+      "workingSha256": "858be3928b0ff127f7ae9d01f4b99d34bca6a946035c34e26e2c370b9e92daf4",
+      "workingBytes": 2267,
+      "cleanHeadSha256": "f2a896c8ca3b4713b672d2fc8277554487c0d65fdbc5e2015f7a8a04474d6b8d",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/WindChimesPart.cs",
+      "workingSha256": "cc6bd816a78f9fe4d0660b2c6dcd02d7d5964e816fcfa72b49f9e30a7675c222",
+      "workingBytes": 8866,
+      "cleanHeadSha256": "57d206cf6b0d2afaa3337357086c5b9dd06efcdaa48adfe375f121a45befaca1",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/WindmillPart.cs",
+      "workingSha256": "13bce88dcf65e57009623ea518fbef5df7ae4d15934b2cb2e4c1be474e07f61e",
+      "workingBytes": 6008,
+      "cleanHeadSha256": "a176cdd7912f2d6cac2312131a52d0dadb072d6a509869e591e3556d1dee0166",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "parts/WoundSpringPart.cs",
+      "workingSha256": "ac53893df335bee7576de5b1883451ad150a187e13bc60eb343f2ee8afeb85fe",
+      "workingBytes": 13894,
+      "cleanHeadSha256": "fb46b3c4606e8b4ee30e4e591f4d9b5dc6fe4a4a7824da51ebbe85c022fe1536",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "TODO.md",
+      "workingSha256": "7fa335af62b49227baff66f6266a7db0745c2ff1545252c67489d90856b5f759",
+      "workingBytes": 5390565,
+      "cleanHeadSha256": "572e29a8f85c589a7c0caf3b59e334d2048d00d596ec59d04790e31454140e0c",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "tools/Coverage/CoverageAudit.cs",
+      "workingSha256": "661745917680dae1069d5d4fcb64fb786eaecf1ef7e17a846dc1deaba3789af6",
+      "workingBytes": 2257,
+      "cleanHeadSha256": "661745917680dae1069d5d4fcb64fb786eaecf1ef7e17a846dc1deaba3789af6",
+      "cleanHeadState": "Same"
+    },
+    {
+      "path": "tools/Performance/PerformanceAudit.cs",
+      "workingSha256": "30737c2f6ffe687be959a8f1b7b18ff1fa9c7931880616b764b7cf1f0a8b5de7",
+      "workingBytes": 13316,
+      "cleanHeadSha256": null,
+      "cleanHeadState": "Absent"
+    },
+    {
+      "path": "tools/Playtest/Audit.cs",
+      "workingSha256": "7fb8f8b9ff10757d64487c8eeb208061e6ac3d0785f8f27f42944f1a4df15b86",
+      "workingBytes": 16607,
+      "cleanHeadSha256": "f1708e1da3cf74e58ba123778743a065f5e5dafc7852924c8766ffcbae639ee6",
+      "cleanHeadState": "Different"
+    },
+    {
+      "path": "ui/Workshop.cs",
+      "workingSha256": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+      "workingBytes": 35870,
+      "cleanHeadSha256": "11821a82c8cecd4b9c9fc27801d6579ca992f989fe67312a7a7ceaa3d8103f4b",
+      "cleanHeadState": "Different"
+    }
+  ],
+  "discoveryRules": [
+    "TODO.md requirement anchors and execution register",
+    "parts/catalog/*.tres including added/removed files",
+    "content/puzzles.json every fixture irrespective of locked state",
+    "docs/*research.md plus docs/physics-puzzle-gap-audit.md",
+    "Every current symbol/artifact referenced by the strict inventory",
+    "Explicit reuse/state evidence inputs: four existing owners and their test files; conditional ECS assessment interpreted under current TODO deferral"
+  ]
+}

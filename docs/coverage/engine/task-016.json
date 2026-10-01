@@ -1,0 +1,3336 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "task/sequence-task-376"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-376"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/AxialElasticLoad.cs",
+          "Symbol": "AxialElasticLoad",
+          "FileHash": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+        },
+        {
+          "Path": "engine/physics/PhysicsMotorCommand.cs",
+          "Symbol": "PhysicsMotorCommand",
+          "FileHash": "7db02b46846202b3e5a120e8eb2305c0fb85c579a903617bb49c987aae155ad3"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/ContactConstraint.cs",
+          "Symbol": "ContactConstraint",
+          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "ContactImpulse",
+        "ElasticStorage",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S393",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-377"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-377"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/ContactConstraint.cs",
+          "Symbol": "ContactConstraint",
+          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S394",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-378"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-378"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/ContactConstraint.cs",
+          "Symbol": "ContactConstraint",
+          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsRopeJoint.cs",
+          "Symbol": "PhysicsRopeJoint",
+          "FileHash": "84c805b91d9d3040db5930a39594b0d47bcfb6594b5f0e677d3e840e29f617a2"
+        }
+      ],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "ProofOwner": "S395",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-379"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-379"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/AxialElasticLoad.cs",
+          "Symbol": "AxialElasticLoad",
+          "FileHash": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsRopeJoint.cs",
+          "Symbol": "PhysicsRopeJoint",
+          "FileHash": "84c805b91d9d3040db5930a39594b0d47bcfb6594b5f0e677d3e840e29f617a2"
+        },
+        {
+          "Path": "engine/physics/PhysicsTransmissionJoint.cs",
+          "Symbol": "PhysicsTransmissionJoint",
+          "FileHash": "c41b1aed2031ea428b0498f37c78aa12ac1f7a67febd2320263fe4916c476c77"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "ProofOwner": "S396",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-380"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-380"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/AxialElasticLoad.cs",
+          "Symbol": "AxialElasticLoad",
+          "FileHash": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsRopeJoint.cs",
+          "Symbol": "PhysicsRopeJoint",
+          "FileHash": "84c805b91d9d3040db5930a39594b0d47bcfb6594b5f0e677d3e840e29f617a2"
+        },
+        {
+          "Path": "engine/physics/PhysicsTransmissionJoint.cs",
+          "Symbol": "PhysicsTransmissionJoint",
+          "FileHash": "c41b1aed2031ea428b0498f37c78aa12ac1f7a67febd2320263fe4916c476c77"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "ProofOwner": "S397",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-381"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-381"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/AxialElasticLoad.cs",
+          "Symbol": "AxialElasticLoad",
+          "FileHash": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsRopeJoint.cs",
+          "Symbol": "PhysicsRopeJoint",
+          "FileHash": "84c805b91d9d3040db5930a39594b0d47bcfb6594b5f0e677d3e840e29f617a2"
+        },
+        {
+          "Path": "engine/physics/PhysicsTransmissionJoint.cs",
+          "Symbol": "PhysicsTransmissionJoint",
+          "FileHash": "c41b1aed2031ea428b0498f37c78aa12ac1f7a67febd2320263fe4916c476c77"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "ProofOwner": "S398",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-382"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-382"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/ConnectionPort.cs",
+          "Symbol": "ConnectionPort",
+          "FileHash": "3f90b9372d8302fdd97bdd26eee866e0e4e06d0fb59144b6f9cecf8a9d67cb28"
+        },
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/bridge/CommittedPoseBuffer.cs",
+          "Symbol": "CommittedPoseBuffer",
+          "FileHash": "eee96e783fadc86370e3cd4f03bbee1dfd49d3995a2e90d38159a5aa2f6456a4"
+        },
+        {
+          "Path": "engine/physics/PhysicsMotorCommand.cs",
+          "Symbol": "PhysicsMotorCommand",
+          "FileHash": "7db02b46846202b3e5a120e8eb2305c0fb85c579a903617bb49c987aae155ad3"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/ContactConstraint.cs",
+          "Symbol": "ContactConstraint",
+          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FieldForce",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S399",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-383"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-383"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/ContactConstraint.cs",
+          "Symbol": "ContactConstraint",
+          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsRopeJoint.cs",
+          "Symbol": "PhysicsRopeJoint",
+          "FileHash": "84c805b91d9d3040db5930a39594b0d47bcfb6594b5f0e677d3e840e29f617a2"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "ProofOwner": "S400",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-384"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-384"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S704",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-385"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-385"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S705",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-386"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-386"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsTransmissionJoint.cs",
+          "Symbol": "PhysicsTransmissionJoint",
+          "FileHash": "c41b1aed2031ea428b0498f37c78aa12ac1f7a67febd2320263fe4916c476c77"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S466",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-387"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-387"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsRopeJoint.cs",
+          "Symbol": "PhysicsRopeJoint",
+          "FileHash": "84c805b91d9d3040db5930a39594b0d47bcfb6594b5f0e677d3e840e29f617a2"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        },
+        {
+          "Path": "parts/BallPart.cs",
+          "Symbol": "BallPart",
+          "FileHash": "eb6b583f0de2d7daa527e67d86710d6e0ee3b24492a3f9e346bbfe74977d569b"
+        }
+      ],
+      "Capabilities": [
+        "Buoyancy",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S706",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-388"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-388"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/physics/PhysicsRopeJoint.cs",
+          "Symbol": "PhysicsRopeJoint",
+          "FileHash": "84c805b91d9d3040db5930a39594b0d47bcfb6594b5f0e677d3e840e29f617a2"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        },
+        {
+          "Path": "parts/BallPart.cs",
+          "Symbol": "BallPart",
+          "FileHash": "eb6b583f0de2d7daa527e67d86710d6e0ee3b24492a3f9e346bbfe74977d569b"
+        }
+      ],
+      "Capabilities": [
+        "Buoyancy",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S467",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-389"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-389"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/PhysicsMotorCommand.cs",
+          "Symbol": "PhysicsMotorCommand",
+          "FileHash": "7db02b46846202b3e5a120e8eb2305c0fb85c579a903617bb49c987aae155ad3"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S707",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-390"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-390"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        },
+        {
+          "Path": "parts/BallPart.cs",
+          "Symbol": "BallPart",
+          "FileHash": "eb6b583f0de2d7daa527e67d86710d6e0ee3b24492a3f9e346bbfe74977d569b"
+        }
+      ],
+      "Capabilities": [
+        "Buoyancy",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S708",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-391"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-391"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        },
+        {
+          "Path": "parts/BallPart.cs",
+          "Symbol": "BallPart",
+          "FileHash": "eb6b583f0de2d7daa527e67d86710d6e0ee3b24492a3f9e346bbfe74977d569b"
+        }
+      ],
+      "Capabilities": [
+        "Buoyancy",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S468",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-392"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-392"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S820",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-393"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-393"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/AxialElasticLoad.cs",
+          "Symbol": "AxialElasticLoad",
+          "FileHash": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+        },
+        {
+          "Path": "engine/physics/PhysicsMotorCommand.cs",
+          "Symbol": "PhysicsMotorCommand",
+          "FileHash": "7db02b46846202b3e5a120e8eb2305c0fb85c579a903617bb49c987aae155ad3"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "ElasticStorage",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FieldForce",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S709",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-394"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-394"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/AxialElasticLoad.cs",
+          "Symbol": "AxialElasticLoad",
+          "FileHash": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+        },
+        {
+          "Path": "engine/physics/PhysicsMotorCommand.cs",
+          "Symbol": "PhysicsMotorCommand",
+          "FileHash": "7db02b46846202b3e5a120e8eb2305c0fb85c579a903617bb49c987aae155ad3"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S481",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-395"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-395"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/physics/PhysicsWorld.cs",
+          "Symbol": "PhysicsWorld",
+          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/physics/AxialElasticLoad.cs",
+          "Symbol": "AxialElasticLoad",
+          "FileHash": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+        },
+        {
+          "Path": "engine/physics/PhysicsMotorCommand.cs",
+          "Symbol": "PhysicsMotorCommand",
+          "FileHash": "7db02b46846202b3e5a120e8eb2305c0fb85c579a903617bb49c987aae155ad3"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        },
+        {
+          "Path": "engine/physics/PhysicsJoint.cs",
+          "Symbol": "PhysicsJoint",
+          "FileHash": "c1998c80ddce573edd83406bc599bb2491054684e2cbcae603ff81f60a28ff1c"
+        },
+        {
+          "Path": "engine/BinaryCircuit.cs",
+          "Symbol": "BinaryCircuit",
+          "FileHash": "5f8cbc53742ed9ef6fe8c40db5de2ab9c9920d4982f86449b04aa33ec2a932cf"
+        }
+      ],
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S482",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-396"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-396"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/OpticalNetwork.cs",
+          "Symbol": "OpticalNetwork",
+          "FileHash": "56d9045431d66b7ea75004c9dcfb047f2d03ef46234f715696537e93dd985e00"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S522",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-397"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-397"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/OpticalNetwork.cs",
+          "Symbol": "OpticalNetwork",
+          "FileHash": "56d9045431d66b7ea75004c9dcfb047f2d03ef46234f715696537e93dd985e00"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S523",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-398"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-398"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/OpticalNetwork.cs",
+          "Symbol": "OpticalNetwork",
+          "FileHash": "56d9045431d66b7ea75004c9dcfb047f2d03ef46234f715696537e93dd985e00"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S710",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-399"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-399"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/OpticalNetwork.cs",
+          "Symbol": "OpticalNetwork",
+          "FileHash": "56d9045431d66b7ea75004c9dcfb047f2d03ef46234f715696537e93dd985e00"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S485",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-400"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-400"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        },
+        {
+          "Path": "engine/OpticalNetwork.cs",
+          "Symbol": "OpticalNetwork",
+          "FileHash": "56d9045431d66b7ea75004c9dcfb047f2d03ef46234f715696537e93dd985e00"
+        },
+        {
+          "Path": "engine/ElectricalNetwork.cs",
+          "Symbol": "ElectricalNetwork",
+          "FileHash": "28d57c342780a4a86f58385968a161c011a30b4e8d721cd4cea7580919f88b6c"
+        }
+      ],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S486",
+      "Artifacts": []
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-376"
+      },
+      "SourceHash": "7491f200af3673be376f40eda89ae89bfdb2dd9e5afccda39aebe4b0278f2718",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ContactImpulse",
+        "ElasticStorage",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-376"
+        }
+      ],
+      "ProofOwner": "S393",
+      "ScopeReason": "Flipper and boxing-glove are distinct supplied pivoted/linear contact actuators with cooldown/return/hold and missed-supply controls. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-377"
+      },
+      "SourceHash": "f0fbd97ee7b028d6aa85637fc7ddd3ed815d529341b3258db72224453e5a7916",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-377"
+        }
+      ],
+      "ProofOwner": "S394",
+      "ScopeReason": "Passive scoop redirects the same arriving cargo using its actual momentum, with no automatic boost. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-378"
+      },
+      "SourceHash": "9e8eb8da7add5476e0ca9c35dfcc69c1f12caeb1f69f0aa85bdd45fc30f1f344",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-378"
+        }
+      ],
+      "ProofOwner": "S395",
+      "ScopeReason": "Counterweighted scoop spends actual raised-load gravitational energy and requires physical rearming. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "weight"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "pulley"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-379"
+      },
+      "SourceHash": "7cdb30d8b10a03f8fe3adcd4bebd8563e893c3d4ef6f8bf24c180f227caa89b4",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-379"
+        }
+      ],
+      "ProofOwner": "S396",
+      "ScopeReason": "Slingshot, rotary catapult and jack-in-box retain distinct stored-energy geometry and latch release, with no free recharge. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "wound_spring"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-380"
+      },
+      "SourceHash": "cd7a89a3a90b76cf5996bc18c9361931fec1721f25abd33230b8bdad2c02346f",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-380"
+        }
+      ],
+      "ProofOwner": "S397",
+      "ScopeReason": "Slingshot, rotary catapult and jack-in-box retain distinct stored-energy geometry and latch release, with no free recharge. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "wound_spring"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-381"
+      },
+      "SourceHash": "454ae4b6b3729ee77cf4a64d39becb446c2946a239ba96372688ecc5db5006bd",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-381"
+        }
+      ],
+      "ProofOwner": "S398",
+      "ScopeReason": "Slingshot, rotary catapult and jack-in-box retain distinct stored-energy geometry and latch release, with no free recharge. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "wound_spring"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-382"
+      },
+      "SourceHash": "cb12dfb05080b6c69b7d12c535dbb588eb4e36215a9e2e90daa3a5de5ff7a102",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FieldForce",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-382"
+        }
+      ],
+      "ProofOwner": "S399",
+      "ScopeReason": "Magnetic impulse relay retains incoming/outgoing cargo identities and finite spent energy; wrong material or missing staged payload cannot trigger a substitute. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-383"
+      },
+      "SourceHash": "ca42881ea4502f25144b5cc091c1b5bca4abee039e50d00a27c2dd1c97635ff6",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-383"
+        }
+      ],
+      "ProofOwner": "S400",
+      "ScopeReason": "Cable carriage spends gravitational work, strikes a different destination body and requires winch return; no teleport/identity transfer. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-384"
+      },
+      "SourceHash": "99d5a2268feb0880acadefbf72068cbbe1745697184821bb5f2d9174c762ddac",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-384"
+        }
+      ],
+      "ProofOwner": "S704",
+      "ScopeReason": "Finite reservoir/collector/drain and compatible pipe/branch/cap/nozzle paths conserve supply and expose overflow/blocked routes. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-001"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-002"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-003"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-004"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-005"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-006"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-007"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-008"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-009"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-010"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-011"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-012"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-013"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-385"
+      },
+      "SourceHash": "49d02a7553cac5f72e9b74cb3a5897f95c9e02a5cf3186b93b5f89c9f7299ba4",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-385"
+        }
+      ],
+      "ProofOwner": "S705",
+      "ScopeReason": "Finite reservoir/collector/drain and compatible pipe/branch/cap/nozzle paths conserve supply and expose overflow/blocked routes. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-001"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-002"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-003"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-004"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-005"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-006"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-007"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-008"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-009"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-010"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-011"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-012"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-013"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-386"
+      },
+      "SourceHash": "5c8f825704ca1eeb9b1c02fef0c96d6d364686d20f1357901bd74d5902d3f109",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-386"
+        }
+      ],
+      "ProofOwner": "S466",
+      "ScopeReason": "Waterwheel exchanges actual flow/head for signed loaded shaft work and preserves reusable discharge. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "conveyor"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-387"
+      },
+      "SourceHash": "5122b2d867a6363ffc73ff046be81cf7efbd9dfc0cea41db53a62a985d26b719",
+      "Kind": "Engine",
+      "Capabilities": [
+        "Buoyancy",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-387"
+        }
+      ],
+      "ProofOwner": "S706",
+      "ScopeReason": "Moving/leaky container contents change actual mass and rope load; floats, mechanical valves and powered level contacts are distinct. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-014"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-015"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-016"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-017"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-018"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-169"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-170"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-388"
+      },
+      "SourceHash": "688df9b1df5ab0a258721bae26c90c0f3189b28d0e7351701bd996d98b6bdf6b",
+      "Kind": "Engine",
+      "Capabilities": [
+        "Buoyancy",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-388"
+        }
+      ],
+      "ProofOwner": "S467",
+      "ScopeReason": "Moving/leaky container contents change actual mass and rope load; floats, mechanical valves and powered level contacts are distinct. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-014"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-015"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-016"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-017"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-018"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-169"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-170"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-389"
+      },
+      "SourceHash": "a2937f60d90356ba491e5dbda3b37de89403873316a3f49215f2c0a1611fd699",
+      "Kind": "Engine",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-389"
+        }
+      ],
+      "ProofOwner": "S707",
+      "ScopeReason": "Check/diverter/sluice/pump/screw/siphon/tipping bucket retain separate route, work, priming and physical tipping states. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-019"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-020"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-021"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-022"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-023"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-024"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-025"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-168"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-390"
+      },
+      "SourceHash": "d39c90ed94a9de92483bbc99cd53d9a2a3e646c7cb96a123478c27aee94876d5",
+      "Kind": "Engine",
+      "Capabilities": [
+        "Buoyancy",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-390"
+        }
+      ],
+      "ProofOwner": "S708",
+      "ScopeReason": "Communicating levels, lock/platform, hydraulic piston and independent flow/volume/pressure sensing use actual pressure, displacement and resisting load. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-026"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-027"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-028"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-029"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-030"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-031"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-032"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-391"
+      },
+      "SourceHash": "3613a478115670ec4ec257ec00a8d304d754b1cade6a8ab215e90e5b3518ec69",
+      "Kind": "Engine",
+      "Capabilities": [
+        "Buoyancy",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-391"
+        }
+      ],
+      "ProofOwner": "S468",
+      "ScopeReason": "Communicating levels, lock/platform, hydraulic piston and independent flow/volume/pressure sensing use actual pressure, displacement and resisting load. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-026"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-027"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-028"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-029"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-030"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-031"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-032"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-392"
+      },
+      "SourceHash": "556820b0a3c546e89eac2a1567dab96dc70dcb001fce4aa3c3e6ed2fa6da65d6",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-392"
+        }
+      ],
+      "ProofOwner": "S820",
+      "ScopeReason": "Water/rope/wheel teaching consumes named fluid and mechanical proof without implementing new law. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "pulley"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "conveyor"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-001"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-002"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-003"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-004"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-007"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-014"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-016"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-393"
+      },
+      "SourceHash": "14bd792ee7aaf50afbce55708ce0fd110e0c00019dc7368a17947f323b712a85",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElasticStorage",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FieldForce",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-393"
+        }
+      ],
+      "ProofOwner": "S709",
+      "ScopeReason": "Pneumatic storage/valves and separate spring-return/double-acting pistons conserve finite supply/exhaust and respond to pressure/load. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "bellows"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-037"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-038"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-039"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-040"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-041"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-042"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-043"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-394"
+      },
+      "SourceHash": "bc8b643c9a69d24955399dffe0aa1faf2956a943302acefe145761bc72d3300b",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-394"
+        }
+      ],
+      "ProofOwner": "S481",
+      "ScopeReason": "Pneumatic storage/valves and separate spring-return/double-acting pistons conserve finite supply/exhaust and respond to pressure/load. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "bellows"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-037"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-038"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-039"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-040"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-041"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-042"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-043"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-395"
+      },
+      "SourceHash": "27e4a0f135a2f3421c075c8d279593c5bee13bc3e21a2d4527f25f44ba1b2251",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-395"
+        }
+      ],
+      "ProofOwner": "S482",
+      "ScopeReason": "Pneumatic storage/valves and separate spring-return/double-acting pistons conserve finite supply/exhaust and respond to pressure/load. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "bellows"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-037"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-038"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-039"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-040"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-041"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-042"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-043"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-396"
+      },
+      "SourceHash": "6497a50a96d32f195f36a9da75778b93a6a3fb64fa9bc00f75f97fb1e9dedf63",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-396"
+        }
+      ],
+      "ProofOwner": "S522",
+      "ScopeReason": "Finite-width optics retain source channels, aperture coverage, occlusion, loss/branch bounds and coherent tick/lifecycle behavior; lens/prism/fibre roles stay separately named. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "flashlight"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "laser"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "mirror"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_splitter"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_combiner"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "light_receiver"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-153"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-154"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-173"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-174"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-175"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-397"
+      },
+      "SourceHash": "d1248813ccc005f06cd0674a9887063d3d32afaded188261823a9c1c1aeb9a0e",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-397"
+        }
+      ],
+      "ProofOwner": "S523",
+      "ScopeReason": "Finite-width optics retain source channels, aperture coverage, occlusion, loss/branch bounds and coherent tick/lifecycle behavior; lens/prism/fibre roles stay separately named. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "flashlight"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "laser"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "mirror"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_splitter"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_combiner"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "light_receiver"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-153"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-154"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-173"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-174"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-175"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-398"
+      },
+      "SourceHash": "fdc4dc940aef0a746d5713bbf75780eef76aecbb6164e5752f6804dbb8f45a4a",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-398"
+        }
+      ],
+      "ProofOwner": "S710",
+      "ScopeReason": "Finite-width optics retain source channels, aperture coverage, occlusion, loss/branch bounds and coherent tick/lifecycle behavior; lens/prism/fibre roles stay separately named. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "flashlight"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "laser"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "mirror"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_splitter"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_combiner"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "light_receiver"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-153"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-154"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-173"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-174"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-175"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-399"
+      },
+      "SourceHash": "6fe91115b87338f51e2c06eb873812d9c0290f14541ff13aeebdaa77da3dc791",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-399"
+        }
+      ],
+      "ProofOwner": "S485",
+      "ScopeReason": "Finite-width optics retain source channels, aperture coverage, occlusion, loss/branch bounds and coherent tick/lifecycle behavior; lens/prism/fibre roles stay separately named. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "flashlight"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "laser"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "mirror"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_splitter"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_combiner"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "light_receiver"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-153"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-154"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-173"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-174"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-175"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-400"
+      },
+      "SourceHash": "c477db47288900fdab74fdb464ec6b4b69b2132a1e75aaa2541b89ee9bbe533a",
+      "Kind": "Engine",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-400"
+        }
+      ],
+      "ProofOwner": "S486",
+      "ScopeReason": "Finite-width optics retain source channels, aperture coverage, occlusion, loss/branch bounds and coherent tick/lifecycle behavior; lens/prism/fibre roles stay separately named. Current generic law implementation and later distinct product declaration/proof remain separate owners.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "flashlight"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "laser"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "mirror"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_splitter"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "beam_combiner"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "light_receiver"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-153"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-154"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-173"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-174"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-175"
+          }
+        }
+      ]
+    }
+  ],
+  "Modes": []
+}
+

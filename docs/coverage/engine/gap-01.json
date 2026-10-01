@@ -1,0 +1,961 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "gap/gap-01"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-01"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S732",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-02"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-02"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S733",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-03"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-03"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S734",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-04"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-04"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S638",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-05"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-05"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S735",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-06"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-06"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "GranularTransport",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S639",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-07"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-07"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "GranularTransport",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S640",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-08"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-08"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "MaterialCoating",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S736",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-09"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-09"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S641",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-10"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-10"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S740",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-11"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-11"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S741",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-12"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-12"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S742",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-13"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-13"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "ResourceLifetime",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S743",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-14"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-14"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "SimulationClock",
+        "StateTransaction",
+        "TimedCommand",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S744",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-15"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-15"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "PerformanceMeasurement",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S745",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-16"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-16"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S737",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-17"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-17"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "GeometryQuery",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S746",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "gap/gap-18"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-18"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "AerodynamicDrag",
+        "Buoyancy",
+        "ConstructionCompiler",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S738",
+      "Artifacts": []
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-01"
+      },
+      "SourceHash": "30bd00441c1cad148ac4910eb449fd179efd39c0decd299fac8c2691c0bf4adf",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-01"
+        }
+      ],
+      "ProofOwner": "S732",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-112"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-113"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-02"
+      },
+      "SourceHash": "d97ad12a8f522a539881105c5d95cc5d60d347ba8ec7180dc866405723e927ba",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-02"
+        }
+      ],
+      "ProofOwner": "S733",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-114"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-115"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-03"
+      },
+      "SourceHash": "325c293e5c9ba38adddf1965f5e5a51a8547b09da3f7b71869667d79ebeb4b96",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-03"
+        }
+      ],
+      "ProofOwner": "S734",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-116"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-117"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-04"
+      },
+      "SourceHash": "67ef54a5a0a02dd7348b55cc884a2fa843451c0bfec1c27992056e3c43ea8397",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-04"
+        }
+      ],
+      "ProofOwner": "S638",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-05"
+      },
+      "SourceHash": "b265752a2e539c67b1bee11663096a21ca13388962a984e74387e50d424db63f",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-05"
+        }
+      ],
+      "ProofOwner": "S735",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-159"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-160"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-161"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-06"
+      },
+      "SourceHash": "9dc20a03bcaad0a27938dce62bd7665ad23302d0cb0d7f9a76fc59cd4f8a4808",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "GranularTransport",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-06"
+        }
+      ],
+      "ProofOwner": "S639",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-07"
+      },
+      "SourceHash": "bd07e154118e2eb693c85ed544d81c6140b469d3ca16034ec0e6a48eb587a8d5",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "GranularTransport",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-07"
+        }
+      ],
+      "ProofOwner": "S640",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-08"
+      },
+      "SourceHash": "f088d6df7f552dc582fda6e87f8c9b641b2daf84b0b9186a60f06f3e21050bbb",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "MaterialCoating",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-08"
+        }
+      ],
+      "ProofOwner": "S736",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-118"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-119"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-09"
+      },
+      "SourceHash": "b9dde15b4bd80e5805bd8a8e80db1cb1fb9eb805d4a513073ab410fc68b966bc",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-09"
+        }
+      ],
+      "ProofOwner": "S641",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-10"
+      },
+      "SourceHash": "68855a10550bdc4ce5c75c20d01c06dfb3ed59716378772c876cf85268084142",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-10"
+        }
+      ],
+      "ProofOwner": "S740",
+      "ScopeReason": "Named player/editor/persistence/inspection workflow consumes its explicit generic engine services; physical domain proof remains separately required.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-11"
+      },
+      "SourceHash": "ef1a97a309ee39b5ba316447d5e6bfdd72f81e2d5ab0bbf87a2285443791cd87",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-11"
+        }
+      ],
+      "ProofOwner": "S741",
+      "ScopeReason": "Named player/editor/persistence/inspection workflow consumes its explicit generic engine services; physical domain proof remains separately required.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-12"
+      },
+      "SourceHash": "c98b74cf9d31f8a0651de27e0a3a84ae42ba634fa1e27119d301d2b325e8e461",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-12"
+        }
+      ],
+      "ProofOwner": "S742",
+      "ScopeReason": "Named player/editor/persistence/inspection workflow consumes its explicit generic engine services; physical domain proof remains separately required.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-13"
+      },
+      "SourceHash": "ce5e833ea18703b03479fa836db85937ade786f70e0311c9feec256dddb1d8cc",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "ResourceLifetime",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-13"
+        }
+      ],
+      "ProofOwner": "S743",
+      "ScopeReason": "Named player/editor/persistence/inspection workflow consumes its explicit generic engine services; physical domain proof remains separately required.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-14"
+      },
+      "SourceHash": "96fedc191626a1bd767a5802f3057fa176f5b220658076dfcef04a0049b6acdf",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "SimulationClock",
+        "StateTransaction",
+        "TimedCommand",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-14"
+        }
+      ],
+      "ProofOwner": "S744",
+      "ScopeReason": "Named player/editor/persistence/inspection workflow consumes its explicit generic engine services; physical domain proof remains separately required.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-15"
+      },
+      "SourceHash": "b354713ae1324ae9793a8ad73c2a2a41657dbba873893c872e5dd47e0b89747c",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "PerformanceMeasurement",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-15"
+        }
+      ],
+      "ProofOwner": "S745",
+      "ScopeReason": "Named player/editor/persistence/inspection workflow consumes its explicit generic engine services; physical domain proof remains separately required.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-16"
+      },
+      "SourceHash": "f19457cc878d2c4ed2f3deb02702b85a1c95adb4e27db73bdf16f0e8d630d73e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-16"
+        }
+      ],
+      "ProofOwner": "S737",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-120"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-121"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-122"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-123"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-17"
+      },
+      "SourceHash": "58d6d405436c303865f7fa9e21e31007220993b4035396096a1df64271efa100",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "GeometryQuery",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-17"
+        }
+      ],
+      "ProofOwner": "S746",
+      "ScopeReason": "Named player/editor/persistence/inspection workflow consumes its explicit generic engine services; physical domain proof remains separately required.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Gap",
+        "Id": "gap-18"
+      },
+      "SourceHash": "9b40e4fbe1504df621e0608540f921df4767152a0674e37b6edac94e80b8407d",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "AerodynamicDrag",
+        "Buoyancy",
+        "ConstructionCompiler",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "gap/gap-18"
+        }
+      ],
+      "ProofOwner": "S738",
+      "ScopeReason": "Named physical/goal/environment declaration requires its generic engine capability before later product integration; it is not merely workflow bookkeeping.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-124"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-125"
+          }
+        }
+      ]
+    }
+  ],
+  "Modes": []
+}
+

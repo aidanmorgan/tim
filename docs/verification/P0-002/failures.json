@@ -1,0 +1,68 @@
+{
+  "malformedMode": {
+    "input": "path=\"res://parts/ElectricalLogicPart.cs\"\\nOperation = unsupported\\n",
+    "script": "public LogicGateKind Operation { get; set; }",
+    "expected": "InvalidDataException",
+    "observed": "No exception; 32 passed / 1 failed",
+    "raw": {
+      "chunk_id": "bef9ef",
+      "wall_time_seconds": 0.768730542,
+      "exit_code": 1,
+      "original_token_count": 251,
+      "output": "xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)\n  Discovering: Coverage.Tests\n  Discovered:  Coverage.Tests\n  Starting:    Coverage.Tests\n    CuriousContraptions.Coverage.Tests.CapabilityTests.SceneModesRejectUnsupportedMalformedAndChangedDefaults [FAIL]\n      Assert.Throws() Failure: No exception was thrown\n      Expected: typeof(System.IO.InvalidDataException)\n      Stack Trace:\n        tools/Coverage.Tests/CapabilityTests.cs(210,0): at CuriousContraptions.Coverage.Tests.CapabilityTests.SceneModesRejectUnsupportedMalformedAndChangedDefaults()\n           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)\n           at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)\n  Finished:    Coverage.Tests (ID = '4e6c59154fec9dd2045e69debfe442ec5f2ba9cf6c2c685790a4f3461ccd1e4f')\n=== TEST EXECUTION SUMMARY ===\n   Coverage.Tests  Total: 33, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0.484s\n"
+    },
+    "cause": "Assignment detector used a doubled slash in verbatim regex, so malformed property looked omitted.",
+    "fix": "Use whitespace regex \\s; compare all assignments with parsed integer assignments; reject mismatch/duplicate.",
+    "rerun": {
+      "cmd": "dotnet tools/Coverage.Tests/bin/Release/net10.0/Coverage.Tests.dll -noColor",
+      "chunk_id": "406be8",
+      "wall_time_seconds": 0.253911625,
+      "exit_code": 0,
+      "original_token_count": 97,
+      "output": "xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)\n  Discovering: Coverage.Tests\n  Discovered:  Coverage.Tests\n  Starting:    Coverage.Tests\n  Finished:    Coverage.Tests (ID = '4e6c59154fec9dd2045e69debfe442ec5f2ba9cf6c2c685790a4f3461ccd1e4f')\n=== TEST EXECUTION SUMMARY ===\n   Coverage.Tests  Total: 33, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.192s\n"
+    }
+  },
+  "recomputeAttempts": [
+    {
+      "chunk_id": "831694",
+      "wall_time_seconds": 0.269443292,
+      "exit_code": 0,
+      "original_token_count": 169,
+      "output": "{\n  \"runtimeSources\": 8,\n  \"runtimeMismatches\": [\n    \"TODO.md\",\n    \"AGENTS.md\"\n  ],\n  \"taskAnchors\": 799,\n  \"uniqueTaskAnchors\": 799,\n  \"originalExecutionAnchors\": 847,\n  \"uniqueOriginalExecutionAnchors\": 847,\n  \"registerOrders\": 4595,\n  \"consecutiveOrders\": false,\n  \"bindingCounts\": {\n    \"Task\": 799,\n    \"Element\": 216,\n    \"Thermal\": 37,\n    \"Radiation\": 22,\n    \"Gap\": 18,\n    \"Catalogue\": 72,\n    \"Fixture\": 302,\n    \"Research\": 5\n  },\n  \"missing\": [],\n  \"orphan\": [],\n  \"duplicateBindings\": 0,\n  \"capabilities\": 71,\n  \"uniqueCapabilities\": 71,\n  \"consumers\": 1471,\n  \"uniqueConsumers\": 1471,\n  \"modes\": 104,\n  \"head\": \"d99b5dc88dda943513e8813b03307428f3b7bcfa\"\n}\n"
+    },
+    {
+      "cmd": "python3 - <<'PY'\nimport pathlib,json,hashlib,re,collections,subprocess\nh=lambda p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()\nb=json.loads(pathlib.Path('docs/s001-source-baseline.json').read_text());entries=b['sourceEntries'];mismatches=[p for p,d in entries if not pathlib.Path(p).is_file() or h(p)!=d]\nt=pathlib.Path('TODO.md').read_text();specs=re.findall(r'<a id=\"sequence-task-([0-9]+)\"></a>',t);old=re.findall(r'<a id=\"execution-step-([0-9]+)\"></a>',t);orders=[int(x) for x in re.findall(r'^\\| ([0-9]+) \\| <a id=\"work-',t,re.M)]\nidx=json.loads(pathlib.Path('docs/coverage/engine-capabilities.json').read_text());docs=[json.loads(pathlib.Path(p).read_text()) for p in idx['Files']];bindings=sum([d['Bindings'] for d in docs],[]);consumers=sum([d['Consumers'] for d in docs],[]);caps=sum([d['Capabilities'] for d in docs],[]);modes=sum([d['Modes'] for d in docs],[])\nbk=[(x['Source']['Origin'],x['Source']['Id']) for x in bindings];sources=json.loads(pathlib.Path('docs/coverage/source-inventory.json').read_text())['Records'];sk={(x['Source']['Key']['Origin'],x['Source']['Key']['Id']) for x in sources}\nprint(json.dumps({'runtimeSources':len(entries),'runtimeMismatches':mismatches,'taskAnchors':len(specs),'uniqueTaskAnchors':len(set(specs)),'originalExecutionAnchors':len(old),'uniqueOriginalExecutionAnchors':len(set(old)),'registerOrders':len(orders),'consecutiveOrders':orders==list(range(1,4559)),'bindingCounts':dict(collections.Counter(k[0] for k in bk)),'missing':list(sk-set(bk)),'orphan':list(set(bk)-sk),'duplicateBindings':len(bk)-len(set(bk)),'capabilities':len(caps),'uniqueCapabilities':len({c['Capability'] for c in caps}),'consumers':len(consumers),'uniqueConsumers':len({c['Id']['Identity'] for c in consumers}),'modes':len(modes),'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()},indent=2))\nPY",
+      "chunk_id": "a1b80a",
+      "wall_time_seconds": 0.430945042,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "{\n  \"runtimeSources\": 916,\n  \"runtimeMismatches\": [],\n  \"taskAnchors\": 799,\n  \"uniqueTaskAnchors\": 799,\n  \"originalExecutionAnchors\": 847,\n  \"uniqueOriginalExecutionAnchors\": 847,\n  \"registerOrders\": 3711,\n  \"consecutiveOrders\": false,\n  \"bindingCounts\": {\n    \"Task\": 799,\n    \"Element\": 216,\n    \"Thermal\": 37,\n    \"Radiation\": 22,\n    \"Gap\": 18,\n    \"Catalogue\": 72,\n    \"Fixture\": 302,\n    \"Research\": 5\n  },\n  \"missing\": [],\n  \"orphan\": [],\n  \"duplicateBindings\": 0,\n  \"capabilities\": 71,\n  \"uniqueCapabilities\": 71,\n  \"consumers\": 1471,\n  \"uniqueConsumers\": 1471,\n  \"modes\": 104,\n  \"head\": \"d99b5dc88dda943513e8813b03307428f3b7bcfa\"\n}\n"
+    }
+  ],
+  "priorFindings": [
+    {
+      "finding": "Initial pre-repair CLI crashed exit134 on empty requirement block",
+      "disposition": "Task/adjacent anchor discovery repaired; current1471 audit passes; original observation retained from predecessor implementation session."
+    },
+    {
+      "finding": "One mistaken test filename produced4 compile errors",
+      "disposition": "Removed/fixed before initial17/17 run; reported earlier, no fabricated raw log."
+    },
+    {
+      "finding": "Anvil blocked3,453,537-byte one-file manifest",
+      "disposition": "Normalized bounded documents; no blocked write performed."
+    },
+    {
+      "finding": "Compact580KB capability and research previews warned long lines skipped",
+      "disposition": "Not written; reformatted/split; every final document fully gated."
+    },
+    {
+      "finding": "Anvil patch-apply-failed for apply_patch wrapper",
+      "disposition": "Rejected patch shape replaced by full-content validation; gate allow before write."
+    },
+    {
+      "finding": "Pretty discovery output truncated near1MB, JSON parse rejected",
+      "disposition": "No partial content written; compact complete capture parsed1471records and line-bounded JSON written."
+    }
+  ]
+}

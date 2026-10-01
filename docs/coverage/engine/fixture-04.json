@@ -1,0 +1,165 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "fixture/ready_to_rebound/spring_1"
+      },
+      "Kind": "AuthoredFixture",
+      "Source": {
+        "Origin": "Fixture",
+        "Id": "ready_to_rebound/spring_1"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "ContactImpulse",
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "PresentationHistory",
+        "ReliablePublication",
+        "RenderApplication",
+        "ResourceLifetime",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "FIX-062-001",
+      "Artifacts": [
+        {
+          "Path": "content/puzzles.json",
+          "Hash": "877c11056b1777177759a93f230b692038c33631b19d41fc933eee5e615d2d4d"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "fixture/ready_to_rebound/ball"
+      },
+      "Kind": "AuthoredFixture",
+      "Source": {
+        "Origin": "Fixture",
+        "Id": "ready_to_rebound/ball"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "AerodynamicDrag",
+        "Buoyancy",
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "PresentationHistory",
+        "ReliablePublication",
+        "RenderApplication",
+        "ResourceLifetime",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "FIX-001-063",
+      "Artifacts": [
+        {
+          "Path": "content/puzzles.json",
+          "Hash": "877c11056b1777177759a93f230b692038c33631b19d41fc933eee5e615d2d4d"
+        }
+      ]
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Fixture",
+        "Id": "ready_to_rebound/spring_1"
+      },
+      "SourceHash": "abdf62694be8a93516f9bdd4af2161549ae5b291a02edd843ba278d0f347aef5",
+      "Kind": "CurrentConsumer",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "ContactImpulse",
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "PresentationHistory",
+        "ReliablePublication",
+        "RenderApplication",
+        "ResourceLifetime",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "fixture/ready_to_rebound/spring_1"
+        }
+      ],
+      "ProofOwner": "FIX-062-001",
+      "ScopeReason": "Current catalogue or exact authored fixture remains separately owned and requires current Chrome behavioral/mode/lifecycle proof.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "spring"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Fixture",
+        "Id": "ready_to_rebound/ball"
+      },
+      "SourceHash": "c925239dbfe71b6b1b2db5ac8a4cb4bfcd340c38d37f91c8b3c7afdea3f68ff2",
+      "Kind": "CurrentConsumer",
+      "Capabilities": [
+        "AerodynamicDrag",
+        "Buoyancy",
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "PresentationHistory",
+        "ReliablePublication",
+        "RenderApplication",
+        "ResourceLifetime",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "fixture/ready_to_rebound/ball"
+        }
+      ],
+      "ProofOwner": "FIX-001-063",
+      "ScopeReason": "Current catalogue or exact authored fixture remains separately owned and requires current Chrome behavioral/mode/lifecycle proof.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Catalogue",
+            "Id": "ball"
+          }
+        }
+      ]
+    }
+  ],
+  "Modes": []
+}
+

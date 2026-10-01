@@ -1,0 +1,1481 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "task/sequence-task-701"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-701"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S503",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-702"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-702"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S504",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-703"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-703"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S505",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-704"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-704"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S506",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-705"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-705"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S507",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-706"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-706"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S515",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-707"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-707"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S516",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-708"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-708"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "OpticalTransport",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "ProofOwner": "S517",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-709"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-709"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S344",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-710"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-710"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S345",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-711"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-711"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S346",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-712"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-712"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S680",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-713"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-713"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S681",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-714"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-714"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S682",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-715"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-715"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S373",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-716"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-716"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S374",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-717"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-717"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S375",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-718"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-718"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S458",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-719"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-719"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S459",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-720"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-720"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S460",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-721"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-721"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S461",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-722"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-722"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "Buoyancy",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S462",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-723"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-723"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "Buoyancy",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S463",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-724"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-724"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "CapillaryTransport",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S464",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-725"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-725"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S465",
+      "Artifacts": []
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-701"
+      },
+      "SourceHash": "6eca5c138ad41ed0395e656860044baaf6169ea0363b1b171dc381d325e2c0fa",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-701"
+        }
+      ],
+      "ProofOwner": "S503",
+      "ScopeReason": "This task and element-148 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-148"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-702"
+      },
+      "SourceHash": "46c0b279a7e1286d9af87c6cf8ca456c448bbbf442e01935df46d62238f1af83",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-702"
+        }
+      ],
+      "ProofOwner": "S504",
+      "ScopeReason": "This task and element-149 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-149"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-703"
+      },
+      "SourceHash": "aba21bb6029c1c2a7e7c41641da2dfb5eb6a674f7b8cc0ba921c202562964543",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-703"
+        }
+      ],
+      "ProofOwner": "S505",
+      "ScopeReason": "This task and element-150 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-150"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-704"
+      },
+      "SourceHash": "e7516ed7d14dc99e0296cf86302326d3e2716922d0a8d9da6d49868bae4297dc",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-704"
+        }
+      ],
+      "ProofOwner": "S506",
+      "ScopeReason": "This task and element-151 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-151"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-705"
+      },
+      "SourceHash": "371e4b7d044e2ad19840ad1890a4c578a099907b63fa199c35fedb1db7f3085d",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-705"
+        }
+      ],
+      "ProofOwner": "S507",
+      "ScopeReason": "This task and element-152 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-152"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-706"
+      },
+      "SourceHash": "da63984bfc272216dff39345259b461167b9e6c5e6970d8cde8f02a07198522b",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-706"
+        }
+      ],
+      "ProofOwner": "S515",
+      "ScopeReason": "This task and element-153 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-153"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-707"
+      },
+      "SourceHash": "2059877fc3ae600698ee4d5fe1e3742b8b469d993959f2a4885abd1e7849523a",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-707"
+        }
+      ],
+      "ProofOwner": "S516",
+      "ScopeReason": "This task and element-154 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-154"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-708"
+      },
+      "SourceHash": "65ae54c29c4a2a3b5bb522294741045732437adfbec671ac885aca9fe970291e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "OpticalTransport",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-708"
+        }
+      ],
+      "ProofOwner": "S517",
+      "ScopeReason": "This task and element-155 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-155"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-709"
+      },
+      "SourceHash": "71e18926c63a90c73a8b8a5b86b77d62168f9d2272bdb4dc0af9fd68e70bda29",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-709"
+        }
+      ],
+      "ProofOwner": "S344",
+      "ScopeReason": "This task and element-156 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-156"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-710"
+      },
+      "SourceHash": "47a7c789891499bd442d99850d5c5f829b806abafa7b0d6ba62cee8a689c6c94",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-710"
+        }
+      ],
+      "ProofOwner": "S345",
+      "ScopeReason": "This task and element-157 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-157"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-711"
+      },
+      "SourceHash": "847d63e010f8e8d84a0722bdf4e6e96e850b5d3f5a49fc7c295657b35c048385",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-711"
+        }
+      ],
+      "ProofOwner": "S346",
+      "ScopeReason": "This task and element-158 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-158"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-712"
+      },
+      "SourceHash": "7e8f819f17f83bcb2200ace15220205e59a06db2c374e6741c2c441db0bec516",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-712"
+        }
+      ],
+      "ProofOwner": "S680",
+      "ScopeReason": "This task and element-159 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-05"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-159"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-713"
+      },
+      "SourceHash": "0e079fc0331e93ddcb082d8b254b5bf25d75b4158c4b0366e90a22453cbe992d",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-713"
+        }
+      ],
+      "ProofOwner": "S681",
+      "ScopeReason": "This task and element-160 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-05"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-160"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-714"
+      },
+      "SourceHash": "1551d588028c5e50fb52c2f1c7d956f87cbdbc444b655619ce74ec0e5af95d92",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-714"
+        }
+      ],
+      "ProofOwner": "S682",
+      "ScopeReason": "This task and element-161 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-05"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-161"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-715"
+      },
+      "SourceHash": "83aaa7f160dc57bb1a1a16763b33206c032b7ec6cdc8479ab1e7c68a7c7e527e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-715"
+        }
+      ],
+      "ProofOwner": "S373",
+      "ScopeReason": "This task and element-162 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-162"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-716"
+      },
+      "SourceHash": "96ce89dd2bfd712e6d1e166ee289373b519976b692a47ff0554cbc005c04c527",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-716"
+        }
+      ],
+      "ProofOwner": "S374",
+      "ScopeReason": "This task and element-163 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-163"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-717"
+      },
+      "SourceHash": "8c7ba843bdc899c020e8cdbada5602cbfeff7087bf01ff95046813825a97578e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-717"
+        }
+      ],
+      "ProofOwner": "S375",
+      "ScopeReason": "This task and element-164 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-164"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-718"
+      },
+      "SourceHash": "8ed6700b1023f3f7e62107324a8d0fa3601ad3a21f6e9b5c27ee767bc4464d95",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-718"
+        }
+      ],
+      "ProofOwner": "S458",
+      "ScopeReason": "This task and element-165 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-165"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-719"
+      },
+      "SourceHash": "aff095ab0101e5ac556374516e6802ff53303ddf727ccc220f14a44faf402c5f",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-719"
+        }
+      ],
+      "ProofOwner": "S459",
+      "ScopeReason": "This task and element-166 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-166"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-720"
+      },
+      "SourceHash": "341679f4ab533a57630a479eec41ae7f5019503bd95fe838621b126d879fd3a2",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-720"
+        }
+      ],
+      "ProofOwner": "S460",
+      "ScopeReason": "This task and element-167 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-167"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-721"
+      },
+      "SourceHash": "e6fb9dec732c26c7ec776ff1ece702912cfceb77852cbe04dd000d70becb57d9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-721"
+        }
+      ],
+      "ProofOwner": "S461",
+      "ScopeReason": "This task and element-168 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-168"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-722"
+      },
+      "SourceHash": "1214732728155b376b8fa663cac8b38f5f93d62cb35338b836bc0ea5d46db2bd",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "Buoyancy",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-722"
+        }
+      ],
+      "ProofOwner": "S462",
+      "ScopeReason": "This task and element-169 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-169"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-723"
+      },
+      "SourceHash": "e1a085833f0afe4d2e61d1c76dc228bd990623bea7adbd12d08652bac37f2b50",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "Buoyancy",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-723"
+        }
+      ],
+      "ProofOwner": "S463",
+      "ScopeReason": "This task and element-170 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-170"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-724"
+      },
+      "SourceHash": "1d8725ee1ff3c800e5750a6ef6c03f33634ff4e9a891b472f16ded7b052f6881",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "CapillaryTransport",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-724"
+        }
+      ],
+      "ProofOwner": "S464",
+      "ScopeReason": "This task and element-171 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-171"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-725"
+      },
+      "SourceHash": "fdddf7a532571eb8c21f6af34683507adf670872f556f22368fb20b87992be81",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-725"
+        }
+      ],
+      "ProofOwner": "S465",
+      "ScopeReason": "This task and element-172 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-172"
+          }
+        }
+      ]
+    }
+  ],
+  "Modes": []
+}
+

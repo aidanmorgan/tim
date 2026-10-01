@@ -1,0 +1,2033 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "task/sequence-task-426"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-426"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S628",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-427"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-427"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S715",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-428"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-428"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "RadioactiveDecay",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "ProofOwner": "S631",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-429"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-429"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S632",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-430"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-430"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S633",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-431"
+      },
+      "Kind": "EngineService",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-431"
+      },
+      "Symbols": [
+        {
+          "Path": "engine/ConnectionPort.cs",
+          "Symbol": "ConnectionPort",
+          "FileHash": "3f90b9372d8302fdd97bdd26eee866e0e4e06d0fb59144b6f9cecf8a9d67cb28"
+        },
+        {
+          "Path": "engine/SimulationTransaction.cs",
+          "Symbol": "SimulationTransaction",
+          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+        },
+        {
+          "Path": "engine/physics/PhysicsEnergyStore.cs",
+          "Symbol": "PhysicsEnergyStoreDeclaration",
+          "FileHash": "f18ee0305fdd6810b8082be0ebdd72d8dd9df40c257f14bd12137ac7c66a054c"
+        },
+        {
+          "Path": "engine/WorldGeometry.cs",
+          "Symbol": "WorldGeometry",
+          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+        }
+      ],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S605",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-432"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-432"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S773",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-433"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-433"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S822",
+      "Artifacts": [
+        {
+          "Path": "docs/radiation-component-research.md",
+          "Hash": "435252ba4152d3fff5d80cc886d9a423a4c0af655826f60ff313521fef96017d"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-434"
+      },
+      "Kind": "ProductWorkflow",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-434"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S823",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-435"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-435"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S598",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-436"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-436"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S597",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-437"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-437"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S596",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-438"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-438"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalDissipation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S567",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-439"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-439"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SlidingFriction",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S574",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-440"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-440"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S518",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-441"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-441"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S573",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-442"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-442"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S570",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-443"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-443"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalRadiation"
+      ],
+      "ProofOwner": "S571",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-444"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-444"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S572",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-445"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-445"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S575",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-446"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-446"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "HeatPumping",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S576",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-447"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-447"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "LiquidFreezing",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S577",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-448"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-448"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S578",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-449"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-449"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S579",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    },
+    {
+      "Id": {
+        "Identity": "task/sequence-task-450"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-450"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S580",
+      "Artifacts": [
+        {
+          "Path": "docs/thermal-component-research.md",
+          "Hash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5"
+        }
+      ]
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-426"
+      },
+      "SourceHash": "853e8f0308eb51ed58a71fe0ef0fff456dcac4350e6168f4e43dbe11f33c11f2",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-426"
+        }
+      ],
+      "ProofOwner": "S628",
+      "ScopeReason": "This task and radiation-18 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-18"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-427"
+      },
+      "SourceHash": "117305d96f83a4b033a2d2846b11ea38d200f07063c19932fb8b8271d9c96c48",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-427"
+        }
+      ],
+      "ProofOwner": "S715",
+      "ScopeReason": "This task and radiation-19 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-19"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-131"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-132"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-428"
+      },
+      "SourceHash": "4be79e87c1dbc13a01a0b8242cb1329cbd290c18520ec679511e3fafe92fe2af",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "RadioactiveDecay",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-428"
+        }
+      ],
+      "ProofOwner": "S631",
+      "ScopeReason": "This task and radiation-20 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-20"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-429"
+      },
+      "SourceHash": "2e888ef8bb3d72d5107534a680291da4a7ec55c6e604fac0dc9c4d2f2598a1c9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-429"
+        }
+      ],
+      "ProofOwner": "S632",
+      "ScopeReason": "This task and radiation-21 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-21"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-430"
+      },
+      "SourceHash": "f07c8f64337b882ca2044ac48cc9eec2add4f69c43d8ac9c74692a4df51970a9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-430"
+        }
+      ],
+      "ProofOwner": "S633",
+      "ScopeReason": "This task and radiation-22 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-22"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-431"
+      },
+      "SourceHash": "9dbe7c6275007512c092fd1dab065eb81842c8edc03b7fe80edcf73df7239ef1",
+      "Kind": "Engine",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-431"
+        }
+      ],
+      "ProofOwner": "S605",
+      "ScopeReason": "Shared radiation material/channel/instrument boundaries and deterministic bounded transport are engine prerequisites for individually adopted declarations.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-126"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-127"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-128"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-129"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-130"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-131"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-132"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-01"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-02"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-03"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-04"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-05"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-06"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-07"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-08"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-09"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-10"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-11"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-12"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-13"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-14"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-15"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-16"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-17"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-18"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-19"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-20"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-21"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-22"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-432"
+      },
+      "SourceHash": "276f8319bd49462b72598cb4ef97f498cc8a31bddafa25ccf229d0d9c4f6dd66",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-432"
+        }
+      ],
+      "ProofOwner": "S773",
+      "ScopeReason": "Per-RAD/mode UI proof tooling consumes every radiation declaration; a source inventory or native trace is not that proof.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-01"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-02"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-03"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-04"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-05"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-06"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-07"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-08"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-09"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-10"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-11"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-12"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-13"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-14"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-15"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-16"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-17"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-18"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-19"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-20"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-21"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-22"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-433"
+      },
+      "SourceHash": "b511828d77d6f146b3f01b63666763f96bc4d9e3a5faf4b35fb9980bd9ef93ec",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-433"
+        }
+      ],
+      "ProofOwner": "S822",
+      "ScopeReason": "150-level radiation teaching/reuse is campaign work referencing all adopted radiation declarations and their existing laws.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-01"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-02"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-03"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-04"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-05"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-06"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-07"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-08"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-09"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-10"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-11"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-12"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-13"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-14"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-15"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-16"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-17"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-18"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-19"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-20"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-21"
+          }
+        },
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-22"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-434"
+      },
+      "SourceHash": "d772846dec798037e3922a7017cde80c49452dca92027d7f156f7c418da023da",
+      "Kind": "ProductWorkflow",
+      "Capabilities": [
+        "ConstructionCompiler",
+        "ConstructionPersistence",
+        "InputAdmission",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-434"
+        }
+      ],
+      "ProofOwner": "S823",
+      "ScopeReason": "Forward campaign tooling uses150typed levels and1800baseline cases; historical75-level/900-cell evidence remains history.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-435"
+      },
+      "SourceHash": "266907083a334ba83572f0e40eef613fa89bf4009f443be47926e3e7f8a9d330",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-435"
+        }
+      ],
+      "ProofOwner": "S598",
+      "ScopeReason": "This task and thermal-01 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-01"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-436"
+      },
+      "SourceHash": "438e181397c8751891763753c3c633986e0eb7bed04e2dfcd881c7fb83c7b9e7",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-436"
+        }
+      ],
+      "ProofOwner": "S597",
+      "ScopeReason": "This task and thermal-02 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-02"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-437"
+      },
+      "SourceHash": "c21d620ce574cfb66755161f35f6ff2b28a611eddea6e36d085ecb727ac22cf1",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-437"
+        }
+      ],
+      "ProofOwner": "S596",
+      "ScopeReason": "This task and thermal-03 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-03"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-438"
+      },
+      "SourceHash": "7077da7608eb7285489621802a008babb4bc921fa9f626f9d951f33462df6781",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalDissipation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-438"
+        }
+      ],
+      "ProofOwner": "S567",
+      "ScopeReason": "This task and thermal-04 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-04"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-439"
+      },
+      "SourceHash": "8e441d85cdac119b82f0c074151c07a8635e357e9ef1d8c83809da589af693ee",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SlidingFriction",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-439"
+        }
+      ],
+      "ProofOwner": "S574",
+      "ScopeReason": "This task and thermal-05 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-05"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-440"
+      },
+      "SourceHash": "373a585046be069607ac099d21990f2d1b2689ff8c1ee9987c7ef3e435bdef16",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-440"
+        }
+      ],
+      "ProofOwner": "S518",
+      "ScopeReason": "This task and thermal-06 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-06"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-441"
+      },
+      "SourceHash": "be2f5d15b559926a231844e06f8c53e3215e7586cab5270975a1c14f8c858b88",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-441"
+        }
+      ],
+      "ProofOwner": "S573",
+      "ScopeReason": "This task and thermal-07 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-07"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-442"
+      },
+      "SourceHash": "aea194e133e177b258991983f9f787bddd4a7ce59e5850e851e2b9771d5928db",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-442"
+        }
+      ],
+      "ProofOwner": "S570",
+      "ScopeReason": "This task and thermal-08 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-08"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-443"
+      },
+      "SourceHash": "96782e9793dbc8dbb628c2663ea1f379240cef19859d5114f2e1616d577d7b36",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalRadiation"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-443"
+        }
+      ],
+      "ProofOwner": "S571",
+      "ScopeReason": "This task and thermal-09 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-09"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-444"
+      },
+      "SourceHash": "dc34e052d67314374bb09318ff1f3011bf210bf2daf23a131fd3bf85308536d0",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-444"
+        }
+      ],
+      "ProofOwner": "S572",
+      "ScopeReason": "This task and thermal-10 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-10"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-445"
+      },
+      "SourceHash": "030fc939fb96f5968af02e721fbbf904a98acaf32b74313f47a0a4a035bbb462",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-445"
+        }
+      ],
+      "ProofOwner": "S575",
+      "ScopeReason": "This task and thermal-11 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-11"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-446"
+      },
+      "SourceHash": "7cbeb7611ebcca0924ec2f5a195d791fcd524522de5b190c9d62c16389a1ba99",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "HeatPumping",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-446"
+        }
+      ],
+      "ProofOwner": "S576",
+      "ScopeReason": "This task and thermal-12 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-12"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-447"
+      },
+      "SourceHash": "0b8332996d0e9e3abcbcc714c080af47e4de04e108c2cea64c84183fd3776713",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "LiquidFreezing",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-447"
+        }
+      ],
+      "ProofOwner": "S577",
+      "ScopeReason": "This task and thermal-13 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-13"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-448"
+      },
+      "SourceHash": "65dadcc7e3e96a9499c4363eaae6bc25e47d63e49172102c115fc8442c5a0f61",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-448"
+        }
+      ],
+      "ProofOwner": "S578",
+      "ScopeReason": "This task and thermal-14 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-14"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-449"
+      },
+      "SourceHash": "914693662148552976ed6f071ddabfe843ae9a9e577cfdc58c6af3e54803030b",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-449"
+        }
+      ],
+      "ProofOwner": "S579",
+      "ScopeReason": "This task and thermal-15 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-15"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Task",
+        "Id": "sequence-task-450"
+      },
+      "SourceHash": "9da7887e25714c952b64420bd390f9afbd95f70155706120ccdf0e7dad4722ee",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "task/sequence-task-450"
+        }
+      ],
+      "ProofOwner": "S580",
+      "ScopeReason": "This task and thermal-16 are explicitly adjacent authoritative source identities for the same required declaration/integration contract. The named child retains its exact law set and independent product/proof owner; current source presence is not behavioral qualification.",
+      "Relations": [
+        {
+          "Kind": "CoverageScope",
+          "Target": {
+            "Origin": "Thermal",
+            "Id": "thermal-16"
+          }
+        }
+      ]
+    }
+  ],
+  "Modes": []
+}
+

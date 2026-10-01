@@ -26,6 +26,21 @@ public class InventoryTests
         Assert.Throws<InvalidDataException>(()=>RequirementDiscovery.Todo("<a id=\"element-001\"></a>"));
     }
     [Fact]
+    public void AdjacentTaskAndHistoricalIdentityAnchorsShareTheActualContract()
+    {
+        const string source="""
+            <a id="element-001"></a>
+            <a id="sequence-task-001"></a>
+            <a id="todo-001"></a>
+            Actual contract
+            """;
+        var rows=RequirementDiscovery.Todo(source);
+        Assert.Equal(2,rows.Count);
+        Assert.Equal(rows[0].Hash,rows[1].Hash);
+        Assert.Equal(RequirementOrigin.Task,rows[1].Key.Origin);
+        Assert.Equal("Actual contract",rows[0].Title);
+    }
+    [Fact]
     public void FixturesRemainIndividualAndAuthoredChangesInvalidateEvidence()
     {
         const string json="""
@@ -35,7 +50,7 @@ public class InventoryTests
               {"id":"c","kind":"ramp","locked":false,"position":[0,3,0]}]}]
             """;
         var rows=RequirementDiscovery.Fixtures(json);
-        Assert.Equal(2,rows.Count);Assert.NotEqual(rows[0].Source.Key,rows[1].Source.Key);
+        Assert.Equal(3,rows.Count);Assert.NotEqual(rows[0].Source.Key,rows[1].Source.Key);
         var changed=RequirementDiscovery.Fixtures(json.Replace("[0,1,0]","[0,4,0]"));
         Assert.NotEqual(rows[0].Source.Hash,changed[0].Source.Hash);
         Assert.Equal(rows[1],changed[1]);

@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace CuriousContraptions.Coverage;
 
-public enum RequirementOrigin { Element, Thermal, Radiation, Gap, Catalogue, Fixture, Research }
+public enum RequirementOrigin { Element, Thermal, Radiation, Gap, Catalogue, Fixture, Research, Task }
 public enum ReviewState { Unreviewed, Incomplete, Reviewed }
 public enum ImplementationState { Unreviewed, Missing, Partial, Present }
 public enum EvidenceState { Missing, Stale, Failed, Recorded }
@@ -73,6 +73,13 @@ public static class CoverageJson
         public override void Write(Utf8JsonWriter writer,ContentHash value,JsonSerializerOptions options)=>
             writer.WriteStringValue(new ContentHash(value.Value).Value);
     }
+    private sealed class TextValue<T>(Func<string,T> read,Func<T,string> write):JsonConverter<T>
+    {
+        public override T Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)=>
+            read(reader.GetString()??throw new JsonException("Null typed value."));
+        public override void Write(Utf8JsonWriter writer,T value,JsonSerializerOptions options)=>
+            writer.WriteStringValue(write(value));
+    }
     public static JsonSerializerOptions Options { get; }=Create();
     private static JsonSerializerOptions Create()
     {
@@ -86,8 +93,20 @@ public static class CoverageJson
         options.Converters.Add(new ExactEnum<ImplementationState>());
         options.Converters.Add(new ExactEnum<EvidenceState>());
         options.Converters.Add(new ExactEnum<PublicationState>());
+        options.Converters.Add(new ExactEnum<EngineCapability>());
+        options.Converters.Add(new ExactEnum<ObligationKind>());
+        options.Converters.Add(new ExactEnum<SourceRelationKind>());
+        options.Converters.Add(new ExactEnum<ConsumerKind>());
+        options.Converters.Add(new ExactEnum<CapabilityAvailability>());
+        options.Converters.Add(new ExactEnum<MeasurementUnit>());
+        options.Converters.Add(new ExactEnum<ModeDimension>());
+        options.Converters.Add(new ExactEnum<ModeChoice>());
+        options.Converters.Add(new TextValue<WorkOrderId>(value=>new(value),value=>new WorkOrderId(value.Value).Value));
+        options.Converters.Add(new TextValue<SourcePath>(value=>new(value),value=>new SourcePath(value.Value).Value));
+        options.Converters.Add(new TextValue<SymbolId>(value=>new(value),value=>new SymbolId(value.Value).Value));
         options.Converters.Add(new IdentityConverter());options.Converters.Add(new HashConverter());
         options.MakeReadOnly(populateMissingResolver:true);
         return options;
     }
 }
+

@@ -1,0 +1,652 @@
+{
+  "Capabilities": [
+    {
+      "Capability": "Buoyancy",
+      "ModelBoundary": "Use displacement and surrounding density; without a supporting fluid there is no buoyant force.",
+      "Units": [
+        "Kilogram",
+        "CubicMetre",
+        "Newton"
+      ],
+      "DesignOwner": "S420-D",
+      "ProofOwner": "S420-F",
+      "Availability": "Partial",
+      "CurrentSymbols": [
+        {
+          "Path": "parts/BallPart.cs",
+          "Symbol": "BallPart",
+          "FileHash": "eb6b583f0de2d7daa527e67d86710d6e0ee3b24492a3f9e346bbfe74977d569b"
+        }
+      ],
+      "IndependentOracle": "Force equals displaced fluid weight in declared regime; dry body has zero buoyancy.",
+      "Dependencies": [
+        "RigidBodyDynamics",
+        "EnvironmentState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-251"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-275"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-283"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-387"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-388"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-390"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-391"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-459"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-481"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-551"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-569"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-570"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-581"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-582"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-643"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-678"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-722"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-723"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-761"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-016"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-017"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-028"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-029"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-090"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-125"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-169"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-170"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-208"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-25"
+        },
+        {
+          "Origin": "Gap",
+          "Id": "gap-18"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "ball"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "balloon"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bowling"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "tennis"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "first_principles/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "power_trip/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_mail/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_forward/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "third_dimension/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "domino_effect/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_signal/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_signal/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bumper_sidekick/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bumper_depth/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_return/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_and_bumper/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "switched_motor/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "conveyor_courier/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "belt_relay/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "reverse_belt/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_motor/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_shadow/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_signal/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_solar/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "clear_pipe/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "gentle_bend/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "quarter_bend/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "joined_pipe/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_deliveries/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_deliveries/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_and_roll/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_and_roll/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "catch_and_signal/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "catch_and_signal/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_and_dominoes/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_and_dominoes/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_and_chain/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_and_chain/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_signals/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_signals/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_routes/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_routes/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cross_breezes/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cross_breezes/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_springs/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_springs/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spatial_signals/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spatial_signals/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_chain/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_chain/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_chain/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "signals_and_chain/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "signals_and_chain/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "signals_and_chain/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bridges_and_signal/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bridges_and_signal/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bridges_and_signal/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_then_release/payload"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_then_release/striker"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/payload"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/striker"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "a_gentle_rebound/payload"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "ready_to_rebound/ball"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S420-I"
+      ]
+    }
+  ],
+  "Consumers": [],
+  "Bindings": [],
+  "Modes": []
+}

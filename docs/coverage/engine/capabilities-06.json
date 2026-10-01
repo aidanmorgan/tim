@@ -1,0 +1,2553 @@
+{
+  "Capabilities": [
+    {
+      "Capability": "Extinction",
+      "ModelBoundary": "Cooling, reactant depletion and transport alter the reaction rate; no unconditional water-touch extinguish event.",
+      "Units": [
+        "Kelvin",
+        "Mole",
+        "Second"
+      ],
+      "DesignOwner": "S556-D",
+      "ProofOwner": "S556-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Cooling/oxygen loss lower modeled reaction rate; no identity-based extinguish.",
+      "Dependencies": [
+        "ChemicalReaction"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-251"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-435"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-436"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-437"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-466"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-501"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-526"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-528"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-01"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-02"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-03"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-32"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S556-I"
+      ]
+    },
+    {
+      "Capability": "AerodynamicDrag",
+      "ModelBoundary": "Use relative flow, geometry and declared drag model; zero relative motion generates no drag.",
+      "Units": [
+        "Metre",
+        "Second",
+        "Newton"
+      ],
+      "DesignOwner": "S023-D",
+      "ProofOwner": "S023-F",
+      "Availability": "Partial",
+      "CurrentSymbols": [
+        {
+          "Path": "engine/physics/BodyDragLoad.cs",
+          "Symbol": "BodyDragLoad",
+          "FileHash": "900a10597fec7356034c9991bd6491a13ccbb143dafefc3cd3ba018820aa64bf"
+        }
+      ],
+      "IndependentOracle": "Zero relative velocity gives zero drag; reversal reverses force and dissipated relative work remains nonnegative.",
+      "Dependencies": [
+        "RigidBodyDynamics",
+        "EnvironmentState",
+        "GeometryQuery"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-017"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-095"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-097"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-098"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-099"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-101"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-106"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-107"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-112"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-114"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-115"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-116"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-162"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-206"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-217"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-218"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-282"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-284"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-311"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-312"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-314"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-363"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-406"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-407"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-482"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-522"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-530"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-551"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-598"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-605"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-643"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-653"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-661"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-678"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-761"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-762"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-770"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-045"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-052"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-090"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-100"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-108"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-125"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-208"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-209"
+        },
+        {
+          "Origin": "Gap",
+          "Id": "gap-18"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "ball"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "balloon"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bellows"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bowling"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "fan"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "tennis"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "wind_chimes"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "windmill"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "first_principles/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "power_trip/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_mail/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_forward/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "third_dimension/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "domino_effect/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_signal/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_signal/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_start/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bumper_sidekick/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bumper_depth/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_return/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wall_and_bumper/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "switched_motor/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "conveyor_courier/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "belt_relay/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "reverse_belt/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_motor/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_shadow/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_signal/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_solar/trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "clear_pipe/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "gentle_bend/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "quarter_bend/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "joined_pipe/ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_deliveries/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_deliveries/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_and_roll/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_and_roll/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "air_and_belt/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "catch_and_signal/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "catch_and_signal/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_and_dominoes/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_and_dominoes/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "powered_post/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_and_chain/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spring_and_chain/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_signals/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "two_signals/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "mixed_signals/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "start_and_topple/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_routes/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_routes/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cross_breezes/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cross_breezes/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_springs/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "deep_springs/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spatial_signals/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "spatial_signals/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "three_deliveries/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_signal/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_front/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "chain_mail/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bounce_mail/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "relay_workshop/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_cold_start/lane3_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_chain/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_chain/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "triple_chain/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "signals_and_chain/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "signals_and_chain/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "signals_and_chain/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane1_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_signals/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_delivery/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "depth_telegraph/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "double_bridge/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bridges_and_signal/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bridges_and_signal/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "bridges_and_signal/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_fan_1"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane2_trigger"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "cold_bridges/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane1_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane2_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "grand_contraption/lane3_ball"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_then_release/payload"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "wind_then_release/striker"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/payload"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "saved_for_later/striker"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "a_gentle_rebound/payload"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "ready_to_rebound/ball"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S023-I"
+      ]
+    },
+    {
+      "Capability": "AcousticPropagation",
+      "ModelBoundary": "Account for emitted signal energy, path, attenuation and supported occlusion; an obstructed control receives the predicted diminished field.",
+      "Units": [
+        "Second",
+        "Joule",
+        "Hertz"
+      ],
+      "DesignOwner": "S530-D",
+      "ProofOwner": "S530-F",
+      "Availability": "Partial",
+      "CurrentSymbols": [
+        {
+          "Path": "engine/Acoustics.cs",
+          "Symbol": "AcousticNetwork",
+          "FileHash": "5b5702fcc3b279f3480610b98053a3c241da1f741be01ae231a0127990ed4f89"
+        }
+      ],
+      "IndependentOracle": "Arrival time follows path length/sound speed; declared attenuation and occlusion, wrong tone and duplicate arrival controls.",
+      "Dependencies": [
+        "GeometryQuery",
+        "FiniteLedger",
+        "SignalPropagation"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-095"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-097"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-098"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-099"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-101"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-106"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-112"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-114"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-162"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-182"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-200"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-206"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-217"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-282"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-314"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-406"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-407"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-483"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-597"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-598"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-599"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-600"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-601"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-602"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-603"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-604"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-605"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-732"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-733"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-044"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-045"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-046"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-047"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-048"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-049"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-050"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-051"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-052"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-179"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-180"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bell"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "sound_meter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "speaker"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "wind_chimes"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S530-I"
+      ]
+    },
+    {
+      "Capability": "OpticalTransport",
+      "ModelBoundary": "Trace finite power with geometry-based reflection/refraction and occlusion; focusing redistributes irradiance rather than increasing total energy.",
+      "Units": [
+        "Watt",
+        "Metre"
+      ],
+      "DesignOwner": "S488-D",
+      "ProofOwner": "S488-F",
+      "Availability": "Partial",
+      "CurrentSymbols": [
+        {
+          "Path": "engine/OpticalNetwork.cs",
+          "Symbol": "OpticalNetwork",
+          "FileHash": "56d9045431d66b7ea75004c9dcfb047f2d03ef46234f715696537e93dd985e00"
+        }
+      ],
+      "IndependentOracle": "Reflection/refraction follows surface normals and indices; sum transmitted/reflected/absorbed power never exceeds incident.",
+      "Dependencies": [
+        "GeometryQuery",
+        "FiniteLedger"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-090"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-108"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-126"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-144"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-153"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-163"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-171"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-180"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-182"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-201"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-243"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-281"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-313"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-364"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-396"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-397"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-398"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-399"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-400"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-401"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-402"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-403"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-404"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-405"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-420"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-440"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-441"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-470"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-484"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-485"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-517"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-628"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-691"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-692"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-693"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-694"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-695"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-696"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-697"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-698"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-699"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-700"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-701"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-702"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-703"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-704"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-705"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-706"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-707"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-708"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-726"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-727"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-728"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-729"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-730"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-731"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-763"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-764"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-765"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-766"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-767"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-075"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-138"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-139"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-140"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-141"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-142"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-143"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-144"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-145"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-146"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-147"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-148"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-149"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-150"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-151"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-152"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-153"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-154"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-155"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-173"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-174"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-175"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-176"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-177"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-178"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-210"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-211"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-212"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-213"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-214"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-06"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-07"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-36"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-12"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_combiner"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_splitter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "blue_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "blue_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "cyan_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "flashlight"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "green_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "green_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "laser"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "light_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "magenta_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "mirror"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_and"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_nand"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_nor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_or"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "optical_xor"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "red_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "red_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "solar_panel"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "white_receiver"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "yellow_receiver"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_motor/torch"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "solar_shadow/torch"
+        },
+        {
+          "Origin": "Fixture",
+          "Id": "delayed_solar/torch"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/radiation-component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S488-I"
+      ]
+    },
+    {
+      "Capability": "OpticalAbsorption",
+      "ModelBoundary": "Allocate only the absorbed fraction to material enthalpy; reflected/transmitted power cannot also become heat.",
+      "Units": [
+        "Joule",
+        "Watt"
+      ],
+      "DesignOwner": "S489-D",
+      "ProofOwner": "S489-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Absorbed optical energy equals thermal ledger credit; transparent control receives only its absorptance.",
+      "Dependencies": [
+        "OpticalTransport",
+        "SensibleHeat"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-153"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-201"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-243"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-281"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-364"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-396"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-397"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-398"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-399"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-400"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-401"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-402"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-403"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-404"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-405"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-440"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-441"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-470"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-485"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-517"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-696"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-697"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-698"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-699"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-700"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-701"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-702"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-703"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-704"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-705"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-706"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-707"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-726"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-727"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-728"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-763"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-764"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-765"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-766"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-767"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-143"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-144"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-145"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-146"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-147"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-148"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-149"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-150"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-151"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-152"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-153"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-154"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-173"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-174"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-175"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-210"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-211"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-212"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-213"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-214"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-06"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-07"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-36"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_combiner"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "beam_splitter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "blue_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "green_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "mirror"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "red_filter"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "solar_panel"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S489-I"
+      ]
+    },
+    {
+      "Capability": "IonizingTransport",
+      "ModelBoundary": "Apply supported typed particle/channel/material models and energy deposition; blocked transmission cannot activate a downstream detector.",
+      "Units": [
+        "Joule",
+        "Metre",
+        "GameExposure",
+        "ParticleCount"
+      ],
+      "DesignOwner": "S606-D",
+      "ProofOwner": "S606-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Independent exponential photon attenuation, charged-particle range and neutron-group transfer with deposited-energy balance.",
+      "Dependencies": [
+        "GeometryQuery",
+        "FiniteLedger"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-409"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-410"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-411"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-412"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-413"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-414"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-415"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-416"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-417"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-418"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-419"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-420"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-422"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-423"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-424"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-425"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-426"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-427"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-429"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-430"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-431"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-486"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-679"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-680"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-681"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-682"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-683"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-684"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-685"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-126"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-127"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-128"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-129"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-130"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-131"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-132"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-01"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-02"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-03"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-04"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-05"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-06"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-07"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-08"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-09"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-10"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-11"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-12"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-14"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-15"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-16"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-17"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-18"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-19"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-21"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-22"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/radiation-component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S606-I"
+      ]
+    },
+    {
+      "Capability": "RadioactiveDecay",
+      "ModelBoundary": "Advance finite populations with declared emission/energy accounting; spent inventory cannot emit indefinitely.",
+      "Units": [
+        "Second",
+        "ParticleCount",
+        "Joule"
+      ],
+      "DesignOwner": "S607-D",
+      "ProofOwner": "S607-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Population exponential decay and emitted count/energy balance; depleted inventory emits zero.",
+      "Dependencies": [
+        "FiniteLedger"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-409"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-411"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-412"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-421"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-424"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-428"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-430"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-431"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-487"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-01"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-03"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-04"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-13"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-16"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-20"
+        },
+        {
+          "Origin": "Radiation",
+          "Id": "radiation-22"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/radiation-component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S607-I"
+      ]
+    },
+    {
+      "Capability": "TemperatureSensing",
+      "ModelBoundary": "Read a valid local thermal state with defined response and supplied outputs; observation creates no heat or actuator energy.",
+      "Units": [
+        "Kelvin",
+        "Second"
+      ],
+      "DesignOwner": "S490-D",
+      "ProofOwner": "S490-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Known local temperature crosses distinct on/off thresholds; observation cannot change stored energy.",
+      "Dependencies": [
+        "SensibleHeat",
+        "SignalPropagation"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-402"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-455"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-468"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-470"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-471"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-488"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-21"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-34"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-36"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-37"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S490-I"
+      ]
+    },
+    {
+      "Capability": "ThermalConduction",
+      "ModelBoundary": "Transfer equal/opposite energy through geometry/contact conductance along the temperature difference; a missing contact removes that path.",
+      "Units": [
+        "Kelvin",
+        "Joule",
+        "Watt"
+      ],
+      "DesignOwner": "S544-D",
+      "ProofOwner": "S544-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Two thermal masses equilibrate with equal/opposite energy transfer; zero conductance gives zero transfer.",
+      "Dependencies": [
+        "SensibleHeat",
+        "GeometryQuery"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-438"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-439"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-441"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-442"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-443"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-444"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-445"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-446"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-447"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-452"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-460"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-489"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-515"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-516"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-519"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-524"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-526"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-04"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-05"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-07"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-08"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-09"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-10"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-11"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-12"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-13"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-18"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-26"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S544-I"
+      ]
+    },
+    {
+      "Capability": "ThermalConvection",
+      "ModelBoundary": "Exchange heat between surface and fluid through the declared transfer model; an ambient fan is not an arbitrary cold source.",
+      "Units": [
+        "Kelvin",
+        "Joule",
+        "Watt"
+      ],
+      "DesignOwner": "S545-D",
+      "ProofOwner": "S545-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Finite surface/fluid exchange approaches equilibrium without falling below cold reservoir; absent coupling gives zero.",
+      "Dependencies": [
+        "SensibleHeat",
+        "FluidAdvection"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-444"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-445"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-459"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-462"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-490"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-522"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-526"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-10"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-11"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-25"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-28"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S545-I"
+      ]
+    }
+  ],
+  "Consumers": [],
+  "Bindings": [],
+  "Modes": []
+}

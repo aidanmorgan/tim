@@ -1,0 +1,1037 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "radiation/radiation-01"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-01"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S608",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-02"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-02"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S609",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-03"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-03"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S620",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-04"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-04"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S621",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-05"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-05"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S713",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-06"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-06"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "IonizingTransport",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S613",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-07"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-07"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S614",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-08"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-08"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S615",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-09"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-09"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S616",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-10"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-10"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S617",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-11"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-11"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S714",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-12"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-12"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "OpticalTransport",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S622",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-13"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-13"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "RadioactiveDecay",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S623",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-14"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-14"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FieldForce",
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S624",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-15"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-15"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S625",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-16"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-16"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S626",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-17"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-17"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S627",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-18"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-18"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S628",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-19"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-19"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S715",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-20"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-20"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "RadioactiveDecay",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "ProofOwner": "S631",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-21"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-21"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S632",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "radiation/radiation-22"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-22"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S633",
+      "Artifacts": []
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-01"
+      },
+      "SourceHash": "fe19d4fa79d27e9f6663976e9df509e39bbcb3b7a23c229be7cf991e24ba4924",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-01"
+        }
+      ],
+      "ProofOwner": "S608",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-02"
+      },
+      "SourceHash": "4e0c485bde5ab8863160e6d01bc264f94b1e3286c4832725d167005d139de5cc",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-02"
+        }
+      ],
+      "ProofOwner": "S609",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-03"
+      },
+      "SourceHash": "763bdde3f17ceadfebae74ca88eb997d3deef90cb468c20dbca534bba67f1945",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-03"
+        }
+      ],
+      "ProofOwner": "S620",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-04"
+      },
+      "SourceHash": "89277dcb55c652dfa73aa3d126aab4bbe8ee8d7d3ce1685f913a579315d499fa",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-04"
+        }
+      ],
+      "ProofOwner": "S621",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-05"
+      },
+      "SourceHash": "e9f701df52dbafcc59a781a208e089d02ba2afb2410100f1958165b962913cdb",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-05"
+        }
+      ],
+      "ProofOwner": "S713",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-126"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-127"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-128"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-06"
+      },
+      "SourceHash": "04e5590502f7383dacdcbcd3679703f5d9b7a9ee195e4f7d198f5f2ae20607a4",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "IonizingTransport",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-06"
+        }
+      ],
+      "ProofOwner": "S613",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-07"
+      },
+      "SourceHash": "382aca0f5bea217125a3e1c063cda234f766d71d41a6cdc0fe7046a535154882",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-07"
+        }
+      ],
+      "ProofOwner": "S614",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-08"
+      },
+      "SourceHash": "255654539cbef2a83229fdc4edc19b6ff1864f9b052dae2d0770233b3e84aaa9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-08"
+        }
+      ],
+      "ProofOwner": "S615",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-09"
+      },
+      "SourceHash": "8589bb54c12532f84a31d32a549619925e1d32b44a2f34007d3f664333da2234",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-09"
+        }
+      ],
+      "ProofOwner": "S616",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-10"
+      },
+      "SourceHash": "8fa8b9da1ac527b21e1313bdb0eaf616cf4a6c0644c01a66acf04f0e31ff20f7",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-10"
+        }
+      ],
+      "ProofOwner": "S617",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-11"
+      },
+      "SourceHash": "ed5beab6452e181a9f48c40222842adc9612df607248d8e636a573ff6900eabd",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-11"
+        }
+      ],
+      "ProofOwner": "S714",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-129"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-130"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-12"
+      },
+      "SourceHash": "99fc6e3e5abfc9c9922da597cfffcfb94de2c789464579c1f02cfaaa9e9a6472",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "OpticalTransport",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-12"
+        }
+      ],
+      "ProofOwner": "S622",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-13"
+      },
+      "SourceHash": "fd3ff15d0ba1af1a5643b798c3708dfeb09f22ed6fcefd7cf4652d14d1be1345",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "RadioactiveDecay",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-13"
+        }
+      ],
+      "ProofOwner": "S623",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-14"
+      },
+      "SourceHash": "88107c6b53d60fd10b59c6005e1e1dd58795184e7d0750add81be8a2cefc3d5d",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FieldForce",
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-14"
+        }
+      ],
+      "ProofOwner": "S624",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-15"
+      },
+      "SourceHash": "3c18aa3951aeebb2b2c25e1006d01759529ae355b42a5d0698096bf977a38b97",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-15"
+        }
+      ],
+      "ProofOwner": "S625",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-16"
+      },
+      "SourceHash": "874a5de360935ba339356e4e868d8e0566ab64b6c4d847d4fa3a3ff682759d56",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-16"
+        }
+      ],
+      "ProofOwner": "S626",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-17"
+      },
+      "SourceHash": "935ef3badca47eabe9e332d98083912436e34ebb51ea29c6ef5825b005fa4e19",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-17"
+        }
+      ],
+      "ProofOwner": "S627",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-18"
+      },
+      "SourceHash": "853e8f0308eb51ed58a71fe0ef0fff456dcac4350e6168f4e43dbe11f33c11f2",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-18"
+        }
+      ],
+      "ProofOwner": "S628",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-19"
+      },
+      "SourceHash": "fd72593cebbe79ac133e974750cf2a0e66850722eeda292d904035e8890ceef9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-19"
+        }
+      ],
+      "ProofOwner": "S715",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-131"
+          }
+        },
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Element",
+            "Id": "element-132"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-20"
+      },
+      "SourceHash": "4be79e87c1dbc13a01a0b8242cb1329cbd290c18520ec679511e3fafe92fe2af",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "RadioactiveDecay",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-20"
+        }
+      ],
+      "ProofOwner": "S631",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-21"
+      },
+      "SourceHash": "2e888ef8bb3d72d5107534a680291da4a7ec55c6e604fac0dc9c4d2f2598a1c9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-21"
+        }
+      ],
+      "ProofOwner": "S632",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Radiation",
+        "Id": "radiation-22"
+      },
+      "SourceHash": "f07c8f64337b882ca2044ac48cc9eec2add4f69c43d8ac9c74692a4df51970a9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "IonizingTransport",
+        "RadioactiveDecay",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "radiation/radiation-22"
+        }
+      ],
+      "ProofOwner": "S633",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    }
+  ],
+  "Modes": []
+}
+

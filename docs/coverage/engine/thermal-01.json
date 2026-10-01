@@ -1,0 +1,1898 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "thermal/thermal-01"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-01"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S598",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-02"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-02"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S597",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-03"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-03"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S596",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-04"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-04"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalDissipation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S567",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-05"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-05"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SlidingFriction",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S574",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-06"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-06"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S518",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-07"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-07"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S573",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-08"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-08"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S570",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-09"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-09"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalRadiation"
+      ],
+      "ProofOwner": "S571",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-10"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-10"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S572",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-11"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-11"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S575",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-12"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-12"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "HeatPumping",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S576",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-13"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-13"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "LiquidFreezing",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S577",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-14"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-14"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S578",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-15"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-15"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S579",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-16"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-16"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S580",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-17"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-17"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "LiquidBoiling",
+        "PhaseTopology",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S581",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-18"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-18"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction",
+        "VaporCondensation"
+      ],
+      "ProofOwner": "S582",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-19"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-19"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S583",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-20"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-20"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S584",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-21"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-21"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "TemperatureSensing"
+      ],
+      "ProofOwner": "S568",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-22"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-22"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "ThermalExpansion",
+        "ThermalStress",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S585",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-23"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-23"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S586",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-24"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-24"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S587",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-25"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-25"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "Buoyancy",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S588",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-26"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-26"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "ProofOwner": "S569",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-27"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-27"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "LiquidFreezing",
+        "PhaseStorage",
+        "PhaseTopology",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S589",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-28"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-28"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "CapillaryTransport",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "LiquidEvaporation",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S590",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-29"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-29"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S591",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-30"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-30"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "ProofOwner": "S592",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-31"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-31"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SlidingFriction",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S593",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-32"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-32"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S594",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-33"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-33"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S595",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-34"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-34"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElasticStorage",
+        "ElectricalDissipation",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "TemperatureSensing"
+      ],
+      "ProofOwner": "S599",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-35"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-35"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "LiquidBoiling",
+        "PhaseTopology",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S600",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-36"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-36"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "TemperatureSensing"
+      ],
+      "ProofOwner": "S601",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "thermal/thermal-37"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-37"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "TemperatureSensing",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S602",
+      "Artifacts": []
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-01"
+      },
+      "SourceHash": "266907083a334ba83572f0e40eef613fa89bf4009f443be47926e3e7f8a9d330",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-01"
+        }
+      ],
+      "ProofOwner": "S598",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-02"
+      },
+      "SourceHash": "438e181397c8751891763753c3c633986e0eb7bed04e2dfcd881c7fb83c7b9e7",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-02"
+        }
+      ],
+      "ProofOwner": "S597",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-03"
+      },
+      "SourceHash": "c21d620ce574cfb66755161f35f6ff2b28a611eddea6e36d085ecb727ac22cf1",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-03"
+        }
+      ],
+      "ProofOwner": "S596",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-04"
+      },
+      "SourceHash": "7077da7608eb7285489621802a008babb4bc921fa9f626f9d951f33462df6781",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalDissipation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-04"
+        }
+      ],
+      "ProofOwner": "S567",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-05"
+      },
+      "SourceHash": "8e441d85cdac119b82f0c074151c07a8635e357e9ef1d8c83809da589af693ee",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SlidingFriction",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-05"
+        }
+      ],
+      "ProofOwner": "S574",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-06"
+      },
+      "SourceHash": "373a585046be069607ac099d21990f2d1b2689ff8c1ee9987c7ef3e435bdef16",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-06"
+        }
+      ],
+      "ProofOwner": "S518",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-07"
+      },
+      "SourceHash": "be2f5d15b559926a231844e06f8c53e3215e7586cab5270975a1c14f8c858b88",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-07"
+        }
+      ],
+      "ProofOwner": "S573",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-08"
+      },
+      "SourceHash": "aea194e133e177b258991983f9f787bddd4a7ce59e5850e851e2b9771d5928db",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-08"
+        }
+      ],
+      "ProofOwner": "S570",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-09"
+      },
+      "SourceHash": "96782e9793dbc8dbb628c2663ea1f379240cef19859d5114f2e1616d577d7b36",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalRadiation"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-09"
+        }
+      ],
+      "ProofOwner": "S571",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-10"
+      },
+      "SourceHash": "dc34e052d67314374bb09318ff1f3011bf210bf2daf23a131fd3bf85308536d0",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-10"
+        }
+      ],
+      "ProofOwner": "S572",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-11"
+      },
+      "SourceHash": "030fc939fb96f5968af02e721fbbf904a98acaf32b74313f47a0a4a035bbb462",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-11"
+        }
+      ],
+      "ProofOwner": "S575",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-12"
+      },
+      "SourceHash": "7cbeb7611ebcca0924ec2f5a195d791fcd524522de5b190c9d62c16389a1ba99",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "HeatPumping",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-12"
+        }
+      ],
+      "ProofOwner": "S576",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-13"
+      },
+      "SourceHash": "0b8332996d0e9e3abcbcc714c080af47e4de04e108c2cea64c84183fd3776713",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "LiquidFreezing",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-13"
+        }
+      ],
+      "ProofOwner": "S577",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-14"
+      },
+      "SourceHash": "65dadcc7e3e96a9499c4363eaae6bc25e47d63e49172102c115fc8442c5a0f61",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-14"
+        }
+      ],
+      "ProofOwner": "S578",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-15"
+      },
+      "SourceHash": "914693662148552976ed6f071ddabfe843ae9a9e577cfdc58c6af3e54803030b",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-15"
+        }
+      ],
+      "ProofOwner": "S579",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-16"
+      },
+      "SourceHash": "9da7887e25714c952b64420bd390f9afbd95f70155706120ccdf0e7dad4722ee",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "StructuralFracture",
+        "TemperatureStrength",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-16"
+        }
+      ],
+      "ProofOwner": "S580",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-17"
+      },
+      "SourceHash": "0cc0aa49d32257bb35431c06d4c247b9aca402e3f9efa83ec04299716136e4d4",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "LiquidBoiling",
+        "PhaseTopology",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-17"
+        }
+      ],
+      "ProofOwner": "S581",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-18"
+      },
+      "SourceHash": "4557d168aaa81bebedcdc786cfca280e253a9857f49e4962e4c7b37d2f69fedd",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction",
+        "TopologyTransaction",
+        "VaporCondensation"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-18"
+        }
+      ],
+      "ProofOwner": "S582",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-19"
+      },
+      "SourceHash": "bd7638471188c2b6575d61f3050a296058d0ae43bbfe181ec5c8a4044a31e2cd",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-19"
+        }
+      ],
+      "ProofOwner": "S583",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-20"
+      },
+      "SourceHash": "98f727d19ad358300274f2dcc863122928dd9c4196db377310b1e293e1761c85",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-20"
+        }
+      ],
+      "ProofOwner": "S584",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-21"
+      },
+      "SourceHash": "013f129d9447ac3491bb974696614cf75a035300aab0446c71dc07ecbc84f8da",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "TemperatureSensing"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-21"
+        }
+      ],
+      "ProofOwner": "S568",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-22"
+      },
+      "SourceHash": "2becdd80fc74d72bfa7c7297ff98fce91f3283c13365790b9ff5dbd98bfcc550",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "ThermalExpansion",
+        "ThermalStress",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-22"
+        }
+      ],
+      "ProofOwner": "S585",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-23"
+      },
+      "SourceHash": "b3bcd14feba4cec6b3904d495d1c7a34afe384e0a60f3392050c0a8f58a10bad",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-23"
+        }
+      ],
+      "ProofOwner": "S586",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-24"
+      },
+      "SourceHash": "c5088bb91536060fda51a102b0e963356e286af813643adf16024ffc78a52298",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalExpansion",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-24"
+        }
+      ],
+      "ProofOwner": "S587",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-25"
+      },
+      "SourceHash": "aafaf14e73d91eedcb34e75dc697e36b73272e8f340ffbaa0e3fb57316cc19c5",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "Buoyancy",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-25"
+        }
+      ],
+      "ProofOwner": "S588",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-26"
+      },
+      "SourceHash": "73633f4100c922263e078adb1a01e94a8f602deb617d8bc76c66d70fa541a544",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConduction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-26"
+        }
+      ],
+      "ProofOwner": "S569",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-27"
+      },
+      "SourceHash": "29314f24d856451b152ca3704522436d5199e028c35f7017c7235fa80535a52c",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "LiquidFreezing",
+        "PhaseStorage",
+        "PhaseTopology",
+        "SensibleHeat",
+        "SolidMelting",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-27"
+        }
+      ],
+      "ProofOwner": "S589",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-28"
+      },
+      "SourceHash": "97d73126664db54cc1ff55dfa3280fd7c8a5b9ceaa0390b42aa3544fd8a822fd",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "CapillaryTransport",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "LiquidEvaporation",
+        "PhaseTopology",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermalConvection",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-28"
+        }
+      ],
+      "ProofOwner": "S590",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-29"
+      },
+      "SourceHash": "079dd733702e7260e3323732d082c5503d8baee4d04059c9f1806a0c1db98fc4",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-29"
+        }
+      ],
+      "ProofOwner": "S591",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-30"
+      },
+      "SourceHash": "604b50e7fd806f6ce76d104624410ae8e4d1ab5fd77743567bb4c436424f98ff",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SensibleHeat",
+        "StateTransaction",
+        "ThermoelectricConversion"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-30"
+        }
+      ],
+      "ProofOwner": "S592",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-31"
+      },
+      "SourceHash": "a11c1ff48321db2575bc9e3df0b5e11615f158b5941d9b5637a50195bfa8e9a8",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SlidingFriction",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-31"
+        }
+      ],
+      "ProofOwner": "S593",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-32"
+      },
+      "SourceHash": "792986e4fe6dff6747561eeb4d9c3b13fadc75c1cba326d0b89c9c78f7ca6ac1",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "Extinction",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-32"
+        }
+      ],
+      "ProofOwner": "S594",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-33"
+      },
+      "SourceHash": "47921e972ce502e29083a840fd0d0d030bb89433c65eb3498eeac7d5046f7e8f",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "Ignition",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-33"
+        }
+      ],
+      "ProofOwner": "S595",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-34"
+      },
+      "SourceHash": "decf3bd9ee1ee80df4b6dba661c7002f3cc5224f00eb2a1dd23395824f47f915",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElasticStorage",
+        "ElectricalDissipation",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "TemperatureSensing"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-34"
+        }
+      ],
+      "ProofOwner": "S599",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-35"
+      },
+      "SourceHash": "dc04619049a376936205cf04ead92400617b0a8612f470f78b49548e80940991",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "LiquidBoiling",
+        "PhaseTopology",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-35"
+        }
+      ],
+      "ProofOwner": "S600",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-36"
+      },
+      "SourceHash": "075cef8191641d0893dbd71f8afe9eef036c6b9e1ca262a24e69cd702ee9da1e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "TemperatureSensing"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-36"
+        }
+      ],
+      "ProofOwner": "S601",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Thermal",
+        "Id": "thermal-37"
+      },
+      "SourceHash": "7507280bc46ce2777e4937f2bcf079b595f506cbf77032b4f0363cca88391a6c",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction",
+        "TemperatureSensing",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "thermal/thermal-37"
+        }
+      ],
+      "ProofOwner": "S602",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    }
+  ],
+  "Modes": []
+}
+

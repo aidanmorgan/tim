@@ -1,0 +1,1065 @@
+{
+  "Capabilities": [
+    {
+      "Capability": "GasState",
+      "ModelBoundary": "Use finite composition, internal energy and pressure-volume constitutive state; heating a vented volume does not mimic a sealed volume.",
+      "Units": [
+        "Pascal",
+        "CubicMetre",
+        "Kelvin",
+        "Mole",
+        "Joule"
+      ],
+      "DesignOwner": "S471-D",
+      "ProofOwner": "S471-F",
+      "Availability": "Partial",
+      "CurrentSymbols": [
+        {
+          "Path": "engine/physics/AxialGasLoad.cs",
+          "Symbol": "AxialGasLoad",
+          "FileHash": "317131703b248fcc1a8cb112b97d4a93983c75f54663e5785d1de84a24f1db86"
+        }
+      ],
+      "IndependentOracle": "Independent pressure-volume-temperature relation in declared mixture regime; sealed and vented controls differ.",
+      "Dependencies": [
+        "FiniteLedger",
+        "EnvironmentState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-115"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-116"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-218"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-251"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-284"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-312"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-393"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-394"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-395"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-447"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-448"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-449"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-450"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-451"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-452"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-453"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-454"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-458"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-459"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-461"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-462"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-469"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-492"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-493"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-494"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-495"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-496"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-497"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-498"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-511"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-515"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-516"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-518"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-519"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-521"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-523"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-527"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-528"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-531"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-551"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-590"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-591"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-592"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-593"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-594"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-595"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-596"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-598"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-643"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-653"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-654"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-661"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-678"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-721"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-761"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-037"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-038"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-039"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-040"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-041"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-042"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-043"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-045"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-090"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-100"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-101"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-108"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-125"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-168"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-208"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-13"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-14"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-15"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-16"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-17"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-18"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-19"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-20"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-24"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-25"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-27"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-28"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-35"
+        },
+        {
+          "Origin": "Gap",
+          "Id": "gap-18"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "balloon"
+        },
+        {
+          "Origin": "Catalogue",
+          "Id": "bellows"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S471-I"
+      ]
+    },
+    {
+      "Capability": "SolidMelting",
+      "ModelBoundary": "Consume latent enthalpy as solid fraction and physical support decrease; inadequate energy leaves residual solid.",
+      "Units": [
+        "Kilogram",
+        "Kelvin",
+        "Joule"
+      ],
+      "DesignOwner": "S547-D",
+      "ProofOwner": "S547-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Sensible then latent energy balance determines solid fraction; sub-latent input cannot fully melt.",
+      "Dependencies": [
+        "SensibleHeat",
+        "FiniteLedger",
+        "PhaseTopology",
+        "GasState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-448"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-449"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-450"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-461"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-492"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-521"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-531"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-14"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-15"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-16"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-27"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S547-I"
+      ]
+    },
+    {
+      "Capability": "LiquidFreezing",
+      "ModelBoundary": "Remove sensible/latent energy to an explicit sink while solid fraction/geometry grow; no colder sink means no spontaneous cooling.",
+      "Units": [
+        "Kilogram",
+        "Kelvin",
+        "Joule"
+      ],
+      "DesignOwner": "S548-D",
+      "ProofOwner": "S548-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Removed sensible and latent heat equals sink gain; absent colder sink prevents freezing.",
+      "Dependencies": [
+        "SensibleHeat",
+        "FiniteLedger",
+        "PhaseTopology",
+        "GasState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-251"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-447"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-461"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-493"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-516"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-13"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-27"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S548-I"
+      ]
+    },
+    {
+      "Capability": "LiquidEvaporation",
+      "ModelBoundary": "Surface mass transfer carries latent energy and responds to vapor conditions; dry/saturated controls cannot evaporate arbitrarily.",
+      "Units": [
+        "Kilogram",
+        "Pascal",
+        "Joule",
+        "Second"
+      ],
+      "DesignOwner": "S549-D",
+      "ProofOwner": "S549-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Finite surface liquid and vapor driving difference bound mass flow and latent debit; dry/saturated control.",
+      "Dependencies": [
+        "SensibleHeat",
+        "FiniteLedger",
+        "PhaseTopology",
+        "GasState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-462"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-494"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-523"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-28"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S549-I"
+      ]
+    },
+    {
+      "Capability": "LiquidBoiling",
+      "ModelBoundary": "Pressure-dependent phase change consumes liquid mass and latent energy; an empty vessel cannot produce vapor.",
+      "Units": [
+        "Kilogram",
+        "Pascal",
+        "Joule"
+      ],
+      "DesignOwner": "S550-D",
+      "ProofOwner": "S550-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Pressure-dependent saturation and latent-energy balance; empty container makes no vapor.",
+      "Dependencies": [
+        "SensibleHeat",
+        "FiniteLedger",
+        "PhaseTopology",
+        "GasState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-451"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-469"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-495"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-515"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-531"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-17"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-35"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S550-I"
+      ]
+    },
+    {
+      "Capability": "VaporCondensation",
+      "ModelBoundary": "Reject enthalpy to create conserved liquid; a warm or depleted sink limits production.",
+      "Units": [
+        "Kilogram",
+        "Kelvin",
+        "Joule"
+      ],
+      "DesignOwner": "S551-D",
+      "ProofOwner": "S551-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Vapor mass loss equals liquid gain and rejected enthalpy; unavailable cold sink limits conversion.",
+      "Dependencies": [
+        "SensibleHeat",
+        "FiniteLedger",
+        "PhaseTopology",
+        "GasState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-452"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-496"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-519"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-18"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/component-research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S551-I"
+      ]
+    },
+    {
+      "Capability": "SolidSublimation",
+      "ModelBoundary": "Use generic material phase data for direct solid-to-vapor transfer with finite mass/energy; unsupported materials/conditions do not transition.",
+      "Units": [
+        "Kilogram",
+        "Pascal",
+        "Joule"
+      ],
+      "DesignOwner": "S552-D",
+      "ProofOwner": "S552-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Supported phase diagram and sublimation enthalpy; absent mass or unsupported material rejects.",
+      "Dependencies": [
+        "SensibleHeat",
+        "FiniteLedger",
+        "PhaseTopology",
+        "GasState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-497"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S552-I"
+      ]
+    },
+    {
+      "Capability": "VaporDeposition",
+      "ModelBoundary": "Use generic phase data for direct vapor-to-solid growth with removed energy; a too-warm surface does not grow frost.",
+      "Units": [
+        "Kilogram",
+        "Pascal",
+        "Joule"
+      ],
+      "DesignOwner": "S553-D",
+      "ProofOwner": "S553-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Deposited mass equals vapor loss and released latent heat; warm surface control cannot deposit.",
+      "Dependencies": [
+        "SensibleHeat",
+        "FiniteLedger",
+        "PhaseTopology",
+        "GasState"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-498"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S553-I"
+      ]
+    },
+    {
+      "Capability": "ChemicalReaction",
+      "ModelBoundary": "Consume declared reactants, form accounted products and transfer reaction energy through a validated material model; missing reactants limit the rate.",
+      "Units": [
+        "Mole",
+        "Kilogram",
+        "Joule",
+        "Second"
+      ],
+      "DesignOwner": "S554-D",
+      "ProofOwner": "S554-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Stoichiometric species and total energy balance; limiting reactant caps rate and yield.",
+      "Dependencies": [
+        "FiniteLedger",
+        "SensibleHeat",
+        "TopologyTransaction"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-028"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-250"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-251"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-435"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-436"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-437"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-440"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-463"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-465"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-466"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-467"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-499"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-500"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-501"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-515"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-517"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-526"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-528"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-645"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-646"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-647"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-648"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-657"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-658"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-659"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-092"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-093"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-094"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-095"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-104"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-105"
+        },
+        {
+          "Origin": "Element",
+          "Id": "element-106"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-01"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-02"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-03"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-06"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-29"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-31"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-32"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-33"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/physics-puzzle-gap-audit.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/research.md"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S554-I"
+      ]
+    },
+    {
+      "Capability": "Ignition",
+      "ModelBoundary": "Initiate reaction from local state/rate under that model regardless of heating-source identity; subthreshold energy fails.",
+      "Units": [
+        "Kelvin",
+        "Joule",
+        "Second"
+      ],
+      "DesignOwner": "S555-D",
+      "ProofOwner": "S555-F",
+      "Availability": "Missing",
+      "CurrentSymbols": [],
+      "IndependentOracle": "Same local state ignites regardless of heater identity; subthreshold state fails.",
+      "Dependencies": [
+        "ChemicalReaction"
+      ],
+      "BoundSources": [
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-435"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-436"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-437"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-440"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-465"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-466"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-467"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-500"
+        },
+        {
+          "Origin": "Task",
+          "Id": "sequence-task-517"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-01"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-02"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-03"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-06"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-31"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-32"
+        },
+        {
+          "Origin": "Thermal",
+          "Id": "thermal-33"
+        },
+        {
+          "Origin": "Research",
+          "Id": "docs/thermal-component-research.md"
+        }
+      ],
+      "ImplementationOwners": [
+        "S555-I"
+      ]
+    }
+  ],
+  "Consumers": [],
+  "Bindings": [],
+  "Modes": []
+}

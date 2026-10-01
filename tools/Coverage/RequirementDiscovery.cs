@@ -14,6 +14,7 @@ public static class RequirementDiscovery
     private const string CampaignPath="content/puzzles.json";
     private const string DocumentationPath="docs";
     private const string ResearchPattern="*research.md";
+    private const string GapResearchPath="docs/physics-puzzle-gap-audit.md";
     public static ContentHash Hash(string content)=>
         new(Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(content))));
     public static IReadOnlyList<SourceRequirement> Discover(DirectoryInfo root)
@@ -32,7 +33,8 @@ public static class RequirementDiscovery
                 Path.GetRelativePath(root.FullName,path),title.Groups[1].Value,Hash(text)));
         }
         records.AddRange(DiscoverFixtures(root).Select(fixture=>fixture.Source));
-        foreach(var fullPath in Directory.EnumerateFiles(Path.Combine(root.FullName,DocumentationPath),ResearchPattern).Order(StringComparer.Ordinal))
+        foreach(var fullPath in Directory.EnumerateFiles(Path.Combine(root.FullName,DocumentationPath),ResearchPattern)
+            .Append(Path.Combine(root.FullName,GapResearchPath)).Order(StringComparer.Ordinal))
         {
             var path=Path.GetRelativePath(root.FullName,fullPath);
             var text=File.ReadAllText(fullPath);
@@ -51,16 +53,27 @@ public static class RequirementDiscovery
         for(var i=0;i<anchors.Count;i++)
         {
             var anchor=anchors[i].Groups[1].Value;
-            var match=Regex.Match(anchor,@"\A(element|thermal|radiation|gap)-([0-9]+)\z");
+            var match=Regex.Match(anchor,@"\A(element|thermal|radiation|gap|sequence-task)-([0-9]+)\z");
             if(!match.Success)continue;
             var origin=match.Groups[1].Value switch
             {
                 "element"=>RequirementOrigin.Element,"thermal"=>RequirementOrigin.Thermal,
                 "radiation"=>RequirementOrigin.Radiation,"gap"=>RequirementOrigin.Gap,
+                "sequence-task"=>RequirementOrigin.Task,
                 _=>throw new InvalidDataException("Unsupported source anchor.")
             };
             var start=anchors[i].Index+anchors[i].Length;
-            var end=i+1<anchors.Count?anchors[i+1].Index:text.Length;
+            // Sequence and retained todo anchors may name the same following contract.
+            // Consume only adjacent identity anchors, never another element/navigation block.
+            var next=i+1;
+            while(next<anchors.Count &&
+                string.IsNullOrWhiteSpace(text[start..anchors[next].Index]) &&
+                Regex.IsMatch(anchors[next].Groups[1].Value,@"\A(?:sequence-task|todo)-[0-9]+\z"))
+            {
+                start=anchors[next].Index+anchors[next].Length;
+                next++;
+            }
+            var end=next<anchors.Count?anchors[next].Index:text.Length;
             var block=text[start..end].Trim();
             if(block.Length==0)throw new InvalidDataException("Empty requirement block.");
             var title=block.Split('\n').First(line=>!string.IsNullOrWhiteSpace(line));
@@ -79,7 +92,7 @@ public static class RequirementDiscovery
             var levelId=new RequirementId(level.GetProperty("id").GetString()!);
             foreach(var part in level.GetProperty("parts").EnumerateArray())
             {
-                if(!part.GetProperty("locked").GetBoolean())continue;
+                _ = part.GetProperty("locked").GetBoolean(); // Locked and movable authored instances each need proof.
                 var id=new RequirementId(part.GetProperty("id").GetString()!);
                 var kind=new RequirementId(part.GetProperty("kind").GetString()!);
                 var key=new RequirementId(levelId.Value+"/"+id.Value);

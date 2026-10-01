@@ -1,3 +1,7 @@
+# P0-002 current inventory extension
+
+Current commands, counts and limits are maintained in [docs/coverage](../../docs/coverage/README.md) and the [P0-002 contract](../../docs/work-orders/P0-002/contract.md). The capability operation is `audit-capabilities <root> <index.json>`; its strict index names bounded inventory shards. The current Release suite contains 40 tests. Currency is not runtime qualification. Earlier checkpoint details below are retained historical evidence.
+
 # Coverage source inventory
 
 A read-only C# preparation tool for TODO's canonical coverage ledger and PERF-23. It discovers source obligations and checks a saved inventory for missing, orphaned, duplicate or changed records. It does not modify game state.
@@ -38,3 +42,5 @@ Seeding retains every non-catalogue/non-fixture source separately in UnresolvedS
 Current migration seed: 72 separate catalogue elements, 300 fixture bindings and 297 unresolved source obligations. All 72 mode reviews and all 72 process reviews remain pending; CompletionProven remains false. Future specification-to-element equivalence must be explicit and preserve every source requirement. Do not close a family, claim implementation, or infer physics support from this mapping.
 
 Final Release build: zero warnings/errors. Expanded suite: 16/16, 0.096 seconds. Added cases cover same-title variants, correct ownership, preserved unresolved specifications, missing elements/fixtures, changed configurations, duplicate/wrong/unknown ownership, hidden catalogue requirements, unsupported review claims and typed JSON round-trip/required fields. Runtime game code is unchanged; browser proof remains required for every game element.
+
+Capability source relations use explicit enum-typed CoverageScope/SourceReference traceability; they are not work-order readiness edges. BoundSources is the reverse capability ledger. Required law Dependencies alone defines capability dependency closure. Canonical mode enum declarations are validated before interpreting resource ordinals. Integrated audit requires the exact working inputs in docs/verification/P0-002/input-provenance.json; scoped tooling publication cannot reproduce unpublished inputs from a clean checkout.

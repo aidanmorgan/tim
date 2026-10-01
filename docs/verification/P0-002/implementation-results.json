@@ -1,0 +1,56 @@
+{
+  "build": {
+    "name": "build",
+    "cmd": "dotnet build tools/Coverage.Tests -c Release --no-restore",
+    "chunk_id": "4e92b4",
+    "wall_time_seconds": 0.000007583,
+    "session_id": 56800,
+    "original_token_count": 70,
+    "output": "  Coverage -> /Users/aidan/dev/personal/tim/tools/Coverage/bin/Release/net10.0/Coverage.dll\n  Coverage.Tests -> /Users/aidan/dev/personal/tim/tools/Coverage.Tests/bin/Release/net10.0/Coverage.Tests.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:01.10\n",
+    "exit_code": 0
+  },
+  "tests": {
+    "cmd": "dotnet tools/Coverage.Tests/bin/Release/net10.0/Coverage.Tests.dll -noColor",
+    "chunk_id": "406be8",
+    "wall_time_seconds": 0.253911625,
+    "exit_code": 0,
+    "original_token_count": 97,
+    "output": "xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)\n  Discovering: Coverage.Tests\n  Discovered:  Coverage.Tests\n  Starting:    Coverage.Tests\n  Finished:    Coverage.Tests (ID = '4e6c59154fec9dd2045e69debfe442ec5f2ba9cf6c2c685790a4f3461ccd1e4f')\n=== TEST EXECUTION SUMMARY ===\n   Coverage.Tests  Total: 33, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.192s\n"
+  },
+  "capabilities": {
+    "name": "capabilities",
+    "cmd": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-capabilities . docs/coverage/engine-capabilities.json",
+    "chunk_id": "60eaa3",
+    "wall_time_seconds": 0.00000675,
+    "session_id": 93595,
+    "original_token_count": 47,
+    "output": "{\n  \"Sources\": 1471,\n  \"Capabilities\": 71,\n  \"Consumers\": 1471,\n  \"Modes\": 104,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"Changed\": 0,\n  \"InventoryCurrent\": true,\n  \"RuntimeQualified\": false\n}\n",
+    "exit_code": 0
+  },
+  "inventory": {
+    "name": "inventory",
+    "cmd": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-inventory . docs/coverage/source-inventory.json",
+    "chunk_id": "471c25",
+    "wall_time_seconds": 0.183567042,
+    "exit_code": 0,
+    "original_token_count": 39,
+    "output": "{\n  \"Sources\": 1471,\n  \"Unreviewed\": 1471,\n  \"Changed\": 0,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"SourceInventoryCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+  },
+  "elements": {
+    "name": "elements",
+    "cmd": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-elements . docs/coverage/catalogue-elements.json",
+    "chunk_id": "b6aa97",
+    "wall_time_seconds": 0.224045625,
+    "exit_code": 0,
+    "original_token_count": 46,
+    "output": "{\n  \"Elements\": 72,\n  \"Fixtures\": 302,\n  \"UnresolvedSources\": 1097,\n  \"PendingModeReviews\": 72,\n  \"PendingProcessReviews\": 72,\n  \"LinksCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+  },
+  "recompute": {
+    "cmd": "python3 - <<'PY'\nimport pathlib,json,hashlib,re,collections,subprocess\nh=lambda p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()\nb=json.loads(pathlib.Path('docs/s001-source-baseline.json').read_text());entries=b['sourceEntries'];mismatches=[p for p,d in entries if not pathlib.Path(p).is_file() or h(p)!=d]\nt=pathlib.Path('TODO.md').read_text();specs=re.findall(r'<a id=\"sequence-task-([0-9]+)\"></a>',t);old=re.findall(r'<a id=\"execution-step-([0-9]+)\"></a>',t);orders=[int(x) for x in re.findall(r'^\\| ([0-9]+) \\|.*?\\*\\*[A-Z][A-Z0-9-]* — ',t,re.M)]\nidx=json.loads(pathlib.Path('docs/coverage/engine-capabilities.json').read_text());docs=[json.loads(pathlib.Path(p).read_text()) for p in idx['Files']];bindings=sum([d['Bindings'] for d in docs],[]);consumers=sum([d['Consumers'] for d in docs],[]);caps=sum([d['Capabilities'] for d in docs],[]);modes=sum([d['Modes'] for d in docs],[])\nbk=[(x['Source']['Origin'],x['Source']['Id']) for x in bindings];sources=json.loads(pathlib.Path('docs/coverage/source-inventory.json').read_text())['Records'];sk={(x['Source']['Key']['Origin'],x['Source']['Key']['Id']) for x in sources}\nprint(json.dumps({'runtimeSources':len(entries),'runtimeMismatches':mismatches,'taskAnchors':len(specs),'uniqueTaskAnchors':len(set(specs)),'originalExecutionAnchors':len(old),'uniqueOriginalExecutionAnchors':len(set(old)),'registerOrders':len(orders),'consecutiveOrders':orders==list(range(1,4559)),'bindingCounts':dict(collections.Counter(k[0] for k in bk)),'missing':list(sk-set(bk)),'orphan':list(set(bk)-sk),'duplicateBindings':len(bk)-len(set(bk)),'capabilities':len(caps),'uniqueCapabilities':len({c['Capability'] for c in caps}),'consumers':len(consumers),'uniqueConsumers':len({c['Id']['Identity'] for c in consumers}),'modes':len(modes),'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()},indent=2))\nPY",
+    "chunk_id": "6fbd93",
+    "wall_time_seconds": 0.550112125,
+    "exit_code": 0,
+    "original_token_count": 160,
+    "output": "{\n  \"runtimeSources\": 916,\n  \"runtimeMismatches\": [],\n  \"taskAnchors\": 799,\n  \"uniqueTaskAnchors\": 799,\n  \"originalExecutionAnchors\": 847,\n  \"uniqueOriginalExecutionAnchors\": 847,\n  \"registerOrders\": 4558,\n  \"consecutiveOrders\": true,\n  \"bindingCounts\": {\n    \"Task\": 799,\n    \"Element\": 216,\n    \"Thermal\": 37,\n    \"Radiation\": 22,\n    \"Gap\": 18,\n    \"Catalogue\": 72,\n    \"Fixture\": 302,\n    \"Research\": 5\n  },\n  \"missing\": [],\n  \"orphan\": [],\n  \"duplicateBindings\": 0,\n  \"capabilities\": 71,\n  \"uniqueCapabilities\": 71,\n  \"consumers\": 1471,\n  \"uniqueConsumers\": 1471,\n  \"modes\": 104,\n  \"head\": \"d99b5dc88dda943513e8813b03307428f3b7bcfa\"\n}\n"
+  }
+}

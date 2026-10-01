@@ -1,0 +1,4903 @@
+{
+  "Capabilities": [],
+  "Consumers": [
+    {
+      "Id": {
+        "Identity": "element/element-101"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-101"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S671",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-102"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-102"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S362",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-103"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-103"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S363",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-104"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-104"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S377",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-105"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-105"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S378",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-106"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-106"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S379",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-107"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-107"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S380",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-108"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-108"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "AerodynamicDrag",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S480",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-109"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-109"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S376",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-110"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-110"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S337",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-111"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-111"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S338",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-112"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-112"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S326",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-113"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-113"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S327",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-114"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-114"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S328",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-115"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-115"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S329",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-116"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-116"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S330",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-117"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-117"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S331",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-118"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-118"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "MaterialCoating",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S672",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-119"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-119"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "MaterialCoating",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S673",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-120"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-120"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S674",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-121"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-121"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S675",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-122"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-122"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S676",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-123"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-123"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "ProofOwner": "S677",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-124"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-124"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "RigidBodyDynamics"
+      ],
+      "ProofOwner": "S678",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-125"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-125"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "AerodynamicDrag",
+        "Buoyancy",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S679",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-126"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-126"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S610",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-127"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-127"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S611",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-128"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-128"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S612",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-129"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-129"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S618",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-130"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-130"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S619",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-131"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-131"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S629",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-132"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-132"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S630",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-133"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-133"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S405",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-134"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-134"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S406",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-135"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-135"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S407",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-136"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-136"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S408",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-137"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-137"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S409",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-138"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-138"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S510",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-139"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-139"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S511",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-140"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-140"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S512",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-141"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-141"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S513",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-142"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-142"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S514",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-143"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-143"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S498",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-144"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-144"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S499",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-145"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-145"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S500",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-146"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-146"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S501",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-147"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-147"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S502",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-148"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-148"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S503",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-149"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-149"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S504",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-150"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-150"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S505",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-151"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-151"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S506",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-152"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-152"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S507",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-153"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-153"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S515",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-154"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-154"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S516",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-155"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-155"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "OpticalTransport",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "ProofOwner": "S517",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-156"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-156"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S344",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-157"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-157"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S345",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-158"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-158"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S346",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-159"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-159"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S680",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-160"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-160"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S681",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-161"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-161"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S682",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-162"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-162"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S373",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-163"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-163"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S374",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-164"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-164"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S375",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-165"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-165"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S458",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-166"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-166"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S459",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-167"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-167"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S460",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-168"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-168"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S461",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-169"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-169"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "Buoyancy",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S462",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-170"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-170"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "Buoyancy",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S463",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-171"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-171"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "CapillaryTransport",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S464",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-172"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-172"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S465",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-173"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-173"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S519",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-174"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-174"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S520",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-175"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-175"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S521",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-176"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-176"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S492",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-177"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-177"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S493",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-178"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-178"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S494",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-179"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-179"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "AcousticPropagation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S531",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-180"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-180"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "AcousticPropagation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S532",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-181"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-181"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "SignalPropagation"
+      ],
+      "ProofOwner": "S402",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-182"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-182"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "SignalPropagation"
+      ],
+      "ProofOwner": "S403",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-183"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-183"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "SignalPropagation"
+      ],
+      "ProofOwner": "S404",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-184"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-184"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S366",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-185"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-185"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S364",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-186"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-186"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "ProofOwner": "S365",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-187"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-187"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S294",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-188"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-188"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S295",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-189"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-189"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S297",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-190"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-190"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S293",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-191"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-191"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S298",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-192"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-192"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S296",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-193"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-193"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S299",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-194"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-194"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S300",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-195"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-195"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S301",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-196"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-196"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S302",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-197"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-197"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S303",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-198"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-198"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S304",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-199"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-199"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S305",
+      "Artifacts": []
+    },
+    {
+      "Id": {
+        "Identity": "element/element-200"
+      },
+      "Kind": "FutureDeclaration",
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-200"
+      },
+      "Symbols": [],
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "ProofOwner": "S310",
+      "Artifacts": []
+    }
+  ],
+  "Bindings": [
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-101"
+      },
+      "SourceHash": "d96c5e73d6601d85da5da197aca5e08da1ba2c9e41f21a971a9fb2ceaed471d7",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-101"
+        }
+      ],
+      "ProofOwner": "S671",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-102"
+      },
+      "SourceHash": "9a733029f3cbc46c6e0bf79e6931e7a08a5b8fc7849e9362ad3255bf6ff62bd7",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-102"
+        }
+      ],
+      "ProofOwner": "S362",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-103"
+      },
+      "SourceHash": "519296514454ed8a30e52fd2fa8d74c55feb4b19a349b9fb7baaf6e3d323f613",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-103"
+        }
+      ],
+      "ProofOwner": "S363",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-104"
+      },
+      "SourceHash": "7add4bdb5f71dff4ee562fa385e72d11b0018f69b313ec5671e8a0aaa2bae4a1",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-104"
+        }
+      ],
+      "ProofOwner": "S377",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-105"
+      },
+      "SourceHash": "3a4e97cebb81461a0b820603061e48f6fc8146951f6d042ec1432f3e5e21d828",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-105"
+        }
+      ],
+      "ProofOwner": "S378",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-106"
+      },
+      "SourceHash": "67362826128feb23dae862293b18791daac02f1e3856c000486ad0a34927b172",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ChemicalReaction",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "SensibleHeat",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-106"
+        }
+      ],
+      "ProofOwner": "S379",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-107"
+      },
+      "SourceHash": "8f14d87bd35258544d9d3b97b288316aa46c75290f6e6dd0f6d7ff9b4f8525a9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-107"
+        }
+      ],
+      "ProofOwner": "S380",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-108"
+      },
+      "SourceHash": "f8f086efdfabff42d4f70eec15ce4959469f62504b664bad062508458110f571",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "AerodynamicDrag",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-108"
+        }
+      ],
+      "ProofOwner": "S480",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-109"
+      },
+      "SourceHash": "f5b2c3149e2d4116cd0d7227a63388263e2132c330065e57455e969fb0c267ac",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-109"
+        }
+      ],
+      "ProofOwner": "S376",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-110"
+      },
+      "SourceHash": "5a33b026e3d24b5f1e0f30f39bf4cec5940b696eca5e3e1dddc1be2ca4b8daac",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-110"
+        }
+      ],
+      "ProofOwner": "S337",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-111"
+      },
+      "SourceHash": "b6e07d59b238fff81c5d71c4a960d782a5b7d4d5160a180694b9a56ec48f880b",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-111"
+        }
+      ],
+      "ProofOwner": "S338",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-112"
+      },
+      "SourceHash": "14d3c724eaddbb45ecfdef678ae895793793450b0b081b4552fe4ec55d93adb0",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-112"
+        }
+      ],
+      "ProofOwner": "S326",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-01"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-113"
+      },
+      "SourceHash": "d48a02e35def173139aa058f62a540e1da5792347c9697b3ad74d4aa97b9bfd9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-113"
+        }
+      ],
+      "ProofOwner": "S327",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-01"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-114"
+      },
+      "SourceHash": "c5de432b726bcdea273c0fbdad3ce12b57b51e9a8ef5aa68f5bea6d5a3279ff9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-114"
+        }
+      ],
+      "ProofOwner": "S328",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-02"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-115"
+      },
+      "SourceHash": "fa126dd210b600b1eba482c6c745acc5a28e22823cb47ae0993caf68b9577cd8",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-115"
+        }
+      ],
+      "ProofOwner": "S329",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-02"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-116"
+      },
+      "SourceHash": "deaadf49d8cc2b650d92bdc8d90a59173b364d02311e739e04f4d7286ad2ef48",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-116"
+        }
+      ],
+      "ProofOwner": "S330",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-03"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-117"
+      },
+      "SourceHash": "09a5718de5b0c2b96467dc289dde1afc10b4549644cc570feeccfb6c4bc5de7a",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-117"
+        }
+      ],
+      "ProofOwner": "S331",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-03"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-118"
+      },
+      "SourceHash": "9e74c362933e0ad9e1899dc334e7c1443a03b8e09d161278168db3c7a8c4a482",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "MaterialCoating",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-118"
+        }
+      ],
+      "ProofOwner": "S672",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-08"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-119"
+      },
+      "SourceHash": "b417b16a447eca489ffbf558decae723a5c5192e1fd59f69ced8d5ec57622ca5",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "MaterialCoating",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-119"
+        }
+      ],
+      "ProofOwner": "S673",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-08"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-120"
+      },
+      "SourceHash": "a0aceb19599328468a3ce9ab50bf9ebe0370ab65aaa3d131326411ace467d476",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-120"
+        }
+      ],
+      "ProofOwner": "S674",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-16"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-121"
+      },
+      "SourceHash": "abeb187be635cdc5a816a41cae21c6a1f5397d4c70c3c2ca2db0bf7dbed63671",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-121"
+        }
+      ],
+      "ProofOwner": "S675",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-16"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-122"
+      },
+      "SourceHash": "755ff9fa67b6c22f2cdd258fa980d93da35f4be2e10c5f6fa4df459d371aad07",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-122"
+        }
+      ],
+      "ProofOwner": "S676",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-16"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-123"
+      },
+      "SourceHash": "0f98907b71c9c7735843207e3a2d48a86d8034d32b09a98c8b67356e52a24592",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ObjectiveEvaluation",
+        "ReliablePublication",
+        "SignalPropagation",
+        "StateTransaction",
+        "TypedContracts"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-123"
+        }
+      ],
+      "ProofOwner": "S677",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-16"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-124"
+      },
+      "SourceHash": "c803e42aea4aa3020babaa3ac6cdef6424c63306bfc31a59f720e8d289f94253",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "RigidBodyDynamics"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-124"
+        }
+      ],
+      "ProofOwner": "S678",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-18"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-125"
+      },
+      "SourceHash": "dcde7566fe03c83ec8439929a79de7559b896dd93421b45bae57c764b52c2441",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "AerodynamicDrag",
+        "Buoyancy",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GasState",
+        "GeometryQuery",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-125"
+        }
+      ],
+      "ProofOwner": "S679",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-18"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-126"
+      },
+      "SourceHash": "924501ed439fe23e0020c615d3ad02b8e6fb9e07788a5c8866c69799d79dda80",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-126"
+        }
+      ],
+      "ProofOwner": "S610",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-05"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-127"
+      },
+      "SourceHash": "537bbdf3fbd6803a05bffca82981f119d846005dcffb4297c307a341a666c4b5",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-127"
+        }
+      ],
+      "ProofOwner": "S611",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-05"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-128"
+      },
+      "SourceHash": "f7ac4719cd34cb1fa650aa28c5f4797e207e7ce9bf3029da37936a830054746a",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-128"
+        }
+      ],
+      "ProofOwner": "S612",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-05"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-129"
+      },
+      "SourceHash": "c1c38bfa10c01a8ea6336cbc697038ccc79424b96222ecb40f53126aee7e169d",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-129"
+        }
+      ],
+      "ProofOwner": "S618",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-11"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-130"
+      },
+      "SourceHash": "015eb89ef18fc3e5b65bd7970a4c710989397ac3854a830ad339c197412978ac",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-130"
+        }
+      ],
+      "ProofOwner": "S619",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-11"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-131"
+      },
+      "SourceHash": "73c86a7ef7afcb8d07d8a0fd1751be14c11c65ad2c921cb5f3fd99e9382e6c9d",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-131"
+        }
+      ],
+      "ProofOwner": "S629",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-19"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-132"
+      },
+      "SourceHash": "ed3d0d74a8bc6c6fe3f10f91e22d1e053121f13e7107880bb7a26ea7daee520a",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "IonizingTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-132"
+        }
+      ],
+      "ProofOwner": "S630",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Radiation",
+            "Id": "radiation-19"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-133"
+      },
+      "SourceHash": "76a2c4ad8c1c5bba4ab444b9026f7ac35324eea58cfa3d10edd03bc6b302bfa9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-133"
+        }
+      ],
+      "ProofOwner": "S405",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-134"
+      },
+      "SourceHash": "d68f35eb213042d95e9abce60e7eb93a5528162836482ee3270c06c26966178b",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-134"
+        }
+      ],
+      "ProofOwner": "S406",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-135"
+      },
+      "SourceHash": "92e9fe3981968f0ef893e10dba1e72187e11fd6511d537b44bbe2e9485967769",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-135"
+        }
+      ],
+      "ProofOwner": "S407",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-136"
+      },
+      "SourceHash": "4d96af0c048709f3ba26cf2817bd32b946413a5a051c20e7d8ffd384ef3c9d56",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-136"
+        }
+      ],
+      "ProofOwner": "S408",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-137"
+      },
+      "SourceHash": "699b57f214dfded791e72d51a7ce45507c53ebb546530b7ab5f5495ffc19f1ff",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-137"
+        }
+      ],
+      "ProofOwner": "S409",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-138"
+      },
+      "SourceHash": "890b098420fa4f04dc68846a2e29ef1cf269ea05527d15e86ee6061a2cc9f7ee",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-138"
+        }
+      ],
+      "ProofOwner": "S510",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-139"
+      },
+      "SourceHash": "4989776379ee84ff1575a9efee6ae94c3e534c7f3372e2e9fb2426858e3e2ccc",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-139"
+        }
+      ],
+      "ProofOwner": "S511",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-140"
+      },
+      "SourceHash": "8e774fc8adfa4dae67d33296254ff2acef5e78a9ffa659911e66fa48972cd5b4",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-140"
+        }
+      ],
+      "ProofOwner": "S512",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-141"
+      },
+      "SourceHash": "6037db6d5f33b6fe2ad4e20445c5936231973f69422afa8788a8b9398c5a661a",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-141"
+        }
+      ],
+      "ProofOwner": "S513",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-142"
+      },
+      "SourceHash": "07e2847a039e3902c2a9c3ae06fe8eefb04bc0e908a4a0f860517b3ad208cfc7",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-142"
+        }
+      ],
+      "ProofOwner": "S514",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-143"
+      },
+      "SourceHash": "288eadbbd0d82e33b6eb956ddc39f101febe6dff8f742f4cbd8cf29a154e18b4",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-143"
+        }
+      ],
+      "ProofOwner": "S498",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-144"
+      },
+      "SourceHash": "39ef848cc8be2cd36d16cd582280ac7c273c9ee98d939b6a81c3c6a5a480599f",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-144"
+        }
+      ],
+      "ProofOwner": "S499",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-145"
+      },
+      "SourceHash": "01a8cd7f7342694394f4031011aa41287f26925a7af281a2db82668f8e8807af",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-145"
+        }
+      ],
+      "ProofOwner": "S500",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-146"
+      },
+      "SourceHash": "1e70ce1728594db762c3228f66c2933099dbf82259e57d95e4317d9f60b9301a",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-146"
+        }
+      ],
+      "ProofOwner": "S501",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-147"
+      },
+      "SourceHash": "1b9f60d675a1a7ccb0d603c35cffcc107bb5f32e86051f4860099a579e28f7c7",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-147"
+        }
+      ],
+      "ProofOwner": "S502",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-148"
+      },
+      "SourceHash": "6eca5c138ad41ed0395e656860044baaf6169ea0363b1b171dc381d325e2c0fa",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-148"
+        }
+      ],
+      "ProofOwner": "S503",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-149"
+      },
+      "SourceHash": "46c0b279a7e1286d9af87c6cf8ca456c448bbbf442e01935df46d62238f1af83",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-149"
+        }
+      ],
+      "ProofOwner": "S504",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-150"
+      },
+      "SourceHash": "aba21bb6029c1c2a7e7c41641da2dfb5eb6a674f7b8cc0ba921c202562964543",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-150"
+        }
+      ],
+      "ProofOwner": "S505",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-151"
+      },
+      "SourceHash": "e7516ed7d14dc99e0296cf86302326d3e2716922d0a8d9da6d49868bae4297dc",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-151"
+        }
+      ],
+      "ProofOwner": "S506",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-152"
+      },
+      "SourceHash": "371e4b7d044e2ad19840ad1890a4c578a099907b63fa199c35fedb1db7f3085d",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-152"
+        }
+      ],
+      "ProofOwner": "S507",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-153"
+      },
+      "SourceHash": "da63984bfc272216dff39345259b461167b9e6c5e6970d8cde8f02a07198522b",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-153"
+        }
+      ],
+      "ProofOwner": "S515",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-154"
+      },
+      "SourceHash": "2059877fc3ae600698ee4d5fe1e3742b8b469d993959f2a4885abd1e7849523a",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-154"
+        }
+      ],
+      "ProofOwner": "S516",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-155"
+      },
+      "SourceHash": "65ae54c29c4a2a3b5bb522294741045732437adfbec671ac885aca9fe970291e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "OpticalTransport",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TensionTransmission"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-155"
+        }
+      ],
+      "ProofOwner": "S517",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-156"
+      },
+      "SourceHash": "71e18926c63a90c73a8b8a5b86b77d62168f9d2272bdb4dc0af9fd68e70bda29",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-156"
+        }
+      ],
+      "ProofOwner": "S344",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-157"
+      },
+      "SourceHash": "47a7c789891499bd442d99850d5c5f829b806abafa7b0d6ba62cee8a689c6c94",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-157"
+        }
+      ],
+      "ProofOwner": "S345",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-158"
+      },
+      "SourceHash": "847d63e010f8e8d84a0722bdf4e6e96e850b5d3f5a49fc7c295657b35c048385",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-158"
+        }
+      ],
+      "ProofOwner": "S346",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-159"
+      },
+      "SourceHash": "7e8f819f17f83bcb2200ace15220205e59a06db2c374e6741c2c441db0bec516",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-159"
+        }
+      ],
+      "ProofOwner": "S680",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-05"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-160"
+      },
+      "SourceHash": "0e079fc0331e93ddcb082d8b254b5bf25d75b4158c4b0366e90a22453cbe992d",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-160"
+        }
+      ],
+      "ProofOwner": "S681",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-05"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-161"
+      },
+      "SourceHash": "1551d588028c5e50fb52c2f1c7d956f87cbdbc444b655619ce74ec0e5af95d92",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-161"
+        }
+      ],
+      "ProofOwner": "S682",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": [
+        {
+          "Kind": "SourceReference",
+          "Target": {
+            "Origin": "Gap",
+            "Id": "gap-05"
+          }
+        }
+      ]
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-162"
+      },
+      "SourceHash": "83aaa7f160dc57bb1a1a16763b33206c032b7ec6cdc8479ab1e7c68a7c7e527e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-162"
+        }
+      ],
+      "ProofOwner": "S373",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-163"
+      },
+      "SourceHash": "96ce89dd2bfd712e6d1e166ee289373b519976b692a47ff0554cbc005c04c527",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-163"
+        }
+      ],
+      "ProofOwner": "S374",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-164"
+      },
+      "SourceHash": "8c7ba843bdc899c020e8cdbada5602cbfeff7087bf01ff95046813825a97578e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-164"
+        }
+      ],
+      "ProofOwner": "S375",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-165"
+      },
+      "SourceHash": "8ed6700b1023f3f7e62107324a8d0fa3601ad3a21f6e9b5c27ee767bc4464d95",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-165"
+        }
+      ],
+      "ProofOwner": "S458",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-166"
+      },
+      "SourceHash": "aff095ab0101e5ac556374516e6802ff53303ddf727ccc220f14a44faf402c5f",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-166"
+        }
+      ],
+      "ProofOwner": "S459",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-167"
+      },
+      "SourceHash": "341679f4ab533a57630a479eec41ae7f5019503bd95fe838621b126d879fd3a2",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-167"
+        }
+      ],
+      "ProofOwner": "S460",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-168"
+      },
+      "SourceHash": "e6fb9dec732c26c7ec776ff1ece702912cfceb77852cbe04dd000d70becb57d9",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "FluidAdvection",
+        "GasState",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-168"
+        }
+      ],
+      "ProofOwner": "S461",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-169"
+      },
+      "SourceHash": "1214732728155b376b8fa663cac8b38f5f93d62cb35338b836bc0ea5d46db2bd",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "Buoyancy",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-169"
+        }
+      ],
+      "ProofOwner": "S462",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-170"
+      },
+      "SourceHash": "e1a085833f0afe4d2e61d1c76dc228bd990623bea7adbd12d08652bac37f2b50",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "Buoyancy",
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-170"
+        }
+      ],
+      "ProofOwner": "S463",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-171"
+      },
+      "SourceHash": "1d8725ee1ff3c800e5750a6ef6c03f33634ff4e9a891b472f16ded7b052f6881",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "CapillaryTransport",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "JointConstraint",
+        "PressureWork",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-171"
+        }
+      ],
+      "ProofOwner": "S464",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-172"
+      },
+      "SourceHash": "fdddf7a532571eb8c21f6af34683507adf670872f556f22368fb20b87992be81",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "FluidAdvection",
+        "GeometryQuery",
+        "StateTransaction",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-172"
+        }
+      ],
+      "ProofOwner": "S465",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-173"
+      },
+      "SourceHash": "86d5392df39885d5aa1d891626e9184172cb80d6d5743f52b96ce9593e01f744",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-173"
+        }
+      ],
+      "ProofOwner": "S519",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-174"
+      },
+      "SourceHash": "73be2052dc9fddb4c13c0789736d3ddfe9fa65e21fa70e4cf9106a64e056a3ea",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-174"
+        }
+      ],
+      "ProofOwner": "S520",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-175"
+      },
+      "SourceHash": "1c78c41e0a0d2dbfff4f61cd2012293d473fbc439a41a658c5db968cb8ec9b52",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalAbsorption",
+        "OpticalTransport",
+        "SensibleHeat",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-175"
+        }
+      ],
+      "ProofOwner": "S521",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-176"
+      },
+      "SourceHash": "834e4b8ecbc6976d8341e238c5afdc67fcec587937dcc44707d71a92d592a0f3",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-176"
+        }
+      ],
+      "ProofOwner": "S492",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-177"
+      },
+      "SourceHash": "3c1bec055c1d201f00569fbb8b4927e93112756eb7f6e3751fe6d5c09de66af4",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-177"
+        }
+      ],
+      "ProofOwner": "S493",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-178"
+      },
+      "SourceHash": "8ab9bf3b5f78fd5341aba58a26b710ef23eef618b8852020c1d44bf2924c2a4e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "OpticalTransport",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-178"
+        }
+      ],
+      "ProofOwner": "S494",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-179"
+      },
+      "SourceHash": "293b97131edef5c0bab87246a0a35f04de086bb0ba8fb71459fc2f5d92a53035",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "AcousticPropagation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-179"
+        }
+      ],
+      "ProofOwner": "S531",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-180"
+      },
+      "SourceHash": "d2d154e9b2a65f89b74e5c0259ba5dae696d15adfbd453130c07ed2b72d7bfc0",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "AcousticPropagation",
+        "ElectricalPower",
+        "FiniteLedger",
+        "GeometryQuery",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-180"
+        }
+      ],
+      "ProofOwner": "S532",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-181"
+      },
+      "SourceHash": "4a2fd4d7ad287b6e742330cd3b237d63f1335ed7b57d98968fcb9a054019b6e5",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "SignalPropagation"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-181"
+        }
+      ],
+      "ProofOwner": "S402",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-182"
+      },
+      "SourceHash": "4000eee192030df9fdd5e1845b188e892af58adceebb791c4537ed7b3bc3978e",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "SignalPropagation"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-182"
+        }
+      ],
+      "ProofOwner": "S403",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-183"
+      },
+      "SourceHash": "bb1dd2444c4e87ae829d842ec901c6ae168c286af1fd72dc4351e4142b480fbb",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "SignalPropagation"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-183"
+        }
+      ],
+      "ProofOwner": "S404",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-184"
+      },
+      "SourceHash": "297e5b1b096da0c1cbdf954bc589e075d070aac743e8e40fe6152edbdb7f2936",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-184"
+        }
+      ],
+      "ProofOwner": "S366",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-185"
+      },
+      "SourceHash": "cf296e511bea058224c5dda89916030758dac8a89f6aad60ad907e09d439bfaf",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-185"
+        }
+      ],
+      "ProofOwner": "S364",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-186"
+      },
+      "SourceHash": "7c7afe423c7ab2fd4f30e1895db8fc6a410a152ef99a2f7e6daa0a0cb45a385c",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "PhaseTopology",
+        "RigidBodyDynamics",
+        "StateTransaction",
+        "StructuralFracture",
+        "TopologyTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-186"
+        }
+      ],
+      "ProofOwner": "S365",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-187"
+      },
+      "SourceHash": "64da676f37201270f1a2a17bd32ba01cd198417db030c5bde49778edc3b5af2f",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-187"
+        }
+      ],
+      "ProofOwner": "S294",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-188"
+      },
+      "SourceHash": "73dfc06215bb0c4da4332ce97631d82e7a5576f836d32a3b912e52e71d340525",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-188"
+        }
+      ],
+      "ProofOwner": "S295",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-189"
+      },
+      "SourceHash": "563d739185997848077053547668bf5d50b088ccffb75dabe39d0509c1753bf5",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-189"
+        }
+      ],
+      "ProofOwner": "S297",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-190"
+      },
+      "SourceHash": "f278155e5baf718cbaffc98f49236025137556850dd6fa83d8128476b5d96da6",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-190"
+        }
+      ],
+      "ProofOwner": "S293",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-191"
+      },
+      "SourceHash": "7b634dd28513f4f83f92bebca9cc41c9e07c9bc495d469d5d850ebcdfe235aeb",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-191"
+        }
+      ],
+      "ProofOwner": "S298",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-192"
+      },
+      "SourceHash": "cd1cd7658d1e4d06e1123574f8df0b6fa5b8e1036fa94a8fb5bf346514289320",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-192"
+        }
+      ],
+      "ProofOwner": "S296",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-193"
+      },
+      "SourceHash": "2d1120c8ecaccb2e7f6723829f2b0b99ae5fb328d352d1d5d5b9d718a26422c8",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-193"
+        }
+      ],
+      "ProofOwner": "S299",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-194"
+      },
+      "SourceHash": "d8c79d62f204297f0fe5f1ab0b889b9e6ffd5ae58a8320964f35ed3c12f0220b",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "ElasticStorage",
+        "EnvironmentState",
+        "FiniteLedger",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-194"
+        }
+      ],
+      "ProofOwner": "S300",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-195"
+      },
+      "SourceHash": "44fdf406b37c91c7b19a765fade5f5a4cdfec7fa172b91f823c6ff8abd04ec15",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-195"
+        }
+      ],
+      "ProofOwner": "S301",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-196"
+      },
+      "SourceHash": "e1ea63798d251e4a8d146d2e98ce76649e8a6717e5e2c2b6dafdb2f9fb32dd00",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-196"
+        }
+      ],
+      "ProofOwner": "S302",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-197"
+      },
+      "SourceHash": "5c8f9f7686af18898d486605575bf1e88bfdc8df954eb35c9bc7564a1a30a8b5",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-197"
+        }
+      ],
+      "ProofOwner": "S303",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-198"
+      },
+      "SourceHash": "fc2e2122d074e651a0ce5bbbc7d50a0f1a349d522ba7415923ef1b5585091e95",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "FiniteLedger",
+        "SignalPropagation",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-198"
+        }
+      ],
+      "ProofOwner": "S304",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-199"
+      },
+      "SourceHash": "a174be6f854122184f50ace277a6ca7bb9a6caa23ab7784ca309553c5b8c2d4c",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ElectricalPower",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-199"
+        }
+      ],
+      "ProofOwner": "S305",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    },
+    {
+      "Source": {
+        "Origin": "Element",
+        "Id": "element-200"
+      },
+      "SourceHash": "b064724e78be53d5deda37f228be94dfb110a9c9cd91a4656fd819e89d069cd8",
+      "Kind": "FutureProduct",
+      "Capabilities": [
+        "ContactImpulse",
+        "EnvironmentState",
+        "FiniteLedger",
+        "FiniteWorkActuation",
+        "GeometryQuery",
+        "JointConstraint",
+        "RigidBodyDynamics",
+        "ShaftTorque",
+        "SlidingFriction",
+        "StateTransaction"
+      ],
+      "Consumers": [
+        {
+          "Identity": "element/element-200"
+        }
+      ],
+      "ProofOwner": "S310",
+      "ScopeReason": "Named declaration remains future product delivery; its generic laws and generic UI fixtures qualify before P0-035.",
+      "Relations": []
+    }
+  ],
+  "Modes": []
+}
+
