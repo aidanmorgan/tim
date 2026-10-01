@@ -1,0 +1,12 @@
+{
+  "orders": 4558,
+  "sequenceSpecifications": 799,
+  "originalSequenceAnchors": 847,
+  "undefinedLines": 0,
+  "missingLocalLinks": [],
+  "sourceSnapshotByteEquality": {
+    "engine/PerformanceContracts.cs": true,
+    "diagnostics/PerformanceProtocol.cs": true,
+    "diagnostics/ExactPlaytestEnumConverter.cs": true
+  }
+}

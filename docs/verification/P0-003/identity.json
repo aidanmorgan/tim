@@ -1,0 +1,21 @@
+{
+  "head": "9d1d8f8e5567949830c70836a964450378fd3b7c",
+  "dirtyDiffSha256": "58c7bf6107fbe5b03e110826f05ab311cbef414756c35ce33cd97422ef63e1ec",
+  "inputs": {
+    "TODO.md": "2bb67a748924203dc064c8e7bce6535610625d4161706e1f83f02198d72cc9ae",
+    "AGENTS.md": "0403a2f8a57433bc4b6872b3ebd078e4ebaa907ffa8dfb01c09948a56b001981",
+    "docs/browser-physics-performance.md": "225c95dc77536d677a49064de8e744191dad9b6b3ce0c830b69f4cd5c6c850c3",
+    "docs/s002-benchmark-manifest.md": "a6e4330f73fdfdbe6e90af1f1fb67dfc743854bd5979892a3d8f7b255210670b",
+    "tools/Performance/PerformanceAudit.cs": "30737c2f6ffe687be959a8f1b7b18ff1fa9c7931880616b764b7cf1f0a8b5de7",
+    "tools/Performance/Program.cs": "e570d01e87c259fe7187b4d63d29ccfb175a780484818dbfa7d278863f85b62b",
+    "diagnostics/ExactPlaytestEnumConverter.cs": "0bbef739a1e3338ad03db430b755d2c10afab3fa924148cfeacfd752aa6be726",
+    "docs/verification/P0-002/review.md": "c970cca5ea2efd46174f2a6c7190c364093c2fc38e4e51bd64734078ddce44f6"
+  },
+  "implementation": {
+    "agentPath": "/root/p0_003",
+    "sessionId": "01a0f786-9175-7532-9b17-c30b3d21388c",
+    "parentSessionId": "01a0f5f1-ab9a-79a3-9181-0dbb87285ec5"
+  },
+  "workId": "P0-003"
+}
+

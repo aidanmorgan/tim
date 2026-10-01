@@ -1,0 +1,88 @@
+{
+  "workId": "P0-003",
+  "revision": "r2",
+  "head": "9d1d8f8e5567949830c70836a964450378fd3b7c",
+  "implementation": {
+    "agent": "/root/p0_003",
+    "session": "01a0f786-9175-7532-9b17-c30b3d21388c"
+  },
+  "reviewer": {
+    "agent": "/root/p0_003_review",
+    "session": "01a0f79a-73eb-7ed0-b090-5c9ff8dabf8c"
+  },
+  "scopedDiffSha256": "2468de39b7e97abb018132d8066eecf1a83be49ef9bad77c02a47010b6235dcc",
+  "scopedDiffMethod": "Sorted publicationAllowlist: tracked git diff HEAD; untracked git diff --no-index /dev/null; concatenate raw bytes. Snapshot itself excluded.",
+  "publicationAllowlist": {
+    "CuriousContraptions.tests/PerformanceAuditTests.cs": "46a4575dae61041c6cb46ea532fef2dc4ac0f250a521b58a28d21b06e135d459",
+    "docs/coverage/engine/task-001.json": "59fb7b1b8ef0d4169c0b6a4be4fe3017285c5e295f91bf0b8b3c1889ea72e09e",
+    "docs/coverage/engine/task-002.json": "ec50ef522a312d701b30bc355affb5cb12c9fcb3428145c93775866eaa3ba6ce",
+    "docs/coverage/engine/task-003.json": "2c59de1a7c8d99868ac8ca9d1ebd08269e5d27c006a8a76193c90b157dc1b63c",
+    "docs/verification/P0-003/failed-r1-MeasurementContract.cs.txt": "8bbd3b0f8e1aa8bf88bce66eb34aca9038a7dc98d5ceb730764f1860cb3b8ca0",
+    "docs/verification/P0-003/identity.json": "28a20e44e94582fda399d9c1820a99bff40d42a80c4bd0bb9a3ed9c239b9dc30",
+    "docs/verification/P0-003/implementation.md": "51b5b82183e8eedb0544db5769b778a3cd5a45d1c58fe156428348fb4b95ba99",
+    "docs/verification/P0-003/main-build.log": "87d9f7a591650d3e12a2d24a67193d0698b69a01dad9c1c37cdc1ef28ca5a954",
+    "docs/verification/P0-003/preservation.json": "b679c11e3179ef648d84169c1dfc8aeddc0880faac97608d217234b00f435d3d",
+    "docs/verification/P0-003/r2-commands.json": "d60c740d325973c19eb1c750b9cded5a6878985e0e8400397a7abd0e497e1854",
+    "docs/verification/P0-003/r2-corrections.md": "de6fe84448b3d705c6b301e55a96438333229f1576ecee5b6e7e19daa79e1475",
+    "docs/verification/P0-003/snapshot.json": "2fa6bfe55262f42bd0359a09564a3c1607b02417a2705b58420ad9a83ca72d4e",
+    "docs/verification/P0-003/source-snapshot/diagnostics/ExactPlaytestEnumConverter.cs.txt": "0bbef739a1e3338ad03db430b755d2c10afab3fa924148cfeacfd752aa6be726",
+    "docs/verification/P0-003/source-snapshot/diagnostics/PerformanceProtocol.cs.txt": "8f03e73fba10f418ed45c4cc0e0dd9f5fbebbd34e8e35ef923246f857747e331",
+    "docs/verification/P0-003/source-snapshot/engine/PerformanceContracts.cs.txt": "107c69ab04081f33f9527d9a4f2ffb8783f9863187f45ab3457dcc84846d4604",
+    "docs/verification/P0-003/todo-status-delta.json": "657170a088baed26ff81e58cc20bdfb7fcccfbce01dc6b08fad4ee8b9073478d",
+    "docs/verification/P0-003/tool-tests.log": "dd4d6e6e9bc55052d9d55f85733b657186df8b6f185ff9a79c46cf01cc53d14c",
+    "docs/work-orders/P0-003/contract.md": "e6a50fa3fa5f10ba84c263751646fccc2a46bc748e1aec8dce5015bc8984ddf1",
+    "docs/work-orders/P0-003/devices-budgets.md": "8605ffdefa5c180462cfef353b299a47ff81d5de7a6d0e7cbce233aeb06ba1e0",
+    "docs/work-orders/P0-003/measurement.md": "164d26ae2ce80588e633c599c4615287517aad5cb97f444e9547ce0941422578",
+    "docs/work-orders/P0-003/workloads.md": "2ddcd3ec1ab980e931d93001098a7e3a506d0425e64bb7f8305161605c20172b",
+    "tools/Performance.Tests/MeasurementContractTests.cs": "e46285bfbd262c0ff869571c4d7638d088cd1df490d77aedb960777a3c1f978a",
+    "tools/Performance.Tests/Performance.Tests.csproj": "2851d6fe2a93ab1ea1a013a8e99b1583684420ad0fa7aef19adf45b6365c0695",
+    "tools/Performance/MeasurementContract.cs": "bc1f35472240385c854285a1af5053436c6d8ec5393f5e477b898f5e113f2375",
+    "tools/Performance/Performance.csproj": "2df65e171b5d3a994769f189587b2c9f615871061555fc020c5dd58bf5908629",
+    "tools/Performance/PerformanceAudit.cs": "9eae951727325914e7bd47f2e3b44e788d32ac564e6f92cf6d38398c6be8eaa3",
+    "tools/Performance/Program.cs": "e570d01e87c259fe7187b4d63d29ccfb175a780484818dbfa7d278863f85b62b",
+    "tools/Performance/README.md": "913cb09256800d93693dd5827f66c6421393b14968700172d0d8c8338b519262"
+  },
+  "relevantInputReferences": {
+    "AGENTS.md": "4facb4186397f4e7738746e9511130ae605daed425248770450521a2dfc2ffee",
+    "TODO.md": "8d25c88ecf8cb1ca0da0d27d181dfe16e253d3638bf67a7b444e09004b6f0925",
+    "export_presets.cfg": "4e509d40237e590e68103b1fcb7b9070f71fa863b1e8ebca9dbb7ce1d24308d2",
+    "docs/s001-source-baseline.json": "ff75e5c02f6e9b63601dc163cf5b58bb994255fc535a49b6f2b118795af2250d",
+    "docs/s001-baseline.md": "b7f27ce3245d4906efa2d8d3a7fb244fa28849ce31a5ef0167f3c0b08ac37a3a",
+    "docs/s002-benchmark-manifest.md": "a6e4330f73fdfdbe6e90af1f1fb67dfc743854bd5979892a3d8f7b255210670b",
+    "docs/browser-physics-performance.md": "225c95dc77536d677a49064de8e744191dad9b6b3ce0c830b69f4cd5c6c850c3",
+    "docs/committed-compliant-receiver.json": "65859bb5d6387fb328568d3b7cdbe06572e7dc40527d630c94cc91b725814d9d",
+    "docs/committed-compliant-control.json": "075349965120c91c1db2bd10be2a911af722bdb6828e0ba26f93450fb687ceb8",
+    "docs/motor-impulse-rounding-powered.json": "a3032a242e144ff7c097e23838cbf9a3e828a7db8b6248911914d1e44f4da5cc",
+    "docs/motor-impulse-rounding-control.json": "20585cc08dcb18a540362ef9e658aba9e09e1bdb1d47027d39384ee8c51df214",
+    "docs/verification/P0-002/review.md": "c970cca5ea2efd46174f2a6c7190c364093c2fc38e4e51bd64734078ddce44f6",
+    "docs/verification/P0-002/input-provenance.json": "eb1c4572638bd8f3be911d40ddc94abeab716b8e707f97ea9c69812063e3b72f",
+    "CuriousContraptions.tests/CuriousContraptions.tests.csproj": "53864272540d0aba08c0c9243fdff4c64b85f632239ce4b27efc502e7ac4b419",
+    "CuriousContraptions.tests/DisplayClockIntegrationTests.cs": "64a59f7c4d42bbffef2d752cbe21d1908783e064383e4b7e985eaaae0e34f526",
+    "CuriousContraptions.csproj": "bdcd6f1de8e038aa92ea7ef702add55b60f12c3c6a6dd1d9dab3c647615c8ffd",
+    "Directory.Build.props": "549d2120e64f3e0f1c1af86832759a50f082ea82d4a7254cb5cc780d4f387fa7",
+    "Directory.Build.targets": "ce9e471a414fd8ca236d709ccf79333b1e1af8cb735b8a1947c9c1c12d69c263",
+    "global.json": "a7677f93f4c9367ccee574dc14240116191a317fc9d3b2616806c7c5645a75fa",
+    "tools/Coverage/CapabilityInventory.cs": "9e55ed37b031a20a2dcfbeaee02740be769ce102564637efe388895c784feb82",
+    "tools/Coverage/CapabilityInputs.cs": "c92270cbd2647743297ed289d32a30bce947c54943c010093451a115bedc605c",
+    "docs/coverage/engine-capabilities.json": "6692ba6dc58012a765969dd3d826d352d7a77cda718498921f4aceb01843bc64",
+    "docs/coverage/source-inventory.json": "ea1a856e24cc85e576da4019ededca59fb1812953389bc45e5266ad76adcb6e4",
+    "docs/coverage/catalogue-elements.json": "88cf9d6db21c889778b295a07353ee3ad0d17762c43a9a7ab2689a5cecd382f2"
+  },
+  "runtimeDependencies": {
+    "engine/PerformanceContracts.cs": "107c69ab04081f33f9527d9a4f2ffb8783f9863187f45ab3457dcc84846d4604",
+    "diagnostics/PerformanceProtocol.cs": "8f03e73fba10f418ed45c4cc0e0dd9f5fbebbd34e8e35ef923246f857747e331",
+    "diagnostics/ExactPlaytestEnumConverter.cs": "0bbef739a1e3338ad03db430b755d2c10afab3fa924148cfeacfd752aa6be726"
+  },
+  "runtimeBaseline": {
+    "reference": "docs/s001-source-baseline.json",
+    "sourceEntries": 916,
+    "currentMatches": 916
+  },
+  "localOnly": [
+    "TODO.md"
+  ],
+  "priorFailedSnapshot": "docs/verification/P0-003/snapshot.json",
+  "todoReversalIncludingExternalOwnerChanges": "2bb67a748924203dc064c8e7bce6535610625d4161706e1f83f02198d72cc9ae",
+  "sdkVersion": "10.0.401",
+  "runtimeVersion": "10.0.12"
+}

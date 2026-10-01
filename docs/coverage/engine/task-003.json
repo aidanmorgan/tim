@@ -144,7 +144,12 @@
       "Symbols": [
         {
           "Path": "tools/Performance/PerformanceAudit.cs",
-          "FileHash": "30737c2f6ffe687be959a8f1b7b18ff1fa9c7931880616b764b7cf1f0a8b5de7",
+          "FileHash": "9eae951727325914e7bd47f2e3b44e788d32ac564e6f92cf6d38398c6be8eaa3",
+          "Symbol": "PerformanceAudit"
+        },
+        {
+          "Path": "tools/Performance/MeasurementContract.cs",
+          "FileHash": "bc1f35472240385c854285a1af5053436c6d8ec5393f5e477b898f5e113f2375",
           "Symbol": "PerformanceAudit"
         }
       ],
@@ -234,7 +239,12 @@
       "Symbols": [
         {
           "Path": "tools/Performance/PerformanceAudit.cs",
-          "FileHash": "30737c2f6ffe687be959a8f1b7b18ff1fa9c7931880616b764b7cf1f0a8b5de7",
+          "FileHash": "9eae951727325914e7bd47f2e3b44e788d32ac564e6f92cf6d38398c6be8eaa3",
+          "Symbol": "PerformanceAudit"
+        },
+        {
+          "Path": "tools/Performance/MeasurementContract.cs",
+          "FileHash": "bc1f35472240385c854285a1af5053436c6d8ec5393f5e477b898f5e113f2375",
           "Symbol": "PerformanceAudit"
         }
       ],

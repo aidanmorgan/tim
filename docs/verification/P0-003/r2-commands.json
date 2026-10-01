@@ -1,0 +1,67 @@
+{
+  "commands": {
+    "build": "dotnet build tools/Performance.Tests/Performance.Tests.csproj -c Release --no-restore --nologo",
+    "tests": "dotnet tools/Performance.Tests/bin/Release/net10.0/Performance.Tests.dll -noColor",
+    "capabilities": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-capabilities . docs/coverage/engine-capabilities.json",
+    "inventory": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-inventory . docs/coverage/source-inventory.json",
+    "elements": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-elements . docs/coverage/catalogue-elements.json"
+  },
+  "build": {
+    "chunk_id": "c0b9bd",
+    "wall_time_seconds": 0.000004208,
+    "exit_code": 0,
+    "original_token_count": 74,
+    "output": "  Performance -> /Users/aidan/dev/personal/tim/tools/Performance/bin/Release/net10.0/Performance.dll\n  Performance.Tests -> /Users/aidan/dev/personal/tim/tools/Performance.Tests/bin/Release/net10.0/Performance.Tests.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:01.26\n"
+  },
+  "tests": {
+    "chunk_id": "bcd65b",
+    "wall_time_seconds": 0.131868167,
+    "exit_code": 0,
+    "original_token_count": 100,
+    "output": "xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)\n  Discovering: Performance.Tests\n  Discovered:  Performance.Tests\n  Starting:    Performance.Tests\n  Finished:    Performance.Tests (ID = 'ee152943586a37ad8d25736701cc752c3fab2589d90baf017f37766ea8176eb6')\n=== TEST EXECUTION SUMMARY ===\n   Performance.Tests  Total: 35, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.155s\n"
+  },
+  "duplicatePropertyRegressionBeforeFix": {
+    "chunk_id": "a192cd",
+    "wall_time_seconds": 0.0969395,
+    "exit_code": 1,
+    "original_token_count": 256,
+    "output": "xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)\n  Discovering: Performance.Tests\n  Discovered:  Performance.Tests\n  Starting:    Performance.Tests\n    CuriousContraptions.Tests.MeasurementContractTests.DuplicateBoundaryPropertiesRejectRatherThanLastWins [FAIL]\n      Assert.Throws() Failure: No exception was thrown\n      Expected: typeof(System.Text.Json.JsonException)\n      Stack Trace:\n        tools/Performance.Tests/MeasurementContractTests.cs(274,0): at CuriousContraptions.Tests.MeasurementContractTests.DuplicateBoundaryPropertiesRejectRatherThanLastWins()\n           at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)\n           at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)\n  Finished:    Performance.Tests (ID = 'ee152943586a37ad8d25736701cc752c3fab2589d90baf017f37766ea8176eb6')\n=== TEST EXECUTION SUMMARY ===\n   Performance.Tests  Total: 1, Errors: 0, Failed: 1, Skipped: 0, Not Run: 0, Time: 0.116s\n"
+  },
+  "capabilityAuditBefore": {
+    "status": "fulfilled",
+    "value": {
+      "chunk_id": "2db139",
+      "wall_time_seconds": 0.802146667,
+      "exit_code": 1,
+      "original_token_count": 6,
+      "output": "Stale source symbol.\n"
+    }
+  },
+  "sourceInventoryAudit": {
+    "status": "fulfilled",
+    "value": {
+      "chunk_id": "6d9db8",
+      "wall_time_seconds": 0.000005583,
+      "exit_code": 0,
+      "original_token_count": 39,
+      "output": "{\n  \"Sources\": 1471,\n  \"Unreviewed\": 1471,\n  \"Changed\": 0,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"SourceInventoryCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+    }
+  },
+  "catalogueAudit": {
+    "status": "fulfilled",
+    "value": {
+      "chunk_id": "ece0ec",
+      "wall_time_seconds": 0.000006125,
+      "exit_code": 0,
+      "original_token_count": 46,
+      "output": "{\n  \"Elements\": 72,\n  \"Fixtures\": 302,\n  \"UnresolvedSources\": 1097,\n  \"PendingModeReviews\": 72,\n  \"PendingProcessReviews\": 72,\n  \"LinksCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+    }
+  },
+  "capabilityAuditAfter": {
+    "chunk_id": "b6d2ff",
+    "wall_time_seconds": 1.390527,
+    "exit_code": 0,
+    "original_token_count": 47,
+    "output": "{\n  \"Sources\": 1471,\n  \"Capabilities\": 71,\n  \"Consumers\": 1471,\n  \"Modes\": 104,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"Changed\": 0,\n  \"InventoryCurrent\": true,\n  \"RuntimeQualified\": false\n}\n"
+  }
+}

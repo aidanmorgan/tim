@@ -1,0 +1,55 @@
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (6 steps)[39m[0m
+  [   0% ] [90m[1m_update_scan_actions[22m | s001-animation-controls.png[39m[0m
+  [  14% ] [90m[1m_update_scan_actions[22m | s001-combined-reset.png[39m[0m
+  [  28% ] [90m[1m_update_scan_actions[22m | s001-combined-running.png[39m[0m
+  [  42% ] [90m[1m_update_scan_actions[22m | s001-combined-timing-end.png[39m[0m
+  [  57% ] [90m[1m_update_scan_actions[22m | s001-hint-visible.png[39m[0m
+  [  71% ] [90m[1m_update_scan_actions[22m | s001-physical-timing-end.png[39m[0m
+  [92m[ DONE ][39m [1m_update_scan_actions[22m
+  [0m
+  [   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (6 steps)[39m[0m
+  [   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  14% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  28% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  42% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  57% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [  71% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+  [   0% ] [90m[1mreimport[22m | Executing pre-reimport operations...[39m[0m
+  [   0% ] [90m[1mreimport[22m | s001-animation-controls.png[39m[0m
+  [  14% ] [90m[1mreimport[22m | s001-combined-reset.png[39m[0m
+  [  28% ] [90m[1mreimport[22m | s001-combined-running.png[39m[0m
+  [  42% ] [90m[1mreimport[22m | s001-combined-timing-end.png[39m[0m
+  [  57% ] [90m[1mreimport[22m | s001-hint-visible.png[39m[0m
+  [  71% ] [90m[1mreimport[22m | s001-physical-timing-end.png[39m[0m
+  [  85% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+  [92m[ DONE ][39m [1mreimport[22m
+  [0m
+  [   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (6 steps)[39m[0m
+  [   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+  [92m[ DONE ][39m [1mreimport[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:23.90
