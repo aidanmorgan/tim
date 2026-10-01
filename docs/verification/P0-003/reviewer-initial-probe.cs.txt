@@ -1,0 +1,29 @@
+using CuriousContraptions.PerformanceTools;
+using System.Text.Json;
+var timeout = new AttemptContract(AttemptEnd.Timeout,3600,29700,1000,CadenceTier.Sixty);
+AttemptObservation Run(decimal start=31000, decimal duration=30000, int ticks=3600, AttemptEnd end=AttemptEnd.Timeout) =>
+ new(new(Guid.NewGuid()),AttemptPurpose.Measurement,end,start,start+duration,0,ticks,true,true,true,0,PresentationEvidence.SyntheticRehearsal,
+ Enumerable.Range(1,(int)(duration*60/1000)).Select(i=>new PresentedFrame(new((ulong)i),start+decimal.Floor(i*1000m/60*1000000)/1000000)).ToArray());
+var run=Run();
+var hiddenGap=new[]{
+ new TimelineInterval(TimelinePhase.Active,0,299000,new AttemptId(Guid.NewGuid())),
+ new TimelineInterval(TimelinePhase.Hidden,299000,300000,null),
+ new TimelineInterval(TimelinePhase.Reset,300001,301000,null)};
+var warmup=Run(-1) with {Purpose=AttemptPurpose.Warmup};
+var invalidMeasured=run with{StartAcknowledged=false,StopObserved=false,EndMilliseconds=run.StartMilliseconds-1};
+var weak=new AttemptContract(AttemptEnd.Goal,1,1,100,CadenceTier.Sixty);
+var thermal=PerformanceAudit.AnalyzeThermal(new(300000,.9m,2000),hiddenGap);
+object Outcome(Func<object> action){try{return action();}catch(Exception e){return e.GetType().Name;}}
+Console.WriteLine(JsonSerializer.Serialize(new{
+ Normal=PerformanceAudit.AnalyzeAttempt(timeout,run),
+ Slow=PerformanceAudit.AnalyzeAttempt(timeout,Run(duration:60000)),
+ Early=PerformanceAudit.AnalyzeAttempt(new(AttemptEnd.Goal,240,1980,100,CadenceTier.Sixty),Run(duration:2000,ticks:240,end:AttemptEnd.Goal)),
+ Dropped=PerformanceAudit.AnalyzeAttempt(timeout,run with{Presentations=run.Presentations.Where(f=>f.Milliseconds<=41000||f.Milliseconds>43000).ToArray()}),
+ HiddenThenMissing=thermal,
+ NegativeWarmup=PerformanceAudit.WarmupBeforeFreshRun([warmup],run),
+ InvalidMeasured=PerformanceAudit.WarmupBeforeFreshRun([Run(0) with{Purpose=AttemptPurpose.Warmup}],invalidMeasured),
+ WeakenedContract=Outcome(()=>PerformanceAudit.AnalyzeAttempt(weak,Run(duration:2000,ticks:1,end:AttemptEnd.Goal))),
+ OverflowTimestamp=Outcome(()=>PerformanceAudit.AnalyzeAttempt(timeout,run with{EndMilliseconds=decimal.MaxValue})),
+ NullPacket=Outcome(()=>MeasurementEvidence.Write(null!))
+},new JsonSerializerOptions{WriteIndented=true}));
+

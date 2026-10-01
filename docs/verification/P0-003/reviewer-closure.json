@@ -1,0 +1,71 @@
+{
+  "snapshot": "snapshot-r2.json",
+  "snapshotSha256": "cd0c4d0e47d79dad9c4dff81d4f056a2213d6ee337dc36a0d9d9d1df88983465",
+  "closureCheck": {
+    "chunk_id": "d2a48f",
+    "wall_time_seconds": 2.045044875,
+    "exit_code": 0,
+    "original_token_count": 210,
+    "output": "{\n  \"relevantInputMismatches\": [],\n  \"dependencyMismatches\": [],\n  \"runtimeMismatches\": [],\n  \"onlyOwnedEditsReversedSha256\": \"a014f13360a6e6bcff5f5b7ca97781a80c0c2ee089a30bca80d837fbef2c933e\",\n  \"allDeclaredEditsReversedSha256\": \"2bb67a748924203dc064c8e7bce6535610625d4161706e1f83f02198d72cc9ae\",\n  \"preservedOtherBytes\": true,\n  \"orders\": {\n    \"count\": 4558,\n    \"consecutive\": true\n  },\n  \"sequenceSpecifications\": 799,\n  \"originalExecutionAnchors\": 847,\n  \"scopedDiffSha256\": \"2468de39b7e97abb018132d8066eecf1a83be49ef9bad77c02a47010b6235dcc\",\n  \"scopedDiffMatches\": true,\n  \"missingContractLinks\": [],\n  \"manifestOnlySymbolViews\": [\n    [\n      \"docs/coverage/engine/task-001.json\",\n      7\n    ],\n    [\n      \"docs/coverage/engine/task-002.json\",\n      4\n    ],\n    [\n      \"docs/coverage/engine/task-003.json\",\n      2\n    ]\n  ]\n}\n"
+  },
+  "modelCheck": {
+    "chunk_id": "716abc",
+    "wall_time_seconds": 0.106583875,
+    "exit_code": 0,
+    "original_token_count": 73,
+    "output": "{\n  \"readerInverseSha256\": \"30737c2f6ffe687be959a8f1b7b18ff1fa9c7931880616b764b7cf1f0a8b5de7\",\n  \"onlyPartialModifier\": true,\n  \"hollowInnerWallGapMetres\": 0.46,\n  \"hollowContactSeconds\": 0.23,\n  \"fastContactSeconds\": 0.133,\n  \"phaseThresholdSeconds\": 15.0,\n  \"pistonForceNewtons\": 20.0\n}\n"
+  },
+  "coverageToolSha256": "8f66dbcf16aa1b4559d87dafdc140a0779c1020f2454c4790fab2cd9bd9d53ce",
+  "auditCommands": [
+    "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-inventory /Users/aidan/dev/personal/tim docs/coverage/source-inventory.json",
+    "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-elements /Users/aidan/dev/personal/tim docs/coverage/catalogue-elements.json",
+    "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-capabilities /Users/aidan/dev/personal/tim docs/coverage/engine-capabilities.json"
+  ],
+  "auditResults": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "8443e7",
+        "wall_time_seconds": 0.077338042,
+        "exit_code": 0,
+        "original_token_count": 39,
+        "output": "{\n  \"Sources\": 1471,\n  \"Unreviewed\": 1471,\n  \"Changed\": 0,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"SourceInventoryCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "7a7c63",
+        "wall_time_seconds": 0.09314225,
+        "exit_code": 0,
+        "original_token_count": 46,
+        "output": "{\n  \"Elements\": 72,\n  \"Fixtures\": 302,\n  \"UnresolvedSources\": 1097,\n  \"PendingModeReviews\": 72,\n  \"PendingProcessReviews\": 72,\n  \"LinksCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "9c0007",
+        "wall_time_seconds": 1.566782,
+        "exit_code": 0,
+        "original_token_count": 47,
+        "output": "{\n  \"Sources\": 1471,\n  \"Capabilities\": 71,\n  \"Consumers\": 1471,\n  \"Modes\": 104,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"Changed\": 0,\n  \"InventoryCurrent\": true,\n  \"RuntimeQualified\": false\n}\n"
+      }
+    }
+  ],
+  "anvil": {
+    "files": [
+      "tools/Performance/MeasurementContract.cs",
+      "tools/Performance/PerformanceAudit.cs",
+      "tools/Performance/Program.cs",
+      "tools/Performance.Tests/MeasurementContractTests.cs",
+      "CuriousContraptions.tests/PerformanceAuditTests.cs",
+      "tools/p0-003-review/Program.cs"
+    ],
+    "total": 0,
+    "hasBlockingWarnings": false,
+    "backend": "local",
+    "daemonStatus": "not-wired"
+  }
+}
+

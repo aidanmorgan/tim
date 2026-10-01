@@ -1,0 +1,22 @@
+{
+  "workId": "P0-003",
+  "reviewer": {
+    "agentPath": "/root/p0_003_review",
+    "sessionId": "01a0f79a-73eb-7ed0-b090-5c9ff8dabf8c"
+  },
+  "snapshotSha256": "2fa6bfe55262f42bd0359a09564a3c1607b02417a2705b58420ad9a83ca72d4e",
+  "command": "dotnet tools/p0-003-review/bin/Release/net10.0/Review.dll",
+  "verdictMapping": {
+    "Pass": 0,
+    "Fail": 1,
+    "Incomplete": 2
+  },
+  "result": {
+    "chunk_id": "7ef006",
+    "wall_time_seconds": 0.000009917,
+    "exit_code": 0,
+    "original_token_count": 515,
+    "output": "{\n  \"Normal\": {\n    \"Coverage\": 0,\n    \"ArithmeticPacing\": 0,\n    \"BrowserPacing\": 2,\n    \"SimulationRate\": 0,\n    \"DistinctPresentations\": 1800,\n    \"ScheduledSlots\": 1800,\n    \"MissedSlots\": 0,\n    \"FramesPerSecond\": 60,\n    \"SimulatedWallRatio\": 1,\n    \"P95IntervalMilliseconds\": 16.666667,\n    \"P99IntervalMilliseconds\": 16.666667\n  },\n  \"Slow\": {\n    \"Coverage\": 0,\n    \"ArithmeticPacing\": 0,\n    \"BrowserPacing\": 2,\n    \"SimulationRate\": 1,\n    \"DistinctPresentations\": 3600,\n    \"ScheduledSlots\": 3600,\n    \"MissedSlots\": 0,\n    \"FramesPerSecond\": 60,\n    \"SimulatedWallRatio\": 0.5,\n    \"P95IntervalMilliseconds\": 16.666667,\n    \"P99IntervalMilliseconds\": 16.666667\n  },\n  \"Early\": {\n    \"Coverage\": 0,\n    \"ArithmeticPacing\": 0,\n    \"BrowserPacing\": 2,\n    \"SimulationRate\": 0,\n    \"DistinctPresentations\": 120,\n    \"ScheduledSlots\": 120,\n    \"MissedSlots\": 0,\n    \"FramesPerSecond\": 60,\n    \"SimulatedWallRatio\": 1,\n    \"P95IntervalMilliseconds\": 16.666667,\n    \"P99IntervalMilliseconds\": 16.666667\n  },\n  \"Dropped\": {\n    \"Coverage\": 0,\n    \"ArithmeticPacing\": 1,\n    \"BrowserPacing\": 2,\n    \"SimulationRate\": 0,\n    \"DistinctPresentations\": 1680,\n    \"ScheduledSlots\": 1800,\n    \"MissedSlots\": 120,\n    \"FramesPerSecond\": 56,\n    \"SimulatedWallRatio\": 1,\n    \"P95IntervalMilliseconds\": 16.666667,\n    \"P99IntervalMilliseconds\": 16.666667\n  },\n  \"HiddenThenMissing\": {\n    \"Continuity\": 2,\n    \"Engagement\": 0,\n    \"DurationMilliseconds\": 301000,\n    \"ActiveFraction\": 0.9933554817275747508305647841,\n    \"MaximumGapMilliseconds\": 1999\n  },\n  \"NegativeWarmup\": 0,\n  \"InvalidMeasured\": 0,\n  \"WeakenedContract\": {\n    \"Coverage\": 0,\n    \"ArithmeticPacing\": 0,\n    \"BrowserPacing\": 2,\n    \"SimulationRate\": 1,\n    \"DistinctPresentations\": 120,\n    \"ScheduledSlots\": 120,\n    \"MissedSlots\": 0,\n    \"FramesPerSecond\": 60,\n    \"SimulatedWallRatio\": 0.0041666666666666666666666667,\n    \"P95IntervalMilliseconds\": 16.666667,\n    \"P99IntervalMilliseconds\": 16.666667\n  },\n  \"OverflowTimestamp\": \"OverflowException\",\n  \"NullPacket\": \"NullReferenceException\"\n}\n"
+  }
+}
+
