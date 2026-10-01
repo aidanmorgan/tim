@@ -1,0 +1,42 @@
+{
+  "workId": "P0-005",
+  "reviewer": "/root/p0_005_review",
+  "session": "01a0f848-fb01-7a53-90ce-7ff6d51d65e9",
+  "snapshot": "docs/verification/P0-005/snapshot-r4.json",
+  "snapshotSha256": "b8696f3cfb195d40673787107a8f99ca13150c072ce36a1afaa1d997edef4e39",
+  "criterion": "A10",
+  "verdict": "Pass",
+  "commandLines": [
+    "python3 - <<'PY'",
+    "import json,pathlib,hashlib,subprocess",
+    "s=json.load(open('docs/verification/P0-005/snapshot-r4.json'));commit='88f52db15611c6a85217838136db1e560ab14747';h=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a])",
+    "expected=dict(s['publicationAllowlist']);expected['docs/verification/P0-005/snapshot-r4.json']='b8696f3cfb195d40673787107a8f99ca13150c072ce36a1afaa1d997edef4e39'",
+    "parent=git('rev-parse',commit+'^').decode().strip();remote=git('ls-remote','origin','refs/heads/main').decode().split()[0];paths=set(git('diff-tree','--no-commit-id','--name-only','-r',commit).decode().splitlines());bad=[p for p,v in expected.items() if h(git('show',commit+':'+p))!=v];inputs=[p for p,v in s['relevantInputs'].items() if h(pathlib.Path(p).read_bytes())!=v];runtime=json.load(open('docs/s001-source-baseline.json'))['sourceEntries'];runtimebad=[p for p,v in runtime if h(pathlib.Path(p).read_bytes())!=v]",
+    "result={'commit':commit,'parent':parent,'expectedParent':s['head'],'remoteMain':remote,'changedPathCount':len(paths),'extraPaths':sorted(paths-set(expected)),'missingPaths':sorted(set(expected)-paths),'blobMismatches':bad,'relevantInputCount':len(s['relevantInputs']),'relevantMismatches':inputs,'runtimeInputCount':len(runtime),'runtimeMismatches':runtimebad,'index':git('diff','--cached','--name-only').decode(),'head':git('rev-parse','HEAD').decode().strip()};print(json.dumps(result,indent=2));assert parent==s['head'] and remote==commit and paths==set(expected) and not bad and not inputs and not runtimebad",
+    "PY"
+  ],
+  "execution": {
+    "chunk_id": "3bef27",
+    "wall_time_seconds": 1.134324333,
+    "exit_code": 0,
+    "original_token_count": 128
+  },
+  "result": {
+    "commit": "88f52db15611c6a85217838136db1e560ab14747",
+    "parent": "46eb68fa47eee1be50a1da1c7fd1f6debc854522",
+    "expectedParent": "46eb68fa47eee1be50a1da1c7fd1f6debc854522",
+    "remoteMain": "88f52db15611c6a85217838136db1e560ab14747",
+    "changedPathCount": 46,
+    "extraPaths": [],
+    "missingPaths": [],
+    "blobMismatches": [],
+    "relevantInputCount": 132,
+    "relevantMismatches": [],
+    "runtimeInputCount": 916,
+    "runtimeMismatches": [],
+    "index": "",
+    "head": "88f52db15611c6a85217838136db1e560ab14747"
+  },
+  "runtimeQualified": false
+}
+
