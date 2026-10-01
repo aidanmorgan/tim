@@ -232,3 +232,10 @@ This terminal verdict and attached review-only receipts form the finite independ
 
 
 The executed reviewer probe source is retained verbatim in [reviewer-final-probe.cs.txt](reviewer-final-probe.cs.txt). Its former local execution path was `tools/p0-002-review/probe.cs`; the archived file is review evidence, not a compiled repository tool. The earlier pre-relations probe remains separately archived with its historical failures.
+
+
+## Final local handoff preservation — Pass
+
+Implementation owner updated only TODO.md lines65 and156 after publication. Reviewer independently reversed those exact lines using the published revision-results.json prior `after` values: current SHA256 `2bb67a748924203dc064c8e7bce6535610625d4161706e1f83f02198d72cc9ae` recovers baseline `7fa335af62b49227baff66f6266a7db0745c2ff1545252c67489d90856b5f759` byte-for-byte. The work-order row changes only its status cell. Normative criteria, reuse/state and ECS requirements, and all other bytes are preserved. The handoff accurately names the terminal implementation/review commits and P0-003 eligibility while retaining native/Chrome failures, unattributed input, unpublished input prerequisites and runtime/device/part/campaign gaps.
+
+Independent anchored register counting returns4558 consecutive orders,799 specifications and847 unique retained execution anchors. An initial broad table regex counted4595 unrelated numeric rows and was discarded; narrowing to work/execution register anchors produces the stated count. Reviewer reran `dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-capabilities /Users/aidan/dev/personal/tim docs/coverage/engine-capabilities.json`: exit0,1471sources,71capabilities,1471consumers,104modes, zero missing/orphaned/changed, InventoryCurrent true, RuntimeQualified false (tool chunkc79f5c). This metadata change does not alter inventory semantics. The published input manifest continues to identify its historical captured TODO bytes; this receipt records the subsequent exact status-only delta, without rewriting immutable provenance. TODO remains local and excluded from this review-only publication.
