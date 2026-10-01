@@ -1,0 +1,105 @@
+{
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "docs/s001-animation-controls.png",
+      "bytes": 69153,
+      "sha256": "2b62dd4d983601b9dfb34a6fcdbd60c5fa0d7c59efc6e27e5b3979efa060d215"
+    },
+    {
+      "path": "docs/s001-animation-pacing.json",
+      "bytes": 60848,
+      "sha256": "c8fd8a5e79e08e8d34445a1836a7dc7b1614869b42a6daae2d955aca3f089460"
+    },
+    {
+      "path": "docs/s001-baseline.md",
+      "bytes": 11875,
+      "sha256": "b7f27ce3245d4906efa2d8d3a7fb244fa28849ce31a5ef0167f3c0b08ac37a3a"
+    },
+    {
+      "path": "docs/s001-combined-motion.webm",
+      "bytes": 645184,
+      "sha256": "9648a620534e63303572a1b9a9098e19f2acb0e75e701d0f844fb4dab8d50319"
+    },
+    {
+      "path": "docs/s001-combined-pacing.json",
+      "bytes": 12773,
+      "sha256": "065d7be3f3b6020b344fe787152b0ec15c9e833b22db2ac227a3683b36e0a2c6"
+    },
+    {
+      "path": "docs/s001-combined-reset.png",
+      "bytes": 68765,
+      "sha256": "493417f3698975f131a155890bf1c8be48121df791c15b9c2d42a2fb3fa609e3"
+    },
+    {
+      "path": "docs/s001-combined-running.png",
+      "bytes": 78071,
+      "sha256": "6b1d1225061ab9e99e0fc9a2b21358d9778472e23d67cf3d28e45d779d8edb40"
+    },
+    {
+      "path": "docs/s001-combined-timing-end.png",
+      "bytes": 68089,
+      "sha256": "cdf18d25973d02e4d783b362c84192cc08fbc9849b09ed4ba780a7acc923fd1a"
+    },
+    {
+      "path": "docs/s001-compliant-console.json",
+      "bytes": 677,
+      "sha256": "71559b4f57e23379ead2cdf0b53796c91b6564d2116c64084e45e9a049b18d21"
+    },
+    {
+      "path": "docs/s001-compliant-console.log.gz",
+      "bytes": 1783429,
+      "sha256": "941af8aada98cf15736e0470f53566b06c11d96df22eeddf80a56047a3a69dce"
+    },
+    {
+      "path": "docs/s001-hint-motion.webm",
+      "bytes": 107034,
+      "sha256": "efc5898a17e204d12cb8f233a30d092927dc6387ac38f8e4377b4223775111bb"
+    },
+    {
+      "path": "docs/s001-hint-visible.png",
+      "bytes": 79241,
+      "sha256": "8ad7c3d1744dc8a5f169ae192b0f8dc3043b12ac622aeda399d9a06de56e497b"
+    },
+    {
+      "path": "docs/s001-inputs.json",
+      "bytes": 24484,
+      "sha256": "e9c58bb805dfea180309a693b1f4ad2a14c928c8014691dcf0c781a658969eb5"
+    },
+    {
+      "path": "docs/s001-native-baseline.log",
+      "bytes": 47019,
+      "sha256": "7b3e4d18d6f02d66b2d3aa70836f606ae76dc4b6decfe34368e4518c6d3fd7e8"
+    },
+    {
+      "path": "docs/s001-native-baseline.xml",
+      "bytes": 63014,
+      "sha256": "1ed77cf9af6279eec9cd5caf0edd630a8a7ff20347173531e07785a439b65d12"
+    },
+    {
+      "path": "docs/s001-native-build.log",
+      "bytes": 2894,
+      "sha256": "b4c48664b42feca64e1029d32e468f4b83cd51bd951a8fbb818c1b1a5900ea73"
+    },
+    {
+      "path": "docs/s001-native-failures.json",
+      "bytes": 20919,
+      "sha256": "09a4aac59f01694ed0cfb7cfad457acfee5036b93716462133962216d14709b2"
+    },
+    {
+      "path": "docs/s001-physical-pacing.json",
+      "bytes": 11669,
+      "sha256": "8cc242d542f540d4f6ce0bd900fb97d5744240d55ca6a2968ab0470992eaf845"
+    },
+    {
+      "path": "docs/s001-physical-timing-end.png",
+      "bytes": 67563,
+      "sha256": "078da98c371a07bffca550b2ae4371527fc80c9ce52bf41a6bfd840a19d09113"
+    },
+    {
+      "path": "docs/s001-source-baseline.json",
+      "bytes": 125483,
+      "sha256": "ff75e5c02f6e9b63601dc163cf5b58bb994255fc535a49b6f2b118795af2250d"
+    }
+  ]
+}

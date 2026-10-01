@@ -1,0 +1,270 @@
+{
+  "rawLines": [
+    14445,
+    14768
+  ],
+  "run": 5,
+  "ticks": 3600,
+  "wallSeconds": 36.524,
+  "stages": {
+    "gameplay_tick": {
+      "samples": 3600,
+      "p95Ms": 10.5,
+      "p99Ms": 11.2,
+      "maxMs": 19.699999,
+      "p95AllocatedBytes": 853072
+    },
+    "networks": {
+      "samples": 3600,
+      "p95Ms": 0.2,
+      "p99Ms": 0.200001,
+      "maxMs": 4.6,
+      "p95AllocatedBytes": 3648
+    },
+    "physics": {
+      "samples": 3600,
+      "p95Ms": 9.6,
+      "p99Ms": 10.1,
+      "maxMs": 12.6,
+      "p95AllocatedBytes": 821952
+    },
+    "publication": {
+      "samples": 3600,
+      "p95Ms": 0.2,
+      "p99Ms": 0.200001,
+      "maxMs": 3.5,
+      "p95AllocatedBytes": 0
+    },
+    "gameplay_frame": {
+      "samples": 865,
+      "p95Ms": 0.200001,
+      "p99Ms": 0.4,
+      "maxMs": 1,
+      "p95AllocatedBytes": 24
+    },
+    "physical_presentation": {
+      "samples": 865,
+      "p95Ms": 0.2,
+      "p99Ms": 0.3,
+      "maxMs": 0.7,
+      "p95AllocatedBytes": 0
+    },
+    "animation": {
+      "samples": 865,
+      "p95Ms": 0.1,
+      "p99Ms": 0.100001,
+      "maxMs": 0.2,
+      "p95AllocatedBytes": 0
+    },
+    "scene_submission": {
+      "samples": 865,
+      "p95Ms": 0.1,
+      "p99Ms": 0.199999,
+      "maxMs": 0.200001,
+      "p95AllocatedBytes": 24
+    }
+  },
+  "stalePriorRunSamples": [
+    {
+      "run": 4,
+      "sequence": 4350,
+      "tick": 804,
+      "stage": "gameplay_tick",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 15.3,
+      "allocatedBytes": 1512272
+    },
+    {
+      "run": 4,
+      "sequence": 4350,
+      "tick": 804,
+      "stage": "networks",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 0.100001,
+      "allocatedBytes": 3648
+    },
+    {
+      "run": 4,
+      "sequence": 4350,
+      "tick": 804,
+      "stage": "physics",
+      "outcome": "completed",
+      "calls": 4,
+      "milliseconds": 14.5,
+      "allocatedBytes": 1478080
+    },
+    {
+      "run": 4,
+      "sequence": 4350,
+      "tick": 804,
+      "stage": "publication",
+      "outcome": "completed",
+      "calls": 2,
+      "milliseconds": 0,
+      "allocatedBytes": 0
+    },
+    {
+      "run": 4,
+      "sequence": 4351,
+      "tick": 805,
+      "stage": "gameplay_tick",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 16,
+      "allocatedBytes": 1512272
+    },
+    {
+      "run": 4,
+      "sequence": 4351,
+      "tick": 805,
+      "stage": "networks",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 0.100001,
+      "allocatedBytes": 3648
+    },
+    {
+      "run": 4,
+      "sequence": 4351,
+      "tick": 805,
+      "stage": "physics",
+      "outcome": "completed",
+      "calls": 4,
+      "milliseconds": 15.2,
+      "allocatedBytes": 1478080
+    },
+    {
+      "run": 4,
+      "sequence": 4351,
+      "tick": 805,
+      "stage": "publication",
+      "outcome": "completed",
+      "calls": 2,
+      "milliseconds": 0.1,
+      "allocatedBytes": 0
+    },
+    {
+      "run": 4,
+      "sequence": 4352,
+      "tick": 806,
+      "stage": "gameplay_tick",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 15.2,
+      "allocatedBytes": 1512272
+    },
+    {
+      "run": 4,
+      "sequence": 4352,
+      "tick": 806,
+      "stage": "networks",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 0,
+      "allocatedBytes": 3648
+    },
+    {
+      "run": 4,
+      "sequence": 4352,
+      "tick": 806,
+      "stage": "physics",
+      "outcome": "completed",
+      "calls": 4,
+      "milliseconds": 14.299999,
+      "allocatedBytes": 1478080
+    },
+    {
+      "run": 4,
+      "sequence": 4352,
+      "tick": 806,
+      "stage": "publication",
+      "outcome": "completed",
+      "calls": 2,
+      "milliseconds": 0.1,
+      "allocatedBytes": 0
+    },
+    {
+      "run": 4,
+      "sequence": 4353,
+      "tick": 807,
+      "stage": "gameplay_tick",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 16.100001,
+      "allocatedBytes": 1512272
+    },
+    {
+      "run": 4,
+      "sequence": 4353,
+      "tick": 807,
+      "stage": "networks",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 0.1,
+      "allocatedBytes": 3648
+    },
+    {
+      "run": 4,
+      "sequence": 4353,
+      "tick": 807,
+      "stage": "physics",
+      "outcome": "completed",
+      "calls": 4,
+      "milliseconds": 15.300001,
+      "allocatedBytes": 1478080
+    },
+    {
+      "run": 4,
+      "sequence": 4353,
+      "tick": 807,
+      "stage": "publication",
+      "outcome": "completed",
+      "calls": 2,
+      "milliseconds": 0.100001,
+      "allocatedBytes": 0
+    },
+    {
+      "run": 4,
+      "sequence": 4354,
+      "tick": 808,
+      "stage": "gameplay_frame",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 0.2,
+      "allocatedBytes": 24
+    },
+    {
+      "run": 4,
+      "sequence": 4354,
+      "tick": 808,
+      "stage": "physical_presentation",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 0.2,
+      "allocatedBytes": 0
+    },
+    {
+      "run": 4,
+      "sequence": 4354,
+      "tick": 808,
+      "stage": "animation",
+      "outcome": "completed",
+      "calls": 1,
+      "milliseconds": 0,
+      "allocatedBytes": 0
+    },
+    {
+      "run": 4,
+      "sequence": 4354,
+      "tick": 808,
+      "stage": "scene_submission",
+      "outcome": "completed",
+      "calls": 4,
+      "milliseconds": 0,
+      "allocatedBytes": 24
+    }
+  ],
+  "qualification": "Diagnostic single control window; stale prior-run telemetry preserved separately; GPU unavailable; 60/90 FPS unqualified."
+}

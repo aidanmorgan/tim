@@ -1,0 +1,24 @@
+xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
+  Discovering: CuriousContraptions.tests
+  Discovered:  CuriousContraptions.tests
+  Starting:    CuriousContraptions.tests
+Native test project: /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/curious-native-tests-bcfd58c397b846f18baa03a6a861ff02/project
+Native test log: /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/curious-native-tests-bcfd58c397b846f18baa03a6a861ff02/godot.log
+Native test CA bundle: /etc/ssl/cert.pem
+Initializing Godot...
+cwd: /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Release/net10.0
+[AssemblyPreloader] Found 1 game assembly(ies)
+[AssemblyPreloader] Assembly 'CuriousContraptions' already loaded in Default context
+Godot project: /Users/aidan/dev/personal/tim
+Engine: 2dog 4.7.2.91, starting Godot instance...
+Engine: Godot instance created successfully!
+Engine: Godot started successfully!
+Godot initialized successfully.
+Shutting down Godot...
+Engine: Godot instance destroyed.
+Godot shut down successfully.
+  Finished:    CuriousContraptions.tests (ID = '9f8b32a33bcc8353e42a2a7601980bf6f3c259e4fc815cd772bc5502a42afb39')
+=== TEST EXECUTION SUMMARY ===
+   CuriousContraptions.tests  Total: 59, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 9.434s
+Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+

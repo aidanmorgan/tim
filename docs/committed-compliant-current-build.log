@@ -1,0 +1,10 @@
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+/Users/aidan/dev/personal/tim/CuriousContraptions.tests/CommittedCompliantContactTests.cs(122,61): error CS0200: Property or indexer 'BodyPoseRead.MotionType' cannot be assigned to -- it is read only [/Users/aidan/dev/personal/tim/CuriousContraptions.tests/CuriousContraptions.tests.csproj]
+
+Build FAILED.
+
+/Users/aidan/dev/personal/tim/CuriousContraptions.tests/CommittedCompliantContactTests.cs(122,61): error CS0200: Property or indexer 'BodyPoseRead.MotionType' cannot be assigned to -- it is read only [/Users/aidan/dev/personal/tim/CuriousContraptions.tests/CuriousContraptions.tests.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:15.93

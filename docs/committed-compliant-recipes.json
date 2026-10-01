@@ -1,0 +1,82 @@
+[
+  {
+    "caseId": "committed-compliant-receiver-v1",
+    "level": 63,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          0
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  },
+  {
+    "caseId": "committed-compliant-missed-v1",
+    "level": 63,
+    "precision": 0.45,
+    "parts": [
+      {
+        "slot": "bed",
+        "kind": "trampoline",
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -30
+        ]
+      },
+      {
+        "slot": "ball",
+        "kind": "ball",
+        "position": [
+          0,
+          7,
+          2
+        ]
+      },
+      {
+        "slot": "receiver",
+        "kind": "basket",
+        "position": [
+          5.4,
+          1.2,
+          0
+        ]
+      }
+    ],
+    "connections": []
+  }
+]

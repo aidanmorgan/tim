@@ -1,0 +1,167 @@
+{
+  "head": "0c3cf53428d2b0eb7b4b9b5e8764bab512be3d7b",
+  "dirtyDiffSha256": "4705c18711c3316a0f765378745cc4d2f62ced5406fb6417d7c69fd094fe793a",
+  "files": {
+    "engine/SceneCompliantSurface.cs": "ebca03121e1097cf01fe2855f7e2d3986dcbe22d35cbaf8913aaf3f4f6d927fe",
+    "engine/bridge/CommittedPoseBuffer.Compliant.cs": "4058d9985f5f72592c7751dad0a08e750643af6e38b4182f5252c2ed47633ffb",
+    "engine/MachineWorld.cs": "b30ac2da81c120a17b9ccf13a6e8bf03ac1f2f5f39da1af31103be6b30a0dfcf",
+    "engine/physics/PhysicsWorld.cs": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563",
+    "parts/TrampolinePart.cs": "aa768257e06704c014714670fad7e8ccc62cbb82e11ca55d25b414a43137b8ed",
+    "CuriousContraptions.web/AppBundle/godot.pck": "849da82d3a58cb413a4a76097aaacea44a86b94a720a01d60b56b23004857b31",
+    "CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.wasm": "6990362c0c2933974212264aff6fd8832966859138a37c40c4fb28fe4cd84fd4"
+  },
+  "rawLog": ".playwright-mcp/console-2026-10-01T05-45-26-675Z.log",
+  "runs": [
+    {
+      "rawLines": [
+        13468,
+        13791
+      ],
+      "ticks": 3600,
+      "wallSeconds": 57.448,
+      "simulatedSeconds": 30.0,
+      "stages": {
+        "gameplay_tick": {
+          "samples": 3600,
+          "p95Ms": 17.1,
+          "p99Ms": 18.1,
+          "maxMs": 97.7,
+          "p95AllocatedBytes": 1512368,
+          "maxAllocatedBytes": 5663920
+        },
+        "networks": {
+          "samples": 3600,
+          "p95Ms": 0.2,
+          "p99Ms": 0.299999,
+          "maxMs": 5,
+          "p95AllocatedBytes": 3648,
+          "maxAllocatedBytes": 10792
+        },
+        "physics": {
+          "samples": 3600,
+          "p95Ms": 16,
+          "p99Ms": 16.8,
+          "maxMs": 96.799999,
+          "p95AllocatedBytes": 1478080,
+          "maxAllocatedBytes": 5628736
+        },
+        "publication": {
+          "samples": 3600,
+          "p95Ms": 0.2,
+          "p99Ms": 0.200001,
+          "maxMs": 2.7,
+          "p95AllocatedBytes": 128,
+          "maxAllocatedBytes": 12624
+        },
+        "gameplay_frame": {
+          "samples": 571,
+          "p95Ms": 0.200001,
+          "p99Ms": 0.5,
+          "maxMs": 1.5,
+          "p95AllocatedBytes": 88,
+          "maxAllocatedBytes": 6432
+        },
+        "physical_presentation": {
+          "samples": 571,
+          "p95Ms": 0.200001,
+          "p99Ms": 0.5,
+          "maxMs": 0.800001,
+          "p95AllocatedBytes": 0,
+          "maxAllocatedBytes": 3040
+        },
+        "animation": {
+          "samples": 571,
+          "p95Ms": 0.1,
+          "p99Ms": 0.100001,
+          "maxMs": 0.7,
+          "p95AllocatedBytes": 64,
+          "maxAllocatedBytes": 3112
+        },
+        "scene_submission": {
+          "samples": 571,
+          "p95Ms": 0.100001,
+          "p99Ms": 0.100001,
+          "maxMs": 0.200001,
+          "p95AllocatedBytes": 24,
+          "maxAllocatedBytes": 392
+        }
+      }
+    },
+    {
+      "rawLines": [
+        13977,
+        14166
+      ],
+      "ticks": 1992,
+      "wallSeconds": 19.837,
+      "simulatedSeconds": 16.6,
+      "stages": {
+        "gameplay_tick": {
+          "samples": 1992,
+          "p95Ms": 10.699999,
+          "p99Ms": 11.600001,
+          "maxMs": 28.5,
+          "p95AllocatedBytes": 853072,
+          "maxAllocatedBytes": 860576
+        },
+        "networks": {
+          "samples": 1992,
+          "p95Ms": 0.2,
+          "p99Ms": 0.3,
+          "maxMs": 5.1,
+          "p95AllocatedBytes": 3648,
+          "maxAllocatedBytes": 10792
+        },
+        "physics": {
+          "samples": 1992,
+          "p95Ms": 9.599999,
+          "p99Ms": 10.3,
+          "maxMs": 27.599999,
+          "p95AllocatedBytes": 821952,
+          "maxAllocatedBytes": 821952
+        },
+        "publication": {
+          "samples": 1992,
+          "p95Ms": 0.2,
+          "p99Ms": 0.5,
+          "maxMs": 2.800001,
+          "p95AllocatedBytes": 128,
+          "maxAllocatedBytes": 12624
+        },
+        "gameplay_frame": {
+          "samples": 588,
+          "p95Ms": 0.200001,
+          "p99Ms": 0.5,
+          "maxMs": 1.6,
+          "p95AllocatedBytes": 88,
+          "maxAllocatedBytes": 5992
+        },
+        "physical_presentation": {
+          "samples": 588,
+          "p95Ms": 0.200001,
+          "p99Ms": 0.5,
+          "maxMs": 0.900001,
+          "p95AllocatedBytes": 0,
+          "maxAllocatedBytes": 2600
+        },
+        "animation": {
+          "samples": 588,
+          "p95Ms": 0.1,
+          "p99Ms": 0.100001,
+          "maxMs": 0.7,
+          "p95AllocatedBytes": 64,
+          "maxAllocatedBytes": 3112
+        },
+        "scene_submission": {
+          "samples": 588,
+          "p95Ms": 0.1,
+          "p99Ms": 0.100001,
+          "maxMs": 0.200001,
+          "p95AllocatedBytes": 24,
+          "maxAllocatedBytes": 392
+        }
+      }
+    }
+  ],
+  "qualification": "Incomplete: diagnostic single windows; control interrupted; no production timing, thermal or physical-device qualification. GPU unmeasured."
+}

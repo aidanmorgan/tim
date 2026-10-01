@@ -1,0 +1,362 @@
+[
+  {
+    "path": "docs/committed-compliant-motion-00.png",
+    "tick": 24,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          0,
+          6.8033915,
+          0
+        ],
+        "velocity": [
+          0,
+          -1.9541731,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-01.png",
+    "tick": 44,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          0,
+          6.342831,
+          0
+        ],
+        "velocity": [
+          0,
+          -3.5707507,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-02.png",
+    "tick": 60,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          0,
+          5.7809534,
+          0
+        ],
+        "velocity": [
+          0,
+          -4.856276,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-03.png",
+    "tick": 80,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          0,
+          4.8383183,
+          0
+        ],
+        "velocity": [
+          0,
+          -6.4535704,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-04.png",
+    "tick": 100,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          0,
+          3.6303527,
+          0
+        ],
+        "velocity": [
+          0,
+          -8.040252,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-05.png",
+    "tick": 156,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          2.4600697,
+          3.1124187,
+          0
+        ],
+        "velocity": [
+          6.7699494,
+          -0.70120037,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-06.png",
+    "tick": 168,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          3.1357124,
+          2.9934542,
+          0
+        ],
+        "velocity": [
+          6.7429237,
+          -1.6774418,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-07.png",
+    "tick": 192,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          4.478917,
+          2.4636264,
+          0
+        ],
+        "velocity": [
+          6.6891956,
+          -3.618249,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-08.png",
+    "tick": 216,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.74584,
+          1.5616252,
+          0
+        ],
+        "velocity": [
+          -0.4379691,
+          -3.98601,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-09.png",
+    "tick": 288,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0543365,
+          1.1682148,
+          0
+        ],
+        "velocity": [
+          0.09262956,
+          -0.046920165,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-10.png",
+    "tick": 348,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0501,
+          1.160114,
+          -1.605244e-17
+        ],
+        "velocity": [
+          8.6736174e-19,
+          1.0625181e-17,
+          -2.6822976e-17
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-11.png",
+    "tick": 408,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0501,
+          1.160114,
+          -2.93695e-17
+        ],
+        "velocity": [
+          8.6736174e-19,
+          1.0625181e-17,
+          -2.644616e-17
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-12.png",
+    "tick": 480,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0501,
+          1.160114,
+          -4.510328e-17
+        ],
+        "velocity": [
+          8.6736174e-19,
+          1.0625181e-17,
+          -2.6001031e-17
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-13.png",
+    "tick": 540,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0501,
+          1.160114,
+          -5.801229e-17
+        ],
+        "velocity": [
+          8.6736174e-19,
+          1.0625181e-17,
+          -2.5635877e-17
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-14.png",
+    "tick": 600,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0501,
+          1.160114,
+          -7.074002e-17
+        ],
+        "velocity": [
+          8.6736174e-19,
+          1.0625181e-17,
+          -2.5275902e-17
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-15.png",
+    "tick": 672,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0501,
+          1.160114,
+          -8.5777624e-17
+        ],
+        "velocity": [
+          8.6736174e-19,
+          1.0625181e-17,
+          -2.4850665e-17
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-16.png",
+    "tick": 732,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0501,
+          1.160114,
+          -9.8115545e-17
+        ],
+        "velocity": [
+          8.6736174e-19,
+          1.0625181e-17,
+          -2.450183e-17
+        ]
+      }
+    ]
+  },
+  {
+    "path": "docs/committed-compliant-motion-17.png",
+    "tick": 792,
+    "bodies": [
+      {
+        "id": "ball_2",
+        "visible": true,
+        "position": [
+          5.0501,
+          1.160114,
+          -1.1028028e-16
+        ],
+        "velocity": [
+          8.6736174e-19,
+          1.0625181e-17,
+          -2.415794e-17
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "source": ".playwright-mcp/console-2026-10-01T05-45-26-675Z.log",
+  "firstLine": 13287,
+  "lastLine": 14781,
+  "uncompressedBytes": 33541484,
+  "compressedBytes": 1783429,
+  "sha256": "941af8aada98cf15736e0470f53566b06c11d96df22eeddf80a56047a3a69dce",
+  "preview": "[13017873ms] [LOG] CuriousContraptions (web) starting... @ http://127.0.0.1:8060/godot.js:614\n[13017881ms] [LOG] Engine: 2dog 4.7.2.91, starting Godot instance... @ http://127.0.0.1:8060/godot.js:614\n[13017929ms] [LOG] Build configuration: Emscripten 3.1.56, single-threaded, no GDExtension support. @ http://127.0.0.1:8060/godot.js:614\n[13017929ms] [LOG] Engine: Godot instance created successfully!"
+}

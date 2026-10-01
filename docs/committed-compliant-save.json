@@ -1,0 +1,179 @@
+{
+  "run": {
+    "connections": [],
+    "level": 63,
+    "precision": 0.45,
+    "parts": [
+      {
+        "properties": {
+          "radius": 0.34,
+          "mass": 1,
+          "bounce": 0.55,
+          "buoyancy": 0,
+          "drag": 0.04
+        },
+        "id": "ball_2",
+        "kind": "ball",
+        "locked": false,
+        "dynamic": true,
+        "position": [
+          0,
+          6.999069,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "properties": {},
+        "id": "basket_3",
+        "kind": "basket",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          5.4,
+          1.195014,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "properties": {
+          "tension": 180,
+          "damping_ratio": 0.12
+        },
+        "id": "trampoline_1",
+        "kind": "trampoline",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -0.25881904,
+          0.9659258
+        ]
+      }
+    ]
+  },
+  "reset": {
+    "connections": [],
+    "level": 63,
+    "precision": 0.45,
+    "parts": [
+      {
+        "properties": {
+          "radius": 0.34,
+          "mass": 1,
+          "bounce": 0.55,
+          "buoyancy": 0,
+          "drag": 0.04
+        },
+        "id": "ball_2",
+        "kind": "ball",
+        "locked": false,
+        "dynamic": true,
+        "position": [
+          0,
+          6.999069,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "properties": {},
+        "id": "basket_3",
+        "kind": "basket",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          5.4,
+          1.195014,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "properties": {
+          "tension": 180,
+          "damping_ratio": 0.12
+        },
+        "id": "trampoline_1",
+        "kind": "trampoline",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -0.25881904,
+          0.9659258
+        ]
+      }
+    ]
+  },
+  "saveActions": [
+    {
+      "action": "Save",
+      "screen": [
+        1056,
+        161
+      ]
+    }
+  ],
+  "loadActions": [
+    {
+      "screen": [
+        1394,
+        46
+      ]
+    },
+    {
+      "screen": [
+        1100,
+        161
+      ]
+    },
+    {
+      "screen": [
+        688,
+        836
+      ]
+    },
+    {
+      "screen": [
+        688,
+        836
+      ]
+    }
+  ],
+  "exactLoadedRun": true,
+  "exactReset": true
+}
