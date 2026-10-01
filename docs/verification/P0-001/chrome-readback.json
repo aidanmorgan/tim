@@ -1,0 +1,29 @@
+{
+  "capturedUtc": "2026-10-01T10:12:06.150Z",
+  "provenance": "Coordinator read-only Chrome through Playwright; supplied directly to P0-001 row-agent",
+  "url": "http://127.0.0.1:8060/",
+  "visible": true,
+  "performanceNowMs": 2370278.4000000954,
+  "inputTraceCount": 216,
+  "latestPointerUp": {
+    "timeMs": 900812.7999999523,
+    "trusted": true,
+    "x": 688,
+    "y": 836
+  },
+  "fetchCache": "no-store",
+  "assets": [
+    {
+      "path": "godot.pck",
+      "httpStatus": 200,
+      "bytes": 1095052,
+      "sha256": "c4750a03507b9aba726ebd8695d08b54c432440c299f42f3bca2aeec06bdfeb0"
+    },
+    {
+      "path": "_framework/CuriousContraptions.wasm",
+      "httpStatus": 200,
+      "bytes": 2310425,
+      "sha256": "4d126142a28fabcc675a5c63e56907cff25fc0c4d99e913ba77c2d197c1ad784"
+    }
+  ]
+}
