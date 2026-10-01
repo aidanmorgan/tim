@@ -1,0 +1,205 @@
+namespace CuriousContraptions.WireDesign;
+
+public enum RevisionTwoCase
+{
+    AxisX,AxisY,AxisZ,UnknownAxis,ExtentGolden,ExtentMinimumReject,ExtentFractionReject,
+    ColourEndpoints,ColourAlphaReject,ColourNonfiniteReject,ReciprocalDataFull,
+    ReciprocalControlFull,SameAllocationReturn,StaleReturn,PendingResponseProgress,
+    MaximumControlShapes,ReturnReceiptsFit,BarrierIdentity,BarrierAcknowledgements,
+    QueryWindow,AnimationRequestOwner,AnimationDefinitionDuplicate,AnimationResultRelease,
+    Animation3634,Animation3635,Animation4096,HiddenOutputReservation,PhysicalVelocityBudget,
+    ResultWidths,QueryWidths,DescriptorWidths,OriginalGenerationZero
+}
+public sealed record RevisionTwoResult(RevisionTwoCase Case,bool Passed,string Detail);
+public enum Axis : ushort { X=1,Y=2,Z=3 }
+public enum LeaseCategory { Data,Control }
+public enum LeasePhase { Outbound,Returning,Free }
+public readonly record struct BufferIdentity(ulong Value);
+public readonly record struct RequestIdentity(Generation Generation,CommandSequence Sequence);
+public readonly record struct Colour(double Red,double Green,double Blue,double Alpha);
+public readonly record struct Vector(double X,double Y,double Z);
+
+public static class RevisionTwoOracles
+{
+    public const int DataBytes=504*1024,ControlBytes=8*1024,MaximumOutputs=3634;
+    private sealed record Lease(int Bytes,LeaseCategory Category,LeasePhase Phase);
+    private sealed class Edge
+    {
+        private readonly Dictionary<BufferIdentity,Lease> _leases=[];
+        public int Bytes=>_leases.Values.Sum(v=>v.Bytes);
+        public int InFlight=>_leases.Values.Count(v=>v.Phase!=LeasePhase.Free);
+        public void Allocate(BufferIdentity id,int bytes,LeaseCategory category)
+        {
+            if(id.Value==0||bytes<94||bytes>65536||!Enum.IsDefined(category)||_leases.ContainsKey(id))
+                throw new ArgumentException("Invalid lease.");
+            var same=_leases.Values.Where(v=>v.Category==category).ToArray();
+            var byteLimit=category==LeaseCategory.Data?DataBytes:ControlBytes;
+            var slotLimit=category==LeaseCategory.Data?56:8;
+            if(same.Length==slotLimit||same.Sum(v=>v.Bytes)+bytes>byteLimit||
+                category==LeaseCategory.Control&&bytes>1024)throw new ArgumentException("Lease capacity.");
+            _leases.Add(id,new(bytes,category,LeasePhase.Outbound));
+        }
+        public void BeginReturn(BufferIdentity id)
+        {
+            var lease=_leases[id];
+            if(lease.Phase!=LeasePhase.Outbound)throw new ArgumentException("Unexpected return.");
+            _leases[id]=lease with{Phase=LeasePhase.Returning};
+        }
+        public void CompleteReturn(BufferIdentity id,int bytes)
+        {
+            if(!_leases.TryGetValue(id,out var lease)||lease.Phase!=LeasePhase.Returning||lease.Bytes!=bytes)
+                throw new ArgumentException("Invalid return identity or allocation.");
+            _leases[id]=lease with{Phase=LeasePhase.Free};
+        }
+        public void Reuse(BufferIdentity old,BufferIdentity next)
+        {
+            if(!_leases.TryGetValue(old,out var lease)||lease.Phase!=LeasePhase.Free||
+                next.Value==0||_leases.ContainsKey(next))throw new ArgumentException("Invalid reuse.");
+            _leases.Remove(old);_leases.Add(next,lease with{Phase=LeasePhase.Outbound});
+        }
+    }
+    private enum RequestPhase { Pending,Result }
+    private sealed class Window(int capacity)
+    {
+        private readonly Dictionary<RequestIdentity,RequestPhase> _entries=[];
+        public int Count=>_entries.Count;
+        public bool Admit(RequestIdentity id)
+        {
+            if(id.Generation.Value<=0||id.Sequence.Value==0)throw new ArgumentException("Invalid original identity.");
+            if(_entries.ContainsKey(id))return false;
+            if(Count==capacity)throw new ArgumentException("Window full.");
+            _entries.Add(id,RequestPhase.Pending);return true;
+        }
+        public void Commit(RequestIdentity id)=>_entries[id]=RequestPhase.Result;
+        public void Acknowledge(Generation generation,CommandSequence highest)
+        {
+            var records=_entries.Where(v=>v.Key.Generation==generation&&v.Key.Sequence.Value<=highest.Value).ToArray();
+            if(records.Any(v=>v.Value!=RequestPhase.Result))throw new ArgumentException("Pending gap.");
+            foreach(var entry in records)_entries.Remove(entry.Key);
+        }
+    }
+    public static Vector Direction(Axis axis)=>axis switch
+    {
+        Axis.X=>new(1,0,0),Axis.Y=>new(0,1,0),Axis.Z=>new(0,0,1),
+        _=>throw new ArgumentException("Unknown axis.")
+    };
+    public static (double Scale,double Offset) Extent(Axis axis,double anchor,double minimum,double initial,double fraction)
+    {
+        _=Direction(axis);
+        if(!double.IsFinite(anchor)||Math.Abs(anchor)>1e6||!double.IsFinite(minimum)||minimum<1e-6||minimum>1||
+            !double.IsFinite(initial)||initial<0||initial>1||!double.IsFinite(fraction)||fraction<0||fraction>1)
+            throw new ArgumentException("Invalid extent.");
+        var a=Math.Max(minimum,initial);var b=Math.Max(minimum,fraction);
+        return (b/a,anchor*(a-b)/a);
+    }
+    public static void Colours(Colour from,Colour to,double baselineAlpha)
+    {
+        static bool Valid(Colour c)=>double.IsFinite(c.Red)&&double.IsFinite(c.Green)&&double.IsFinite(c.Blue)&&
+            double.IsFinite(c.Alpha)&&c.Alpha>=0&&c.Alpha<=1;
+        if(!Valid(from)||!Valid(to)||from.Alpha!=baselineAlpha||to.Alpha!=baselineAlpha||
+            !float.IsFinite((float)(to.Red-from.Red))||!float.IsFinite((float)(to.Green-from.Green))||
+            !float.IsFinite((float)(to.Blue-from.Blue)))throw new ArgumentException("Invalid colour endpoints.");
+    }
+    public static void ReserveOutputs(int registered,int added)
+    {
+        if(registered<0||added<0||checked((long)registered+added)>MaximumOutputs)
+            throw new ArgumentException("Complete output exceeds sample capacity.");
+    }
+    public static IReadOnlyList<RevisionTwoResult> Run()
+    {
+        var results=new List<RevisionTwoResult>();
+        void Require(bool value){if(!value)throw new InvalidOperationException("Oracle mismatch.");}
+        void Reject(Action action)
+        {
+            try{action();}catch(ArgumentException){return;}
+            throw new InvalidOperationException("Invalid fixture accepted.");
+        }
+        void Check(RevisionTwoCase id,Action action)
+        {
+            try{action();results.Add(new(id,true,"Passed"));}
+            catch(Exception error){results.Add(new(id,false,error.Message));}
+        }
+        Check(RevisionTwoCase.AxisX,()=>Require(Direction(Axis.X)==new Vector(1,0,0)));
+        Check(RevisionTwoCase.AxisY,()=>Require(Direction(Axis.Y)==new Vector(0,1,0)));
+        Check(RevisionTwoCase.AxisZ,()=>Require(Direction(Axis.Z)==new Vector(0,0,1)));
+        Check(RevisionTwoCase.UnknownAxis,()=>Reject(()=>Direction((Axis)0)));
+        Check(RevisionTwoCase.ExtentGolden,()=>Require(Extent(Axis.Y,-.5,.1,1,.25)==(.25,-.375)));
+        Check(RevisionTwoCase.ExtentMinimumReject,()=>Reject(()=>Extent(Axis.Y,-.5,0,1,.25)));
+        Check(RevisionTwoCase.ExtentFractionReject,()=>Reject(()=>Extent(Axis.Y,-.5,.1,1,1.01)));
+        Check(RevisionTwoCase.ColourEndpoints,()=>Colours(new(.1,.2,.3,.5),new(.6,.7,.8,.5),.5));
+        Check(RevisionTwoCase.ColourAlphaReject,()=>Reject(()=>Colours(new(.1,.2,.3,.4),new(.6,.7,.8,.5),.5)));
+        Check(RevisionTwoCase.ColourNonfiniteReject,()=>Reject(()=>Colours(new(double.NaN,0,0,1),new(0,0,0,1),1)));
+        Edge Full()
+        {
+            var edge=new Edge();
+            for(ulong i=1;i<=7;i++)edge.Allocate(new(i),65536,LeaseCategory.Data);
+            edge.Allocate(new(8),57344,LeaseCategory.Data);
+            return edge;
+        }
+        var ab=Full();var ba=Full();
+        Check(RevisionTwoCase.ReciprocalDataFull,()=>
+        {Require(ab.Bytes==DataBytes&&ba.Bytes==DataBytes);Reject(()=>ab.Allocate(new(9),94,LeaseCategory.Data));});
+        Check(RevisionTwoCase.ReciprocalControlFull,()=>
+        {
+            for(ulong i=20;i<28;i++){ab.Allocate(new(i),1024,LeaseCategory.Control);ba.Allocate(new(i),1024,LeaseCategory.Control);}
+            Require(ab.Bytes==524288&&ba.Bytes==524288);
+            Reject(()=>ab.Allocate(new(28),94,LeaseCategory.Control));
+        });
+        Check(RevisionTwoCase.SameAllocationReturn,()=>
+        {
+            var before=ab.Bytes+ba.Bytes;ab.BeginReturn(new(20));ba.BeginReturn(new(20));
+            Require(ab.Bytes+ba.Bytes==before);
+            ab.CompleteReturn(new(20),1024);ba.CompleteReturn(new(20),1024);
+            Require(ab.Bytes+ba.Bytes==before&&ab.InFlight==15&&ba.InFlight==15);
+        });
+        Check(RevisionTwoCase.PendingResponseProgress,()=>
+        {
+            ab.Reuse(new(20),new(30));ba.Reuse(new(20),new(30));
+            Require(ab.InFlight==16&&ba.InFlight==16&&ab.Bytes+ba.Bytes==1048576);
+        });
+        Check(RevisionTwoCase.StaleReturn,()=>
+        {var before=ab.InFlight;Reject(()=>ab.CompleteReturn(new(20),1024));Require(ab.InFlight==before);});
+        Check(RevisionTwoCase.MaximumControlShapes,()=>Require(80+4+8*(42+8)==484&&
+            80+22+512==614&&80+26==106&&80+97==177&&614<=1024));
+        Check(RevisionTwoCase.ReturnReceiptsFit,()=>
+        {
+            for(var n=1;n<=32;n++)Require(96+18*n<=80+4+30*n&&96+18*n<=80+4+42*n);
+            Require(94<=96);
+        });
+        RequestIdentity Id(long generation,ulong sequence)=>new(new(generation),new(sequence));
+        var oldFirst=Id(11,1);var oldSecond=Id(11,2);var reset=Id(11,3);var fresh=Id(12,1);
+        var barrier=new Window(136);
+        Check(RevisionTwoCase.BarrierIdentity,()=>
+        {
+            foreach(var id in new[]{oldFirst,oldSecond,reset,fresh}){Require(barrier.Admit(id));barrier.Commit(id);}
+            Require(barrier.Count==4&&!barrier.Admit(oldFirst)&&!barrier.Admit(fresh));
+        });
+        Check(RevisionTwoCase.BarrierAcknowledgements,()=>
+        {barrier.Acknowledge(new(11),new(3));Require(barrier.Count==1);barrier.Acknowledge(new(12),new(1));Require(barrier.Count==0);});
+        Check(RevisionTwoCase.OriginalGenerationZero,()=>Reject(()=>barrier.Admit(Id(0,1))));
+        Check(RevisionTwoCase.QueryWindow,()=>
+        {
+            var queries=new Window(64);
+            for(ulong i=1;i<=64;i++)queries.Admit(Id(11,i));
+            Reject(()=>queries.Admit(Id(11,65)));
+            for(ulong i=1;i<=64;i++)queries.Commit(Id(11,i));
+            Require(queries.Count==64);queries.Acknowledge(new(11),new(32));Require(queries.Count==32);
+        });
+        Check(RevisionTwoCase.AnimationRequestOwner,()=>Reject(()=>ContractFixture.Validate(
+            new(1,MessageKind.AnimationCommands,RuntimeRole.Simulation,RuntimeRole.Animation,200,0,11,1))));
+        var animation=new Window(128);var registrations=0;
+        Check(RevisionTwoCase.AnimationDefinitionDuplicate,()=>
+        {if(animation.Admit(Id(7,1)))registrations++;Require(!animation.Admit(Id(7,1))&&registrations==1);animation.Commit(Id(7,1));});
+        Check(RevisionTwoCase.AnimationResultRelease,()=>
+        {animation.Admit(Id(7,2));animation.Commit(Id(7,2));animation.Acknowledge(new(7),new(2));Require(animation.Count==0&&registrations==1);});
+        Check(RevisionTwoCase.Animation3634,()=>{ReserveOutputs(3633,1);Require(ContractFixture.AnimationBytes(3634)==65529);});
+        Check(RevisionTwoCase.Animation3635,()=>{Reject(()=>ReserveOutputs(3634,1));Require(ContractFixture.AnimationBytes(3635)==65547);});
+        Check(RevisionTwoCase.Animation4096,()=>{Reject(()=>ReserveOutputs(0,4096));Require(ContractFixture.AnimationBytes(4096)==73845);});
+        Check(RevisionTwoCase.HiddenOutputReservation,()=>Reject(()=>ReserveOutputs(3634,3)));
+        Check(RevisionTwoCase.PhysicalVelocityBudget,()=>Require(ContractFixture.PhysicalBytes(257,256,256,0,0,0,257)==44057));
+        Check(RevisionTwoCase.ResultWidths,()=>Require(8+8+8+2+4+8+2+8==48&&48+2+4==54&&54+8==62));
+        Check(RevisionTwoCase.QueryWidths,()=>Require(8+8+2+8+4==30&&8+8+2+2+4==24));
+        Check(RevisionTwoCase.DescriptorWidths,()=>Require(2+2+2+96+32+1+1+4==140&&2+8+56+2+2+4==74));
+        return results;
+    }
+}

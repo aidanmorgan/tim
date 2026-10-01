@@ -1,0 +1,121 @@
+# Admission, application, acknowledgement and replay
+
+Normative [P0-005](contract.md) rules. Production runtime implements these through P0-013–020
+and the worker/animation/presenter rows. This document does not claim existing inbox compliance.
+
+## Admission and deterministic execution
+
+One browser command producer owns a positive U64 sequence per world generation. Start at1.
+Admission validates session/generation, full schema, supported schedule, queue/result/byte
+reservation and expected next sequence. Accepted sequences must be contiguous. A gap is
+SequenceGap and consumes no sequence or storage. A rejected admission consumes no sequence;
+the producer can correct/retry that unaccepted sequence. This is not an accepted-command rewrite.
+All admitted payloads are copied/frozen; callers cannot mutate them after acceptance.
+
+Retain exact command bytes or their SHA256 plus immutable typed payload until result acknowledgement.
+Duplicate ID+same bytes while pending returns DuplicatePending; while result retained returns
+DuplicateResult and the original result. Conflicting bytes before acknowledgement return
+ConflictingDuplicate with no mutation. Sequence <= acknowledged contiguous watermark returns
+AlreadyAcknowledged, never reapplication. Payload comparison is not promised after that watermark.
+Old generation returns WrongGeneration, even if the stable target ID is unchanged.
+No unbounded deduplication dictionary:128 ordinary+8 lifecycle reservations bound retention;
+watermarks remain one per still-retained generation. At most two generations are retained.
+A second barrier cannot install while preceding-generation results are unacknowledged; it reports
+Full/pending visibly until ack or explicit session recovery. It cannot discard old results.
+
+NextBoundary runtime input applies before the next not-yet-started integer tick. ExactTick
+requests tick T, accepting only current committed tick < T <= current committed tick+1200
+(10 simulated seconds). Equality or earlier returns TooLate, farther returns TooFarAhead.
+Admission occurs only at a committed boundary. While a tick runs, transport may queue bytes but
+does not claim application/admission against an obsolete boundary. If it arrives too late by the
+next admission point, reject TooLate; never silently shift an ExactTick command.
+Paused runtime input waits for the next Step/Resume; it does not advance physical state or clocks.
+Construction edits apply in ConstructionBoundary while building, with Exact expected revision.
+Run follows its declared final-edit dependency; pending edits cannot be skipped.
+
+At each boundary, select due commands by requested/effective tick then AppliedPhase then admitted
+sequence. A future command does not block another due command. Within the same phase order is
+contiguous U32 starting0. A deterministic result includes tick, phase, order, committed revision
+and resulting generation, including an application rejection.
+Construction/lifecycle successful transactions increment revision once per command. One gameplay
+tick increments revision once, independently of the number of due input commands. Every input
+in that tick compares Exact expected revision with the common pre-tick committed revision.
+All due inputs and their results are in the tick's transaction; physics failure restores them,
+topology/IDs/free lists/events and result reservations exactly. No result is published for that
+failed attempt; explicit retry uses the same tick/order. Recording a Fault does not advance tick.
+
+DependencySequence0 means none; otherwise it must identify a lower admitted sequence of the same
+generation. A command cannot execute until that dependency has a committed Applied result.
+A failed/cancelled dependency produces DependencyFailed at the dependent command's boundary.
+Dependency satisfaction/failure is captured into waiting records before older results are released,
+so result acknowledgement cannot erase a needed dependency. Pending dependency cycles reject
+at admission (lower sequence rule makes cycles impossible). ExactTick with an unresolved dependency
+when its tick begins returns DependencyFailed; never reschedule it to a later tick.
+No unconditional head-of-line blocking from a scheduled command may prevent Reset/Pause/Cancel.
+
+Run/Pause/Resume/Step/Reset/ReplaceConstruction/Save/Cancel apply in LifecycleBoundary between
+whole commits. Construction edits apply only in ConstructionBoundary. Save is supported only
+in building; ReplaceConstruction is the explicit Load barrier. The complete mode/error/recovery
+matrix is P0-006's dependency-ready next row; these wire/application choices remain fixed.
+A successful Reset/Load increments world generation, preserves old command identities in their
+invalidation results, initializes next-generation command sequence1 and establishes a full seed.
+Every old pending command receives InvalidatedByBarrier using its already-reserved result slot.
+Failed Load preserves prior usable generation, revision, construction, pending commands and
+already committed outcomes; it publishes an explicit failed application outcome, not a new seed.
+
+Cancel is a lifecycle command targeting a pending sequence. It gives that target Cancelled and
+itself Applied at the same boundary; both results consume their existing reservations.
+If target already committed (whether result retained or acknowledged), Cancel returns
+AlreadyCommitted and cannot undo effects. Unknown/not-yet-admitted target returns UnsupportedTarget.
+No physical event, pulse, connect/disconnect or lifecycle operation is coalesced. Browser ghost
+preview updates may coalesce locally before any command ID/admission; they never enter replay.
+
+## Acknowledgement and bounded ownership
+
+The complete normative replacement is [reliability.md](reliability.md): original-edge round-trip
+leases, separately reserved control bytes/slots, receipt-bearing returns, per-family admission/result/
+ack windows, Save transfer correlation, query and transfer cancellation, and session restart.
+There is no independent Admissions envelope, credit-of-credit or second animation request producer.
+Results explicitly carry original generation+sequence and resulting generation; mixed result batches
+never infer original identity from the current envelope. See its R2 positive/control traces.
+
+## Replay contract and independent goldens
+
+Replay identity comprises exact build/schema/resource hashes, canonical initial construction,
+initial generation/allocator/RNG state where used, and ordered command application records:
+original immutable command, applied tick, AppliedPhase, order, outcome and committed revision.
+Replay is same-build deterministic authority, not cross-architecture bitwise qualification.
+Wall arrival timestamps, animation samples and render frames are not physical input.
+A command list with different applied ticks is a different history even if sequence order matches.
+Runtime replay recording is bounded to3600 ticks and65536 applied command/result records per Run;
+capacity exhaustion explicitly stops recording and invalidates replay completeness, without
+altering physics. No production event-sourcing service or unbounded history is introduced.
+Canonical comparison includes all authoritative quantities, topology maps, allocator/free-list state,
+pending domain events/commands and RNG where present; cosmetic phase is excluded.
+
+| Oracle | Independently expected result |
+| --- | --- |
+| Stable allocation | Entities41 and99 with body IDs1001 and7001 map to local slots0,1. Reverse declarations and assign slots9,3: exported IDs and canonical bytes unchanged. |
+| Deleted/reused slot | Delete body1001, reuse local slot0 for body8001. A command/query to1001 rejects UnsupportedTarget;7001 still resolves. No automatic retargeting to8001. |
+| Stale generation | Same body7001 in generation12 after Reset from11. (11,7001) rejects; (12,7001) resolves. |
+| Fixed tick | committed40; exact43 seq1 and next-boundary seq2 admitted. seq2 applies tick41, order0; seq1 tick43, order0. Replay uses those times, not arrival/order alone. |
+| Boundary controls | requested40 rejected TooLate;1240 accepted at committed40;1241 TooFarAhead. At committed41, requested41 TooLate. |
+| Same tick | exact43 seq1,seq2 apply order0,1; reversed declaration or renderer cadence cannot change it. |
+| Duplicate | repeated pending seq1 identical→DuplicatePending; changed payload→ConflictingDuplicate; after committed→original result; after cumulative ack→AlreadyAcknowledged; zero second effect. |
+| Capacity |128 ordinary accepted pending/result entries;129th Full. Commit alone stays128. Ack first32→96; admit32→128. Eight lifecycle entries remain separate; ninth Full. |
+| Failed tick | admitted seq1 pending before tick43; injected failure restores pending order/count, authority and reserved result capacity; no success/event/state; successful retry publishes once. |
+| Barrier | generation11 with pending seq1,2; Reset result establishes12; old commands receive InvalidatedByBarrier with old command IDs; late old command rejects. |
+| Dependent edit | edit1 succeeds at construction revision8, Run2 depends1→Run after8. Failed edit1→Run2 DependencyFailed; never runs an older placement silently. |
+| Cancel | Cancel pending seq1 creates its Cancelled result and own Applied; Cancel committed seq1→AlreadyCommitted, no physical reversal. |
+| Full animation capacity |2516 outputs=65533 bytes;2517=65559 and4096=106613 reject before registration, including hidden/stopped channels. |
+| Codec integers | U64 0 invalid as identity;1,2^53-1,2^53,2^53+1,2^63-1,2^63,2^64-1 exact; one above max rejects. I64 min/max round-trip where signed field permits, negative generation rejects. |
+| Canonical byte goldens | U64 2^53+1 =01 00 00 00 00 00 20 00; U64 max = eight ff; I64 min =00 00 00 00 00 00 00 80; no JS Number round-trip. |
+| Length |80-byte envelope with zero-payload command is not itself a valid Commands body; count/prefix required. Advertised size mismatch, unknown kind/flags, truncated record/count overflow, NaN and infinity reject before mutation. |
+| Budget |257 pose+256 scalar+256 Boolean sample=23497 total bytes;256 animation samples=6773. 6*512KiB+3*1MiB+2MiB=8MiB. |
+| Full sample |drop sample41, receive complete42 with installed topology→coherent42; missing topology→bounded wait/reject, never mixed41/42 fields. Reliable pulse41 still delivered once. |
+
+P0-016 runs byte-level C#/JS round-trip and rejection against actual codecs. P0-032 applies the
+complete controls through actual workers with injected reorder/delay/saturation/restart and
+independent animation/render cadences. Real Chrome UI and exact Run/Reset/save/motion proofs
+remain mandatory for affected implemented consumers. These hand-calculated oracles are not
+observed browser outcomes.

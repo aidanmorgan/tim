@@ -1,0 +1,189 @@
+# Stable identity, authored construction and finite mappings
+
+Normative companion to [wire.md](wire.md). Existing source symbols are reconciliation inputs,
+not automatically wire schemas. A type currently named Id may still be an array index.
+
+## Identity allocation and local storage
+
+The authoritative construction document owns a nonzero 128-bit DocumentId and one monotonically
+increasing nonzero U64 NextIdentity shared by all entity/body/collider/joint/connection/capability/
+observable/animation-target identities in that document. Identity allocation is transactional.
+Every committed allocation increments NextIdentity; deleted values are never reissued.
+Exhaustion rejects atomically. A failed unpublished candidate restores the allocator exactly;
+no candidate identity may escape in a successful result or occurrence.
+
+Each entity declaration persists a binding table of typed child identities keyed by a stable,
+explicit DefinitionMemberId U32 from its immutable definition. That member number is a semantic
+declaration key, never an array ordinal. BodyId, collider, joint, input, observable and visual target
+keys are allocated once and survive entity movement, save/Load and recompilation. New definitions
+must declare explicit member numbers before use. Replacing a definition preserves only explicitly
+matching member identity/type; absent members are deleted, new members receive fresh identities.
+Changing the key/type is structural, never inferred by list position or similar display name.
+
+Local maps may assign slots in any order; a slot is valid only inside its owning runtime.
+Dictionary iteration, sorted compilation arrays, free-list order, PhysicsBodyId.Index,
+BinaryInputId.Index, ScalarInputId.Index, EventStreamId.Index, observation slots and
+AnimationHandle.Owner/Slot/Version never enter a message or save.
+The compiler carries both strongly typed stable ID and internal strongly typed slot;
+it resolves once on admission/application and revalidates generation/topology on use.
+No fallback from missing stable ID to numeric slot is allowed.
+
+Worker session+world generation qualifies installed identity. Reset/Load retain authored IDs
+but advance the installed generation. A reference to (old generation, unchanged ID) rejects;
+generation is not folded into or replaced by a slot version. Animation has a separate positive
+U64 generation. Standalone UI targets belong to the browser session registry, not to a fake
+physics body. Reset changes only the bound world's registrations; unrelated UI clocks remain
+independent under P0-006. Removing a target cancels its definitions/occurrences and writer claims.
+
+Resource DefinitionId/GeometryId and PuzzleId are strongly typed U64 identities assigned in the
+current authored build registry, not content-array offsets. The full registry SHA256 is in Hello/
+Ready and construction. Registry identity/type/hash mismatch rejects before installation.
+The reviewed forward content rewrite assigns explicit persistent values to every current catalogue
+entry and puzzle; later additions receive new values without renumbering existing ones. No runtime
+hash-of-name, sorted-position assignment, Godot instance ID or automatic v4 migration.
+
+Canonical compilation order: entity ID, definition member ID; connection ID; capability ID;
+observable ID; target ID then property enum tag. Contact candidates sort by ordered BodyId pair,
+then ColliderId pair, then declared feature ID. Equal candidate times use this stable key order.
+Broad-phase traversal does not select solver order. Do not reorder solver pivots/reductions
+incidentally during packing. Transaction enrollment follows the explicit dependency graph and
+these stable keys, restore in reverse. P0-020 includes allocator/maps/free lists/queued items.
+
+## Canonical construction object and save
+
+The complete construction object is a fixed grammar, not an arbitrary property bag.
+Header: ConstructionVersion U16 exactly5, DocumentId16, registry SHA25632, NextIdentity U64,
+PuzzleId U64(0 only free workshop), precision F64 in[0,1], realistic B, gravity F64 m/s²,
+ambient-pressure multiplier F64 dimensionless, entity count U32, connection count U32,
+goal count U32, placement-target count U32:107 bytes.
+Arrays follow in that order, canonical sorted IDs. Maximum object1MiB, entity count4096,
+connection count8192, goal count256, placement targets4096. Actual compiled byte and physics
+budgets may impose a stricter workload bound, never silent dropping. Generic fixture UI must
+not inherit the existing Workshop250-part admission cap as a false qualification shortcut.
+
+Entity: EntityId U64,DefinitionId U64,locked B,Pose56,initial linear velocity V3,
+parameter schema E,parameter count U32,member count U32,difficulty count U32:111 bytes,
+then parameter records, member records and difficulty records.
+Parameter record is member E + F64 value:10 bytes. The selected enum schema fixes the exact
+finite field set and semantic type; enum/Boolean/count values must be exactly representable,
+integral where required, and validated as the corresponding typed value before domain use.
+This packed boundary is not a Dictionary<string,double> or generic numeric selector at runtime.
+Every field is present exactly once and sorted by tag; unknown/duplicate/missing fields reject.
+No default filling or arbitrary extension is permitted.
+Member record: DefinitionMemberId U32,MemberKind E,stable identity U64,initial velocity V3:38.
+MemberKind Body=1,Collider=2,Joint=3,Capability=4,Observable=5,AnimationTarget=6.
+Initial velocity applies to Body only; every other kind requires exactly zero components.
+Definition schema fixes required member keys/kinds; undeclared/missing/retyped keys reject.
+This preserves current InternalBodyRole.Plunger initial velocity without a scene-list index.
+
+Difficulty record: Precision,PositionWindow,RotationWindow,MaxPositionCorrection,
+MaxRotationCorrection,BlendSeconds,CaptureMargin,CaptureSpeed,CaptureDwell,GuideAcceleration,
+TriggerThreshold, all F64 in that order:88 bytes. Units respectively dimensionless,m,degrees,m,degrees,s,m,
+m/s,s,m/s²,dimensionless. Preserve every current assistance knot; sort ascending Precision and
+reject duplicate knots/nonfinite/out-of-range values using the current authored assistance contract.
+Placement targets are Entity declarations with distinct IDs; goal/body references identify actual
+entities, never array indices. Required member maps are still explicit for target declarations.
+
+Connection: ConnectionId U64,from EntityId U64,to EntityId U64,ConnectionDomain E,
+from SocketId E,to SocketId E,RopeLengthKind E(None=1,Exact=2),rope length F64:40.
+Non-rope requires None and+0 length; Rope requires Exact and finite positive metres.
+Both explicit ports are mandatory; no inferred ambiguous endpoint or connection purpose.
+Goal: GoalId U64,GoalKind E,target EntityId U64,body EntityId U64(0 only where mode permits),
+minimum delay F64 seconds:34. Goal modes retain the existing predicate semantics and required
+target/body sets; invalid identity/type rejects, not an empty goal substitute.
+GoalId is allocated by the same document identity allocator.
+
+Save bytes are exactly this version5 construction object, not a worker envelope. Browser storage
+may wrap it in its explicit binary storage API, never JSON numbers for IDs. Save succeeds only at
+an acknowledged Construction boundary, after all accepted edits it depends on. Running runtime
+save is explicitly unsupported. Reset restores the exact Run construction object including IDs,
+initial internal velocities, connections, parameter values, assistance, allocator high-water mark,
+precision and mode. Save/Load must preserve bytes under canonical serialization; metadata such as
+title/hint remains in the referenced puzzle registry, not simulation state or behavior selectors.
+P0-006 chooses the detailed failure transition matrix while preserving this construction-only support.
+Old save v4 rejects after cutover; retained historical files are evidence, not accepted input.
+
+## Parameter schema tags and units
+
+Empty=1 has zero parameters. Other schemas below assign field tags explicitly from1 in the
+listed order; schema and member enums remain typed through compiler, UI, tests and content tools.
+The source declaration/member/range validation in the input snapshot is the range authority;
+this table freezes order and units, not relaxed limits. Current enum-as-number fields convert
+only at this validated construction boundary. P0-008 forward-replaces these packed numeric
+fields with concrete typed constructor calls; it cannot retain generic property-bag domain access.
+
+| Schema tag/name | Fields in explicit tag order; units |
+| --- | --- |
+| 2 Ball | Radius m; Mass kg; Bounce dimensionless; Buoyancy m/s²; Drag inverse seconds |
+| 3 Wall | Width m; Height m; Thickness m |
+| 4 Ramp | Length m; Width m |
+| 5 Pipe | Length m |
+| 6 Receiver | Threshold game optical power |
+| 7 Clock | IntervalSeconds s |
+| 8 Counter | TargetCount integer count |
+| 9 PressurePlate | MinimumMass kg |
+| 10 HoldTimer | HoldSeconds s |
+| 11 Delay | DelaySeconds s |
+| 12 Weight | Mass kg |
+| 13 Spring | Stiffness N/m; Damping N·s/m; InitialCompression m |
+| 14 Trampoline | Tension N/m; DampingRatio dimensionless |
+| 15 Clutch | CloseSeconds s |
+| 16 Cannon | Capacity J; ChargePower W |
+| 17 Motor | Speed rad/s; Torque N·m |
+| 18 WoundSpring | Stiffness N/m; Stroke m; WindingLead m/rad |
+| 19 Battery | Enabled Boolean (exact0/1) |
+| 20 Pusher | Stroke m; Speed m/s; Acceleration m/s²; Force N |
+| 21 Conveyor | Length m; Width m; SurfacePerRadian m/rad |
+| 22 Bumper | Strength m/s |
+| 23 Fan | Powered Boolean; Force N; Reach m; Width m |
+| 24 Bellows | Force N; Reach m; Width m |
+| 25 Windmill | RadiansPerForce rad/(N·s) |
+| 26 ImpactLever | BeamMass kg; InitialAngle degrees |
+
+Definition registry binds each of the72 current catalogue entries to exactly its supported schema
+and fixed modes. Existing duplicate-script variants retain distinct DefinitionIds; no representative
+entry closes them. LogicGateKind And/Or/Xor/Nor/Nand, OpticalColour Broadband/Red/Green/Blue/Yellow/
+Cyan/Magenta/White, ToneBand Low/Mid/High and TubeBendAngle45/90 all retain separate current modes.
+Immutable generic fixture definitions are assigned their own typed IDs and concrete declaration
+schemas by their named design rows before implementation; they do not use an arbitrary runtime
+extension dictionary or transfer executable definitions. New reviewed schema versions update
+compiler, codecs, current registry/content and tests together; old registry hashes reject.
+
+## Explicit finite boundary enum maps
+
+These tables are boundary encodings, not string-based domain dispatch. Each target enum is
+compiler-checked; numeric mappings are explicit and independent of C# underlying declaration values.
+
+ConnectionDomain: Activation1,Electrical2,Signal3,Mechanical4,Rope5; Unknown rejects.
+SocketId: ActivationOut1,SetIn2,ResetIn3,ActivationIn4,FirstIn5,SecondIn6,Supply7,PowerIn8,
+Drive9,DriveIn10,Tie11,ExtendIn12,RetractIn13,ExtendedOut14,RetractedOut15.
+GoalKind: Captured1,Activated2,Powered3,Turned4,PoweredAfter5,ActivatedAfter6; Unknown rejects.
+CannonPhase: Empty1,Loading2,Charging3,Ready4,Firing5,Jammed6.
+ToneBand: Low1,Mid2,High3.
+LogicGateKind: And1,Or2,Xor3,Nor4,Nand5.
+OpticalColour: Broadband1,Red2,Green3,Blue4,Yellow5,Cyan6,Magenta7,White8.
+TubeBendAngle: Degrees45=45,Degrees90=90.
+ActivationCommand: Trigger1,Set2,Reset3; activation input capability fixes its command semantics.
+
+AnimationCurve Linear1,SmoothStep2,SinePulse3.
+AnimationRepeat Once1,Loop2,PingPong3.
+AnimationImpulseCurve LinearDecay1,SmoothDecay2,SineSquaredPulse3,SmoothRiseFall4.
+AnimationImpulseOverlap Maximum1,SaturatingSum2,HyperbolicTangentSum3.
+AnimationImpulseVisibility DeferUntilVisible1,AdvanceWhileHidden2.
+AnimationImpulseTiming EventTime1,FirstPresentation2,EventTimeRetainFirstFrame3.
+Impulse PeakPhase must be0 for decay curves,.5 for SineSquaredPulse,
+[1e-6,1-1e-6] for SmoothRiseFall; duration>0, capacity1..65536.
+Follow response>0 inverse seconds and Initial between From/To. Clip duration>0, finite difference;
+PingPong doubled duration finite. Oscillation decay/frequency[1e-6,1e6],velocityPerStrength(0,1e6].
+All scalar fields finite. Per-property output bounds and duplicate-writer checks remain enforced.
+
+PerformanceStage: GameplayTick1,Networks2,Physics3,Publication4,GameplayFrame5,
+PhysicalPresentation6,Animation7,SceneSubmission8.
+PerformanceOutcome: Completed1,Failed2.
+PerformanceMetric: PhysicsSteps1,PhysicsSubsteps2,PhysicsEvents3,SweepIterations4,
+VelocityIterations5,PositionIterations6,PredictionCalls7,PredictionMidpoints8,
+PredictionNewtonIterations9,MaximumPredictionCoordinates10,BodyQueries11,BodyNodeTests12,
+BodyLeafTests13,BodyCandidatePairs14,CompoundQueries15,CompoundNodeTests16,CompoundLeafTests17,
+CompoundCandidatePairs18,PredictionConstraintSolves19,PredictionConstraintIterations20,
+PredictionCouplingTests21,PredictionCoupledPairs22.
+No enum name serialization or inferred ordinal mapping occurs inside domain logic.

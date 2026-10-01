@@ -1,0 +1,118 @@
+{
+  "workId": "P0-005",
+  "revision": "r3",
+  "implementation": {
+    "agent": "/root/p0_005",
+    "session": "01a0f835-2500-73c0-a046-738333d3d7ff"
+  },
+  "stage": "Design",
+  "runtimeQualified": false,
+  "build": {
+    "command": "dotnet build tools/WireContract/WireContract.csproj -c Release --no-restore --nologo",
+    "result": {
+      "chunk_id": "030deb",
+      "wall_time_seconds": 1.265229625,
+      "exit_code": 0,
+      "original_token_count": 45,
+      "output": "  WireContract -> /Users/aidan/dev/personal/tim/tools/WireContract/bin/Release/net10.0/WireContract.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:01.23\n"
+    }
+  },
+  "fixture": {
+    "command": "dotnet tools/WireContract/bin/Release/net10.0/WireContract.dll",
+    "result": {
+      "chunk_id": "2d7fb4",
+      "wall_time_seconds": 0.000005875,
+      "exit_code": 0,
+      "original_token_count": 1145,
+      "outputChunks": [
+        "{\"DesignOnly\":true,\"RuntimeQualified\":false,\"Count\":100,\"Failures\":0,\"Results\":[{\"Oracle\":0,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":1,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":2,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":3,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":4,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":5,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":6,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":7,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":8,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":9,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":10,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":11,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":12,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":13,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":14,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":15,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":16,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":17,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":18,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":19,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":",
+        "20,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":21,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":22,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":23,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":24,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":25,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":26,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":27,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":28,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":29,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":30,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":31,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":32,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":33,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":34,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":35,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":36,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":37,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":38,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":39,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":40,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":41,\"Passed\":true,\"Detail\":\"Passed\"",
+        "},{\"Oracle\":42,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":43,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":44,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":45,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":46,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":47,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":48,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":49,\"Passed\":true,\"Detail\":\"Passed\"}],\"RevisionTwo\":[{\"Case\":0,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":1,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":2,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":3,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":4,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":5,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":6,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":7,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":8,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":9,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":10,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":11,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":12,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":14,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":",
+        "13,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":15,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":16,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":17,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":18,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":31,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":19,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":20,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":21,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":22,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":23,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":24,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":25,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":26,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":27,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":28,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":29,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":30,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":32,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":33,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":34,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":35,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":36,\"Passed\":true,\"Detail\":\"Passe",
+        "d\"},{\"Case\":37,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":38,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":39,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":40,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":41,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":42,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":43,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":44,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":45,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":46,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":47,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":48,\"Passed\":true,\"Detail\":\"Passed\"},{\"Case\":49,\"Passed\":true,\"Detail\":\"Passed\"}]}\n"
+      ],
+      "outputReconstruction": "Concatenate outputChunks without separators."
+    }
+  },
+  "audits": [
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-inventory . docs/coverage/source-inventory.json",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "0cf316",
+        "wall_time_seconds": 0.026444542,
+        "exit_code": 0,
+        "original_token_count": 39,
+        "output": "{\n  \"Sources\": 1471,\n  \"Unreviewed\": 1471,\n  \"Changed\": 0,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"SourceInventoryCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+      }
+    },
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-elements . docs/coverage/catalogue-elements.json",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "ed7d3d",
+        "wall_time_seconds": 0.037619292,
+        "exit_code": 0,
+        "original_token_count": 46,
+        "output": "{\n  \"Elements\": 72,\n  \"Fixtures\": 302,\n  \"UnresolvedSources\": 1097,\n  \"PendingModeReviews\": 72,\n  \"PendingProcessReviews\": 72,\n  \"LinksCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+      }
+    },
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-capabilities . docs/coverage/engine-capabilities.json",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "cef14e",
+        "wall_time_seconds": 1.322135792,
+        "exit_code": 0,
+        "original_token_count": 47,
+        "output": "{\n  \"Sources\": 1471,\n  \"Capabilities\": 71,\n  \"Consumers\": 1471,\n  \"Modes\": 104,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"Changed\": 0,\n  \"InventoryCurrent\": true,\n  \"RuntimeQualified\": false\n}\n"
+      }
+    }
+  ],
+  "preservation": {
+    "command": "import json,hashlib,pathlib,re,subprocess\nh=lambda p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()\ns=json.load(open('docs/verification/P0-005/snapshot-r2.json'))\nruntime=json.load(open('docs/s001-source-baseline.json'))['sourceEntries']\nbad=[p for p,v in runtime if h(p)!=v]\nretained=[]\nfor p,v in s['publicationAllowlist'].items():\n archive=pathlib.Path('docs/verification/P0-005/r2-originals')/(p+'.txt')\n candidate=archive if archive.exists() else pathlib.Path(p)\n if h(candidate)!=v: retained.append(str(candidate))\ntodo=pathlib.Path('TODO.md').read_text(); lines=todo.splitlines()\nfor c in s['todoReversal']['changes']: lines[c['line']-1]=c['before']\ninverse=hashlib.sha256(('\\n'.join(lines)+'\\n').encode()).hexdigest()\nlinks=[]\nfor p in pathlib.Path('docs/work-orders/P0-005').glob('*.md'):\n for url in re.findall(r'\\]\\(([^)]+)\\)',p.read_text()):\n  if '://' in url or url.startswith('#'):continue\n  if not (p.parent/url.split('#')[0]).exists():links.append([str(p),url])\nprint(json.dumps({'runtimeEntries':len(runtime),'runtimeChanged':bad,'r2OriginalMismatches':retained,'todoInverse':inverse,'expectedTodoInverse':s['todoReversal']['beforeSha256'],'missingLinks':links,'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}))\nassert not bad and not retained and not links and inverse==s['todoReversal']['beforeSha256']\n",
+    "result": {
+      "chunk_id": "226451",
+      "wall_time_seconds": 0.14922675,
+      "exit_code": 0,
+      "original_token_count": 80,
+      "output": "{\"runtimeEntries\": 916, \"runtimeChanged\": [], \"r2OriginalMismatches\": [], \"todoInverse\": \"4436305d1bf3dd237ea1cc84e7db179d5adf5afe68c30ba7f365e15b6aaa9dd5\", \"expectedTodoInverse\": \"4436305d1bf3dd237ea1cc84e7db179d5adf5afe68c30ba7f365e15b6aaa9dd5\", \"missingLinks\": [], \"head\": \"46eb68fa47eee1be50a1da1c7fd1f6debc854522\"}\n"
+    }
+  },
+  "anvil": {
+    "files": [
+      "docs/work-orders/P0-005/bindings.md",
+      "docs/work-orders/P0-005/contract.md",
+      "docs/work-orders/P0-005/identity.md",
+      "docs/work-orders/P0-005/reliability.md",
+      "docs/work-orders/P0-005/replay.md",
+      "docs/work-orders/P0-005/source-impact.md",
+      "docs/work-orders/P0-005/wire.md",
+      "tools/WireContract/ContractFixture.cs",
+      "tools/WireContract/Program.cs",
+      "tools/WireContract/README.md",
+      "tools/WireContract/RevisionTwoOracles.cs",
+      "tools/WireContract/WireContract.csproj"
+    ],
+    "warnings": [],
+    "errors": 0,
+    "backend": "local",
+    "daemonStatus": "not-wired",
+    "note": "MCP anvil_check returned zero regex/AST findings. Each write separately validated allow."
+  },
+  "retainedAttempts": [
+    {
+      "operation": "Load all candidate contents as one tool result",
+      "outcome": "SyntaxError: Unexpected token 'W' from truncated tool output; retried with larger output limit, no write."
+    },
+    {
+      "operation": "Read full TODO for proposed in-memory edit",
+      "outcome": "Error: Truncated TODO read; guard stopped before any write. Replaced with exact two-line bounded read and validated patch."
+    }
+  ],
+  "applicability": "Current runtime/build/content baseline916 entries unchanged. No game build or browser artifact changed; no runtime/browser qualification claimed or reused. Prior reviewer controls for unchanged original-command generation and return/control shapes retained at R2, pending reviewer applicability decision. New ranges, sample identity/capacity, query stamp and semantic-release controls run now.",
+  "reuseReferences": [
+    "docs/verification/P0-005/review-r2.md",
+    "docs/verification/P0-005/reviewer-r2-results.json"
+  ]
+}

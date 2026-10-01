@@ -1,0 +1,77 @@
+# P0-005 — wire schema and timed-command replay
+
+Stage: Design. R1 received [independent Fail](../../verification/P0-005/review-r1.md). R2 received [independent Fail](../../verification/P0-005/review-r2.md). R3 corrects its three findings;
+independent re-review/publication remain pending, with no runtime qualification.
+Implementation owner /root/p0_005, session 01a0f835-2500-73c0-a046-738333d3d7ff.
+Base revision 46eb68fa47eee1be50a1da1c7fd1f6debc854522.
+Parent /root, session 01a0f5f1-ab9a-79a3-9181-0dbb87285ec5.
+The current disposition comes from the independent review record, not this captured status.
+
+## Authority and scope
+
+[TODO P0-005](../../../TODO.md#work-p0-005), [bridge design](../../simulation-presentation-bridge.md),
+[P0-004 ownership](../P0-004/assemblies.md), [spatial authority](../P0-004/spatial-authority.md),
+[P0-003 budgets](../P0-003/devices-budgets.md) and REQ-14 bind this contract.
+Prerequisites are the terminal independent [P0-004 review](../../verification/P0-004/review.md),
+[P0-003 review](../../verification/P0-003/review.md) and
+[P0-002 review](../../verification/P0-002/review.md).
+
+This row freezes one wire/replay contract. It does not introduce a runtime codec, worker,
+storage framework, ECS, compatibility format or alternate execution path.
+Allowed deliverables: this work-order directory, implementation evidence under
+docs/verification/P0-005, the small standalone design-oracle project tools/WireContract,
+and exactly the local TODO current handoff and P0-005 status cells. TODO/AGENTS and existing
+unpublished runtime are excluded from the publication allowlist. No production/browser export
+is required for a design-only change that cannot enter the game compilation; runtime gates stay open.
+
+[Wire layouts](wire.md) define every envelope field, finite message family and payload grammar.
+[Identity/content mappings](identity.md) define storage-independent keys and forward cutover.
+[Ordering/replay](replay.md) and [reliable ownership](reliability.md) define application, late/duplicate/ack rules and independent oracles.
+[Presentation bindings](bindings.md) fixes the complete current descriptor/feedback split.
+[Source and impact](source-impact.md) records current behavior separately from target guarantees.
+The executable design fixtures check finite schema arithmetic and timed-command/stable-ID rules;
+they do not certify the future production codecs or runtime.
+
+## Criteria
+
+| ID | Required-now expected outcome |
+| --- | --- |
+| P0-005/A01 | Current source/caller/content and prerequisite reconciliation; actual owner/reviewer identities and one immutable scoped snapshot. |
+| P0-005/A02 | Every wire field has fixed width or bounded exact length rule, unit, canonical encoding, owner and validation; no unresolved mandatory variant. |
+| P0-005/A03 | Stable IDs survive declaration reorder, compaction and slot reuse; generation and removed-target rejection; no local slots or scene references cross worker/save boundaries. |
+| P0-005/A04 | Admission differs from commit; explicit tick/phase/order, expected revision, dependent actions, late/duplicate/cancellation/barrier behavior; deterministic same-build replay. |
+| P0-005/A05 | Bounded queues, result/event reservations, acknowledgement windows, buffer ownership, fan-out and byte arithmetic satisfy the frozen P0-003 limits by construction; measured performance remains open. |
+| P0-005/A06 | All existing command/read/event/animation/save modes have an explicit target mapping and named implementing/proof child; closed choices remain enum-typed. |
+| P0-005/A07 | Independently derivable positive/control/boundary fixtures, including malformed/unknown/truncated lengths, signed/unsigned extrema, 2^53 neighbors, reordered declarations and stale reused slots; negatives reject. |
+| P0-005/A08 | Focused oracle build/checks, current inexpensive schema/membership/deletion audits, exact TODO preservation and source-input continuity; no historical evidence rewrite. |
+| P0-005/A09 | Independent criterion and transitive-impact matrices resolve every required-now finding; SnapshotApproval references exact deliverables and relevant inputs. |
+| P0-005/A10 | Publication-dependent only: approved allowlist has matching parent, commit blobs and remote main; reviewer verifies and supplies terminal Pass. |
+
+A10 is the only publication-dependent criterion. All other criteria must pass before publication.
+There is no required deployed behavior for this Design artifact. That does not waive P0-016 codec,
+P0-019/024 worker, P0-020 lifecycle, P0-025/026 presentation, P0-029 deployment, P0-032 adversarial,
+P0-034 physical-device or P0-035 release gates. Source syntax or fixture success never qualifies
+browser physics/publication/animation/render CPU, GPU, memory, exact Run/Reset/save or 60/90 FPS.
+
+## Implementation children and non-waivers
+
+P0-008 owns construction compilation, stable identity allocation and active authored-content
+conversion. P0-013/014 own typed application and coherent publication. P0-015/016 own transport
+and exact cross-language codecs. P0-019/020 own simulation execution and transactional lifecycle.
+P0-022/023/024 own animation kernel, feedback and worker host. P0-025/026 own coherent browser
+histories and typed binding/application. P0-029 publishes actual workers. P0-030/031 retain
+every current consumer and fixture; P0-032 executes delayed/reordered/duplicate/saturation/crash
+and replay attacks; P0-034/035 enforce actual budgets. P0-006 freezes the complete lifecycle and
+clock state machine without changing the wire semantics here; P0-007 supplies the portable math
+representation and preserves affine geometry. Neither dependency is an unnamed implementation
+prerequisite or permission to leave a required P0-005 field undecided.
+
+Retain the ten native baseline failures, failed physical/combined/production Chrome timing and
+unattributed unexpected input incident. Chrome remains root-owned through Playwright.
+No missing physical device is represented as a pass. All 150 campaign levels and every
+catalogue variant remain in scope. Existing specialized timer/animation/spatial/transaction
+storage is retained inside its owner; this contract changes its boundaries, not its algorithms.
+
+Intermediate edits may have pending manifest drift. At the frozen review boundary, reconcile
+the actual affected closure and run the existing inexpensive full integrity audits once.
+Do not generate a new prerequisite checker platform or repeatedly duplicate evidence packages.

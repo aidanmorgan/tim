@@ -1,0 +1,79 @@
+# Source reconciliation and impact boundary
+
+P0-005 changes only design and a standalone design-fixture executable. Current runtime behavior
+below is inspected source, not a new native/browser result. Canonical relevant-input hashes and
+allowed outputs are in the frozen verification snapshot. Anvil returned ready graph data but
+no dependent files for the initial bridge/data query; this is not evidence of zero consumers.
+Direct symbol searches, concrete calls and P0-004's independently reviewed ownership/caller map
+supply the broader closure. The main game excludes tools/**/*.cs; this project has no runtime
+reference and cannot enter the game or served bundle.
+
+| Current source chain | Current behavior/defect | Target invariant and implementing/proof owners |
+| --- | --- | --- |
+| MachineWorld.Controls → SimulationCommandInbox → transaction → result readers/tests | long generation/sequence and128 shared pending/results; any increasing sequence accepted; applied tick/phase/order absent; exact-head acknowledgement only | P0-013/016 forward-replace command envelope/results and all callers; contiguous admission, explicit schedule and cumulative bounded ack. P0-020 rollback, P0-032 adversarial replay. No current compliance claim. |
+| BinaryInputCommand → SceneBinary/ScalarInput declarations → MachineWorld maps/state cells → electrical/actuator callers | BinaryInputId/ScalarInputId are int Index and default0 may name a real slot; source keys contain scene owners | P0-008 allocates persisted capability identity; P0-019 compiles typed input references; validated stable-ID lookup/generation at application. Binary/Scalar/Pulse remain distinct modes. |
+| CommittedPoseBuffer, BooleanRead, ScalarRead, EnumRead → MachineWorld publication → ScenePoseBatch/SceneAnimationRun/adapter | previous/current/pending whole-commit buffers are useful, but keys contain body/observation indices and some query reads retain geometry references | P0-014 publishes coherent stable-ID values; P0-015/016 pack explicit typed arrays; P0-025 histories, P0-026 final properties. P0-004 authoritative query metadata stays simulation-owned; no renderer query substitution. |
+| WorldGeometry/SceneBodyGeometry/ScenePhysicsAssembly → PhysicsWorld/collider replacement/rollback → BodyQueryRead | live authoritative spatial metadata and full affine basis must survive extraction | P0-007 portable affine values; P0-014 topology/queries; P0-020 failed mutation rollback. Rigid Pose and collider Affine are different shapes; 96-byte affine columns retain anisotropy. |
+| CommittedEventStream → SceneOccurrenceRun/SceneAcousticRun → SceneAcousticMotionRun/WavefrontRun/audio | reliable bounded producer streams and exact event identity already exist; EventStreamId is local index; synchronous producer/consumer access still exists | P0-014/023/024 reliable per-recipient occurrence values, independent admission/ack, no physical transaction calling browser capacity. P0-032 duplicate/restart/no-silent-drop proof. |
+| AnimationBatch/Animation*Definition → SceneAnimationAdapter/SceneAnimationRun → WorkshopAnimation/current parts | Clip, Follow, Impulses and Oscillation already implemented with typed modes, local owner/slot/version handles and copied scalar samples | P0-022 retain evaluator arrays; P0-023 preserve all modes including impulse range/timing/visibility, CancelImpulses, endpoint/rate/visibility; P0-024 worker and P0-026 one-writer binding. Never transmit handle owner/slot. |
+| MachineData/SavedMachine → MachineCodec → PartRegistry/PartParameterValues → MachinePart.Configure/Serialize → Workshop.Save/LoadSave → campaign tools/tests/content | current save4 supports construction only; part/definition IDs and resource property boundary dictionaries are strings; NextId is int; Workshop250/500 cap | P0-008 explicit typed content/schema5 conversion and compiler; P0-016 lossless boundary; P0-020 exact Load/Reset; current campaign/tools/UI/tests move together with no runtime old-format migration. Preserve all150 levels and72 catalogue variants. |
+| PartAssistance/ImpactLever/MachineWorld force construction/BodyDragLoad | authored angular windows/initial lever angle degrees, buoyancy acceleration, drag inverse seconds | Construction boundary keeps those exact units; core uses radians through validated conversion. Avoid inventing a dimensionless buoyancy or force-coefficient drag from a display label. |
+| PerformanceRecorder/PerformanceProtocol → diagnostic JSON/Performance tool → browser capture | current local recording uses signed64 counters and context-local storage; historical JSON numeric values are not a cross-JS64 wire guarantee | P0-016 explicit binary I64 counter mapping; each context records independently and sends immutable samples. P0-003 remains measurement authority; diagnostic losses invalidate evidence rather than qualify cadence. |
+| Generic fixture definitions/law contracts/current catalogue maps → compiler/codec/worker integration | future law-specific typed schemas are separate named design children, not currently implemented arbitrary messages | Finite base transport grammar accommodates reviewed DefinitionIds; no generic unvalidated property dictionary. New capability schemas require same-build registry/schema update and independently reviewed extension, preserving every named child/mode. |
+| New tools/WireContract → .NET10 standard library only | design fixtures validate envelope shape/routing, integer byte goldens, size arithmetic, stable maps and scheduled ordering | Standalone Release build/82 focused fixtures; no reference to runtime/tooling under test, no .NET/JS codec or runtime behavior claim. P0-016 must independently implement actual byte validation. |
+| TODO/coverage/campaign/historical artifacts | large external unfinished rewrite; earlier failures must remain visible | Exactly current handoff+row status local edits; full existing inexpensive coverage audits at freeze; source/historical preservation hashes. No global runtime qualification from currency. |
+
+## Finite current mode closure
+
+The current parameter enum families are enumerated in identity.md, not inferred from display names.
+Resource files and P0-002's catalogue mode ledger retain all72 definitions and104 configuration/mode
+records; overlapping scripts are not deduplicated into one element. The input closure includes
+their enum declarations, resource defaults and validation consumers. Current generic enum reads
+use CannonPhase; generic future enum channels require explicit typed member/schema mappings,
+not arbitrary System.Type names crossing a worker. Closed message/role/phase/schedule enums in
+the fixture tool remain typed through fields, collections, comparisons and tests. Raw JSON field
+names and intentionally unsupported numbers appear only in the negative external-schema fixtures.
+
+Current construction string/property/resource boundaries remain known migration work, not an
+exception that makes them compliant. This Design row does not prematurely replace one caller
+and leave active content on a second supported path. P0-008/016 and the typed consumer children
+must forward-replace the complete actual chain together.
+
+## Evidence and stage applicability
+
+Run the standalone Release build and fixture executable, then current Coverage audit-inventory,
+audit-elements and audit-capabilities at the frozen boundary. Their exact raw exits/output are
+retained in commands.json. Check every new relative documentation link and TODO anchor/count
+preservation. Preserve source inputs and existing served PCK/WASM hashes. This scope cannot change
+game behavior, so repeating unchanged physics tests or browser motion is not claimed as new proof.
+P0-004 compiler-context proofs are prerequisite source context, not silently reused as P0-005 runtime
+qualification. Independent reviewer chooses applicability per criterion and may derive additional
+controls. No document search or82 fixtures alone establishes second-order runtime correctness.
+
+Retained intermediate failures: initial Anvil create lacked operation and was blocked; corrected
+before write. Initial Anvil patch lacked path and was blocked; corrected before write. A subsequent
+patch context mismatch applied nothing and was corrected. Exploratory reads of non-existent
+PartKind/RotorAirflowDrive and unexpanded source globs returned errors; direct source paths resolved
+the actual types. No rejected write was bypassed, no runtime source or Chrome state was changed.
+
+## R2 dispositions and affected checks
+
+R1's [independent Fail](../../verification/P0-005/review-r1.md) remains immutable.
+R2 resolves the five findings in the current wire/replay contract, with no production source edits.
+The ten exact R1 candidate originals are retained under verification/P0-005/r1-originals;
+their hashes reconstruct snapshot.json rather than rewriting its failed input identities.
+
+| Finding | Forward correction / new independent oracle |
+| --- | --- |
+| F01 | bindings.md defines sealed browser descriptor IDs/hashes, independent axes, colour endpoints/RGB ownership, scalar extents, all pose-map/reference modes, enum/timer/velocity feedback and wavefront lifecycle. Registration/removal remains atomic. Axis/extent/colour positive and invalid controls execute; full source-to-wire mapping requires semantic review. |
+| F02 |504KiB data+8KiB control per edge; original-allocation Return legs have exact counted ownership, receipt lengths and bounded responses. Reciprocal full data/control, stale-return and pending-response reuse controls execute. Native fixture models budget/lifetime arithmetic, not asynchronous browser scheduling. |
+| F03 | Each result carries original generation+sequence and resulting generation; Save has an explicit transfer variant. Mixed11/1,11/2,11/3,12/1 identities and distinct ack release execute. |
+| F04 | reliability.md names every family's owner, admission, bounded store, semantic completion and release; queries and animation registration/control have explicit result windows. B is sole animation request producer; S publishes typed reads/events. Query64/65 and animation duplicate/result-retention controls execute. |
+| F05 | All registered outputs, including hidden/stopped, reserve complete sample bytes.3634 fits65529;3635/4096 reject atomically; physical velocity subscriptions fit their independently calculated44057-byte positive. |
+
+New source inputs inspected are inside the unchanged916-entry baseline, including ScenePoseBatch,
+ScalarExtentDefinition, SceneEnumBinding and acoustic motion/wavefront consumers. The existing three
+full Coverage audits remain required at the R2 freeze and are rerun once; no manifest refresh is
+needed because the covered source/specification/catalogue inputs did not change. R1 raw commands
+are retained; R2 commands are separate. No claim that an82-case fixture executable implements or
+qualifies any production codec, lifecycle, worker scheduler, actual rendering or browser budget.

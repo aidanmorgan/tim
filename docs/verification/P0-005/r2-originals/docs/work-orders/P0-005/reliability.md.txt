@@ -1,0 +1,162 @@
+# R2 — finite reliability and lease ownership
+
+This is the complete current lifetime table for the wire families. It resolves R1-F02/F04.
+Physical effects do not wait for animation evaluation or scene drawing. Reliable admission/storage
+must be reserved before a physical commit; shortage leaves the last complete commit unchanged.
+
+## Two independent budgets on every directed logical edge
+
+An outbound lease belongs permanently to its allocating logical edge for its whole round-trip.
+At most56 data leases/504KiB and8 control leases/8KiB are reserved separately. A control allocation
+is at most1024 bytes. The two categories cannot borrow from each other. Both endpoints retain
+the same finite lease ledger: session, original sender/recipient, nonreused BufferId, original
+EdgeSequence, actual allocation bytes, category and phase (Outbound/InRecipient/Returning/Free).
+Sending detaches the buffer; at every point exactly one context or the transport owns it.
+The original sender cannot read/reuse the allocation while any other phase owns it.
+
+The receiver processes a control or copied/validated data envelope and returns that SAME transferred
+allocation, overwriting it with Credit and zero padding to its original byte length. Credit is a
+Return leg, never a newly allocated outbound message on the reverse edge. Its envelope reverses
+actual sender/recipient and echoes original BufferId/EdgeSequence/session; the ledger identifies
+the original charged edge/category/bytes. It remains counted in that original edge's slots/bytes
+until the original sender validates the return. Return transfer does not allocate another payload,
+require reverse-edge credit or itself receive another Credit. This is a full counted round-trip,
+not a budget exemption, synchronous cross-context callback or shared-memory channel.
+
+Credit payload: original BufferId U64,original charged bytes U32,ReceiptKind E:
+None=1 has no records; SimulationAdmissions=2,QueryAdmissions=3,AnimationAdmissions=4 have
+count U16 (1..32), followed by count records(generation U64,request sequence/query ID U64,
+typed admission E):18 each. Remaining bytes are a declared zero-padding field; nonzero padding,
+wrong original size, direction/category/session/BufferId/sequence rejects without releasing credit.
+Simulation/query generation must be positive and<=I64.MaxValue; animation generation uses U64.
+Return payload size94 bytes for None; receipt size96+18N. Minimum original Queries with one
+construction query is114 bytes; one Commands zero-payload record is126; one animation request
+is at least139. Thus every admitted receipt fits its original allocation. Batches are<=32 records
+for receipt-carrying requests. No empty batch envelope is valid; complete state may contain zero
+registered arrays. Wrong schema uses None return and a bounded Fault status, never invents IDs.
+
+Simulation admission tags are wire.md Admission. QueryAdmission and AnimationAdmission use the
+same explicit admission enum shape for transport admission only; inapplicable schedule outcomes
+TooLate/TooFarAhead reject for these two families. Accepted, duplicate-pending/result,
+already-acknowledged, wrong-generation, sequence-gap, full, invalid-schema and conflicting-duplicate
+are meaningful. Results remain distinct from admission. A returned receipt belongs to the original
+request and cannot be confused with an unsolicited current-generation response.
+
+Control outbound kinds: Hello,Ready,Fault,Acknowledge,ClockProbe,ClockReply and lifecycle-only
+Commands batches. All must fit1024 bytes; lifecycle batch<=8, normal command/query/animation
+request batches<=32 use data leases. Acknowledge is one106-byte record. ClockProbe96/Reply112,
+Hello/Ready177. Fault diagnostic text<=512 UTF8 bytes (total<=614). Lifecycle-only batch maximum
+8 Cancel records:80+4+8*(42+8)=484 bytes. Mixed normal/lifecycle batches reject rather than consume
+a reserved lane. ReplaceConstruction carries its8-byte sealed transfer ID, never bulk bytes.
+Ready and ClockReply are retained responses in at most one pending handshake/probe slot per edge;
+Fault is one sticky typed fault-state record per peer, updated only after its previous report is
+returned. Further faults increment an exact counter in that record's owning diagnostic state;
+they do not create an unbounded queue. Acknowledgements coalesce only monotonic watermarks in
+their bounded per-family ledgers; pulses/results themselves never coalesce.
+
+Return processing always precedes new outbound controls; processing a received request never waits
+for a new outbound response lease before returning its buffer. Semantic responses are retained
+in their already-reserved application stores, and send when a control/data lease is free.
+At most8 outbound control reports per edge can be in flight; all other pending semantic work has
+the finite storage in the table below. There is no separate unlimited terminal-response queue.
+Reciprocal saturation: each direction can have504KiB data plus8KiB control charged. Each receiver
+can process/return its received controls using the same allocations, even when the opposite edge
+has zero free bytes/slots. Receiving those returns releases original in-flight slots; both sides
+can then send pending acks/replies. Ordinary data saturation alone leaves all8 control slots/8KiB
+available. This proves a protocol progress path, not a scheduler latency guarantee; P0-006/P0-032
+must establish fairness/timeouts and the<=50ms age budget on actual workers.
+
+A returned allocation may be retained as a free pool buffer, but its bytes stay in the memory
+ledger until actually released or reused. Reuse creates a NEW BufferId and outbound sequence;
+a stale Return cannot release that lease. Free+leased allocations for each category stay under
+its byte cap, so returning a lease cannot justify allocating a second uncounted buffer.
+Fan-out allocates one independent outbound lease per recipient and counts each copy. Six edges'
+512KiB maximum + three1MiB transfer staging buffers +2MiB aggregate packing/decoding scratch
+is8MiB. The2MiB remainder includes all retained wire-facing request/result/occurrence copies plus packing/
+decoding scratch: Simulation1MiB,Animation768KiB,Browser256KiB. Admission requires both count and
+byte quota; a128-entry count limit alone never authorizes128 maximum-sized payload copies.
+Installed compiler/solver/evaluator state is separately owned runtime state under resident limits,
+not an extra retained wire payload. Every owned copy belongs to exactly one of these categories; allocator slack/resident
+WASM memory also remains subject to P0-003's separate resident/linear limits.
+
+## Semantic lifetime table
+
+Returning the transport buffer does not release an admitted application reservation.
+
+| Family | Admission / reservation owner | Completion and semantic release |
+| --- | --- | --- |
+| Commands/Results | B sequence per world generation; S owns128 ordinary+8 lifecycle pending/result entries and immutable payload fingerprints | Credit carries admission; commit moves pending→result without freeing entry. Results carry original generation+sequence and resulting generation. Acknowledge Result,stream0,original generation,contiguous sequence frees entries; duplicates retain original outcome. |
+| Queries/QueryResults | B allocates contiguous QueryId sequence per world generation; at most64 total outstanding across the two retained generations. S reserves matching request/result slot before Accepted | Credit carries admission. Exact-revision execution produces one result, with original generation explicit. Acknowledge QueryResult,stream0,original generation,highest contiguous QueryId frees S result and B outstanding slot; a skipped/rejected unaccepted ID consumes no sequence. |
+| AnimationDefinitions/AnimationCommands/AnimationResults | B alone allocates one contiguous request sequence per animation generation across registration and controls; A reserves128 pending/result entries. Registered output/impulse memory reserved independently | Credit carries admission. Every registration, rejection-at-application and control gets one result with original animation generation/sequence/instance. Acknowledge AnimationResult,stream0,animation generation,contiguous sequence releases request/result retention. Definition persists until Remove/Reset, not until result ack. |
+| PhysicalState/AnimationSamples | S/A producer; receiver owns at most bounded complete histories/subscriptions; edge lease charged until Return | Replaceable complete state needs no semantic ack; validate stamps/topology/descriptor then copy or discard and Return. Never ack/drop required occurrences by skipping a sample. |
+| Occurrences | S stream sequence per world generation;1024 retained/staged per required recipient, capacity reserved before commit | A/B copy into bounded admitted occurrence stores before Acknowledge Event(stream ID,generation,contiguous sequence). S frees after all required recipients ack. Consumed/dedup watermark prevents repeated transient; no ack means no release. A's impulse reservation remains until completion/cancellation independently. |
+| Topology | S complete transfer candidate, per-recipient cursor; one active transfer plus one completed receipt per recipient | Receiver validates/seals/installs atomically; Acknowledge Topology(TransferId,generation,topology revision) proves install. Acknowledge Transfer(TransferId,generation,1) proves transfer storage consumed/disposed and releases byte retention. State waits for matching topology install. |
+| Construction/ConstructionSave | B or S owns one active transfer per recipient; staging<=1MiB; one completed receipt retained | Seal identifies exact kind/digest. Acknowledge Transfer(TransferId,generation,1) releases producer bytes; it is disposal/consumption only. ReplaceConstruction's committed command result alone means successful Load. Save result names construction transfer through the query/save correlation described below. |
+| Hello/Ready/Clock/Fault/Acknowledge | bounded controls above, plus one handshake/probe/sticky-fault record per peer; ack watermarks belong to bounded stream/query/result ledgers | Process then Return. No additional semantic ack; repeated exact control is idempotent. A Return retires outbound control retention. |
+| TransferSeal | same active transfer record, no extra unbounded reservation | Return frees envelope only; semantic Transfer/Topology ack above releases retained object/status. Failed candidate still receives Transfer disposal ack and explicit command/query failure or sticky Fault. |
+| Credit | original lease owner, no new reverse-edge reservation | Validate Return and retire original in-flight ownership. It never sends another Credit. |
+
+S→A AnimationCommands and A→S AnimationResults are unsupported and reject. Simulation sends
+typed authoritative reads/occurrences only. A owns feedback evaluation from the sealed registration
+mapping in bindings.md. This preserves physical event/state-driven visuals without a second animation
+request producer or animation-to-physics path. Browser controls and committed feedback meet at A's
+evaluation boundary: admit browser requests in sequence first, then sample latest complete physical
+feedback for the same clock mapping, then evaluate. Removed/stopped bindings cannot be resurrected
+by later feedback; only an explicit subsequent Play/registration may enable them.
+
+Registration and controls use the same128-slot dedup/result window and contiguous ack rules as
+simulation commands, with separate animation generation. Duplicate registration exact bytes returns
+the original result and never allocates twice; changed descriptor/definition under the same request
+ID is ConflictingDuplicate. New request against an already registered instance is InvalidMode.
+Batches validate/reserve atomically; a duplicate record inside a batch rejects the batch. At most
+two generations of results are retained; further ResetGeneration waits for prior acks or explicit
+session recovery. B must acknowledge registration before sending controls depending on it.
+Impulse occurrence identity is (world generation,EventStreamId,EventSequence) for physical feedback;
+B-injected UI impulses use (animation generation,AnimationInstanceId,AnimationOccurrenceId).
+These namespaces cannot collide; physical occurrences never arrive as B command IDs.
+
+Save correlation: Save command result includes a variant payload after the fixed48-byte result:
+ResultPayloadKind E(None=1,ConstructionTransfer=2),payload bytes U32,variant TransferId U64 for
+successful Save,0 bytes otherwise. Thus result records are54 bytes normally or62 for Save.
+The transferred construction object's generation/revision must equal the Save result; no current
+preview state is substituted. Query Construction Found already carries TransferId in its typed payload.
+Results message length is4+sum(exact result lengths), not a fixed multiplier.
+
+Cancel query is explicit QueryKind Cancel=5 with target QueryId U64 payload. It is itself an ordinary
+query with its own reservation and reply: Empty when cancellation committed, Unsupported if absent/
+already complete. A pending target receives Cancelled; both need their own result acknowledgements.
+Reset/Load converts old pending query results to Cancelled with original generation intact; old
+completed replies remain ackable. Browser discards stale reply values but must acknowledge receipt
+to release reservations; stale data never changes construction/current UI authority.
+
+Transfer cancellation uses Cancel on the related pending ReplaceConstruction/Save command or the
+explicit query cancellation. Unassociated/unsealed transfer cancellation uses TransferSeal with
+TransferDisposition E(Install=1,Cancel=2) appended to its payload (48 bytes total);
+Cancel requires zero total bytes and all-zero digest and causes disposal/Transfer ack, never install.
+Install requires the declared positive length/digest. A conflicting repeated seal rejects.
+Repeated identical completed seal re-emits the retained ack only. Stale-generation candidate drops
+with explicit disposal acknowledgement; a completed successful install cannot be undone by Cancel.
+
+Producer restart creates a new RuntimeSession. Old leases, results, query/animation windows and
+transfers remain tied to the terminated session and cannot credit or mutate the replacement.
+Host cancels/disposes old reachable buffers and records explicit Worker failure for outstanding UI
+operations; it does not resend their effects automatically. Replacement startup is blocked until
+old transport ownership is reclaimed/disposed within the same8MiB budget. A hung terminated peer
+is a P0-006 failure/recovery gate, not permission to allocate a second unbounded pool.
+Fresh Load may install the persisted construction explicitly; transient events are not durable replay.
+
+## Independent controls required for R2
+
+1. Fill each direction's data allocation to504KiB: control8KiB remains available. Fill both control
+   lanes too: returning a received1024-byte lease transfers that SAME1024 bytes; aggregate does not
+   rise and original in-flight count falls only on validated Return. A pending semantic ack/reply
+   can then use the released control reservation. Wrong/stale Return leaves counts unchanged.
+2. At generation11, Reset sequence3 results in12; pending11/1 and11/2 invalidations,11/3 Applied and
+   new12/1 Applied retain four distinct command IDs. Mixed batch and acks for11 versus12 cannot alias.
+3. Queries64 accepted then65th Full; result production retains64; ack32 releases32. Stale-generation
+   replies retain old IDs and release only their matching reservations. Cancel does not erase results.
+4. Animation generation7 registration sequence1 then Play2: two requests/results, one registration.
+   Same request from S rejects route; duplicate B1 allocates zero; changed B1 rejects; ack2 releases
+   request entries but leaves registration. Remove3 releases output only when committed.
+5.3634 registered scalar outputs require65529 bytes;3635 needs65547 and4096 needs73845 and both
+   reject atomically. Hidden/stopped registrations count, so resume cannot exceed the full-sample cap.

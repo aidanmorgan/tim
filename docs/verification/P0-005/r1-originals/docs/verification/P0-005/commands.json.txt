@@ -1,0 +1,110 @@
+{
+  "workId": "P0-005",
+  "implementation": {
+    "agent": "/root/p0_005",
+    "session": "01a0f835-2500-73c0-a046-738333d3d7ff"
+  },
+  "commands": [
+    {
+      "command": "dotnet build tools/WireContract/WireContract.csproj -c Release --no-restore --nologo",
+      "chunk_id": "038f16",
+      "wall_time_seconds": 1.002650541,
+      "session_id": 23800,
+      "original_token_count": 0,
+      "output": "",
+      "completion": {
+        "chunk_id": "16c034",
+        "wall_time_seconds": 0.000005833,
+        "exit_code": 0,
+        "original_token_count": 45,
+        "output": "  WireContract -> /Users/aidan/dev/personal/tim/tools/WireContract/bin/Release/net10.0/WireContract.dll\n\nBuild succeeded.\n    0 Warning(s)\n    0 Error(s)\n\nTime Elapsed 00:00:02.01\n"
+      }
+    },
+    {
+      "command": "dotnet tools/WireContract/bin/Release/net10.0/WireContract.dll",
+      "chunk_id": "e3158e",
+      "wall_time_seconds": 0.000005917,
+      "exit_code": 0,
+      "original_token_count": 593,
+      "output": "{\"DesignOnly\":true,\"RuntimeQualified\":false,\"Count\":50,\"Failures\":0,\"Results\":[{\"Oracle\":0,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":1,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":2,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":3,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":4,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":5,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":6,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":7,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":8,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":9,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":10,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":11,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":12,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":13,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":14,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":15,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":16,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":17,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":18,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":19,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":20,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":21,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":22,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":23,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":24,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":25,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":26,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":27,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":28,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":29,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":30,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":31,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":32,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":33,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":34,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":35,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":36,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":37,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":38,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":39,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":40,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":41,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":42,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":43,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":44,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":45,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":46,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":47,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":48,\"Passed\":true,\"Detail\":\"Passed\"},{\"Oracle\":49,\"Passed\":true,\"Detail\":\"Passed\"}]}\n"
+    },
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-inventory . docs/coverage/source-inventory.json",
+      "chunk_id": "bf8bcd",
+      "wall_time_seconds": 0.008021333,
+      "exit_code": 0,
+      "original_token_count": 39,
+      "output": "{\n  \"Sources\": 1471,\n  \"Unreviewed\": 1471,\n  \"Changed\": 0,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"SourceInventoryCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+    },
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-elements . docs/coverage/catalogue-elements.json",
+      "chunk_id": "238821",
+      "wall_time_seconds": 0.021407333,
+      "exit_code": 0,
+      "original_token_count": 46,
+      "output": "{\n  \"Elements\": 72,\n  \"Fixtures\": 302,\n  \"UnresolvedSources\": 1097,\n  \"PendingModeReviews\": 72,\n  \"PendingProcessReviews\": 72,\n  \"LinksCurrent\": true,\n  \"CompletionProven\": false\n}\n"
+    },
+    {
+      "command": "dotnet tools/Coverage/bin/Release/net10.0/Coverage.dll audit-capabilities . docs/coverage/engine-capabilities.json",
+      "chunk_id": "baefa4",
+      "wall_time_seconds": 1.002496209,
+      "session_id": 85156,
+      "original_token_count": 0,
+      "output": "",
+      "completion": {
+        "chunk_id": "082063",
+        "wall_time_seconds": 0.000004917,
+        "exit_code": 0,
+        "original_token_count": 47,
+        "output": "{\n  \"Sources\": 1471,\n  \"Capabilities\": 71,\n  \"Consumers\": 1471,\n  \"Modes\": 104,\n  \"Missing\": 0,\n  \"Orphaned\": 0,\n  \"Changed\": 0,\n  \"InventoryCurrent\": true,\n  \"RuntimeQualified\": false\n}\n"
+      }
+    }
+  ],
+  "anvilCheck": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"warnings\":[],\"summary\":{\"total\":0,\"errors\":0,\"warnings\":0,\"info\":0,\"suppressed\":0},\"executionTimeMs\":7,\"checksRun\":[\"antipattern\"],\"hasBlockingWarnings\":false,\"workspaceRoot\":\".\",\"backend\":\"local\",\"daemonStatus\":\"not-wired\"}"
+      }
+    ],
+    "isError": false
+  },
+  "preservation": {
+    "runtimeSourceCount": 916,
+    "runtimeChanged": [],
+    "todoSha256": "292e62d2b0bebae75f822154bf391274d8b938d2a3741c1b11ae59336509bc27",
+    "workAnchors": 3711,
+    "executionAnchors": 847,
+    "specificationAnchors": 799,
+    "missingLinks": [],
+    "pck": "c4750a03507b9aba726ebd8695d08b54c432440c299f42f3bca2aeec06bdfeb0",
+    "wasm": "4d126142a28fabcc675a5c63e56907cff25fc0c4d99e913ba77c2d197c1ad784"
+  },
+  "retainedFailures": [
+    {
+      "operation": "Initial create validation",
+      "result": "block",
+      "message": "Validate-write requires an operation.",
+      "disposition": "Added operation=create; validation allowed before write."
+    },
+    {
+      "operation": "Initial patch validation",
+      "result": "block",
+      "message": "Apply-patch requires a non-empty path.",
+      "disposition": "Added exact path; validation allowed before write."
+    },
+    {
+      "operation": "Patch application",
+      "result": "No write",
+      "message": "apply_patch verification failed: Failed to find expected lines",
+      "disposition": "Corrected complete context, revalidated and applied."
+    },
+    {
+      "operation": "Initial final Anvil check",
+      "result": "Invalid arguments",
+      "message": "files is required",
+      "disposition": "Used files argument; final check returned zero findings."
+    }
+  ],
+  "runtimeQualified": false
+}

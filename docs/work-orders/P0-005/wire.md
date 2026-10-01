@@ -1,0 +1,342 @@
+# Exact version-1 wire grammar
+
+Normative target for [P0-005](contract.md). Byte counts include no native alignment or padding.
+This is an explicit new worker protocol, not the existing diagnostic JSON or save v4.
+Production encoding/decoding is P0-016; fixtures here establish design arithmetic only.
+
+## Scalars, identities and validation
+
+All integers are little endian: U8/U16/U32/U64 use 1/2/4/8 bytes; I64 is signed two's complement.
+F64 is IEEE binary64, little endian, finite only. Preserve signed zero and finite bit patterns;
+do not normalize physical values, rotations or captured affine bases in a codec.
+B is one U8, exactly 0 or 1. E is one U16 enum tag; unsupported values reject.
+V3 is three F64 in x,y,z order, 24 bytes. Q is x,y,z,w F64, 32 bytes, validated by the
+portable rotation contract, never normalized to conceal invalid data. Pose is V3+Q, 56 bytes.
+Affine is three V3 basis columns followed by V3 origin, 96 bytes; preserve the captured
+float-basis values widened exactly to F64. A convex transform is not silently reduced to Pose.
+
+A stable identity is one U64, nonzero. Distinct C# record structs and TypeScript branded bigint
+types distinguish EntityId, BodyId, ColliderId, JointId, ConnectionId, CapabilityId, ObservableId,
+AnimationTargetId, AnimationInstanceId, DefinitionId, GeometryId, EventStreamId, QueryId,
+TransferId and BufferId. No generic untyped ulong ID API or string-keyed registry is permitted.
+A session is 16 uninterpreted bytes, nonzero, newly assigned by the browser coordinator for
+each actual worker-runtime set. Generation is positive I64; revision and tick are U64 with
+zero allowed. Sequence is positive U64. No wrap: exhaustion rejects before mutation and
+requires explicit fresh-session restart. Stable authored identities have no storage position.
+
+JS reads/writes 64-bit values using BigInt/DataView exact operations, never Number, parseFloat
+or JSON numeric conversion. External text IDs, where a file/UI diagnostic boundary needs them,
+use exactly 16 lowercase hexadecimal digits for U64, including leading zeros. Signed I64 uses
+canonical decimal with no plus sign, whitespace, leading zero, or negative zero. Session text
+uses exactly 32 lowercase hex digits. Internal callers never use these string forms.
+Strings are presentation/resource-boundary UTF-8 only: U32 byte length then bytes, strict UTF-8,
+no embedded NUL, maximum 4096 bytes. They never select runtime behavior.
+Any count is U32 followed by exactly that many records. Batch-envelope counts must be nonzero;
+empty arrays inside a typed complete state/object remain valid. Validate checked total length before
+allocation, then bounds, discriminants, intrinsic values and identities before any state mutation.
+Reject truncation, trailing bytes, duplicates, unsupported versions/flags and unknown fields/tags;
+Credit Return alone has an explicit zero-padding field extending to its original charged length.
+there is no skip-unknown, default, alias, migration or format inference.
+
+## Envelope: exactly 80 bytes before payload
+
+| Offset | Field | Encoding / rule |
+| --- | --- | --- |
+| 0 | Magic | U32 0x54494d57; explicit boundary signature |
+| 4 | ProtocolVersion | U16, exactly 1 |
+| 6 | MessageKind | E, table below |
+| 8 | TotalBytes | U32, exactly received length, 94..65536 |
+| 12 | Sender | U8 RuntimeRole: Browser=1, Simulation=2, Animation=3 |
+| 13 | Recipient | U8 same enum, must differ and match the actual channel |
+| 14 | Flags | E LeaseLeg: Outbound=0, Return=1; other values reject |
+| 16 | RuntimeSession | 16 bytes, exact installed session |
+| 32 | WorldGeneration | I64; positive for world messages, exactly 0 for standalone UI animation/bootstrap |
+| 40 | EdgeSequence | U64 nonzero, monotonic per directed edge and session |
+| 48 | CommittedTick | U64; actual stamp, 0 for bootstrap/construction |
+| 56 | CommittedRevision | U64; actual stamp, 0 only at seed/bootstrap |
+| 64 | TopologyRevision | U64; installed topology stamp, 0 before installation |
+| 72 | BufferId | U64 nonzero transfer-buffer identity, not a local pool slot |
+
+Envelope tick/revision describe the sender's latest known commit; they are not requested
+application time. Command payload carries that separately. Receivers validate session/channel
+before generation, shape and semantic application. Bootstrap may carry only Hello/Ready/Fault,
+ClockProbe/Reply and Credit; stale bootstrap sessions cannot create state. Return legs echo the original leased sequence/BufferId, reverse its actual endpoints and remain
+charged to that original edge; they do not allocate a reverse-edge lease. Only Credit uses Return.
+An envelope never
+contains raw pointers, heap views, closures, engine objects, local slots or executable code.
+
+## Message families and routes
+
+Tag7 is unassigned and rejects; the superseded separate Admissions envelope is removed.
+Admission decisions return in the original leased buffer, as specified in [reliability](reliability.md).
+Each MessageKind is assigned the explicit numeric value below. B/S/A denote runtime roles.
+Other directions reject. Payload lengths are exact formulas; N is a validated count.
+
+| Tag / enum | Route | Payload grammar and bytes |
+| --- | --- | --- |
+| 1 Hello | B→S,A | build SHA256(32), schema SHA256(32), asset-registry SHA256(32), requested role U8: 97 |
+| 2 Ready | S,A→B | same three hashes + actual role U8: 97; all must equal Hello |
+| 3 Fault | any edge | FaultReason E, related edge sequence U64 (0 means none), related command sequence U64 (0 none), diagnostic text: 22+UTF8 bytes |
+| 4 Credit | reverse of original leased edge only | Return leg; BufferId U64, original charged bytes U32, ReceiptKind E, optional receipt array and explicit zero padding to original buffer length; see reliability.md |
+| 5 Acknowledge | any edge | AckKind E (Result=1, Event=2, Topology=3, Transfer=4, AnimationResult=5, QueryResult=6), stream/transfer identity U64, acknowledged generation U64, highest contiguous sequence U64: 26 |
+| 6 Commands | B→S | N U32 + N command records described below |
+| 8 Results | S→B | N U32 + N result records: 4+sum(54 normally / 62 for successful Save) |
+| 9 PhysicalState | S→B,A | sample schema below; complete coherent state, never a delta |
+| 10 Occurrences | S→B,A | N U32 + N occurrence records described below |
+| 11 Topology | S→B,A | transfer chunk grammar below; complete atomic topology object |
+| 12 Queries | B→S | N U32 + N query records described below |
+| 13 QueryResults | S→B | N U32 + N typed query-result records |
+| 14 Construction | B→S | transfer chunk grammar; complete canonical construction object |
+| 15 TransferSeal | B→S or S→B,A | TransferId U64, TransferKind E (Construction=1, Topology=2, ConstructionSave=3), total bytes U32, SHA256(32),TransferDisposition E(Install=1,Cancel=2): 48 |
+| 16 ConstructionSave | S→B | transfer chunk grammar; authoritative construction object at acknowledged barrier |
+| 17 AnimationDefinitions | B→A | N U32 + N explicit registration requests below |
+| 18 AnimationCommands | B→A | N U32 + N animation-command records |
+| 19 AnimationResults | A→B | N U32 + N records(original animation generation U64, request sequence U64, instance U64, AnimationOutcome E): 4+26N |
+| 20 AnimationSamples | A→B | animation generation U64, clock stamp(25), N U32 + N sample records(instance U64, target U64, property E, value F64): 37+26N |
+| 21 ClockProbe | B→S,A | probe sequence U64, browser sent I64 nanoseconds: 16 |
+| 22 ClockReply | S,A→B | probe sequence U64, browser sent I64, worker received I64, worker sent I64: 32 |
+| 23 Diagnostics | S,A→B | clock stamp(25), N U32 + N typed diagnostic records below |
+
+FaultReason: Schema=1, WrongSession=2, WrongGeneration=3, Capacity=4, Exhausted=5,
+UnsupportedCapability=6, Transaction=7, Worker=8, Clock=9. Fault is separate from physical events.
+No free-form text determines recovery behavior. P0-006 maps these finite reasons to lifecycle states.
+
+Transfer chunk: TransferId U64, TransferKind E, total bytes U32, offset U32, count U32,
+then count bytes: 22+count. count is 1..65434; offset/count must lie within total.
+One object maximum 1 MiB, one pending inbound object per recipient. Chunks must be contiguous,
+non-overlapping and type-consistent, checked before copying. Identical retransmission is recognized
+by transfer identity and exact bytes; differing repeated bytes fault. Seal requires complete length
+and exact digest. No partial object is installed. Decode only its exact current typed grammar.
+Construction and topology are cold/barrier paths; no JSON or chunked PhysicalState/AnimationSamples.
+A failed decode drops candidate storage and leaves the installed generation untouched.
+
+Clock stamp: ClockDomain U8 (BrowserMonotonic=1, SimulationMonotonic=2, AnimationMonotonic=3,
+SimulationTime=4), clock generation U64 positive, I64 nonnegative nanoseconds, uncertainty U64
+nanoseconds: 25. Monotonic origin is the identified runtime session/context; SimulationTime is
+tick/120 seconds and carries simulation generation. P0-006 defines mapping/update policies;
+these fields and units do not change. Simulation and animation stamps cannot be interchanged.
+
+## Command and result layouts
+
+Command record prefix: sequence U64, CommandKind E, ScheduleKind E (NextBoundary=1,
+ExactTick=2), requested tick U64, ExpectedRevisionKind E (Any=1, Exact=2), expected revision U64,
+DependencySequence U64 (0 none), payload length U32: 42 bytes plus variant payload.
+Any requires expected revision=0. NextBoundary requires requested tick=0.
+ExactTick accepts only runtime BinaryInput, ScalarInput and Pulse; others reject at admission.
+All commands retain the generation in their envelope and record it in result/replay identity.
+
+| CommandKind tag | Variant payload / bytes |
+| --- | --- |
+| 1 ReplaceConstruction | sealed TransferId U64: 8 |
+| 2 CreateEntity | one Entity declaration from identity.md |
+| 3 ReplaceEntity | one Entity declaration; existing stable ID required |
+| 4 RemoveEntity | EntityId U64: 8 |
+| 5 Connect | one Connection declaration from identity.md |
+| 6 Disconnect | ConnectionId U64: 8 |
+| 7 BinaryInput | CapabilityId U64, BinaryInputState E (Disabled=1, Enabled=2): 10 |
+| 8 ScalarInput | CapabilityId U64, QuantityUnit E, value F64: 18 |
+| 9 Pulse | CapabilityId U64: 8 |
+| 10 Run | 0 |
+| 11 Pause | 0 |
+| 12 Resume | 0 |
+| 13 Step | U32 tick count, exactly 1: 4 |
+| 14 Reset | 0 |
+| 15 Save | SaveKind E, Construction=1 only: 2 |
+| 16 Cancel | target command sequence U64: 8 |
+
+No command directly sets physical velocity/energy/temperature while running. Initial velocity
+belongs to construction. ReplaceEntity handles authored pose, size, settings and difficulty
+atomically; drag previews remain browser-local. No implicit coalescing of admitted commands.
+Construction edits need exact expected revision; dependent Run names the final edit sequence.
+Save of runtime state is explicitly InvalidMode; no hidden partial runtime snapshot.
+Load is ReplaceConstruction; there is no second legacy load path.
+
+Admission: Accepted=1, DuplicatePending=2, DuplicateResult=3, AlreadyAcknowledged=4,
+WrongGeneration=5, SequenceGap=6, Full=7, InvalidSchema=8, TooLate=9, TooFarAhead=10,
+ConflictingDuplicate=11. It reports queue admission only, not success.
+Result fixed prefix: original command generation I64, sequence U64, applied tick U64, AppliedPhase E, order U32,
+committed revision U64, CommandOutcome E, result generation I64: 48. Followed by ResultPayloadKind E(None=1,ConstructionTransfer=2),
+payload bytes U32 and exact variant (0 bytes for None; TransferId U64 for successful Save).
+Thus ordinary records are54 bytes, successful Save62; no unmatched payload kind/outcome is valid.
+AppliedPhase: ConstructionBoundary=1, BeforeTick=2, LifecycleBoundary=3.
+CommandOutcome: Applied=1, UnsupportedTarget=2, StaleRevision=3, InvalidCapability=4,
+InvalidMode=5, OutOfRange=6, InvalidatedByBarrier=7, Cancelled=8, DependencyFailed=9,
+TooLate=10, Capacity=11, AlreadyCommitted=12. The result generation is the resulting
+installed generation; command identity uses the explicit original generation in each result, never the result envelope.
+Mixed old/new-generation result batches are valid; each acknowledgement names its original generation.
+Rejected-at-application results record the boundary/order where rejection was decided.
+A failed transaction emits no committed result; independent Fault reporting identifies failure.
+
+## Complete physical sample
+
+Prefix: simulation time F64 seconds, clock stamp(25), pose count U32, velocity count U32, scalar count U32,
+Boolean count U32, enum count U32, compliant count U32: 57 bytes.
+Then arrays in that order, each sorted by stable key:
+Pose=BodyId U64+Pose(56):64.
+Velocity=BodyId U64+linear velocity V3+angular momentum V3+angular velocity V3:80,
+units m/s,kg·m²/s,rad/s; exactly the registered velocity subscription, not finite differences.
+Scalar=ObservableId U64+QuantityUnit E+F64:18.
+Boolean=ObservableId U64+B:9.
+Enum=ObservableId U64+ObservationEnum E+value E:12.
+Compliant=CapabilityId U64+contact count U32+N patches(BodyId U64, local V3, radius F64,
+depth F64):12+48N.
+Envelope stamps apply to every array. All required observables for the installed subscription
+are present, no optional omitted unchanged field. Pose array includes all moving bodies;
+static bodies' exact reference geometry/pose is topology. Velocity/momentum subscriptions support current committed angular-speed consumers; absent subscribers
+require zero velocity records. A query may also read them at an exact revision; no reconstruction
+by finite differences. Consumer retains complete samples as owned bounded
+history, may discard superseded complete states and must never merge arrays from different commits.
+A first sample or generation/topology discontinuity seeds both presentation endpoints.
+Publisher checks whole-sample size <=65536 before installation and before any growing occurrence/
+compliant set commits. Exceeding it is explicit capacity backpressure, never silent truncation.
+
+QuantityUnit E: Dimensionless=1, Metre=2, Second=3, Radian=4, Kilogram=5, Newton=6,
+Joule=7, Watt=8, Pascal=9, Kelvin=10, KilogramPerSecond=11, MetrePerSecond=12,
+RadianPerSecond=13, NewtonMetre=14, GameIrradiance=15, GameOpticalPower=16, GameEnergy=17,
+InverseSecond=18, NewtonPerMetre=19, NewtonSecondPerMetre=20, SquareMetre=21,
+CubicMetre=22, JoulePerKilogram=23, Coulomb=24, Volt=25, Ampere=26, Ohm=27,
+Gray=28, Sievert=29, Becquerel=30, NewtonSecond=31, KilogramMetreSquaredPerSecond=32.
+A capability's typed schema fixes the exact unit; matching dimensional shape alone cannot
+substitute GameEnergy for Joule. ObservationEnum CannonPhase=1 and SimulationTimerPhase=2, with explicit member
+mapping retained in identity.md. New law read modes require an independently reviewed enum
+extension and schema hash update before use; they cannot be transmitted as arbitrary numbers.
+
+## Occurrences, queries and topology
+
+Occurrence prefix: EventStreamId U64, occurrence sequence U64, tick U64, revision U64,
+OccurrenceKind E, source CapabilityId U64, payload bytes U32:46.
+OccurrenceKind Acoustic=1: ToneBand E,strength F64,origin V3,direction V3,AcousticPattern E=60;
+Impact=2: other BodyId U64,point V3,normal V3,speed F64,strength F64=72;
+Pulse=3: target CapabilityId U64=8; Goal=4: GoalId U64,GoalKind E=10.
+These are outward semantic observations. Functional pulses/impact response are core execution,
+never delayed until graphics acknowledgement. Each fan-out recipient has its own reliable cursor.
+Events retain individual tick/revision even when batched; envelope stamp does not overwrite them.
+
+Query prefix: original generation I64, QueryId U64, QueryKind E, required revision U64, payload length U32:30.
+Exact revision required; stale reply is a typed outcome, never silently current data.
+QueryKind Body=1:BodyId U64; Ray=2:origin V3,direction V3,max distance F64,excluded BodyId U64
+(0 none)=64; Overlap=3:GeometryId U64,Affine(96),excluded BodyId U64=112;
+Construction=4:no payload; Cancel=5:target QueryId U64.
+Query result prefix: original generation I64, QueryId U64, required revision U64, QueryKind E, QueryOutcome E (Found=1,Empty=2,Stale=3,
+Unsupported=4,Cancelled=5), payload bytes U32:32. Empty/Stale/Unsupported/Cancelled require zero payload.
+Body Found: BodyId U64,Pose(56),linear velocity V3,angular momentum V3,mass F64=120.
+Ray Found:BodyId U64,ColliderId U64,point V3,normal V3,distance F64=72.
+Overlap Found:count U32 + sorted BodyId U64 array. Cancel uses Empty when cancellation commits,
+Unsupported if absent/already completed; the pending target receives Cancelled.
+Construction Found:sealed TransferId U64; transferred via ConstructionSave.
+Every result echoes the immutable request's required revision, including Stale/Unsupported/Cancelled.
+Found and Empty read values are captured atomically only at that exact original generation/revision;
+if unavailable, produce Stale without reading a different revision. Cancellation Empty is a control
+outcome with no read value. The echoed stamp is not an assertion that a non-read outcome read state.
+Envelope metadata remains latest sender commit and MUST NOT restamp retained query values.
+Drawing interpolation and preview caches are not query authority. Typed capability diagnostics use the physical
+observable subscription rather than arbitrary queries by field name.
+
+Topology object: topology revision U64, body count U32, observable count U32, binding count U32;
+bodies sorted by BodyId: BodyId U64, EntityId U64, PhysicsMotionType E(Static=1,Kinematic=2,
+Dynamic=3), OwnerActivity E(Active=1,Inactive=2), parent BodyId U64(0 world),
+GeometryId U64, collider revision U64, Affine(96):140 bytes.
+Observables: ObservableId U64,owner EntityId U64,CapabilityId U64,ObservationKind E
+(Scalar=1,Boolean=2,Enum=3,Compliant=4),unit E(0 for nonscalar),ObservationEnum E(0 unless Enum):30.
+Bindings: AnimationTargetId U64,owner EntityId U64,source BodyId U64(0 cosmetic),
+parent target U64(0 world),BindingDescriptorId U64,descriptor SHA256(32):72.
+BindingDescriptorId resolves the sealed per-generation browser descriptor registry in bindings.md.
+[Binding grammar](bindings.md) defines every current descriptor, its units, registration/validation,
+feedback identities and exclusive writer/composition policy. No Godot pointer, axis guess or
+undefined property mapping is carried by the opaque identity. Browser captures dynamic target
+baseline values locally at registration; simulation never owns them.
+Topology replacement is reliable and atomic, acknowledged before dependent state is applied.
+
+## Animation and diagnostics
+
+Animation registration prefix: request sequence U64,instance U64,target U64,property E,AnimationKind E,
+animation generation U64,clock E(Presentation=1,Simulation=2),BindingDescriptorId U64,
+descriptor SHA256(32),evaluator payload length U32:82. Each evaluator payload is followed by the
+mandatory FeedbackKind E+feedback payload length U32+exact feedback variant from bindings.md.
+The mandatory registration feedback record is counted in exact record length and admission capacity.
+Registration and subsequent commands share one browser-owned request sequence per animation generation;
+results/acknowledgements are defined in reliability.md. Simulation sends committed reads/occurrences,
+never animation control requests. AnimationHost evaluates the declared feedback binding locally.
+Property tags preserve all current modes: LocalRotationAngle=1,LocalTranslation=2,Opacity=3,
+UniformScale=4,ColourBlend=5,ColourRed=6,ColourGreen=7,ColourBlue=8,PropagationDistance=9 (metres, descriptor9 only).
+LocalTranslation is a scalar along the binding's declared axis; no untyped vector substitution.
+Clip=1 payload From F64,To F64,Duration F64,Curve E,Repeat E:28.
+ExponentialFollow=2 payload From,To,Initial,Response F64:32.
+Impulses=3 payload From F64,To F64,Duration F64,PeakPhase F64,Curve E,Overlap E,Visibility E,Timing E,
+Capacity U32:44.
+Oscillation=4 payload Decay F64,Frequency F64,VelocityPerStrength F64:24.
+Exact finite domain/mode ranges are the existing four Animation*Definition constructor
+contracts, captured in the input snapshot and enumerated in identity.md. Units derive from
+property (radians/metres/dimensionless), seconds and inverse seconds; oscillation frequency rad/s.
+Definition registration does not transfer AnimationHandle/Owner/Slot/Version.
+
+Animation command prefix: request sequence U64,instance U64,animation generation U64,
+AnimationAction E,clock stamp(25),payload bytes U32:55.
+Play=1,StopHold=2,StopRestore=3,Remove=4 have zero payload.
+SetFollow=5 F64 target; SetRate=6 F64 signed multiplier; SetVisible=7 B;
+Impulse=8 occurrence U64,strength F64,event clock stamp(25):41;
+SetEndpoint=9 E(From=1,To=2). ResetGeneration=10 next animation generation U64.
+CancelImpulses=11 has zero payload. Presented=12 carries world generation I64,stream U64,event
+sequence U64:24 bytes, for the matching wavefront occurrence's actual visible application only. Impulse applies to Impulses or Oscillation definitions;
+kind-specific mode/range checks remain those of the captured existing evaluator.
+AnimationOutcome: Applied=1,WrongGeneration=2,UnsupportedTarget=3,InvalidMode=4,
+OutOfRange=5,Full=6,Duplicate=7. Separate request sequence and occurrence ID prevent
+repeated transport from replaying a transient. Physical feedback uses value-only committed reads/occurrences and immutable mappings in AnimationHost,
+never simulation-owned cosmetic request sequences or a node callback. Generations/definition ownership cancel stale samples.
+Samples retain each typed target/property; skipped cosmetic samples cannot consume reliable events.
+
+Diagnostic prefix: DiagnosticKind E(Sample=1,Counter=2), run ID I64 positive,sequence I64
+positive,tick U64,metric E,outcome E:30. Sample adds calls U32,elapsed milliseconds F64,
+allocated bytes I64 nonnegative:50 total. Counter adds exact I64 value:38 total.
+Sample metric maps the existing PerformanceStage enum, Counter maps PerformanceMetric; outcome
+maps PerformanceOutcome. Explicit boundary tables preserve every current member in declaration
+order plus one (see identity.md); never Enum.ToString in runtime logic. Sample value is elapsed
+milliseconds. Counters preserve the full signed64-bit range through bigint, not F64.
+Overwritten records use a separate counter (DiagnosticMetric Overwritten=65535), nonnegative.
+Each context records locally and sends copied values. Diagnostic overflow is explicitly counted
+and invalidates affected performance evidence; it cannot block or alter physical evolution.
+
+## Hard storage and transport limits
+
+Each directed edge has at most64 outstanding outbound leases:56 data and8 control.
+Data bytes are capped at504KiB; control bytes at8KiB with each control allocation <=1024 bytes.
+Thus their independent reservations sum to512KiB, even when both directions are full.
+Allocation capacity, including retained free buffers, is charged, not merely populated payload bytes.
+Original outbound/return ownership and byte/slot release are specified in [reliability.md](reliability.md);
+a return transfers the same buffer and cannot create an acknowledgement-of-credit cycle.
+All six edges together <=3MiB. Three recipient transfer staging buffers <=1MiB each add <=3MiB;
+retained encoding/decoding scratch across all contexts <=2MiB. Aggregate <=8MiB, including every
+reachable buffer/copy, not just in-flight messages. Fan-out uses independent leases per recipient.
+Max two full-payload copies per edge includes managed→JS→recipient. A returned buffer is detached
+from the receiver before its original owner reuses it. Unknown/stale returns never create credit.
+
+Simulation command storage:128 total pending+unacknowledged results (existing reservation model);
+transport batch <=32 commands. Reliable occurrence storage:1024 total pending+unacknowledged
+per producer fan-out recipient; <=128 occurrence records per envelope, further limited by bytes.
+Results batches <=128. Queries <=64 outstanding globally. Animation registrations reserve their complete scalar output set before admission: at most2516
+outputs across all registered definitions, including stopped/hidden entries. One RGB follower group
+reserves3 outputs; opacity/each other scalar channel reserves1. Registration or topology change
+that would require2517 outputs rejects atomically before binding, allocation or writer claims.
+This is the complete-sample limit, not an active-only tuning threshold; no split/truncation is allowed.
+For2516 outputs:80+37+26*2516=65533 bytes;2517 requires65559 and rejects;4096 requires106613 and rejects.
+The required256-target stress workload uses6773 bytes and remains mandatory.
+
+per-instance impulse capacity retains current1..65536 but total reserved impulse records <=65536.
+Admission computes record and byte reservations atomically; failure cannot partially register.
+
+Reset/Load/Pause/Cancel are admitted using the reserved control path even under data saturation.
+They still need a reserved result; the host owns 8 additional lifecycle-result slots outside the
+128 ordinary command slots. Barrier invalidations reuse each admitted command's result reservation.
+Acknowledge/Credit/Fault servicing never requires an ordinary command slot or a physical tick.
+Receiver readiness/backpressure stops the producer at its last complete commit; no lost reliable
+event, partial state, physical timestep enlargement or renderer wait. P0-006 owns bounded timeout/
+restart transitions. Reliable oldest age <=50 ms, bridge CPU <=1 ms and sample age budgets are
+measured gates, not promises established by these capacities.
+
+Physical sample example:257 moving bodies,256 scalars,256 Booleans,0 enum/compliant:
+80+57+257*64+256*18+256*9=23497 bytes.
+Adding all257 velocity records gives44057 bytes; both fit. Counts are exact subscriptions. Animation256 samples:80+37+256*26=6773.
+Body count includes all moving bodies, never invents authored-part=body equivalence.
+Required mixed fixtures with larger actual compiled subscriptions must check the same formula;
+no fixed count is silently dropped to meet64 KiB. The compiler rejects an unsupported over-capacity
+construction explicitly; it cannot relabel a required workload qualified after rejecting it.
