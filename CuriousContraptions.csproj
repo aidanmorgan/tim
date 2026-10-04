@@ -1,7 +1,8 @@
 <Project Sdk="Godot.NET.Sdk/4.7.2">
-    <ItemGroup><Compile Remove="tools/**/*.cs" /></ItemGroup>
+    <ItemGroup><InternalsVisibleTo Include="CuriousContraptions.tests" /></ItemGroup>
     <PropertyGroup>
         <Nullable>enable</Nullable>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <TargetFramework>net10.0</TargetFramework>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <IsTrimmable>true</IsTrimmable>
@@ -13,7 +14,7 @@
         <DefineConstants Condition="'$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
         <!-- Keep nested host projects out of the default compile/content globs (their .gdignore hides them
              from the Godot editor) -->
-        <DefaultItemExcludes>$(DefaultItemExcludes);CuriousContraptions.2dog/**;CuriousContraptions.web/**;CuriousContraptions.tests/**</DefaultItemExcludes>
+        <DefaultItemExcludes>$(DefaultItemExcludes);CuriousContraptions.2dog/**;CuriousContraptions.web/**;CuriousContraptions.Simulation/**;CuriousContraptions.Animation/**;CuriousContraptions.Animation.Worker/**;CuriousContraptions.tests/**</DefaultItemExcludes>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="2dog.godotsharp" Version="$(TwoDogVersion)" />
@@ -21,16 +22,29 @@
                           Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Editor'" />
     </ItemGroup>
     <ItemGroup>
-        <!-- Web bootstrap lives in the web host folder but must compile into THIS assembly: scripts resolve
-             from the assembly holding the source-generated plugins initializer. Inert without a web host -->
-        <Compile Include="CuriousContraptions.web/TwoDogWebBoot.cs"
-                 Condition="Exists('$(MSBuildThisFileDirectory)CuriousContraptions.web/TwoDogWebBoot.cs')"/>
-        <!-- The webxr host carries its own copy; compile it only when the plain
-             web host's is absent (one definition per assembly). -->
-        <Compile Include="CuriousContraptions.webxr/TwoDogWebBoot.cs"
-                 Condition="!Exists('$(MSBuildThisFileDirectory)CuriousContraptions.web/TwoDogWebBoot.cs') And Exists('$(MSBuildThisFileDirectory)CuriousContraptions.webxr/TwoDogWebBoot.cs')"/>
-        <!-- Same for the blazor host, last in line. -->
-        <Compile Include="CuriousContraptions.blazor/TwoDogWebBoot.cs"
-                 Condition="!Exists('$(MSBuildThisFileDirectory)CuriousContraptions.web/TwoDogWebBoot.cs') And !Exists('$(MSBuildThisFileDirectory)CuriousContraptions.webxr/TwoDogWebBoot.cs') And Exists('$(MSBuildThisFileDirectory)CuriousContraptions.blazor/TwoDogWebBoot.cs')"/>
+        <ProjectReference Include="CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
+    </ItemGroup>
+    <!-- One fixed admitted game build. All other engine/part source remains unshipped reference. -->
+    <ItemGroup>
+        <Compile Include="engine/gpu/*.cs" />
+        <Compile Include="engine/MachineWorld.cs" />
+        <Compile Include="engine/MachineWorld.Gpu.cs" />
+        <Compile Include="engine/MachinePart.cs" />
+        <Compile Include="engine/PartDefinition.cs" />
+        <Compile Include="engine/BasketballMaterialResource.cs" />
+        <Compile Include="engine/PartRegistry.cs" />
+        <Compile Include="engine/PartArt.cs" />
+        <Compile Include="engine/Workbench.cs" />
+        <Compile Include="engine/IResizablePart.cs" />
+        <Compile Include="parts/BallPart.cs" />
+        <Compile Include="parts/BasketPart.cs" />
+        <Compile Include="ui/Workshop.cs" />
+        <Compile Include="ui/WorkshopGpu.cs" />
+        <Compile Include="ui/WorkshopGuidance.cs" />
+        <Compile Include="ui/WorkshopAnimation.cs" />
+        <Compile Include="ui/WorkshopIcons.cs" />
+        <Compile Include="ui/RotationGizmo.cs" />
+        <Compile Include="ui/PlacementShadows.cs" />
+        <Compile Include="CuriousContraptions.web/TwoDogWebBoot.cs" />
     </ItemGroup>
 </Project>

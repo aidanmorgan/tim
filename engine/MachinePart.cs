@@ -1,200 +1,45 @@
 using Godot;
-using System.Collections.Generic;
+using System;
 
 namespace CuriousContraptions;
 
-public enum ActivationDisposition { Immediate, Deferred }
-public enum InternalBodyRole { Plunger }
-
-public readonly record struct BoxProxy(Vector3 At, Vector3 Half, bool Opaque = true);
-public readonly record struct SphereProxy(Vector3 At, float Radius);
-
+/// <summary>Render/input node only. Durable construction and motion are canonical worker values.</summary>
 public partial class MachinePart : Node3D
 {
-    public PartDefinition Definition { get; set; } = null!;
-    public string Uid { get; private set; } = "";
-    public bool Locked { get; private set; }
-    public List<PartDifficulty> Difficulty { get; private set; } = new();
-    public void SetDifficulty(IEnumerable<PartDifficulty> settings) => Difficulty = new(settings);
-    public PartDifficulty Assistance(float precision) => PartAssistance.Evaluate(Difficulty, precision);
-    public Vector3 Velocity { get; set; }
-    public virtual IReadOnlyList<MachinePart> InternalBodies => [];
-    public virtual IReadOnlyList<HingedBody> HingedBodies => [];
-    // Declared before _Ready so instance validation can be atomic before construction.
-    public virtual IReadOnlyList<InternalBodyRole> InternalBodyRoles => [];
-    public string InternalBodyId(InternalBodyRole role)
+    public PartDefinition Definition { get; private set; } = null!;
+    public string Uid => Name;
+    public bool Locked => false;
+    protected internal Node3D Visual { get; private set; } = null!;
+    protected float PickRadius { get; set; }
+    private MeshInstance3D? _highlight;
+    private bool _built;
+    public void Configure(PartDefinition definition)
     {
-        if (!System.Enum.IsDefined(role)) throw new System.ArgumentOutOfRangeException(nameof(role));
-        foreach (var declared in InternalBodyRoles)
-            if (declared == role)
-                // Explicit boundary to the scene/diagnostic instance-ID namespace.
-                return Uid + "_" + System.Text.Json.JsonNamingPolicy.SnakeCaseLower.ConvertName(role.ToString());
-        throw new System.ArgumentException("Part does not declare this internal body role.", nameof(role));
+        if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
+        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver) ||
+            (definition.WorkshopKind == WorkshopPartKind.Basketball && definition.Basketball is null) ||
+            definition.Parameters.Count != 0)
+            throw new ArgumentException("Unsupported canonical part declaration.");
+        if (definition.WorkshopKind == WorkshopPartKind.Basketball) definition.Basketball!.Capture();
+        Definition = definition;
+        Name = definition.Id; // Godot resource/node-name boundary only.
     }
-    public virtual MachinePart PhysicsOwner => this;
-    public virtual bool FreeMotion => true;
-    public virtual Vector3 InverseMassResponse(Vector3 direction) => direction / Mass;
-    public virtual void ConstrainVelocity() { }
-    public virtual float TimeToMotionLimit() => float.PositiveInfinity;
-    public virtual void ReachMotionLimit() => throw new System.InvalidOperationException("Body has no motion limit.");
-    public virtual void QuantizePhysics()
+    public override void _Ready() => EnsureConstructed();
+    internal void EnsureConstructed()
     {
-        Position = Position.Snapped(Vector3.One * MachineWorld.Quantum);
-        Velocity = Velocity.Snapped(Vector3.One * MachineWorld.Quantum);
-    }
-    public bool Dynamic { get; protected set; }
-    public float Radius { get; protected set; } = .32f;
-    public float Mass { get; protected set; } = 1;
-    public float Bounce { get; protected set; } = .35f;
-    public float Drag { get; protected set; } = .04f;
-    public float Buoyancy { get; protected set; }
-    public List<BoxProxy> Boxes { get; } = new();
-    public List<TubeProxy> Tubes { get; } = new();
-    public List<BendProxy> Bends { get; } = new();
-    public List<FrustumProxy> Frustums { get; } = new();
-    public List<SphereProxy> Spheres { get; } = new();
-    public bool Active { get; set; }
-    public Dictionary<string, float> Properties { get; private set; } = new();
-    public float ReadParameter<TParameter>(TParameter parameter) where TParameter : struct, System.Enum =>
-        Properties[PartParameterName.Of(parameter)];
-    public float PickRadius { get; protected set; } = .65f;
-    protected Node3D Visual = null!;
-    private MeshInstance3D _highlight = null!;
-    private readonly HashSet<SocketId> _poweredInputs = new();
-    public bool HasElectricalPower(SocketId port) => _poweredInputs.Contains(port);
-    internal void ClearElectricalPower() => _poweredInputs.Clear();
-    internal void SupplyElectricalPower(SocketId port) => _poweredInputs.Add(port);
-    public virtual AirflowEmitter? AirflowSource => null;
-    public virtual IReadOnlyList<AirflowSample> AirflowSamples => [];
-    public virtual void AirflowStep(MachineWorld world,Vector3 force,float delta) { }
-    /// <summary>One force/contact solve per physics substep, never in rope projection passes.</summary>
-    public virtual void ResolveCompliantContact(MachinePart body, MachineWorld world, float delta) { }
-    public virtual IReadOnlyList<AcousticPulse> AcousticPulses => [];
-    public virtual Vector3? AcousticTarget => null;
-    public virtual void ReceiveAcousticLevel(float level) { }
-    public virtual OpticalEmitter? OpticalSource => null;
-    public virtual IReadOnlyList<OpticalSurface> OpticalSurfaces => [];
-    public virtual OpticalOutlet? OpticalOutput => null;
-    public virtual void ReceiveOpticalPower(IReadOnlyDictionary<OpticalPortId,Vector3> power) { }
-    public virtual OpticalEmitter? OpticalPreviewSource => null;
-    public virtual void ReceiveOpticalPath(IReadOnlyList<OpticalSegment> path) { }
-    public virtual LightEmitter? LightSource => null;
-    public virtual IEnumerable<LightSample> LightSamples => [];
-    public virtual void ReceiveLight(float irradiance) { }
-    public virtual bool SuppliesElectricity(SocketId outputPort) => false;
-    public virtual IEnumerable<ElectricalGate> ElectricalGates => [];
-    public virtual IEnumerable<ElectricalRoute> ElectricalRoutes => [];
-    private readonly Dictionary<SocketId, float> _shaftSpeeds = new();
-    private readonly Dictionary<SocketId, double> _shaftTorques = new();
-    private readonly Dictionary<SocketId, double> _shaftWork = new();
-    public double MechanicalTorque(SocketId port) => _shaftTorques[port];
-    public double MechanicalWorkAvailable(SocketId port) => _shaftWork[port];
-    public void ConsumeMechanicalWork(SocketId port, double work)
-    {
-        if (!double.IsFinite(work) || work < 0 || work > _shaftWork[port])
-            throw new System.ArgumentOutOfRangeException(nameof(work));
-        _shaftWork[port] -= work;
-    }
-    public float MechanicalSpeed(SocketId port) => _shaftSpeeds[port];
-    internal void ClearMechanicalDrive()
-    {
-        _shaftSpeeds.Clear(); _shaftTorques.Clear(); _shaftWork.Clear();
-        foreach (var port in ConnectionPorts)
-            if (port.Domain == ConnectionDomain.Mechanical)
-            {
-                _shaftSpeeds.Add(port.Id, 0);
-                _shaftTorques.Add(port.Id, 0);
-                _shaftWork.Add(port.Id, 0);
-            }
-    }
-    internal void SetMechanicalDrive(SocketId port, float speed, double torque, double work)
-    {
-        _shaftSpeeds[port] = speed;
-        _shaftTorques[port] = torque;
-        _shaftWork[port] = work;
-    }
-    /// <summary>Inputs that consume work, rather than merely relay shaft motion.</summary>
-    public virtual IEnumerable<SocketId> MechanicalLoads => [];
-    public virtual IEnumerable<MechanicalRoute> MechanicalRoutes => [];
-    public virtual IEnumerable<MechanicalSource> MechanicalSources => [];
-    public virtual void MechanicalStep(MachineWorld world, float delta) { }
-    public bool HasOutputSocket => System.Linq.Enumerable.Any(ConnectionPorts,
-        p => p.Direction is PortDirection.Output or PortDirection.Bidirectional);
-    public virtual RopeAttachmentKind RopeAttachment => RopeAttachmentKind.None;
-    public virtual void AdvanceRope(float distance) { }
-    public virtual float SurfaceBounce => 1;
-    public virtual ActivationDisposition HandleActivation(MachineWorld world, ActivationCommand command)
-    {
-        if (command != ActivationCommand.Trigger) throw new System.ArgumentException("Unsupported activation command.");
-        return ActivationDisposition.Immediate;
-    }
-    public virtual bool CanSendActivation => false;
-    public virtual bool CanReceiveActivation => false;
-
-    // Activation is a latched command, not an electrical source.
-    // New families expose distinct typed sockets for supply, control and drive.
-    public virtual IEnumerable<ConnectionPort> ConnectionPorts
-    {
-        get
-        {
-            if (CanSendActivation) yield return new(SocketId.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, Vector3.Zero);
-            if (CanReceiveActivation) yield return new(SocketId.ActivationIn, ConnectionDomain.Activation, PortDirection.Input, Vector3.Zero);
-        }
-    }
-
-    public void Configure(PartSpec specification)
-    {
-        Uid = specification.Id;
-        Name = Uid;
-        Locked = specification.Locked;
-        Difficulty = specification.Difficulty;
-        Properties = new();
-        foreach (var pair in Definition.Parameters) Properties[pair.Key] = pair.Value;
-        foreach (var pair in specification.Properties) Properties[pair.Key] = pair.Value;
-        ValidateParameters();
-        Position = new(specification.Position[0], specification.Position[1], specification.Position[2]);
-        RotationDegrees = new(specification.Rotation[0], specification.Rotation[1], specification.Rotation[2]);
-    }
-
-    public override void _Ready()
-    {
+        if (_built) return;
+        if (Definition is null) throw new InvalidOperationException("Part requires an admitted definition.");
         Visual = new Node3D { Name = "Visual" };
         AddChild(Visual);
         Build();
         _highlight = PartArt.Ring(this, PickRadius, .025f, new("#efffbd"), new(0, 0, .02f));
         _highlight.RotationDegrees = new(90, 0, 0);
         _highlight.Visible = false;
+        _built = true;
     }
-    protected void UpdateSelectionRadius(float radius)
-    {
-        PickRadius = radius;
-        if (_highlight?.Mesh is TorusMesh ring)
-        {
-            ring.OuterRadius = radius + .025f;
-            ring.InnerRadius = Mathf.Max(.001f, radius - .025f);
-        }
-    }
-    public virtual void ValidateParameters() { }
-    protected float Parameter(string name, float fallback) => Properties.GetValueOrDefault(name, fallback);
     protected virtual void Build() { }
-    protected void AddBox(Vector3 at, Vector3 size, Color color, bool draw = true)
+    public void SetSelected(bool selected)
     {
-        Boxes.Add(new(at, size * .5f));
-        if (draw) PartArt.Box(Visual, size, color, at);
+        if (_highlight is not null) _highlight.Visible = selected;
     }
-    // Fixed-tick control changes commit before optical/electrical network snapshots.
-    public virtual void BeforeNetworks(MachineWorld world) { }
-    public virtual void BeforeStep(MachineWorld world, float delta) { }
-    public virtual void AfterStep(MachineWorld world, float delta) { }
-    public virtual void OnContact(MachinePart body, float speed, MachineWorld world) { }
-    public virtual void UpdateAssistance(float precision) { }
-    public bool IsSelected { get; private set; }
-    public void SetSelected(bool value) { IsSelected=value; _highlight.Visible=value; }
-    public PartSpec Serialize() => new()
-    {
-        Id = Uid, Kind = Definition.Id, Locked = Locked,
-        Position = [Position.X, Position.Y, Position.Z],
-        Rotation = [RotationDegrees.X, RotationDegrees.Y, RotationDegrees.Z],
-        Properties = new(Properties), Difficulty = Difficulty
-    };
 }

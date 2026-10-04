@@ -40,6 +40,62 @@
         <TrimmerRootAssembly Include="$(TargetName)"/>
     </ItemGroup>
 
+    <!-- Godot's editor serializes exported C# properties using the native Debug metadata.
+         Keep that real project output current before import/export and in their incremental inputs. -->
+    <Target Name="BuildWorkshopEditorMetadata"
+            BeforeTargets="TwoDogImportGodotProject;TwoDogExportGamePack"
+            Condition="'$(DesignTimeBuild)' != 'true'">
+        <MSBuild Projects="../CuriousContraptions.csproj" Targets="Restore;Build"
+                 Properties="Configuration=Debug" RemoveProperties="RuntimeIdentifier;SelfContained">
+            <Output TaskParameter="TargetOutputs" ItemName="_WorkshopEditorMetadata" />
+        </MSBuild>
+        <Error Condition="'@(_WorkshopEditorMetadata)' == ''" Text="Current game editor metadata output is required for resource export." />
+        <ItemGroup>
+            <TwoDogImportInputs Include="@(_WorkshopEditorMetadata)" />
+            <TwoDogWebExportInputs Include="@(_WorkshopEditorMetadata)" />
+            <TwoDogWebExportInputs Include="$(IntermediateOutputPath)workshop-editor-metadata.stamp" />
+        </ItemGroup>
+    </Target>
+
+    <!-- Godot's binary conversion cache keys resource text, but omits C# property metadata.
+         Retire only these generated conversion outputs when the actual editor assembly changes. -->
+    <Target Name="InvalidateWorkshopResourceMetadata"
+            BeforeTargets="TwoDogExportGamePack"
+            DependsOnTargets="BuildWorkshopEditorMetadata"
+            Inputs="@(_WorkshopEditorMetadata)"
+            Outputs="$(IntermediateOutputPath)workshop-editor-metadata.stamp">
+        <RemoveDir Directories="$(TwoDogGodotProjectFullPath)/.godot/exported" />
+        <Touch Files="$(IntermediateOutputPath)workshop-editor-metadata.stamp" AlwaysCreate="true" />
+        <ItemGroup>
+            <FileWrites Include="$(IntermediateOutputPath)workshop-editor-metadata.stamp" />
+        </ItemGroup>
+    </Target>
+
+    <!-- Build the independent numerical worker normally; a failed worker export fails the host bundle. -->
+    <Target Name="BuildWorkshopWorker" BeforeTargets="_WasmGenerateAppBundle">
+        <MSBuild Projects="../CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj"
+                 Targets="GetWorkshopWorkerBundle" Properties="Configuration=$(Configuration)"
+                 RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish">
+            <Output TaskParameter="TargetOutputs" ItemName="_WorkshopWorkerBundle" />
+        </MSBuild>
+    </Target>
+    <Target Name="CopyWorkshopWorker" AfterTargets="_WasmGenerateAppBundle" DependsOnTargets="BuildWorkshopWorker">
+        <Error Condition="'@(_WorkshopWorkerBundle)' == ''" Text="Workshop simulation worker bundle is missing." />
+        <Copy SourceFiles="@(_WorkshopWorkerBundle)"
+              DestinationFiles="@(_WorkshopWorkerBundle->'$(WasmAppDir)/simulation/%(BundleRelativePath)')" />
+    </Target>
+    <Target Name="BuildWorkshopAnimation" BeforeTargets="_WasmGenerateAppBundle">
+        <MSBuild Projects="../CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj"
+                 Targets="GetWorkshopAnimationBundle" Properties="Configuration=$(Configuration)"
+                 RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish">
+            <Output TaskParameter="TargetOutputs" ItemName="_WorkshopAnimationBundle" />
+        </MSBuild>
+    </Target>
+    <Target Name="CopyWorkshopAnimation" AfterTargets="_WasmGenerateAppBundle" DependsOnTargets="BuildWorkshopAnimation">
+        <Error Condition="'@(_WorkshopAnimationBundle)' == ''" Text="Workshop Animation worker bundle is missing." />
+        <Copy SourceFiles="@(_WorkshopAnimationBundle)"
+              DestinationFiles="@(_WorkshopAnimationBundle->'$(WasmAppDir)/animation/%(BundleRelativePath)')" />
+    </Target>
     <Target Name="DeepClean" AfterTargets="Clean">
         <RemoveDir Directories="AppBundle"/>
     </Target>

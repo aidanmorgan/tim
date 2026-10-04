@@ -1,19 +1,12 @@
-# The Incredible Machine: research and design evidence
+# TIM research and current game interpretation
 
+This research records reference observations, provenance and unresolved fidelity questions. Current architecture is [WGSL f16 with typed Half game values](gpu-f16-physics.md); intended behavior and current acceptance live in [requirements](planning/requirements.md). Reference algorithms and original-game constants are not instructions to maintain a second solver.
 
-## Flashlight and solar-panel implementation basis — 27 September 2026
+## Adopted light and rope behavior
 
-The indexed text of the [TIM2 manual, printed page 44](https://pexy.io/wp-content/uploads/2025/06/the-incredible-machine-2-manual.pdf) describes a flashlight whose button is pressed by a falling object and whose light powers solar panels. The full PDF fetch timed out in this pass; the indexed excerpt establishes that interaction, not quantitative beam or solar rules.
+The self-contained torch uses impact/activation latching, a finite 15° half-angle cone with range 8 and nine equally weighted front-face panel samples, incidence/inverse-square response with a close-range cap and actual opaque geometry. Panel output is supplied binary power, not charge storage; ambient lighting supplies nothing. Preserve the soft conical artwork without making render sampling optical authority.
 
-Our initial C# implementation uses an explicitly self-contained battery torch, an activation/impact latch, a finite 15° half-angle cone with range 8, and nine equally weighted panel samples. Each sample responds to front-face incidence and inverse-square attenuation with a close-range cap. Opaque physical box/sphere proxies and the finite workbench block light; receiver outputs are computed from one tick snapshot and committed before electrical propagation. This is an original simplified game rule, not a measured reproduction of TIM or calibrated lumens/volts. Panel output is binary supply without charge storage. The straight axial marker has been replaced by four translucent conical shells with 48 ray-clipped sectors each, using the same angle/range and opaque collision proxies. This render-time approximation does not change the nine-sample power model or implement volumetric scattering. Mirrors, lenses, splitters, colour transport and conservation-aware optical branching remain future work.
-## Initial rope and fixed-pulley model (2026-09-27)
-
-This is a new implementation, not a claim of TIM numerical fidelity. [Box2D's pulley documentation](https://box2d.org/doc_version_2_4/classb2_pulley_joint.html) describes a bound on the sum of two rope spans, with a ratio for force transfer, and warns about zero-length geometry. [Müller et al., Position Based Dynamics](https://matthias-research.github.io/pages/publications/posBasedDyn.pdf) describes inverse-mass-weighted constraint projection and inequality constraints. Those are the foundations used here; no Box2D source was copied.
-
-Our fixed-guide model constrains the **total** length of a complete, unbranched rope path. It applies only tensile impulses, projects excess length with inverse-mass weights, and alternates rope/contact resolution inside the existing fixed substeps. Point guides are stationary during simulation except authored eased placement correction; no wheel inertia, pulley friction, moving-block advantage, self-collision, wrapping around arbitrary obstacles or cutting is claimed. An unfinished threading path has a free end, carries no tension and renders as a dashed preview. Saved spans carry explicit lengths; missing, non-finite and out-of-range lengths are rejected.
-
-Native calibration includes the ideal two-load acceleration `g × (m₂−m₁)/(m₁+m₂)`, equal-mass balance, reversed mass ordering, link-order independence, slack/no-pushing, a 3D pendulum's length and energy bounds, floor contacts and exact same-runtime Reset replay. This verifies our stated ideal model, not original-game timings. The first pendulum motion assertion sampled only the final position near a full swing; it was replaced with a trajectory-wide crossing check while retaining the per-step energy/length bounds.
-Research date: 27 September 2026. This is a design dossier, not a claim of an exact engine reconstruction. Sources are linked individually; inaccessible full pages are identified. No original artwork, level files, music, or code is included.
+Ropes constrain total length of complete unbranched routes through typed sockets, carry tension only, support mass-dependent counterbalance and visible slack, and reject missing/nonfinite/out-of-range span lengths. An unfinished route is dashed and carries no tension. Finite-radius sheaves, physical work and shared contact belong to the current rope criteria, not an ideal copied-speed model.
 
 ## Which game are we matching?
 
@@ -112,38 +105,16 @@ Working title: **Curious Contraptions**. Original models, interface, text, and p
 
 - Real XYZ positions, depth-aware collisions, an orbitable camera, and editable work planes. The starter camera should make height and gravity obvious. Use spatial depth in later puzzles; do not quietly implement a flat 2D game with a decorative perspective.
 - Fast edit → run → inspect → restore. Reset reconstructs the entire initial state, including timers, ports, velocities, event history, and consumed objects.
-- Parts are standalone Godot scenes described by resources. Behavior, appearance, collision proxies, and connection sockets belong to each part. A registry discovers resources. Adding a normal new part should not require editing the main game controller.
-- Scene hierarchy owns objects; a separate graph connects ports. A belt between unrelated parts is not parenthood.
+- Parts are resource-discovered definitions with presentation scenes, typed geometry/sockets and declarations of generic capabilities. Numerical laws execute in the shared WGSL engine and discrete state in the simulation host. Adding an ordinary part must not require a private solver or editing the main game controller.
+- The browser scene hierarchy owns presentation resources; the simulation owns physical objects and typed connection graphs. A belt between parts is not scene parenthood.
 - Store stable IDs, part versions, initial transforms, environment, inventory, connections, goals, and physics profile in level data.
 - Author new teaching puzzles for each mechanic, then combine them. Preserve experimentation, humor, and alternate solutions.
 
-## Physics realism and assistance
+## Physics, difficulty and browser delivery
 
-Proposed design, not historical claims:
+Use the single current WGSL physical model with [Forgiving/Balanced/Precise assistance](difficulty.md). Authored precision curves bound automatic placement/orientation correction, receiver regions, activation/timing thresholds and permitted guidance; no user nudge action, global relaxed physics, obstacle bypass or wrong-object acceptance. Run captures the selected settings and changing them requires restart. Test alternative valid solutions and the campaign matrix; greater assistance is not assumed to preserve every outcome without proof.
 
-A **Classic** profile targets observable TIM behavior: stable gravity, distinct ball masses/bounces, simplified buoyancy, understandable gadgets, repeatable runs. A **Physical** profile can expose more material friction, drag, angular response, and stricter constraints. Neither profile is an excuse to change the simulation timestep by difficulty.
-
-Within each profile, a continuous **precision** setting selects author-defined, per-part assistance curves. Per the user's requirement, the nudge is automatic engine behavior, not a player-facing action. Authored placement/orientation windows bound correction toward a reference placement, with continuous easing rather than snapping. Separately, individual parts can specify receiver acceptance regions, activation thresholds, timing windows, and bounded lateral guidance. These values belong in puzzle data, not a universal physics relaxation rule. Never count an unrelated object or trigger a mechanism through an obstacle. Snapshot profile and assistance when starting a run; changing them requires a restart. See [implemented difficulty authoring](difficulty.md) for current behavior and limitations.
-
-Keep authored puzzle complexity separate from this setting. Physics changes can invalidate layouts, so puzzle metadata must identify supported profiles. Do not claim that every realistic-profile solution automatically works in every assisted profile: test that property on the campaign.
-
-Initial parameters to tune (new design values, not measured TIM constants):
-
-| Parameter | Forgiving | Precise |
-| --- | --- | --- |
-| Receiver acceptance margin | 0.35 m | 0.02 m |
-| Activation impulse threshold | 65% of authored threshold | 100% |
-| Allowed timing window | 150% of authored window | 100% |
-| Optional lateral capture force | Bounded, visible, receiver-local | Disabled |
-| Simulation tick | Same fixed tick | Same fixed tick |
-
-A fixed tick alone does not prove cross-platform determinism. A first implementation may quantize custom simulation state and establish native/browser replay comparisons, but the current quantized floating-point implementation has not established bit-identical behavior across platforms. A measured compatibility suite is required; merely replacing floats with integers would not prove equivalence either.
-
-## Godot web constraints
-
-The user requires C# wherever possible. Gameplay, simulation, UI, tests, and preview tooling now use C# with Godot Compatibility rendering. Godot 4 C# web export is not supported by the inspected official documentation, so the project uses the third-party 2dog browser host with pinned Godot/.NET packages. The published WebAssembly build has completed direct-UI Balanced reference playthroughs of all 40 levels, with reviewed outcome screenshots; see [browser evidence](browser-playtest.md). That verifies rendering and the exercised interactions, not complete persistence coverage, the full difficulty matrix, or original-physics fidelity. The browser bootstrap retains necessary HTML/JavaScript infrastructure. [Official web-export guide](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_web.html); [2dog setup](https://2dog.dev/getting-started.html); [2dog web host](https://2dog.dev/hosts/web).
-
-Use matching editor and export-template versions. Pin the toolchain so physics changes cannot arrive accidentally with an engine upgrade. [Official export guide](https://docs.godotengine.org/en/4.6/tutorials/export/exporting_projects.html).
+Use C# for typed authoring, host/discrete logic, UI and tools, WGSL f16 for numerical physics, and the pinned browser host/build instructions in [README](../README.md). Matching toolchain/editor/export versions and actual Chrome behavior remain required. Cross-device repeatability uses declared physical bounds and exact discrete event identity/order; fixed tick alone is not proof of identical floating arithmetic.
 
 ## Fidelity evidence still needed
 
@@ -154,50 +125,6 @@ Use matching editor and export-template versions. Pin the toolchain so physics c
 5. Perturb known solutions over a placement/angle grid; verify lower precision increases the successful region without bypassing obstacles or accepting the wrong object.
 6. Validate browser interaction, 3D depth placement, every campaign solution, save/reload, and adding an independent part.
 7. Exact original-physics equivalence remains unproven until these comparisons pass. Documentation and plausible-looking bounces are not sufficient evidence.
-
-## Isolated physics calibration baseline — 2026-09-27
-
-[PhysicsCalibrationTests.cs](../CuriousContraptions.tests/PhysicsCalibrationTests.cs) now measures an isolated vertical drop for basketball, bowling ball, and tennis ball at pressure 0, 1, and 2. These are **our engine's native measurements, not measurements of TIM**. No campaign targets, assistance, fans, or other parts participate. Each starts at center (0, 6, 0), at rest, with gravity 9.81 and precision 1, above the solid deck at Y = -0.46.
-
-Each case captures 481 position/velocity/visibility samples, including the initial state, over four simulation seconds. It restores the machine and checks exact equality of the second trace, plus restored position and velocity. At zero pressure, additional sanity checks compare fall time with constant-gravity motion and rebound-height ratio with squared restitution. Those analytical checks validate this isolated model, not historical compatibility.
-
-| Part | Pressure | First impact tick | First apex tick | Rebound / initial clearance |
-| --- | ---: | ---: | ---: | ---: |
-| Basketball | 0 | 134 | 208 | 0.30120 |
-| Basketball | 1 | 135 | 207 | 0.28771 |
-| Basketball | 2 | 136 | 206 | 0.27484 |
-| Bowling ball | 0 | 134 | 153 | 0.01930 |
-| Bowling ball | 1 | 135 | 153 | 0.01866 |
-| Bowling ball | 2 | 136 | 154 | 0.01802 |
-| Tennis ball | 0 | 135 | 241 | 0.60657 |
-| Tennis ball | 1 | 136 | 238 | 0.57528 |
-| Tennis ball | 2 | 137 | 236 | 0.54590 |
-
-Ticks are 1/120 second with four internal substeps. Impact/apex detection brackets a vertical-velocity sign change between adjacent tick samples; it does not identify the exact collision substep. Apex height uses the greater of the two bracketing sample heights. Clearance is measured from the sphere's center at floor contact, accounting for different radii. These ratios are not velocity restitution coefficients.
-
-Reproduce measurements (JSON appears in detailed test output):
-
-```sh
-dotnet test CuriousContraptions.tests --nologo --filter FullyQualifiedName~PhysicsCalibrationTests --logger 'console;verbosity=detailed'
-```
-
-The full native suite passed 75 cases after adding these nine cases. Same-runtime replay equality does not establish browser/native equality.
-
-### Concrete remaining calibration differences
-
-Inspection of [MachineWorld.cs](../engine/MachineWorld.cs) identifies these current design choices without original-game measurement support:
-
-| Current implementation | Comparison needed before claiming fidelity |
-| --- | --- |
-| Gravity 9.81; pressure scales buoyancy and linear drag | Original fall/ascent traces at multiple authored environment settings; establish unit and time conversion first |
-| Sphere speed limited to 40 world units/s | Original long-fall or launch behavior; do not assume its terminal speed or cap |
-| Box contact multiplies tangential velocity by 0.985 or 0.998 | Original ramp travel and horizontal slowdown; current `Realistic` flag only switches this friction factor |
-| Low-speed upward-facing contact suppresses rebound below 0.45 | Original settling and low-height drops |
-| State rounded to 1/65536 after each substep | Repeated and cross-platform traces; this is not the original fixed-point algorithm |
-
-The level-format source confirms authored environment and ball-property fields, but not their conversion into our world units or integration equations. The interview-appendix PDF and original DOS manual both timed out on this research pass; their contents were not newly inspected. [Level-format source](https://moddingwiki.shikadi.net/wiki/The_Incredible_Machine_Level_Format).
-
-Next reference experiment: identify an edition and capture an isolated ball drop onto a horizontal surface. Record the initial bottom-to-surface clearance, first impact, and first rebound apex in original pixels and video timestamps, with duplicate-frame/timing uncertainty. Compare the dimensionless rebound-height ratio before fitting any world-unit scale. Repeat with the same ball at another height and with the other ball types; keep some drops out of fitting as validation cases. Do not tune difficulty nudges to hide a base-physics mismatch. No original drop measurement has yet been recorded.
 
 ## New primary reverse-engineering lead — OpenTIM
 
@@ -218,7 +145,7 @@ The [part definitions](https://github.com/mrfixit2001/OpenTIM/blob/83fac1af87651
 | Tennis ball | 5 | 1322 | 192 | 16 |
 | Balloon | 1 | 9 | 64 | 32 |
 
-Our current catalog uses basketball mass 1 / bounce 0.55, bowling mass 4 / bounce 0.14, and tennis mass 0.35 / bounce 0.78. Thus relative masses are not aligned (bowling:basketball 4:1 versus the reported 10:1; tennis:basketball 0.35:1 versus 0.25:1). The reported basketball and tennis ball share a bounciness value, whereas our restitution values differ. This is a concrete compatibility concern, not sufficient grounds to equate raw bounciness with a restitution coefficient or change the catalog without collision validation.
+These raw reference values do not directly define our current authored mass/restitution. Compare relative mass and bounce behavior independently; do not equate source bounciness with a restitution coefficient or change current content without validated physical controls.
 
 Selected reported atmosphere fixtures:
 
@@ -250,6 +177,6 @@ A second lead, [moralrecordings/breakfastmachine](https://github.com/moralrecord
 2. Capture isolated basketball, bowling and tennis drops at two heights onto the same surface. Check both dimensions and boundary shape; sprite sizes alone do not establish collision size.
 3. Compare collision output across impact speeds, surface types and low-speed settling. A single bounce-height fit cannot recover additive losses or contact-specific rules.
 4. Establish original step rate and each quantity's fixed-point scale. Compare relative mass ratios independently of the chosen world-unit scale.
-5. Only then introduce a versioned Classic profile and replay the campaign without using difficulty nudges to hide base-physics differences. Preserve the approved visuals and retain the existing solver as an explicitly non-calibrated baseline during comparison.
+5. Compare the single current physical model against independently measured reference behavior without using assistance to hide differences. Preserve approved visuals; any adopted behavior change follows the current source/design workflow and requalifies affected campaign cases. Do not add a Classic/Physical backend or retain an old solver.
 
 The major change in evidence is that there are now pinned, edition-specific, upstream-reported numerical fixtures to investigate. They do not yet prove original-compatible physics, and no new original-game trajectory was measured in this pass.

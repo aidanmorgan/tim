@@ -1,0 +1,123 @@
+# Build the game through thin vertical slices
+
+Current planning decision: VERTICAL-INVEST-PLAN-2026-10-02. **This task changes the plan only and authorizes no code changes.** Separate implementation status and owner authorization are tracked in [TODO](../../../TODO.md) and the owning execution session. This plan review neither grants nor revokes that authorization.
+
+The [canonical f16/WebGPU design](../../gpu-f16-physics.md), coarse puzzle accuracy, exact discrete/Save/Reset semantics, enum typing and approved palette remain fixed. Algorithms, private layouts and helper factoring are negotiable inside those contracts. Engine-first P0-035 blocks **new** components, general UX and campaign expansion; it does not block using existing game parts and actual Workshop controls to deliver the engine incrementally.
+
+Each playable slice delivers or exercises the [general data-driven physics and animation engines](../../engine-contracts.md#general-data-driven-engines). Basketball/Receiver are consumers of reusable contact, sensor/residence, controller/event and animation capabilities, not permission for ball/basket-specific solvers or cosmetic loops. Add only the missing general capability and typed declarations needed now; prove parameter/instance variation and negative controls without pulling unrelated catalogue work ahead. Domain-specialized kernels and element-specific art remain valid.
+
+**Current phase:** The owner's [4 October playable-first policy](../../delivery-workflow.md#playable-first) controls required-now acceptance and development publication, including performance/lifecycle wording below. Require affected gameplay/build/ordinary Run/Reset and supported Save/Load correctness now; defer detailed profiling, matched baselines, injected fault/cadence/device/retention campaigns and global qualification to their named P0 owners. Source behaviors and final budgets remain required.
+
+## What is a task here?
+
+A playable slice demonstrates one named interaction through real UI, canonical Half construction, typed commands, the actual simulation worker/GPU, visible feedback and Reset. Its ABI, geometry, compiler, queue, unit tests, cleanup and evidence are supporting criteria with the same stable implementation/reviewer pair. They are not independently valuable product stories or weeks of prerequisite subsystem completion.
+
+Aggregate rows are completion conjunctions, not a serial queue to finish before touching UI. Design decisions must settle a named uncertainty needed by the next slice, with finite inputs and an observable decision oracle. Historical checkpoints retain evidence and surviving acceptance. No row's title or a template automatically certifies INVEST readiness. The existing obligation map classifies every owner and keeps its exact source/members.
+
+A required-now supporting criterion must have an independently reviewed result for the named slice before its dependent behavior is accepted. It cannot be waived because the parent audit is later. The complete parent remains open until all of its children pass. Conversely, an unrelated missing law/mode/device is not a prerequisite for demonstrating an already admitted part on the declared development device; it still blocks its own scope and the full release gate.
+
+## Current state and first critical path
+
+The prior first-body spike includes engine/gpu/CanonicalBody.cs, engine/gpu/body-integration.wgsl, tools/GpuBodyFixture and CuriousContraptions.tests/CanonicalBodyTests.cs. At this planning task's baseline it was unverified reusable input. Concurrent implementation and its current proof are tracked by the owning execution session and TODO; this planning review does not establish runtime qualification or require those files to remain unchanged. Reuse relevant independently checked portions within the consuming game slice; code presence or plan approval is not delivered functionality and does not justify a separate harness programme.
+
+Planned order: **Basketball drop/Reset → Receiver capture feedback → finish active construction Save/Load → First principles with ramps, captured goal and Solved/Reset → Impact switch to Signal lamp.** Each later outcome consumes only the earlier behavior and the additional named capability it needs. Missing full animation, all-law kernels, global optimization or all 72 parts do not precede the first playable scope.
+
+<a id="ball-drop"></a>
+## CAT-001-I · Basketball drops onto the workbench and resets
+
+**Visible value and exact scope:** in existing Free workshop, choose Basketball (catalogue identity ball), place it above the existing workbench using normal controls, press Run, observe gravity, workbench contact/bounce, and press Reset. Use the current default ball's radius, mass, bounce, drag and zero buoyancy after canonical Half input conversion. This is not a constant-velocity diagnostic pretending to be the game.
+
+**Required-now closure:** selected ball resource/scene and BallPart declaration/presentation; Workshop startup/level selection, placement/ToggleRun/ResetRun and input gating (current startup selects level 0; the target must visibly offer usable Free workshop when that level is not yet admitted); the current MachineWorld.Start/Step/Restore entry points; sphere versus fixed-workbench geometry/material; the minimal canonical record/typed command schema, GPU capability/queue, bounded candidate commit and committed-pose rendering. The existing spike is a possible implementation input. Minimal ownership and malformed-input proof is required now; full CHECK-AGGREGATE/all-law audits are not predecessors.
+
+**Acceptance:** actual Chrome UI placement and configured values; a positive fall/contact/bounce; remove the placed ball with the existing Remove control, Run the empty construction and observe no ball/contact; separately place the ball at two admitted heights and observe the expected fall/contact order; invalid overlap/range/unknown-schema rejection before mutation; highest/lowest legal placement and workbench contact boundaries in the admitted puzzle profile (do not claim the UI can place a ball beyond its clamped workbench range); queued Run cannot become Running before commit; GPU loss produces the declared fault; exact canonical construction Reset after motion and failed admission. Build the actual runnable target and measure this interaction's complete tick/frame/readback against required-now budgets. No setter/imported-solution proof substitutes.
+
+**Estimate/stop:** one sphere family, one static workbench contact family, no networks or goal logic. The unknown is the smallest safe removal of the old synchronous authority from these entry points. Resolve it by tracing and proving those exact callers, not implementing every MachineWorld domain first. If the build/ownership boundary cannot isolate the admitted surface, record the concrete blocking dependency and split a bounded entry-point removal criterion with this same imminent consumer. A pass covers this interaction; all other ball integrations/fixtures remain explicitly tracked.
+
+<a id="basket-capture"></a>
+## CAT-004-I · Receiver visibly captures the named Basketball
+
+**Visible value and exact scope:** add the existing Receiver (catalogue identity basket) to the preceding Workshop construction and aim the ball into it. Prove the current basket's physical walls, canonical capture margin/speed/dwell, default Free workshop capture behavior, captured event and visible halo; the empty difficulty curve gives fixed margin 0.02, speed 1.5, dwell 0.35 and zero guide regardless of slider position. Receiver is the display name, not a second part identity.
+
+**True prerequisites:** the ball-drop scope, basket's own declared geometry/capture contract, and only the additional residence/guide/typed-event capability required by this part. No unrelated joint/fluid/thermal law or all-consumer audit.
+
+**Acceptance:** capture after the declared residence duration/speed; a fast through-pass and outside/edge placement do not counterfeit capture; named-body identity and duplicate-event controls; the default zero-guide behavior cannot move solid walls; authored assisted settings are owned by first-principles below, not invented through the Free workshop slider; Reset clears capture/timers/halo and restores canonical construction. Browser/build/affected performance and bounded event/queue checks accompany the same interaction. This is capture feedback, not yet a claim that every campaign goal is ported.
+
+**Estimate/stop:** one existing default capture interaction; no general goal editor or new receiver type. Keep residence, guide and event unit tests as supporting checks. A discovered capture-model question has a finite positive/through-pass/edge matrix and must be decided before this scope passes.
+
+<a id="construction-save"></a>
+## P0-020 · Save and restore the admitted ball/Receiver construction
+
+**Visible value and exact scope:** through the existing Save/Load controls, save the construction from basket-capture, change it, load it, run and Reset it. Persist canonical Half bits, typed identities and the existing construction-only setting set; do not create live numerical resume.
+
+**True prerequisites:** basket-capture and the exact current save schema/atomic replacement contract. Extend only the save/Load command and resource codecs this construction consumes, with their current callers and fixtures.
+
+**Acceptance:** exact canonical placed values and links after Load/Reset; save during Run is rejected; malformed/obsolete schema, unknown or not-yet-supported part, and failed GPU admission leave the old construction intact; stale acknowledgement cannot replace the active generation. Actual UI, production-target build and save/load timing/resource checks are required now.
+
+**Estimate/stop:** one existing local construction-save format and one admitted construction. Export/community/profile features remain separate later obligations. No generic serialization platform prerequisite.
+
+<a id="switch-lamp"></a>
+## CAT-063-I and CAT-035-I · Existing Impact switch and Signal lamp · contact drives a typed activation
+
+**Visible value and exact scope:** place the existing Impact switch (identity switch) and Signal lamp (identity lamp), connect the switch's ActivationOut to the lamp's ActivationIn through actual connection controls, and drop the Basketball onto the switch. The lamp lights because of the declared activation. Battery-to-lamp is not the current supported port contract and is not invented by this migration.
+
+**True prerequisites:** ball-drop, committed event ordering and only these two current declarations/ports. Preserve separate part evidence and each part's remaining modes; this is one existing-part integration, not two new catalogue additions.
+
+**Acceptance:** physical contact triggers once according to the switch contract; missed contact, wrong port/domain, disconnected wire and stale/duplicate event controls; visible lamp state and exact construction/connection/activation Reset. Preserve electrical pass-through obligations of the switch as a separately named remaining electrical interaction; this activation scope does not claim them complete. Real Chrome connections, build and affected performance accompany the behavior.
+
+**Estimate/stop:** one activation edge and contact-trigger invariant. No generic electrical solver is required for an activation-only edge. Unknown port mapping is resolved from the actual typed declarations, not the lamp's informal display description.
+
+<a id="first-principles"></a>
+## CAT-054-I and existing FIX-001-001/FIX-004-001 · First principles · two ramps deliver the ball to the captured goal
+
+**Visible value and exact scope:** use the existing first_principles level, its fixed ball/receiver and two-ramp inventory. Place the ramps through the real UI, run the chain, obtain the existing Captured goal and Reset. This requalifies current content; it does not expand the campaign.
+
+**True prerequisites:** ball-drop, basket-capture, the existing Ramp declaration/affine contact and canonical source fixture values, plus only the Captured goal's named-body/event and once-only success feedback. Save is needed only for this level's save acceptance; switch/lamp is not a prerequisite.
+
+**Acceptance:** successful two-ramp path; misaligned/missing ramp, wrong-body and too-short/too-fast capture controls; actual typed placements/goal identity, once-only Solved transition and visible success feedback, exact Reset/save and the receiver's actual authored assistance knots at 0, 0.45 and 1, including the declared guide force and capture margin/speed/dwell at each knot without moving physical walls. The goal cannot pass from mere overlap or a native reference solution. Existing per-instance FIX rows remain separately identifiable.
+
+**Estimate/stop:** one already authored level and one new-to-the-GPU contact orientation family. No all-level difficulty sweep, new hints or reward redesign. Keep the approved visible style.
+
+## Incremental target cutover, without a second backend
+
+The first playable target build routes every admitted construction exclusively to GPU numerical authority. Retire the old synchronous production Start/Step/Restore path for this target at that same cut; no runtime backend selector, CPU fallback or mixed numerical domain. Historical CPU code/evidence may be retained only as explicitly unshipped reference/test material while its owning removal obligations remain open.
+
+The target initially has an explicitly incomplete capability surface. Unmigrated current parts/content are still required, but selecting/loading/running them must produce an explicit unsupported result before state mutation. Do not render a supposedly supported mechanism whose unported physical side silently does nothing. The existing released behavior is not claimed preserved or release-qualified by this development build. Each later vertical admits one named behavior/mode and removes its superseded entry path in the same reviewed change.
+
+P0-030/031/034/035 aggregate all current parts/modes/fixtures, generic laws, required devices, full workload budgets and publication before the engine release. They do not authorize a final giant runtime switch: by then the sole target has already accumulated the required behavior through reviewed slices. New product/component/UX/campaign expansion still waits for P0-035.
+
+## How the remaining stack proceeds
+
+The 72 current catalogue owners are named vertical migrations, not independent native extraction projects. Their modes and every current fixture retain exact individual evidence. Follow the existing source-specific outcome/control, and group its minimal compiler/law/transport/presentation criteria into that owner. An existing fixture is an acceptance case of its named interaction; repeated fixture rows are not hundreds of new implementation projects.
+
+The 293 named source identities and their explicit child/model decisions remain individually required after their enforcing engine/product stages. Umbrellas, 150 level allocations, 30 chapter checks, 302 fixture records, law/checker/cleanup parents and retained history are explicitly classified in the existing map. They do not become ready stories through a generic label. Each actionable child has one named outcome, finite modes, actual prerequisite contract, bounded unknown/stop and positive/control/boundary proof; unresolved source-model questions use their existing bounded decision card and named next owner.
+
+Performance work follows a working named interaction and a measured problem: ball/workbench state residency, the same scene's conservative active set, that contact island's bounded iterations, its device/pipeline lifetime, its committed-pose readback stream, or the ramp/capture scene's render contention. Each is a scoped criterion or measured follow-up on its consumer, not a new platform prerequisite. No unspecified “improve performance” work is ready.
+
+The [current register](../work-register.md) carries corrected completion dependencies; the [GPU cards](gpu-physics.md) identify supporting criteria and their consuming vertical. Historical edge counts are evidence, not a requirement to preserve obsolete sequencing. Read the changed-edge rationale in the planning verification record; no code/checker behavior is modified by this plan.
+
+## Readiness and finite uncertainty
+
+The named next vertical is a planned starting candidate; actual execution and authorization are recorded by TODO and the owning implementation session. A catalogue/source owner with several modes is an aggregate: its source names the finite next mode or interaction; its D criterion settles any unresolved model before I. Support rows retain their stage acceptance and do not create another implementation story. A missing design decision is explicit Incomplete, not guessed behavior.
+
+Campaign level delivery follows the same rule after P0-035 and required component coverage: bind that slot's chapter/reservations and actually taught prerequisites, freeze only its own typed brief, author/prove that level, then update the campaign ledger. S793/S794/S797 close the all-150 audit after those individual records exist; they no longer block every individual level on a complete all-150 design. No reservation, final coverage obligation or human teaching proof is removed.
+
+Method: [Bill Wake's INVEST guidance](https://xp123.com/invest-in-good-stories-and-smart-tasks/) favors small valuable outcomes through presentation, logic and data, negotiable implementation and observable tests. Real technical dependencies remain valid. Here a bounded source decision or supporting technical criterion keeps its honest role; it is not relabelled a playable story.
+
+<a id="existing-element-order"></a>
+## Existing-element requirements during engine development
+
+The [72 individual current requirements](../requirements.md#current-catalogue-closure) are enforcing acceptance under their existing CAT D/I/V owners. All are **Incomplete**; catalogue presence, a prior native/browser Pass, a Fixed placeholder or a first interaction cannot close a part. These phases order genuine capabilities and collaborators, not new subsystem projects. Execute one named behavior/mode through authoring, WGSL physics, worker transport, animation and rendering together; independent branches need not wait for unrelated phases. Resolve its finite model/admission decisions before implementation. The register's alphabetical reference column is not execution order.
+
+| Phase / admitted capability | Existing owners consuming it | Required predecessor and completion boundary |
+| --- | --- | --- |
+| Contact and coherent committed pose | CAT-001 Basketball, CAT-004 Receiver, CAT-014 Bowling, CAT-023 Domino, CAT-030 Funnel, CAT-048 Pipe, CAT-049/050 bends, CAT-054 Ramp, CAT-066 Wall | Preserve Basketball/workbench → Receiver and first_principles as the first playable chain. Each body/contact geometry variant needs its own admitted f16 law, configuration and continuous pose; Receiver adds residence/guide/event semantics. Domino adds box inertia/support, not just sphere bounce. Pipe/funnel/bends follow their own hollow/contact boundary, without waiting for networks. |
+| Activation, sensors and controller feedback | CAT-002 detector, CAT-017 Clock, CAT-020 Counter, CAT-022 Delay, CAT-033 Hold timer, CAT-035 Lamp, CAT-037 Latch, CAT-052 Pressure plate, CAT-063 Switch | Contact-to-Switch-to-Lamp is the first activation integration. Detectors require committed crossing; pressure requires direct-contact load. Timers/counter/latch require typed event and exact worker clock ordering. Supply-consuming modes additionally require the next row's source/contact contract; activation-only modes do not. |
+| Supplied contacts and logic | CAT-005 Battery, CAT-013 Both, CAT-024/025/026/027 electrical Nand/Nor/Or/Xor | Typed source/contact solve, coherent supply snapshot, monotone/nonmonotone topology rules and explicit work-source design precede powered consumers. A source declaration may be qualified with its first minimal consumer; no all-motor/all-network prerequisite cycle. Existing binary enable is not finite-energy qualification. |
+| Elastic contact and constrained mechanics | CAT-015 Bumper, CAT-034 Impact lever, CAT-053 Pulley, CAT-058 Rope anchor, CAT-062 Springboard, CAT-065 Trampoline, CAT-067 Weight | Contact plus the particular finite elastic/hinge/rope law and committed functional geometry. Bumper's finite-work decision precedes its response. Rope anchor/weight/pulley may form one existing-part integration with separately retained evidence; lever-to-shutter waits only for that actuator. No blanket all-joints completion prerequisite. |
+| Rotary drive and actuators | CAT-018 Clutch, CAT-019 Conveyor, CAT-042 Motor, CAT-057 Reverse transmission; CAT-007 Shutter, CAT-016 Cannon, CAT-039 Pusher, CAT-051 Gate, CAT-071 Wound spring | Supplied work + finite inertia/transfer/contact for rotary drive, and each actuator's bounded law/commands/obstruction. Motor→Conveyor admits the initial rotary path; reverser/clutch add their own coupling. Spring adds paid winding/ratchet/release after elastic and shaft contracts. Cannon charge/chamber/release and pusher endpoints remain separate behaviors. Optical shutter integration waits for the optical path, not shutter mechanics. |
+| Conserved airflow and buoyancy | CAT-003 Balloon, CAT-010 Bellows, CAT-028 Fan, CAT-064 Tennis, CAT-070 Windmill | Balloon/Tennis contact and material admission may start in the contact branch; they do not wait for rotary work or a completed airflow subsystem. Add pressure/buoyancy/drag before the particular jet integration. Fan plus an admitted body supplies initial conserved transfer; Windmill adds finite-inertia paid rotary capture, Bellows adds finite plate/elastic/gas/nozzle discharge. Prove separate source/receiver branch work; do not require a completed Windmill to establish a Fan/body law. |
+| Optical routing and feedback | CAT-029 Torch, CAT-036 Laser, CAT-041 Mirror, CAT-006 Combiner, CAT-008 Splitter, CAT-011/031/055 filters, CAT-012/021/032/038/040/056/068/072 receivers, CAT-059 Solar panel, CAT-043/044/045/046/047 optical gates | Geometry/occlusion + coherent optical sampling and supplied output law. Torch→Solar and Laser→Broadband receiver establish their own source/consumer paths; then routing/filtering, each channel receiver and each gate truth operation. Carrier/controls remain distinct; preview and rendering consume committed paths. No representative completes a family. |
+| Acoustic emission and reception | CAT-009 Bell, CAT-060 Sound meter, CAT-061 Speaker, CAT-069 Wind chimes | Typed bounded occurrence/propagation + committed source pose/occlusion and the meter's supplied contact. Bell needs impact; Speaker needs supply/trigger; Chimes additionally need constrained sail/contact and conserved airflow. Qualify tone variants and muted/suspended audio without gating physical gameplay on playback. |
+| All-current-part release closure | Every CAT-001 through CAT-072 and all 302 current FIX records | Incremental animation/presentation criteria accompany every earlier behavior. P0-025–029 worker/render lifecycle and full P0-030/031/034/035 aggregation retain all mode, fixture, device/workload, performance and publication gates. No existing part is assumed complete; new components/general UX/campaign expansion wait for P0-035. |
+
+Required mode settings without a UI control need an explicitly selectable authored qualification fixture and a bounded design decision under that CAT D owner. Unsupported values/modes reject atomically before state mutation until admitted; this development restriction does not delete their closure obligations. The first candidate remains the Basketball/Receiver vertical and TODO's R-N3 blocker, not an instruction to start a later row now.

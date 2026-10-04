@@ -1,4 +1,5 @@
 using Godot;
+using CuriousContraptions.Gpu;
 using System;
 using System.Linq;
 
@@ -7,14 +8,23 @@ namespace CuriousContraptions;
 public partial class Workshop
 {
     private MachinePart? _preview;
-    private HBoxContainer _linkChoices = null!;
-    private Vector3 _previewRotation, _grabOffset;
+    private Window? _cameraFocusWindow;
+    private static CanonicalRotation CaptureEditorRotation(Quaternion input)
+    {
+        var q = input.Normalized();
+        var value = new CanonicalRotation((Half)q.X, (Half)q.Y, (Half)q.Z, (Half)q.W);
+        value.Validate();
+        return value;
+    }
+
+    private CanonicalRotation _previewOrientation = CanonicalRotation.Identity;
+    private Vector3 _grabOffset;
     private Node3D _workGrid = null!;
     private OptionButton _layers = null!;
     private SpinBox _layerDepth = null!;
     private Label _buildHelp = null!;
     private bool _buildView, _updatingLayers, _lifting;
-    private float _placementHeight = 3;
+    private Metres _placementHeight = new((Half)3);
     private Vector2 _liftStartMouse, _liftScreenAxis;
     private Vector3 _liftStartPosition;
     private Control _partTools = null!;
@@ -106,11 +116,7 @@ public partial class Workshop
         advanced.AddChild(lift);
         _removeButton = Button("Remove", DeleteSelected);
         actions.AddChild(_removeButton);
-        _connectButton = Button("Connect", BeginLink);
-        actions.AddChild(_connectButton);
         contextual.AddChild(actions);
-        _linkChoices = new HBoxContainer { Visible = false };
-        contextual.AddChild(_linkChoices);
     }
 
     private void SetGizmoMode(bool move)
@@ -120,7 +126,7 @@ public partial class Workshop
         _rotationGizmo.SetMoveMode(move);
         _moveModeButton.ButtonPressed = move;
         _rotateModeButton.ButtonPressed = !move;
-        _rotationGizmo.Follow(_selected, !_inRun && _tool.Length == 0 && _linkSource == null, _camera);
+        _rotationGizmo.Follow(_selected, !_inRun && _tool is null, _camera);
     }
 
     private void AddRotationRow(VBoxContainer parent, string title, string explanation, Vector3 axis)
@@ -168,12 +174,12 @@ public partial class Workshop
     // Selecting a layer never silently moves the selected part.
     private void SetLayer(float depth)
     {
-        if (_inRun) return;
-        _depth = Mathf.Clamp(depth, -4, 4);
+        if (!CanEdit) return;
+        _depth = new((Half)(Mathf.Clamp(depth, -4, 4)));
         _depthText.Text = "Drag to slide · Lift for height";
-        _workGrid.Position = new(0, 0, _depth - .03f);
+        _workGrid.Position = new(0, 0, (float)_depth.Value - .03f);
         _updatingLayers = true;
-        _layerDepth.Value = _depth;
+        _layerDepth.Value = (float)_depth.Value;
         _updatingLayers = false;
         RefreshLayers();
         RefreshLayerAppearance();
@@ -184,7 +190,7 @@ public partial class Workshop
         if (_layers == null) return;
         _updatingLayers = true;
         _layers.Clear();
-        var depths = World.Parts.Select(p => Mathf.Snapped(p.Position.Z, .1f)).Append(0).Append(_depth)
+        var depths = World.Parts.Select(p => Mathf.Snapped(p.Position.Z, .1f)).Append(0).Append((float)_depth.Value)
             .Distinct().OrderBy(z => z).ToArray();
         for (var i = 0; i < depths.Length; i++)
         {
@@ -193,18 +199,19 @@ public partial class Workshop
             var location = depth < -.05f ? "Back" : depth > .05f ? "Front" : "Middle";
             _layers.AddItem($"{location} {depth:+0.0;-0.0;0.0} m · {count} parts");
             _layers.SetItemMetadata(i, depth);
-            if (Mathf.Abs(depth - _depth) < .05f) _layers.Select(i);
+            if (Mathf.Abs(depth - (float)_depth.Value) < .05f) _layers.Select(i);
         }
         _updatingLayers = false;
     }
 
     private void MoveSelectedToLayer()
     {
-        if (_inRun || _selected is not { Locked: false })
+        if (!CanEdit || _selected is not { Locked: false })
         { _status.Text = "Select a movable part, choose a layer, then move it here."; return; }
         PushUndo();
-        _selected.Position = new(_selected.Position.X, _selected.Position.Y, _depth);
-        RefreshCables();
+        _selected.Position = new(_selected.Position.X, _selected.Position.Y, (float)_depth.Value);
+        CommitSelected();
+        
         RefreshLayers();
         RefreshLayerAppearance();
         _status.Text = "Moved to this layer. Undo returns it to its previous depth.";
@@ -220,16 +227,17 @@ public partial class Workshop
             _buildView ? "Front view · drag up/down or sideways" : "WASD moves · Q/E turns the camera · drag rings to rotate parts";
         foreach (var part in World.Parts)
         {
-            var fade = !_inRun && _buildView && Mathf.Abs(part.Position.Z - _depth) > .26f;
+            var fade = !_inRun && _buildView && Mathf.Abs(part.Position.Z - (float)_depth.Value) > .26f;
             foreach (var mesh in part.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
                 mesh.Transparency = fade ? .75f : 0;
-            part.SetSelected(part == _selected || (_linkSource != null && part != _linkSource && World.ConnectionOptions(_linkSource, part).Count > 0));
+            part.SetSelected(part == _selected);
         }
     }
 
-    private void CreatePreview(string kind)
+    private void CreatePreview(WorkshopPartKind kind)
     {
-        _preview = World.Registry.Create(new() { Id = "PlacementPreview", Kind = kind, Position = [0, 2, _depth] });
+        _preview = World.Registry.Create(kind);
+        _preview.Position = new(0, 2, (float)_depth.Value);
         AddChild(_preview); // Deliberately not a World part: no inventory or physics effects.
         foreach (var mesh in _preview.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
             mesh.Transparency = .5f;
@@ -246,8 +254,7 @@ public partial class Workshop
 
     private void CancelTool()
     {
-        _tool = "";
-        _linkSource = null;
+        _tool = null;
         _dragging = _orbiting = _lifting = false;
         ClearPreview();
         Select(null);
@@ -257,14 +264,13 @@ public partial class Workshop
 
     public override void _Process(double delta)
     {
+        PresentUiAnimations(delta);
         PanCamera((float)delta);
         var target = _preview ?? _selected;
-        _cancelButton.Visible = !_inRun && (_tool.Length > 0 || _linkSource != null);
-        _linkChoices.Visible = !_inRun && _linkSource != null && _linkChoices.GetChildCount() > 0;
+        _cancelButton.Visible = !_inRun && (_tool is not null);
         _removeButton.Visible = _preview == null && _selected is { Locked: false };
-        _connectButton.Visible = _preview == null && _selected is { HasOutputSocket: true };
-        _partTools.Visible = !_inRun && (target is { Locked: false } || target is { HasOutputSocket: true }) && !_rotationGizmo.Dragging && !_optionsPanel.Visible;
-        _rotationGizmo.Follow(_selected, !_inRun && _tool.Length == 0 && _linkSource == null, _camera);
+        _partTools.Visible = !_inRun && target is { Locked: false } && !_rotationGizmo.Dragging && !_optionsPanel.Visible;
+        _rotationGizmo.Follow(_selected, !_inRun && _tool is null, _camera);
         _placementShadows.Follow(World.Parts, _preview, _selected, !_inRun);
         _detail.Visible = target != null;
         _time.Visible = _inRun;
@@ -273,17 +279,15 @@ public partial class Workshop
         _moveModeButton.ButtonPressed = _rotationGizmo.MoveMode;
         _rotateModeButton.ButtonPressed = !_rotationGizmo.MoveMode && !_rotationGizmo.ResizeMode;
         ResizePartsToolbox();
-        TracePlaytestUi();
         if (_preview == null || _lifting || GetViewport().GuiGetHoveredControl() != null) return;
-        var point = WorkPoint(GetViewport().GetMousePosition(), _buildView ? _depth : _placementHeight);
+        var point = WorkPoint(GetViewport().GetMousePosition(), _buildView ? (float)_depth.Value : (float)_placementHeight.Value);
         var valid = !_inRun && GetViewport().GuiGetHoveredControl() == null &&
                     point is { } at && PlacementInside(at);
         _preview.Visible = valid;
         if (valid && point is { } position)
         {
-            _preview.RotationDegrees = _previewRotation;
-            _preview.Position = ClampPlacement(position, _buildView ? _depth : _placementHeight);
-            SnapTube(_preview);
+            _preview.Quaternion = new((float)_previewOrientation.X, (float)_previewOrientation.Y, (float)_previewOrientation.Z, (float)_previewOrientation.W);
+            _preview.Position = ClampPlacement(position, _buildView ? (float)_depth.Value : (float)_placementHeight.Value);
         }
     }
 
@@ -299,18 +303,19 @@ public partial class Workshop
 
     private void LiftStep(float amount)
     {
-        if (_inRun) return;
+        if (!CanEdit) return;
         var target = _preview ?? _selected;
         if (target is not { Locked: false }) return;
         if (_preview == null) PushUndo();
         target.Position = new(target.Position.X, Mathf.Clamp(target.Position.Y + amount, 0, 9), target.Position.Z);
-        _placementHeight = target.Position.Y;
-        RefreshCables();
+        _placementHeight = new((Half)(target.Position.Y));
+        if (_preview == null) CommitSelected();
+        
     }
 
     private void BeginLift(Vector2 screen)
     {
-        if (_inRun) return;
+        if (!CanEdit) return;
         var target = _preview ?? _selected;
         if (target is not { Locked: false }) return;
         if (_preview == null) PushUndo();
@@ -323,9 +328,23 @@ public partial class Workshop
 
     private void ClearCameraMotion() => _cameraKeys.Clear();
 
+    public override void _EnterTree()
+    {
+        _cameraFocusWindow = GetWindow();
+        _cameraFocusWindow.FocusExited += ClearCameraMotion;
+    }
+
     public override void _ExitTree()
     {
-        GetWindow().FocusExited -= ClearCameraMotion;
+        _workshopUiRemoved = true;
+        _gpuPending = true;
+        RemoveUiAnimations();
+        ClearCameraMotion();
+        if (_cameraFocusWindow is { } window)
+        {
+            _cameraFocusWindow = null;
+            if (GodotObject.IsInstanceValid(window)) window.FocusExited -= ClearCameraMotion;
+        }
     }
 
     private void PanCamera(float delta)
@@ -359,27 +378,23 @@ public partial class Workshop
         UpdateCamera();
     }
 
-    private void SnapTube(MachinePart? part)
-    {
-        if (_inRun || part == null) return;
-        if (TubePlacementSnap.Find(World, part) is { } pose && PlacementInside(ToLocal(pose.Origin)))
-            part.GlobalTransform = pose;
-    }
+
 
     private void EndGizmo(bool cancel)
     {
         if (_rotationGizmo == null) return;
+        var wasDragging = _rotationGizmo.Dragging;
         var snapMove = _rotationGizmo.Dragging && _rotationGizmo.MoveMode && !cancel;
         _rotationGizmo.End(cancel);
-        if (snapMove) SnapTube(_selected);
+        if (wasDragging && !cancel) CommitSelected();
         if (cancel && _gizmoUndoPending && _undo.Count > 0)
         {
             _undo.RemoveAt(_undo.Count - 1);
-            RefreshCables();
+            
         }
         _gizmoUndoPending = false;
         RefreshLayers();
-        RefreshCables();
+        
     }
 
     // Release must be seen even when the pointer ends a drag over a UI panel.
@@ -397,7 +412,7 @@ public partial class Workshop
             }
             if (input is InputEventMouseMotion rotate && _rotationGizmo.Drag(_camera, rotate.Position, rotate.ShiftPressed))
             {
-                RefreshCables();
+                
                 GetViewport().SetInputAsHandled();
                 return;
             }
@@ -407,22 +422,25 @@ public partial class Workshop
                 GetViewport().SetInputAsHandled();
             }
         }
-        if (input is InputEventMouseMotion motion && _lifting && !_inRun)
+        if (input is InputEventMouseMotion motion && _lifting && CanEdit)
         {
             var target = _preview ?? _selected;
             if (target is { Locked: false } && _liftScreenAxis.LengthSquared() > 1)
             {
                 var rise = (motion.Position - _liftStartMouse).Dot(_liftScreenAxis) / _liftScreenAxis.LengthSquared();
                 target.Position = new(_liftStartPosition.X, Mathf.Clamp(_liftStartPosition.Y + rise, 0, 9), _liftStartPosition.Z);
-                _placementHeight = target.Position.Y;
-                RefreshCables();
+                _placementHeight = new((Half)(target.Position.Y));
+                
             }
         }
         if (input is InputEventMouseButton { Pressed: false } mouse)
         {
             if (mouse.ButtonIndex == MouseButton.Left)
             {
-                if ((_dragging && _dragMoved) || _lifting) SnapTube(_preview ?? _selected);
+                if ((_dragging && _dragMoved) || _lifting)
+                {
+                    if (_preview == null) CommitSelected();
+                }
                 _dragging = _lifting = false;
             }
             if (mouse.ButtonIndex == MouseButton.Right) _orbiting = false;

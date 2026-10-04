@@ -1,4 +1,6 @@
 using Godot;
+using CuriousContraptions.Gpu;
+using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +13,11 @@ public partial class Workshop : Node3D
     private static readonly Color Navy = new("#293954"), Muted = new("#48556a"), Cream = new("#25344b"), Mint = new("#326537");
     public MachineWorld World { get; private set; } = null!;
     private Camera3D _camera = null!;
-    private Node3D _cables = null!;
     private CanvasLayer _canvas = null!;
     private VBoxContainer _palette = null!;
     private ScrollContainer _paletteScroll = null!;
     private Label _title = null!, _task = null!, _status = null!, _detail = null!, _state = null!, _precisionText = null!, _depthText = null!, _time = null!, _hint = null!;
-    private Button _run = null!, _cancelButton = null!, _removeButton = null!, _connectButton = null!;
+    private Button _run = null!, _cancelButton = null!, _removeButton = null!;
     private Control _optionsPanel = null!, _objectivePanel = null!;
     private Button _hintButton = null!;
     private Vector3 _cameraPan;
@@ -27,33 +28,37 @@ public partial class Workshop : Node3D
     private OptionButton _picker = null!;
     private HSlider _precision = null!;
     private CheckButton _friction = null!;
-    private MachinePart? _selected, _linkSource;
-    private string _tool = "";
-    private bool _dragging, _dragMoved, _orbiting, _sandbox, _inRun;
+    private MachinePart? _selected;
+    private WorkshopPartKind? _tool;
+    private bool _dragging, _dragMoved, _orbiting, _inRun;
+    private WorkshopSimulationPhase _displayedWorkshopPhase;
+    private WorkshopTransportState _displayedTransportState = WorkshopTransportState.Ready;
     private Vector2 _dragPressScreen;
     private const float PartDragThresholdPixels = 6;
-    private float _depth, _azimuth, _elevation, _zoom = 13.8f;
-    private List<PuzzleData> _puzzles = new();
-    private int _currentLevel, _nextId = 1;
-    private Dictionary<string, int> _inventory = new();
-    private readonly List<MachineData> _undo = new();
+    private Metres _depth;
+    private float _azimuth, _elevation, _zoom = 13.8f;
+    private const int FreeWorkshopIndex = 1;
+    private GpuBodyId _nextId = new(1);
+    private Dictionary<WorkshopPartKind, int> _inventory = new();
+    private readonly List<WorkshopConstruction> _undo = new();
+    private bool _gpuPending = true;
+    private bool _workshopUiRemoved;
+    private bool CanEdit => !_gpuPending && !_inRun && World.WorkshopPhase == WorkshopSimulationPhase.Building;
 
-    public override void _Ready()
+    public override async void _Ready()
     {
         World = new MachineWorld { Name = "Machine" };
         AddChild(World);
-        World.Solved += OnSolved;
-        _cables = new Node3D { Name = "Connections" };
-        AddChild(_cables);
         MakeStage();
         MakeInterface();
+        InitializeUiAnimations();
         MakeGuidance();
-        _puzzles = MachineCodec.ReadPuzzles(FileAccess.GetFileAsString("res://content/puzzles.json"));
-        foreach (var puzzle in _puzzles) _picker.AddItem(puzzle.Title);
+        _picker.AddItem("Campaign · unavailable");
         _picker.AddItem("Free workshop");
-        LoadLevel(0);
-        GetWindow().FocusExited += ClearCameraMotion;
-        StartBackendQualification();
+        LoadMode(WorkshopMode.Free);
+        _picker.Select(FreeWorkshopIndex);
+        try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
+        catch (Exception error) { if (_workshopUiRemoved) return; _status.Text = error.Message; _state.Text = "GPU UNAVAILABLE"; }
     }
 
     private void MakeStage()
@@ -170,12 +175,13 @@ public partial class Workshop : Node3D
         var heading = Text("CURIOUS CONTRAPTIONS", 18);
         heading.Position = new(28, 23);
         _canvas.AddChild(heading);
-        _picker = new OptionButton { Position = new(470, 24), Size = new(350, 42) };
+        _picker = new OptionButton { Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.LevelPicker),
+            Position = new(470, 24), Size = new(350, 42) };
         _picker.AddThemeFontSizeOverride("font_size", 16);
         _picker.AddThemeColorOverride("font_color", Navy);
         _picker.AddThemeColorOverride("font_hover_color", Navy);
         _picker.AddThemeStyleboxOverride("normal", Style(new("#eee5cc")));
-        _picker.ItemSelected += index => LoadLevel((int)index);
+        _picker.ItemSelected += index => SelectModeFromPicker((int)index);
         _canvas.AddChild(_picker);
         _state = Text("BUILD MODE", 13, Mint);
         _state.Position = new(1050, 36);
@@ -186,6 +192,7 @@ public partial class Workshop : Node3D
             _optionsPanel.Visible = !_optionsPanel.Visible;
             _objectivePanel.Visible = false;
         });
+        _menuButton.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Menu);
         _menuButton.Size = new(44, 44);
         _canvas.AddChild(_menuButton);
         var left = Panel(new(24, 94), new(216, 0));
@@ -215,18 +222,20 @@ public partial class Workshop : Node3D
             _objectivePanel.Visible = !_objectivePanel.Visible;
             _task.Visible = _hintButton.Visible = _objectivePanel.Visible;
             _optionsPanel.Visible = false;
-            if (!_objectivePanel.Visible) _hint.Visible = false;
+            if (!_objectivePanel.Visible) HideHint();
             _objectivePanel.Size = new(266, 0);
         });
+        _goalButton.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Goal);
         _goalButton.Size = new(44, 44);
         _canvas.AddChild(_goalButton);
         _task = Paragraph("", 14, Muted, new(230, 0));
         _task.Name = "PuzzleIntroduction";
         objective.AddChild(_task);
         _hintButton = Button("Show hint", ShowHint);
+        _hintButton.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.ShowHint);
         objective.AddChild(_hintButton);
         _hint = Paragraph("", 14, Mint, new(230, 0));
-        _hint.Name = "PuzzleHint";
+        _hint.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Hint);
         _hint.Visible = false;
         objective.AddChild(_hint);
         _objectivePanel.Visible = false;
@@ -235,6 +244,7 @@ public partial class Workshop : Node3D
         _mainActions.AddThemeConstantOverride("separation", 8);
         _canvas.AddChild(_mainActions);
         _run = Button("▶  Run machine", ToggleRun, true);
+        _run.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Run);
         _run.CustomMinimumSize = new(56, 48);
         _mainActions.AddChild(_run);
         _mainActions.AddChild(Button("↺ Undo", Undo));
@@ -259,16 +269,21 @@ public partial class Workshop : Node3D
         files.AddChild(Button("Load", LoadSave));
         files.AddChild(Button("↶ Reset", ResetRun));
         _optionsContents.AddChild(files);
+        AddPlaybackControls(_optionsContents);
         _optionsContents.AddChild(Text("Difficulty", 14));
         _precisionText = Text("Balanced");
         _optionsContents.AddChild(_precisionText);
         _precision = new HSlider { MinValue = 0, MaxValue = 100, Value = 45 };
-        _precision.ValueChanged += PrecisionChanged;
+        _precision.ValueChanged += value =>
+        {
+            _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";
+            _status.Text = "Free Workshop keeps the Receiver’s capture settings unchanged.";
+        };
         _optionsContents.AddChild(_precision);
         _optionsContents.AddChild(Text("Forgiving                         Precise", 12, Muted));
         _friction = new CheckButton { Text = "More surface friction" };
         _friction.AddThemeColorOverride("font_color", Navy);
-        _friction.Toggled += on => { if (!_inRun) World.Realistic = on; };
+        _friction.Toggled += _ => _status.Text = "The current GPU Workshop uses the Basketball’s canonical material.";
         _optionsContents.AddChild(_friction);
         _depthText = Text("", 13, Muted);
         _depthText.Visible = false;
@@ -312,42 +327,32 @@ public partial class Workshop : Node3D
             panel.Size = new(panel.Size.X, targetHeight);
     }
 
-    private void LoadLevel(int index)
+    private enum WorkshopMode { Free }
+    private void SelectModeFromPicker(int index)
     {
-        CancelTool();
-        _inRun = false;
-        _sandbox = index >= _puzzles.Count;
-        _currentLevel = index;
-        _depth = 0;
-        _nextId = 1;
-        _undo.Clear();
-        if (_sandbox)
+        if (index != FreeWorkshopIndex)
         {
-            _inventory = World.Registry.Definitions.Keys.ToDictionary(key => key, _ => 9999);
-            World.LoadMachine(new());
-            _title.Text = "Your next bright idea";
-            _task.Text = "An open workbench. Add parts, connect switches to machines, and see what happens.";
+            _status.Text = "Campaign levels are not supported by the current GPU Workshop.";
+            _picker.Select(FreeWorkshopIndex);
+            return;
         }
-        else
-        {
-            var puzzle = _puzzles[index];
-            _inventory = new(puzzle.Inventory);
-            World.LoadMachine(puzzle.CreateMachine());
-            _title.Text = puzzle.Title;
-            _task.Text = puzzle.Description;
-        }
-        _hint.Text = "";
-        _hint.Visible = _task.Visible = _hintButton.Visible = false;
-        _objectivePanel.Size = new(266, 0);
-        _optionsPanel.Visible = _objectivePanel.Visible = false;
-        SetBuildUi();
-        RefreshPalette();
-        RefreshCables();
-        SetLayer(World.Bodies.FirstOrDefault()?.Position.Z ?? 0);
-        RefreshLayers();
-        _placementHeight = 3;
-        SetBuildView(false);
+        LoadMode(WorkshopMode.Free);
     }
+
+    private void LoadMode(WorkshopMode mode)
+    {
+        if (mode != WorkshopMode.Free) throw new ArgumentException("Unsupported Workshop mode.");
+        ResetUiAnimations();
+        _inventory = World.Registry.Definitions.Values
+            .Where(d => d.WorkshopKind is WorkshopPartKind.Basketball or WorkshopPartKind.Receiver).ToDictionary(d => d.WorkshopKind, _ => 1);
+        _title.Text = "Free workshop";
+        _task.Text = "Place a Basketball and Receiver, then Run. Reset restores the starting arrangement.";
+        _hint.Visible = _task.Visible = _hintButton.Visible = false;
+        _optionsPanel.Visible = _objectivePanel.Visible = false;
+        SetBuildUi(); RefreshPalette();  RefreshLayers();
+        _placementHeight = new((Half)(3)); SetBuildView(false);
+    }
+
     private void RefreshPalette()
     {
         foreach (var child in _palette.GetChildren()) { _palette.RemoveChild(child); child.QueueFree(); }
@@ -355,11 +360,11 @@ public partial class Workshop : Node3D
         {
             var definition = World.Registry.Definitions[key];
             var remaining = Remaining(key);
-            var button = Button(definition.Title + (_sandbox ? "  ∞" : "  × " + remaining), () => ChooseTool(key));
-            button.Disabled = remaining <= 0 || _inRun;
+            var button = Button(definition.Title + "  × " + remaining, () => ChooseTool(key));
+            button.Disabled = remaining <= 0 || !CanEdit;
             button.TooltipText = ""; // Description already appears in the drawer when chosen.
-            button.Icon = WorkshopIcons.Pictogram(key);
-            button.SetMeta("part_kind", key);
+            button.Icon = WorkshopIcons.Pictogram(definition.Id);
+            button.SetMeta("part_kind", definition.Id);
             button.CustomMinimumSize = new(180, 40);
             button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             button.IconAlignment = HorizontalAlignment.Left;
@@ -375,21 +380,20 @@ public partial class Workshop : Node3D
             name.ClipText = true;
             name.MouseFilter = Control.MouseFilterEnum.Ignore;
             row.AddChild(name);
-            var count = Text(_sandbox ? "∞" : remaining.ToString(), 14, Muted);
+            var count = Text(remaining.ToString(), 14, Muted);
             count.MouseFilter = Control.MouseFilterEnum.Ignore;
             row.AddChild(count);
             _palette.AddChild(button);
         }
     }
-    private int Remaining(string kind) => _inventory.GetValueOrDefault(kind) - World.Parts.Count(p => !p.Locked && p.Definition.Id == kind);
-    private void ChooseTool(string kind)
+    private int Remaining(WorkshopPartKind kind) => _inventory.GetValueOrDefault(kind) - World.Parts.Count(p => !p.Locked && p.Definition.WorkshopKind == kind);
+    private void ChooseTool(WorkshopPartKind kind)
     {
-        if (_inRun) return;
+        if (!CanEdit) return;
         ClearPreview();
-        _previewRotation = Vector3.Zero;
-        _placementHeight = 3;
+        _previewOrientation = CanonicalRotation.Identity;
+        _placementHeight = new((Half)(3));
         _tool = kind;
-        _linkSource = null;
         Select(null);
         _detail.Text = World.Registry.Definitions[kind].Title;
         CreatePreview(kind);
@@ -431,7 +435,7 @@ public partial class Workshop : Node3D
             if (mouse.ButtonIndex == MouseButton.Left)
             {
                 if (!mouse.Pressed) _dragging = _lifting = false;
-                else if (!_inRun) Click(mouse.Position);
+                else if (CanEdit) Click(mouse.Position);
             }
         }
         else if (input is InputEventMouseMotion motion)
@@ -443,7 +447,7 @@ public partial class Workshop : Node3D
                 _elevation = Mathf.Clamp(_elevation + motion.Relative.Y * .004f, .2f, 1.2f);
                 UpdateCamera();
             }
-            else if (_dragging && _selected is { Locked: false } && !_inRun)
+            else if (_dragging && _selected is { Locked: false } && CanEdit)
             {
                 if (!_dragMoved)
                 {
@@ -456,7 +460,7 @@ public partial class Workshop : Node3D
                 {
                     _selected.Position = ClampPlacement(at + _grabOffset, _buildView ? _selected.Position.Z : _selected.Position.Y);
                     RefreshLayerAppearance();
-                    RefreshCables();
+
                 }
             }
         }
@@ -464,7 +468,7 @@ public partial class Workshop : Node3D
         {
             if (key.Keycode == Key.Space) ToggleRun();
             else if (key.Keycode == Key.Escape) { _optionsPanel.Visible = false; CancelTool(); }
-            else if (!_inRun)
+            else if (CanEdit)
             {
                 if (key.Keycode == Key.Z && (key.CtrlPressed || key.MetaPressed)) Undo();
                 switch (key.Keycode)
@@ -486,8 +490,7 @@ public partial class Workshop : Node3D
         foreach (var part in World.Parts)
         {
             if (!part.Visible) continue;
-            if (_buildView && _linkSource == null && Mathf.Abs(part.Position.Z - _depth) > .26f) continue;
-            if (_linkSource != null && World.ConnectionOptions(_linkSource, part).Count == 0) continue;
+            if (_buildView && Mathf.Abs(part.Position.Z - (float)_depth.Value) > .26f) continue;
             var distance = _camera.UnprojectPosition(part.Position).DistanceTo(screen);
             if (distance >= best) continue;
             best = distance;
@@ -495,9 +498,9 @@ public partial class Workshop : Node3D
         }
         return closest;
     }
-    private void Click(Vector2 screen)
+    private async void Click(Vector2 screen)
     {
-        if (_linkSource == null && _tool.Length == 0 && _rotationGizmo.Begin(_camera, screen))
+        if (_tool is null && _rotationGizmo.Begin(_camera, screen))
         {
             PushUndo();
             _gizmoUndoPending = true;
@@ -505,31 +508,27 @@ public partial class Workshop : Node3D
             _status.Text = _rotationGizmo.ResizeMode ? "Drag a square to stretch. Shift snaps; Escape cancels." : _rotationGizmo.MoveMode ? "Drag an arrow. Shift aligns to 0.1; Escape cancels." : "Drag to rotate. Shift snaps; Escape cancels.";
             return;
         }
-        if (_linkSource != null)
+        if (_tool is not null)
         {
-            var target = Pick(screen);
-            if (target != null && target != _linkSource)
-            {
-                var options = World.ConnectionOptions(_linkSource, target);
-                if (options.Count == 1) CompleteLink(target, options[0]);
-                else ShowLinkChoices(target, options);
-            }
-            return;
-        }
-        if (_tool.Length > 0)
-        {
-            if (Remaining(_tool) <= 0 || WorkPoint(screen, _buildView ? _depth : _placementHeight) is not { } at || !PlacementInside(at)) return;
+            if (Remaining(_tool.Value) <= 0 || WorkPoint(screen, _buildView ? (float)_depth.Value : (float)_placementHeight.Value) is not { } at || !PlacementInside(at)) return;
+            if (_nextId.Value == ulong.MaxValue) { _status.Text = "Part identity is exhausted."; return; }
             PushUndo();
-            var part = World.AddPart(new()
+            var position = at.Snapped(Vector3.One * .1f);
+            var rotation = _preview?.Quaternion ?? Quaternion.Identity;
+            var chosen = _tool.Value;
+            var proposed = chosen switch
             {
-                Id = _tool + "_" + _nextId++, Kind = _tool,
-                Position = [at.X, at.Y, at.Z],
-                Rotation = [_previewRotation.X, _previewRotation.Y, _previewRotation.Z]
-            });
-            part.Position = part.Position.Snapped(Vector3.One * .1f);
-            SnapTube(part);
+                WorkshopPartKind.Basketball => World.Construction with { Ball = World.CaptureBasketball(_nextId, position, rotation) },
+                WorkshopPartKind.Receiver => World.Construction with { Receiver = World.CaptureReceiver(_nextId, position, rotation) },
+                _ => throw new ArgumentException("Unsupported placement kind.")
+            };
+            var accepted = await SubmitConstruction(proposed);
+            if (_workshopUiRemoved) return;
+            if (!accepted) { _undo.RemoveAt(_undo.Count - 1); return; }
+            _nextId = new(_nextId.Value + 1);
+            var part = World.Parts.Single(p => p.Definition.WorkshopKind == chosen);
             Select(part);
-            _tool = "";
+            _tool = null;
             ClearPreview();
             RefreshPalette();
             RefreshLayers();
@@ -545,27 +544,28 @@ public partial class Workshop : Node3D
                 _dragMoved = false;
                 _dragPressScreen = screen;
                 _grabOffset = WorkPoint(screen, _buildView ? _selected.Position.Z : _selected.Position.Y) is { } grabbed ? _selected.Position - grabbed : Vector3.Zero;
-                _depth = _selected.Position.Z;
+                _depth = new((Half)(_selected.Position.Z));
                 ChangeDepth(0);
             }
         }
     }
     private void Rotate(Vector3 angles)
     {
-        if (_inRun) return;
-        if (_tool.Length > 0)
+        if (!CanEdit) return;
+        if (_tool is not null)
         {
             if (_preview != null)
             {
                 ApplyRotation(_preview, angles);
-                _previewRotation = _preview.RotationDegrees;
+                _previewOrientation = CaptureEditorRotation(_preview.Quaternion);
             }
             return;
         }
         if (_selected is not { Locked: false }) { _status.Text = "Choose a part to place, or select a movable part first."; return; }
         PushUndo();
         ApplyRotation(_selected, angles);
-        RefreshCables();
+        CommitSelected();
+
     }
     // Compose rotations around fixed workbench axes, not Euler components.
     // This keeps every axis usable even after a part has been tipped through 90°.
@@ -579,221 +579,256 @@ public partial class Workshop : Node3D
 
     private void ChangeDepth(float amount)
     {
-        if (_inRun) return;
-        _depth = Mathf.Clamp(_depth + amount, -4, 4);
+        if (!CanEdit) return;
+        _depth = new((Half)(Mathf.Clamp((float)_depth.Value + amount, -4, 4)));
         if (_selected is { Locked: false } && amount != 0)
         {
             PushUndo();
-            _selected.Position = new(_selected.Position.X, _selected.Position.Y, _depth);
-            RefreshCables();
+            _selected.Position = new(_selected.Position.X, _selected.Position.Y, (float)_depth.Value);
+            CommitSelected();
+
         }
-        SetLayer(_depth);
+        SetLayer((float)_depth.Value);
     }
-    private void DeleteSelected()
+    private async void DeleteSelected()
     {
-        if (_inRun || _selected is not { Locked: false }) return;
-        PushUndo();
-        var part = _selected;
-        Select(null);
-        World.RemovePart(part);
-        RefreshPalette();
-        RefreshCables();
-        RefreshLayers();
+        if (!CanEdit || _selected is not { Locked: false }) return;
+        var kind = _selected.Definition.WorkshopKind;
+        PushUndo(); Select(null);
+        var proposed = kind switch
+        {
+            WorkshopPartKind.Basketball => World.Construction with { Ball = null },
+            WorkshopPartKind.Receiver => World.Construction with { Receiver = null },
+            _ => throw new ArgumentException("Unsupported selected part.")
+        };
+        var accepted = await SubmitConstruction(proposed);
+        if (_workshopUiRemoved) return;
+        if (!accepted) _undo.RemoveAt(_undo.Count - 1);
+        RefreshPalette();  RefreshLayers();
     }
+
     private void PushUndo()
     {
-        _undo.Add(World.Snapshot());
+        _undo.Add(World.Construction);
         if (_undo.Count > 40) _undo.RemoveAt(0);
     }
-    private void Undo()
+    private async void Undo()
     {
-        if (_inRun || _undo.Count == 0) return;
+        if (!CanEdit || _undo.Count == 0) return;
         Select(null);
-        World.LoadMachine(_undo[^1]);
-        _undo.RemoveAt(_undo.Count - 1);
-        _linkSource = null;
-        RefreshPalette();
-        RefreshCables();
-        RefreshLayers();
+        var accepted = await SubmitConstruction(_undo[^1]);
+        if (_workshopUiRemoved) return;
+        if (accepted) _undo.RemoveAt(_undo.Count - 1);
+        RefreshPalette();  RefreshLayers();
     }
-    private void BeginLink()
+
+
+
+    private async void ToggleRun()
     {
-        if (_inRun) return;
-        if (_selected is { HasOutputSocket: true })
+        if (_gpuPending) return;
+        if (IsRuntimePhase(World.WorkshopPhase)) { ResetRun(); return; }
+        if (!CanEdit) return;
+        EndGizmo(false);
+        Select(null); _tool = null; ClearPreview(); _dragging = false;
+        _gpuPending = true; _state.Text = "STARTING"; RefreshPalette();
+        try
         {
-            ClearLinkChoices();
-            _linkSource = _selected;
-            _tool = "";
-            ClearPreview();
-            RefreshLayerAppearance();
-            _status.Text = "Click a highlighted compatible part to connect. Cancel stops linking.";
+            var result = await World.RunWorkshop();
+            if (_workshopUiRemoved) return;
+            if (!result.Applicable) return;
+            if (result.Result.Outcome != WorkshopCommandOutcome.Applied) { _status.Text = $"Run rejected: {result.Result.Reason}"; return; }
+            _inRun = true;
+            WorkshopIcons.Apply(_run, "■  Back to building");
+            _state.Text = "MACHINE RUNNING";
+            _precision.Editable = false; _friction.Disabled = true;
+            _status.Text = "Reset restores the starting arrangement.";
         }
-        else _status.Text = "Select a part with an output socket, then choose Connect.";
+        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        finally { if (!_workshopUiRemoved) { _gpuPending = false; ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance(); } }
     }
-    private void RefreshCables()
+
+    private bool _cancelPending;
+    private async void ResetRun()
     {
-        foreach (var child in _cables.GetChildren()) { _cables.RemoveChild(child); child.QueueFree(); }
-        foreach (var rope in RopeNetwork.Build(World.Parts, World.Connections))
-            _cables.AddChild(new RopeVisual { Path = rope });
-        foreach (var link in World.Connections)
+        if (_gpuPending)
         {
-            if (link.Type == ConnectionDomain.Rope) continue;
-            var source = World.FindPart(link.From);
-            var target = World.FindPart(link.To);
-            if (source == null || target == null) continue;
-            if (!ConnectionRules.TryResolve(link, source.ConnectionPorts, target.ConnectionPorts,
-                out var output, out var input)) continue;
-            var a = source.Transform * output.LocalPosition;
-            var b = target.Transform * input.LocalPosition;
-            if (link.Type == ConnectionDomain.Mechanical)
+            if (_cancelPending || World.TransportState != WorkshopTransportState.TimedOut) return;
+            _cancelPending = true;
+            try
             {
-                _cables.AddChild(new MechanicalBeltVisual
-                {
-                    World = World, Source = source, Target = target, Output = output, Input = input
-                });
-                continue;
+                var cancelled = await World.CancelPendingWorkshop();
+                if (!_workshopUiRemoved && cancelled.Applicable) _status.Text = $"Cancel outcome: {cancelled.Result.Outcome}. The original request remains tracked.";
             }
-            var mid = (a + b) * .5f + new Vector3(0, -.5f, 0);
-            var electrical = link.Type == ConnectionDomain.Electrical;
-            var color = new Color(electrical ? "#293954" : "#e8b764");
-            var width = electrical ? .045f : .025f;
-            PartArt.Line(_cables, a, mid, color, width);
-            PartArt.Line(_cables, mid, b, color, width);
+            catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+            finally { _cancelPending = false; }
+            return;
         }
+        _gpuPending = true; _state.Text = "RESETTING"; Select(null); RefreshPalette();
+        try
+        {
+            var result = await World.ResetWorkshop();
+            if (_workshopUiRemoved) return;
+            if (!result.Applicable) return;
+            if (result.Result.Outcome != WorkshopCommandOutcome.Applied) { _status.Text = $"Reset rejected: {result.Result.Reason}"; return; }
+            ResetUiAnimations(); _inRun = false; SetBuildUi();
+        }
+        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
+        finally { if (!_workshopUiRemoved) { _gpuPending = false; ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance();  } }
     }
-    private void ToggleRun()
+
+    private static bool IsRuntimePhase(WorkshopSimulationPhase phase) =>
+        phase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused or WorkshopSimulationPhase.Completed or WorkshopSimulationPhase.Faulted;
+
+    private void ReconcileCommittedUi()
     {
-        if (_inRun) { ResetRun(); return; }
-        Select(null);
-        _linkSource = null;
-        _tool = "";
-        ClearPreview();
-        _dragging = false;
-        try { World.Start(); }
-        catch (ElectricalFeedbackException)
-        {
-            _status.Text = "Break the wire loop through XOR, NOR or NAND before running.";
-            return;
-        }
-        catch (HingeFixtureOverlapException)
-        {
-            _status.Text = "Move the lever beam clear of solid parts and the workbench before running.";
-            return;
-        }
-        TracePlaytestStart();
-        _inRun = true;
-        RefreshLayerAppearance();
+        var phase = World.WorkshopPhase;
+        if (phase is not (WorkshopSimulationPhase.Building or WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused or
+            WorkshopSimulationPhase.Completed or WorkshopSimulationPhase.Faulted)) return;
+        _displayedWorkshopPhase = phase;
+        _inRun = IsRuntimePhase(phase);
+        if (phase == WorkshopSimulationPhase.Building) { SetBuildUi(); return; }
+        if (!_inRun) return;
         WorkshopIcons.Apply(_run, "■  Back to building");
-        _state.Text = "MACHINE RUNNING";
-        _precision.Editable = false;
-        _friction.Disabled = true;
-        _status.Text = "Watch the chain reaction. Reset restores the starting arrangement.";
-        RefreshPalette();
-    }
-    private void ResetRun()
-    {
-        Select(null);
-        if (_inRun)
+        _precision.Editable = false; _friction.Disabled = true;
+        _state.Text = phase switch
         {
-            World.Restore();
-            TracePlaytestReset();
-        }
-        _inRun = false;
-        RefreshLayerAppearance();
-        SetBuildUi();
-        RefreshPalette();
-        RefreshCables();
+            WorkshopSimulationPhase.Paused => "MACHINE PAUSED",
+            WorkshopSimulationPhase.Completed => "TIME TO TINKER",
+            WorkshopSimulationPhase.Faulted => "SIMULATION STOPPED",
+            _ => "MACHINE RUNNING"
+        };
+        _status.Text = phase switch
+        {
+            WorkshopSimulationPhase.Paused => "Paused. Step advances one tick; Resume continues from here.",
+            WorkshopSimulationPhase.Completed => "30 seconds elapsed. Reset to build again.",
+            WorkshopSimulationPhase.Faulted => World.WorkshopFault ?? "The GPU simulation stopped. Reset to retry.",
+            _ => "Reset restores the starting arrangement."
+        };
     }
+
     private void SetBuildUi()
     {
         WorkshopIcons.Apply(_run, "▶  Run machine");
-        _state.Text = "BUILD MODE";
-        _precision.Editable = true;
-        _friction.Disabled = false;
+        _state.Text = _gpuPending ? "GPU PENDING" : "BUILD MODE";
+        _precision.Editable = !_gpuPending;
+        _friction.Disabled = true;
         _status.Text = "Choose a part. Arrows move; rings rotate.";
     }
     public override void _PhysicsProcess(double delta)
     {
-        var wasRunning = World.Running;
-        World.Step();
-        if (wasRunning) TracePlaytestFrame();
-        _time.Text = $"{World.Ticks * MachineWorld.Tick:00.00} s";
-        if (World.Running && World.Ticks >= 120 * 30)
+        _time.Text = $"{World.Ticks / (double)World.Construction.Settings.SimulationRate.Numerator:00.00} s";
+        var transport = World.TransportState;
+        var transportChanged = transport != _displayedTransportState;
+        _displayedTransportState = transport;
+        if (transport is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked)
         {
-            World.Running = false;
-            TracePlaytestResult("timeout");
-            _state.Text = "TIME TO TINKER";
-            _status.Text = "30 seconds elapsed. Reset and try another arrangement.";
+            _state.Text = transport == WorkshopTransportState.Indeterminate ? "OPERATION INDETERMINATE" : "RECOVERY BLOCKED";
+            _status.Text = "Worker session retired. Reload the page; unacknowledged commands were not assumed rolled back.";
+            return;
+        }
+        if (transport == WorkshopTransportState.TimedOut)
+        {
+            _state.Text = "OPERATION TIMED OUT";
+            _status.Text = World.HasPendingCommand
+                ? "Reset requests Cancel for the original pending operation. Timeout does not imply rollback."
+                : "The GPU candidate is still pending. Reset requests recovery; reload the page if it cannot complete.";
+            return;
+        }
+        if (transport == WorkshopTransportState.Backpressure)
+        {
+            _state.Text = "WAITING FOR WORKER";
+            _status.Text = "Reliable response exceeded 50 ms; simulation stops if unresolved for 500 ms.";
+            return;
+        }
+        // A physical read may supersede the original Run ACK before its await resumes.
+        // Reconcile on the committed transition, preserving later visible action rejections.
+        if (!_gpuPending && (World.WorkshopPhase != _displayedWorkshopPhase || transportChanged))
+        {
+            ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance();
         }
     }
-    private void OnSolved()
-    {
-        TracePlaytestResult("won");
-        _state.Text = "BEAUTIFULLY DONE";
-        _status.Text = "It works! Reset to experiment, or choose the next puzzle above.";
-        WorkshopIcons.Apply(_run, "↶  Build again");
-    }
-    private void PrecisionChanged(double value)
-    {
-        if (_inRun) return;
-        World.Precision = (float)value / 100;
-        var name = value < 34 ? "Forgiving" : value < 75 ? "Balanced" : "Precise";
-        _precisionText.Text = $"{name} · {value:0}%";
-        foreach (var part in World.Parts) part.UpdateAssistance(World.Precision);
-    }
+
+
+
 
     private void ShowHint()
     {
-        _hint.Text = _sandbox ? "Try chaining a falling ball, a switch, and a lamp." : _puzzles[_currentLevel].Hint;
-        _hint.Visible = !_hint.Visible;
+        _hint.Text = "Place the Basketball at two different heights and compare its fall.";
+        if (_hint.Visible) HideHint();
+        else { _hint.Visible = true; RevealHint(); }
         _objectivePanel.Size = new(266, 0);
     }
-    private void Save()
+    private async void Save()
     {
-        if (_inRun) { _status.Text = "Return to building before saving."; return; }
-        using var file = FileAccess.Open("user://workshop.json", FileAccess.ModeFlags.Write);
-        if (file == null) { _status.Text = "Storage is unavailable on this device."; return; }
-        var data = new SavedMachine { Version = SavedMachine.CurrentVersion, PuzzleId = _sandbox ? "" : _puzzles[_currentLevel].Id,
-            Precision = World.Precision, Realistic = World.Realistic, NextId = _nextId, Machine = World.Snapshot() };
-        file.StoreString(JsonSerializer.Serialize(data, MachineJson.Default.SavedMachine));
-        _status.Text = "Saved on this device.";
-    }
-    private void LoadSave()
-    {
-        if (!FileAccess.FileExists("user://workshop.json")) { _status.Text = "No saved machine on this device yet."; return; }
+        if (!CanEdit) { _status.Text = "Return to building before saving."; return; }
+        if (World.WorkshopRead.Revision.Value == ulong.MaxValue)
+        { _status.Text = "The session cannot acknowledge another save."; return; }
+        var stored = false;
+        _gpuPending = true; RefreshPalette();
         try
         {
-            var data = JsonSerializer.Deserialize(FileAccess.GetFileAsString("user://workshop.json"), MachineJson.Default.SavedMachine);
-            if (data == null || !Validate(data.Machine)) { _status.Text = "This save is not a supported machine."; return; }
-            var level = CampaignProgress.ResolveLevel(data, _puzzles);
-            if (level < 0) { _status.Text = "This save refers to an unavailable puzzle or save version."; return; }
-            World.ValidateMachine(data.Machine);
-            LoadLevel(level);
-            _picker.Select(level);
-            World.LoadMachine(data.Machine);
-            _nextId = Math.Max(data.NextId, 1);
-            _precision.Value = Math.Clamp(data.Precision * 100, 0, 100);
-            _friction.ButtonPressed = data.Realistic;
-            RefreshPalette();
-            RefreshCables();
-            RefreshLayers();
-            RefreshLayerAppearance();
-            _status.Text = "Machine restored from this device.";
+            var bytes = WorkshopSaveCodec.Encode(new(World.Construction, _nextId));
+            await BrowserWorkshopSaveStore.Save(bytes);
+            stored = true;
+            if (_workshopUiRemoved) return;
+            var result = await World.AcknowledgeConstructionSave();
+            if (_workshopUiRemoved) return;
+            _status.Text = result.Applicable && result.Result.Outcome == WorkshopCommandOutcome.Applied
+                ? "Construction saved in this browser."
+                : "Construction stored. Session acknowledgement is incomplete; do not retry automatically.";
         }
-        catch (JsonException) { _status.Text = "The save file could not be read."; }
-        catch (ArgumentException) { _status.Text = "This machine contains unsupported parts, properties or connections."; }
-    }
-    private bool Validate(MachineData data)
-    {
-        if (data.Parts.Count > 250 || data.Connections.Count > 500) return false;
-        var ids = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var part in data.Parts)
+        catch (Exception error)
         {
-            if (!ids.Add(part.Id) || !World.Registry.Definitions.ContainsKey(part.Kind) ||
-                part.Position.Length != 3 || part.Rotation.Length != 3 ||
-                part.Position.Any(v => !float.IsFinite(v) || Mathf.Abs(v) > 100) ||
-                part.Rotation.Any(v => !float.IsFinite(v))) return false;
+            if (!_workshopUiRemoved) _status.Text = stored
+                ? "Construction stored. Session acknowledgement is indeterminate: " + error.Message
+                : "Save failed; the previous save is unchanged. " + error.Message;
         }
-        return data.Connections.All(link => ids.Contains(link.From) && ids.Contains(link.To));
+        finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); } }
     }
+
+    private async void LoadSave()
+    {
+        if (!CanEdit) { _status.Text = "Return to building before loading."; return; }
+        var applied = false;
+        var submitted = false;
+        _gpuPending = true; RefreshPalette();
+        try
+        {
+            var encoded = await BrowserWorkshopSaveStore.Load(WorkshopSaveCodec.ByteLength);
+            if (_workshopUiRemoved) return;
+            if (encoded.Length == 0) { _status.Text = "No construction has been saved in this browser."; return; }
+            var saved = WorkshopSaveCodec.Decode(Convert.FromBase64String(encoded));
+            if (saved.Construction.Settings != World.Construction.Settings)
+                throw new ArgumentException("This save uses different simulation settings.");
+            // SubmitConstruction owns the existing GPU admission and installation barrier.
+            var priorRevision = World.Construction.Revision;
+            _gpuPending = false;
+            submitted = true;
+            var accepted = await SubmitConstruction(saved.Construction);
+            // Authority may have committed even if subsequent scene restoration failed.
+            applied = World.Construction.Revision.Value > priorRevision.Value &&
+                World.Construction.Ball == saved.Construction.Ball &&
+                World.Construction.Receiver == saved.Construction.Receiver;
+            if (applied) _nextId = new(Math.Max(_nextId.Value, saved.NextBodyId.Value));
+            if (_workshopUiRemoved) return;
+            if (!accepted)
+            {
+                if (applied) _status.Text = "Construction loaded; scene restoration is incomplete.";
+                return;
+            }
+            Select(null); _tool = null; ClearPreview(); _dragging = false; _undo.Clear();
+            _status.Text = "Construction loaded. Ready to run.";
+        }
+        catch (Exception error)
+        {
+            if (!_workshopUiRemoved) _status.Text = applied
+                ? "Construction loaded; presentation could not finish. " + error.Message
+                : submitted ? "Load acknowledgement is incomplete; recover the session. " + error.Message
+                : "Load rejected; construction unchanged. " + error.Message;
+        }
+        finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); RefreshLayers(); } }
+    }
+
+
 }

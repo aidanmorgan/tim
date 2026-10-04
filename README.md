@@ -1,35 +1,33 @@
 # Curious Contraptions
 
+Curious Contraptions is a 3D construction puzzle game: build a machine from readable toy-like parts, connect its mechanisms, Run it, observe the result and Reset to refine the construction. The intended game has **150 progressively taught levels**, a Free Workshop, every named puzzle element and variant, and Forgiving, Balanced and Precise difficulty profiles. The approved sky/wood/cream/navy/gold palette and sculptural art direction are defined in [DESIGN.md](DESIGN.md).
+
+**Current playable implementation:** Free Workshop admits Basketball and Receiver through the generic WGSL f16 physics engine and shared C# animation worker. Construction Save/Load preserves canonical values in transactional browser storage; Load uses the same GPU admission path as editing. Actual Chrome controls verify Save → edit → Load → Run → capture → Reset, rejected loads and allocator identity preservation. Other named parts and puzzles remain to be admitted. The deployed release is older until this checkpoint is published. [TODO.md](TODO.md) owns current review/publication status; playable acceptance is not full engine, device or performance qualification.
+
+Use the [working documentation index](docs/README.md) to find current design, requirements, delivery and tooling.
+
+## Intended architecture and delivery
+
+The simulation worker hosts **WebGPU/WGSL f16 physics**. C# owns typed Half construction/content/read models, command admission, integer identities/ticks, discrete controllers and atomic transactions. There is no CPU physical fallback or second numerical authority. A separate C# animation worker owns cosmetics; the browser main thread owns Godot/WebGL rendering, input and final presentation.
+
+Simulation runs at 120 Hz, initially four outer substeps, animation initially at 60 Hz, and presentation follows its own display clock. Sustained 60 FPS on baseline devices and 90 FPS on qualified devices are acceptance targets. See the [numeric/execution contract](docs/gpu-f16-physics.md), [simulation–presentation bridge](docs/simulation-presentation-bridge.md) and [performance plan](docs/browser-physics-performance.md).
+
+Complete physics, rendering and independent workers through **P0-035** using small playable slices of existing parts before new components, general UX or campaign expansion. Then deliver each named element/variant with individual evidence and publication; component coverage precedes exhaustive campaign/difficulty sweeps. All original behavioral requirements remain in the [source requirements](docs/planning/requirements.md) and [work register](docs/planning/work-register.md).
+
 ## Play online
 
-The production game is deployed to [GitHub Pages](https://aidanmorgan.github.io/tim/).
-Pushes to `main` run the C# tests, publish the Release WebAssembly bundle (without playtest diagnostics), and deploy it through `.github/workflows/pages.yml`.
-GitHub Pages serves the static SPA under `/tim/`; assets use relative paths and `404.html` returns deep links to the app root while preserving their route in the URL fragment. The game currently selects levels in its own UI rather than parsing URL routes.
-This single-threaded 2dog host needs WebGL 2, but no custom cross-origin isolation headers or server backend. Initial loading downloads the engine and .NET runtime; allow extra time on a cold cache.
-Local browser screenshots, raw playtest records, generated bundles and agent state are intentionally not committed.
+The older published game is available on [GitHub Pages](https://aidanmorgan.github.io/tim/). It is not evidence for the current source candidate.
 
-Local Save/Load supports only the current version-3 schema, with stable puzzle IDs and explicit typed connection sockets. Older/missing versions and unknown puzzle IDs are rejected; there are no compatibility adapters or automatic save migrations. Existing saved machines must be rebuilt. Development policy: always refactor forward, updating current code, content and tests together. Use enums for closed protocol sets (connection domains, goals and event kinds); keep extensible resource/instance IDs as identifiers and centralize built-in socket names.
-
-Deployment verification (2026-09-27): [initial Actions run](https://github.com/aidanmorgan/tim/actions/runs/36293929096) passed all 89 tests and deployed successfully. On the actual Pages origin, Chrome rendered the workshop, a UI-only level-2 switch-to-lamp solution won, and `/tim/levels/1` returned to `/tim/#/levels/1` and loaded the app. Browser console: no errors or warnings and no playtest diagnostic output. UI Save, a real page reload, then UI Load also restored a placed ramp and its inventory in the same Chrome profile. This does not establish persistence across different browsers, devices, private sessions, or cleared storage.
-
-
-Deployment uses [GitHub Actions](https://github.com/aidanmorgan/tim/actions/workflows/pages.yml). To roll back a release, revert the offending source commit on `main` and push; the same tests/build must pass before Pages switches to the replacement artifact. For a transient deployment failure, rerun the failed workflow. Do not commit `AppBundle` or enable `PlaytestDiagnostics` for the public build.
-
-
-A modern 3D contraption-puzzle prototype built with **Godot .NET and C#**.
-
-The revised development target is **75 progressively taught levels**, with walls/bumpers, electrical circuits and power sources, motors/chains, and weights/ropes/pulleys. The local build now contains 58 draft levels: bumpers at 10–11, adjustable walls at 12–13, battery/motor and switched supply at 14–15, then motor-driven conveyors, conveyor-to-conveyor transmission and reversing gears at 16–18, and counterweight/3D pulley-routing lessons at 19–20, followed by flashlight/solar power and wall-shadow lessons at 21–22 and one-shot delay/timed-solar lessons at 23–24, then a clear gravity-tube introduction at 25 and 45°/90° bend lessons at 26–27 and a joined-tube route at 28. Conveyors require a mechanical input and pass signed rotation to their output; the reverse transmission flips direction 1:1. Belts are distinct from electrical cables. The model transfers ideal shaft speed, not torque or load sharing. The new mechanics and campaign rewrite are the priority in [TODO.md](TODO.md).
-
-Gameplay, simulation, procedural artwork, workshop UI, serialization, tests, and the preview server are C#. Godot scenes/resources and puzzle JSON remain declarative data. The browser host includes the JavaScript/HTML required to start WebAssembly; there is no GDScript gameplay code. Use C# for new executable logic wherever possible.
+Deployment uses [GitHub Actions](https://github.com/aidanmorgan/tim/actions/workflows/pages.yml) and [.github/workflows/pages.yml](.github/workflows/pages.yml). Publishing must follow [independent snapshot approval and deployed verification](docs/delivery-workflow.md#paired-subagent-workflow); a build or receipt alone does not close qualification. Do not commit AppBundle or enable PlaytestDiagnostics for the public build. A rollback is a source revert through the same reviewed build/deployment path.
 
 ## Toolchain
 
-- .NET 10 SDK (the repository's `global.json` selects a compatible installed SDK).
-- Godot 4.7.2 .NET API, pinned in the project.
-- [2dog](https://2dog.dev/getting-started.html) desktop/test/browser hosts, pinned in `Directory.Build.props`.
-- `dotnet workload install wasm-tools` for web publishing.
+- .NET 10 SDK, selected by [global.json](global.json).
+- Godot .NET API and 2dog desktop/test/browser hosts, pinned in [Directory.Build.props](Directory.Build.props).
+- WebAssembly tools: `dotnet workload install wasm-tools`.
+- Chrome with WebGPU and the required `shader-f16` feature for this physical target.
 
-Godot 4's official C# web export is not supported by the inspected [export documentation](https://docs.godotengine.org/en/latest/tutorials/export/exporting_for_web.html). This project uses the third-party 2dog WebAssembly host to meet the C# plus browser requirements. All 40 levels have Balanced reference playthroughs through the browser UI; the broader difficulty matrix remains incomplete. A standard, non-.NET Godot editor cannot run these C# scripts.
+C# implements gameplay orchestration, authoring, UI, tooling and the worker hosts where viable; WGSL implements authoritative numerical physics. Godot scenes/resources and puzzle data are declarative. The browser host includes the JavaScript/HTML needed to start WebAssembly and bridge external APIs. The desktop host and a non-.NET Godot editor cannot run this browser-only physical target.
 
 ## Run and test
 
@@ -38,49 +36,36 @@ From the repository root:
 ```sh
 dotnet build CuriousContraptions.csproj
 dotnet test CuriousContraptions.tests
-dotnet run --project CuriousContraptions.2dog
-```
-
-To publish and serve locally:
-
-```sh
 dotnet publish CuriousContraptions.web
 dotnet run --project tools/Preview
 ```
 
-Open http://127.0.0.1:8060. The server serves `CuriousContraptions.web/AppBundle`, so republish after changing game code or content. It binds only to loopback.
+Open http://127.0.0.1:8060. The preview serves CuriousContraptions.web/AppBundle on loopback; republish after changing code/content and bind browser evidence to that bundle. Commands describe the normal workflow, not a claim that every check currently passes. Consult [TODO](TODO.md) for active native-test failures and current Production-export evidence; do not treat a stale bundle as a successful new build.
+
+The admitted game uses the independent shared C# Animation worker for its presentation bindings. Preserved excluded test sources are not executed or counted as passes. Use [tool applicability](docs/verification/CAT-001-I/tool-applicability.md) and each [tool README](docs/README.md#tools-and-current-records) to select valid checks.
 
 ## Workshop controls
 
-Start in an angled **3D workbench**. Choose a part, move its translucent preview, and click to place it. Drag placed parts across the bench without changing their height. The compact tool strip in the parts drawer uses icon-only **Move**, **Rotate**, and **Remove** buttons, with **Connect** only for parts that can send power. Move swaps the rotation rings for three coloured arrows: green lifts, coral moves sideways, and blue adjusts depth. Drag an arrow tip in either direction; hold Shift to align the chosen axis to the tenth-unit workbench grid, including parts that started off-grid. Rotate restores the rings. The active mode stays highlighted. Names and quantities sit beside the part pictograms within the same clickable inventory row. Secondary actions—Save, Load, difficulty, camera buttons, and Fine rotate—live in **Menu**. The puzzle title stays compact; **Goal** opens the introduction, then **Hint** reveals extra help. Select a placed part to reveal three coloured 3D rotation rings with spherical grab handles: coral X, green Y, blue Z. Drag a handle or ring to rotate continuously, hold Shift to snap to 15°, and press Escape to cancel. Each drag is one Undo action. Edge-on rings use a screen-tangent fallback. Fine rotate exposes Tip / Turn / Tilt in 5° steps for both previews and placed parts. Every placed part—including fixed fixtures—and the placement preview gets dashed, unfilled bounding boxes projected onto the floor, back, and side planes. Gold, blue, and terracotta distinguish the three directions; the selected part has darker outlines. The reference walls are fully transparent (no wall surfaces), and there are no filled silhouettes or connecting lines. These visual-only guides disappear during simulation. New parts start at height 3; lifting a preview changes its placement height.
+Choose a part to show its translucent preview, then click to place it. The contextual drawer provides Move, Rotate and Remove, with Connect or Resize when applicable. The three-axis widget supports direct manipulation; Shift constrains/snaps, Escape cancels, and one gesture is one Undo. Run evaluates the construction; Reset restores its exact admitted values.
 
-Camera buttons rotate the view in 45-degree steps; **Reset camera** restores the initial angle. **Menu → Fine rotate** exposes Front view and the Back/Middle/Front layer controls. Choosing a layer does not move an existing part: use **Move selected here** when intended. In Front view, dragging edits sideways and vertically within that depth layer. The bright sky, wooden bench, cream panels, and chunky yellow Run button are original, procedurally drawn artwork inspired by the playful feel of The Incredible Machine—not copied assets.
+Right-drag orbits, the wheel zooms, WASD moves on the ground plane and Q/E turns the camera. Menu holds secondary camera/fine-rotation controls. Goal starts collapsed and Hint requires a separate action. Save replaces one local construction slot while Building; Load restores that construction through atomic admission. Connections, campaign and difficulty remain intended requirements beyond the current Basketball/Receiver surface.
 
-Drag movable parts without a centre jump. Cancel/deselect and Undo make experimentation reversible. Wiring highlights eligible powered targets. Run the machine, then Reset to recover your original arrangement. Author-controlled difficulty assistance remains automatic and is not exposed as an editing action.
+The complete [interaction and spatial contract](DESIGN.md#interaction-and-spatial-clarity) preserves placement, camera, menu, keyboard, inventory, projections and contextual connection behavior. Author-controlled difficulty assistance is automatic; it is not a player “solve” or “nudge” tool. See [difficulty](docs/difficulty.md).
 
-The parts toolbox grows to show its inventory and only scrolls when the list would exceed the screen. Click anywhere on a part row—icon, name or quantity—to select its placement preview, then click the workbench to place it. Empty inventory rows remain disabled.
+## Required delivery workflow
 
-Keyboard shortcuts remain optional: W/S moves forward/backward along the workbench relative to the camera heading, A/D strafes left/right, and Q/E continuously turns the camera left/right. Movement stays level and diagonals have the same speed. Rotate parts with the 3D rings or Menu → Fine rotate; Q/E no longer tilts parts. Page Up/Down move through depth, Escape cancels, and Ctrl/Cmd+Z undoes. Right-drag still orbits and the wheel zooms; Reset camera restores the initial view.
+Follow [AGENTS.md](AGENTS.md) and [the delivery workflow](docs/delivery-workflow.md#paired-subagent-workflow). One small functional slice uses a dedicated implementation owner and a different independent adversarial reviewer through fixes. Keep exact source/artifact identities, positive/control/boundary proof, affected build/Chrome/lifecycle/performance checks and zero unresolved scoped regressions. Required publication needs snapshot approval first and independent deployed verification before terminal Pass.
 
 ## Extending the engine
 
-1. Create a C# subclass of `MachinePart` with visual children and collision proxies.
-2. Attach it to a `Node3D` scene in `parts/scenes`.
-3. Add a `PartDefinition` resource in `parts/catalog` referencing that scene, with a unique ID and default parameters.
-4. Add catalog-instantiation and behavior tests, then add the part to puzzle inventories.
+Before adding a component, select its [bounded INVEST scope](docs/planning/invest-index.md) and read the exact source behavior, prerequisites and stage criteria. Map the part to generic physical capabilities, geometry, materials, typed ports and finite stores. A missing required law reopens the engine gate.
 
-The registry discovers resources; the palette does not need a new switch statement. The scene tree owns instances/visuals, while explicit stable-ID connections represent power links. More connection types require additional engine behavior.
-
-The solver uses fixed 120 Hz ticks, four substeps, stable part ordering, and quantized floating-point state. Sphere/box and sphere/sphere collisions use XYZ coordinates. The finite workbench is solid: its two collision boxes share dimensions with the visible deck and base, support ball bounce and settling, and allow falls beyond its edges. Each puzzle part owns its difficulty curve. Automatic placement correction is bounded by authored position/angle windows and eased over time; it is not a player action. Meshes and colliders move together, and reset restores the player's unassisted build. Receiver guide force, capture requirements, and trigger thresholds are also authored per instance. See [difficulty authoring](docs/difficulty.md).
+Parts declare construction and presentation; generic WGSL laws and typed C# discrete controllers own behavior. Closed sets stay enums end-to-end; extensible identities stay typed IDs. Validate genuine external boundaries and reject unsupported input atomically. Update current callers/content/tools/tests together, remove replaced paths and retain exact Run/Reset and supported save/load proof. No compatibility shims, automatic migrations, old/new solver selection or synchronous fallback.
 
 ## Current evidence and remaining work
 
-The native suite covers all 58 draft campaign solutions at three precision settings, legal inventory/placement bounds, no untouched puzzle auto-solving, catalog and workshop creation, restart repeatability, depth separation, required-ball goals, power cycles, and automatic assistance bounds, interpolation, reset, successful-placement sweeps, powered conveyor transport through multiple orientations, and beginner interaction flows (preview, cancel, optional layers, height-preserving dragging, lift gestures, three-plane projections, all-axis rotation and mixed rotations through 90°, undo, run/reset controls, icon-only actions, and switching the widget between axis-constrained movement and rotation).
-
-Fifty-eight draft levels now exist, authored as tutorials followed by combinations of motion, signals, domino chains, powered fans, conveyors, and depth-oriented routes. Their difficulty progression and variety still need hands-on playtesting; this is not the finished game. Chrome rendering, icon visibility, movement/rotation mode switching, lifting/sliding/rotating placed parts, camera controls, and floor bouncing have been checked through Playwright. The original 40-level campaign has historical successful Balanced reference playthroughs using the game UI, documented in [the browser report](docs/browser-playtest.md). Historical captures and level numbers belong to their recorded campaign hashes, not the current reordered campaign. The full difficulty/placement-error matrix remains incomplete; partial records do not prove the whole campaign's tolerance behavior. The original game's integer physics have not been reproduced or quantitatively matched; cross-platform determinism is unproven. The realism toggle currently changes contact friction only. Ropes now support explicit lengths, slack, tension and fixed pulley routing; powered narrow-ray lasers, separately supplied receivers and adjustable flat mirrors and 50:50 beam splitters now support initial optical routing. Moving-block ratios, rope cutting, chain-drive variants, colour optics/lenses and character behaviors remain future work. Component coverage is the current priority; the final 75-level balancing and exhaustive difficulty matrix follow afterward.
-
-The [research dossier](docs/research.md) records historical references, puzzle families, physics findings, and the evidence required before claiming original-like behavior.
+[TODO](TODO.md) owns the current status. [Requirements](docs/planning/requirements.md) contain complete named behavior/control and the 150-level teaching target; the [register](docs/planning/work-register.md) keeps stable owners, criteria and technical prerequisites. Use the [working documentation index](docs/README.md) for current models and tools.
 
 ## UI icon credits
 
-Toolbar icons are bundled SVGs from [Lucide](https://lucide.dev), recoloured to match the workshop. Their ISC and inherited Feather MIT notices are included in [assets/icons/LICENSE.txt](assets/icons/LICENSE.txt) and packaged with the game. Icons load as Godot textures instead of font glyphs. Action tooltips are disabled. Parts use original vector pictograms generated in C#, with names and inventory counts alongside. The goal and advanced controls stay closed until requested.
+Toolbar icons are bundled [Lucide](https://lucide.dev) SVGs recoloured to the approved palette. Retain [ISC and inherited Feather MIT notices](assets/icons/LICENSE.txt) in the game. Parts use original vector pictograms, names and inventory counts. Icons load as Godot textures; action tooltips remain disabled and goal/advanced controls stay closed until requested.

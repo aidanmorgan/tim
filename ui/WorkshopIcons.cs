@@ -29,11 +29,6 @@ public static class WorkshopIcons
             "retract_input" => "<path d='M3 8h7v8H3zM21 12H11m4-4-4 4 4 4'/>",
             "extended_output" => "<path d='M2 7h7v10H2zM9 12h11M20 7v10M14 3h7m-3-2 3 2-3 2'/>",
             "retracted_output" => "<path d='M2 7h7v10H2zM9 12h3M12 7v10M21 3h-7m3-2-3 2 3 2'/>",
-            WoundSpringPart.CatalogId => "<path d='M5 3h14M5 21h14M12 3v3l-5 3 10 4-10 4 5 2v2M20 6v9'/><circle cx='4' cy='14' r='3'/>",
-            CannonPart.CatalogId => "<path d='M3 15 17 5l4 5-14 10zM3 21h16M4 14l4 5'/><circle cx='12' cy='19' r='3'/>",
-            LinearPusherPart.CatalogId => "<rect x='2' y='7' width='10' height='10' rx='2'/><path d='M12 11h7v2h-7M20 7v10M4 4h5m-5 16h5'/><circle cx='20' cy='12' r='2'/>",
-            ImpactLeverPart.CatalogId => "<path d='M2 10l20-4M8 21l4-9 4 9z'/><circle cx='5' cy='5' r='2'/><circle cx='19' cy='3' r='1.5'/>",
-            TrampolinePart.CatalogId => "<path d='M3 9h18M4 9v10m16-10v10M5 9q7 7 14 0M8 19h8'/><circle cx='12' cy='4' r='2'/>",
             "clutch" => "<path d='M2 12h5M17 12h5M7 5v14m10-14v14M10 7v10m4-10v10M12 2v3m-2 16h4'/><circle cx='12' cy='3' r='1'/>",
             "bellows" => "<path d='M3 5h14v3H3zM3 8l2 3-2 3 2 3-2 3h14l-2-3 2-3-2-3 2-3M17 14h5v3h-5M7 2h6'/>",
             "windmill" => "<circle cx='12' cy='9' r='2'/><path d='M10 7 4 3l-2 3 8 3m4-2 4-6 3 2-7 6m0 2 6 4 2-3-8-3m-4 2-4 6-3-2 7-6M10 12l-2 10h8l-2-10'/>",
@@ -115,19 +110,7 @@ public static class WorkshopIcons
         return texture;
     }
 
-    public static Texture2D ConnectionPictogram(ConnectionChoice choice)
-    {
-        if (choice.OutputIcon == null) return Pictogram(choice.Icon);
-        var key = "connection:" + choice.OutputIcon + ":" + choice.Icon;
-        if (Cache.TryGetValue(key, out var cached)) return cached;
-        using var output = Pictogram(choice.OutputIcon).GetImage();
-        using var input = Pictogram(choice.Icon).GetImage();
-        using var combined = Image.CreateEmpty(100,48,false,Image.Format.Rgba8);
-        combined.BlitRect(output,new Rect2I(0,0,48,48),Vector2I.Zero);
-        combined.BlitRect(input,new Rect2I(0,0,48,48),new Vector2I(52,0));
-        var texture=ImageTexture.CreateFromImage(combined);
-        Cache.Add(key,texture);return texture;
-    }
+
 
     public static void Apply(Button button, string action)
     {

@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,15 +34,27 @@ public partial class PlacementShadows : Node3D
 
     public static Aabb ArtworkBounds(MachinePart part)
     {
+        ArgumentNullException.ThrowIfNull(part);
+        if (!GodotObject.IsInstanceValid(part) || !part.IsInsideTree() ||
+            part.Visual is null || !GodotObject.IsInstanceValid(part.Visual))
+            throw new ArgumentException("Artwork bounds require a live constructed part in the scene tree.", nameof(part));
         Aabb? bounds = null;
-        foreach (var source in part.GetNode<Node3D>("Visual")
-                     .FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
+        IncludeArtwork(part.Visual, ref bounds);
+        return bounds ?? new Aabb(part.GlobalPosition - Vector3.One * .1f, Vector3.One * .2f);
+    }
+
+    private static void IncludeArtwork(Node node, ref Aabb? bounds)
+    {
+        // Query the native render identity, not a managed Mesh wrapper whose lifetime
+        // is unrelated to this read. The instance owns its native mesh and local AABB.
+        if (node is MeshInstance3D source && source.IsVisibleInTree() && source.GetBase().IsValid)
         {
-            if (!source.IsVisibleInTree() || source.Mesh == null) continue;
             var box = source.GlobalTransform * source.GetAabb();
             bounds = bounds is { } previous ? previous.Merge(box) : box;
         }
-        return bounds ?? new Aabb(part.GlobalPosition - Vector3.One * .1f, Vector3.One * .2f);
+        // Typed traversal avoids scene-name/type selectors and per-query child arrays.
+        var count = node.GetChildCount();
+        for (var i = 0; i < count; i++) IncludeArtwork(node.GetChild(i), ref bounds);
     }
 
     public void Follow(IEnumerable<MachinePart> parts, MachinePart? preview, MachinePart? selected, bool enabled)

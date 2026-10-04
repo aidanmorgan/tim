@@ -1,0 +1,413 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-04",
+  "slice": "P0-020 construction Save/Load playable checkpoint",
+  "identities": {
+    "implementation": "/root/p025_implementation",
+    "independentReviewer": "/root/p025_review",
+    "identityNote": "Distinct retained role instances in the root collaboration tree. Reviewer resumed under this canonical role; role continuity does not assert an older process remained alive. No opaque process identity was exposed. Reviewer made review-only evidence writes."
+  },
+  "verdict": "SnapshotApproval",
+  "prepublicationVerdict": "Pass",
+  "unresolvedFindings": [],
+  "scope": "Current playable criteria under docs/delivery-workflow.md#playable-first; this is neither deployed completion nor full engine/device/performance qualification.",
+  "contracts": [
+    "docs/planning/invest/vertical-delivery.md#construction-save",
+    "docs/engine-contracts.md",
+    "docs/gpu-f16-physics.md",
+    "docs/delivery-workflow.md#playable-first"
+  ],
+  "candidate": {
+    "manifest": "playable-candidate-paths.json",
+    "deliverableFiles": 264,
+    "totalBytes": 9046642,
+    "changedOrNewPaths": 183,
+    "sourceFiles": 211,
+    "sourceClosureSha256": "6c548a6bb98fae9f3b832b360536fac350d8b3d36672e68b42ccb1484f3de80d",
+    "closureSha256": "e2727cc9615b02e18d757da2a2971df899fc881596c719d93e8ad89c9d4ec360",
+    "identityRule": "SHA256 of sorted path + NUL + lowercase file SHA256 + newline. Independently verified all 264 paths against frozen bytes; zero drift (original tool 9d4d10). Manifest and future review/raw/publication receipts excluded from their own approval inputs."
+  },
+  "raw": {
+    "path": "playable-checks-20261004.raw.json",
+    "bytes": 1227568,
+    "sha256": "a38ef59b65c8bbd40ea9d6b813b7f3ad9d2dac238fbcae465b20515ff82b1a4b",
+    "originals": 17,
+    "reassembly": "All 17 exact original tool-result JSON strings decompressed, length/hash verified and parsed (9d4d10). Includes UI recipe, read-only command/publication observations, original screenshots, errors, test commands/results and failed analysis attempts.",
+    "gate": "Anvil pre-write decision warn, partialScan=true: compressed screenshot/evidence string triggered high-entropy detector. This is non-secret test evidence; permitted warning surfaced, no clean/full pre-write scan claim."
+  },
+  "implementationReceipt": "implementation-20261004.json",
+  "matrix": [
+    {
+      "criterion": "Canonical construction/save schema and allocator",
+      "impact": "WorkshopSaveCodec, shared WorkshopWire, UI allocator",
+      "verdict": "Pass",
+      "proof": "312-byte v1 envelope preserves canonical Half bits and authored identities; unsupported headers/length/count/allocator rejected in native tests. UI Save/edit/Load restored all 280 canonical payload bytes after excluding construction revision. Saved next ID3 retained; live allocator does not rewind: intervening Receiver3 followed by Ball4."
+    },
+    {
+      "criterion": "Save transaction and successful authority revision",
+      "impact": "IndexedDB adapter, typed Save command, ACK/session path",
+      "verdict": "Pass",
+      "proof": "IDB replacement resolves only on transaction completion; independent actual-source Node controls3/3 prove abort preserves old bytes, input ownership and independent roundtrip. Actual UI Save Applied revision2→3 once, same epoch3/tick0. Stored but ACK-incomplete outcome is explicit; no automatic retry/fake rollback."
+    },
+    {
+      "criterion": "Load atomic admission and failed input preservation",
+      "impact": "Load decoder, Construct/GPU admission, UI selection/history/resources",
+      "verdict": "Pass",
+      "proof": "Obsolete saved version0 rejected before any command (12→12). Actual UI load of deliberately overlapping canonical declaration rejected by genuine GPU admission: outcome1/reason5, epoch10/revision215/tick0 and exact prior committed bytes retained. Original durable bytes restored after negative test. Native malformed/settings/allocator and failed-admission controls support boundaries."
+    },
+    {
+      "criterion": "Playable sequence and meaningful control",
+      "impact": "Workshop UI, current workers, construction and read model",
+      "verdict": "Pass",
+      "proof": "Genuine shelf placement Ball1/Receiver2; Save; delete/change Receiver3; Load; Run/capture; Running Save rejects without command (7→7) or durable change; exact Reset. Fresh Ball4 repeats Run/Reset. Read-only capture at tick43, sensor4294967350, eventOrdinal168 remains latched; visible halo retained in screenshot. Both Reset canonical comparisons have zero differences."
+    },
+    {
+      "criterion": "Current command/lifecycle integrity",
+      "impact": "wire8, shared simulation/animation consumers, installation and ACK ownership",
+      "verdict": "Pass",
+      "proof": "Wire7 explicitly rejected, no shim. Independent native15/15 includes future-read/owned-success/original-ACK and pending Save controls. Current Chrome workers qualify and ordinary Run/Reset completes without errors. Fresh owned context and both workers closed after checks; injected faults/long stress deferred."
+    },
+    {
+      "criterion": "Generic engine invariant",
+      "impact": "typed declarations→shared WGSL; typed capture→shared C# Animation",
+      "verdict": "Pass",
+      "proof": "Save/Load adds no physical or animation solver. Same current shader ba047d87 and simulation worker b378883b; shared wire consumers compiled. Actual loaded declaration drives capture and shared visual response. Current Receiver playable primitive/UI proof reused only for unchanged shader/law inputs; broad part coverage remains open."
+    },
+    {
+      "criterion": "Build, tests and supporting documentation",
+      "impact": "finite211 source/resource/test closure plus49 current-authority docs",
+      "verdict": "Pass",
+      "proof": "Owner normal Production export exit0, full CI417/417, focused104/104. Reviewer native15/15 and actual-source storage Node3/3 independently pass. Two stale fixture expectations corrected without runtime changes; original failures retained. README/TODO/engine-save paragraph/GPU ordering agree; existing authority docs included as-is, source digest unchanged and no deliverable drift."
+    }
+  ],
+  "loadedProduction": {
+    "origin": "http://127.0.0.1:8060/",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "artifacts": [
+      {
+        "path": "godot.pck",
+        "bytes": 26880,
+        "sha256": "5744a5e200dd7743f43349f17272436d1a73436e9981a6050ef8332e91df0350"
+      },
+      {
+        "path": "_framework/dotnet.boot.js",
+        "bytes": 7464,
+        "sha256": "b357f7020c9cfd24c6868d19afdaabc91334f6d4786d48d9c1b6a2b02a0002aa"
+      },
+      {
+        "path": "_framework/CuriousContraptions.web.wasm",
+        "bytes": 6933,
+        "sha256": "373dbda7564b9f417ba508154aa213e4dabb353459557ede8e1969c550e18a4b"
+      },
+      {
+        "path": "_framework/CuriousContraptions.wasm",
+        "bytes": 459541,
+        "sha256": "2a2b9e58305262668deb6ebbe71d3186552d6bc198db41af480ab4d8c72bb399"
+      },
+      {
+        "path": "workshop-client.js",
+        "bytes": 29429,
+        "sha256": "bd0b2215b4912403356aff222e3ec1ef786f8dd5af038d07399276bfe147843a"
+      },
+      {
+        "path": "simulation/worker.js",
+        "bytes": 13680,
+        "sha256": "b378883baa4e9aa70a4b7d6388562be3eca19cf4d3d6ac0b462608d4f418304e"
+      },
+      {
+        "path": "simulation/_framework/dotnet.boot.js",
+        "bytes": 37421,
+        "sha256": "c942a09385035c0c5b44e14c1c3f7be3fbedb871f89803f4a40b4396db0643b4"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+        "bytes": 302869,
+        "sha256": "e0e5bd05a8b9e23a29302dc6a769773b80bbfb96466abe45bd58d074e9344441"
+      },
+      {
+        "path": "animation/worker.js",
+        "bytes": 5108,
+        "sha256": "884d6453b00b227be41bf27849f95ed6d87a21f4ff4b68867c064d070eec2a90"
+      },
+      {
+        "path": "animation/_framework/dotnet.boot.js",
+        "bytes": 37451,
+        "sha256": "e5bf400954a32fa5efb7ba0d9c75cdeaed7818e1a98e152217ba5506041c8d89"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+        "bytes": 280853,
+        "sha256": "72c8102096bb8ac9f45d7c589f722393c5e4791e654a62ce8ad969bc5534c13c"
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "bytes": 62910,
+        "sha256": "ba047d871bb105732b50bd28c740f9e899e9bce12697a1740de915f874e110cf"
+      }
+    ],
+    "state": "Both workers Ready; Production mode; animation qualified. Fresh owned context closed, no unexpected page errors."
+  },
+  "exactUiAssertions": {
+    "saveRevision": {
+      "before": "2",
+      "after": "3",
+      "epochSame": true,
+      "tickSame": true,
+      "outcome": 0
+    },
+    "savedBytes": 312,
+    "savedNext": "3",
+    "loadedCanonicalDifferences": [],
+    "resetChecks": [
+      {
+        "runSequence": "8",
+        "resetSequence": "9",
+        "phase": 2,
+        "tick": "0",
+        "canonicalDifferences": []
+      },
+      {
+        "runSequence": "12",
+        "resetSequence": "13",
+        "phase": 2,
+        "tick": "0",
+        "canonicalDifferences": []
+      }
+    ],
+    "failedLoad": {
+      "outcome": 1,
+      "reason": 5,
+      "phase": 2,
+      "retainedDifferences": []
+    },
+    "acks": [
+      {
+        "seq": "2",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "2",
+        "tick": "0",
+        "rev": "1",
+        "body": "1",
+        "capture": 0
+      },
+      {
+        "seq": "3",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "3",
+        "tick": "0",
+        "rev": "2",
+        "body": "1",
+        "capture": 0
+      },
+      {
+        "seq": "4",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "3",
+        "tick": "0",
+        "rev": "3",
+        "body": "1",
+        "capture": 0
+      },
+      {
+        "seq": "5",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "4",
+        "tick": "0",
+        "rev": "4",
+        "body": "1",
+        "capture": 0
+      },
+      {
+        "seq": "6",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "5",
+        "tick": "0",
+        "rev": "5",
+        "body": "1",
+        "capture": 0
+      },
+      {
+        "seq": "7",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "6",
+        "tick": "0",
+        "rev": "6",
+        "body": "1",
+        "capture": 0
+      },
+      {
+        "seq": "8",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 5,
+        "epoch": "6",
+        "tick": "0",
+        "rev": "7",
+        "body": "1",
+        "capture": 0
+      },
+      {
+        "seq": "9",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "7",
+        "tick": "0",
+        "rev": "136",
+        "body": "1",
+        "capture": 0
+      },
+      {
+        "seq": "10",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "8",
+        "tick": "0",
+        "rev": "137",
+        "body": "0",
+        "capture": 0
+      },
+      {
+        "seq": "11",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "9",
+        "tick": "0",
+        "rev": "138",
+        "body": "4",
+        "capture": 0
+      },
+      {
+        "seq": "12",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 5,
+        "epoch": "9",
+        "tick": "0",
+        "rev": "139",
+        "body": "4",
+        "capture": 0
+      },
+      {
+        "seq": "13",
+        "outcome": 0,
+        "reason": 0,
+        "phase": 2,
+        "epoch": "10",
+        "tick": "0",
+        "rev": "215",
+        "body": "4",
+        "capture": 0
+      },
+      {
+        "seq": "14",
+        "outcome": 1,
+        "reason": 5,
+        "phase": 2,
+        "epoch": "10",
+        "tick": "0",
+        "rev": "215",
+        "body": "4",
+        "capture": 0
+      }
+    ],
+    "commands": [
+      {
+        "seq": "2",
+        "kind": 1
+      },
+      {
+        "seq": "3",
+        "kind": 1
+      },
+      {
+        "seq": "4",
+        "kind": 10
+      },
+      {
+        "seq": "5",
+        "kind": 1
+      },
+      {
+        "seq": "6",
+        "kind": 1
+      },
+      {
+        "seq": "7",
+        "kind": 1
+      },
+      {
+        "seq": "8",
+        "kind": 2
+      },
+      {
+        "seq": "9",
+        "kind": 3
+      },
+      {
+        "seq": "10",
+        "kind": 1
+      },
+      {
+        "seq": "11",
+        "kind": 1
+      },
+      {
+        "seq": "12",
+        "kind": 2
+      },
+      {
+        "seq": "13",
+        "kind": 3
+      },
+      {
+        "seq": "14",
+        "kind": 1
+      }
+    ]
+  },
+  "resolvedFindings": [
+    "Preserved required successful Save revision increment using typed command after durable transaction completion.",
+    "Corrected false 'unchanged' wording after applied Load/presentation failure; allocator high-water advances before postcommit presentation cleanup.",
+    "Explicitly rejected previous wire7 after adding Save; current wire8 callers compiled.",
+    "Clarified saved allocator restoration versus live monotonic no-reuse rule, verified next real placement."
+  ],
+  "retainedFailures": [
+    "Native102/2 stale segment-bound fixture and416/1 stale catalogue assertion; final focused104/full417 pass, original references in implementation receipt.",
+    "Old-signature client lifecycle harness cancelled; not counted as Pass. Current actual Chrome ordinary lifecycle is passed.",
+    "Two reviewer analysis attempts lacked host atob/Buffer; corrected pure browser analysis of same retained bytes, no runtime recapture or hidden product failure."
+  ],
+  "reusedEvidence": [
+    "../P0-025-map/receiver-playable-review-20261004.json",
+    "../P0-025-map/production-observation-review-20261004.json",
+    "../P0-025-map/generic-physics-support-review-20261003.json"
+  ],
+  "deferred": {
+    "P0034": "Whole-tick p95 roughly3ms exceeds unchanged2.5ms target: Fail. Matched historical nonregression Incomplete. No new performance claim.",
+    "P0032": "Detailed device/fault/retention qualification; staged GPU-loss action not invoked.",
+    "P0030031035": "Broad consumer/coverage/global audit and complete engine closure; other named parts remain unadmitted."
+  },
+  "publicationDependentChecks": [
+    "Implementation commits/pushes precisely approved deliverable closure plus review-only supplements; reviewer checks remote commit/source identities.",
+    "Verify actual deployed current bundle/source mapping and relevant asset identities using existing Pages workflow.",
+    "At deployed origin exercise genuine Save→edit→Load→Run/capture→Reset and meaningful Running Save control; record deployed lifecycle/errors and terminal playable verdict."
+  ],
+  "approval": "Implementation may now commit/push/deploy the exact candidate. No deliverable/source edits are authorized by this review. Changed relevant inputs invalidate affected approval. Completion and next dependent slice await the publication-dependent checks."
+}

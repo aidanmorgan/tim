@@ -10,11 +10,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="shortcut icon" href="favicon.ico">
-    <!-- Start the big downloads before godot.js even runs; the dotnet.* files
-         are otherwise only discovered mid-boot. (When enabling TWODOG_PCK_GZ
-         below, swap both hints to their .gz siblings: godot.pck.gz, and
-         godot.wasm.gz because precompressedSuffix makes the engine fetch
-         that one too.) -->
+    <!-- Fetch hints do not start the engine. Isolation gates initialization and the actual start boundary. -->
     <link rel="preload" href="godot.wasm" as="fetch" crossorigin="anonymous">
     <link rel="preload" href="godot.pck" as="fetch" crossorigin="anonymous">
     <link rel="modulepreload" href="_framework/dotnet.js">
@@ -146,7 +142,8 @@
     </div>
 
     <script src="godot.js"></script>
-    <script>
+    <script type="module">
+        import { prepareIsolation, waitForQualification, stopIsolation, requireIsolation } from './workshop-isolation.js';
         const GODOT_CONFIG = {
             'args': [],
             'canvasResizePolicy': 2,
@@ -157,12 +154,7 @@
             'gdextensionLibs': []
         };
         const GODOT_THREADS_ENABLED = false;
-        // Opt-in: fetch godot.pck.gz (a sibling the 2dog publish writes) and
-        // inflate it in the page. For hosts that serve everything uncompressed;
-        // a host that already content-encodes would compress it a second time.
-        const TWODOG_PCK_GZ = false;
-
-        (function () {
+        (async function () {
             performance.mark('2dog:boot');
 
             const statusOverlay = document.getElementById('status');
@@ -188,7 +180,12 @@
 
             function displayFailureNotice(err) {
                 console.error(err);
-                statusNotice.textContent = err instanceof Error ? err.message : String(err);
+                if (!statusOverlay.isConnected) document.body.appendChild(statusOverlay);
+                initializing = true;
+                statusMode = '';
+                const description = err instanceof Error ? err.message : String(err);
+                statusNotice.textContent = typeof description === 'string' && description.trim().length > 0
+                    ? description : 'Workshop stopped because an error did not include a description. Reload the page to try again.';
                 setStatusMode('notice');
                 initializing = false;
             }
@@ -210,48 +207,6 @@
                     statusProgress.removeAttribute('value');
                     statusProgress.removeAttribute('max');
                 }
-            }
-
-            // The gz pack path re-points this at a merged reporter.
-            let engineProgress = reportProgress;
-
-            function startWithGzPack(fileSizes, makeEngine) {
-                // A rejected probe (network error, service worker failure)
-                // falls back to the uncompressed pack exactly like a 404.
-                return fetch('godot.pck.gz').catch(() => null).then((response) => {
-                    if (!response || !response.ok || !response.body) {
-                        console.warn('2dog: godot.pck.gz unavailable, falling back to godot.pck');
-                        return makeEngine('').startGame({});
-                    }
-                    const engine = makeEngine('.gz');
-                    // The engine only downloads the wasm here; this page fetches
-                    // and inflates the pack, merging both into one progress bar
-                    // (compressed pack bytes against its Content-Length).
-                    let pckLoaded = 0;
-                    let wasmLoaded = 0;
-                    let wasmTotal = fileSizes['godot.wasm'] || 0;
-                    const pckTotal = Number(response.headers.get('Content-Length')) || 0;
-                    const report = () => reportProgress(wasmLoaded + pckLoaded,
-                        wasmTotal > 0 && pckTotal > 0 ? wasmTotal + pckTotal : 0);
-                    engineProgress = (current, total) => {
-                        wasmLoaded = current;
-                        if (total > 0) wasmTotal = total;
-                        report();
-                    };
-                    const counted = new TransformStream({
-                        transform(chunk, controller) {
-                            pckLoaded += chunk.byteLength;
-                            report();
-                            controller.enqueue(chunk);
-                        },
-                    });
-                    const pack = new Response(
-                        response.body.pipeThrough(counted).pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
-                    return Promise.all([
-                        engine.init(GODOT_CONFIG['executable']),
-                        pack.then((buffer) => engine.preloadFile(buffer, 'godot.pck')),
-                    ]).then(() => engine.start({ 'args': ['--main-pack', 'godot.pck'].concat(GODOT_CONFIG['args']) }));
-                });
             }
 
             function reportTimings() {
@@ -289,35 +244,42 @@
                 return;
             }
 
+            let activeEngine;
+            function failStartup(error) {
+                const retiring = activeEngine;
+                activeEngine = undefined;
+                try { retiring?.requestQuit(); } catch (cleanupError) { console.error(cleanupError); }
+                try { Engine.unload(); } catch (cleanupError) { console.error(cleanupError); }
+                displayFailureNotice(error);
+            }
+            if (!await prepareIsolation(failStartup)) return;
+
             // Exact sizes written by the publish make the bar determinate;
             // without the manifest it stays indeterminate (Content-Length is
             // the compressed size on hosts that gzip, so headers lie).
             fetch('twodog.sizes.json')
                 .then((response) => (response.ok ? response.json() : {}))
                 .catch(() => ({}))
-                .then((fileSizes) => {
-                    // The suffix decides which files the engine fetches, so
-                    // the Engine is only constructed after the pack probe has
-                    // picked a path - a '.gz'-configured engine in the
-                    // fallback would re-request the sibling that just 404'd.
-                    const makeEngine = (suffix) => {
-                        GODOT_CONFIG['fileSizes'] = fileSizes;
-                        GODOT_CONFIG['onProgress'] = (current, total) => engineProgress(current, total);
-                        // Newer engines also inflate .gz siblings themselves
-                        // (godot.wasm.gz included); older ones ignore this key.
-                        GODOT_CONFIG['precompressedSuffix'] = suffix;
-                        return new Engine(GODOT_CONFIG);
-                    };
+                .then(async (fileSizes) => {
+                    requireIsolation();
+                    GODOT_CONFIG['fileSizes'] = fileSizes;
+                    GODOT_CONFIG['onProgress'] = reportProgress;
+                    const engine = new Engine(GODOT_CONFIG);
+                    activeEngine = engine;
                     setStatusMode('progress');
-                    const started = TWODOG_PCK_GZ && typeof DecompressionStream !== 'undefined'
-                        ? startWithGzPack(fileSizes, makeEngine)
-                        : makeEngine('').startGame({});
-                    return started.then(() => {
-                        reportTimings();
-                        setStatusMode('hidden');
-                    }, displayFailureNotice);
+                    // Use the public manual initialization boundary so timed-out downloads cannot callMain later.
+                    await Promise.all([
+                        engine.init(GODOT_CONFIG['executable']),
+                        engine.preloadFile('godot.pck', 'godot.pck')
+                    ]);
+                    requireIsolation();
+                    await engine.start({ 'args': ['--main-pack', 'godot.pck'].concat(GODOT_CONFIG['args']) });
+                    requireIsolation();
+                    await waitForQualification();
+                    reportTimings();
+                    setStatusMode('hidden');
                 })
-                .catch(displayFailureNotice);
+                .catch(stopIsolation);
         }());
     </script>
 </body>

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DefineConstants Condition="'$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
+    <WasmMainJSPath>wwwroot/worker.js</WasmMainJSPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
+    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs" Link="Gpu/%(Filename)%(Extension)" />
+    <WasmExtraFilesToDeploy Include="wwwroot/**" />
+    <WasmExtraFilesToDeploy Include="../engine/gpu/physics.wgsl" Link="physics.wgsl" />
+  </ItemGroup>
+  <!-- Return this project's actual normal build bundle, never an assumed sibling output directory. -->
+  <Target Name="GetWorkshopWorkerBundle" DependsOnTargets="Build" Returns="@(_WorkshopWorkerBundleFiles)">
+    <Error Condition="'$(WasmAppDir)' == '' Or !Exists('$(WasmAppDir)worker.js')"
+           Text="The current normal Workshop worker bundle is missing." />
+    <ItemGroup>
+      <_WorkshopWorkerBundleFiles Include="$(WasmAppDir)**/*" />
+    </ItemGroup>
+    <ItemGroup>
+      <_WorkshopWorkerBundleFiles Update="@(_WorkshopWorkerBundleFiles)">
+        <BundleRelativePath>%(_WorkshopWorkerBundleFiles.RecursiveDir)%(_WorkshopWorkerBundleFiles.Filename)%(_WorkshopWorkerBundleFiles.Extension)</BundleRelativePath>
+      </_WorkshopWorkerBundleFiles>
+    </ItemGroup>
+    <Error Condition="'@(_WorkshopWorkerBundleFiles)' == ''" Text="The current Workshop worker bundle is empty." />
+  </Target>
+</Project>

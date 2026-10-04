@@ -4,6 +4,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <DefineConstants Condition="'$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
         <!-- Keep host namespaces uniform with the desktop host (whose
              '.2dog' assembly name is not a valid namespace). -->
         <RootNamespace>CuriousContraptions.Tests</RootNamespace>
@@ -36,7 +38,23 @@
 
     <ItemGroup>
         <ProjectReference Include="../CuriousContraptions.csproj"/>
-        <Compile Include="../tools/Playtest/Audit.cs" Link="Playtest/Audit.cs"/>
+    </ItemGroup>
+
+    <!-- Fixed current GPU/native boundary checks. All other source files remain unshipped reference obligations. -->
+    <ItemGroup>
+        <Compile Include="CanonicalBodyTests.cs" />
+        <Compile Include="WorkshopSimulationTests.cs" />
+        <Compile Include="WorkshopSaveTests.cs" />
+        <Compile Include="WorkshopWireTests.cs" />
+        <Compile Include="WorkshopReadTests.cs" />
+        <Compile Include="NativeSceneFixture.cs" />
+        <Compile Include="BasketballResourceTests.cs" />
+        <Compile Include="WorkshopHintTests.cs" />
+        <Compile Include="PortableAnimationTests.cs" />
+        <Compile Include="WorkshopGpuDeviceTests.cs" />
+        <Compile Include="WorkshopTraceTests.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WorkshopTrace.cs" Link="WorkshopTrace.cs" />
+        <Compile Include="../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" Link="WorkshopGpuDevice.cs" />
     </ItemGroup>
 
     <!-- Godot project location: the parent directory (hosts are nested inside

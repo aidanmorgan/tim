@@ -1,49 +1,27 @@
 # Authoring forgiving puzzles
 
-Difficulty assistance is automatic engine behavior, not a button, hint action, or hidden replacement of the whole machine. A level author controls it on each part instance.
+## Required target and execution ownership
 
-## Where settings live
+Complete the engine difficulty implementation before **P0-035** in the [authoritative TODO sequence](delivery-workflow.md#pipeline-priority). Authoring and product expansion follow that gate. Difficulty uses enum-typed Forgiving, Balanced and Precise profiles in the simulation worker at fixed 120 Hz, initially four outer substeps. [Canonical Half game values and WGSL f16 numerical authority](gpu-f16-physics.md) apply to authored thresholds, assistance and physical effects; C# owns typed admission and discrete policy, with no CPU physical fallback. The profile is frozen for a Run; changes require an explicit Reset/restart and current-schema save/replay identity.
 
-Each `PartSpec` in a puzzle's `parts` and `solution` arrays has a `difficulty` curve. Fixed parts carry their receiver/trigger rules. Solution parts additionally describe placement targets and permitted correction envelopes. The runtime copies these into `MachineData.placement_targets`; they are targets for assistance, not a requirement that the player reproduce the reference solution.
+Enumerate every supported physical effect and its policy in all three profiles before implementing it. Forgiving may disable or simplify declared secondary effects; Balanced uses the declared intermediate model; Precise uses the most realistic supported model. All preserve physical containment, required connections, finite-resource accounting, the taught mechanism and actual goal success. Distinguish intentional simplification from an unimplemented effect. No alternate solver, silent downgrade, backwards-compatibility shim or automatic save migration is allowed.
 
-Each curve entry has a `precision` coordinate from 0 (forgiving) to 1 (strict). Intermediate settings interpolate the author's numeric values. Missing curves mean no placement correction or receiver guide. Curves may contain any number of knots.
+Placement assistance and effect policies change authoritative simulation state only through typed owned transactions. The separate C# animation worker (initially 60 Hz) and browser-main-thread display loop cannot change profile behavior, outcomes or collision geometry. Cosmetic UI motion may continue while simulation is paused. Prove the law/profile differences with independent controls, exact replay/Run–Reset/save and real-UI generic fixtures before engine closure; qualify every later element and each of the 150 lessons separately.
 
-A ramp's forgiving entry might include:
+The [60 FPS baseline/90 FPS qualified-device budgets](planning/requirements.md#worker-performance-budgets) apply to every supported profile. Do not change the fixed simulation clock, silently skip work or fabricate goal success to meet them. Forward-update current models, callers, content, tools and tests together and delete superseded policy paths.
 
-```json
-{
-  "precision": 0,
-  "position_window": 0.5,
-  "rotation_window": 10,
-  "max_position_correction": 0.15,
-  "max_rotation_correction": 3,
-  "blend_seconds": 0.4
-}
-```
+## Placement-assistance behavior to preserve
 
-Distances are metres; rotations are degrees; blending time is seconds. This entry only corrects a ramp already within 0.5 m and 10 degrees of its authored target. It moves at most 0.15 m and turns at most 3 degrees. Authors can set either maximum to zero independently. The shipped strict knots set both to zero.
+Assistance is automatic engine behavior controlled by the level author for each part instance. It is not a player button, hint action, hidden whole-machine replacement or requirement to reproduce the reference solution. Fixed parts retain receiver/trigger rules; eligible movable static parts may have declared placement targets and bounded correction envelopes. Fixed and dynamic parts are not repositioned by placement assistance.
 
-## Runtime behavior
+Author curves declare their interpolation knots, position/rotation windows, maximum corrections and blend duration as canonical Half game values. Missing curves provide no placement correction or receiver guide. Match same-kind authored slots one-to-one by proximity/orientation, reserve exact placements, leave out-of-window placements alone and admit valid alternative solutions according to actual goal events. This preserves the existing behavior contract; current resource codecs must follow the GPU/f16 design rather than accepting the archived wide-value JSON format.
 
-At run start, movable static parts are matched to same-kind authored slots one-to-one by proximity and orientation. Exact placements reserve their slots. Fixed and dynamic parts are never repositioned by this system. An out-of-window placement is left alone; valid alternative solutions are still allowed and judged by goal events.
+Calculate corrections once from the player's initial arrangement. They must not accumulate each tick or across Reset. Over the authored blend interval (the retained minimum is 0.1 seconds), quintic easing and short-arc quaternion interpolation move the part and collider together. No edit-mode snap, ball teleport or hidden visible/contact offset is allowed. Precise placement correction remains zero; Reset reconstructs the original admitted construction exactly.
 
-Eligible corrections are calculated once from the player's initial arrangement. They do not accumulate on every tick or across resets. Over the authored blend time (minimum 0.1 seconds), a quintic ease moves the part root and collider together. Quaternion interpolation uses the short rotational arc. There is no start-time snap or hidden offset between visible and collidable geometry. Reset reconstructs the original player placement.
+The existing source fields retain distinct semantic roles: position_window and rotation_window define eligibility; max_position_correction and max_rotation_correction independently bound corrections; blend_seconds controls duration; guide_acceleration bounds lateral receiver guidance during descent; capture_margin, capture_speed and capture_dwell define acceptance and residence; trigger_threshold governs impact activation. Distances, angles and durations retain their declared units and canonical typed scales. A profile cannot silently alter gravity/timestep or invent supplied energy; an explicitly declared surface-friction policy is separate from placement curves.
 
-This implementation gently repositions eligible static parts during the start of a run. It does not teleport balls or snap the player's build in edit mode. Rendered fluidity still needs browser inspection; native tests check continuity and bounded per-tick displacement.
+## Qualification and authoring
 
-The following fields independently control physical assistance:
+For each admitted profile/fixture, freeze expected positive, negative/control and boundary behavior before testing. Preserve smooth bounded correction, strict/out-of-window controls, Reset without drift, unique slot assignment, angle wraparound, interpolation and successful-placement sweeps. Prove alternative solutions, source-specific physics, assistance monotonicity where required, real-UI construction and visible motion at their enforcing stages. Existing difficulty evidence remains evidence of its original source and environment; it does not close the future full matrix.
 
-- `guide_acceleration`: bounded lateral acceleration above a receiver's open mouth, only during descent.
-- `capture_margin`, `capture_speed`, `capture_dwell`: receiver acceptance height, maximum speed, and required residence time.
-- `trigger_threshold`: impact speed needed by switches or dominoes.
-
-No global difficulty multiplier changes gravity or the simulation timestep. The separate surface-friction option is independent of these author-defined curves.
-
-## Campaign tooling and checks
-
-`tools/Campaign` is a C# authoring utility. It reads the first five tutorials and emits the complete composed campaign as JSON on stdout; it never overwrites files. Part-specific defaults in that utility are materialized into each JSON instance and can be customized by the author. Editing the generator and regenerating replaces manual changes to the generated campaign.
-
-Tests cover smooth bounded correction, strict and out-of-window no-ops, reset without drift, unique slot assignment, angle wraparound, interpolation, and a spring-placement sweep whose receiver physics remain identical in both difficulty modes. All 40 authored solutions also run at forgiving, balanced, and precise settings.
-
-These checks do not prove every alternative solution is preserved, every difficulty transition is monotonic, or the animation is visually satisfactory. Browser playthroughs and broader placement sweeps remain required.
-
+Every current authoring tool and codec must implement this contract in its consuming slice, with explicit current-format admission and no automatic migration. Complete component coverage before exhaustive balancing across the 150 progressively taught lessons.

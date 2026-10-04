@@ -2,11 +2,13 @@
 
 Research date: 27 September 2026. Status: **proposed backlog, not implemented or verified**. Companion checklist: [TODO](../TODO.md). Fluid, sound and logic were researched by sub-agents; the consolidated priorities and puzzle recipes are project design proposals, not claims about historical TIM behaviour.
 
+Planning update, 28 September 2026: [Radiation component research](radiation-component-research.md) adds 22 separately tracked potential elements, primary-source evidence, simulation boundaries and a proposed **150-level** teaching allocation. The 75-level statements below are historical proposal context only; current adopted teaching scope is 150 levels and the complete named requirements retain every candidate. Radiation candidates remain proposals, with no implementation or browser-proof claim.
+
 ## Design contract and priority
 
-P1 = next useful foundation; P2 = builds on those foundations; P3 = exploratory after the first playable family. Preserve DESIGN.md and its existing cream/navy/cyan/gold palette, toy-like forms, minimal contextual icons and touch-friendly controls. No CAD panels or permanent network overlays. Use C# enums for finite domains/states/operations and typed port/parameter identities. Forward-refactor current systems; no compatibility aliases or silent substitute behaviours.
+The P1/P2/P3 labels below are the original research proposal priorities, not the current execution queue. Current delivery is engine-first through P0-035, then every named component before exhaustive campaign/difficulty sweeps. Preserve DESIGN.md and its existing cream/navy/cyan/gold palette, toy-like forms, minimal contextual icons and touch-friendly controls. No CAD panels or permanent network overlays. Use C# enums for finite domains/states/operations and typed port/parameter identities. Forward-refactor current systems; no compatibility aliases or silent substitute behaviours.
 
-Implement components before exhaustive difficulty testing. Each selected batch still needs native behaviour/Reset tests, authoring and inventory integration, original icons, animation and a real-UI browser smoke puzzle. These proposals expand the candidate catalogue, not the number of concepts that must be crowded into 75 levels. Teach each required mechanism before its capstone; reserve optional advanced pieces for the workshop or later content.
+Implement components before exhaustive difficulty testing. Each selected batch still needs native behaviour/Reset tests, authoring and inventory integration, original icons, animation and a real-UI browser smoke puzzle. These proposals expand the candidate catalogue, not a requirement to crowd every concept into the 150 progressively taught levels. Teach each required mechanism before its capstone; reserve optional advanced pieces for the workshop or later content.
 
 ## Water: transport, storage and conversion
 

@@ -1,74 +1,28 @@
 using Godot;
-using System.Collections.Generic;
+using CuriousContraptions.Gpu;
+using System;
+
 namespace CuriousContraptions;
 
+/// <summary>Receiver mesh/animation target binding only; no contact, timer or capture authority.</summary>
 public partial class BasketPart : MachinePart
 {
-    public override float SurfaceBounce => .12f;
-    private readonly Dictionary<string, float> _residence = new();
-    private MeshInstance3D _rim = null!;
+    private MeshInstance3D? _halo;
     protected override void Build()
     {
         PickRadius = .85f;
-        var color = Definition.Color;
-        AddBox(new(0, -.45f, 0), new(1.5f, .15f, 1.5f), color);
-        AddBox(new(-.75f, 0, 0), new(.12f, 1, 1.6f), color);
-        AddBox(new(.75f, 0, 0), new(.12f, 1, 1.6f), color);
-        AddBox(new(0, 0, -.75f), new(1.5f, 1, .12f), color);
-        AddBox(new(0, -.2f, .75f), new(1.5f, .6f, .12f), color);
-        _rim = PartArt.Ring(Visual, .94f, .025f, new("#bdf4bd"), new(0, .55f, 0));
-        foreach (var x in new[] { -.55f, -.27f, 0, .27f, .55f })
-            PartArt.Box(Visual, new(.025f, .45f, .025f), color.Lightened(.35f), new(x, -.15f, .825f));
+        foreach (var box in ReceiverGeometry.Walls)
+            PartArt.Box(Visual, new((float)box.HalfExtents.X * 2, (float)box.HalfExtents.Y * 2, (float)box.HalfExtents.Z * 2),
+                Definition.Color, new((float)box.Centre.X, (float)box.Centre.Y, (float)box.Centre.Z));
+        _halo = PartArt.Ring(Visual, .94f, .025f, new("#bdf4bd"), new(0, .55f, 0));
+        _halo.Scale = Vector3.One * (1 + (float)ReceiverCaptureSettings.Free.Margin.Value);
+        ApplyHalo((Half)0);
     }
-    public override void UpdateAssistance(float precision)
+    public void ApplyHalo(Half opacity)
     {
-        // Assistance changes the acceptance window without moving solid walls.
-        // Moving the walls changes trajectories and can invalidate precise solutions.
-        _rim.Scale = Vector3.One * (1 + Assistance(precision).CaptureMargin);
-    }
-
-    public override void BeforeStep(MachineWorld world, float delta)
-    {
-        var settings = Assistance(world.Precision);
-        var assistance = settings.GuideAcceleration;
-        if (assistance <= 0) return;
-        foreach (var body in world.Bodies)
-        {
-            if (!body.Visible || body.PhysicsOwner != body) continue;
-            var local = ToLocal(body.Position);
-            var velocity = Basis.Inverse() * body.Velocity;
-            // Authored capture margin includes near-rim arrivals, not just balls
-            // already fully above the wall. Apply force only: solid contacts still
-            // prevent penetration, and the centre must remain above the rim.
-            // A ball settled on the rim is eligible too; an upward launch is not.
-            var minimumHeight = .5f + body.Radius - Mathf.Clamp(settings.CaptureMargin, 0, body.Radius);
-            if (velocity.Y > 0 || local.Y < minimumHeight ||
-                local.Y > 1.5f || Mathf.Abs(local.X) > 1.1f || Mathf.Abs(local.Z) > 1.1f) continue;
-            var guide = new Vector3(-local.X, 0, -local.Z).LimitLength(1) * assistance;
-            body.Velocity += Basis * guide * delta;
-        }
-    }
-
-    public override void AfterStep(MachineWorld world, float delta)
-    {
-        var settings = Assistance(world.Precision);
-        foreach (var body in world.Bodies)
-        {
-            if (!body.Visible || body.PhysicsOwner != body) continue;
-            var local = ToLocal(body.Position);
-            var inside = Mathf.Abs(local.X) < .66f && Mathf.Abs(local.Z) < .66f &&
-                         local.Y > -.4f && local.Y < .45f + settings.CaptureMargin;
-            if (inside && body.Velocity.Length() < settings.CaptureSpeed)
-            {
-                _residence[body.Uid] = _residence.GetValueOrDefault(body.Uid) + delta;
-                if (_residence[body.Uid] >= settings.CaptureDwell)
-                {
-                    world.Events.TryAdd(new MachineEvent(MachineEventKind.Captured, Uid, body.Uid), world.Ticks);
-                    Active = true;
-                }
-            }
-            else _residence[body.Uid] = 0;
-        }
-        if (Active) ((StandardMaterial3D)_rim.MaterialOverride).AlbedoColor = Colors.White;
+        if (!Half.IsFinite(opacity) || opacity < (Half)0 || opacity > (Half)1)
+            throw new ArgumentException("Invalid committed halo animation sample.");
+        if (_halo?.MaterialOverride is not StandardMaterial3D material) return;
+        material.AlbedoColor = new Color("#bdf4bd").Lerp(Colors.White, (float)opacity);
     }
 }
