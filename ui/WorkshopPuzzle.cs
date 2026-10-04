@@ -44,7 +44,7 @@ public partial class Workshop
         var first = World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples;
         _picker.Select(first ? 0 : FreeWorkshopIndex);
         _inventory = first ? new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Ramp] = checked((int)World.Construction.Puzzle.RampInventory) }
-            : new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Basketball] = 1, [WorkshopPartKind.Receiver] = 1, [WorkshopPartKind.ImpactSwitch] = 1, [WorkshopPartKind.SignalLamp] = 1 };
+            : new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Basketball] = 1, [WorkshopPartKind.Receiver] = 1, [WorkshopPartKind.ImpactSwitch] = 1, [WorkshopPartKind.SignalLamp] = 1, [WorkshopPartKind.Wall] = 1 };
         _title.Text = first ? "First principles" : "Free workshop";
         _task.Text = first ? "Guide the orange ball into the green receiver. Place the two ramps to build a path through the air."
             : "Place parts and connect activation sockets. Run tries the machine; Reset restores its starting arrangement.";

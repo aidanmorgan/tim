@@ -5,15 +5,8 @@
     "independence": "Review-only; deliverables owned by /root/p025_implementation",
     "identityLimit": "Runtime process identifier is not exposed by this tool interface; retained canonical reviewer role."
   },
-  "verdict": "Incomplete: physical contact plus source/native/transport activation/animation boundaries pass; actual UI, Production and publication criteria remain pending.",
-  "currentBoundary": {
-    "shader": "5322ed5aa8e87568cd7ecd4a28f4519d0cc469adc785f92933ef7d0856cacf21",
-    "inputs": "95d6c2566927bd2568cc0a68ba16ac7349d57e41cd33403c16327d4608c4c0cd",
-    "abi": 5,
-    "stateBytes": 19088,
-    "validatorAssembly": "160e9559d288844c8cdf4acb0f910b47e5e6610a7a099adcdc5f17844d2c5c3f",
-    "identityReceipt": "b8f279"
-  },
+  "verdict": "Pass — scoped deployed Switch→Lamp activation integration",
+  "currentBoundary": "Approved source15b5b4eb9d743ed170a9d92b8de8193c18d9f840, Pages37183382369 successfully deployed and independently verified; required-now scoped criteria complete, zero unresolved findings.",
   "matrix": [
     {
       "criterion": "Source geometry/material and threshold",
@@ -278,7 +271,7 @@
       "f0b096",
       "435b1d"
     ],
-    "consistentDesign": "One generic ColourBlend track per node, immutable typed rendering endpoints evaluated through shared AnimationValue.Blend; part callbacks removed. Epoch change applies neutral bindings. Pending source fixes and focused controls prevent approval.",
+    "consistentDesign": "One generic ColourBlend track per node, immutable typed rendering endpoints evaluated through shared AnimationValue.Blend; part callbacks removed. Epoch change applies neutral bindings. A1–A4 fixes independently verified; affected native, actual module and genuine Chrome integration controls pass.",
     "gpuApplicability": "No shader/input change reported or observed since exact5322ed5a/95d6c256 boundary. No GPU repeat.",
     "fixEvidence": {
       "native": {
@@ -334,5 +327,279 @@
       "meaning": "Direct actual parser controls cover first ACK, same-world cadence, retired ACK, wrong property/event. Generic read controls reject malformed declaration/routing/time. Device invalid admission retains physical bytes/logical state and Commit count. Actual worker JS executes with mocked managed exports, not actual WASM; client fixture executes shipped JS with mocked workers. Actual Chrome UI remains required.",
       "fixtureCorrection": "Owner unfiltered471/472 run22518e exposed old read-validation fixture using codec-wide ID outside admitted compiler domain. Approved local low-ID correction for that one test; broad codec identity roundtrip remains unchanged."
     }
+  },
+  "snapshotApproval": {
+    "verdict": "SnapshotApproval",
+    "closureSha256": "8e514b361b4c2150914b75aea17d080a9343358043cd896e349fa52f1ce1e573",
+    "inputs": 258,
+    "bytes": 2075585,
+    "base": "20c35c7d6cec0e137ac64308c082891d85ed0479",
+    "manifest": "docs/verification/P0-063-map/playable-candidate-paths.json",
+    "independentIdentityCommand": "7d3962",
+    "docsChecks": [
+      "144e53",
+      "55d8eb",
+      "86f524",
+      "4bf1dc"
+    ],
+    "publicationDependent": [
+      "Remote commit preserves approved source/relevant-input closure and only approved supplements.",
+      "Normal CI Production build/deployment succeeds; original CI artifact identity matches actually loaded assets.",
+      "Actual deployed Chrome startup and genuine typed placement/wiring, contact-to-once visible activation, Save/edit/Load, Pause/resume, exact Reset and meaningful disconnected or missed control. Supporting unchanged detailed controls reusable by verified identity."
+    ],
+    "limits": [
+      "Scope is activation integration of existing Switch and Lamp; electrical pass-through and authored campaign threshold modes remain unsupported obligations.",
+      "Existing performance failures, cold-cache qualification and broad device/fault/global audits remain deferred, not Pass."
+    ]
+  },
+  "localUi": {
+    "origin": "http://127.0.0.1:8060/",
+    "artifacts": {
+      "_framework/CuriousContraptions.wasm": "17851c9d3bf768db56469b3ad2730b04548c72d3e4a0a0d5422b5618e8462bac",
+      "_framework/CuriousContraptions.web.wasm": "663dba18a1cf1767098ff88756a7e3cd2abc3551d7434af474eabb96f0f3a1c4",
+      "_framework/dotnet.boot.js": "2038ffdc5ab291d49035fecb6b2569e0f6bed6c61e6bd6dfadfe89f334b8ba2d",
+      "animation/_framework/CuriousContraptions.Animation.Worker.wasm": "267348d64a6ef359e637a7448690c6afdd47d13cd912e241ed77e55d05139f78",
+      "animation/_framework/dotnet.boot.js": "112ea95e59ecf41dcdefc99fdbf48fbac61a297b92802d79f7d29e222e19385a",
+      "animation/worker.js": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12",
+      "godot.pck": "42a69e40ceb8e94fe85631c7c3f3908975500db0b681644681bf3bcce2ffdbc4",
+      "simulation/_framework/CuriousContraptions.Simulation.wasm": "f7c82d3f4c16a7edc8db1280a58bdc326dd0abb7aa3663d102cff0bb5ae724a9",
+      "simulation/_framework/dotnet.boot.js": "8f4a0b28858b891884137ec2cf30e506085d6ff4df98a4744718ab80e4ec2ac0",
+      "simulation/physics.wgsl": "5322ed5aa8e87568cd7ecd4a28f4519d0cc469adc785f92933ef7d0856cacf21",
+      "simulation/worker.js": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb",
+      "workshop-client.js": "2ed8fb55b34709fa9969ad8bce842d109ae2edc512a19247ed6a90fb71c7c4c7",
+      "workshop-isolation.js": "230d8abff03fb57ccbcc6b5b88c6fce9c96c6cbab9feeac39d23d85c840f7291"
+    },
+    "raw": [
+      "ui-setup-20261004.raw.json",
+      "ui-motion-20261004.raw.json",
+      "ui-screens-20261004.raw.json"
+    ],
+    "construction": "Actual front-view UI placement: Switch1(-1.100006103515625,1,0), Ball2(-1.100006103515625,3,0), Lamp3(2,1,0), identity rotations; typed ActivationOut→ActivationIn edge1→3. No setters or imported solutions.",
+    "criteria": [
+      {
+        "criterion": "Both source compound contact threshold and routing",
+        "impact": "Shared GPU declaration and atomic discrete network",
+        "result": "Pass",
+        "evidence": "Seven actual-GPU cases /840 ticks; 11 full candidate native pairs; real contact first latches both nodes tick68 with identical event. Button pressed/lamp visibly lit."
+      },
+      {
+        "criterion": "Canonical graph and Save/Load",
+        "impact": "Forward wire10/save3 and scene installation",
+        "result": "Pass",
+        "evidence": "Actual Save1624B advances revision once; disconnect/reconnect/Undo leaves zero edges; Run does not resurrect undone edge. Actual Load restores exact canonical bytes excluding revision; subsequent Run activates both. Running Save sends no command."
+      },
+      {
+        "criterion": "Cancel, wrong target, meaningful physical negatives",
+        "impact": "New socket UI and shared contact",
+        "result": "Pass",
+        "evidence": "Connection Cancel commands4→4; incompatible Ball target commands20→20. Disconnected source activates/lamp stays off. Gentle real contact with rebound and miss each133ticks leave both clear."
+      },
+      {
+        "criterion": "Pause/resume and Reset",
+        "impact": "Shared schedule/channel and logical/physical state",
+        "result": "Pass",
+        "evidence": "Pause tick82 remains82 after240ms; resume112 preserves first event and visible activation. Exact Reset restores body/canonical pose and clears both latches/artwork while preserving edge. Other five bounded runs independently compare exact body/cell/local/velocity/orientation/angular Reset."
+      },
+      {
+        "criterion": "Affected Receiver/Hint",
+        "impact": "Shared animation schema2/transport",
+        "result": "Pass",
+        "evidence": "Genuine First principles two ramps/precision0, Hint visible; capture341/Solved; Reset clears capture/Solved/hint and restores exact physical state. Actual animation targets1/2, schema2."
+      },
+      {
+        "criterion": "Build/source and malformed/stale/duplicate/rollback controls",
+        "impact": "Transitive ABI/read/animation callers",
+        "result": "Pass",
+        "evidence": "Production c80927; native471 passing plus corrected single admitted-ID fixture independently applicable targetedPass; independent26/26 and JS29/29/capacity10 controls. A1–A4 closed. Unsupported IDs/domain/schema and rejected logical candidate preserve commit."
+      }
+    ],
+    "startup": {
+      "navigationToUsableMilliseconds": 1556.675048828125,
+      "scope": "Functional Ready on owned fresh context, cache condition unknown; not cold-cache/performance qualification."
+    },
+    "cleanup": {
+      "closed": true,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:8060/animation/worker.js",
+          "created": 1791094347013,
+          "closed": 1791095312135
+        },
+        {
+          "url": "http://127.0.0.1:8060/simulation/worker.js",
+          "created": 1791094347013,
+          "closed": 1791095312135
+        }
+      ],
+      "errors": [],
+      "consoleReference": "ui-setup-20261004.raw.json cleanup.console contains original logs once"
+    },
+    "limits": [
+      "First positive run remained running between tool calls and may have exceeded the bounded read observer; no whole-run coverage claim for that interval. Retained first-event/short history and exact Reset remain valid. Subsequent bounded runs have no overflow.",
+      "Failed fast-click/menu/rotation and Load parser assumptions retained as harness/setup attempts; corrected genuine UI controls precede asserted runs.",
+      "Raw motion is explicitly labeled exact read projections, not complete GPU state. PNGs are original base64 screenshot bytes.",
+      "Anvil allowed with long-line scan warnings for three raw files; no clean secret-scan claim."
+    ]
+  },
+  "candidateApplicability": {
+    "identityCommand": "7d3962",
+    "drift": [],
+    "closureSha256": "8e514b361b4c2150914b75aea17d080a9343358043cd896e349fa52f1ce1e573",
+    "sourceInputs": 258,
+    "bytes": 2075585,
+    "content": "Candidate uses exact20c35c7 content/puzzles.json. Only admitted actual reader reads[0], which independently equals current tested first_principles (ba7950); export excludes content/*. Unrelated campaign work remains unstaged.",
+    "docs": "Current README/TODO/schema contracts match scoped behavior and explicit remaining electrical/performance/cold-cache obligations. No current requirement removed.",
+    "reviewRole": "Same independent reviewer /root/p025_review; deliverable owner /root/p025_implementation; this reviewer writes only evidence."
+  },
+  "deployed": {
+    "verdict": "Pass",
+    "commit": "15b5b4eb9d743ed170a9d92b8de8193c18d9f840",
+    "run": 37183382369,
+    "origin": "https://aidanmorgan.github.io/tim/",
+    "raw": "deployed-ui-37183382369.raw.json",
+    "ciReceipt": "ci-artifact-37183382369.json",
+    "remoteSource": {
+      "original": "b30b43",
+      "inputs": 258,
+      "probeSupplements": 3,
+      "drift": []
+    },
+    "originalArtifact": {
+      "independentCommand": "bc0b9d",
+      "id": 11295344833,
+      "sha256": "652e8bded2d0ece1065a242c5c749238494caf43a16980b47f6d33470bfe1ab1",
+      "bytes": 106034192,
+      "selected": 13,
+      "missing": [],
+      "mismatch": []
+    },
+    "loadedIdentity": {
+      "selected": 13,
+      "loadedRows": 16,
+      "missing": [],
+      "mismatch": [],
+      "adapter": [
+        {
+          "path": "simulation/physics.wgsl",
+          "url": "https://aidanmorgan.github.io/tim/simulation/physics.wgsl",
+          "bytes": 95572,
+          "rawBodyBytes": 95574,
+          "adapter": "CDP text/wgsl Latin1-to-UTF8 reencoding reversed; established exact original shader proof",
+          "sha256": "5322ed5aa8e87568cd7ecd4a28f4519d0cc469adc785f92933ef7d0856cacf21",
+          "fromServiceWorker": true,
+          "timing": {
+            "startTime": 1791096228184.536,
+            "domainLookupStart": -1,
+            "domainLookupEnd": -1,
+            "connectStart": -1,
+            "secureConnectionStart": -1,
+            "connectEnd": -1,
+            "requestStart": 0.081,
+            "responseStart": 8.127,
+            "responseEnd": 9.59
+          },
+          "match": true
+        }
+      ]
+    },
+    "gameplay": {
+      "actualPlacedConfiguration": [
+        {
+          "kind": 4,
+          "id": "1",
+          "position": [
+            -1.100006103515625,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            15360
+          ]
+        },
+        {
+          "kind": 1,
+          "id": "2",
+          "position": [
+            -1.100006103515625,
+            3,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            15360
+          ]
+        },
+        {
+          "kind": 5,
+          "id": "3",
+          "position": [
+            2,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            15360
+          ]
+        }
+      ],
+      "typedEdge": "Switch1 ActivationOut→Lamp3 ActivationIn, actual contextual confirmation; Cancel does not mutate3commands.",
+      "positive": "First contact activates both once at tick68. Shared event remains exact through tick132. Visible button press/lamp light; exact Reset clears both and restores neutral artwork.",
+      "saveLoad": "Actual Save1624B advances revision174→175 exactly once. Actual Disconnect removes edge; actual Load restores complete canonical bytes apart from revision, then Run activates both.",
+      "control": "Disconnected through132 ticks: switch1/lamp0 and lampvisuallyneutral. Running Save commands9→9. Native/local wrongdomain,miss,gentle,duplicate/stale controls reused by unchanged source/shader applicability.",
+      "pauseResume": "Paused83,held240ms83,Resumed113. First event retained and both remain visibly active. Reset returnsBuilding/tick0/clear latches.",
+      "resetAssertions": {
+        "Positive": {
+          "exactReset": true,
+          "firstLatchStable": true,
+          "overflow": false
+        },
+        "Disconnected": {
+          "exactReset": true,
+          "firstLatchStable": true,
+          "overflow": false
+        },
+        "Pause": {
+          "exactReset": true,
+          "firstLatchStable": true,
+          "overflow": false
+        }
+      }
+    },
+    "lifecycle": {
+      "errors": [],
+      "closed": true,
+      "workers": [
+        {
+          "url": "https://aidanmorgan.github.io/tim/animation/worker.js",
+          "created": 1791096224276,
+          "closed": 1791096405239
+        },
+        {
+          "url": "https://aidanmorgan.github.io/tim/simulation/worker.js",
+          "created": 1791096224276,
+          "closed": 1791096405239
+        }
+      ]
+    },
+    "performance": {
+      "navigationToUsableMilliseconds": 12606.47998046875,
+      "targetMilliseconds": 5000,
+      "verdict": "Fail/deferred P0-034",
+      "cache": "Fresh owned browser context; shared compiler/browser caches unknown. No cold-cache qualification or complete workload performance claim."
+    },
+    "evidenceLimits": [
+      "WGSL CDP text adapter expands original95572B to95574B; exact reversible Latin1/UTF8 adapter produces original CI hash, recorded per response.",
+      "Initial reporting decoder used offset8 for revision; exact current typed schema40 corrects it. Actual Save174→175; original bytes retained. Base64 padding yields1624B, not naive1626.",
+      "Anvil allows original raw with long-line scan warning; no clean secret-scan claim.",
+      "Final review/local/deployed receipt supplements crossed source push and remain for next normal scoped commit; no receipt-only deployment required."
+    ]
   }
 }

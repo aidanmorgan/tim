@@ -1,7 +1,14 @@
-[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
 [ext_resource type="PackedScene" path="res://parts/scenes/wall.tscn" id="2"]
+[ext_resource type="Script" path="res://engine/WallDimensionsResource.cs" id="3"]
+
+[sub_resource type="Resource" id="WallDimensions"]
+script = ExtResource("3")
+WidthBits = 16896
+HeightBits = 16384
+ThicknessBits = 13312
 
 [resource]
 script = ExtResource("1")
@@ -11,4 +18,4 @@ Category = "Structure"
 Description = "A solid panel. Move, rotate or stretch its three local dimensions to guide and contain balls."
 Scene = ExtResource("2")
 Color = Color(0.76, 0.56, 0.32, 1)
-Parameters = {"width": 3.0, "height": 2.0, "thickness": 0.25}
+Wall = SubResource("WallDimensions")

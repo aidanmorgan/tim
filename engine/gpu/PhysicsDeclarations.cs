@@ -93,9 +93,9 @@ public readonly record struct ColliderDeclaration(
                 break;
             case ColliderShapeKind.Box:
                 if (!PhysicsDeclarationBounds.Zero(Radius.Value)) throw new ArgumentException("Box radius must be zero.");
-                PhysicsDeclarationBounds.Range(HalfExtents.X, (Half)(1.0 / 1024), (Half)2);
-                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)2);
-                PhysicsDeclarationBounds.Range(HalfExtents.Z, (Half)(1.0 / 1024), (Half)2);
+                PhysicsDeclarationBounds.Range(HalfExtents.X, (Half)(1.0 / 1024), (Half)4);
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)4);
+                PhysicsDeclarationBounds.Range(HalfExtents.Z, (Half)(1.0 / 1024), (Half)4);
                 break;
             case ColliderShapeKind.Plane:
                 if (!PhysicsDeclarationBounds.Zero(Radius.Value) ||

@@ -34,6 +34,7 @@
         <Compile Include="engine/PartDefinition.cs" />
         <Compile Include="engine/BasketballMaterialResource.cs" />
         <Compile Include="engine/RampDimensionsResource.cs" />
+        <Compile Include="engine/WallDimensionsResource.cs" />
         <Compile Include="engine/PartRegistry.cs" />
         <Compile Include="engine/PartArt.cs" />
         <Compile Include="engine/Workbench.cs" />
@@ -43,6 +44,7 @@
         <Compile Include="parts/RampPart.cs" />
         <Compile Include="parts/SwitchPart.cs" />
         <Compile Include="parts/LampPart.cs" />
+        <Compile Include="parts/WallPart.cs" />
         <Compile Include="ui/Workshop.cs" />
         <Compile Include="ui/WorkshopGpu.cs" />
         <Compile Include="ui/WorkshopConnections.cs" />

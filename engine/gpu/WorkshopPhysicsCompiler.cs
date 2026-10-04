@@ -63,15 +63,22 @@ public static class WorkshopPhysicsCompiler
         }
         foreach (var instance in construction.Instances)
         {
-            if (instance is not WorkshopRamp ramp) continue;
-            var first = PartIdentities(ramp.Id); next = Math.Max(next, first + 16);
+            if (instance is not (WorkshopRamp or WorkshopWall)) continue;
+            var first = PartIdentities(instance.Id); next = Math.Max(next, first + 16);
             var material = new GpuMaterialId(first);
-            bodies.Add(new(ramp.Id, RigidMotionKind.Static, ramp.Cell, ramp.Local, ramp.Rotation,
+            bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
                 default, default, new((Half)0), default, new((Half)0)));
             materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3)));
-            colliders.Add(new(new(first + 1), ramp.Id, material, ColliderShapeKind.Box,
-                RigidLocalPose.Identity, new((Half)0), new((Half)(ramp.Dimensions.Length.Value * (Half).5), (Half)(RampDimensions.Thickness.Value * (Half).5),
-                    (Half)(ramp.Dimensions.Width.Value * (Half).5))));
+            var halfExtents = instance switch
+            {
+                WorkshopRamp ramp => new MetreVector((Half)(ramp.Dimensions.Length.Value * (Half).5),
+                    (Half)(RampDimensions.Thickness.Value * (Half).5), (Half)(ramp.Dimensions.Width.Value * (Half).5)),
+                WorkshopWall wall => new MetreVector((Half)(wall.Dimensions.Width.Value * (Half).5),
+                    (Half)(wall.Dimensions.Height.Value * (Half).5), (Half)(wall.Dimensions.Thickness.Value * (Half).5)),
+                _ => throw new ArgumentException("Unsupported static box declaration.")
+            };
+            colliders.Add(new(new(first + 1), instance.Id, material, ColliderShapeKind.Box,
+                RigidLocalPose.Identity, new((Half)0), halfExtents));
         }
         foreach (var instance in construction.Instances)
         {

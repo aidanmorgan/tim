@@ -13,19 +13,35 @@ public partial class MachinePart : Node3D
     public Gpu.GpuBodyId AuthoredId { get; internal set; }
     public bool Locked { get; internal set; }
     protected internal Node3D Visual { get; private set; } = null!;
-    protected float PickRadius { get; set; }
+    private float _pickRadius;
+    protected float PickRadius
+    {
+        get => _pickRadius;
+        set
+        {
+            if (!float.IsFinite(value) || value <= 0) throw new ArgumentOutOfRangeException(nameof(value));
+            _pickRadius = value;
+            if (_highlight?.Mesh is TorusMesh ring)
+            {
+                ring.InnerRadius = Mathf.Max(0, value - .025f);
+                ring.OuterRadius = value + .025f;
+            }
+        }
+    }
     private MeshInstance3D? _highlight;
     private bool _built;
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp) ||
+        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall) ||
             (definition.WorkshopKind == WorkshopPartKind.Basketball && definition.Basketball is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Ramp && definition.Ramp is null) ||
+            (definition.WorkshopKind == WorkshopPartKind.Wall && definition.Wall is null) ||
             definition.Parameters.Count != 0)
             throw new ArgumentException("Unsupported canonical part declaration.");
         if (definition.WorkshopKind == WorkshopPartKind.Basketball) definition.Basketball!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.Ramp) definition.Ramp!.Capture();
+        if (definition.WorkshopKind == WorkshopPartKind.Wall) definition.Wall!.Capture();
         Definition = definition;
         Name = definition.Id; // Godot resource/node-name boundary only.
     }

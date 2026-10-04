@@ -47,6 +47,7 @@
         <Compile Include="WorkshopSaveTests.cs" />
         <Compile Include="ContactActivationTests.cs" />
         <Compile Include="WorkshopActivationAnimationTests.cs" />
+        <Compile Include="WorkshopWallTests.cs" />
         <Compile Include="WorkshopWireTests.cs" />
         <Compile Include="WorkshopReadTests.cs" />
         <Compile Include="NativeSceneFixture.cs" />

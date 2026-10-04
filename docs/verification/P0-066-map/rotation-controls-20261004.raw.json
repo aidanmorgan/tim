@@ -1,0 +1,875 @@
+{
+  "schema": 1,
+  "shader": "216248576d369d54882cd0978cf5af78b7b7f30ede6005f83100314d54358dc8",
+  "preamble": "reference/wall/inputs.json",
+  "method": "Owned actual Chrome WebGPU shader-f16; append the listed review-only entrypoint to exact production shader, populate existing body records with exact Half bits, one invocation, read back full candidate. No shipping shader mutation.",
+  "entrypoint": "\n@compute @workgroup_size(1) fn review_rotation(){candidate.state.status=0u;candidate.state.failure=0u;for(var i=0u;i<16u;i++){let b=committed.state.bodies[i];candidate.state.bodies[i]=b;candidate.state.bodies[i].pad0=select(0u,1u,rotation_unit_certified(b.rotation));var r=b.rotation;if(b.motion==0u){r=certify_rotation(b.rotation,b.rotation);}else{r=rotation_at(b.rotation,b.angular.xyz,b.massDragGravityXY.x);}candidate.state.bodies[i].rotation=r;candidate.state.bodies[i].pad1=select(0u,1u,rotation_unit_certified(r));candidate.state.bodies[i].pad2=candidate.state.failure;candidate.state.failure=0u;candidate.state.status=0u;}}",
+  "cases": [
+    {
+      "name": "already-unit",
+      "mode": 0,
+      "q": [
+        0,
+        0,
+        0,
+        15360
+      ]
+    },
+    {
+      "name": "failed119",
+      "mode": 0,
+      "q": [
+        14352,
+        1203,
+        14368,
+        14727
+      ]
+    },
+    {
+      "name": "negative119",
+      "mode": 0,
+      "q": [
+        47120,
+        33971,
+        47136,
+        47495
+      ]
+    },
+    {
+      "name": "permuted119",
+      "mode": 0,
+      "q": [
+        14727,
+        14368,
+        1203,
+        14352
+      ]
+    },
+    {
+      "name": "valid-lower-side",
+      "mode": 0,
+      "q": [
+        14329,
+        1489,
+        14348,
+        14753
+      ]
+    },
+    {
+      "name": "axis-upper-neighbor",
+      "mode": 0,
+      "q": [
+        0,
+        0,
+        0,
+        15361
+      ]
+    },
+    {
+      "name": "subnormal-component",
+      "mode": 0,
+      "q": [
+        1,
+        0,
+        0,
+        15360
+      ]
+    },
+    {
+      "name": "zero-invalid",
+      "mode": 0,
+      "q": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "failure": 7
+    },
+    {
+      "name": "rotation-x",
+      "mode": 1,
+      "q": [
+        14329,
+        1489,
+        14348,
+        14753
+      ],
+      "omega": [
+        15360,
+        0,
+        0
+      ],
+      "elapsed": 6212
+    },
+    {
+      "name": "rotation-y",
+      "mode": 1,
+      "q": [
+        14329,
+        1489,
+        14348,
+        14753
+      ],
+      "omega": [
+        0,
+        15360,
+        0
+      ],
+      "elapsed": 6212
+    },
+    {
+      "name": "rotation-z",
+      "mode": 1,
+      "q": [
+        14329,
+        1489,
+        14348,
+        14753
+      ],
+      "omega": [
+        0,
+        0,
+        15360
+      ],
+      "elapsed": 6212
+    },
+    {
+      "name": "rotation-mixed",
+      "mode": 1,
+      "q": [
+        47097,
+        34257,
+        47116,
+        47521
+      ],
+      "omega": [
+        15360,
+        48128,
+        16384
+      ],
+      "elapsed": 6212
+    },
+    {
+      "name": "rotation-zero",
+      "mode": 1,
+      "q": [
+        14329,
+        1489,
+        14348,
+        14753
+      ],
+      "omega": [
+        0,
+        0,
+        0
+      ],
+      "elapsed": 6212
+    },
+    {
+      "name": "rotation-min-subnormal",
+      "mode": 1,
+      "q": [
+        14329,
+        1489,
+        14348,
+        14753
+      ],
+      "omega": [
+        1,
+        0,
+        0
+      ],
+      "elapsed": 6212
+    },
+    {
+      "name": "rotation-max-subnormal",
+      "mode": 1,
+      "q": [
+        14329,
+        1489,
+        14348,
+        14753
+      ],
+      "omega": [
+        1023,
+        0,
+        0
+      ],
+      "elapsed": 6212
+    },
+    {
+      "name": "rotation-min-normal",
+      "mode": 1,
+      "q": [
+        14329,
+        1489,
+        14348,
+        14753
+      ],
+      "omega": [
+        1024,
+        0,
+        0
+      ],
+      "elapsed": 6212
+    }
+  ],
+  "originalHarnessNote": "Initial unused failure metadata for zero-invalid was3; actual ABI preamble identifies Arithmetic7. No assertion or shader depended on that unused field.",
+  "observed": {
+    "errors": [],
+    "rows": [
+      {
+        "name": "already-unit",
+        "mode": 0,
+        "q": [
+          0,
+          0,
+          0,
+          15360
+        ],
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          0,
+          0,
+          0,
+          15360
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "failed119",
+        "mode": 0,
+        "q": [
+          14352,
+          1203,
+          14368,
+          14727
+        ],
+        "certifiedInput": 0,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14352,
+          1203,
+          14368,
+          14726
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "negative119",
+        "mode": 0,
+        "q": [
+          47120,
+          33971,
+          47136,
+          47495
+        ],
+        "certifiedInput": 0,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          47120,
+          33971,
+          47136,
+          47494
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "permuted119",
+        "mode": 0,
+        "q": [
+          14727,
+          14368,
+          1203,
+          14352
+        ],
+        "certifiedInput": 0,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14726,
+          14368,
+          1203,
+          14352
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "valid-lower-side",
+        "mode": 0,
+        "q": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "axis-upper-neighbor",
+        "mode": 0,
+        "q": [
+          0,
+          0,
+          0,
+          15361
+        ],
+        "certifiedInput": 0,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          0,
+          0,
+          0,
+          15360
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "subnormal-component",
+        "mode": 0,
+        "q": [
+          1,
+          0,
+          0,
+          15360
+        ],
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          1,
+          0,
+          0,
+          15360
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "zero-invalid",
+        "mode": 0,
+        "q": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "failure": 7,
+        "certifiedInput": 0,
+        "certifiedOutput": 0,
+        "output": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "rotation-x",
+        "mode": 1,
+        "q": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "omega": [
+          15360,
+          0,
+          0
+        ],
+        "elapsed": 6212,
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14333,
+          36655,
+          14348,
+          14752
+        ],
+        "storedAngular": [
+          15360,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "rotation-y",
+        "mode": 1,
+        "q": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "omega": [
+          0,
+          15360,
+          0
+        ],
+        "elapsed": 6212,
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14331,
+          4795,
+          14347,
+          14753
+        ],
+        "storedAngular": [
+          0,
+          15360,
+          0
+        ]
+      },
+      {
+        "name": "rotation-z",
+        "mode": 1,
+        "q": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "omega": [
+          0,
+          0,
+          15360
+        ],
+        "elapsed": 6212,
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14329,
+          4346,
+          14350,
+          14752
+        ],
+        "storedAngular": [
+          0,
+          0,
+          15360
+        ]
+      },
+      {
+        "name": "rotation-mixed",
+        "mode": 1,
+        "q": [
+          47097,
+          34257,
+          47116,
+          47521
+        ],
+        "omega": [
+          15360,
+          48128,
+          16384
+        ],
+        "elapsed": 6212,
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          47098,
+          2139,
+          47120,
+          47518
+        ],
+        "storedAngular": [
+          15360,
+          48128,
+          16384
+        ]
+      },
+      {
+        "name": "rotation-zero",
+        "mode": 1,
+        "q": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "omega": [
+          0,
+          0,
+          0
+        ],
+        "elapsed": 6212,
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "storedAngular": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "rotation-min-subnormal",
+        "mode": 1,
+        "q": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "omega": [
+          1,
+          0,
+          0
+        ],
+        "elapsed": 6212,
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "storedAngular": [
+          1,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "rotation-max-subnormal",
+        "mode": 1,
+        "q": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "omega": [
+          1023,
+          0,
+          0
+        ],
+        "elapsed": 6212,
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14329,
+          1488,
+          14348,
+          14753
+        ],
+        "storedAngular": [
+          1023,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "rotation-min-normal",
+        "mode": 1,
+        "q": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "omega": [
+          1024,
+          0,
+          0
+        ],
+        "elapsed": 6212,
+        "certifiedInput": 1,
+        "certifiedOutput": 1,
+        "failure": 0,
+        "output": [
+          14329,
+          1489,
+          14348,
+          14753
+        ],
+        "storedAngular": [
+          1024,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "independentOracle": [
+    {
+      "name": "already-unit",
+      "normSquared": 1,
+      "angularErrorDegrees": 0,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "failed119",
+      "normSquared": 1.0004358343041169,
+      "angularErrorDegrees": 0.040461882031539845,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "negative119",
+      "normSquared": 1.0004358343041169,
+      "angularErrorDegrees": 0.040461882031539845,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "permuted119",
+      "normSquared": 1.0004358343041169,
+      "angularErrorDegrees": 0.040461882031539845,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "valid-lower-side",
+      "normSquared": 0.9992593009561723,
+      "angularErrorDegrees": 0,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "axis-upper-neighbor",
+      "normSquared": 1,
+      "angularErrorDegrees": 0,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "subnormal-component",
+      "normSquared": 1.0000000000000036,
+      "angularErrorDegrees": 0,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "zero-invalid",
+      "normSquared": 0,
+      "angularErrorDegrees": null,
+      "failure": 7,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "rotation-x",
+      "normSquared": 0.9995467797071456,
+      "angularErrorDegrees": 0.022886482979912626,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        4,
+        2398,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "rotation-y",
+      "normSquared": 0.9992530539514064,
+      "angularErrorDegrees": 0.005627650268906548,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        2,
+        3306,
+        1,
+        0
+      ]
+    },
+    {
+      "name": "rotation-z",
+      "normSquared": 0.9995617384638535,
+      "angularErrorDegrees": 0.022406574584819827,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        2857,
+        2,
+        1
+      ]
+    },
+    {
+      "name": "rotation-mixed",
+      "normSquared": 0.9994232831244432,
+      "angularErrorDegrees": 0.010146515276658252,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        1,
+        650,
+        4,
+        3
+      ]
+    },
+    {
+      "name": "rotation-zero",
+      "normSquared": 0.9992593009561723,
+      "angularErrorDegrees": 0,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "rotation-min-subnormal",
+      "normSquared": 0.9992593009561723,
+      "angularErrorDegrees": 0,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "rotation-max-subnormal",
+      "normSquared": 0.9992593009455959,
+      "angularErrorDegrees": 0.000007244509618354401,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "rotation-min-normal",
+      "normSquared": 0.9992593009561723,
+      "angularErrorDegrees": 0.000007443026089337883,
+      "failure": 0,
+      "angularBitsUnchanged": true,
+      "changedComponents": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "oracle": "Exact binary16 bits widened only offline to compute norm and quaternion exponential; production retains Half. Norm acceptance .999..1.001; angular<=existing5degrees. Corrector sign/component-neighbor and stored angular unchanged checked separately.",
+  "nativeReplay": {
+    "chunk_id": "c6a82f",
+    "wall_time_seconds": 0.000006042,
+    "exit_code": 0,
+    "original_token_count": 7,
+    "output": "{\"valid\":true,\"count\":1}\n"
+  },
+  "replay": "rotation119-replay-20261004.raw.json"
+}

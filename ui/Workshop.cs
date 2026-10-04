@@ -494,7 +494,8 @@ public partial class Workshop : Node3D
             var chosen = _tool.Value;
             var placedId = _nextId;
             var proposed = World.Construction.WithInstance(World.CaptureInstance(chosen, placedId, position, rotation,
-                _preview is RampPart ramp ? ramp.CanonicalDimensions : null));
+                _preview is RampPart ramp ? ramp.CanonicalDimensions : null,
+                _preview is WallPart wall ? wall.CanonicalDimensions : null));
             var accepted = await SubmitConstruction(proposed);
             if (_workshopUiRemoved) return;
             if (!accepted) { _undo.RemoveAt(_undo.Count - 1); return; }

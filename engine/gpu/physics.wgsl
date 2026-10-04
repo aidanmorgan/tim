@@ -145,6 +145,53 @@ fn inverse_rotate(q: vec4<f16>, v: vec3<f16>) -> vec3<f16> {
 fn multiply_rotation(a: vec4<f16>, b: vec4<f16>) -> vec4<f16> {
     return vec4<f16>(a.w * b.xyz + b.w * a.xyz + cross(a.xyz, b.xyz), a.w * b.w - dot(a.xyz, b.xyz));
 }
+// Certify the stored Half quaternion against the unchanged canonical norm domain.
+// Coarse components are multiples of 1/16, so their squares/sum are exact
+// multiples of 1/256 below two. Only the small residual uses directed bounds.
+fn rotation_unit_certified(q: vec4<f16>) -> bool {
+    var coarseSquared = 0h;
+    var residual = range_value(0h);
+    for (var axis = 0u; axis < 4u; axis++) {
+        let bits = bitcast<u32>(vec2<f16>(q[axis], 0h)) & 32767u;
+        if (bits > 15360u) { return false; } // Nonfinite or magnitude greater than one.
+        let magnitude = bitcast<vec2<f16>>(bits).x;
+        var coarse = 0h;
+        var delta = range_value(0h);
+        if (bits >= 1024u) {
+            coarse = floor(magnitude * 16h + 0.5h) * 0.0625h;
+            delta = range_subtract(range_value(magnitude), range_value(coarse));
+        } else if (bits != 0u) {
+            // Preserve an enclosure even if the adapter flushes subnormal arithmetic.
+            delta = ScalarRange(0h, 0.00006103515625h);
+        }
+        coarseSquared += coarse * coarse;
+        if (coarseSquared >= 2h) { return false; }
+        residual = range_add(residual, range_add(
+            range_multiply(range_value(2h * coarse), delta), range_multiply(delta, delta)));
+    }
+    let normResidual = range_add(range_value(coarseSquared - 1h), residual);
+    return normResidual.lo >= -0.0009765625h && normResidual.hi <= 0.0009765625h;
+}
+fn certify_rotation(q: vec4<f16>, original: vec4<f16>) -> vec4<f16> {
+    if (rotation_unit_certified(q)) { return q; }
+    var largest = 0u;
+    for (var axis = 1u; axis < 4u; axis++) {
+        if (abs(q[axis]) > abs(q[largest])) { largest = axis; }
+    }
+    let bits = bitcast<u32>(vec2<f16>(q[largest], 0h)) & 65535u;
+    let sign = bits & 32768u; let magnitude = bits & 32767u;
+    // Search nearest stored values first; retain every other component/angular bit.
+    for (var distance = 1u; distance <= 4u; distance++) {
+        var adjusted = q;
+        if (magnitude >= distance) {
+            adjusted[largest] = bitcast<vec2<f16>>(sign | (magnitude - distance)).x;
+            if (rotation_unit_certified(adjusted)) { return adjusted; }
+        }
+        adjusted[largest] = bitcast<vec2<f16>>(sign | (magnitude + distance)).x;
+        if (rotation_unit_certified(adjusted)) { return adjusted; }
+    }
+    fail(FAILURE_ARITHMETIC); return original;
+}
 fn rotation_at(q0: vec4<f16>, omega: vec3<f16>, elapsed: f16) -> vec4<f16> {
     let speed = length3(omega);
     if (speed == 0h || elapsed == 0h) { return q0; }
@@ -164,7 +211,7 @@ fn rotation_at(q0: vec4<f16>, omega: vec3<f16>, elapsed: f16) -> vec4<f16> {
     // Near one, f16 sqrt can round to one and leave the norm error untouched.
     // Refine the reciprocal length in f16 instead of widening or changing admission.
     let residual = 0.5h * (1h - dot(normalized, normalized));
-    return normalized + normalized * residual;
+    return certify_rotation(normalized + normalized * residual, q0);
 }
 fn gravity(body: RigidBody) -> vec3<f16> {
     return vec3<f16>(body.massDragGravityXY.zw, body.gravityZPad.x);
@@ -856,7 +903,7 @@ fn validate_scene() -> bool {
                 !zero4(c.translation)) { fail(FAILURE_PAIR); return false; }
         } else if (c.shape == SHAPE_SPHERE ||
             (c.shape == SHAPE_BOX && (!finite3(c.dimensions.yzw) || any(c.dimensions.yzw < vec3<f16>(0.0009765625h)) ||
-                any(c.dimensions.yzw > vec3<f16>(2h))))) { fail(FAILURE_PAIR); return false; }
+                any(c.dimensions.yzw > vec3<f16>(4h))))) { fail(FAILURE_PAIR); return false; }
     }
     if (dynamics == 1u && sphere_collider(candidate.state.dynamicBody) == NO_BODY) {
         fail(FAILURE_DECLARATION); return false;

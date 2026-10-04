@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 10 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 11 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null);
@@ -334,6 +334,9 @@ public static class WorkshopWire
                     BinaryPrimitives.WriteUInt32LittleEndian(slot[112..], (uint)receiver.Capture.Participation); break;
                 case WorkshopRamp ramp:
                     Write(slot[104..], ramp.Dimensions.Length.Value); Write(slot[106..], ramp.Dimensions.Width.Value); break;
+                case WorkshopWall wall:
+                    Write(slot[104..], wall.Dimensions.Width.Value); Write(slot[106..], wall.Dimensions.Height.Value);
+                    Write(slot[108..], wall.Dimensions.Thickness.Value); break;
                 case WorkshopSwitch trigger:
                     Write(slot[104..], trigger.Trigger.Threshold.Value); break;
                 case WorkshopLamp: break;
@@ -380,6 +383,8 @@ public static class WorkshopWire
                         (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[112..])), locked == 1),
                 WorkshopPartKind.Ramp when Zero(slot[108..]) => new WorkshopRamp(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..]))), locked == 1),
+                WorkshopPartKind.Wall when Zero(slot[110..]) => new WorkshopWall(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..]))), locked == 1),
                 WorkshopPartKind.ImpactSwitch when Zero(slot[106..]) => new WorkshopSwitch(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..]))), locked == 1),
                 WorkshopPartKind.SignalLamp when Zero(slot[104..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),

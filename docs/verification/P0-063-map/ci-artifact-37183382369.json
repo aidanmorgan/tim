@@ -1,0 +1,82 @@
+{
+  "commit": "15b5b4eb9d743ed170a9d92b8de8193c18d9f840",
+  "run": 37183382369,
+  "runUrl": "https://github.com/aidanmorgan/tim/actions/runs/37183382369",
+  "deployment": "https://aidanmorgan.github.io/tim/",
+  "conclusion": "success",
+  "artifactId": 11295344833,
+  "archivePath": "reference/p063-pages-37183382369/artifact.zip",
+  "archiveSha256": "652e8bded2d0ece1065a242c5c749238494caf43a16980b47f6d33470bfe1ab1",
+  "archiveBytes": 106034192,
+  "selectedArtifacts": [
+    {
+      "path": "_framework/CuriousContraptions.wasm",
+      "bytes": 555797,
+      "sha256": "7c5e0a53daa8cd64d13ac207b49afbabe84e3a910f72d7e64627e1dcaade8d25"
+    },
+    {
+      "path": "_framework/CuriousContraptions.web.wasm",
+      "bytes": 6933,
+      "sha256": "a7e752cbfe4acfdc1b366bbfd945d40d7b2b4f0c7875be19275b392316fa90d7"
+    },
+    {
+      "path": "_framework/dotnet.boot.js",
+      "bytes": 7464,
+      "sha256": "6eeee7866380fe5704e20e160f5f53469babc6531db0db0dd1b0edd5853b61a9"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+      "bytes": 354581,
+      "sha256": "9e260d5597b59e7f9d86d329dfa912e04d6519387cb84d4700cd8c14b919a5d3"
+    },
+    {
+      "path": "animation/_framework/dotnet.boot.js",
+      "bytes": 36220,
+      "sha256": "072f75d68d56785ea102a0f4c45961f44ed17e57869c6a6299259faf4e5dbc7d"
+    },
+    {
+      "path": "animation/worker.js",
+      "bytes": 5382,
+      "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+    },
+    {
+      "path": "godot.pck",
+      "bytes": 33656,
+      "sha256": "ad584ea77a9d32e884e1f1febba44f908d240e4a09446c2ae6661eaba4b88d47"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+      "bytes": 378645,
+      "sha256": "3efc8ee575e7036b1a88a33191def4589389469e6b124f65dc7d1bf06c513984"
+    },
+    {
+      "path": "simulation/_framework/dotnet.boot.js",
+      "bytes": 36190,
+      "sha256": "8333f3bb9e7c2d2a5d6e3b4289d00cff550bd138bc54746cb7b37314896676f4"
+    },
+    {
+      "path": "simulation/physics.wgsl",
+      "bytes": 95572,
+      "sha256": "5322ed5aa8e87568cd7ecd4a28f4519d0cc469adc785f92933ef7d0856cacf21"
+    },
+    {
+      "path": "simulation/worker.js",
+      "bytes": 14209,
+      "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb"
+    },
+    {
+      "path": "workshop-client.js",
+      "bytes": 30927,
+      "sha256": "2ed8fb55b34709fa9969ad8bce842d109ae2edc512a19247ed6a90fb71c7c4c7"
+    },
+    {
+      "path": "workshop-isolation.js",
+      "bytes": 8331,
+      "sha256": "230d8abff03fb57ccbcc6b5b88c6fce9c96c6cbab9feeac39d23d85c840f7291"
+    }
+  ],
+  "method": "Original GitHub Pages artifact ZIP digest verified; selected original artifact.tar members streamed without extraction or rebuild.",
+  "originalDownload": "df4bd2",
+  "originalSelectedHashes": "982e55",
+  "deploymentReceipt": "root API588782 and reported successful CI/deploy37183382369"
+}

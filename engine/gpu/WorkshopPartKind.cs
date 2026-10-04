@@ -1,3 +1,3 @@
 namespace CuriousContraptions;
 
-public enum WorkshopPartKind { Unsupported, Basketball, Receiver, Ramp, ImpactSwitch, SignalLamp }
+public enum WorkshopPartKind { Unsupported, Basketball, Receiver, Ramp, ImpactSwitch, SignalLamp, Wall }

@@ -134,6 +134,15 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
 
+    public static WorkshopWall Wall(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, WallDimensions dimensions)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopWall(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), dimensions);
+        result.Validate(); return result;
+    }
+
     public static WorkshopSwitch Switch(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, ContactTriggerSettings trigger)
     {

@@ -91,7 +91,7 @@ public partial class MachineWorld
         return WorkshopInput.Receiver(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W);
     }
 
-    public IWorkshopInstance CaptureInstance(WorkshopPartKind kind, GpuBodyId id, Vector3 position, Quaternion rotation, RampDimensions? rampDimensions = null)
+    public IWorkshopInstance CaptureInstance(WorkshopPartKind kind, GpuBodyId id, Vector3 position, Quaternion rotation, RampDimensions? rampDimensions = null, WallDimensions? wallDimensions = null)
     {
         var q = rotation.Normalized();
         return kind switch
@@ -100,6 +100,8 @@ public partial class MachineWorld
             WorkshopPartKind.Receiver => CaptureReceiver(id, position, q),
             WorkshopPartKind.Ramp => WorkshopInput.Ramp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 rampDimensions ?? Registry.Definitions[WorkshopPartKind.Ramp].Ramp!.Capture()),
+            WorkshopPartKind.Wall => WorkshopInput.Wall(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                wallDimensions ?? Registry.Definitions[WorkshopPartKind.Wall].Wall!.Capture()),
             WorkshopPartKind.ImpactSwitch => WorkshopInput.Switch(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
             WorkshopPartKind.SignalLamp => WorkshopInput.Lamp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
@@ -283,6 +285,7 @@ public partial class MachineWorld
             }
             if (part.Definition.WorkshopKind != instance.Kind) throw new ArgumentException("Authored identity changed part kind.");
             if (instance is WorkshopRamp ramp && part is RampPart rampPart) rampPart.ApplyDimensions(ramp.Dimensions);
+            if (instance is WorkshopWall wall && part is WallPart wallPart) wallPart.ApplyDimensions(wall.Dimensions);
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;

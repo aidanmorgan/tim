@@ -9,9 +9,10 @@ public partial class PartDefinition : Resource
     [Export] public string Id
     {
         get => _id;
-        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, _ => WorkshopPartKind.Unsupported }; }
+        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, "wall" => WorkshopPartKind.Wall, _ => WorkshopPartKind.Unsupported }; }
     }
     public WorkshopPartKind WorkshopKind { get; private set; }
+    [Export] public WallDimensionsResource? Wall { get; set; }
     [Export] public RampDimensionsResource? Ramp { get; set; }
     [Export] public BasketballMaterialResource? Basketball { get; set; }
     [Export] public string Title { get; set; } = "";

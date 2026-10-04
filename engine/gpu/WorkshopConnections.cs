@@ -19,7 +19,7 @@ public static class WorkshopPorts
     {
         WorkshopPartKind.ImpactSwitch => SwitchPorts,
         WorkshopPartKind.SignalLamp => LampPorts,
-        WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp => [],
+        WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall => [],
         _ => throw new ArgumentException("Unsupported port owner.")
     };
     private static readonly WorkshopPort[] SwitchPorts =

@@ -1,0 +1,220 @@
+{
+  "schema": "workshop-scoped-implementation-v1",
+  "slice": [
+    "CAT-066-D",
+    "CAT-066-I"
+  ],
+  "owner": "/root/p025_implementation",
+  "reviewer": "/root/p025_review",
+  "baseCommit": "15b5b4eb9d743ed170a9d92b8de8193c18d9f840",
+  "status": "Independent local source/native/GPU/Production/actual UI checks pass, zero unresolved gameplay findings. Exact candidate awaits SnapshotApproval; remote/CI/deployed checks remain.",
+  "behavior": "One canonical WallDimensions value drives generic static Box compilation, source artwork scale, selection ring and shared projections. Existing full-pose local-axis gizmo, atomic construction admission and Save/Load are reused. Finite UI inputs clamp before Half conversion; invalid serialized values reject. Shared Box admission extends from half-extent 2 to 4 in C# and WGSL; numerical law, ABI and budgets are unchanged. Actual full-pose Wall contact exposed an existing shared quaternion normalization output outside the canonical norm interval; the final Half quaternion now receives a directed residual certificate and bounded nearest-component correction without changing angular state or admission tolerance.",
+  "schemas": {
+    "wire": 11,
+    "save": 4,
+    "constructionBytes": 1600,
+    "saveBytes": 1624,
+    "physicsState": 5,
+    "stateBytes": 19088
+  },
+  "evidence": {
+    "review": "docs/verification/P0-066-map/review-20261004.json",
+    "gpu": "docs/verification/P0-066-map/box-gpu-20261004.raw.json",
+    "emitter": "reference/wall/Program.cs",
+    "emitterProject": "reference/wall/WallProbe.csproj",
+    "inputs": "reference/wall/inputs.json",
+    "rotationReplay": "docs/verification/P0-066-map/rotation119-replay-20261004.raw.json",
+    "rotationControls": "docs/verification/P0-066-map/rotation-controls-20261004.raw.json",
+    "actualUi": "docs/verification/P0-066-map/ui-corrected-20261004.raw.json",
+    "actualUiScreens": "docs/verification/P0-066-map/ui-screens-20261004.raw.json"
+  },
+  "checks": [
+    {
+      "command": "dotnet test CuriousContraptions.tests --nologo --filter FullyQualifiedName~WorkshopWall",
+      "terminal": "afb6a3",
+      "result": "8/8 passed,166ms"
+    },
+    {
+      "command": "dotnet test CuriousContraptions.tests --nologo",
+      "terminal": "1762c7",
+      "result": "481/481 passed,1s"
+    },
+    {
+      "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+      "start": "947e3f",
+      "terminal": "8ac32b",
+      "exitCode": 0,
+      "result": "Production AppBundle generated; both worker bundles and godot.pck deployed;804 precompressed siblings written."
+    },
+    {
+      "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+      "start": "1c0f43",
+      "terminal": "b2661b",
+      "exitCode": 0,
+      "result": "Forward shared quaternion-certificate fix; same normal Production build."
+    }
+  ],
+  "retainedFailedAttempts": [
+    {
+      "original": "ddc7ba",
+      "result": "Initial native4/7: two max-extent admission failures; one source-art AABB oracle mismatch. Corrected shared admission and exact inset-art oracle."
+    },
+    {
+      "original": "c6b508",
+      "result": "Pre-GPU analytic fixture review found intended rotated edge was a face. Typed fixture local X changed4.05→4.3; other inputs unchanged; independent edge oracle65ac27."
+    },
+    {
+      "path": "docs/verification/P0-066-map/box-gpu-20261004.raw.json",
+      "result": "Original shader5322 rejected maximum extents with UnsupportedPair6. Matching WGSL admission guard was corrected to4; original failure retained."
+    },
+    {
+      "path": "docs/verification/P0-066-map/ui-contact119-20261004.raw.json",
+      "original": "9cc14a",
+      "result": "GPUstatus0/failure0 at119 but full native validation rejects norm²1.0011103204643952>1.001. Exact input/candidate and successful Reset retained."
+    }
+  ],
+  "independentSupporting": "Owning review records native8/8, shared Wall/Ramp ring2/2, final GPU480 successful ticks, true XY edge, miss, overlap/above-limit rejection, seven full candidate validations and byte-exact unchanged default trajectory. W4 exact118→119 replay passes full nativec6a82f;16 actualGPU quaternion controls pass with unchanged angular bits and host interval; signed/permuted failednorm correction changes orientation.040462degrees. Actual shared Ramp resize→Undo restoration passes.",
+  "artifacts": {
+    "origin": "http://127.0.0.1:8060/",
+    "mode": "Production",
+    "terminal": "b2661b",
+    "assets": [
+      {
+        "path": "_framework/CuriousContraptions.wasm",
+        "bytes": 565525,
+        "sha256": "418336e085ab7bb2c97726701c159a888b310bbaf2919e15f05d3ad3a7194217"
+      },
+      {
+        "path": "_framework/CuriousContraptions.web.wasm",
+        "bytes": 6933,
+        "sha256": "bf6f3caa9c07098a72460859fac912b0b78e4440239e96ed541b694f4fdfe82b"
+      },
+      {
+        "path": "_framework/dotnet.boot.js",
+        "bytes": 7464,
+        "sha256": "7ab786831dda4ee5b7fb2ad43d93af086c87621a4a524dba51cbf67d1684e31f"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+        "bytes": 359701,
+        "sha256": "f954c5034600afa7314e80b4c1c0d694144cbd157c87840671cfc8d81b14bfa2"
+      },
+      {
+        "path": "animation/_framework/dotnet.boot.js",
+        "bytes": 37451,
+        "sha256": "744a9aaba205329a317bb78b8d05b281e63e7dce0fe8afb6d4378d7d4fd9bb49"
+      },
+      {
+        "path": "animation/worker.js",
+        "bytes": 5382,
+        "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+      },
+      {
+        "path": "godot.pck",
+        "bytes": 36416,
+        "sha256": "24dfb5afa78f4766d0b020e1ac32652d115d048222f096f4a4ce111be380e49b"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+        "bytes": 383765,
+        "sha256": "b46218a3643a1f9b76abea5e56c24e0dbce7631ab4f86c432499f1f61b566778"
+      },
+      {
+        "path": "simulation/_framework/dotnet.boot.js",
+        "bytes": 37421,
+        "sha256": "6ca020ba0c09629aabcbb87b837e6438e52345add4379c3a1a1582cfc10d090d"
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "bytes": 97981,
+        "sha256": "216248576d369d54882cd0978cf5af78b7b7f30ede6005f83100314d54358dc8"
+      },
+      {
+        "path": "simulation/worker.js",
+        "bytes": 14209,
+        "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb"
+      },
+      {
+        "path": "workshop-client.js",
+        "bytes": 30927,
+        "sha256": "2ed8fb55b34709fa9969ad8bce842d109ae2edc512a19247ed6a90fb71c7c4c7"
+      },
+      {
+        "path": "workshop-isolation.js",
+        "bytes": 8331,
+        "sha256": "230d8abff03fb57ccbcc6b5b88c6fce9c96c6cbab9feeac39d23d85c840f7291"
+      }
+    ],
+    "previousTerminal": "8ac32b",
+    "previousAssets": [
+      {
+        "path": "_framework/CuriousContraptions.wasm",
+        "bytes": 565525,
+        "sha256": "418336e085ab7bb2c97726701c159a888b310bbaf2919e15f05d3ad3a7194217"
+      },
+      {
+        "path": "_framework/CuriousContraptions.web.wasm",
+        "bytes": 6933,
+        "sha256": "bf6f3caa9c07098a72460859fac912b0b78e4440239e96ed541b694f4fdfe82b"
+      },
+      {
+        "path": "_framework/dotnet.boot.js",
+        "bytes": 7464,
+        "sha256": "7ab786831dda4ee5b7fb2ad43d93af086c87621a4a524dba51cbf67d1684e31f"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+        "bytes": 359701,
+        "sha256": "f954c5034600afa7314e80b4c1c0d694144cbd157c87840671cfc8d81b14bfa2"
+      },
+      {
+        "path": "animation/_framework/dotnet.boot.js",
+        "bytes": 37451,
+        "sha256": "744a9aaba205329a317bb78b8d05b281e63e7dce0fe8afb6d4378d7d4fd9bb49"
+      },
+      {
+        "path": "animation/worker.js",
+        "bytes": 5382,
+        "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+      },
+      {
+        "path": "godot.pck",
+        "bytes": 36416,
+        "sha256": "fe9e2bd078a155b7226a30f6146fadeea2f9e311aa4fca71c6e231e62ec0220c"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+        "bytes": 383765,
+        "sha256": "b46218a3643a1f9b76abea5e56c24e0dbce7631ab4f86c432499f1f61b566778"
+      },
+      {
+        "path": "simulation/_framework/dotnet.boot.js",
+        "bytes": 37421,
+        "sha256": "6ca020ba0c09629aabcbb87b837e6438e52345add4379c3a1a1582cfc10d090d"
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "bytes": 95572,
+        "sha256": "a732655ae45ea05992f1dbb04fb9e244b57a8226f73a491f684f48662d218be0"
+      },
+      {
+        "path": "simulation/worker.js",
+        "bytes": 14209,
+        "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb"
+      },
+      {
+        "path": "workshop-client.js",
+        "bytes": 30927,
+        "sha256": "2ed8fb55b34709fa9969ad8bce842d109ae2edc512a19247ed6a90fb71c7c4c7"
+      },
+      {
+        "path": "workshop-isolation.js",
+        "bytes": 8331,
+        "sha256": "230d8abff03fb57ccbcc6b5b88c6fce9c96c6cbab9feeac39d23d85c840f7291"
+      }
+    ]
+  },
+  "limits": "Wall body containment and optical/air/sound/solar-shadow interactions remain unqualified. Existing P0-034 performance failures and cold-compiler-cache qualification Incomplete remain explicit; no global qualification claim.",
+  "actualUi": "Genuine full-pose three-axis resized Wall deflects Ball; corrected original saved scene Load exact, Pause156 held156/resume311, exact Reset. Miss132 maintains x/z and zero horizontal velocity; overlap rejects GpuAdmission preserving committed world; all six dimension extrema, Cancel/one-gesture Undo, Save/delete/Load, no ports and FirstPrinciples exclusion pass. Existing Ramp resize/Undo restores canonical data and selection ring. No errors; owned context/workers closed.",
+  "transitiveApplicability": "Only one centered dynamic sphere is admitted (compiler identity local pose; WGSL rejects other dynamic shapes/offsets). Contact/support scalar isotropic sphere response consumes radius, normal and angular velocity, not dynamic orientation. Corrected shared quaternion/anchor/read bytes are affected; static transforms, physical position/velocity/force laws and angular state remain unchanged. This does not qualify anisotropic bodies."
+}

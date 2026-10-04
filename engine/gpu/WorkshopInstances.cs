@@ -68,7 +68,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
     {
         if (Count > Capacity) throw new ArgumentException("Construction instance capacity exceeded.");
         var ids = new HashSet<GpuBodyId>();
-        var balls = 0; var receivers = 0; var ramps = 0; var switches = 0; var lamps = 0;
+        var balls = 0; var receivers = 0; var ramps = 0; var switches = 0; var lamps = 0; var walls = 0;
         foreach (var item in _items)
         {
             switch (item)
@@ -78,12 +78,13 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
                 case WorkshopRamp: ramps++; break;
                 case WorkshopSwitch: switches++; break;
                 case WorkshopLamp: lamps++; break;
+                case WorkshopWall: walls++; break;
                 default: throw new ArgumentException("Unsupported authored instance declaration.");
             }
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
         }
-        if (balls > 1 || receivers > 1 || ramps > 2 || switches > 1 || lamps > 1)
+        if (balls > 1 || receivers > 1 || ramps > 2 || switches > 1 || lamps > 1 || walls > 1)
             throw new ArgumentException("Current instance population exceeds admitted capabilities.");
     }
     public bool Equals(WorkshopInstances? other) => other is not null && _items.SequenceEqual(other._items);
