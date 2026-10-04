@@ -7,7 +7,7 @@ public enum PresentationQuality { AwaitingHistory, Interpolated, ClockInvalid, S
 public readonly record struct PresentationSimulationTime(double Seconds);
 public readonly record struct PresentedBody(GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation);
 public readonly record struct WorkshopPresentationSample(PresentedBody? Body, MonotonicNanoseconds? DisplayWall,
-    PresentationSimulationTime SimulationTime, PresentationQuality Quality, WorkshopPresentationEvidence Evidence = default, PhysicsCaptureRead Captures = default, WorkshopClockStamp? FeedbackCapture = null, PhysicsActivationRead Activations = default);
+    PresentationSimulationTime SimulationTime, PresentationQuality Quality, WorkshopPresentationEvidence Evidence = default, PhysicsCaptureRead Captures = default, WorkshopClockStamp? FeedbackCapture = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default);
 public readonly record struct PresentationEndpoint(SimulationTick Tick, WorkshopClockStamp Capture, MappedCapture? Mapped);
 public readonly record struct WorkshopPresentationEvidence(MonotonicNanoseconds SelectedAt, ulong ClockEpoch, ulong DisplayEpoch,
     SimulationEpoch WorldEpoch, PresentationEndpoint? Latest, PresentationEndpoint? Before, PresentationEndpoint? After);
@@ -208,7 +208,7 @@ public sealed class WorkshopPoseHistory
             _simulationTime = endpoint.Tick.Value / SimulationFrequency;
             Quality = PresentationQuality.Terminal;
             if (wall is { } mappedWall) _displayWall = mappedWall.Value;
-            sample = new(Pose(endpoint), wall, new(_simulationTime), Quality, Captures: endpoint.Captures, FeedbackCapture: endpoint.Capture, Activations: endpoint.Activations);
+            sample = new(Pose(endpoint), wall, new(_simulationTime), Quality, Captures: endpoint.Captures, FeedbackCapture: endpoint.Capture, Activations: endpoint.Activations, Timers: endpoint.Timers);
             return true;
         }
         if (!clock.IsQualified || clock.DisplayEpoch != _clockEpoch)
@@ -252,7 +252,7 @@ public sealed class WorkshopPoseHistory
         _displayWall = requested; _simulationTime = timeSeconds;
         Quality = LatestAge(now) > StaleNanoseconds ? PresentationQuality.Stale : PresentationQuality.Interpolated;
         sample = new(body, new(requested), new(timeSeconds), Quality, Captures: first.Response.Read.Captures,
-            FeedbackCapture: first.Response.Read.Capture, Activations: first.Response.Read.Activations);
+            FeedbackCapture: first.Response.Read.Capture, Activations: first.Response.Read.Activations, Timers: first.Response.Read.Timers);
         return true;
     }
 

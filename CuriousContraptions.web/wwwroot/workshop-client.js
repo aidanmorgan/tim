@@ -140,9 +140,9 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         client.animationQualified = true;
                     } else if (item.animationOutput instanceof Uint8Array) {
                         if (!animationBootstrapped || !client.animationReady) throw new Error('Animation output precedes admission.');
-                        if (item.animationOutput.length !== 96) throw new Error('Wrong Animation output length.');
+                        if (item.animationOutput.length !== 144) throw new Error('Wrong Animation output length.');
                         deliver(client, item.animationOutput, now(), animationOutput);
-                        const kind = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 96).getUint32(60, true);
+                        const kind = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getUint32(60, true);
                         if (kind === client.hintKinds[1]) {
                             const animationAcknowledged = item.animationOutput.slice();
                             animation.postMessage({ animationAcknowledged }, [animationAcknowledged.buffer]);
@@ -252,7 +252,7 @@ export function animationControl(id, bytes) {
     if (client.failure) throw client.failure;
     if (!client.animationQualified || client.hintPending) throw new Error('Animation control is unavailable or pending.');
     const animationControl = new Uint8Array(bytes);
-    if (animationControl.length !== 96) throw new Error('Invalid animation command.');
+    if (animationControl.length !== 144) throw new Error('Invalid animation command.');
     client.hintPending = true;
     client.animation.postMessage({ animationControl }, [animationControl.buffer]);
 }

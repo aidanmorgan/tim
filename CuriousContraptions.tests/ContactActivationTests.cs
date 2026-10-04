@@ -10,6 +10,14 @@ public sealed class ContactActivationTests
             new WorkshopSwitch(new(2), new(0, 16, 0), default, CanonicalRotation.Identity, ContactTriggerSettings.Default),
             new WorkshopLamp(new(3), new(48, 16, 0), default, CanonicalRotation.Identity)));
 
+    private static PhysicsActivationRead Consume(ActivationNetwork network, PhysicsActivationRead prior, ContactTriggerRead[] events)
+    {
+        var tick = events.Length == 0 ? 1UL : events.Max(e => new ActivationTime(e.EventOrdinal,e.EventPhase).CeilingTick(4));
+        return network.Consume(prior, network.ClearTimers(), events, new(tick)).Activations;
+    }
+    private static void ValidateRead(ActivationNetwork network, PhysicsActivationRead read, SimulationTick tick,
+        uint substeps, PhysicsSceneDeclaration scene) => network.ValidateRead(read, network.ClearTimers(), tick, substeps, scene);
+
     [Fact]
     public void CompilerPreservesBothSwitchBoxesAndInheritedStaticMaterials()
     {
@@ -83,16 +91,16 @@ public sealed class ContactActivationTests
     public void CommittedContactLatchesSourceAndDeclaredTargetOnceWithoutMutatingPriorCheckpoint()
     {
         var (network, impact) = Activation(); var clear = network.Clear();
-        var candidate = network.Consume(clear, new[] { impact });
+        var candidate = Consume(network, clear, new[] { impact });
         Assert.Equal(ActivationPhase.Clear, clear[0].Phase);
         Assert.Equal(ActivationPhase.Clear, clear[1].Phase);
         Assert.Equal(ActivationPhase.Latched, candidate[0].Phase);
         Assert.Equal(ActivationPhase.Latched, candidate[1].Phase);
         Assert.Equal(impact.Collider, candidate[1].Collider);
         Assert.Equal(impact.Id, candidate[1].Trigger);
-        var replay = network.Consume(candidate, new[] { impact });
+        var replay = Consume(network, candidate, new[] { impact });
         Assert.Equal(candidate[0], replay[0]); Assert.Equal(candidate[1], replay[1]);
-        var bounced = network.Consume(candidate, new[] { impact with { EventOrdinal = 20, ApproachSpeed = new((Half)2) } });
+        var bounced = Consume(network, candidate, new[] { impact with { EventOrdinal = 20, ApproachSpeed = new((Half)2) } });
         Assert.Equal(candidate[0], bounced[0]); Assert.Equal(candidate[1], bounced[1]);
         var reset = network.Clear();
         Assert.Equal(clear[0], reset[0]); Assert.Equal(clear[1], reset[1]);
@@ -104,8 +112,8 @@ public sealed class ContactActivationTests
         var (network, impact) = Activation(false); var clear = network.Clear();
         var absent = impact with { OccurrenceCount = 0, Collider = default, EventOrdinal = 0,
             EventPhase = (Half)0, ApproachSpeed = new((Half)0) };
-        Assert.Equal(ActivationPhase.Clear, network.Consume(clear, new[] { absent })[0].Phase);
-        var candidate = network.Consume(clear, new[] { impact });
+        Assert.Equal(ActivationPhase.Clear, Consume(network, clear, new[] { absent })[0].Phase);
+        var candidate = Consume(network, clear, new[] { impact });
         Assert.Equal(ActivationPhase.Latched, candidate[0].Phase);
         Assert.Equal(ActivationPhase.Clear, candidate[1].Phase);
     }
@@ -114,13 +122,13 @@ public sealed class ContactActivationTests
     public void InvalidOrStaleOccurrenceDiscardsWholeLogicalCandidate()
     {
         var (network, impact) = Activation(); var clear = network.Clear();
-        Assert.Throws<ArgumentException>(() => network.Consume(clear, new[] { impact, impact }));
-        Assert.Throws<ArgumentException>(() => network.Consume(clear, new[] { impact with { Owner = new(99) } }));
-        Assert.Throws<ArgumentException>(() => network.Consume(clear, new[] { impact with { Id = new(99) } }));
+        Assert.Throws<ArgumentException>(() => Consume(network, clear, new[] { impact, impact }));
+        Assert.Throws<ArgumentException>(() => Consume(network, clear, new[] { impact with { Owner = new(99) } }));
+        Assert.Throws<ArgumentException>(() => Consume(network, clear, new[] { impact with { Id = new(99) } }));
         Assert.Equal(ActivationPhase.Clear, clear[0].Phase); Assert.Equal(ActivationPhase.Clear, clear[1].Phase);
-        var committed = network.Consume(clear, new[] { impact });
-        Assert.Throws<ArgumentException>(() => network.Consume(committed, new[] { impact with { EventOrdinal = 9 } }));
-        Assert.Throws<ArgumentException>(() => network.Consume(committed, new[] { impact with { Collider = new(99) } }));
+        var committed = Consume(network, clear, new[] { impact });
+        Assert.Throws<ArgumentException>(() => Consume(network, committed, new[] { impact with { EventOrdinal = 9 } }));
+        Assert.Throws<ArgumentException>(() => Consume(network, committed, new[] { impact with { Collider = new(99) } }));
         Assert.Equal(impact.Collider, committed[0].Collider);
     }
 
@@ -131,20 +139,20 @@ public sealed class ContactActivationTests
             new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)) };
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var (network, impact) = Activation();
-        var active = network.Consume(network.Clear(), new[] { impact });
-        network.ValidateRead(active, new(3), 4, scene);
-        network.ValidateRead(network.Clear(), new(0), 4, scene);
-        Assert.Throws<ArgumentException>(() => network.ValidateRead(active, new(0), 4, scene));
-        Assert.Throws<ArgumentException>(() => network.ValidateRead(active, new(2), 4, scene));
+        var active = Consume(network, network.Clear(), new[] { impact });
+        ValidateRead(network, active, new(3), 4, scene);
+        ValidateRead(network, network.Clear(), new(0), 4, scene);
+        Assert.Throws<ArgumentException>(() => ValidateRead(network, active, new(0), 4, scene));
+        Assert.Throws<ArgumentException>(() => ValidateRead(network, active, new(2), 4, scene));
         foreach (var changed in new[]
         {
             active[0] with { Node = new(1) }, active[0] with { Owner = new(99) },
             active[0] with { Collider = new(99) }, active[0] with { Trigger = new(99) },
             active[0] with { ContactBody = new(99) }, active[0] with { ApproachSpeed = new((Half).5) }
-        }) Assert.Throws<ArgumentException>(() => network.ValidateRead(new(new[] { changed, active[1] }), new(3), 4, scene));
+        }) Assert.Throws<ArgumentException>(() => ValidateRead(network, new(new[] { changed, active[1] }), new(3), 4, scene));
         var disconnected = Activation(false).Network;
-        Assert.Throws<ArgumentException>(() => disconnected.ValidateRead(active, new(3), 4, scene));
-        Assert.Throws<ArgumentException>(() => network.ValidateRead(new(new[] { active[0], network.Clear()[1] }), new(3), 4, scene));
+        Assert.Throws<ArgumentException>(() => ValidateRead(disconnected, active, new(3), 4, scene));
+        Assert.Throws<ArgumentException>(() => ValidateRead(network, new(new[] { active[0], network.Clear()[1] }), new(3), 4, scene));
     }
 
     [Fact]

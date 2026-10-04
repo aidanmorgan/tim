@@ -104,6 +104,9 @@ public partial class MachineWorld
                 wallDimensions ?? Registry.Definitions[WorkshopPartKind.Wall].Wall!.Capture()),
             WorkshopPartKind.ImpactSwitch => WorkshopInput.Switch(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
+            WorkshopPartKind.Delay => WorkshopInput.Delay(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopDelay timer ? timer.Duration :
+                    Registry.Definitions[WorkshopPartKind.Delay].Delay!.Capture()),
             WorkshopPartKind.SignalLamp => WorkshopInput.Lamp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             _ => throw new ArgumentException("Unsupported instance kind.")
         };
@@ -235,6 +238,9 @@ public partial class MachineWorld
             foreach (var part in _parts)
                 if (part.HasActivationBindings && _workshopClient.TryActivationBlend(frame, _workshopPresentation,
                     new(part.AuthoredId.Value), out var blend)) part.ApplyActivationBlend(blend);
+            foreach (var part in _parts)
+                if (part.HasTimerBindings && _workshopClient.TryTimerFrame(frame, _workshopPresentation,
+                    new(part.AuthoredId.Value), out var timerFrame)) part.ApplyTimerFrame(timerFrame);
             var position = Part(WorkshopPartKind.Basketball)?.Position ?? Vector3.Zero;
             var rotation = Part(WorkshopPartKind.Basketball)?.Quaternion ?? Quaternion.Identity;
             _workshopClient.RecordPresentation(presentation, selected, new(frame,
@@ -248,7 +254,8 @@ public partial class MachineWorld
     {
         ValidateWorkshopRead(read, Construction);
         if (read.Epoch != WorkshopRead.Epoch)
-            foreach (var part in _parts) if (part.HasActivationBindings) part.ApplyActivationBlend((Half)0);
+            foreach (var part in _parts) { if (part.HasActivationBindings) part.ApplyActivationBlend((Half)0);
+                if (part.HasTimerBindings) part.ApplyTimerFrame(new(CuriousContraptions.Presentation.AnimationTimerPhase.Ready, new((Half)0))); }
         WorkshopRead = read;
         Ticks = checked((int)read.Tick.Value);
         Running = WorkshopPhase == WorkshopPhase.Running;
@@ -286,12 +293,14 @@ public partial class MachineWorld
             if (part.Definition.WorkshopKind != instance.Kind) throw new ArgumentException("Authored identity changed part kind.");
             if (instance is WorkshopRamp ramp && part is RampPart rampPart) rampPart.ApplyDimensions(ramp.Dimensions);
             if (instance is WorkshopWall wall && part is WallPart wallPart) wallPart.ApplyDimensions(wall.Dimensions);
+            if (instance is WorkshopDelay delay && part is DelayPart delayPart) delayPart.ApplyDuration(delay.Duration);
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;
             part.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
             if (part is BasketPart receiver) receiver.ApplyHalo((Half)0);
-            if (part.HasActivationBindings) part.ApplyActivationBlend((Half)0);
+            { if (part.HasActivationBindings) part.ApplyActivationBlend((Half)0);
+                if (part.HasTimerBindings) part.ApplyTimerFrame(new(CuriousContraptions.Presentation.AnimationTimerPhase.Ready, new((Half)0))); }
         }
     }
 

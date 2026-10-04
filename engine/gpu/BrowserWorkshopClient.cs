@@ -365,7 +365,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (read.Tick.Value != 0 && (read.Motion is not { } motion ||
             motion.Substeps != construction.Settings.PhysicalStepsPerCommit))
             throw new ArgumentException("Motion cadence differs from the admitted construction.");
-        network.ValidateRead(read.Activations, read.Tick, construction.Settings.PhysicalStepsPerCommit, scene);
+        network.ValidateRead(read.Activations, read.Timers, read.Tick, construction.Settings.PhysicalStepsPerCommit, scene);
         var expectedSensors = construction.Ball.HasValue && construction.Receiver.HasValue ? 1 : 0;
         if (read.Captures.Count != expectedSensors || read.Rotation.HasValue != read.Ball.HasValue)
             throw new ArgumentException("Read physical/sensor population differs from its construction.");

@@ -1,0 +1,31 @@
+{
+  "slice": "CAT-022-D/I",
+  "base": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+  "owner": "/root/p025_implementation",
+  "reviewer": "/root/p025_review",
+  "verdict": "Design approved; implementation and publication incomplete",
+  "scope": "Actual UI Impact switch -> Delay -> Signal lamp; generic discrete timer declarations and shared animation. No Pipe runtime imported.",
+  "authority": [
+    "docs/planning/invest/current-consumers.md#cat-022-i",
+    "docs/planning/requirements.md#current-cat-022",
+    "docs/planning/requirements.md#todo-130",
+    "docs/planning/requirements.md#todo-131",
+    "docs/simulation-controls.md",
+    "docs/gpu-f16-physics.md"
+  ],
+  "geometry": "Source static Box size(1.35,.15,.8) at local(0,-.7,0); housing/art nonphysical; material(1,.1,.3). Full canonical pose; original art.",
+  "configuration": "Half seconds .1..12/default1; checked exact Half significand/exponent to integer ceiling at admitted immutable 60/120/240Hz; no rounded Half product. 8.9375s at120Hz=1073ticks.",
+  "time": "Start boundary is ceiling of signed physical ordinal/phase time to simulation ticks. Deadline=start+positive duration ticks. Boundary N consumes physical occurrences through N and due occurrences by time then stable emitter identity. Finished and elapsed output appear atomically in committed N before physics beginning N, not before integration ending N. A timer beyond the 30s Run limit stays Counting until Reset; deadline is not clamped.",
+  "events": "Contact and TimerElapsed are typed occurrence variants. TimerElapsed owns emitter/due time; retain original physical cause separately. Source latch once, timer Ready/Counting/Finished; busy and finished inputs ignored. Positive duration prevents same-time feedback; full fanout admitted within eight-node/eight-edge bounds.",
+  "transaction": "Validate all GPU candidate bytes/events, derive immutable next logical candidate from committed state, then install physical and logical state together. Invalid/stale/foreign/duplicate input or overflow discards candidate. Reset and Load fresh epoch/clear timers. Cadence edits only Building and re-admit.",
+  "presentation": "Countdown hand and phase colors are shared Animation bindings driven by committed timer phase/start/deadline at the physical display time. No scene or wallclock countdown authority. Pause holds; epoch retirement clears/reseeds ownership.",
+  "checks": [
+    "Exact .1/1/8.9375/12 duration ceiling at all rates; overflow and invalid schema/configuration",
+    "Fractional occurrence ceiling; before/at due; early direct bypass time ordering; same-time stable identity",
+    "Repeated/busy/finished input ignored without deadline drift; rollback/reset/load and disconnected routes",
+    "Actual UI configuration/typed links/countdown/finish/Pause/Reset/SaveLoad and incompatible target",
+    "Affected Switch/Lamp free-impact path and shared Animation/transport controls; Production/Chrome and scoped deployed identities"
+  ],
+  "remaining": "Both authored delay lessons/all difficulties remain todo131; broad workload/device/rolling qualification not claimed. Pipe retains exact failures and same pair independently.",
+  "reviewApproval": "Reviewer message: bounded CAT022 first-interaction Design approved, including corrected merge/provenance model and required invariants."
+}

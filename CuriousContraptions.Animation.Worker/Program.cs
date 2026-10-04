@@ -213,8 +213,11 @@ public static partial class Program
             throw new InvalidOperationException("Animation control requires qualified master time.");
         if (control.Kind != AnimationControlKind.Visibility)
         {
-            var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, control.From),
-                WorkshopAnimationWire.Value(control.Property, control.To), new AnimationDurationSeconds(control.Duration),
+            var from = control.Kind == AnimationControlKind.TimerObservation
+                ? AnimationTimerSegment.Create(control.Timer).Endpoint.Value : control.From;
+            var to = control.Kind == AnimationControlKind.TimerObservation ? from : control.To;
+            var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, from),
+                WorkshopAnimationWire.Value(control.Property, to), new AnimationDurationSeconds(control.Duration),
                 control.Curve, AnimationRepeat.Once, AnimationClock.Presentation);
             if (previous.Handle is { } old) Tracks.Remove(old);
             var handle = Tracks.Register(new(control.Target, control.Property), definition);
@@ -256,6 +259,7 @@ public static partial class Program
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(72), control.World.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(80), control.EventOrdinal);
         BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
+        WorkshopAnimationWire.WriteTimer(Output, control.Timer);
         SendOutput(Output);
     }
 }

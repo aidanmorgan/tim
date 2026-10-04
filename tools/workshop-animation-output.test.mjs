@@ -8,7 +8,7 @@ const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/work
 let imports, closed = false, controls = 0;
 const messages = [];
 const host = {
-    OutputKinds: () => [1, 2, 3], TargetCapacity: () => 10,
+    OutputKinds: () => [1, 2, 3], TargetCapacity: () => 18,
     Bootstrap: () => {}, AnimationControl: () => { controls++; }
 };
 const runtime = {
@@ -39,10 +39,10 @@ await module.link(name => {
 await module.evaluate();
 const channel = new MessageChannel();
 self.onmessage({ data: { bootstrap: new Uint8Array(64), clockPort: channel.port1 } });
-self.onmessage({ data: { animationControl: new Uint8Array(96) } });
+self.onmessage({ data: { animationControl: new Uint8Array(144) } });
 assert.equal(controls, 1, 'current renamed export is callable');
 function sample(target, pulse) {
-    const bytes = new Uint8Array(96), view = new DataView(bytes.buffer);
+    const bytes = new Uint8Array(144), view = new DataView(bytes.buffer);
     view.setUint32(60, 2, true); view.setBigUint64(64, BigInt(target), true);
     view.setBigUint64(40, BigInt(pulse), true); return bytes;
 }
@@ -50,7 +50,7 @@ imports.output(sample(1, 1)); // Hold its receipt while every admitted target pu
 for (let target = 1; target <= host.TargetCapacity(); target++) imports.output(sample(target, 2));
 for (let target = 1; target <= host.TargetCapacity(); target++) imports.output(sample(target, 3));
 assert.equal(messages.filter(value => value.animationOutput).length, 1);
-assert.throws(() => imports.output(sample(11, 3)), /capacity exceeded/);
+assert.throws(() => imports.output(sample(host.TargetCapacity() + 1, 3)), /capacity exceeded/);
 const first = messages.at(-1).animationOutput;
 self.onmessage({ data: { animationAcknowledged: first } });
 for (let target = 1; target <= host.TargetCapacity(); target++) {
@@ -60,7 +60,7 @@ for (let target = 1; target <= host.TargetCapacity(); target++) {
     assert.equal(view.getBigUint64(40, true), 3n, 'only latest per target survives');
     self.onmessage({ data: { animationAcknowledged: current } });
 }
-assert.equal(messages.filter(value => value.animationOutput).length, 11);
+assert.equal(messages.filter(value => value.animationOutput).length, host.TargetCapacity() + 1);
 imports.output(sample(1, 4)); imports.output(sample(2, 4));
 self.onmessage({ data: { dispose: true } });
 const afterDispose = messages.length;

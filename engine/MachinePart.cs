@@ -33,15 +33,17 @@ public partial class MachinePart : Node3D
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall) ||
+        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay) ||
             (definition.WorkshopKind == WorkshopPartKind.Basketball && definition.Basketball is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Ramp && definition.Ramp is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Wall && definition.Wall is null) ||
+            (definition.WorkshopKind == WorkshopPartKind.Delay && definition.Delay is null) ||
             definition.Parameters.Count != 0)
             throw new ArgumentException("Unsupported canonical part declaration.");
         if (definition.WorkshopKind == WorkshopPartKind.Basketball) definition.Basketball!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.Ramp) definition.Ramp!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.Wall) definition.Wall!.Capture();
+        if (definition.WorkshopKind == WorkshopPartKind.Delay) definition.Delay!.Capture();
         Definition = definition;
         Name = definition.Id; // Godot resource/node-name boundary only.
     }
@@ -66,6 +68,20 @@ public partial class MachinePart : Node3D
     {
         var progress = new AnimationColourBlend(value);
         foreach (var binding in _bindings) binding.Apply(progress);
+    }
+    private readonly List<WorkshopVisualBinding> _timerProgress = new();
+    private readonly List<(WorkshopVisualBinding Counting, WorkshopVisualBinding Finished)> _timerColours = new();
+    protected void BindTimerProgress(Node3D target, WorkshopVisualProperty property, Half neutral, Half finished) =>
+        _timerProgress.Add(new(target, property, neutral, finished));
+    protected void BindTimerColour(MeshInstance3D target, WorkshopVisualProperty property, Half ready, Half counting, Half finished) =>
+        _timerColours.Add((new(target, property, ready, counting), new(target, property, counting, finished)));
+    internal bool HasTimerBindings => _timerProgress.Count != 0 || _timerColours.Count != 0;
+    internal void ApplyTimerFrame(AnimationTimerFrame frame)
+    {
+        foreach (var binding in _timerProgress) binding.Apply(frame.Progress);
+        foreach (var binding in _timerColours)
+            if (frame.Phase == AnimationTimerPhase.Finished) binding.Finished.Apply(new((Half)1));
+            else binding.Counting.Apply(new(frame.Phase == AnimationTimerPhase.Counting ? (Half)1 : (Half)0));
     }
     protected virtual void Build() { }
     public void SetSelected(bool selected)

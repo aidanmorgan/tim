@@ -11,7 +11,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall },
+        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay },
             registry.Definitions.Keys.OrderBy(kind => kind));
         var definition = registry.Definitions[WorkshopPartKind.Basketball];
         Assert.Empty(definition.Parameters);
@@ -27,6 +27,39 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             Assert.Equal((float)material.Radius.Value, sphere.Radius);
         }
         finally { ball.GetParent()?.RemoveChild(ball); ball.Free(); }
+    }
+
+    [Fact]
+    public void DelayArtworkUsesSharedFullTurnAndSourcePhasePalette()
+    {
+        var registry=new PartRegistry(); registry.Discover();
+        var delay=(DelayPart)registry.Create(WorkshopPartKind.Delay);
+        try
+        {
+            godot.Tree.Root.AddChild(delay);
+            var hand=delay.Visual.GetNode<Node3D>("CountdownHand");
+            var indicator=delay.Visual.GetChildren().OfType<MeshInstance3D>()
+                .Single(mesh=>mesh.Position==new Vector3(0,-.35f,.37f));
+            foreach(var (phase,progress,colour) in new[] {
+                (CuriousContraptions.Presentation.AnimationTimerPhase.Ready,(Half)0,new Color("#556573")),
+                (CuriousContraptions.Presentation.AnimationTimerPhase.Counting,(Half).25,new Color("#e8b764")),
+                (CuriousContraptions.Presentation.AnimationTimerPhase.Finished,(Half)1,new Color("#f7cb52")) })
+            {
+                delay.ApplyTimerFrame(new(phase,new(progress)));
+                var actual=((StandardMaterial3D)indicator.MaterialOverride).AlbedoColor;
+                Assert.Equal((float)(Half)colour.R,actual.R); Assert.Equal((float)(Half)colour.G,actual.G); Assert.Equal((float)(Half)colour.B,actual.B);
+                Assert.InRange(Math.Abs(hand.Rotation.Z-(float)(Half)((double)(Half)(-Math.Tau)*(double)progress)),0,.00001);
+            }
+            using var duration=new SpinBox {MinValue=(double)(Half).1,MaxValue=12,Step=0,Value=8.9375};
+            Assert.Equal(new DelayDuration(new((Half)8.9375)),DelayDuration.FromInput(duration.Value));
+            duration.Apply();
+            Assert.Equal(8.9375,duration.Value);
+            duration.GetLineEdit().Text="4";
+            Assert.Equal(8.9375,duration.Value);
+            duration.Apply();
+            Assert.Equal(4,duration.Value);
+        }
+        finally {delay.GetParent()?.RemoveChild(delay);delay.Free();}
     }
 
     [Fact]
@@ -183,6 +216,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
         { opacity = default; return false; }
         public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend) { blend = default; return false; }
+        public bool TryTimerFrame(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out CuriousContraptions.Presentation.AnimationTimerFrame result) { result = default; return false; }
         public void RecordCapturePresentation(ulong frame) => throw new InvalidOperationException("No capture opacity was supplied by this fixture.");
         public void RecordHintPresentation(ulong frame) => throw new InvalidOperationException("No hint was supplied by this fixture.");
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }

@@ -10,7 +10,7 @@
     "owner": "/root/p025_implementation",
     "independence": "Review-only evidence; no deliverable edits. Retained pair, actual process identifier unavailable."
   },
-  "verdict": "Pre-publication functional criteria Pass for current corrected source/artifacts; exact candidate identity review and SnapshotApproval pending. Full slice remains Incomplete until remote/deployed checks.",
+  "verdict": "Terminal scoped deployed playable Pass: CAT-066 Wall contact and local-axis resize at commit 7c19ef720e4d8f8610c4e4d02b5b286b1eba5214, successful Pages run 37187386165. No unresolved unintended regression within the justified current scope. Deferred qualification and other Wall integrations remain open.",
   "sourceAcceptance": [
     "docs/planning/invest/current-consumers.md#cat-066-i",
     "docs/planning/requirements.md#current-cat-066",
@@ -52,7 +52,7 @@
     {
       "criterion": "Runtime/Release/lifecycle/publication",
       "impact": "Forward schemas/currentcallers/resources, existingworkers unchangedapartshaderguard",
-      "status": "Pre-publication build/loaded/lifecycle Pass; exactcandidate/publication pending",
+      "status": "Pass scoped, including remote source, original CI artifact, actual loaded identities and production-origin UI.",
       "checks": "NormalProductionexport andloadedidentity; affectedactualUIstartup/Reset/close; exactscopedsnapshotthenCI/deployedidentityandbehavior."
     },
     {
@@ -248,7 +248,22 @@
     "editing": "Actuallimits (.4/8,.4/6,.12/2) reached throughgizmos; nonselectedsecondattemptbatchdidnotedit andisnotacceptedproof. Explicitreselectionthenboundsgestures eachUndo restoresfullcanonicalconstruction. HeldEscape visibly restoreslivepreview withoutConstruct; immediatekeypress/mouseupfirstattemptretained asinputtiminglimitation. InitialXlower comparesexactWalldimensions only because precedingcommandwasrejectedoverlap; otherboundUndo fullconstructionexact.",
     "sharedRing": "ActualFirstPrinciplesRamp placed/resized/oneUndo:canonicalconstructionexact;visibleTorus andprojectionexpandandrestore. Editinginputsunchanged by laternormalization-onlyshaderfix, reusable.",
     "lifecycle": "OwnedUIcontext andbothworkersclosed;originalclosecapture retained tool output. No errors, no observeroverflow. Onlyread-observer retained for correctedproof;last-two-mapdiagnostic retiredbeforecorrectedload.",
-    "remaining": "Exactcandidate source/docs identity review, then remoteCI/loadedidentities and deployedordinarybehavior."
+    "remaining": "Exactcandidate source/docs identity review, then remoteCI/loadedidentities and deployedordinarybehavior.",
+    "closed": {
+      "closed": true,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:8060/animation/worker.js",
+          "created": 1791099807641,
+          "closed": 1791100286657
+        },
+        {
+          "url": "http://127.0.0.1:8060/simulation/worker.js",
+          "created": 1791099807641,
+          "closed": 1791100286657
+        }
+      ]
+    }
   },
   "transitiveNormalization": {
     "callPaths": [
@@ -270,5 +285,73 @@
     "Anvil rejected initial1163357B rawrecord forlaunchsize; same observations encodedlosslesslyasbase64 reducedto782023B, revalidated andallowedwithlong-linewarning. No blockedwrite, shardbypass orcleansecret-scanclaim.",
     "Original GPUUnsupportedPair/maxguard failure, wrongedgeinitialoracle, W4nativeexception andfirstUIfailure retained.",
     "Detailedperformance/device/coldcache/globalqualification andotherWallcontainment/optical/air/soundintegrations remain open perplayable-first policy."
-  ]
+  ],
+  "snapshotApproval": {
+    "candidate": "playable-candidate-paths.json",
+    "baseCommit": "15b5b4eb9d743ed170a9d92b8de8193c18d9f840",
+    "closureSha256": "3f50856e64b07161d03d4ce38d89e2d2d5ee9a3c1500033ff1a77f4d2a9efd6b",
+    "inputs": 267,
+    "bytes": 2100816,
+    "deliverableDeltas": 31,
+    "independentIdentity": {
+      "chunk_id": "78c794",
+      "wall_time_seconds": 1.5436734589999999,
+      "exit_code": 0,
+      "original_token_count": 351,
+      "output": "{\n  \"files\": 267,\n  \"totalBytes\": 2100816,\n  \"closure\": \"3f50856e64b07161d03d4ce38d89e2d2d5ee9a3c1500033ff1a77f4d2a9efd6b\",\n  \"expected\": \"3f50856e64b07161d03d4ce38d89e2d2d5ee9a3c1500033ff1a77f4d2a9efd6b\",\n  \"drift\": [],\n  \"probeDrift\": [],\n  \"changed\": [\n    \"CuriousContraptions.csproj\",\n    \"CuriousContraptions.tests/BasketballResourceTests.cs\",\n    \"CuriousContraptions.tests/CuriousContraptions.tests.csproj\",\n    \"CuriousContraptions.tests/WorkshopWallTests.cs\",\n    \"README.md\",\n    \"TODO.md\",\n    \"docs/engine-contracts.md\",\n    \"docs/gpu-f16-physics.md\",\n    \"engine/MachinePart.cs\",\n    \"engine/MachineWorld.Gpu.cs\",\n    \"engine/PartDefinition.cs\",\n    \"engine/PartRegistry.cs\",\n    \"engine/WallDimensionsResource.cs\",\n    \"engine/WallDimensionsResource.cs.uid\",\n    \"engine/gpu/PhysicsDeclarations.cs\",\n    \"engine/gpu/WorkshopConnections.cs\",\n    \"engine/gpu/WorkshopConstruction.cs\",\n    \"engine/gpu/WorkshopInstances.cs\",\n    \"engine/gpu/WorkshopPartKind.cs\",\n    \"engine/gpu/WorkshopPhysicsCompiler.cs\",\n    \"engine/gpu/WorkshopSaveCodec.cs\",\n    \"engine/gpu/WorkshopWall.cs\",\n    \"engine/gpu/WorkshopWall.cs.uid\",\n    \"engine/gpu/WorkshopWire.cs\",\n    \"engine/gpu/physics.wgsl\",\n    \"export_presets.cfg\",\n    \"parts/WallPart.cs\",\n    \"parts/catalog/wall.tres\",\n    \"ui/Workshop.cs\",\n    \"ui/WorkshopGpu.cs\",\n    \"ui/WorkshopPuzzle.cs\"\n  ],\n  \"unlistedDelta\": [],\n  \"extraDelta\": []\n}\n"
+    },
+    "contentApplicability": "Candidatecontent/puzzles.json isexactbasecommitblob, unrelatedworktreecampaignexcluded. Currentfirst_principles entryequalstestedcandidatefirstentry. ActualadmittedreaderWorkshopSaveTests218 reads[0]; typedruntimepuzzlehasnostringloader andallresourceexportsexplicitlyexcludecontent/*. An initial text-membership probe returnedfalse becausecontent/*appearsinexclude_filter; actualconfigurationread e94fa8 establishescorrectexclusion.",
+    "diffReviews": [
+      "9349a0",
+      "d128f2",
+      "0af26c",
+      "5c8e67",
+      "e94fa8"
+    ],
+    "approval": "Independentreviewer permits normal scoped stage/commit/push/deploy ofexactinputsplusnamedoriginalreview/probe/receipt supplements. Futureverdict/CIreceiptsarenotselfhashedapprovalinputs.",
+    "publicationDependent": [
+      "Reconcileapprovedsource/probes toactualremotecommit andsuccessfulCIrun.",
+      "VerifyoriginalCIartifactdigest+13selectedassets andactualdeployedloadedresponses;bindresulttothatcommit.",
+      "Freshproduction-originactualUI:placedWallfullpose/3axisresize altersBasketballcontact;Pause/resume/exactReset;Save/edit/Load;missandatomic overlapnegative. Reuse unchangedsource/native/rotationcontrols only afterexactidentityapplicability.",
+      "Closeownedcontexts/workers andrecordterminalscopedplayableverdict."
+    ]
+  },
+  "deployed": {
+    "commit": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+    "run": 37187386165,
+    "url": "https://aidanmorgan.github.io/tim/",
+    "raw": "deployed-ui-37187386165.raw.json",
+    "ci": "ci-artifact-37187386165.json",
+    "remote": {
+      "chunk_id": "ec43af",
+      "exit_code": 0,
+      "remote": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+      "verified": 270,
+      "drift": [],
+      "closure": "3f50856e64b07161d03d4ce38d89e2d2d5ee9a3c1500033ff1a77f4d2a9efd6b"
+    },
+    "artifactVerification": {
+      "chunk_id": "9833c3",
+      "wall_time_seconds": 0.294569375,
+      "exit_code": 0,
+      "original_token_count": 25,
+      "output": "{\"archiveDigestVerified\": true, \"bytes\": 106063813, \"selected\": 13, \"mismatch\": [], \"missing\": []}\n"
+    },
+    "rawVerification": {
+      "chunk_id": "9cf248",
+      "wall_time_seconds": 0.000006875,
+      "exit_code": 0,
+      "original_token_count": 51,
+      "output": "{'commit': '7c19ef720e4d8f8610c4e4d02b5b286b1eba5214', 'run': 37187386165, 'uncompressedBytes': 1506342, 'loadedMatches': True, 'closed': True, 'screens': ['placed', 'paused', 'overlap'], 'errors': []}\n"
+    },
+    "loaded": "All 13 selected actually loaded assets match the original CI artifact; no missing/mismatched responses. Source candidate and three original probes match the remote commit.",
+    "construction": "Genuine new palette placement, full Tip/Turn/Tilt rotation, and three local-axis resize gestures produced canonical construction byte-identical to the independently verified local scene. No setters, imported solution or numeric placement control.",
+    "saveLoad": "Save advances authority revision17→18 exactly once. Actual deletion removes Wall; Load restores both instances and every canonical field exactly.",
+    "positive": "Real Basketball contact/deflection on the resized rotated Wall; Run reaches312, Pause157 holds157, Resume continues, Reset restores exact initial body pose/velocity/rotation/angular values at Building tick0.",
+    "negative": "Miss run132 keeps x=3.6999969482421875,z=0 and horizontal velocity0, with exact Reset. Actual drag into the Wall rejects GpuAdmission; Building epoch/revision/body remain unchanged and preview restores.",
+    "lifecycle": "No JS errors or bounded observer overflow. Both owned workers and context closed. All temporary hash/compression contexts also closed.",
+    "performance": "Navigation-to-usable12930.02490234375ms exceeds unchanged5000ms target: Fail/deferred under P0-034. GPU compiler-cache condition unknown; no cold-cache, full-device or full-workload qualification inferred.",
+    "evidenceEncoding": "The complete original observation JSON is preserved in one standard gzip/base64 envelope after uncompressed1,506,342B exceeded launch validation. Revalidation allowed284KB encoded content with a long-line scan warning; no complete secret-scan claim. Decompression and original JSON identity/length verified.",
+    "publicationStatus": "All required publication-dependent checks passed. This terminal review/receipt may accompany the next normal scoped commit; no receipt-only redeployment or amendment required."
+  }
 }

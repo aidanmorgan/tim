@@ -15,6 +15,7 @@ internal interface IWorkshopClient : IAsyncDisposable
     bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity);
     void RecordCapturePresentation(ulong frame);
     bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend);
+    bool TryTimerFrame(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out CuriousContraptions.Presentation.AnimationTimerFrame result);
     SimulationEpoch Epoch { get; }
     AuthorityRevision Revision { get; }
     WorkshopCommandIdentity? Pending { get; }

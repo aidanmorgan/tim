@@ -1,0 +1,691 @@
+{
+  "slice": "CAT-022-D/I Impact switch → Delay → Signal lamp",
+  "base": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+  "workspace": "/Users/aidan/dev/personal/tim-delay",
+  "owner": "/root/p025_implementation",
+  "reviewer": "/root/p025_review",
+  "verdict": {
+    "design": "Pass bounded first-interaction model with conditions below",
+    "implementation": "Pass scoped playable candidate",
+    "native": "Pass affected independent70/70; owner full496/496 plus current focused fixes",
+    "actualUi": "Pass final CI-matched local Release5a3c11",
+    "publication": "Incomplete: remote/CI/deployed checks pending",
+    "snapshotApproval": true,
+    "fullCat022": "Incomplete; todo131 lessons/all-difficulty fixtures retained"
+  },
+  "source": [
+    "docs/planning/invest/current-consumers.md#cat-022-i",
+    "docs/planning/requirements.md#current-cat-022",
+    "docs/planning/requirements.md#todo-130",
+    "docs/planning/requirements.md#todo-131",
+    "docs/simulation-controls.md",
+    "parts/DelayPart.cs",
+    "docs/general-engine-design.md"
+  ],
+  "dependency": {
+    "decision": "Independent of unadmitted Pipe annular geometry/CCD/curved support. Start from clean deployed Wall7c19; no Pipe edits imported.",
+    "verified": "ActivationNetwork, WorkshopGpuDevice/Simulation Program, Animation Worker Program, shared activation presentation, Switch/Lamp sources unchanged between approved base and Pipe worktree at read boundary. Base device validates GPU then computes candidate logical state and commits both through one owned transaction.",
+    "reuse": "Scoped source Switch free-fall/impact qualification, static Box, once-activation, Lamp animation and ordinary lifecycle remain relevant. Added Delay physical base is centered local(0,-.7,0),dimensions(1.35,.15,.8), inherited restitution1/threshold.1/friction.3; housing is visual only.",
+    "limit": "Two-Switch genuine route may involve tangential support, so known cleanbase hUnits/512 defect cannot be excluded by scene restriction. Required prerequisite approved in design: only ldexp(hUnits,-9), with current typed Plane/Box120 and duration controls before runtime approval; no unadmitted Pipe geometry/query/normal/ABI code.",
+    "pipe": "P0-048-map owning review retains genuineUI037016 scopedPass and fast27/mouth37/shoulder31 numerical failures; no Pipe publication approval."
+  },
+  "model": {
+    "duration": "Canonical Half .1–12 seconds/default1; exact checked dyadic→integer ceiling at admitted cadence, not Half-rounded multiplication. Half8.9375*120=1072.5→1073.",
+    "time": "StartBoundary=ceiling of signed physical contact ordinal/phase into simulation-tick boundary; positive DurationTicks; checked Deadline=start+duration. Finished/due occurrence at exact committed boundaryN before any physics N→N+1. No extra publish tick.",
+    "order": "Merge physical occurrences and timer due occurrences by exact declared timestamp then stable emitter identity; do not process dueN before earlier fractional contact. Positive duration prevents zero-time cascades. Busy/Finished triggers ignored without altering original deadline.",
+    "state": "Generic C# Ready/Counting/Finished node and bounded checkpoint; typed TimerElapsed owns emitter/output timestamp and carries physical root cause separately. No fake impact or copied contact time for delayed output.",
+    "transaction": "Full fanout/admission before install, physics/timer/network/read/occurrences jointly commit or roll back; no partial event acknowledgment. Reset/Load rebuild Ready in fresh epoch. Foreign/stale/duplicate/unknown identities and malformed checkpoints reject atomically.",
+    "animation": "Shared Animation worker consumes committed timer phase/start/deadline and samples physical display time for hand/progress/phase color; no part loop or timer authority in renderer. Pause holds/reseeds; Reset/generation retires stale feedback.",
+    "capacity": "Existing8-node finite network and immutable admitted cadence through Run; Configure only in Building with fresh admission. Cadences60/120/240; current30s Run endpoint may retain unfinished Counting, never clamp deadline or fabricate completion. Two existing Switch instances are necessary for genuine busy/finished delivery; one Ball remains. Third Switch rejects; total8-authored/node/trigger limits unchanged.",
+    "ports": "Typed ActivationIn/ActivationOut at local±.72; activation-only, no electrical supply. Canonical configuration and immutable links roundtrip; old schema rejects explicitly."
+  },
+  "criterionImpact": [
+    {
+      "id": "D1",
+      "scope": "Duration/schema",
+      "checks": "Default/min/max, one-Half-step outside, nonfinite/unknown, exact ceiling8.9375 and all admitted rates, checked deadline overflow",
+      "status": "Pass scoped to this first playable interaction; named broader children retained"
+    },
+    {
+      "id": "D2",
+      "scope": "Timer/routing",
+      "checks": "Before/at deadline, fractional source boundary, busy/finished/repeated same-tick input, ordered coincident contact/deadline and chain, typed output/root provenance, full fanout/rollback",
+      "status": "Pass scoped to this first playable interaction; named broader children retained"
+    },
+    {
+      "id": "D3",
+      "scope": "Read/ownership",
+      "checks": "Malformed/missing/stale/duplicate/foreign timer/event reads; rejected GPU/installation preserves exact checkpoint; generation/disposal invalidation",
+      "status": "Pass scoped to this first playable interaction; named broader children retained"
+    },
+    {
+      "id": "D4",
+      "scope": "Animation/clock",
+      "checks": "Committed countdown hand and finish color, same physical display time, Pause/resume hold, stale ACK/generation Reset, bounded worker capacity",
+      "status": "Pass scoped to this first playable interaction; named broader children retained"
+    },
+    {
+      "id": "D5",
+      "scope": "Genuine Chrome",
+      "checks": "Actual palette placement/configuration and Switch→Delay→Lamp typed wiring; measured committed no-early/at-deadline activation; missed/disconnected/wrong-domain/direct bypass as applicable; busy/finished control supported by native plus reachable actual UI; Cancel/Undo, Save/Load, exact Run/Pause/Reset",
+      "status": "Pass scoped to this first playable interaction; named broader children retained"
+    },
+    {
+      "id": "D6",
+      "scope": "Build/publication",
+      "checks": "Affected native/worker controls, Production export and actual loaded identities; exact scoped SnapshotApproval then remote/CI/deployed identity and genuine deployed behavior",
+      "status": "Pre-publication Pass; publication-dependent checks pending"
+    }
+  ],
+  "deferred": "All Delay lessons/difficulties and other fixtures remain children; no full catalogue/device/performance/cold-cache/global qualification from this slice.",
+  "observations": [
+    {
+      "command": "git rev-parse HEAD",
+      "result": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+      "original": "478a34"
+    },
+    {
+      "command": "git status --short (tim-delay)",
+      "result": "empty before implementation",
+      "original": "6b1431"
+    },
+    {
+      "command": "git show 7c19:CuriousContraptions.Simulation/WorkshopGpuDevice.cs",
+      "result": "Candidate physical validation precedes logical Consume, same Commit swaps physical/logical",
+      "original": "dd973a"
+    },
+    {
+      "command": "read WorkshopSimulation.Configure and WorkshopGpuProfile",
+      "result": "Building-only fresh-epoch configuration; Hz60/120/240",
+      "originals": [
+        "eca7bb",
+        "715fe5"
+      ]
+    }
+  ],
+  "earlyModelReview": {
+    "status": "Pass scoped compiled authoring/codec/static geometry boundary; moving runtime not approved",
+    "command": "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-build --no-restore --filter FullyQualifiedName~WorkshopDelayTests --nologo",
+    "original": {
+      "chunk_id": "cd5257",
+      "wall_time_seconds": 0.981313833,
+      "exit_code": 0,
+      "original_token_count": 84,
+      "output": "Test run for /Users/aidan/dev/personal/tim-delay/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)\nA total of 1 test files matched the specified pattern.\n\nPassed!  - Failed:     0, Passed:     4, Skipped:     0, Total:     4, Duration: 60 ms - CuriousContraptions.tests.dll (net10.0)\n"
+    },
+    "compiledIdentity": {
+      "tests": "91a00b7a1519e51d48b949935de300b6c8751d663aa6a2c727571a795b364ad7",
+      "game": "83d8aa132a0bc64b5a8067a0569bb5a6df4fad72f9c8884f12d5f776bf97771e"
+    },
+    "sourceInspection": "Exact dyadic ceiling, source Box/material, slot104 duration with zero remaining padding, forward wire12/save5, immutable instance/edge ownership. Kind-aware port positions and runtime integration still pending.",
+    "requestedControls": [
+      "Adjacent Half below canonical minimum/above12",
+      "Full8-authored population within unchanged physics capacities",
+      "Delay endpoint direction/domain serialized negatives"
+    ],
+    "runtimeObligations": "TimerElapsed phase0 and contextual exact start/due/phase provenance, monotonic candidate clock, read/generation/rollback validation pending coherent runtime."
+  },
+  "supportTimeReview": {
+    "status": "Pass scoped prerequisite",
+    "shader": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72",
+    "input": "94f53402cb748f43775cc0927518ef1ea7a5c82fab2814eddd7fb4f46a576f46",
+    "raw": "support-time-20261004.raw.json",
+    "actual": "Chrome shader-f16 compilation, both byte-exact admissions, 120 Plane +120 Box ticks status0; final full ABI candidate validation. Dynamic full/split/minimum scale, rounded-zero rejection.",
+    "oracle": [
+      {
+        "name": "plane-rolling",
+        "radius": 0.340087890625,
+        "p0": [
+          0,
+          -0.119873046875,
+          0
+        ],
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "acceleration": [
+          1.4285714285714286,
+          0,
+          0
+        ],
+        "alpha": -4.200594810788637,
+        "maxima": {
+          "position": 0.005959647042410698,
+          "velocity": 0.017764136904761862,
+          "orientationDeg": 1.7265016564994264,
+          "energyResidual": 0.021558662287316066,
+          "slip": 0.0008182525634765625
+        },
+        "limits": {
+          "position": 0.0340087890625,
+          "velocity": 0.14285714285714288,
+          "orientationDeg": 5,
+          "energyResidual": 0.16685562133789064
+        },
+        "initialEnergyFixedDatum": 3.3371124267578125,
+        "last": {
+          "p": [
+            0.720245361328125,
+            -0.119873046875,
+            0
+          ],
+          "v": [
+            1.439453125,
+            0,
+            0
+          ],
+          "w": [
+            0,
+            0,
+            -4.23046875
+          ]
+        }
+      },
+      {
+        "name": "box-rolling",
+        "radius": 0.340087890625,
+        "p0": [
+          -0.8727684020996094,
+          4.727996826171875,
+          0
+        ],
+        "axis": [
+          0.9800631152137794,
+          -0.19868641170815401,
+          0
+        ],
+        "acceleration": [
+          1.364815183333327,
+          -0.2766864982589976,
+          0
+        ],
+        "alpha": -4.094761695915355,
+        "maxima": {
+          "position": 0.008402260271596067,
+          "velocity": 0.02634755099271656,
+          "orientationDeg": 2.1768164893706383,
+          "energyResidual": 0.03508385073218978,
+          "slip": 0.00029070448079415723
+        },
+        "limits": {
+          "position": 0.0340087890625,
+          "velocity": 0.13925788677759007,
+          "orientationDeg": 5,
+          "energyResidual": 2.545341777801514
+        },
+        "initialEnergyFixedDatum": 50.90683555603027,
+        "last": {
+          "p": [
+            -0.18213272094726562,
+            4.58795166015625,
+            0
+          ],
+          "v": [
+            1.390625,
+            -0.281982421875,
+            0
+          ],
+          "w": [
+            0,
+            0,
+            -4.171875
+          ]
+        }
+      }
+    ],
+    "applicability": "Only clean Wall shared support-time conversion changed; no Pipe geometry/CCD/support code imported. Supports genuine two-Switch route with tangential rolling. Guide midpoint expression unchanged; its prior declared interval evidence is not relabeled changed.",
+    "limits": "No broad device/performance/FTZ qualification; actual Delay timer/animation/UI remains incomplete."
+  },
+  "timerTransactionReview": {
+    "status": "Pass scoped transaction/read boundary; final UI/build approval pending",
+    "sourceBoundary": "Owner compiled 17 tests at 2c1b05; independent no-build same filter 17/17 in102ms, cf851c.",
+    "inspected": [
+      "ActivationTimers.cs",
+      "ActivationNetwork.cs",
+      "WorkshopTimerWire.cs",
+      "WorkshopActivationWire.cs",
+      "WorkshopWire.cs",
+      "WorkshopGpuDevice.cs",
+      "WorkshopSimulation.cs",
+      "BrowserWorkshopClient.cs"
+    ],
+    "positive": "Exact normalized event times and ceiling; due/physical timestamp merge; immutable checkpoint copy; typed delayed occurrence/root cause separation; contextual read recomputes earliest routed input/start/due/phase; GPU validates before candidate logical install; discard clears timer candidate.",
+    "findings": [
+      {
+        "id": "D7",
+        "status": "Closed; actual decoder diff82efda and Counting/Finished full response roundtrip independently passed3412b0",
+        "problem": "DecodeResponse activation span ends at ReadMotionOffset, including new timer bytes; strict activation width rejects response.",
+        "required": "Use ReadTimersOffset; complete Counting/Finished response roundtrip."
+      },
+      {
+        "id": "D8",
+        "status": "Closed; fresh run second-source first event after due, source latch asserted; independent3412b0",
+        "problem": "Finished test reuses source already latched by Busy branch, so input never reaches Finished timer.",
+        "required": "Fresh run with second source first contact after due; busy control separately."
+      },
+      {
+        "id": "D9",
+        "status": "Closed: final independent70/70 e01ddf includes production compiler/network-valid timer-bearing installation rejection and pending-advance Reset cancellation.",
+        "problem": "New malformed-read test checks value immutability rather than timer-bearing device/installation rollback.",
+        "required": "Rejected candidate/install retains exact physical+timer checkpoint; Reset cancels countdown."
+      }
+    ],
+    "animationDecision": "Shared worker-produced bounded progress segment over committed start→observed time may be interpolated by common presentation only inside covered interval, same timer identity/epoch. Finished/color gated by selected display time at due; no per-part countdown or future extrapolation. Existing ACK coalescing/age limits and pause/reset controls required.",
+    "followup": {
+      "command": "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-build --no-restore --filter 'FullyQualifiedName~ActivationTimerTests|FullyQualifiedName~WorkshopDelayTests|FullyQualifiedName~ContactActivationTests' --nologo",
+      "result": "18/18 Pass,108ms,exit0",
+      "original": "3412b0",
+      "sourceReads": [
+        "82efda",
+        "cfbbf5"
+      ]
+    }
+  },
+  "nativeReview": {
+    "status": "Supporting Pass",
+    "independent59": {
+      "original": "910fb5",
+      "passed": 59,
+      "durationMs": 299,
+      "command": "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-build --no-restore --filter FullyQualifiedName~ActivationTimerTests|FullyQualifiedName~WorkshopDelayTests|FullyQualifiedName~WorkshopGpuDeviceTests|FullyQualifiedName~WorkshopActivationAnimationTests|FullyQualifiedName~WorkshopSimulationTests --nologo"
+    },
+    "ownerFull": {
+      "original": "6f07bc",
+      "passed": 496,
+      "durationMs": 1000
+    },
+    "limits": "Current affected parser/resource/Apply/rollback tests pass. No full device/performance qualification.",
+    "finalIndependent": {
+      "original": "e01ddf",
+      "passed": 70,
+      "skipped": 0,
+      "durationMs": 777,
+      "exitCode": 0,
+      "command": "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --no-build --no-restore --filter 'FullyQualifiedName~ActivationTimerTests|FullyQualifiedName~WorkshopDelayTests|FullyQualifiedName~WorkshopGpuDeviceTests|FullyQualifiedName~WorkshopActivationAnimationTests|FullyQualifiedName~WorkshopSimulationTests|FullyQualifiedName~BasketballResourceTests' --nologo"
+    }
+  },
+  "actualUiReview": {
+    "status": "Partial supporting Pass; final CI Release pending",
+    "build": "Investigative local -c Production export448ee0, not exact CI -c Release -p:PlaytestDiagnostics=false",
+    "identities": [
+      {
+        "path": "godot.pck",
+        "bytes": 39164,
+        "sha256": "ead228811ed89ca471c36b7bd570702e557c1fbd2034c6d9b8efded92378a3c9",
+        "fromServiceWorker": false
+      },
+      {
+        "path": "godot.pck",
+        "bytes": 39164,
+        "sha256": "ead228811ed89ca471c36b7bd570702e557c1fbd2034c6d9b8efded92378a3c9",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 16661,
+        "sha256": "1158e3f42902b4e7f3376192b3f0347cb3baa9717f6bf264853474a997387ac9",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "_framework/CuriousContraptions.web.wasm",
+        "bytes": 6933,
+        "sha256": "1493fef600488a70426c25e4f246e30fddcfc2b64a0055cdaa61982665aebe76",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "_framework/CuriousContraptions.wasm",
+        "bytes": 635157,
+        "sha256": "ddf955330e5986f90300ae1d0c1306cae2fbb1ce08d031d3ff98bf28233374fc",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "workshop-client.js",
+        "bytes": 30930,
+        "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "native-clock.js",
+        "bytes": 3017,
+        "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "simulation/worker.js",
+        "bytes": 14209,
+        "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "animation/worker.js",
+        "bytes": 5382,
+        "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "native-clock.js",
+        "bytes": 3017,
+        "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "native-clock.js",
+        "bytes": 3017,
+        "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 70421,
+        "sha256": "7e041f98198e99629308221036d72a880701d49f0697349a52571dea1fa97400",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 70421,
+        "sha256": "7e041f98198e99629308221036d72a880701d49f0697349a52571dea1fa97400",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+        "bytes": 401173,
+        "sha256": "62dda372ddfd5f1a59eff8db411d1da5af6dcd849f0ddde6ea8483382e8b1f26",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+        "bytes": 428821,
+        "sha256": "fb62477c8ff31ccf8e749d3f271e0bd38c0957754a260a1ee562917e6a69b776",
+        "fromServiceWorker": true
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "bytes": 97985,
+        "sha256": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72",
+        "fromServiceWorker": true
+      }
+    ],
+    "raw": [
+      "ui-positive-20261004.raw.json",
+      "ui-finished-20261004.raw.json",
+      "ui-busy-20261004.raw.json"
+    ],
+    "positive": "Actual palette placement and typed Switch1→Delay3→Lamp4 wires. Contact73/start73/due193; lamp clear192, TimerElapsed/Lamp193. Pause106 holds exact read, Resume preserves193. Reset duringCounting101 yields freshEpoch Ready0; >remainingDeadline wait does not revive.",
+    "twoSource": "Real upperSwitch rotated−45Z; lowerSwitch moved by X/Y gizmos under falling route. Source1contact68; second source5contact253. Duration1: Finished188 then fresh source253 ignored. Duration4: second253 whileCounting leaves start68/due548/emitter1; Lamp clear547, output548. Pause562 and exact Reset/SaveReady0.",
+    "failedAttempts": "Initial missed upper switch and misplaced lower switch retained as setup controls, no fault. Typing4 then Apply failed to commit text; Enter+Apply succeeded. Original Apply attempt remains session store delayBusyTrialRaw pending Anvil backend validation; no unauthorized evidence write.",
+    "remaining": [
+      "Final Release loaded identities",
+      "Apply without Enter and visible canonical8.9375",
+      "Cancel/oneUndo and exact Save/Load",
+      "Direct bypass/disconnected/incompatible target controls",
+      "Correct source phase palette and ACK retry affected lifecycle"
+    ],
+    "limitations": "No cold startup/performance/device qualification from these observations."
+  },
+  "findings": [
+    {
+      "id": "D10",
+      "status": "Closed: exact source reviewed, affected independent70/70 e01ddf and final actual Release controls.",
+      "problem": "Pending duration LineEdit text not committed by Apply; old Value retained. Enter discriminator succeeds.",
+      "fix": "SpinBox.Apply before reading Value; Cancel sends no command."
+    },
+    {
+      "id": "D11",
+      "status": "Closed: exact source reviewed, affected independent70/70 e01ddf and final actual Release controls.",
+      "problem": "Source Counting/Finished palette mismatch.",
+      "fix": "Exact source Ready556573/Countinge8b764/Finishedf7cb52."
+    },
+    {
+      "id": "D12",
+      "status": "Closed: exact source reviewed, affected independent70/70 e01ddf and final actual Release controls.",
+      "problem": "Rejected same-world TimerObservation could suppress retry of unchanged observation.",
+      "fix": "Exact request retry flag; preserve prior covered sample; ordinary pump resends after lease return; Reset retires."
+    }
+  ],
+  "current": "SnapshotApproval for exact a54a004b candidate. Local required-now checks complete; only enumerated publication-dependent checks remain. Owner may publish.",
+  "finalUiReview": {
+    "status": "Pass scoped",
+    "build": {
+      "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+      "terminal": "5a3c11",
+      "ownerIdentity": "9906ec",
+      "loaded": [
+        {
+          "path": "godot.pck",
+          "size": 39164,
+          "sha256": "1069616bb74135bf8a30efcb4ae293734817bd35bf493cb4c2149b234afd5650",
+          "serviceWorker": true
+        },
+        {
+          "path": "_framework/CuriousContraptions.Animation.wasm",
+          "size": 16149,
+          "sha256": "82387d8d2f8b3fa0922c18a9fd88295c69fa9772d14e1bdcb89351b1c86eed8b",
+          "serviceWorker": true
+        },
+        {
+          "path": "_framework/CuriousContraptions.web.wasm",
+          "size": 6933,
+          "sha256": "1850e7a653ac80960163fad88cde2172c22bc5bb55f3609badfab4b4ff94a16d",
+          "serviceWorker": true
+        },
+        {
+          "path": "_framework/CuriousContraptions.wasm",
+          "size": 600853,
+          "sha256": "eafd5ba5e243a7edcfed4230f4fbc9f38112bee91b2e6b4f0f05de86385924d6",
+          "serviceWorker": true
+        },
+        {
+          "path": "workshop-client.js",
+          "size": 30930,
+          "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497",
+          "serviceWorker": true
+        },
+        {
+          "path": "native-clock.js",
+          "size": 3017,
+          "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+          "serviceWorker": true
+        },
+        {
+          "path": "animation/worker.js",
+          "size": 5382,
+          "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12",
+          "serviceWorker": true
+        },
+        {
+          "path": "simulation/worker.js",
+          "size": 14209,
+          "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb",
+          "serviceWorker": true
+        },
+        {
+          "path": "native-clock.js",
+          "size": 3017,
+          "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+          "serviceWorker": true
+        },
+        {
+          "path": "native-clock.js",
+          "size": 3017,
+          "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+          "serviceWorker": true
+        },
+        {
+          "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+          "size": 67861,
+          "sha256": "76095eb2b8462c5efd050288c7a1a4ddf51ba504694c0ab517e8decf3407e2be",
+          "serviceWorker": true
+        },
+        {
+          "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+          "size": 67861,
+          "sha256": "76095eb2b8462c5efd050288c7a1a4ddf51ba504694c0ab517e8decf3407e2be",
+          "serviceWorker": true
+        },
+        {
+          "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+          "size": 384789,
+          "sha256": "b0b90e013e98c76b1cb652fc1a5e1a45de5650b5a40e4a6bd85723b102bff1d8",
+          "serviceWorker": true
+        },
+        {
+          "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+          "size": 409365,
+          "sha256": "0e7c69cbb0ba72359591d6fd2f5eaf7a51f0f6ef413274c78c40026d26d87464",
+          "serviceWorker": true
+        },
+        {
+          "path": "simulation/physics.wgsl",
+          "size": 97985,
+          "sha256": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72",
+          "serviceWorker": true
+        }
+      ],
+      "all13Match": true
+    },
+    "raw": [
+      "ui-release-setup-20261004.raw.json",
+      "ui-release-edit-20261004.raw.json",
+      "ui-release-run-20261004.raw.json",
+      "ui-release-wiring-20261004.raw.json",
+      "ui-release-controls-20261004.raw.json"
+    ],
+    "canonical": [
+      {
+        "kind": 4,
+        "id": 1,
+        "position": [
+          -1.399993896484375,
+          3,
+          1.5
+        ],
+        "q": [
+          0,
+          0,
+          -0.3828125,
+          0.923828125
+        ],
+        "duration": 0.7998046875
+      },
+      {
+        "kind": 1,
+        "id": 2,
+        "position": [
+          -1.5909423828125,
+          5.247291564941406,
+          1.346588134765625
+        ],
+        "q": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "duration": 0.340087890625
+      },
+      {
+        "kind": 7,
+        "id": 3,
+        "position": [
+          1.100006103515625,
+          3,
+          -0.8000030517578125
+        ],
+        "q": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "duration": 4
+      },
+      {
+        "kind": 5,
+        "id": 4,
+        "position": [
+          3.5,
+          3,
+          -2
+        ],
+        "q": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "duration": 0
+      },
+      {
+        "kind": 4,
+        "id": 5,
+        "position": [
+          -3.4285430908203125,
+          1.0338134765625,
+          1.5
+        ],
+        "q": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "duration": 0.7998046875
+      }
+    ],
+    "configuredDuration": "Actual edited8.9375, exact canonical value and visible text; duration4 scene above is original saved recipe.",
+    "controls": {
+      "apply": "Typed8.9375 then Apply without Enter emits exact canonical duration; reopen8.9375 s; unchanged Apply and Cancel after typing2 send0commands.",
+      "undoLoad": "One-step Undo restores8.9375 from2. Saved8.9375→undo4→Load restores exact authored instances/settings/edges; only construction revision differs.",
+      "exactLoad": {
+        "first": "delayFinalApply.commands.last",
+        "last": "delayFinalRestoreHint.commands.last",
+        "differing": [
+          72
+        ],
+        "firstValues": [
+          3
+        ],
+        "lastValues": [
+          12
+        ],
+        "note": "Only construction revision at72; authored instance, settings and typed connection bytes unchanged."
+      },
+      "timing": "Contact/start68, 8.9375 seconds ceil1073→due1141. Lamp clear1140, TimerElapsed and Lamp1141. Second source253 while Counting leaves first emitter/start/due unchanged.",
+      "finished": "Original same numerical/network inputs duration1 finished188, fresh second source253 ignored; final duration.1 also finished80 then second253 ignored.",
+      "pause": "Final Countdown Pause131 exact read holds350ms; Resume→Pause161 retains1141; Reset clears all latches/timer tick0 freshEpoch.",
+      "bypass": "Actual source1→Lamp4 wire immediately activates Lamp at source269/phase58718 (tick68) while Delay stillCounting. Contextual Cancel adds no command. Undo wire then Run leaves Lampclear107.",
+      "disconnected": "Actual Delay→Lamp disconnect; durationHalf(.1) due80 completes timer but Lamp staysclear through281, including secondsource253; final Load restores saved3edges.",
+      "negative": "Actual Ball target has no compatible Activation sockets, visible rejection/no command. No electrical UI choice is offered; wrong-domain serialization/source rejection covered native.",
+      "feedback": "Counting hand visibly advances clockwise, Pause freezes, Finished returns full turn and source gold phase, Reset restores hand/Ready gray/lampoff. Shared Hint reveal visible with current144B channel.",
+      "resources": "Both investigative and final owned Chrome pages/workers/context closed; final scene Reset/LoadReady18. No console errors or ordinary lifecycle fault."
+    },
+    "failedAttempts": "Preserve investigative Apply failure, misplaced-source attempts, mistaken top Reset click before actual bottom Undo, and Load closing options before attempted Pause. Actual commands/phase establish these as retained tool/setup attempts; no hidden substitution.",
+    "performance": "Local uncompressed startup observed ordinary Ready only; cold-cache/performance/device gate remains deferred/Incomplete."
+  },
+  "reuse": {
+    "physics": "Deployed Wall7c19 admits static Plane/Box and centered sphere; only support duration scaling changed. Current exact8b7d04f1 + original current typed inputs94f53402 Plane/Box120/duration/whole-run oracles independently pass. No Pipe annular, curvature, CCD, broad precision or CPU physics changes.",
+    "presentation": "Existing Opacity/Capture and Switch/Lamp ColourBlend path retains first96 lanes and event semantics; new zero/default timer metadata and total144 width compile/test across worker/JS/browser. Current actual bypass/Undo and Hint exercise prior common paths. Timer adds committed segment only; Receiver geometry/capture law and old feedback bindings unchanged, reused exact Wall/First-principles scoped source evidence with current wire/native controls.",
+    "content": "content/puzzles.json exact base hashd4278e23, excluded from runtime export; no campaign mutation. Added immutable source Switch/Lamp scenes close manifest membership only.",
+    "limits": "Unpublished Pipe numerical failures, Delay authored lessons/all difficulties, electrical pass-through, global cleanup and performance/device/cold-cache gates remain open."
+  },
+  "snapshotApproval": {
+    "status": "SnapshotApproval",
+    "base": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+    "manifest": "playable-candidate-paths.json",
+    "closureSha256": "a54a004b6c09b97e85a142d9dd39e804daf67f05c5e5fc9019708914c03d64fc",
+    "count": 301,
+    "totalBytes": 8063092,
+    "originalVerification": "77f403",
+    "verification": "All301 exact bytes/hashes plus3 original probe supplements verified, computed closure matches. Recursive tscn/tres referenced-resource membership missing[], changed source outside inputs[], deleted[]. Source/doc diff checked787a68, source caller/behavior reviews and tests above; git diff --check clean.",
+    "approved": "Normal commit/push/deploy exact candidate plus original review/implementation/probe/Wall terminal supplements. Evidence receipts are not inputs to their own approval.",
+    "publicationDependent": [
+      "Remote committed301 inputs and3 probe identities match this approved snapshot, no unrelated Pipe source.",
+      "Successful exact CI Release build/tests/deploy and single original artifact archive digest/selected13 identities.",
+      "Actual production-origin loaded13 identities match original CI artifact; ordinary Ready with cache condition explicit.",
+      "Genuine deployed UI construction/config/typed Switch→Delay→Lamp and two-source delivery; no-early/due output, meaningful bypass/disconnected, Pause/Reset and Save/Load on actual deployed game.",
+      "Record terminal scoped verdict; preserve deferred performance/device/cold-cache and full-CAT children."
+    ]
+  }
+}

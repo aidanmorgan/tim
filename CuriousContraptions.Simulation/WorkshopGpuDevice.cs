@@ -27,6 +27,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private PhysicsCaptureRead _committedCaptures;
     private PhysicsCaptureRead _candidateCaptures;
     private PhysicsActivationRead _committedActivations, _candidateActivations;
+    private PhysicsTimerRead _committedTimers, _candidateTimers;
     private ActivationNetwork? _committedNetwork, _candidateNetwork;
 #if PLAYTEST
     private byte[] _diagnosticCandidate = [];
@@ -119,12 +120,13 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var triggerCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(100)));
             Span<ContactTriggerRead> triggers = stackalloc ContactTriggerRead[PhysicsSceneDeclaration.TriggerCapacity];
             for (var i = 0; i < triggerCount; i++) triggers[i] = PhysicsGpuAbi.ReadTrigger(bytes, i);
-            _candidateActivations = operation == WorkshopGpuOperation.Admit ? network.Clear() :
-                network.Consume(_committedActivations, triggers[..triggerCount]);
+            var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers()) :
+                network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick);
+            _candidateActivations = logical.Activations; _candidateTimers = logical.Timers;
             _candidateNetwork = network;
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(32))),
                 expectedTick, body?.Body, Rotation: body?.Rotation, Angular: body?.AngularVelocity ?? default,
-                Captures: _candidateCaptures, Activations: _candidateActivations,
+                Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
                 Motion: motion);
             _candidateWorld = bytes;
             _candidateProfile = profile;
@@ -139,7 +141,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _initialized = !_disposed && transport.DeviceReady();
             _active = default;
             _candidateWorld = []; _candidateCaptures = default;
-            _candidateActivations = default; _candidateNetwork = null;
+            _candidateActivations = default; _candidateTimers = default; _candidateNetwork = null;
             transport.Discard();
             _gate.Release();
             throw;
@@ -153,7 +155,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         transport.Commit();
         _committedProfile = _candidateProfile;
         _committedWorld = _candidateWorld; _committedCaptures = _candidateCaptures;
-        _committedActivations = _candidateActivations; _committedNetwork = _candidateNetwork;
+        _committedActivations = _candidateActivations; _committedTimers = _candidateTimers; _committedNetwork = _candidateNetwork;
 #if PLAYTEST
         DiagnosticCommitted = _diagnosticCandidate;
 #endif
@@ -163,7 +165,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         if (_active != sequence || sequence.Value == 0) return;
         _active = default;
         _candidateWorld = []; _candidateCaptures = default;
-        _candidateActivations = default; _candidateNetwork = null;
+        _candidateActivations = default; _candidateTimers = default; _candidateNetwork = null;
 #if PLAYTEST
         _diagnosticCandidate = [];
 #endif
@@ -177,6 +179,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _committedWorld = []; _candidateWorld = [];
         _committedCaptures = default; _candidateCaptures = default;
         _committedActivations = default; _candidateActivations = default;
+        _committedTimers = default; _candidateTimers = default;
         _committedNetwork = null; _candidateNetwork = null;
         transport.Dispose();
         return ValueTask.CompletedTask;

@@ -578,7 +578,7 @@ public sealed class WorkshopWireTests
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(3), new(0), null, new(ulong.MaxValue))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(response);
-        Assert.Equal(10256, bytes.Length);
+        Assert.Equal(11536, bytes.Length);
         Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
         bytes[58] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));

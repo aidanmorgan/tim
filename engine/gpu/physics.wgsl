@@ -1012,7 +1012,7 @@ fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasti
     // so hUnits remains normal even when its conversion to seconds would flush.
     let hUnits = (PHASE_SCALE - phase) / (8h * PHYSICAL_RATE);
     if (!(hUnits >= 0.00048828125h && hUnits <= 1.0673828125h)) { fail(FAILURE_DOMAIN); return result; }
-    let h = hUnits / 512h;
+    let h = ldexp(hUnits, -9);
     var velocity = initial.velocity + acceleration * h;
     var omega = initial.angular;
     for (var sweep = 0u; sweep < 4u; sweep++) {

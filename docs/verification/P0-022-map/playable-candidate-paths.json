@@ -1,0 +1,1914 @@
+{
+  "kind": "ScopedPlayableCandidate",
+  "baseCommit": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+  "sourceFiles": [
+    ".github/workflows/pages.yml",
+    "CuriousContraptions.2dog/.gdignore",
+    "CuriousContraptions.2dog/CuriousContraptions.2dog.csproj",
+    "CuriousContraptions.2dog/Program.cs",
+    "CuriousContraptions.2dog/app.manifest",
+    "CuriousContraptions.Animation.Worker/.gdignore",
+    "CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj",
+    "CuriousContraptions.Animation.Worker/Program.cs",
+    "CuriousContraptions.Animation.Worker/wwwroot/worker.js",
+    "CuriousContraptions.Animation/.gdignore",
+    "CuriousContraptions.Animation/CuriousContraptions.Animation.csproj",
+    "CuriousContraptions.Simulation/.gdignore",
+    "CuriousContraptions.Simulation/BrowserGpuTransport.cs",
+    "CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj",
+    "CuriousContraptions.Simulation/Program.Schedule.cs",
+    "CuriousContraptions.Simulation/Program.cs",
+    "CuriousContraptions.Simulation/WorkshopGpuDevice.cs",
+    "CuriousContraptions.Simulation/WorkshopTrace.cs",
+    "CuriousContraptions.Simulation/wwwroot/worker.js",
+    "CuriousContraptions.csproj",
+    "CuriousContraptions.slnx",
+    "CuriousContraptions.tests/.gdignore",
+    "CuriousContraptions.tests/ActivationTimerTests.cs",
+    "CuriousContraptions.tests/BasketballResourceTests.cs",
+    "CuriousContraptions.tests/CanonicalBodyTests.cs",
+    "CuriousContraptions.tests/ContactActivationTests.cs",
+    "CuriousContraptions.tests/CuriousContraptions.tests.csproj",
+    "CuriousContraptions.tests/NativeSceneFixture.cs",
+    "CuriousContraptions.tests/PortableAnimationTests.cs",
+    "CuriousContraptions.tests/WorkshopActivationAnimationTests.cs",
+    "CuriousContraptions.tests/WorkshopDelayTests.cs",
+    "CuriousContraptions.tests/WorkshopGpuDeviceTests.cs",
+    "CuriousContraptions.tests/WorkshopHintTests.cs",
+    "CuriousContraptions.tests/WorkshopReadTests.cs",
+    "CuriousContraptions.tests/WorkshopSaveTests.cs",
+    "CuriousContraptions.tests/WorkshopSimulationTests.cs",
+    "CuriousContraptions.tests/WorkshopTraceTests.cs",
+    "CuriousContraptions.tests/WorkshopWallTests.cs",
+    "CuriousContraptions.tests/WorkshopWireTests.cs",
+    "CuriousContraptions.tests/xunit.runner.json",
+    "CuriousContraptions.web/.gdignore",
+    "CuriousContraptions.web/CuriousContraptions.web.csproj",
+    "CuriousContraptions.web/Directory.Build.props",
+    "CuriousContraptions.web/Program.cs",
+    "CuriousContraptions.web/TwoDogWebBoot.cs",
+    "CuriousContraptions.web/global.json",
+    "CuriousContraptions.web/wwwroot/404.html",
+    "CuriousContraptions.web/wwwroot/favicon-16x16.png",
+    "CuriousContraptions.web/wwwroot/favicon-32x32.png",
+    "CuriousContraptions.web/wwwroot/favicon-96x96.png",
+    "CuriousContraptions.web/wwwroot/favicon.ico",
+    "CuriousContraptions.web/wwwroot/favicon.svg",
+    "CuriousContraptions.web/wwwroot/index.html",
+    "CuriousContraptions.web/wwwroot/native-clock.js",
+    "CuriousContraptions.web/wwwroot/workshop-client.js",
+    "CuriousContraptions.web/wwwroot/workshop-isolation-worker.js",
+    "CuriousContraptions.web/wwwroot/workshop-isolation.js",
+    "Directory.Build.props",
+    "Directory.Build.targets",
+    "assets/icons/LICENSE.txt",
+    "assets/icons/arrow-down.svg",
+    "assets/icons/arrow-down.svg.import",
+    "assets/icons/arrow-up.svg",
+    "assets/icons/arrow-up.svg.import",
+    "assets/icons/folder-open.svg",
+    "assets/icons/folder-open.svg.import",
+    "assets/icons/lightbulb.svg",
+    "assets/icons/lightbulb.svg.import",
+    "assets/icons/link.svg",
+    "assets/icons/link.svg.import",
+    "assets/icons/minus.svg",
+    "assets/icons/minus.svg.import",
+    "assets/icons/move-vertical.svg",
+    "assets/icons/move-vertical.svg.import",
+    "assets/icons/play.svg",
+    "assets/icons/play.svg.import",
+    "assets/icons/plus.svg",
+    "assets/icons/plus.svg.import",
+    "assets/icons/rotate-ccw.svg",
+    "assets/icons/rotate-ccw.svg.import",
+    "assets/icons/rotate-cw.svg",
+    "assets/icons/rotate-cw.svg.import",
+    "assets/icons/save.svg",
+    "assets/icons/save.svg.import",
+    "assets/icons/sliders-horizontal.svg",
+    "assets/icons/sliders-horizontal.svg.import",
+    "assets/icons/square.svg",
+    "assets/icons/square.svg.import",
+    "assets/icons/trash.svg",
+    "assets/icons/trash.svg.import",
+    "assets/icons/undo-2.svg",
+    "assets/icons/undo-2.svg.import",
+    "assets/icons/x.svg",
+    "assets/icons/x.svg.import",
+    "assets/icons/zoom-in.svg",
+    "assets/icons/zoom-in.svg.import",
+    "assets/icons/zoom-out.svg",
+    "assets/icons/zoom-out.svg.import",
+    "content/puzzles.json",
+    "engine/BasketballMaterialResource.cs",
+    "engine/BasketballMaterialResource.cs.uid",
+    "engine/DelayDurationResource.cs",
+    "engine/DelayDurationResource.cs.uid",
+    "engine/IResizablePart.cs",
+    "engine/IResizablePart.cs.uid",
+    "engine/MachinePart.cs",
+    "engine/MachinePart.cs.uid",
+    "engine/MachineWorld.Gpu.cs",
+    "engine/MachineWorld.Gpu.cs.uid",
+    "engine/MachineWorld.cs",
+    "engine/MachineWorld.cs.uid",
+    "engine/PartArt.cs",
+    "engine/PartArt.cs.uid",
+    "engine/PartDefinition.cs",
+    "engine/PartDefinition.cs.uid",
+    "engine/PartRegistry.cs",
+    "engine/PartRegistry.cs.uid",
+    "engine/RampDimensionsResource.cs",
+    "engine/RampDimensionsResource.cs.uid",
+    "engine/WallDimensionsResource.cs",
+    "engine/WallDimensionsResource.cs.uid",
+    "engine/Workbench.cs",
+    "engine/Workbench.cs.uid",
+    "engine/WorkshopVisualBinding.cs",
+    "engine/WorkshopVisualBinding.cs.uid",
+    "engine/gpu/ActivationNetwork.cs",
+    "engine/gpu/ActivationNetwork.cs.uid",
+    "engine/gpu/ActivationTimers.cs",
+    "engine/gpu/ActivationTimers.cs.uid",
+    "engine/gpu/BrowserWorkshopClient.Activation.cs",
+    "engine/gpu/BrowserWorkshopClient.Activation.cs.uid",
+    "engine/gpu/BrowserWorkshopClient.Schedule.cs",
+    "engine/gpu/BrowserWorkshopClient.Schedule.cs.uid",
+    "engine/gpu/BrowserWorkshopClient.Timer.cs",
+    "engine/gpu/BrowserWorkshopClient.Timer.cs.uid",
+    "engine/gpu/BrowserWorkshopClient.cs",
+    "engine/gpu/BrowserWorkshopClient.cs.uid",
+    "engine/gpu/BrowserWorkshopSaveStore.cs",
+    "engine/gpu/BrowserWorkshopSaveStore.cs.uid",
+    "engine/gpu/CanonicalBody.cs",
+    "engine/gpu/CanonicalBody.cs.uid",
+    "engine/gpu/CaptureLatch.cs",
+    "engine/gpu/CaptureLatch.cs.uid",
+    "engine/gpu/ContactTriggerDeclaration.cs",
+    "engine/gpu/ContactTriggerDeclaration.cs.uid",
+    "engine/gpu/IWorkshopClient.cs",
+    "engine/gpu/IWorkshopClient.cs.uid",
+    "engine/gpu/PhysicsCaptureRead.cs",
+    "engine/gpu/PhysicsCaptureRead.cs.uid",
+    "engine/gpu/PhysicsDeclarations.cs",
+    "engine/gpu/PhysicsDeclarations.cs.uid",
+    "engine/gpu/PhysicsGpuAbi.cs",
+    "engine/gpu/PhysicsGpuAbi.cs.uid",
+    "engine/gpu/PhysicsMotionRead.cs",
+    "engine/gpu/PhysicsMotionRead.cs.uid",
+    "engine/gpu/PhysicsNumericalException.cs",
+    "engine/gpu/PhysicsNumericalException.cs.uid",
+    "engine/gpu/ReceiverGeometry.cs",
+    "engine/gpu/ReceiverGeometry.cs.uid",
+    "engine/gpu/WorkshopActivationParts.cs",
+    "engine/gpu/WorkshopActivationParts.cs.uid",
+    "engine/gpu/WorkshopActivationWire.cs",
+    "engine/gpu/WorkshopActivationWire.cs.uid",
+    "engine/gpu/WorkshopCadence.cs",
+    "engine/gpu/WorkshopCadence.cs.uid",
+    "engine/gpu/WorkshopClientCursor.cs",
+    "engine/gpu/WorkshopClientCursor.cs.uid",
+    "engine/gpu/WorkshopClockMapping.cs",
+    "engine/gpu/WorkshopClockMapping.cs.uid",
+    "engine/gpu/WorkshopClockWire.cs",
+    "engine/gpu/WorkshopClockWire.cs.uid",
+    "engine/gpu/WorkshopCommandRouter.cs",
+    "engine/gpu/WorkshopCommandRouter.cs.uid",
+    "engine/gpu/WorkshopConnections.cs",
+    "engine/gpu/WorkshopConnections.cs.uid",
+    "engine/gpu/WorkshopConstruction.cs",
+    "engine/gpu/WorkshopConstruction.cs.uid",
+    "engine/gpu/WorkshopDelay.cs",
+    "engine/gpu/WorkshopDelay.cs.uid",
+    "engine/gpu/WorkshopGoalEvaluator.cs",
+    "engine/gpu/WorkshopGoalEvaluator.cs.uid",
+    "engine/gpu/WorkshopGpuProfile.cs",
+    "engine/gpu/WorkshopGpuProfile.cs.uid",
+    "engine/gpu/WorkshopHint.cs",
+    "engine/gpu/WorkshopHint.cs.uid",
+    "engine/gpu/WorkshopInstances.cs",
+    "engine/gpu/WorkshopInstances.cs.uid",
+    "engine/gpu/WorkshopMemoryWire.cs",
+    "engine/gpu/WorkshopMemoryWire.cs.uid",
+    "engine/gpu/WorkshopNativeClock.cs",
+    "engine/gpu/WorkshopNativeClock.cs.uid",
+    "engine/gpu/WorkshopPartKind.cs",
+    "engine/gpu/WorkshopPartKind.cs.uid",
+    "engine/gpu/WorkshopPhysicsCompiler.cs",
+    "engine/gpu/WorkshopPhysicsCompiler.cs.uid",
+    "engine/gpu/WorkshopPoseHistory.cs",
+    "engine/gpu/WorkshopPoseHistory.cs.uid",
+    "engine/gpu/WorkshopPresentationWire.cs",
+    "engine/gpu/WorkshopPresentationWire.cs.uid",
+    "engine/gpu/WorkshopPuzzle.cs",
+    "engine/gpu/WorkshopPuzzle.cs.uid",
+    "engine/gpu/WorkshopPuzzleWire.cs",
+    "engine/gpu/WorkshopPuzzleWire.cs.uid",
+    "engine/gpu/WorkshopRead.cs",
+    "engine/gpu/WorkshopRead.cs.uid",
+    "engine/gpu/WorkshopSaveCodec.cs",
+    "engine/gpu/WorkshopSaveCodec.cs.uid",
+    "engine/gpu/WorkshopSchedule.cs",
+    "engine/gpu/WorkshopSchedule.cs.uid",
+    "engine/gpu/WorkshopSimulation.cs",
+    "engine/gpu/WorkshopSimulation.cs.uid",
+    "engine/gpu/WorkshopTimerWire.cs",
+    "engine/gpu/WorkshopTimerWire.cs.uid",
+    "engine/gpu/WorkshopTraceRecord.cs",
+    "engine/gpu/WorkshopTraceRecord.cs.uid",
+    "engine/gpu/WorkshopWall.cs",
+    "engine/gpu/WorkshopWall.cs.uid",
+    "engine/gpu/WorkshopWire.cs",
+    "engine/gpu/WorkshopWire.cs.uid",
+    "engine/gpu/physics.wgsl",
+    "engine/presentation/AnimationBatch.cs",
+    "engine/presentation/AnimationBatch.cs.uid",
+    "engine/presentation/AnimationFollowDefinition.cs",
+    "engine/presentation/AnimationFollowDefinition.cs.uid",
+    "engine/presentation/AnimationImpulseDefinition.cs",
+    "engine/presentation/AnimationImpulseDefinition.cs.uid",
+    "engine/presentation/AnimationOscillationDefinition.cs",
+    "engine/presentation/AnimationOscillationDefinition.cs.uid",
+    "engine/presentation/AnimationTimerSegment.cs",
+    "engine/presentation/AnimationTimerSegment.cs.uid",
+    "engine/presentation/AnimationValues.cs",
+    "engine/presentation/AnimationValues.cs.uid",
+    "export_presets.cfg",
+    "global.json",
+    "parts/BallPart.cs",
+    "parts/BallPart.cs.uid",
+    "parts/BasketPart.cs",
+    "parts/BasketPart.cs.uid",
+    "parts/DelayPart.cs",
+    "parts/DelayPart.cs.uid",
+    "parts/LampPart.cs",
+    "parts/LampPart.cs.uid",
+    "parts/RampPart.cs",
+    "parts/RampPart.cs.uid",
+    "parts/SwitchPart.cs",
+    "parts/SwitchPart.cs.uid",
+    "parts/WallPart.cs",
+    "parts/WallPart.cs.uid",
+    "parts/catalog/ball.tres",
+    "parts/catalog/basket.tres",
+    "parts/catalog/delay.tres",
+    "parts/catalog/lamp.tres",
+    "parts/catalog/ramp.tres",
+    "parts/catalog/switch.tres",
+    "parts/catalog/wall.tres",
+    "parts/scenes/ball.tscn",
+    "parts/scenes/basket.tscn",
+    "parts/scenes/delay.tscn",
+    "parts/scenes/goal_light.tscn",
+    "parts/scenes/ramp.tscn",
+    "parts/scenes/switch.tscn",
+    "parts/scenes/wall.tscn",
+    "project.godot",
+    "scenes/workshop.tscn",
+    "tools/workshop-animation-output.test.mjs",
+    "tools/workshop-client-lifecycle.test.mjs",
+    "tools/workshop-observation.test.mjs",
+    "tools/workshop-save-storage.test.mjs",
+    "ui/PlacementShadows.cs",
+    "ui/PlacementShadows.cs.uid",
+    "ui/RotationGizmo.cs",
+    "ui/RotationGizmo.cs.uid",
+    "ui/Workshop.cs",
+    "ui/Workshop.cs.uid",
+    "ui/WorkshopAnimation.cs",
+    "ui/WorkshopAnimation.cs.uid",
+    "ui/WorkshopConfiguration.cs",
+    "ui/WorkshopConfiguration.cs.uid",
+    "ui/WorkshopConnections.cs",
+    "ui/WorkshopConnections.cs.uid",
+    "ui/WorkshopGpu.cs",
+    "ui/WorkshopGpu.cs.uid",
+    "ui/WorkshopGuidance.cs",
+    "ui/WorkshopGuidance.cs.uid",
+    "ui/WorkshopIcons.cs",
+    "ui/WorkshopIcons.cs.uid",
+    "ui/WorkshopPuzzle.cs",
+    "ui/WorkshopPuzzle.cs.uid"
+  ],
+  "documentPaths": [
+    "README.md",
+    "TODO.md",
+    "DESIGN.md",
+    "docs/engine-contracts.md",
+    "docs/delivery-workflow.md",
+    "docs/general-engine-design.md",
+    "docs/gpu-f16-physics.md",
+    "docs/simulation-controls.md",
+    "docs/planning/invest/vertical-delivery.md",
+    "docs/planning/invest/current-consumers.md",
+    "docs/planning/requirements.md",
+    "docs/planning/work-register.md",
+    "docs/verification/P0-022-map/design-20261004.json"
+  ],
+  "commitPaths": [
+    "CuriousContraptions.Animation.Worker/Program.cs",
+    "CuriousContraptions.Animation/CuriousContraptions.Animation.csproj",
+    "CuriousContraptions.Simulation/WorkshopGpuDevice.cs",
+    "CuriousContraptions.csproj",
+    "CuriousContraptions.tests/ActivationTimerTests.cs",
+    "CuriousContraptions.tests/BasketballResourceTests.cs",
+    "CuriousContraptions.tests/ContactActivationTests.cs",
+    "CuriousContraptions.tests/CuriousContraptions.tests.csproj",
+    "CuriousContraptions.tests/WorkshopActivationAnimationTests.cs",
+    "CuriousContraptions.tests/WorkshopDelayTests.cs",
+    "CuriousContraptions.tests/WorkshopGpuDeviceTests.cs",
+    "CuriousContraptions.tests/WorkshopHintTests.cs",
+    "CuriousContraptions.tests/WorkshopSimulationTests.cs",
+    "CuriousContraptions.tests/WorkshopWireTests.cs",
+    "CuriousContraptions.web/wwwroot/workshop-client.js",
+    "README.md",
+    "TODO.md",
+    "docs/delivery-workflow.md",
+    "docs/general-engine-design.md",
+    "docs/gpu-f16-physics.md",
+    "docs/planning/invest/vertical-delivery.md",
+    "docs/simulation-controls.md",
+    "docs/verification/P0-022-map/design-20261004.json",
+    "engine/DelayDurationResource.cs",
+    "engine/DelayDurationResource.cs.uid",
+    "engine/MachinePart.cs",
+    "engine/MachineWorld.Gpu.cs",
+    "engine/PartDefinition.cs",
+    "engine/PartRegistry.cs",
+    "engine/WorkshopVisualBinding.cs",
+    "engine/gpu/ActivationNetwork.cs",
+    "engine/gpu/ActivationTimers.cs",
+    "engine/gpu/ActivationTimers.cs.uid",
+    "engine/gpu/BrowserWorkshopClient.Activation.cs",
+    "engine/gpu/BrowserWorkshopClient.Schedule.cs",
+    "engine/gpu/BrowserWorkshopClient.Timer.cs",
+    "engine/gpu/BrowserWorkshopClient.Timer.cs.uid",
+    "engine/gpu/BrowserWorkshopClient.cs",
+    "engine/gpu/IWorkshopClient.cs",
+    "engine/gpu/WorkshopActivationWire.cs",
+    "engine/gpu/WorkshopConnections.cs",
+    "engine/gpu/WorkshopConstruction.cs",
+    "engine/gpu/WorkshopDelay.cs",
+    "engine/gpu/WorkshopDelay.cs.uid",
+    "engine/gpu/WorkshopHint.cs",
+    "engine/gpu/WorkshopInstances.cs",
+    "engine/gpu/WorkshopPartKind.cs",
+    "engine/gpu/WorkshopPhysicsCompiler.cs",
+    "engine/gpu/WorkshopPoseHistory.cs",
+    "engine/gpu/WorkshopRead.cs",
+    "engine/gpu/WorkshopSaveCodec.cs",
+    "engine/gpu/WorkshopSimulation.cs",
+    "engine/gpu/WorkshopTimerWire.cs",
+    "engine/gpu/WorkshopTimerWire.cs.uid",
+    "engine/gpu/WorkshopWire.cs",
+    "engine/gpu/physics.wgsl",
+    "engine/presentation/AnimationTimerSegment.cs",
+    "engine/presentation/AnimationTimerSegment.cs.uid",
+    "export_presets.cfg",
+    "parts/DelayPart.cs",
+    "parts/catalog/delay.tres",
+    "tools/workshop-animation-output.test.mjs",
+    "tools/workshop-client-lifecycle.test.mjs",
+    "ui/WorkshopConfiguration.cs",
+    "ui/WorkshopConfiguration.cs.uid",
+    "ui/WorkshopConnections.cs",
+    "ui/WorkshopPuzzle.cs"
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/pages.yml",
+      "sha256": "eccc163f99fcdea25f5a8271b36a8d5ec2b81efaf75dece72a97659c54eda269",
+      "bytes": 1525
+    },
+    {
+      "path": "CuriousContraptions.2dog/.gdignore",
+      "sha256": "b314739a3187d780889d3869314f1949e4ec2970407ef80b242b0e9095578b40",
+      "bytes": 89
+    },
+    {
+      "path": "CuriousContraptions.2dog/CuriousContraptions.2dog.csproj",
+      "sha256": "9957c9101959e186088cacf3359ae5f41d4907afce5465328e223d2c24dfb791",
+      "bytes": 1743
+    },
+    {
+      "path": "CuriousContraptions.2dog/Program.cs",
+      "sha256": "8ad4f3fcc17087052864f3eac685ef2ffc2983f9a8174c357b39a882afb7a3af",
+      "bytes": 1089
+    },
+    {
+      "path": "CuriousContraptions.2dog/app.manifest",
+      "sha256": "2bda6e4a608726a3966b49c4499e47e440659a407008906d7f57f709f01afc75",
+      "bytes": 1016
+    },
+    {
+      "path": "CuriousContraptions.Animation.Worker/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj",
+      "sha256": "87d25f1b972bbc80514c4ca00cabb2547da50595d10766e4b3c5227315ada6c8",
+      "bytes": 1405
+    },
+    {
+      "path": "CuriousContraptions.Animation.Worker/Program.cs",
+      "sha256": "682a61ea6d3122d681e97e4bca7b10fd89a20fcfb17299cc2712a815e202fb0f",
+      "bytes": 17159
+    },
+    {
+      "path": "CuriousContraptions.Animation.Worker/wwwroot/worker.js",
+      "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12",
+      "bytes": 5382
+    },
+    {
+      "path": "CuriousContraptions.Animation/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "CuriousContraptions.Animation/CuriousContraptions.Animation.csproj",
+      "sha256": "658eb02bc30badedcb7c5a2308e570933f7cbefeb1d6cdc98f3957da76848eeb",
+      "bytes": 937
+    },
+    {
+      "path": "CuriousContraptions.Simulation/.gdignore",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "CuriousContraptions.Simulation/BrowserGpuTransport.cs",
+      "sha256": "f68f24ae229c58265ad75e7eac3930d69a08b3e4294dd6a8c4c4f10c6523bebc",
+      "bytes": 1207
+    },
+    {
+      "path": "CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj",
+      "sha256": "8d9bc3336b5106d7e8892cc3dbb997dd6bce9d6361c3ac761ba7be8a54620834",
+      "bytes": 1821
+    },
+    {
+      "path": "CuriousContraptions.Simulation/Program.Schedule.cs",
+      "sha256": "eade3fc6a831a8361ef784b8640a741455ec9c3c85563e1a035440ec5565cbe6",
+      "bytes": 10945
+    },
+    {
+      "path": "CuriousContraptions.Simulation/Program.cs",
+      "sha256": "b8b39ec4b4d1fb181f740dce8d5048784f56feaab2145eea1bb7f39f3c7c1c00",
+      "bytes": 15204
+    },
+    {
+      "path": "CuriousContraptions.Simulation/WorkshopGpuDevice.cs",
+      "sha256": "d4e30c00cb91b0dab99956d87802ec7d20f61e5558dd64716c37c18606f62c86",
+      "bytes": 9789
+    },
+    {
+      "path": "CuriousContraptions.Simulation/WorkshopTrace.cs",
+      "sha256": "4b995b7cf9107c4b1c470ef323421b7b6404acefb6a6ca065b64867ba40e78eb",
+      "bytes": 7883
+    },
+    {
+      "path": "CuriousContraptions.Simulation/wwwroot/worker.js",
+      "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb",
+      "bytes": 14209
+    },
+    {
+      "path": "CuriousContraptions.csproj",
+      "sha256": "4f5efb7455ec848c232ce23c615bfede333210a1dd701d81e797cb02bad2843c",
+      "bytes": 3616
+    },
+    {
+      "path": "CuriousContraptions.slnx",
+      "sha256": "e9cd76f3f5b96f0f727d46e2994697fd2357b8a351b1d19d4f6141dbf773bae8",
+      "bytes": 535
+    },
+    {
+      "path": "CuriousContraptions.tests/.gdignore",
+      "sha256": "b314739a3187d780889d3869314f1949e4ec2970407ef80b242b0e9095578b40",
+      "bytes": 89
+    },
+    {
+      "path": "CuriousContraptions.tests/ActivationTimerTests.cs",
+      "sha256": "8bc7fdf5d098e33b4f52b467d2f32ef40d674d2455016583f1349fb520f4c06f",
+      "bytes": 9538
+    },
+    {
+      "path": "CuriousContraptions.tests/BasketballResourceTests.cs",
+      "sha256": "549ed39ca10deff31740029896f36062a3317bc2b3fd654f1b046cd024cea58b",
+      "bytes": 13829
+    },
+    {
+      "path": "CuriousContraptions.tests/CanonicalBodyTests.cs",
+      "sha256": "c6ae0696d462abeaddafbf2ca707c1dd01f86f00594a5ba806328279cee66fd7",
+      "bytes": 3240
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactActivationTests.cs",
+      "sha256": "bee5619e6ce165f9aec3fbda3c6e9dade6f8282e03d7e17ae5922ca003491631",
+      "bytes": 10502
+    },
+    {
+      "path": "CuriousContraptions.tests/CuriousContraptions.tests.csproj",
+      "sha256": "69cece2cf4e85f3e76fa39b047fc36a5fe66cedc188988b13f79a36dd04270ba",
+      "bytes": 3787
+    },
+    {
+      "path": "CuriousContraptions.tests/NativeSceneFixture.cs",
+      "sha256": "ad987fa5e9e1e08a34b762352b1dfc7c3fbcddd330953087e268a9d6a800477d",
+      "bytes": 7084
+    },
+    {
+      "path": "CuriousContraptions.tests/PortableAnimationTests.cs",
+      "sha256": "594e986aad41c748cdcffa4bef02559d18e122284bbab38dc022fa86d0c5f7e8",
+      "bytes": 32835
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopActivationAnimationTests.cs",
+      "sha256": "bf2bdfc99d8f38daa9166d6bf85cabe6ef0832945f1d1abdb0a447de135d6861",
+      "bytes": 11658
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopDelayTests.cs",
+      "sha256": "75094e9f7a3c22cd2e6b58db24c3b8dff1ee10191a6f0b9501322610ffef8697",
+      "bytes": 6920
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopGpuDeviceTests.cs",
+      "sha256": "fdc482d04e85b326749d3b8e1b3bcb7dc365925c5787047fd5bf0bbf5b20fa9f",
+      "bytes": 13402
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopHintTests.cs",
+      "sha256": "4379fcfe61bc6aa395f67c1fe7aa11499f5fc8219f63002e4df0796f535cc171",
+      "bytes": 16151
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopReadTests.cs",
+      "sha256": "651e6ba8513d99fc509e9d31140b4279fe652101425556c3673062d0cceb5842",
+      "bytes": 9816
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopSaveTests.cs",
+      "sha256": "fbbac6f1cb1908e4d7079410cf62cc8134cef9a2332e61fa4828920284797934",
+      "bytes": 18751
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopSimulationTests.cs",
+      "sha256": "fc822af70ddb592da76e4a12967fb74657e7dc70089a3a95538716b788ff4e6b",
+      "bytes": 31673
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopTraceTests.cs",
+      "sha256": "e0e469debecc94ceeb33ce18eadbb51f155ead9eb65a46cc749d468bb2a00d57",
+      "bytes": 24257
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopWallTests.cs",
+      "sha256": "350419d6b9287d5640315ad0e61d8bbf3b1d34bb2d7608e59845f49eab1dedc2",
+      "bytes": 11915
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopWireTests.cs",
+      "sha256": "30acc71282493e324df863cafa078a84b5a129a108dcadb0e34a5795e84948b8",
+      "bytes": 65124
+    },
+    {
+      "path": "CuriousContraptions.tests/xunit.runner.json",
+      "sha256": "503bd8a8218c2dee7cf9eaf56cc856883b7eb213f19d6d0b94d0f26dec5aa705",
+      "bytes": 116
+    },
+    {
+      "path": "CuriousContraptions.web/.gdignore",
+      "sha256": "b314739a3187d780889d3869314f1949e4ec2970407ef80b242b0e9095578b40",
+      "bytes": 89
+    },
+    {
+      "path": "CuriousContraptions.web/CuriousContraptions.web.csproj",
+      "sha256": "62a4413d8d764872b341716bc8cb15ce2c38c6b298d7f990350544f7b836295c",
+      "bytes": 6833
+    },
+    {
+      "path": "CuriousContraptions.web/Directory.Build.props",
+      "sha256": "56644c3a55cb9ccf0485b3198f922e7c9fb9cd9d4729e0f4ceac1a398c2cb357",
+      "bytes": 751
+    },
+    {
+      "path": "CuriousContraptions.web/Program.cs",
+      "sha256": "1585540d8f90049197de6aa79d61b519f806078fb9cdbe62d98f265e7af20e5f",
+      "bytes": 1063
+    },
+    {
+      "path": "CuriousContraptions.web/TwoDogWebBoot.cs",
+      "sha256": "32b2cccb83744bea40e57daba3c1aaecef4f197fa0e8a640c9be3e7663074211",
+      "bytes": 1067
+    },
+    {
+      "path": "CuriousContraptions.web/global.json",
+      "sha256": "25e05b75ea2f08e335cf0cbff37b415044fe3eaa94ef32e554225bc840ad20d7",
+      "bytes": 380
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/404.html",
+      "sha256": "203665008980c85bb038aaee6b5224568ffe531e21cdbafd43b9591939e8f7a9",
+      "bytes": 626
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/favicon-16x16.png",
+      "sha256": "df8fddef4c64e640d5e67e9d3d75bf333ee6c24c422a226d2628698502dfbded",
+      "bytes": 860
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/favicon-32x32.png",
+      "sha256": "1fc8e1db39d0d40495bcd84ec52283f32ad7b680b33ab7a15118ab53194ba10a",
+      "bytes": 1485
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/favicon-96x96.png",
+      "sha256": "129b6e6db3b690889f3d9dc926b10c1500a819c364671920e3bb806f41f2c310",
+      "bytes": 4365
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/favicon.ico",
+      "sha256": "2b12b3a195e0f7e1e7052df7e7e9b8369b7a7e0d8843017ebf1435013738491d",
+      "bytes": 15086
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/favicon.svg",
+      "sha256": "1ef6a8841b987bfdf92fed81a7aa51c5e393b5e4269b6f761b905b8d6f902583",
+      "bytes": 11764
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/index.html",
+      "sha256": "a9ce285101eff2a600c2275d9b133ea95e357cf8c974545993c74818fd3346ef",
+      "bytes": 20447
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/native-clock.js",
+      "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+      "bytes": 3017
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/workshop-client.js",
+      "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497",
+      "bytes": 30930
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/workshop-isolation-worker.js",
+      "sha256": "491a7e1769e461ee5fe42f2bec445efea6f400d93b45ae13490efe591ae1f7c7",
+      "bytes": 1686
+    },
+    {
+      "path": "CuriousContraptions.web/wwwroot/workshop-isolation.js",
+      "sha256": "230d8abff03fb57ccbcc6b5b88c6fce9c96c6cbab9feeac39d23d85c840f7291",
+      "bytes": 8331
+    },
+    {
+      "path": "DESIGN.md",
+      "sha256": "4a9ec59dc2e1013bdef061cbf2da95c20e3ed9f69bd40d25a578b9079a10e93c",
+      "bytes": 55802
+    },
+    {
+      "path": "Directory.Build.props",
+      "sha256": "549d2120e64f3e0f1c1af86832759a50f082ea82d4a7254cb5cc780d4f387fa7",
+      "bytes": 1046
+    },
+    {
+      "path": "Directory.Build.targets",
+      "sha256": "ce9e471a414fd8ca236d709ccf79333b1e1af8cb735b8a1947c9c1c12d69c263",
+      "bytes": 389
+    },
+    {
+      "path": "README.md",
+      "sha256": "eb622c332e80ed94fbff31490fc6d54e4014fece8c44a79c67554efc495462cd",
+      "bytes": 9522
+    },
+    {
+      "path": "TODO.md",
+      "sha256": "b52df7a8b060f9a1a16e086cf0400a9c905181a8ce96cbfd005bc9ba5a055641",
+      "bytes": 4542
+    },
+    {
+      "path": "assets/icons/LICENSE.txt",
+      "sha256": "fdcc28746ccdcae999f4c38ac860d1e1e18f52d1a5e85033738918fea12fb6a3",
+      "bytes": 3209
+    },
+    {
+      "path": "assets/icons/arrow-down.svg",
+      "sha256": "77730c93ee8caa50d5d586f0d1df3bd498bb3240a56ddc94252bf8da81aac463",
+      "bytes": 258
+    },
+    {
+      "path": "assets/icons/arrow-down.svg.import",
+      "sha256": "09ad5b93598ef69cd790f23e18145725bcba55f320fff764ab60a6a8db9fc1ae",
+      "bytes": 1044
+    },
+    {
+      "path": "assets/icons/arrow-up.svg",
+      "sha256": "cc248b95015078d20808603f2c540f3a784fe2da81caa8315d5cfd5844792648",
+      "bytes": 257
+    },
+    {
+      "path": "assets/icons/arrow-up.svg.import",
+      "sha256": "7e49742fc3bae1908255aa31a44cc04a9928982614cbaee2825e64437e5acced",
+      "bytes": 1038
+    },
+    {
+      "path": "assets/icons/folder-open.svg",
+      "sha256": "f4f6ebf9a0c484197e8d5cd4103dff63cf3f99fd78ba3fc0ba1b02143556efd5",
+      "bytes": 397
+    },
+    {
+      "path": "assets/icons/folder-open.svg.import",
+      "sha256": "11370d080e170ea49c8b746cf7620760617bc57a5f5204ade2587ee3e4ed3834",
+      "bytes": 1047
+    },
+    {
+      "path": "assets/icons/lightbulb.svg",
+      "sha256": "1d4dd8beb7f83957c6f40d1deca5e78ba708867b0d9759020e61f70f8dad527f",
+      "bytes": 367
+    },
+    {
+      "path": "assets/icons/lightbulb.svg.import",
+      "sha256": "7ad5b738460a42e3081fef9a6cd149d8b3a8761278cc65cc6c984b8b9772a5bf",
+      "bytes": 1041
+    },
+    {
+      "path": "assets/icons/link.svg",
+      "sha256": "2bab578bb13478887fa4f9a600d9792d6537e016257b39c74ef3839af47b8d57",
+      "bytes": 355
+    },
+    {
+      "path": "assets/icons/link.svg.import",
+      "sha256": "37727bed20ea146e8455d56576b2d21db63697fc9e835be9655edada9723892c",
+      "bytes": 1026
+    },
+    {
+      "path": "assets/icons/minus.svg",
+      "sha256": "2a0117a85b1fb9585e59b1747c123ed19d42118e65aa46a073797447289bfd03",
+      "bytes": 228
+    },
+    {
+      "path": "assets/icons/minus.svg.import",
+      "sha256": "dd156441cf388ca0485888784ef51409fb24e762857e1ae8a26517d87d50a28f",
+      "bytes": 1029
+    },
+    {
+      "path": "assets/icons/move-vertical.svg",
+      "sha256": "7e5734696558fd8bcfb45af228bca169c19fe00f75e1b2c1a5d0e430acdc858a",
+      "bytes": 285
+    },
+    {
+      "path": "assets/icons/move-vertical.svg.import",
+      "sha256": "d408131a3f95bd8e364f89155263b66a730c1e3a21f399c18eae890ef78e508d",
+      "bytes": 1053
+    },
+    {
+      "path": "assets/icons/play.svg",
+      "sha256": "5483b9c1974cc2c4e2bcb0ec5ca003e66ce054750e2a8b064f709c50b73f27d4",
+      "bytes": 302
+    },
+    {
+      "path": "assets/icons/play.svg.import",
+      "sha256": "3899c8773dee7d77e9331f3a9c6d0d82621074707854dd8edfa1622c37539522",
+      "bytes": 1026
+    },
+    {
+      "path": "assets/icons/plus.svg",
+      "sha256": "efa7d9358844e3af7a057abac0513b8d6d0e97b5ffa5ddf76ca4c7b39a233b5c",
+      "bytes": 252
+    },
+    {
+      "path": "assets/icons/plus.svg.import",
+      "sha256": "2e351d71d0ed02be48c9ae2e1122a53fceb49726a5b618e03f49acc379c258a7",
+      "bytes": 1025
+    },
+    {
+      "path": "assets/icons/rotate-ccw.svg",
+      "sha256": "257acd74a8b311f570daaa0b89ddcb7c8cd21308e7cc9d5a7fe7e4460068bbc5",
+      "bytes": 293
+    },
+    {
+      "path": "assets/icons/rotate-ccw.svg.import",
+      "sha256": "39eb42ecdfc38edd4473789b4844dc7cf78b64128b3738a7bad1a7227fcbd48d",
+      "bytes": 1044
+    },
+    {
+      "path": "assets/icons/rotate-cw.svg",
+      "sha256": "b8ea7cb448378fc052f03505b1914932485d2efb8538fac00cbc3b4da5b5d1f4",
+      "bytes": 295
+    },
+    {
+      "path": "assets/icons/rotate-cw.svg.import",
+      "sha256": "0dccac3246ecfb7446dafd2528edc13a44681c0327b77715651a4afa78e6f51b",
+      "bytes": 1040
+    },
+    {
+      "path": "assets/icons/save.svg",
+      "sha256": "78c1811cfaec0bba82329f354ece77cdb29932aaf889fae5f04679edbfbb2f1d",
+      "bytes": 413
+    },
+    {
+      "path": "assets/icons/save.svg.import",
+      "sha256": "80c1d97e51da565b9a838118fdb2359086e06f992f55f2e8e955bbf6d2b59418",
+      "bytes": 1026
+    },
+    {
+      "path": "assets/icons/sliders-horizontal.svg",
+      "sha256": "376d179d8fa6ed912b555decab93c15f34ad4cd6bb260e940435e5607cc316c3",
+      "bytes": 418
+    },
+    {
+      "path": "assets/icons/sliders-horizontal.svg.import",
+      "sha256": "110a4ce9509a345d538fa0ea9d3c490d7519657d91ec2d264b4a0aeb00088b7e",
+      "bytes": 1068
+    },
+    {
+      "path": "assets/icons/square.svg",
+      "sha256": "90c48428bc18f0ea39e73b128f76bf7dc7569bac1ef283a3bf68b3ad50533b5f",
+      "bytes": 257
+    },
+    {
+      "path": "assets/icons/square.svg.import",
+      "sha256": "9d46b4f7b72de1015022a718f0171014245b5e163af450e3d38df158bedd966b",
+      "bytes": 1032
+    },
+    {
+      "path": "assets/icons/trash.svg",
+      "sha256": "a26d6bb45b8596f827ed2fb7243a9fde61445ddd71c6285e8b683b5b4eba2038",
+      "bytes": 385
+    },
+    {
+      "path": "assets/icons/trash.svg.import",
+      "sha256": "0f79c0f831f016a13c4a8f04930d6b083c44d69f3e8b888f0fec3e73027f264c",
+      "bytes": 1029
+    },
+    {
+      "path": "assets/icons/undo-2.svg",
+      "sha256": "5a55e9ce2632accc810102245a71b84a88c393088e5ea8d579d62a2941ce2f84",
+      "bytes": 305
+    },
+    {
+      "path": "assets/icons/undo-2.svg.import",
+      "sha256": "994dcf2e27f42b5d0b99714604ffbcc21269eba571ad6e53f0622178b76a7e41",
+      "bytes": 1031
+    },
+    {
+      "path": "assets/icons/x.svg",
+      "sha256": "db346906a604b6688358b40a69039454e0611fd192f83e8cc6d89f41ece20aca",
+      "bytes": 256
+    },
+    {
+      "path": "assets/icons/x.svg.import",
+      "sha256": "0ed4a8dffcb78dffc286d062582fe8c4aa26b236dd191364485157ee383bde03",
+      "bytes": 1017
+    },
+    {
+      "path": "assets/icons/zoom-in.svg",
+      "sha256": "71b0aa4b582a65f67a3c8a7aaaede95400fef03585825b897725a3fea4e31d51",
+      "bytes": 372
+    },
+    {
+      "path": "assets/icons/zoom-in.svg.import",
+      "sha256": "1ca7da6342bf8227a9802d5da34f64274477cc054974c8330e66b7be27682baa",
+      "bytes": 1035
+    },
+    {
+      "path": "assets/icons/zoom-out.svg",
+      "sha256": "6fd9e21d2839d4e2e19b9246b65d2d83317067b4d86e864970137cb50856658f",
+      "bytes": 330
+    },
+    {
+      "path": "assets/icons/zoom-out.svg.import",
+      "sha256": "aa2d674d41e27e3f080ec7fbac272e0e8900b0a796987f537bef21685087c6b7",
+      "bytes": 1038
+    },
+    {
+      "path": "content/puzzles.json",
+      "sha256": "d4278e23a8841f59779b2e34a22ed9eeca5f9f940f8faee9eff97c0ba7f7a7f1",
+      "bytes": 814782
+    },
+    {
+      "path": "docs/delivery-workflow.md",
+      "sha256": "36d6e3b747142c27419454b6a2ac98bb0dedb99ba2d1874ab021184966a37d8a",
+      "bytes": 52019
+    },
+    {
+      "path": "docs/engine-contracts.md",
+      "sha256": "cef6561fe3bcc7389c5ca0501f1706a5309c6fd6e60d741d46b92c70263f835c",
+      "bytes": 32109
+    },
+    {
+      "path": "docs/general-engine-design.md",
+      "sha256": "f257300cd7c593f61af010c681d0b4e05f86c0aeecf9e040085d251f66ec1734",
+      "bytes": 32469
+    },
+    {
+      "path": "docs/gpu-f16-physics.md",
+      "sha256": "977c5f6f9f995f861cd42cccc23bb40b45886a26de19e6475a7a4a37f598aedd",
+      "bytes": 42183
+    },
+    {
+      "path": "docs/planning/invest/current-consumers.md",
+      "sha256": "b1744c6c99c299802faa9268de5f6ba62571a07293248f122131cc09ed4e59b1",
+      "bytes": 145991
+    },
+    {
+      "path": "docs/planning/invest/vertical-delivery.md",
+      "sha256": "0fb2fd64f3fcca9fe52b8b9289694014284e8540fb4d77c33edaa2296addba29",
+      "bytes": 32675
+    },
+    {
+      "path": "docs/planning/requirements.md",
+      "sha256": "3409b58b990d40570e7ef6adf366fddac1d2f073f1eae594edf3954436cf41ae",
+      "bytes": 646033
+    },
+    {
+      "path": "docs/planning/work-register.md",
+      "sha256": "7b3261215a36deb7667c6df3e4cbd97f9a7446680660c0a21a8138dc1dfdc742",
+      "bytes": 4938945
+    },
+    {
+      "path": "docs/simulation-controls.md",
+      "sha256": "712bf7f25c3d10d6ee166e1d6be6ff14aed31f842ee9db86946e0e6f8583084b",
+      "bytes": 5850
+    },
+    {
+      "path": "docs/verification/P0-022-map/design-20261004.json",
+      "sha256": "ab03954f85442ed38cb5cc32084fd5c3d52ec04e61389a37fcb2bf9501e598a1",
+      "bytes": 3337
+    },
+    {
+      "path": "engine/BasketballMaterialResource.cs",
+      "sha256": "71fd8ea160ccde2d435f5f373ac4a4e254c7935e12749f91f1fe73859fdd454f",
+      "bytes": 994
+    },
+    {
+      "path": "engine/BasketballMaterialResource.cs.uid",
+      "sha256": "6e25a10eb38dfcad9700e2c46cdc4227d05cacdd28062a2a4962e6b8a4238906",
+      "bytes": 20
+    },
+    {
+      "path": "engine/DelayDurationResource.cs",
+      "sha256": "2af69903faa58009b8729ec98666e5a004e075874e7bd8308b047342c7d4f2d3",
+      "bytes": 513
+    },
+    {
+      "path": "engine/DelayDurationResource.cs.uid",
+      "sha256": "4ce748a620a646e2424ccfff9130ad2bf413cdb930029b46d057e97b0525228e",
+      "bytes": 20
+    },
+    {
+      "path": "engine/IResizablePart.cs",
+      "sha256": "72978dbe4cfaa726f69d3f1edb02a416965c26feef8975dc9eef43405e550297",
+      "bytes": 293
+    },
+    {
+      "path": "engine/IResizablePart.cs.uid",
+      "sha256": "871d54367b56a36a791fcb039ba4a7b7ece7ada208cbaca7ce26b47c7baff606",
+      "bytes": 19
+    },
+    {
+      "path": "engine/MachinePart.cs",
+      "sha256": "88a5ac75d6e5d91638a5a13230c941a637d04bc82f84a67b9f61ba9ccdba81f0",
+      "bytes": 4841
+    },
+    {
+      "path": "engine/MachinePart.cs.uid",
+      "sha256": "f4d9237c2c840b1d50ac0c440179cfcff9d30be62e4f345e51aed11887c75283",
+      "bytes": 20
+    },
+    {
+      "path": "engine/MachineWorld.Gpu.cs",
+      "sha256": "6e061f6121e07a097d27df4ab8a27f8b54d1c21d5a7ab8aec92355bc85cea3d3",
+      "bytes": 18571
+    },
+    {
+      "path": "engine/MachineWorld.Gpu.cs.uid",
+      "sha256": "850669ff61c3568f81544014952014432eeecbad785d94280c080754d584b4f9",
+      "bytes": 20
+    },
+    {
+      "path": "engine/MachineWorld.cs",
+      "sha256": "12ff794ff0d4f8a50d99092c2cd9e2dd12be7542650eec0e28fc5b21ef586147",
+      "bytes": 980
+    },
+    {
+      "path": "engine/MachineWorld.cs.uid",
+      "sha256": "0eef6cca400671680084cd4a9e3cf1db19dfcef350f01077b4b371697787e59d",
+      "bytes": 19
+    },
+    {
+      "path": "engine/PartArt.cs",
+      "sha256": "6dd08ba04fc0b6edd1bd5049d96589806d8de91bf4f02ded4788e27da6794c6e",
+      "bytes": 1832
+    },
+    {
+      "path": "engine/PartArt.cs.uid",
+      "sha256": "0036f1bb6fe908d55cf667d91917e213f330ace27089fb2c081b86a30e480858",
+      "bytes": 20
+    },
+    {
+      "path": "engine/PartDefinition.cs",
+      "sha256": "247801e3ca4e0fec0faa5fe70694b7440780e0c1127f0ed956107aa6608fa941",
+      "bytes": 1312
+    },
+    {
+      "path": "engine/PartDefinition.cs.uid",
+      "sha256": "35d61531de97cf17046c2761ddef49e0214fa979c18d7f7a447c1e5505ec3a5a",
+      "bytes": 20
+    },
+    {
+      "path": "engine/PartRegistry.cs",
+      "sha256": "fb75fdaa767dcf87b5b99767fdd2bdfabbf2e6dd6a1dac356ae6c252a89eae8d",
+      "bytes": 3826
+    },
+    {
+      "path": "engine/PartRegistry.cs.uid",
+      "sha256": "59fc89a52fa6b90bf3b2a056b092293ae4d7aac403eba06afa4680222b4c24e4",
+      "bytes": 19
+    },
+    {
+      "path": "engine/RampDimensionsResource.cs",
+      "sha256": "8d86a27abc60d1084ed5608dc464b3a7b9890c3882feee006db0ee47382378cd",
+      "bytes": 635
+    },
+    {
+      "path": "engine/RampDimensionsResource.cs.uid",
+      "sha256": "5034a2f57839441e8b3132ad42600e8bd1f758fd4adb7775bc20d219dd5fe942",
+      "bytes": 19
+    },
+    {
+      "path": "engine/WallDimensionsResource.cs",
+      "sha256": "9d490834310f7fcf7a66552690b605dd73335cb521c07a79e6f67472a2f545ec",
+      "bytes": 713
+    },
+    {
+      "path": "engine/WallDimensionsResource.cs.uid",
+      "sha256": "709d54d706e2adb40139fc07b25feeb62ef43387563eead50ce6a3db4cfc8040",
+      "bytes": 19
+    },
+    {
+      "path": "engine/Workbench.cs",
+      "sha256": "ebfc4d8625e86f07e99ddfad9bc8ca5694b28308f16bea97ee0089971e2dad4f",
+      "bytes": 715
+    },
+    {
+      "path": "engine/Workbench.cs.uid",
+      "sha256": "25e949ea1e368c9951f9e278ef2ff704ddd7e83b72c434e7cd99e5282f78f5bb",
+      "bytes": 20
+    },
+    {
+      "path": "engine/WorkshopVisualBinding.cs",
+      "sha256": "6b29503fd3f43626f7eba6b74890a34027f573a8578eb35fc060243f5a5af780",
+      "bytes": 3315
+    },
+    {
+      "path": "engine/WorkshopVisualBinding.cs.uid",
+      "sha256": "50bdf1040b593b226b7d30f36fefbb43ed126b75b49243f73d4a34c6f514a488",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/ActivationNetwork.cs",
+      "sha256": "b56eecd9fcac4c80013eefb3f26b300f2c056c6ee041781f671345d55f55959c",
+      "bytes": 18890
+    },
+    {
+      "path": "engine/gpu/ActivationNetwork.cs.uid",
+      "sha256": "ce7d92abed243f93672d23bc22e9959f29a443cf5a19727a4e14b05db6a0b602",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/ActivationTimers.cs",
+      "sha256": "df8de13425d00099e1f48c47feffa514e68686d3ecab1eac83f52aa8bc5a9326",
+      "bytes": 6225
+    },
+    {
+      "path": "engine/gpu/ActivationTimers.cs.uid",
+      "sha256": "889f24fd136046654bca12e321a430fe9bdaded20839ee78c95e382c6e49d172",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopClient.Activation.cs",
+      "sha256": "615f287cad688cfd26486033d1ba8aba4c3d69d436c3339e3359ddff1b3e1f46",
+      "bytes": 4107
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopClient.Activation.cs.uid",
+      "sha256": "a5bb976a2129a060a01a75bbb0194fcd9a3d23ad4847c34953573aeaee1f93ac",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopClient.Schedule.cs",
+      "sha256": "bd3eadd5d2c785cdf08028b6ec4e76aea2282e8bda028db2b0264b58f4f7ec8c",
+      "bytes": 17915
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopClient.Schedule.cs.uid",
+      "sha256": "f4db846d1e977206403df9fa65f1b9ff5bb48fd8c9cc2a1310b53ed43db22d6c",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopClient.Timer.cs",
+      "sha256": "6a00f698d4982833bad28ca8a9dc43881e4b2e78088f58f217959549162e5468",
+      "bytes": 5221
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopClient.Timer.cs.uid",
+      "sha256": "d2e8c3811dee764e0b1e18b426aba30e624a3335ceda4ac10e803effcec2f676",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopClient.cs",
+      "sha256": "d5b4b5911bf0a75c5e53a3c4098e5119ca15f3066a70bbd45d8c0c98644c53d9",
+      "bytes": 23592
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopClient.cs.uid",
+      "sha256": "64f8a0f003e9282070ed59f39ecb538cd8d62ebf09c4f700c3a7cc6f268fb1ea",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopSaveStore.cs",
+      "sha256": "23ef3e8c3e3b1a238d39f3882e619b7bf7c5b8f34e61699b841d65b5465a4d53",
+      "bytes": 492
+    },
+    {
+      "path": "engine/gpu/BrowserWorkshopSaveStore.cs.uid",
+      "sha256": "7e6e8bf9ec14c1d3f6429154fca78b374ee704e8600ea1ea363d8b46c4a87fd1",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/CanonicalBody.cs",
+      "sha256": "212cc62061b8f4aa469a5f9892de4e429604975f5e4f54c93ea71989e91540b7",
+      "bytes": 4747
+    },
+    {
+      "path": "engine/gpu/CanonicalBody.cs.uid",
+      "sha256": "e06860db2a2fcf1e05c2bc995917038ed4ee7b802627cb205b3abee6f4ee59ef",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/CaptureLatch.cs",
+      "sha256": "865a72abccd3185cfd623d94cf887c18408cabe966be9767f0b83d01744abb65",
+      "bytes": 2036
+    },
+    {
+      "path": "engine/gpu/CaptureLatch.cs.uid",
+      "sha256": "10f934206f9931c26429fdb272866d3b60b204ae3dce129886bd25e44d535e62",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/ContactTriggerDeclaration.cs",
+      "sha256": "6140bfc1311b2e8dbdb5590b07c693d2cd43d86bdc360d6117e58b19f8eca13f",
+      "bytes": 886
+    },
+    {
+      "path": "engine/gpu/ContactTriggerDeclaration.cs.uid",
+      "sha256": "0c0f90eb8afd0b3d466842291857e54e77bc123147fb7df64d22c6f753e42050",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/IWorkshopClient.cs",
+      "sha256": "bfa3669dc875ac11cff1f2eb2280455678e9f011082dc62b7e4bc6d99689f54c",
+      "bytes": 1621
+    },
+    {
+      "path": "engine/gpu/IWorkshopClient.cs.uid",
+      "sha256": "ae0880be3d2683abb030e3c8dd751fb7d51875435fca70372b9c9d856487f015",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/PhysicsCaptureRead.cs",
+      "sha256": "11a2934472b2ebd619205f63aa88c1cd779818b6a0634175c862649b5b0e6fd9",
+      "bytes": 1200
+    },
+    {
+      "path": "engine/gpu/PhysicsCaptureRead.cs.uid",
+      "sha256": "822d80194b9e8304924c3d7ccd4ae69c2b06916bcd62eeb65e13173e6d688985",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/PhysicsDeclarations.cs",
+      "sha256": "e34a7463cf11b87f38f9d63df9a063989eae39f442ae2e5fb324bca0bde99b35",
+      "bytes": 16109
+    },
+    {
+      "path": "engine/gpu/PhysicsDeclarations.cs.uid",
+      "sha256": "030881b447fb0ed7cdd2603e3f6519da1a950533afa78090befe8bd8a8cbd026",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/PhysicsGpuAbi.cs",
+      "sha256": "2e7d319ffb47f22ac8c908d88b4c8f7d2f60f396ac447a47acda66548479fd8e",
+      "bytes": 29402
+    },
+    {
+      "path": "engine/gpu/PhysicsGpuAbi.cs.uid",
+      "sha256": "1a7b17a0f35f547069a8f68a6ec2c6fe4db2709c82392b6f389d34c7525262f7",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/PhysicsMotionRead.cs",
+      "sha256": "3862b0826b9f40fc8988abe8f368922d4ae5ce3a2738472e6d8dc7faaf1e9458",
+      "bytes": 10527
+    },
+    {
+      "path": "engine/gpu/PhysicsMotionRead.cs.uid",
+      "sha256": "8d9ca3f229693495a6ec37f970ebca2c11131c6f598b767c94ce5086d53238e6",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/PhysicsNumericalException.cs",
+      "sha256": "1bd8cd0a85a0d530d135011d472c2728982eb39e8fb804af1ab3e4ad89af309c",
+      "bytes": 457
+    },
+    {
+      "path": "engine/gpu/PhysicsNumericalException.cs.uid",
+      "sha256": "fb3927a8205c1eaca7aa447045709df522dae86139e4dbe29e99209567dcb9d8",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/ReceiverGeometry.cs",
+      "sha256": "7595e6d07bd729eda91353e85639397d249862cba6a24d0d5614837828015ec0",
+      "bytes": 850
+    },
+    {
+      "path": "engine/gpu/ReceiverGeometry.cs.uid",
+      "sha256": "a5654c733a48322ea37310641c69da26fcbc4ddb7164e65012e4eaf7af6954ef",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopActivationParts.cs",
+      "sha256": "31ac5a65aa1c47d2f8711202a74f0375d1be33e3fe493019bd0c656c479d42b9",
+      "bytes": 1221
+    },
+    {
+      "path": "engine/gpu/WorkshopActivationParts.cs.uid",
+      "sha256": "06c27a5a2f5e1abcfe825186b8a4de196902647a40b057c774aa73ee3b36be4b",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopActivationWire.cs",
+      "sha256": "d34ffb6524892b9f902f02c1e3131d9701d1762212c07ce455abdbfcbcaea2e4",
+      "bytes": 3158
+    },
+    {
+      "path": "engine/gpu/WorkshopActivationWire.cs.uid",
+      "sha256": "f7031f56a4eaff202751d470517c3a172d49eaeb754b9dd72ff206ed22fbcaa5",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopCadence.cs",
+      "sha256": "367d585e4be02b0723386b3742e99a0f2d17cfa0dfffaed101c9827258d8a451",
+      "bytes": 9922
+    },
+    {
+      "path": "engine/gpu/WorkshopCadence.cs.uid",
+      "sha256": "a1ce839aabe169286ae5120c7a7071ca3ad0039b3981d3be456e4bd0a8f7af0c",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopClientCursor.cs",
+      "sha256": "4a7d32c2b931178711cb6a467d0d9470a437b15e428e1213a6aa6605eb6d439b",
+      "bytes": 4569
+    },
+    {
+      "path": "engine/gpu/WorkshopClientCursor.cs.uid",
+      "sha256": "eafffe10e05dadfd7bc86d3022fbca79a0d21b6b5f20c11f25f55b5dda12e3d0",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopClockMapping.cs",
+      "sha256": "c70623feca3026a124c5582ce3ed5c99f39570bf6d2928c83ca7c89b962e6787",
+      "bytes": 18156
+    },
+    {
+      "path": "engine/gpu/WorkshopClockMapping.cs.uid",
+      "sha256": "bc3dd5ee06585d55625ecfc1fd628c6e8060016e58d4e474d07260a24449db49",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopClockWire.cs",
+      "sha256": "0c9b60d3cdc95e1179feefe4c5947c72494d339ce04da6170095bfe450aa4706",
+      "bytes": 8249
+    },
+    {
+      "path": "engine/gpu/WorkshopClockWire.cs.uid",
+      "sha256": "c376b253effcc00d28a63dfa25a0f85810cf472cc24512a46d1f4e37cc10d5ee",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopCommandRouter.cs",
+      "sha256": "9a8a3f97d1454d2a684f6242c0376ad63e598c198f8f4fd604959ccd6a165086",
+      "bytes": 1755
+    },
+    {
+      "path": "engine/gpu/WorkshopCommandRouter.cs.uid",
+      "sha256": "899dae2550a3584c1088cca5c1d9e0de25d8cd8b85f2e4cb857dde7cda29e408",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopConnections.cs",
+      "sha256": "e6dc96185d498854368505d19fb57710dd2d6654d3bf9f86d217f10c3afcdb0f",
+      "bytes": 5475
+    },
+    {
+      "path": "engine/gpu/WorkshopConnections.cs.uid",
+      "sha256": "ae49b2c0201f0639f168dd1a528b9fafa3d67890197251b0efd3ecbebbe9b966",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopConstruction.cs",
+      "sha256": "8a0a0c2a3f2b4e28c912e78aa0cc07fa8a3ba8fb61dd4ce3c541de16d2133bb3",
+      "bytes": 10308
+    },
+    {
+      "path": "engine/gpu/WorkshopConstruction.cs.uid",
+      "sha256": "d0096f5e837e46b4c9eb74bf131da56f9e5467cded30d2bcebe01ac53196020b",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopDelay.cs",
+      "sha256": "360ddb869ca14b7f3692fa25db45d12c095251ee324c1e3ea1eeb0ef64db48df",
+      "bytes": 1922
+    },
+    {
+      "path": "engine/gpu/WorkshopDelay.cs.uid",
+      "sha256": "3fb10b2300bf82c53a9ad2970343db9da5ac25e16f28f112e3141cc267b47f4d",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopGoalEvaluator.cs",
+      "sha256": "be93104edf878b624926ce1eace9c8c82310b709b2130e9ced10ef555302524c",
+      "bytes": 1287
+    },
+    {
+      "path": "engine/gpu/WorkshopGoalEvaluator.cs.uid",
+      "sha256": "047542ad0924c8ae9dbc4bf1340691fc2418fe069c188c374ca79be8d7c30e6f",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopGpuProfile.cs",
+      "sha256": "bd6344bb8c9e6f28dc46e103a0b8b0d164f9f2a06e779d0cf75744191caaeba7",
+      "bytes": 823
+    },
+    {
+      "path": "engine/gpu/WorkshopGpuProfile.cs.uid",
+      "sha256": "f8798d05c73649344cc87afbbd62cb27247b80afeaf5bf8b0619448a86da1ca5",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopHint.cs",
+      "sha256": "b71ddfc8d5d315df03dd9f6a7a2d611f122e4cb6641fd1f331c4768de8f864ea",
+      "bytes": 10116
+    },
+    {
+      "path": "engine/gpu/WorkshopHint.cs.uid",
+      "sha256": "d987bd01bbf9189b3ac1c745509793132e2fb6d337d4c4de56781a29918c5045",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopInstances.cs",
+      "sha256": "6441c76edbfe68c78d6dd4edc786a8650f84bc9bfd40823ce92dd9e98abd68b8",
+      "bytes": 4288
+    },
+    {
+      "path": "engine/gpu/WorkshopInstances.cs.uid",
+      "sha256": "3bca82f2a8c28d7ced0259a5418197e3f1010ea5e98420167c66df5e21bdfad2",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopMemoryWire.cs",
+      "sha256": "c4c879afa9c06be25a893b5d7cbf42c2d3efdb8a51b55d991572e58064c2aff1",
+      "bytes": 8032
+    },
+    {
+      "path": "engine/gpu/WorkshopMemoryWire.cs.uid",
+      "sha256": "d65977973af024d7c20ba0dac83caed1a6308965b29821138c13b393a82dfdde",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopNativeClock.cs",
+      "sha256": "df0ec140ba577f4a15e54bd070dc079a7c0290b1440efc53a703d87a088b51db",
+      "bytes": 1781
+    },
+    {
+      "path": "engine/gpu/WorkshopNativeClock.cs.uid",
+      "sha256": "0da4f2030a39aeb9ae6b5e08c3b2218897b83c75f74424158531890b3554867b",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopPartKind.cs",
+      "sha256": "63bb894c99c0a70e237b8c300958cb59bc97f91e955ea1db29a6715b8b8916b3",
+      "bytes": 144
+    },
+    {
+      "path": "engine/gpu/WorkshopPartKind.cs.uid",
+      "sha256": "15c283463b0d8a1cfc4f45f34f3f4f5aa7dcfa72313c65e15205995adb23ed61",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopPhysicsCompiler.cs",
+      "sha256": "7b01fc7bb02993fa50f633aa89d8add60483b4b7f421bd752602147fc88b86b3",
+      "bytes": 7934
+    },
+    {
+      "path": "engine/gpu/WorkshopPhysicsCompiler.cs.uid",
+      "sha256": "08ec2ee3b96435ea4801e59e6fb3f52c598a1264e13ec178219f4e23e40e3b01",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopPoseHistory.cs",
+      "sha256": "73d8379bd2b74c439b9c96ab08df452d031643eba0eefcfa303939968b6cdb48",
+      "bytes": 17992
+    },
+    {
+      "path": "engine/gpu/WorkshopPoseHistory.cs.uid",
+      "sha256": "199755f75e2d24cb3387ae6fab0aba831205ee5f0f16af5c49b313c8d3f16195",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopPresentationWire.cs",
+      "sha256": "7dde7a90d51858d2dbef9d92bb2ca0af9f14035f3f4cf9d68da526d777ffb642",
+      "bytes": 4364
+    },
+    {
+      "path": "engine/gpu/WorkshopPresentationWire.cs.uid",
+      "sha256": "c092edce64fee7df21691aac82c103674df1eb7e3baf0c92cf892978987dd3b3",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopPuzzle.cs",
+      "sha256": "86fcfdeabab66343940e8d79dd61088f57d25bec59de551b64acd6de1d2ddf9b",
+      "bytes": 7558
+    },
+    {
+      "path": "engine/gpu/WorkshopPuzzle.cs.uid",
+      "sha256": "c70fc2bb63d63403992a6760397315ae47e9bc5d8d17e3a34e05a5ff5fc2aa68",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopPuzzleWire.cs",
+      "sha256": "8f4a9b848a0ae553c85f674d7b6b0082c7875737d7a1d8ffdded19005d390fad",
+      "bytes": 3669
+    },
+    {
+      "path": "engine/gpu/WorkshopPuzzleWire.cs.uid",
+      "sha256": "f7a18f2c7ae09670f71e85fe272e0c4e99f2060d357a06aaf0b1fcd92f50ae46",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopRead.cs",
+      "sha256": "49afd4430755df711fbeb3071759f9ba97d41631e9bf4b1ec72fcf19d0a68b73",
+      "bytes": 2892
+    },
+    {
+      "path": "engine/gpu/WorkshopRead.cs.uid",
+      "sha256": "5fe1b37676629b8207de412a0b9126cd1fca08ccfbc32b5bf0f179e3ac453254",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopSaveCodec.cs",
+      "sha256": "b4829028e766c8e50c209a612c6a875446304c39f182f3f3384b92a152c30eda",
+      "bytes": 2418
+    },
+    {
+      "path": "engine/gpu/WorkshopSaveCodec.cs.uid",
+      "sha256": "0700a7e4ef5be7e4977814e0de72596b18c50f3749f34cf10a84d02979c2ec69",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopSchedule.cs",
+      "sha256": "363c33f8a0522f40b270da6b3556f0fca61ff6a4df3180b45d7ff4714ecd7742",
+      "bytes": 12947
+    },
+    {
+      "path": "engine/gpu/WorkshopSchedule.cs.uid",
+      "sha256": "9cd9b7f189c60b515427507aa1c9d0a2421b683c539f6b6eef558c0cb8518e07",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopSimulation.cs",
+      "sha256": "72bdfa275f7a084d5ffe1175a6ddb29557f2eaee0c135903b788e74793078a4f",
+      "bytes": 24294
+    },
+    {
+      "path": "engine/gpu/WorkshopSimulation.cs.uid",
+      "sha256": "feada52262612bb153b98a85d4c0f0f71f032b62a3d6be5b9384fb9adbe9d1e9",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopTimerWire.cs",
+      "sha256": "661ba4fa8d12ce6b8c43e8c909ce0c0e28d9ad4434f32188f99f40768add797d",
+      "bytes": 3622
+    },
+    {
+      "path": "engine/gpu/WorkshopTimerWire.cs.uid",
+      "sha256": "24ccd375f72f744962653eb02a2cb30e9ca9cd9d48c7723696b22c3caf14e6f6",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopTraceRecord.cs",
+      "sha256": "020157413bbdbe249dd1e1109812ff303f4326bc2d5a3a71ac25231349f5762b",
+      "bytes": 3243
+    },
+    {
+      "path": "engine/gpu/WorkshopTraceRecord.cs.uid",
+      "sha256": "9aab45da89df67a2a12b9d419e12659c2eb0cbc96602b64d408d17c31fafa47f",
+      "bytes": 19
+    },
+    {
+      "path": "engine/gpu/WorkshopWall.cs",
+      "sha256": "0d175569ce80f33cbe0a0a13d08786b4ad6c4fbcb540f08465e0b25f87360682",
+      "bytes": 2042
+    },
+    {
+      "path": "engine/gpu/WorkshopWall.cs.uid",
+      "sha256": "687c9b19ac92177a4e7d064f47c07b59cd65b500b1fe83e4dd938dcdfee5cc0b",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/WorkshopWire.cs",
+      "sha256": "d717c1d58fa1a8e7aed21d9026b166e37c201db5f9e3adcd5a178833ca9de512",
+      "bytes": 30348
+    },
+    {
+      "path": "engine/gpu/WorkshopWire.cs.uid",
+      "sha256": "b0e5ebcdd17e30271ee27264428d490f127026caff3de2cd012c97175ab88e6f",
+      "bytes": 20
+    },
+    {
+      "path": "engine/gpu/physics.wgsl",
+      "sha256": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72",
+      "bytes": 97985
+    },
+    {
+      "path": "engine/presentation/AnimationBatch.cs",
+      "sha256": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10",
+      "bytes": 29621
+    },
+    {
+      "path": "engine/presentation/AnimationBatch.cs.uid",
+      "sha256": "45930c61d3616178a7fd8a6e568f64d41dc61c1f180a5c830bf0df8fea273c4d",
+      "bytes": 20
+    },
+    {
+      "path": "engine/presentation/AnimationFollowDefinition.cs",
+      "sha256": "b0cb9d77d46d2cb6b2523796ea10c590dcb47d4e8874b71693d36b5df1666ebd",
+      "bytes": 1091
+    },
+    {
+      "path": "engine/presentation/AnimationFollowDefinition.cs.uid",
+      "sha256": "c37eb2ff5e365a82a1b84c6aa2236e81a60035907e7185576e7b6d29e0ac3238",
+      "bytes": 20
+    },
+    {
+      "path": "engine/presentation/AnimationImpulseDefinition.cs",
+      "sha256": "9e81fb4546054559287bfcbc494b5be702a13b39744dfd2aa8129daf6cea5dcc",
+      "bytes": 10184
+    },
+    {
+      "path": "engine/presentation/AnimationImpulseDefinition.cs.uid",
+      "sha256": "69ec52b0fe156247a664b2b8218ceb54aa9289807b123132e80958f02337921d",
+      "bytes": 19
+    },
+    {
+      "path": "engine/presentation/AnimationOscillationDefinition.cs",
+      "sha256": "439d4cda48317b4fad06661ed4c1fb1c2ba984b4888df16d61383fe510c9fc88",
+      "bytes": 5820
+    },
+    {
+      "path": "engine/presentation/AnimationOscillationDefinition.cs.uid",
+      "sha256": "b1f9a482776271228e500b597e241b8c7f9d52340a6a46e1ac27ef5235a9456a",
+      "bytes": 20
+    },
+    {
+      "path": "engine/presentation/AnimationTimerSegment.cs",
+      "sha256": "b09b8e164f9cbf03dbc2c30c70a990cf99ff15c46900de124a4fd2f5b2de6a57",
+      "bytes": 3142
+    },
+    {
+      "path": "engine/presentation/AnimationTimerSegment.cs.uid",
+      "sha256": "b8103cacf4beb27dba28bbcf98d8633988a515d508784683b5ddb1b0729242f1",
+      "bytes": 20
+    },
+    {
+      "path": "engine/presentation/AnimationValues.cs",
+      "sha256": "735d513271652102640fedb0a4ea2334716a74956f544e14946e513cf2287349",
+      "bytes": 10468
+    },
+    {
+      "path": "engine/presentation/AnimationValues.cs.uid",
+      "sha256": "95fb4990f844f11bf9d84f3da5fe5ffdbe8405fdcc28423ffe2aeeb705a87835",
+      "bytes": 20
+    },
+    {
+      "path": "export_presets.cfg",
+      "sha256": "c13ff970707e1b7e7ecd4ec87772842db51a12e1f31736fbff880ab0586a9478",
+      "bytes": 4539
+    },
+    {
+      "path": "global.json",
+      "sha256": "a7677f93f4c9367ccee574dc14240116191a317fc9d3b2616806c7c5645a75fa",
+      "bytes": 274
+    },
+    {
+      "path": "parts/BallPart.cs",
+      "sha256": "91e6cb2681553fd87df895b81edc663909acb136ee57bf5a644cf7bf8fa9bd5b",
+      "bytes": 613
+    },
+    {
+      "path": "parts/BallPart.cs.uid",
+      "sha256": "6bca275c9d14b7910e8f502d7a535999635b98613ad638ee7ab758dfc0b2f34e",
+      "bytes": 19
+    },
+    {
+      "path": "parts/BasketPart.cs",
+      "sha256": "9c896736851644cfaff2f03a2712423ae011eb428a26e3bb9b08d60c3f63e453",
+      "bytes": 1229
+    },
+    {
+      "path": "parts/BasketPart.cs.uid",
+      "sha256": "54953dc5e1f21c36cfda2b9a2bd65f63e9c348e8c479df03079b9216643e8727",
+      "bytes": 20
+    },
+    {
+      "path": "parts/DelayPart.cs",
+      "sha256": "008c39fa942e7a8c05d83ce79a71207eebd084e32abe7988f6186681e0f18aad",
+      "bytes": 2115
+    },
+    {
+      "path": "parts/DelayPart.cs.uid",
+      "sha256": "2dcd3b17796d9e94fdf1b14d1d6c88974e15594b3bdeaa44974f8a753aa2d807",
+      "bytes": 20
+    },
+    {
+      "path": "parts/LampPart.cs",
+      "sha256": "a3689ada3727074edbe4c6f126836b2aac0e8c63e234410f3f4b11b3e2c309bd",
+      "bytes": 1316
+    },
+    {
+      "path": "parts/LampPart.cs.uid",
+      "sha256": "f2b4831983b355a950a94ab9708fd5d319d81abf73644cf014e310567d6a4caf",
+      "bytes": 20
+    },
+    {
+      "path": "parts/RampPart.cs",
+      "sha256": "474f02c6d1fc21dde5cff9e4f52fb76944ee23985a145b8aef4faaa6ece634ba",
+      "bytes": 1878
+    },
+    {
+      "path": "parts/RampPart.cs.uid",
+      "sha256": "41ccd4b30e8a038f3741faf3cfbe5091cd99c7f4b57a451b2603d0be2d356853",
+      "bytes": 20
+    },
+    {
+      "path": "parts/SwitchPart.cs",
+      "sha256": "afec8710bdee85539c7491e18bcbaf85e63534264b1115268acfbca46e4c92df",
+      "bytes": 1129
+    },
+    {
+      "path": "parts/SwitchPart.cs.uid",
+      "sha256": "ac8d73576605f0685252e26a7e94f8d40ae9d9a89f552eaded4ab759e3402c46",
+      "bytes": 19
+    },
+    {
+      "path": "parts/WallPart.cs",
+      "sha256": "51e804341e4faa47d4e95f0d6e312343343f6e496eb79e44da63097263aba4e1",
+      "bytes": 1183
+    },
+    {
+      "path": "parts/WallPart.cs.uid",
+      "sha256": "ff1a4a70d372a60577ec9b54111c260417aca23133513fbe17276fb7cfd24d0f",
+      "bytes": 19
+    },
+    {
+      "path": "parts/catalog/ball.tres",
+      "sha256": "66981769483dd1e3cfea8c6e4000777ef1008fafc17420fa8ae152fc547e7a25",
+      "bytes": 774
+    },
+    {
+      "path": "parts/catalog/basket.tres",
+      "sha256": "df69f69e6c96d09ce33dd5ce3b0a20cbb9c33f4422c191a518c7ec5475f2272f",
+      "bytes": 487
+    },
+    {
+      "path": "parts/catalog/delay.tres",
+      "sha256": "f7963424fb89161cbf6b95ef6c139b2c8ec4d201abd5db4e7dc6f1650f4d65ba",
+      "bytes": 723
+    },
+    {
+      "path": "parts/catalog/lamp.tres",
+      "sha256": "5db0fa73bd2d84eef6d089b693e3626e54d51a9646530661f9f0ee553c722243",
+      "bytes": 478
+    },
+    {
+      "path": "parts/catalog/ramp.tres",
+      "sha256": "990af79ff6ba641bb0731fd59597b344c7a570a86cfb674cbb3f512df09aa3e9",
+      "bytes": 702
+    },
+    {
+      "path": "parts/catalog/switch.tres",
+      "sha256": "be70892f202801f2f5675cd9a2d4769f31e993895bcb44d4d6763f0d979117b4",
+      "bytes": 514
+    },
+    {
+      "path": "parts/catalog/wall.tres",
+      "sha256": "f5ef81366e39eb1256b7a73c40d6177a963d1337e4867546afb5aeab41270517",
+      "bytes": 748
+    },
+    {
+      "path": "parts/scenes/ball.tscn",
+      "sha256": "13321bde9eb3cc18735aea86c55a86510bbfd68feb2fc011997359e18ffe9917",
+      "bytes": 161
+    },
+    {
+      "path": "parts/scenes/basket.tscn",
+      "sha256": "1df00f9ed22e6512cdfc61b130e76f06888a5aba354c8a530ff6426449edeff1",
+      "bytes": 165
+    },
+    {
+      "path": "parts/scenes/delay.tscn",
+      "sha256": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed",
+      "bytes": 163
+    },
+    {
+      "path": "parts/scenes/goal_light.tscn",
+      "sha256": "a16691a93d8ac76f70e44ee7211fbe11ac9212851210ba8f6bb6aed95e1bd539",
+      "bytes": 167
+    },
+    {
+      "path": "parts/scenes/ramp.tscn",
+      "sha256": "c649a18b2c62fac88b3603ae9537db50cd69cf2b61bf3ddf9861dee3d9b5f857",
+      "bytes": 161
+    },
+    {
+      "path": "parts/scenes/switch.tscn",
+      "sha256": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95",
+      "bytes": 165
+    },
+    {
+      "path": "parts/scenes/wall.tscn",
+      "sha256": "0672c5347fa260053c0c5ee794281ac96c1b6768e33a469d801413e8f2878217",
+      "bytes": 161
+    },
+    {
+      "path": "project.godot",
+      "sha256": "1a10a78e962c33ff2eae3e575b5c03561c3cc06402f0a73f340080772d7e5ed6",
+      "bytes": 803
+    },
+    {
+      "path": "scenes/workshop.tscn",
+      "sha256": "7dd88aac736a475357827766373e86adbcfe2c8e5d14f6495503a171fdb7f9c2",
+      "bytes": 162
+    },
+    {
+      "path": "tools/workshop-animation-output.test.mjs",
+      "sha256": "21d676534408de274eff55fc6b9c4030bf5cc78daa2e7f790656ef5abd07371e",
+      "bytes": 4021
+    },
+    {
+      "path": "tools/workshop-client-lifecycle.test.mjs",
+      "sha256": "86fe083f27366d1b978d8ac6f161680a5ed1b2b0e2b02142d92a99d61b076cfd",
+      "bytes": 19171
+    },
+    {
+      "path": "tools/workshop-observation.test.mjs",
+      "sha256": "60ad9c15ae7502e84f8e14619fb914f1acbd4f093e8dec3ca5a5455a924930f9",
+      "bytes": 9520
+    },
+    {
+      "path": "tools/workshop-save-storage.test.mjs",
+      "sha256": "08dab02f858e4183cbf18bab2ce6c0284e9140fd69e1e2b396de5357f5699550",
+      "bytes": 3813
+    },
+    {
+      "path": "ui/PlacementShadows.cs",
+      "sha256": "b58e702dbdb45218bfe4d75c6f32c682199ece8df46e0e53a5bb4c30638cb597",
+      "bytes": 5691
+    },
+    {
+      "path": "ui/PlacementShadows.cs.uid",
+      "sha256": "e5d39841da5ca298a755e9877ef9d579d4f4726d5b3e3b4ab5ec341bd3bc54af",
+      "bytes": 20
+    },
+    {
+      "path": "ui/RotationGizmo.cs",
+      "sha256": "071305b870a6d6d9f17daeb49e62e0c9e66d3f06fd6cff0c5bb26fc8204820ad",
+      "bytes": 11332
+    },
+    {
+      "path": "ui/RotationGizmo.cs.uid",
+      "sha256": "5d9a3040d94c5461fecf06e7f45cc5c5cd1417ea379cf98503b37c6902e16034",
+      "bytes": 20
+    },
+    {
+      "path": "ui/Workshop.cs",
+      "sha256": "e20cc0577e9b131432699da8cc0fe925338f1c5204517194bc8303c792b613d2",
+      "bytes": 38933
+    },
+    {
+      "path": "ui/Workshop.cs.uid",
+      "sha256": "3c8370db8eff03b1868769d76d067fc2d3b18a4f1a66fc73dd251502319e4159",
+      "bytes": 20
+    },
+    {
+      "path": "ui/WorkshopAnimation.cs",
+      "sha256": "f8ee373e67021b6e3c6c890d709ce21b0f23f3a447c0e6abb44efc05393eccdb",
+      "bytes": 2666
+    },
+    {
+      "path": "ui/WorkshopAnimation.cs.uid",
+      "sha256": "9417629ba41e0b46424ead4f324e7e069c25a1de96f05d9a42d09f466b37567f",
+      "bytes": 20
+    },
+    {
+      "path": "ui/WorkshopConfiguration.cs",
+      "sha256": "dfbc44a0cb43a5bf6075cde9fc0c31186ef799f2ad95bcd243d73b25a0687a12",
+      "bytes": 2014
+    },
+    {
+      "path": "ui/WorkshopConfiguration.cs.uid",
+      "sha256": "69995bd154e2d52ddb70d12e7d36e990f3e242046d55182851b596464c6a16db",
+      "bytes": 20
+    },
+    {
+      "path": "ui/WorkshopConnections.cs",
+      "sha256": "a80358996eca0fcfdce039ac6f40f0c4ea395aa03b7b8625d6375ffeee8675aa",
+      "bytes": 5241
+    },
+    {
+      "path": "ui/WorkshopConnections.cs.uid",
+      "sha256": "bc7597816d853161f8d2f6a2ed8e55f9dabd166f189558ad9defb7825b1c3894",
+      "bytes": 19
+    },
+    {
+      "path": "ui/WorkshopGpu.cs",
+      "sha256": "0d523d67263fbc7843c86f8171b8fd64a109d151f5039f4298d921261477bfda",
+      "bytes": 3616
+    },
+    {
+      "path": "ui/WorkshopGpu.cs.uid",
+      "sha256": "56cecf15ca3c313f2c824d9d72003d7dc1e5761d62527e067984e50c9f8ab91a",
+      "bytes": 20
+    },
+    {
+      "path": "ui/WorkshopGuidance.cs",
+      "sha256": "9480a0e9612207f4d8601271c8e199de786295d65a3265904a32c5fd7514cb2a",
+      "bytes": 19409
+    },
+    {
+      "path": "ui/WorkshopGuidance.cs.uid",
+      "sha256": "6ac5bfc4ac92f14d93846ec87802dc2d823760ed3f4f18432694c01fa1a4d87f",
+      "bytes": 19
+    },
+    {
+      "path": "ui/WorkshopIcons.cs",
+      "sha256": "df37016807f5bee9a6ade9aef50d05c005ef9b3a975fa08ac0cb2b35e67a99fe",
+      "bytes": 12851
+    },
+    {
+      "path": "ui/WorkshopIcons.cs.uid",
+      "sha256": "d375fc0e8da8412974e5e40a1e4c198951ecd48a85cd759a93476594243fd849",
+      "bytes": 20
+    },
+    {
+      "path": "ui/WorkshopPuzzle.cs",
+      "sha256": "148037099a335ac8641a64df9de57152ee513fd33dd3851422812a9ae0fc2222",
+      "bytes": 5073
+    },
+    {
+      "path": "ui/WorkshopPuzzle.cs.uid",
+      "sha256": "0753ce5006a997d7df6c981fc82f47fc37c9faa4fa14956b900ae28fad5052c3",
+      "bytes": 20
+    }
+  ],
+  "closureSha256": "a54a004b6c09b97e85a142d9dd39e804daf67f05c5e5fc9019708914c03d64fc",
+  "totalBytes": 8063092,
+  "identityRule": "SHA256 of sorted path + NUL + lowercase SHA256 + newline; exact uncommitted source/contract bytes. Review receipts are not inputs to their own approval.",
+  "unchangedContent": {
+    "path": "content/puzzles.json",
+    "sha256": "d4278e23a8841f59779b2e34a22ed9eeca5f9f940f8faee9eff97c0ba7f7a7f1",
+    "baseEqual": true,
+    "applicability": "Canonical campaign file unchanged from deployed Wall; runtime export excludes content. Existing native first-entry reader remains in admitted tests."
+  },
+  "reproducibilitySupplements": [
+    {
+      "path": "reference/delay/Program.cs",
+      "sha256": "4c35cb1160a28c160129684ab97be46725dffaad2382004353f46c0da5877680",
+      "bytes": 3541
+    },
+    {
+      "path": "reference/delay/DelayProbe.csproj",
+      "sha256": "9b2cdcb41f8f39ecd73763db176dc206346bda5661f2c33a74aea811bd715816",
+      "bytes": 344
+    },
+    {
+      "path": "reference/delay/support-inputs.json",
+      "sha256": "94f53402cb748f43775cc0927518ef1ea7a5c82fab2814eddd7fb4f46a576f46",
+      "bytes": 52456
+    }
+  ],
+  "reviewSupplements": "Original P0-022 review/raw/implementation/deferred-Pipe disposition and previous P0-066 terminal review/deployed raw accompany the next normal commit. Future reviewer verdict/receipts are not closure inputs.",
+  "exclusions": "Unshipped legacy source, Pipe work in original tim, generated docs/*.png.import, unrelated reference/*.uid, bin/obj/AppBundle and local build caches. No deleted source paths.",
+  "artifactIdentities": "implementation-result-20261004.json release.assets (original9906ec), independently checked loaded assets by reviewer; no artifact overwrite since final Release5a3c11."
+}

@@ -82,7 +82,7 @@ public static class WorkshopPhysicsCompiler
         }
         foreach (var instance in construction.Instances)
         {
-            if (instance is not (WorkshopSwitch or WorkshopLamp)) continue;
+            if (instance is not (WorkshopSwitch or WorkshopLamp or WorkshopDelay)) continue;
             var first = PartIdentities(instance.Id); next = Math.Max(next, first + 16);
             var material = new GpuMaterialId(first);
             bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
@@ -97,6 +97,8 @@ public static class WorkshopPhysicsCompiler
                 if (construction.Ball is { } target)
                     triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, target.Id, trigger.Trigger.Threshold));
             }
+            else if (instance is WorkshopDelay)
+                AddStaticBox(first + 1, new((Half)0, (Half)(-.7), (Half)0), new((Half).675, (Half).075, (Half).4));
             else AddStaticBox(first + 1, new((Half)0, (Half)(-.35), (Half)0), new((Half).425, (Half).1, (Half).425));
             void AddStaticBox(ulong id, MetreVector position, MetreVector half) =>
                 colliders.Add(new(new(id), instance.Id, material, ColliderShapeKind.Box,

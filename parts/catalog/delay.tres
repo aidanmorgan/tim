@@ -1,14 +1,19 @@
-[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
 [ext_resource type="PackedScene" path="res://parts/scenes/delay.tscn" id="2"]
+[ext_resource type="Script" path="res://engine/DelayDurationResource.cs" id="3"]
+
+[sub_resource type="Resource" id="DelayDuration"]
+script = ExtResource("3")
+SecondsBits = 15360
 
 [resource]
 script = ExtResource("1")
 Id = "delay"
 Title = "Delay"
 Category = "Control"
-Description = "Self-contained one-shot timer: receives an activation, waits one second, then activates its output. Ignores further triggers until Reset; does not supply electricity."
+Description = "Wait after an activation, then activate the output once. Select to set the duration. Reset rearms the timer."
 Scene = ExtResource("2")
 Color = Color(0.84, 0.61, 0.28, 1)
-Parameters = {"delay_seconds": 1.0}
+Delay = SubResource("DelayDuration")

@@ -10,7 +10,7 @@ public sealed class WorkshopActivationAnimationTests
 {
     private static readonly RuntimeSessionId Session = new(11, 22);
     private static readonly ActivationLatch Latch = new(new(2), new(2), ActivationPhase.Latched,
-        new(55), new(1), new(44), 10, (Half)0, new((Half).8));
+        new(55), new(1), new(44), 10, (Half)0, new((Half).8), ActivationOccurrenceKind.Contact, new(2), 10, (Half)0);
     private static ChannelControl Control => new(new(4), new(1), 1, 1, AnimationControlKind.Endpoint,
         true, (Half)1, (Half)1, (Half)1, AnimationCurve.Linear, 10, (Half)0, AnimationProperty.ColourBlend);
 
@@ -89,6 +89,55 @@ public sealed class WorkshopActivationAnimationTests
         }
     }
 
+    [Fact]
+    public void TimerSegmentsCoverCommittedTimeAndNeverFinishTheDisplayedPast()
+    {
+        var counting = AnimationTimerSegment.Create(new(68,188,128,2,AnimationTimerPhase.Counting));
+        Assert.True(counting.TrySample(98, out var halfwayToObservation));
+        Assert.Equal((Half).25, halfwayToObservation.Progress.Value);
+        Assert.False(counting.TrySample(129, out _));
+        Assert.True(counting.TrySample(98, out var paused)); Assert.Equal(halfwayToObservation, paused);
+        var finished = AnimationTimerSegment.Create(new(68,188,200,2,AnimationTimerPhase.Finished));
+        Assert.True(finished.TrySample(187, out var before));
+        Assert.Equal(AnimationTimerPhase.Counting, before.Phase); Assert.True(before.Progress.Value < (Half)1);
+        Assert.True(finished.TrySample(188, out var due));
+        Assert.Equal(AnimationTimerPhase.Finished, due.Phase); Assert.Equal((Half)1, due.Progress.Value);
+        Assert.True(finished.TrySample(67, out var ready)); Assert.Equal(AnimationTimerPhase.Ready, ready.Phase);
+        Assert.Throws<ArgumentException>(() => AnimationTimerSegment.Create(new(68,188,187,2,AnimationTimerPhase.Finished)));
+        Assert.Throws<ArgumentException>(() => AnimationTimerSegment.Create(new(68,188,188,2,AnimationTimerPhase.Counting)));
+    }
+
+    [Fact]
+    public void TimerAcknowledgementBindsExactIntervalAndResetCannotReviveIt()
+    {
+        var control = Control with { Target = new((1UL << 32) + 3), Kind = AnimationControlKind.TimerObservation,
+            Generation = 129, Timer = new(68,188,128,2,AnimationTimerPhase.Counting), From=(Half)0, To=(Half).5 };
+        var wire = WorkshopAnimationWire.Control(Session, new(1), new(1), control);
+        Assert.Equal(control, WorkshopAnimationWire.ReadControl(wire, Session, new(1), new(1)));
+        var client = Client(); SetPending(client, control, new(1));
+        Field<ChannelControl?[]>(client, "_timerRequested")[0] = control;
+        var wrong = control with { Timer = control.Timer with { Due=189 } };
+        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(wrong, new(1), AnimationOutputKind.Acknowledgement, control.Sequence)));
+        Assert.NotNull(Field<ChannelControl?>(client, "_animationPending"));
+        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Acknowledgement, control.Sequence));
+        Assert.NotNull(Field<WorkshopAnimationSample?[]>(client, "_timerSamples")[0]);
+        Field<ulong[]>(client, "_timerOrdinals")[0] = 100;
+        var cadence = Schedule(1,2); Invoke(client, "ReconcileAnimationSchedule", cadence); Set(client, "_schedule", cadence);
+        Assert.Equal(0ul, Field<ulong[]>(client, "_timerOrdinals")[0]);
+        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Sample, 1));
+        Assert.NotNull(Field<WorkshopAnimationSample?[]>(client, "_timerSamples")[0]);
+        SetPending(client, control, new(2));
+        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Rejected, control.Sequence));
+        Assert.True(Field<bool[]>(client, "_timerRetry")[0]);
+        Assert.NotNull(Field<WorkshopAnimationSample?[]>(client, "_timerSamples")[0]);
+        SetPending(client, control, new(2));
+        var next = Schedule(2,3); Invoke(client, "ReconcileAnimationSchedule", next); Set(client, "_schedule", next);
+        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Acknowledgement, control.Sequence));
+        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+        Assert.Null(Field<WorkshopAnimationSample?[]>(client, "_timerSamples")[0]);
+        Assert.False(Field<bool[]>(client, "_timerRetry")[0]);
+    }
+
     private static BrowserWorkshopClient Client()
     {
         var client = (BrowserWorkshopClient)Activator.CreateInstance(typeof(BrowserWorkshopClient),
@@ -118,6 +167,7 @@ public sealed class WorkshopActivationAnimationTests
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(80), control.EventOrdinal);
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(86), WorkshopAnimationWire.Version);
+        WorkshopAnimationWire.WriteTimer(bytes, control.Timer);
         return bytes;
         void U64(int offset, ulong value) => BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset), value);
     }

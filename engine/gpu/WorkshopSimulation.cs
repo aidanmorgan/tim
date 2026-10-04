@@ -8,7 +8,7 @@ public enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Can
 public enum WorkshopRejection { None, Busy, InvalidConstruction, WrongRevision, WrongPhase, GpuAdmission, DeviceLost, InvalidRead, IdentityExhausted, StaleGeneration, Cancelled, AlreadyCommitted, Capacity, ReliableStalled, Transport }
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, CanonicalBody? Ball, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
-    CanonicalRotation? Rotation = null, AngularVelocity Angular = default, PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default);
+    CanonicalRotation? Rotation = null, AngularVelocity Angular = default, PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default);
 public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, WorkshopRead Read);
 
 /// <summary>Implemented only by the simulation worker's WebGPU adapter. No numerical host alternative.</summary>
@@ -365,7 +365,12 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     private static void ValidateInitialRead(WorkshopRead read, WorkshopConstruction construction, SimulationEpoch epoch)
     {
-        var initial = WorkshopActivationCompiler.Compile(construction).Clear();
+        var network = WorkshopActivationCompiler.Compile(construction);
+        var initial = network.Clear();
+        var timers = network.ClearTimers();
+        if (read.Timers.Count != timers.Count) throw new ArgumentException("Admission timer population changed.");
+        for (var i = 0; i < timers.Count; i++)
+            if (read.Timers[i] != timers[i]) throw new ArgumentException("Admission retained timer state.");
         if (read.Activations.Count != initial.Count) throw new ArgumentException("Admission activation population changed.");
         for (var i = 0; i < initial.Count; i++)
             if (read.Activations[i] != initial[i]) throw new ArgumentException("Admission retained activation state.");
@@ -390,7 +395,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             read.Tick.Value != source.Tick.Value + 1 || (read.Ball is null) != (source.Ball is null))
             throw new ArgumentException("GPU tick read does not match the active transaction.");
         if (read.Rotation.HasValue != read.Ball.HasValue || read.Captures.Count != source.Captures.Count ||
-            read.Activations.Count != source.Activations.Count)
+            read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count)
             throw new ArgumentException("Physical read population changed.");
         read.Rotation?.Validate();
         PhysicsDeclarationBounds.Vector(read.Angular.X, read.Angular.Y, read.Angular.Z, (Half)64);
@@ -404,6 +409,14 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (after.Node != before.Node || after.Owner != before.Owner ||
                 (before.Phase == ActivationPhase.Latched && after != before))
                 throw new ArgumentException("Committed activation identity or latch changed.");
+        }
+        for (var i = 0; i < read.Timers.Count; i++)
+        {
+            var before = source.Timers[i]; var after = read.Timers[i]; after.Validate();
+            if (before.Node != after.Node || after.Phase < before.Phase ||
+                (before.Phase != ActivationTimerPhase.Ready &&
+                    (after.StartedTick != before.StartedTick || after.DueTick != before.DueTick || after.Input != before.Input)))
+                throw new ArgumentException("Committed timer identity or countdown changed.");
         }
         if (read.Ball is { } body && source.Ball is { } previous)
         {

@@ -1,0 +1,220 @@
+{
+  "kind": "ScopedImplementationResult",
+  "slice": "CAT-022-I",
+  "baseCommit": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+  "implementationOwner": "/root/p025_implementation",
+  "independentReviewer": "/root/p025_review",
+  "scope": "Generic activation timers and committed shared animation through actual Impact switch → Delay → Signal lamp, with two Switch instances for busy/finished controls. No Pipe implementation imported.",
+  "status": "Implementation, native boundary, CI-matched Release export and final actual UI interaction controls pass; independent SnapshotApproval and deployed publication remain pending.",
+  "native": {
+    "originalFailedFull": "11fbd4",
+    "failure": "494 passed; catalogue expected-set fixture omitted Delay",
+    "correctedFull": "6f07bc",
+    "result": "496/496 Pass,1s",
+    "resourcePalette": "24b813:11/11 Pass62ms",
+    "retryParser": "5e2550:8/8 Pass54ms",
+    "coherentRollback": "c0b1fb:1/1 Pass58ms"
+  },
+  "transport": {
+    "command": "node --experimental-vm-modules --test tools/workshop-client-lifecycle.test.mjs tools/workshop-animation-output.test.mjs",
+    "first": "6d58e4: client29 pass, Animation fixture old literal target count failure",
+    "final": "db1c7f:30/30Pass;18target latest/overflow/disposal"
+  },
+  "additionalNative": [
+    {
+      "original": "3e5d5e",
+      "result": "19/19 Pass,190ms",
+      "scope": "Apply, palette and timer ACK parser fixes"
+    },
+    {
+      "original": "5d429f",
+      "result": "1/1 Pass,21ms",
+      "scope": "SpinBox Apply preserves 8.9375 without edit and commits pending text 4 without Enter"
+    }
+  ],
+  "release": {
+    "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+    "originalStart": "3abc21",
+    "originalTerminal": "5a3c11",
+    "session": 51790,
+    "exitCode": 0,
+    "assetsOriginal": "9906ec",
+    "assets": [
+      {
+        "path": "workshop-client.js",
+        "bytes": 30930,
+        "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497"
+      },
+      {
+        "path": "godot.pck",
+        "bytes": 39164,
+        "sha256": "1069616bb74135bf8a30efcb4ae293734817bd35bf493cb4c2149b234afd5650"
+      },
+      {
+        "path": "native-clock.js",
+        "bytes": 3017,
+        "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f"
+      },
+      {
+        "path": "simulation/worker.js",
+        "bytes": 14209,
+        "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb"
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "bytes": 97985,
+        "sha256": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72"
+      },
+      {
+        "path": "animation/worker.js",
+        "bytes": 5382,
+        "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+      },
+      {
+        "path": "_framework/CuriousContraptions.wasm",
+        "bytes": 600853,
+        "sha256": "eafd5ba5e243a7edcfed4230f4fbc9f38112bee91b2e6b4f0f05de86385924d6"
+      },
+      {
+        "path": "_framework/CuriousContraptions.web.wasm",
+        "bytes": 6933,
+        "sha256": "1850e7a653ac80960163fad88cde2172c22bc5bb55f3609badfab4b4ff94a16d"
+      },
+      {
+        "path": "_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 16149,
+        "sha256": "82387d8d2f8b3fa0922c18a9fd88295c69fa9772d14e1bdcb89351b1c86eed8b"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+        "bytes": 384789,
+        "sha256": "b0b90e013e98c76b1cb652fc1a5e1a45de5650b5a40e4a6bd85723b102bff1d8"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 67861,
+        "sha256": "76095eb2b8462c5efd050288c7a1a4ddf51ba504694c0ab517e8decf3407e2be"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 67861,
+        "sha256": "76095eb2b8462c5efd050288c7a1a4ddf51ba504694c0ab517e8decf3407e2be"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+        "bytes": 409365,
+        "sha256": "0e7c69cbb0ba72359591d6fd2f5eaf7a51f0f6ef413274c78c40026d26d87464"
+      }
+    ]
+  },
+  "initialInvestigativeExport": {
+    "command": "dotnet publish CuriousContraptions.web -c Production --nologo",
+    "terminal": "448ee0",
+    "status": "exit0; investigative build configuration, not CI Release recipe",
+    "assets": [
+      {
+        "path": "workshop-client.js",
+        "bytes": 30930,
+        "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497"
+      },
+      {
+        "path": "godot.pck",
+        "bytes": 39164,
+        "sha256": "ead228811ed89ca471c36b7bd570702e557c1fbd2034c6d9b8efded92378a3c9"
+      },
+      {
+        "path": "native-clock.js",
+        "bytes": 3017,
+        "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f"
+      },
+      {
+        "path": "simulation/worker.js",
+        "bytes": 14209,
+        "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb"
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "bytes": 97985,
+        "sha256": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72"
+      },
+      {
+        "path": "animation/worker.js",
+        "bytes": 5382,
+        "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+      },
+      {
+        "path": "_framework/CuriousContraptions.wasm",
+        "bytes": 635157,
+        "sha256": "ddf955330e5986f90300ae1d0c1306cae2fbb1ce08d031d3ff98bf28233374fc"
+      },
+      {
+        "path": "_framework/CuriousContraptions.web.wasm",
+        "bytes": 6933,
+        "sha256": "1493fef600488a70426c25e4f246e30fddcfc2b64a0055cdaa61982665aebe76"
+      },
+      {
+        "path": "_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 16661,
+        "sha256": "1158e3f42902b4e7f3376192b3f0347cb3baa9717f6bf264853474a997387ac9"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+        "bytes": 401173,
+        "sha256": "62dda372ddfd5f1a59eff8db411d1da5af6dcd849f0ddde6ea8483382e8b1f26"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 70421,
+        "sha256": "7e041f98198e99629308221036d72a880701d49f0697349a52571dea1fa97400"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+        "bytes": 70421,
+        "sha256": "7e041f98198e99629308221036d72a880701d49f0697349a52571dea1fa97400"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+        "bytes": 428821,
+        "sha256": "fb62477c8ff31ccf8e749d3f271e0bd38c0957754a260a1ee562917e6a69b776"
+      }
+    ]
+  },
+  "audit": {
+    "anvil": {
+      "source": "warnings[];checksRun antipattern;local backend,graph not-wired"
+    },
+    "links": {
+      "terminal": "81dc88",
+      "count": 139,
+      "newIssues": [],
+      "unchangedBaseDangling": [
+        "README.md docs/verification/CAT-001-I/tool-applicability.md",
+        "docs/delivery-workflow.md engine/physics/BodyBoundsTree.cs",
+        "docs/delivery-workflow.md engine/SimulationTransaction.cs"
+      ]
+    },
+    "deletions": [],
+    "retiredPaths": "DelayPart per-part timer/controller implementation replaced by canonical generic activation timer; runtime contains one path. Old schema inputs reject, no migration.",
+    "preservation": "All CAT-022/full current requirements/todo-130/131 and authored lessons remain; only bounded first interaction under current playable-first enforcing stages is in scope.",
+    "membership": {
+      "original": "7740fe",
+      "sourceInputs": 288,
+      "resourceClosureMissing": [],
+      "note": "Adds unchanged Switch/Lamp scenes omitted from prior Wall manifest; explicit current compile and shipped resource traversal."
+    },
+    "scopedRetirement": {
+      "original": "9f3171",
+      "matches": [],
+      "deletedPaths": [],
+      "diffCheck": "clean"
+    }
+  },
+  "review": "review-20261004.json owns independent criterion matrix, original GPU/UI records, findings and verdict; this record does not substitute for review.",
+  "deferred": "P0-032 full fault/worker qualification; P0-034 historical performance Fail and cache/device qualification; P0-030/031/035 global closure. Unfinished Pipe retains exact current failure/disposition in deferred-pipe-20261004.json.",
+  "finalUi": {
+    "owner": "/root/p025_review",
+    "result": "Final Release actual placement/configuration/wiring/timing/lifecycle/bypass/disconnected/SaveLoad controls Pass, per original reviewer evidence.",
+    "record": "review-20261004.json",
+    "identity": "Final Release13 from original 9906ec"
+  }
+}

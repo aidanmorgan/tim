@@ -506,6 +506,49 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(new SimulationTick(limit), simulation.Committed.Tick);
     }
 
+    [Fact]
+    public async Task TimerBearingStepInstallationRejectsAtomicallyAndResetCancelsCountdown()
+    {
+        var device = new ControlledDevice(); var installation = new ControlledInstallation();
+        await using var simulation = Create(device, installation: installation);
+        await simulation.Initialize();
+        var construction = new WorkshopConstruction(new(2), Settings, new(
+            WorkshopInput.Basketball(new(1),0,3,0,0,0,0,1),
+            WorkshopInput.Switch(new(2),0,1,0,0,0,0,1,ContactTriggerSettings.Default),
+            WorkshopInput.Delay(new(3),-3,1,0,0,0,0,1,DelayDuration.Default)),
+            Connections:new(new WorkshopConnection(new(2),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)));
+        var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
+        await simulation.Run(); await simulation.Pause();
+        var before = simulation.Committed; var commits = device.Commits;
+        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
+        var trigger = scene.Triggers[0];
+        var collider = scene.Colliders.ToArray().First(value=>value.Body==trigger.Owner).Id;
+        var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,trigger.Target,1,collider,1,(Half)0,new((Half)1));
+        WorkshopRead Counting(WorkshopRead read)
+        {
+            var checkpoint = network.Consume(read.Activations,read.Timers,new[] {occurrence},read.Tick);
+            network.ValidateRead(checkpoint.Activations,checkpoint.Timers,read.Tick,4,scene);
+            return read with { Activations=checkpoint.Activations,Timers=checkpoint.Timers };
+        }
+        installation.HoldNext = true;
+        var rejected = simulation.Step().AsTask(); device.CompleteAdvance(0,Counting);
+        Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
+        installation.Pending[0].Completion.SetException(new WorkshopInstallationException());
+        Assert.Equal(WorkshopRejection.Transport,(await rejected).Reason);
+        Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
+        var accepted = simulation.Step().AsTask(); device.CompleteAdvance(1,Counting); await accepted;
+        Assert.Equal(ActivationTimerPhase.Counting,simulation.Committed.Timers[0].Phase);
+        var counting = simulation.Committed;
+        var pending = simulation.Step().AsTask();
+        var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
+        var restored = simulation.Committed;
+        Assert.Equal(ActivationTimerPhase.Ready,restored.Timers[0].Phase);
+        Assert.Equal(0ul,restored.Tick.Value); Assert.NotEqual(counting.Epoch,restored.Epoch);
+        device.CompleteAdvance(2); Assert.Equal(WorkshopCommandOutcome.Superseded,(await pending).Outcome);
+        Assert.Equal(restored,simulation.Committed);
+    }
+
     private sealed class ControlledInstallation : IWorkshopInstallation
     {
         public bool HoldNext { get; set; }
@@ -561,7 +604,9 @@ public sealed class WorkshopSimulationTests
         public static WorkshopRead Initial(WorkshopConstruction construction, SimulationEpoch epoch) =>
             new(epoch, new(0), construction.Ball is { } ball
                 ? new CanonicalBody(ball.Id, epoch.Value, 0, ball.Cell, ball.Local, default) : null,
-                Rotation: construction.Ball?.Rotation);
+                Rotation: construction.Ball?.Rotation,
+                Activations: WorkshopActivationCompiler.Compile(construction).Clear(),
+                Timers: WorkshopActivationCompiler.Compile(construction).ClearTimers());
         public void FailAdvance(int index) => _advances[index].Completion.SetException(new InvalidOperationException("Injected old transport failure."));
         public void CompleteAdvance(int index, Func<WorkshopRead, WorkshopRead>? transform = null)
         {

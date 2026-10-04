@@ -4,6 +4,27 @@ This is the required architecture for the entire planned game, not a claim that 
 
 Three different states must remain visible: **architectural route** (the records and execution path below can express the requirement), **frozen model** (the particular law, parameters, discrete semantics and independent oracle have passed their required design stage), and **qualified support** (implementation and all applicable runtime proof have passed). A capability name or table row establishes neither of the latter two. An unresolved route/model rejects admission and blocks that source's implementation gate; it does not authorize a custom part solver.
 
+<a id="optimization-options"></a>
+
+## Preserve optimization options without tuning ahead
+
+Implement the current interaction straightforwardly in the intended C#/WASM workers, WGSL f16 physics and Chrome presentation. "Native capability" here means what that intended implementation can already do, not a CPU physics fallback, another backend or qualification from native-only tests. Keep these inexpensive boundaries in the affected code; they do not require new infrastructure or an all-engine redesign:
+
+- Semantic IDs, canonical data and observable ordering stay separate from private indices, buffer packing and dispatch layout. Select shared capabilities from typed declarations, never catalogue identity. Preserve batch-capable typed ranges/contiguous storage boundaries; public contracts must not require one object allocation, dispatch, readback or message per puzzle element. Choose simple private layouts now; later changes still preserve numerical and event semantics.
+- Workers retain exclusive ownership and bounded asynchronous queues/buffers. Physical time follows the declared master-clock projection, independent of rendering cadence; animation cannot become a physics scheduler. Do not bake the development device's speed, workgroup choice or display rate into gameplay or public admission semantics.
+- Reuse compiled static topology while its declared revision and inputs remain valid; invalidate on relevant changes. This is ordinary plan ownership, not a requirement to add a speculative cache. Resource creation, reuse and disposal have explicit owners and deterministic lifecycle boundaries; no externally retained view may outlive its storage.
+- Separate correctness contracts (laws, canonical values, ordering, atomicity and observable results) from execution strategy (packing, batching, scheduling and admissible algorithms). Future tuning must pass those contracts; preserving the option does not justify implementing an optimization now.
+
+Use the [playable-first phase policy](delivery-workflow.md#playable-first): resolve a concrete current gameplay defect and its bounded shared-law oracle now. Defer exhaustive analysis, instrumentation and tuning until representative working scenes reveal the actual cost, under the [performance plan](browser-physics-performance.md#budgets-and-measurement-contract). No new per-slice benchmark gate follows from these boundaries.
+
+## Evolve capabilities through playable outcomes
+
+Use the [rolling playable roadmap](planning/invest/vertical-delivery.md#rolling-playable-roadmap) to turn this architecture into a sequence of current game interactions. A catalogue composition describes possible needs; the admitted implementation and applicable independent proof determine what can run. Add a missing shared capability only with its consuming outcome, including actual animation/presentation bindings and restoration—not a physics-only feature with feedback postponed.
+
+For example, detector passage adds WGSL crossing/clearance observations and a reusable discrete rearm policy; Delay adds a shared deadline state machine and a countdown definition; the existing delayed-signal level adds a generic occurrence-time goal. Continuous physical predicates remain WGSL; integer scheduling and Boolean/event transitions remain C#. The Animation worker consumes committed state/events using the existing evaluator and occurrence lifecycle. A new timer cannot become a part-local update loop, and an animated countdown cannot become time authority.
+
+Keep shape admission, physical laws, controller/goal operations and animation kinds independently typed, but compile and validate their complete required composition for each selected interaction. Existing declared records/evaluators may suffice; do not first build a universal graph editor, expression language or all-domain kernel library. Unsupported compositions reject atomically. A future optimization can change private packing/batching within the correctness contract; it cannot change the source outcome or bypass genuine model decisions.
+
 ## Data, definitions and ownership
 
 Catalogue assemblies contain values and references. They cannot carry executable expressions, delegates, per-part callbacks or a catalogue identity that selects an equation. Closed alternatives use enums; extensible definitions and instances use typed stable IDs. Definition lookup resolves an authored composition before execution. The resulting engine plan contains capability/shape/material kinds and instance handles, not a switch over Basketball, Receiver or any other catalogue name.

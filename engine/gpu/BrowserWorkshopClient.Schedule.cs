@@ -160,7 +160,7 @@ public sealed partial class BrowserWorkshopClient
         if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
         { _captureSample = null; _captureRequested = null; _captureWorld = schedule.World.WorldGeneration; _lastCaptureOrdinal = 0; RetireActivationFeedback(); }
         if (_schedule?.Revision != schedule.Revision)
-        { _lastHintOrdinal = _lastCaptureOrdinal = 0; Array.Clear(_activationOrdinals); }
+        { _lastHintOrdinal = _lastCaptureOrdinal = 0; Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); }
     }
     private void ReceiveAnimation() => ReceiveAnimation(EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
@@ -176,10 +176,10 @@ public sealed partial class BrowserWorkshopClient
         {
             if (_animationPending is not { } command || cadence != _animationPendingCadence || sample.Pulse.Value != command.Sequence ||
                 sample.Property != command.Property || sample.Target != command.Target || sample.World != command.World || sample.Generation != command.Generation ||
-                sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
+                sample.Timer != command.Timer || sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _hintAcknowledged = sample.Pulse.Value; _animationPending = null;
-            if (kind == AnimationOutputKind.Rejected) return;
+            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); return; }
         }
         if (cadence.Value < active.Revision.Value) return;
         if (sample.Target == HintTarget)
@@ -208,6 +208,7 @@ public sealed partial class BrowserWorkshopClient
             }
             _captureSample = sample;
         }
+        else if (sample.Timer.Phase != AnimationTimerPhase.None) ReceiveTimerSample(sample, kind, active);
         else ReceiveActivationSample(sample, kind, active);
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
     }
