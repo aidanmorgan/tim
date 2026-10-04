@@ -5,16 +5,9 @@ import { readFile } from 'node:fs/promises';
 import { MessagePort } from 'node:worker_threads';
 
 const source = await readFile('CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
-for (const captureMode of [1, 2]) {
-    let imports, flushes = 0, release, throwOutput = false;
-    const messages = [], stallStates = [];
-    const host = {
-        OperationAbi: () => [0, 1], StateBytes: () => 18576, ScheduleRoles: () => [1, 2],
-        CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
-        Dispatch: async () => { await new Promise(resolve => { release = resolve; }); },
-        FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); },
-        SetReliableStall: value => stallStates.push(value)
-    };
+async function loadWorker(host, additionalGlobals = {}) {
+    let imports;
+    const messages = [];
     const runtime = {
         setModuleImports: (_, methods) => { imports = methods; },
         getAssemblyExports: async () => ({ Program: host }),
@@ -26,7 +19,7 @@ for (const captureMode of [1, 2]) {
         close: () => {}
     };
     const context = vm.createContext({ self, Uint8Array, Float64Array, ArrayBuffer, DataView,
-        MessagePort, console, setTimeout, clearTimeout, Promise, Error });
+        MessagePort, console, setTimeout, clearTimeout, Promise, Error, ...additionalGlobals });
     const dotnet = new vm.SyntheticModule(['dotnet'], function () {
         this.setExport('dotnet', { create: async () => runtime });
     }, { context });
@@ -42,8 +35,31 @@ for (const captureMode of [1, 2]) {
         throw Error('Unexpected worker import');
     });
     await module.evaluate();
-    await self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode } });
+    return { self, messages, get imports() { return imports; } };
+}
+
+for (const captureMode of [1, 2]) {
+    let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
+    const stallStates = [];
+    const host = {
+        OperationAbi: () => [0, 1], StateBytes: () => 18576, ScheduleRoles: () => [1, 2],
+        CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
+        PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
+        ClockReply: () => new Uint8Array(144),
+        Dispatch: async () => { await new Promise(resolve => { release = resolve; }); },
+        FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); },
+        SetReliableStall: value => stallStates.push(value)
+    };
+    const boundary = await loadWorker(host);
+    const { self, messages, imports } = boundary;
+    const preparing = self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode } });
     assert.equal(messages.at(-1).ready, true);
+    assert.equal(preparations, 1);
+    await self.onmessage({ data: { clockProbe: new Uint8Array(96) } });
+    assert.ok(messages.at(-1).clockReply instanceof Uint8Array, 'clock work proceeds while preparation is held');
+    assert.equal(messages.filter(item => item.read || item.acknowledgement).length, 0, 'preparation cannot publish a world');
+    releasePreparation();
+    await preparing;
     function publication(identity) {
         const bytes = new Uint8Array(9744);
         bytes.fill(7, 64, 80);
@@ -101,6 +117,60 @@ for (const captureMode of [1, 2]) {
     imports.dispose();
     await self.onmessage({ data: { reliableStalled: true } });
     assert.deepEqual(stallStates, [true, false], 'disposed worker cannot update stall state');
-    console.log(JSON.stringify({ captureMode, passed: true, controls: ['pending', 'staleReceipt',
+    console.log(JSON.stringify({ captureMode, passed: true, controls: ['preparationClockOverlap', 'noEarlyWorld', 'pending', 'staleReceipt',
         'queuedTerminal', 'activeCommand', 'matchingReceipt', 'duplicateReceipt', 'outputFailure', 'ordinaryReadNoExport', 'acknowledgementOnlyReset', 'currentReliableStall', 'dispose'] }));
+}
+
+const StartupControl = Object.freeze({ Reject: 1, DisposeThenReject: 2, EarlyLoss: 3 });
+for (const control of Object.values(StartupControl)) {
+    let rejectPreparation, loseDevice, releaseErrorScope, boundary;
+    const liveBuffers = new Set();
+    let deviceDestroyed = false;
+    const gpu = {
+        lost: new Promise(resolve => { loseDevice = resolve; }),
+        destroy: () => { deviceDestroyed = true; },
+        createShaderModule: () => ({ getCompilationInfo: async () => ({ messages: [] }) }),
+        createComputePipelineAsync: async () => ({ getBindGroupLayout: () => ({}) }),
+        createBuffer: () => {
+            const buffer = { destroy: () => liveBuffers.delete(buffer) };
+            liveBuffers.add(buffer); return buffer;
+        },
+        createBindGroup: () => ({}), pushErrorScope: () => {},
+        popErrorScope: () => new Promise(resolve => { releaseErrorScope = resolve; })
+    };
+    const host = {
+        OperationAbi: () => [0, 1], StateBytes: () => 18576, ScheduleRoles: () => [1, 2],
+        CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
+        PrepareGpu: () => control === StartupControl.EarlyLoss
+            ? boundary.imports.initialize('fixture preamble')
+            : new Promise((_, reject) => { rejectPreparation = reject; }),
+        DeviceLost: () => { throw Error('No Simulation exists during startup preparation'); }
+    };
+    boundary = await loadWorker(host, {
+        navigator: { gpu: { requestAdapter: async () => ({ features: new Set(['shader-f16']), requestDevice: async () => gpu }) } },
+        fetch: async () => ({ ok: true, text: async () => 'fixture shader' }),
+        GPUBufferUsage: { STORAGE: 1, COPY_SRC: 2, COPY_DST: 4, MAP_READ: 8 }
+    });
+    const pending = boundary.self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode: 1 } });
+    assert.equal(boundary.messages.filter(item => item.ready).length, 1);
+    if (control === StartupControl.EarlyLoss) {
+        for (let turn = 0; turn < 100 && !releaseErrorScope; turn++) await Promise.resolve();
+        assert.equal(typeof releaseErrorScope, 'function');
+        assert.equal(liveBuffers.size, 4);
+        loseDevice({ message: 'fixture loss' });
+        await Promise.resolve();
+        assert.equal(boundary.messages.filter(item => item.failure).length, 1);
+        assert.equal(liveBuffers.size, 0, 'early-loss failure disposes every allocated buffer');
+        releaseErrorScope(null);
+        await pending;
+        assert.equal(deviceDestroyed, true, 'late preparation cannot retain its retired device');
+    } else {
+        if (control === StartupControl.DisposeThenReject) boundary.imports.dispose();
+        rejectPreparation(Error('fixture preparation rejection'));
+        await pending;
+    }
+    assert.equal(boundary.messages.filter(item => item.failure).length,
+        control === StartupControl.DisposeThenReject ? 0 : 1, 'late failures cannot resurrect disposed ownership');
+    assert.equal(boundary.messages.filter(item => item.read || item.acknowledgement).length, 0);
+    console.log(JSON.stringify({ startupControl: control, passed: true }));
 }

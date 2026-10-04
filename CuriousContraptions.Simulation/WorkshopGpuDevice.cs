@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Runtime.ExceptionServices;
 using CuriousContraptions.Gpu;
 
 internal interface IWorkshopGpuTransport
@@ -17,6 +18,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private readonly SemaphoreSlim _gate = new(1, 1);
     private CommandSequence _active;
     private bool _initialized;
+    private ExceptionDispatchInfo? _preparationFailure;
     private WorkshopGpuProfile _committedProfile;
     private WorkshopGpuProfile _candidateProfile;
     private bool _disposed;
@@ -28,6 +30,31 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private byte[] _diagnosticCandidate = [];
     internal byte[] DiagnosticCommitted { get; private set; } = [];
 #endif
+
+    // Resource preparation owns the same gate as candidates, but never stages a world.
+    public async Task Prepare()
+    {
+        await _gate.WaitAsync();
+        try { await EnsureInitialized(); }
+        catch (Exception error)
+        {
+            // Publish failure before releasing the gate: a queued candidate cannot retry.
+            _preparationFailure = ExceptionDispatchInfo.Capture(error);
+            throw;
+        }
+        finally { _gate.Release(); }
+    }
+
+    private async Task EnsureInitialized()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _preparationFailure?.Throw();
+        if (_initialized) return;
+        await transport.Initialize(PhysicsGpuAbi.ShaderPreamble());
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (!transport.DeviceReady()) throw new InvalidOperationException("GPU preparation did not retain a live device.");
+        _initialized = true;
+    }
 
     public ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence)
     {
@@ -54,12 +81,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             ObjectDisposedException.ThrowIf(_disposed, this);
             if (_active.Value != 0 || sequence.Value == 0) throw new InvalidOperationException("Invalid GPU candidate ownership.");
             _active = sequence;
-            if (!_initialized)
-            {
-                await transport.Initialize(PhysicsGpuAbi.ShaderPreamble());
-                ObjectDisposedException.ThrowIf(_disposed, this);
-                _initialized = true;
-            }
+            await EnsureInitialized();
             await transport.Stage(input, operation);
             ObjectDisposedException.ThrowIf(_disposed, this);
             var bytes = transport.Read();

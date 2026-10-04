@@ -47,6 +47,9 @@ public static partial class Program
     }
 
     [JSExport]
+    public static Task PrepareGpu() => Device.Prepare();
+
+    [JSExport]
     public static byte[] ClockReply(byte[] bytes, double receivedMilliseconds) =>
         WorkshopClockWire.EncodeReply(bytes, Peer, WorkshopNativeClock.FromMilliseconds(receivedMilliseconds),
             WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
@@ -279,6 +282,7 @@ public static partial class Program
         _loopOwner++;
         Trace.End(CuriousContraptions.Simulation.TraceEnd.DeviceLost);
         Device.MarkLost();
+        if (_simulation is null) throw new InvalidOperationException("GPU device was lost during startup preparation.");
         Simulation.DeviceLost();
         EmitRead(new(WorkshopCommandOutcome.Faulted, WorkshopRejection.DeviceLost));
     }

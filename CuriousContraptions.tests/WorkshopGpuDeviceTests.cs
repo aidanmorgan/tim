@@ -9,6 +9,87 @@ public sealed class WorkshopGpuDeviceTests
     private static readonly PhysicsDocumentId Document = new(101, 206);
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
+    [Fact]
+    public async Task ResourcePreparationAndCandidateShareOneInitialization()
+    {
+        var transport = new HeldTransport(true);
+        var device = new WorkshopGpuDevice(transport, Document);
+        var preparation = device.Prepare();
+        var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        Assert.False(preparation.IsCompleted);
+        Assert.False(candidate.IsCompleted);
+        Assert.Equal(1, transport.Initializations);
+        Assert.Equal(0, transport.Stages);
+        Assert.Equal(0, transport.Reads);
+        Assert.Equal(0, transport.Commits);
+        transport.Held.SetResult();
+        await preparation;
+        var admitted = await candidate;
+        Assert.Equal(1, transport.Initializations);
+        Assert.Equal(1, transport.Stages);
+        device.Commit(admitted.Sequence);
+        device.Discard(admitted.Sequence);
+        await device.Prepare();
+        Assert.Equal(1, transport.Initializations);
+        await device.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task FailedPreparationCannotBeRetriedByQueuedCandidateOrPrepare()
+    {
+        var transport = new HeldTransport(true);
+        var device = new WorkshopGpuDevice(transport, Document);
+        var preparation = device.Prepare();
+        var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        var failure = new IOException("Preparation failed");
+        transport.Held.SetException(failure);
+        Assert.Same(failure, await Assert.ThrowsAsync<IOException>(() => preparation));
+        Assert.Same(failure, await Assert.ThrowsAsync<IOException>(() => candidate));
+        Assert.Same(failure, await Assert.ThrowsAsync<IOException>(() => device.Prepare()));
+        Assert.Equal(1, transport.Initializations);
+        Assert.Equal(0, transport.Stages);
+        Assert.Equal(0, transport.Reads);
+        Assert.Equal(0, transport.Commits);
+        await device.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task DisposalDuringPreparationCannotReleaseALateCandidate()
+    {
+        var transport = new HeldTransport(true);
+        var device = new WorkshopGpuDevice(transport, Document);
+        var preparation = device.Prepare();
+        var candidate = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
+        await device.DisposeAsync();
+        transport.Held.SetResult();
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => preparation);
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => candidate);
+        Assert.Equal(1, transport.Initializations);
+        Assert.Equal(1, transport.Disposals);
+        Assert.Equal(0, transport.Stages);
+        Assert.Equal(0, transport.Reads);
+        Assert.Equal(0, transport.Commits);
+    }
+
+    [Fact]
+    public async Task PreparedResourcesAloneDoNotPublishAndLaterLossCanRequalify()
+    {
+        var transport = new HeldTransport(false);
+        transport.Held.SetResult();
+        var device = new WorkshopGpuDevice(transport, Document);
+        await device.Prepare();
+        Assert.Equal(1, transport.Initializations);
+        Assert.Equal(0, transport.Stages);
+        Assert.Equal(0, transport.Reads);
+        Assert.Equal(0, transport.Commits);
+        device.MarkLost();
+        var admitted = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(2), Profile, new(1));
+        Assert.Equal(2, transport.Initializations);
+        device.Commit(admitted.Sequence);
+        device.Discard(admitted.Sequence);
+        await device.DisposeAsync();
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -109,8 +190,9 @@ public sealed class WorkshopGpuDeviceTests
     {
         public TaskCompletionSource Held { get; } = new();
         public byte[] Record { get; private set; } = [];
-        public int Stages, Reads, Commits, Disposals, Discards;
-        public Task Initialize(string preamble) => holdInitialization ? Held.Task : Task.CompletedTask;
+        public int Initializations, Stages, Reads, Commits, Disposals, Discards;
+        public Task Initialize(string preamble)
+        { Initializations++; return holdInitialization ? Held.Task : Task.CompletedTask; }
         public Task Stage(byte[] input, WorkshopGpuOperation operation)
         {
             Stages++;
