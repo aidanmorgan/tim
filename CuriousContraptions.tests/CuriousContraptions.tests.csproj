@@ -49,6 +49,7 @@
         <Compile Include="WorkshopActivationAnimationTests.cs" />
         <Compile Include="WorkshopWallTests.cs" />
         <Compile Include="WorkshopDelayTests.cs" />
+        <Compile Include="DelayedSignalTests.cs" />
         <Compile Include="ActivationTimerTests.cs" />
         <Compile Include="WorkshopWireTests.cs" />
         <Compile Include="WorkshopReadTests.cs" />

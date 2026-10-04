@@ -61,7 +61,7 @@ public sealed partial class BrowserWorkshopClient
     }
     public bool TryTimerFrame(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out AnimationTimerFrame result)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this); ThrowIfTransportFailed(); PumpActivations(); PumpTimers();
+        ObjectDisposedException.ThrowIf(_disposed, this); ThrowIfTransportFailed(); PumpGoal(); PumpActivations(); PumpTimers();
         if (AdmitPresentationFrame(frame) && physical.Evidence.WorldEpoch == Epoch)
             for (var i = 0; i < physical.Timers.Count; i++)
             {

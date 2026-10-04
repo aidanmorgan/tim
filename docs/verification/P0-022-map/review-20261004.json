@@ -8,10 +8,11 @@
     "design": "Pass bounded first-interaction model with conditions below",
     "implementation": "Pass scoped playable candidate",
     "native": "Pass affected independent70/70; owner full496/496 plus current focused fixes",
-    "actualUi": "Pass final CI-matched local Release5a3c11",
-    "publication": "Incomplete: remote/CI/deployed checks pending",
+    "actualUi": "Pass local CI-matched Release and actual deployed production origin",
+    "publication": "Pass exact remote candidate, CI artifact and deployed behavior",
     "snapshotApproval": true,
-    "fullCat022": "Incomplete; todo131 lessons/all-difficulty fixtures retained"
+    "fullCat022": "Incomplete; todo131 lessons/all-difficulty fixtures retained",
+    "terminal": "Pass scoped CAT-022 first playable interaction"
   },
   "source": [
     "docs/planning/invest/current-consumers.md#cat-022-i",
@@ -74,7 +75,7 @@
       "id": "D6",
       "scope": "Build/publication",
       "checks": "Affected native/worker controls, Production export and actual loaded identities; exact scoped SnapshotApproval then remote/CI/deployed identity and genuine deployed behavior",
-      "status": "Pre-publication Pass; publication-dependent checks pending"
+      "status": "Pass exact remote/CI/deployed closure"
     }
   ],
   "deferred": "All Delay lessons/difficulties and other fixtures remain children; no full catalogue/device/performance/cold-cache/global qualification from this slice.",
@@ -236,7 +237,7 @@
       }
     ],
     "applicability": "Only clean Wall shared support-time conversion changed; no Pipe geometry/CCD/support code imported. Supports genuine two-Switch route with tangential rolling. Guide midpoint expression unchanged; its prior declared interval evidence is not relabeled changed.",
-    "limits": "No broad device/performance/FTZ qualification; actual Delay timer/animation/UI remains incomplete."
+    "limits": "No broad device/performance/FTZ qualification; actual Delay first-interaction closure is recorded below."
   },
   "timerTransactionReview": {
     "status": "Pass scoped transaction/read boundary; final UI/build approval pending",
@@ -307,7 +308,7 @@
     }
   },
   "actualUiReview": {
-    "status": "Partial supporting Pass; final CI Release pending",
+    "status": "Historical investigative local supporting result; superseded by finalUiReview and deployedReview",
     "build": "Investigative local -c Production export448ee0, not exact CI -c Release -p:PlaytestDiagnostics=false",
     "identities": [
       {
@@ -415,13 +416,7 @@
     "positive": "Actual palette placement and typed Switch1→Delay3→Lamp4 wires. Contact73/start73/due193; lamp clear192, TimerElapsed/Lamp193. Pause106 holds exact read, Resume preserves193. Reset duringCounting101 yields freshEpoch Ready0; >remainingDeadline wait does not revive.",
     "twoSource": "Real upperSwitch rotated−45Z; lowerSwitch moved by X/Y gizmos under falling route. Source1contact68; second source5contact253. Duration1: Finished188 then fresh source253 ignored. Duration4: second253 whileCounting leaves start68/due548/emitter1; Lamp clear547, output548. Pause562 and exact Reset/SaveReady0.",
     "failedAttempts": "Initial missed upper switch and misplaced lower switch retained as setup controls, no fault. Typing4 then Apply failed to commit text; Enter+Apply succeeded. Original Apply attempt remains session store delayBusyTrialRaw pending Anvil backend validation; no unauthorized evidence write.",
-    "remaining": [
-      "Final Release loaded identities",
-      "Apply without Enter and visible canonical8.9375",
-      "Cancel/oneUndo and exact Save/Load",
-      "Direct bypass/disconnected/incompatible target controls",
-      "Correct source phase palette and ACK retry affected lifecycle"
-    ],
+    "remaining": [],
     "limitations": "No cold startup/performance/device qualification from these observations."
   },
   "findings": [
@@ -444,7 +439,7 @@
       "fix": "Exact request retry flag; preserve prior covered sample; ordinary pump resends after lease return; Reset retires."
     }
   ],
-  "current": "SnapshotApproval for exact a54a004b candidate. Local required-now checks complete; only enumerated publication-dependent checks remain. Owner may publish.",
+  "current": "Terminal scoped Pass for a36b2e6118761ac090f7940cae060ba22a49abd2, Pages37210729266. No unresolved unintended regression within this impact scope. Broader children and unpublished Pipe failures remain open.",
   "finalUiReview": {
     "status": "Pass scoped",
     "build": {
@@ -687,5 +682,209 @@
       "Genuine deployed UI construction/config/typed Switch→Delay→Lamp and two-source delivery; no-early/due output, meaningful bypass/disconnected, Pause/Reset and Save/Load on actual deployed game.",
       "Record terminal scoped verdict; preserve deferred performance/device/cold-cache and full-CAT children."
     ]
+  },
+  "deployedReview": {
+    "status": "Pass scoped",
+    "commit": "a36b2e6118761ac090f7940cae060ba22a49abd2",
+    "url": "https://aidanmorgan.github.io/tim/",
+    "ciRun": 37210729266,
+    "remote": "6e786d remote head and543341 all301+3 committed identities match approved candidate; parent7c19, no Pipe source.",
+    "ci": "Root fa20fd build/deploy SUCCESS;93b7ee496/496 tests,0skipped/failed.",
+    "artifact": "ci-artifact-37210729266.json owner21861e/6a2245; independent27f754 ZIP/tar sizes/digests, exact tar inside ZIP and13 original selected members allmatch.",
+    "loaded": [
+      {
+        "path": "godot.pck",
+        "size": 39164,
+        "sha256": "76dfd18d8062ae359d2aee0d5a1180a22423fd3bf5032bac46060a779b4a32c9"
+      },
+      {
+        "path": "godot.pck",
+        "size": 39164,
+        "sha256": "76dfd18d8062ae359d2aee0d5a1180a22423fd3bf5032bac46060a779b4a32c9"
+      },
+      {
+        "path": "_framework/CuriousContraptions.Animation.wasm",
+        "size": 16149,
+        "sha256": "7c5e03676a0bf2ebe4b42a72445c12b54e1064ce722fe19487b9ca63f05a0a2f"
+      },
+      {
+        "path": "_framework/CuriousContraptions.web.wasm",
+        "size": 6933,
+        "sha256": "4e0e36efa2c16462f0ea2bedc0c1996ccad7a069c48819063cd2dca34921ae75"
+      },
+      {
+        "path": "_framework/CuriousContraptions.wasm",
+        "size": 600853,
+        "sha256": "690654757fa3941664c84ffa1f0666a59d8772800590b272f016eb7fd05d16a8"
+      },
+      {
+        "path": "workshop-client.js",
+        "size": 30930,
+        "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497"
+      },
+      {
+        "path": "native-clock.js",
+        "size": 3017,
+        "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f"
+      },
+      {
+        "path": "simulation/worker.js",
+        "size": 14209,
+        "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb"
+      },
+      {
+        "path": "animation/worker.js",
+        "size": 5382,
+        "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+      },
+      {
+        "path": "native-clock.js",
+        "size": 3017,
+        "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f"
+      },
+      {
+        "path": "native-clock.js",
+        "size": 3017,
+        "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+        "size": 67861,
+        "sha256": "4eb1a0ae4afae250b0eefc8815bbc3d4e700fed593d8554131ce849f15fe0e20"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+        "size": 67861,
+        "sha256": "4eb1a0ae4afae250b0eefc8815bbc3d4e700fed593d8554131ce849f15fe0e20"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+        "size": 409365,
+        "sha256": "b97ce91c5de1606fa5726784d448d46edcfbd2a5ca5d87d22cf76dc9dd0e9b37"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+        "size": 384789,
+        "sha256": "bf5f28ffce13758502982e6b5ddfcd32733eb5d6ed95cd1a827dfb907d45cd6e"
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "size": 97985,
+        "sha256": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72",
+        "source": "Actual worker fetch clone arrayBuffer, delayActualShaderHashRaw"
+      }
+    ],
+    "decoding": "Original Playwright Response.body text/wgsl produced97987B/comment hÂ²; independent63a12a diff onlycommentencoding. Actual raw worker response clone97985B exactCI shader; no source edit or substituted response. Preserve both originals.",
+    "canonical": [
+      {
+        "kind": 4,
+        "id": 1,
+        "position": [
+          -1.5,
+          3,
+          1.399993896484375
+        ],
+        "q": [
+          0,
+          0,
+          -0.3828125,
+          0.923828125
+        ],
+        "duration": 0.7998046875
+      },
+      {
+        "kind": 1,
+        "id": 2,
+        "position": [
+          -1.6980972290039062,
+          5.3337249755859375,
+          1.246683120727539
+        ],
+        "q": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "duration": 0.340087890625
+      },
+      {
+        "kind": 7,
+        "id": 3,
+        "position": [
+          1,
+          3,
+          -0.6999969482421875
+        ],
+        "q": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "duration": 8.9375
+      },
+      {
+        "kind": 5,
+        "id": 4,
+        "position": [
+          3.1999969482421875,
+          3,
+          -2.399993896484375
+        ],
+        "q": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "duration": 0
+      },
+      {
+        "kind": 4,
+        "id": 5,
+        "position": [
+          -3.3000030517578125,
+          1.0811614990234375,
+          1.6999969482421875
+        ],
+        "q": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "duration": 0.7998046875
+      }
+    ],
+    "controls": {
+      "default": "Genuine palette/pose/typed wiring. Default source/start75, due195; Lampclear194, TimerElapsed/Lamp195.",
+      "finished": "Actual upperSwitch−45Z and lowerSwitch; source1start70/due190. Fresh source5contact339 after Finished ignored; original timer/provenance retained throughPause839.",
+      "busy": "8.9375 seconds exactceil1073; source1start70/due1143; distinctsource5contact339 Counting ignored. Lampclear1142, TimerElapsed/Lamp1143. No earlyoutput.",
+      "authoring": "Visible8.9375s and pending textApply withoutEnter accepted. Exact later2Apply then oneUndo8.9375 verified. Cancel2 retains8.9375. Earlier rapid click sequence failed to open/commit edit and is retained as setupattempt, not an UndoPass.",
+      "saveLoad": "Save8.9375→changes→Load restores exact bytes80..end (settings, allfive authoredposes/parameters and3typededges); constructionrevision allowed to differ. Final disconnected/control scene Load restores savedscene.",
+      "pauseReset": "CountdownPause131 holds350ms; Resume completes1143. Final Count119→Reset freshEpoch42/tick0/Ready/allclear;9s wait beyondremainingdeadline leaves exactresetread, no staleanimation/output.",
+      "bypass": "Actual source1→Lamp4 fourthwire lightsLamp by Contact at70 whileDelayCounting. Reset,oneUndo removeswire; RunLampclear119. Undonewire doesnotresurrect.",
+      "disconnected": "Actual Lampdisconnect leaves2source→Delay edges; canonicalHalf(.1) timerdue82 completes; Lampstaysclear371 including source5contact339.",
+      "feedback": "Visible clockwise countdown hand, Pausehold, Finished fullturn/gold, ResetReadygray/Lampoff. Same unchanged managed binding/worker paths as scoped local controls.",
+      "resources": "Owned deployedpage,Simulation/Animationworkers andcontextclosed; unrelatedabout:blank untouched. Finalconsoleerrors[]/observerfailures[]. Compact5000summary/last2reads observer; no setters/importedsolution/numericplacement."
+    },
+    "raw": [
+      "ui-deployed-startup-20261004.raw.json",
+      "ui-deployed-default-20261004.raw.json",
+      "ui-deployed-two-source-20261004.raw.json",
+      "ui-deployed-edit-20261004.raw.json",
+      "ui-deployed-wiring-20261004.raw.json",
+      "ui-deployed-reset-20261004.raw.json"
+    ],
+    "sessionOriginals": [
+      "delayDeployedUndoPauseCode/Raw",
+      "delayDeployedBusyCompletionCode/Raw",
+      "delayDeployedBallCorrectionRaw",
+      "delayDeployedPending2Raw"
+    ],
+    "evidenceLimitation": "Anvil allowed encoded screenshot/raw evidence with long-line scan warnings; no complete secret-scan claim. Exact long-run original export twice blocked validation-backend-unavailable (op_01M43QK422MDEKA4ACXB5KWTX3,op_01M43QM4FX4HZAFZMQW46AEA04); did not write/bypass/repackage. Original commands/results andscreens remain sessionretained; concrete transition results above. Other original raw durable.",
+    "failedAttempts": "Initial uppermiss, lower-secondsource miss and genuinegizmo correction retained. No productfault. Text-decoding artifact retained with actual-byte resolution.",
+    "performance": "Ordinaryfirstframe11806ms, reload6976ms observed, uncontrolledcache/startup. Not cold-cache/performance/devicequalification; namedgate remainsopen."
   }
 }

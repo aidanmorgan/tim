@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 12 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 13 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null);

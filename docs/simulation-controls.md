@@ -12,6 +12,12 @@ Hold Timer rearms at completion before networks without emitting an elapsed acti
 
 Periodic clocks preserve phase, deadlines, crossed occurrences and pause/Reset semantics; do not replace simulation time with rendered frames. Supply loss cancels a coincident deadline, disabled time creates no pulse backlog, and restored supply starts a full interval while retaining counter/last-pulse history. Validate consecutive integer ticks, complete inputs and deterministic order atomically. Digital clocks supply no mechanical or electrical energy merely because their artwork moves.
 
+## Committed activation goals
+
+ActivatedAfter declares typed source and target activation nodes and a canonical Half minimum delay in 0–120 seconds. It compares their first immutable committed latch occurrences in the same world epoch. Missing source/target remains Waiting; an early target remains unsolved even if a later timer event reaches that already-latched target. Compare occurrence time, never root cause time, timer identity/deadline, presentation time or wall clock. The integer clock adapter compares exact dyadic ordinal/phase differences at the canonical 480-Hz physical cadence, preserving signed phases and equality at the authored threshold; it introduces no wider physical state.
+
+The admitted `delayed_signal` ("Wait for it") lesson retains the source's locked Switch(-3,1,0), Basketball(-3,4,0), Lamp(3,1,0), one Delay inventory item and one-second ActivatedAfter goal. Manual placement preserves every source assistance knot; Switch thresholds are canonical .2/.47/.8 at precision 0/.45/1. Source solution placements/links are reference evidence, never imported by normal play. Reset, Load and puzzle replacement retire controller/goal state and visible success. Shared Animation receives a separate goal opacity endpoint with its committed occurrence and epoch; application waits for the matching selected physical history. Recurring timer observations cannot starve an unsent goal endpoint.
+
 ## Counter and latch
 
 Counter target is an integer 1–9, default 3. Increment saturates and emits the threshold once; its contact conducts supplied electricity only after reaching target and creates no supply. Reject fractional/out-of-range/missing parameters and unknown identities; Reset reconstructs zero.

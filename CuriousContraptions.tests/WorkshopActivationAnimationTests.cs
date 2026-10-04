@@ -138,6 +138,33 @@ public sealed class WorkshopActivationAnimationTests
         Assert.False(Field<bool[]>(client, "_timerRetry")[0]);
     }
 
+    [Fact]
+    public void GoalFeedbackOwnsOccurrenceAcrossCadenceRetryAndReset()
+    {
+        var goal = Control with { Target=new(ulong.MaxValue), Property=AnimationProperty.Opacity };
+        var occurrence = new ActivationTime(goal.EventOrdinal,goal.EventPhase);
+        var client=Client(); Set(client,"_goalRequested",occurrence); SetPending(client,goal,new(1));
+        client.ReceiveAnimation(Output(goal,new(1),AnimationOutputKind.Acknowledgement,1));
+        Assert.NotNull(Field<WorkshopAnimationSample?>(client,"_goalSample"));
+        Set(client,"_goalOrdinal",100ul);
+        var cadence=Schedule(1,2); Invoke(client,"ReconcileAnimationSchedule",cadence); Set(client,"_schedule",cadence);
+        Assert.Equal(0ul,Field<ulong>(client,"_goalOrdinal"));
+        Assert.Equal(occurrence,Field<ActivationTime?>(client,"_goalRequested"));
+        client.ReceiveAnimation(Output(goal,new(2),AnimationOutputKind.Sample,1));
+        SetPending(client,goal,new(2));
+        client.ReceiveAnimation(Output(goal,new(2),AnimationOutputKind.Rejected,1));
+        Assert.True(Field<bool>(client,"_goalRetry"));
+        SetPending(client,goal,new(2));
+        Assert.Throws<ArgumentException>(()=>client.ReceiveAnimation(Output(goal with { EventOrdinal=11 },new(2),AnimationOutputKind.Acknowledgement,1)));
+        Assert.NotNull(Field<ChannelControl?>(client,"_animationPending"));
+        var reset=Schedule(2,3); Invoke(client,"ReconcileAnimationSchedule",reset); Set(client,"_schedule",reset);
+        client.ReceiveAnimation(Output(goal,new(2),AnimationOutputKind.Acknowledgement,1));
+        Assert.Null(Field<ChannelControl?>(client,"_animationPending"));
+        Assert.Null(Field<ActivationTime?>(client,"_goalRequested"));
+        Assert.Null(Field<WorkshopAnimationSample?>(client,"_goalSample"));
+        Assert.False(Field<bool>(client,"_goalRetry"));
+    }
+
     private static BrowserWorkshopClient Client()
     {
         var client = (BrowserWorkshopClient)Activator.CreateInstance(typeof(BrowserWorkshopClient),

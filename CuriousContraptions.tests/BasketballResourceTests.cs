@@ -213,6 +213,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void ControlHint(AnimationControlKind kind, bool visible) => throw new InvalidOperationException("Hint control is outside this held read/ACK fixture.");
         public bool TryHint(ulong frame, out WorkshopHintSample sample) { sample = default; return false; }
+        public bool TryGoalOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity) { opacity = default; return false; }
         public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
         { opacity = default; return false; }
         public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend) { blend = default; return false; }

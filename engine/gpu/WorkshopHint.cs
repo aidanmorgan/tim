@@ -14,7 +14,7 @@ public readonly record struct WorkshopAnimationSample(AnimationTargetId Target, 
 public static class WorkshopAnimationWire
 {
     public const ushort Version = 3;
-    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + 2;
+    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + 3;
     public const int ControlBytes = 144;
     public const int OutputBytes = 144;
     public static byte[] Control(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence,

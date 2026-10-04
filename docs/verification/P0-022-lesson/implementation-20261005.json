@@ -1,0 +1,93 @@
+{
+  "kind": "PlayableLessonImplementation",
+  "date": "2026-10-05",
+  "slice": "delayed_signal / Wait for it",
+  "baseCommit": "a36b2e6118761ac090f7940cae060ba22a49abd2",
+  "implementationOwner": "/root/p025_implementation",
+  "reviewOwner": "/root/p025_review",
+  "scope": "One existing lesson's locked fixtures, Delay-only inventory, exact ActivatedAfter goal, retry and generic committed-goal animation. No new physical law or Pipe prototype.",
+  "sourceAuthority": [
+    "content/puzzles.json#delayed_signal",
+    "docs/simulation-controls.md#committed-activation-goals",
+    "docs/planning/invest/vertical-delivery.md#source-backed-continuation-candidates"
+  ],
+  "changes": [
+    "Typed DelayedSignal authoring and InventoryKind/InventoryCount replace the Ramp-specific inventory field; exact source poses, goal and all authored difficulty knots are retained.",
+    "ActivatedAfter compares the first immutable source and target committed occurrence with exact relative integer/dyadic timing; early target activation stays unsolved for the epoch.",
+    "Shared Goal animation target is independent of Receiver halo and timer observations, with exact epoch, ACK/retry, selected-time and cadence ownership.",
+    "Workshop wire13/save6 update current callers and reject prior schemas, with no migration."
+  ],
+  "checks": [
+    {
+      "name": "Complete native tests",
+      "command": "dotnet test CuriousContraptions.tests --nologo",
+      "original": "06fb28",
+      "result": "509 passed, 0 failed, 0 skipped",
+      "duration": "1 s as reported by test runner"
+    },
+    {
+      "name": "Focused goal/save/hint/activation checks",
+      "original": "b1691c",
+      "result": "70 passed",
+      "duration": "262 ms"
+    },
+    {
+      "name": "Independent focused checks",
+      "original": "81abc6",
+      "result": "70 passed, 0 skipped",
+      "duration": "491 ms"
+    },
+    {
+      "name": "Final previous-wire rejection and lesson tests",
+      "command": "dotnet test CuriousContraptions.tests --nologo --filter FullyQualifiedName~DelayedSignalTests",
+      "start": "96ab8c",
+      "original": "c3b3d7",
+      "result": "12 passed, 0 failed, 0 skipped",
+      "duration": "90 ms"
+    },
+    {
+      "name": "Transport/lifecycle tests",
+      "original": "9a0eb4",
+      "result": "Corrected VM-module invocation passed; initial invocation without experimental VM modules failed test harness construction, retained."
+    },
+    {
+      "name": "Animation output capacity19 tests",
+      "original": "a3840e",
+      "result": "7 controls passed; test-only export-capacity fixture update."
+    },
+    {
+      "name": "CI-matched Release",
+      "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+      "start": "1d7b5a",
+      "progress": "caf13a",
+      "original": "b98ead",
+      "result": "exit0",
+      "artifact": "local-release-20261005.json"
+    },
+    {
+      "name": "Membership/deletion check",
+      "original": "8ee752",
+      "result": "291 source inputs; no missing paths, changed source outside closure, resource references outside closure or deleted source."
+    },
+    {
+      "name": "Anvil changed-source check",
+      "result": "0 findings; local backend, daemon not wired."
+    }
+  ],
+  "retainedFailures": [
+    "Initial compile found necessary caller updates (Switch trigger and removed RampInventory). Corrected before successful build.",
+    "Initial test compile found incorrect test ID/span adapters. Corrected before successful test run.",
+    "Focused test initially detected that refused mode selection hid the existing hint. Corrected selection-only behavior and reran affected tests.",
+    "Initial JavaScript test invocation omitted --experimental-vm-modules; corrected harness invocation is separately retained. No runtime result claimed from failed invocation."
+  ],
+  "unchangedProof": "Canonical physics kernel remains the deployed Delay kernel 8b7d04f1. Review controls select gameplay and caller impacts; no global physics or performance qualification is inferred.",
+  "ordinaryUseProof": "Independent actual Chrome controls and distinct loaded identities are owned by review-20261005.json and its original raw records.",
+  "publication": "SnapshotApproval, protected commit/push, original CI artifact and deployed gameplay remain required. Future review receipts are not inputs to their own approval.",
+  "deferred": "Pipe disposition is deferred-pipe-20261005.json. Full CAT-022, delayed_solar, worker fault/device/performance/global audits and 150-level campaign closure remain open.",
+  "measurements": {
+    "blockedTime": "unknown",
+    "totalSliceDuration": "unknown",
+    "unnecessaryRepeats": "No unchanged full UI run was requested by implementation; failed test/compiler attempts retained above. Full count unknown."
+  }
+}
+

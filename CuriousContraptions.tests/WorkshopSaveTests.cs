@@ -147,7 +147,7 @@ public sealed class WorkshopSaveTests
         Assert.True(construction.Ball!.Value.Locked); Assert.True(construction.Receiver!.Value.Locked);
         Assert.Equal(new GpuBodyId(11), construction.Puzzle.Goal.Body);
         Assert.Equal(new GpuBodyId(12), construction.Puzzle.Goal.Target);
-        Assert.Equal(2u, construction.Puzzle.RampInventory);
+        Assert.Equal(2u, construction.Puzzle.InventoryCount);
         var updated = FirstPrinciples.WithPrecision(construction, new((Half).5));
         Assert.Equal(a, updated.Instances[2]); Assert.Equal(b, updated.Instances[3]);
         Assert.Equal(construction.Puzzle.Goal, updated.Puzzle.Goal);
@@ -173,7 +173,7 @@ public sealed class WorkshopSaveTests
             PuzzleDamage.Id => construction with { Puzzle = puzzle with { Id = (WorkshopPuzzleId)999 } },
             PuzzleDamage.Mode => construction with { Puzzle = puzzle with { Placement = (WorkshopPlacementMode)999 } },
             PuzzleDamage.Precision => construction with { Puzzle = puzzle with { Precision = new(Half.NaN) } },
-            PuzzleDamage.Inventory => construction with { Puzzle = puzzle with { RampInventory = 3 } },
+            PuzzleDamage.Inventory => construction with { Puzzle = puzzle with { InventoryCount = 3 } },
             PuzzleDamage.Body => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { Body = new(9) } } },
             PuzzleDamage.Target => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { Target = new(9) } } },
             PuzzleDamage.EventSource => construction with { Puzzle = puzzle with { Goal = puzzle.Goal with { EventSource = new(9) } } },

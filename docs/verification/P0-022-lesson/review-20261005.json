@@ -1,0 +1,271 @@
+{
+  "slice": "delayed_signal / Wait for it — authored goal and retry loop",
+  "workspace": "/Users/aidan/dev/personal/tim-wait",
+  "base": "a36b2e6118761ac090f7940cae060ba22a49abd2",
+  "owner": "/root/p025_implementation",
+  "reviewer": "/root/p025_review",
+  "verdict": "SnapshotApproval — exact local pre-publication criteria Pass; terminal publication-dependent verification pending",
+  "sourceAcceptance": {
+    "fixture": "content/puzzles.json:delayed_signal",
+    "requirements": [
+      "CAT-022",
+      "todo-130",
+      "todo-131 delayed_signal portion",
+      "FIX-001-013",
+      "FIX-035-006",
+      "FIX-063-005"
+    ],
+    "exactFixture": "Locked Switch(-3,1,0), Basketball(-3,4,0), SignalLamp(3,1,0); Delay inventory1; ActivatedAfter lamp from fixed switch minimum1s; solution and links remain reference, not imported proof.",
+    "children": "delayed_solar, remaining CAT022 modes/fixtures and broader engine/device/performance qualification remain open."
+  },
+  "readiness": {
+    "decision": "GO for this independent slice on published Delay; current UI does not yet expose the authored lesson.",
+    "originalReads": [
+      "8ac133",
+      "b85eaa",
+      "4c38d7",
+      "03d75e",
+      "603681",
+      "1c3915",
+      "22da07"
+    ],
+    "dependencies": "Published centered Sphere/staticBox/Switch, Delay transaction/animation, Lamp and existing ldexp support-time shader. No annular collider, curved Pipe solver, snapping or optical prerequisite.",
+    "proofReuse": "Original Delay terminal review and deployed actual13 identities in ../tim-delay/docs/verification/P0-022-map/review-20261004.json. Reuse only unchanged shader/part/timer inputs; new puzzle/admission/goal/animation callers require affected checks.",
+    "historicalLimit": "Excluded DelayTests.cs is historical source behavior, not current executable/native proof."
+  },
+  "model": {
+    "goal": "Generic typed ActivatedAfter using immutable FIRST source and target latch occurrence times in the matching epoch. Target event time is distinct from physical root-cause time and timer due identity. Source/target are admitted fixed nodes; generated Delay identity irrelevant.",
+    "timing": "Half minimum duration through checked exact integer-dyadic comparison boundary. Preserve signed phase, equality inclusive and just-before false; no Half product or source-ceiling shortcut. Current authored1s equals120 simulation ticks.",
+    "earlyBypass": "First target activation before source+minimum remains unsolved for that epoch; later delayed output cannot repair the early latch.",
+    "presentation": "Current goal opacity is capture-only; generalize shared committed goal feedback without requiring Receiver. Keep timer/physics authority and Receiver halo separate.",
+    "lifecycle": "Reset/Load/puzzle switch retires prior epoch and solved feedback; exact construction/links/configuration restored, visible retry available; accepted success does not freeze remaining authored visual feedback.",
+    "difficulty": "Preserve exact source knots and fixed Switch thresholds .2/.47/.8 at0/.45/1; no replacement with Free default .8."
+  },
+  "matrix": [
+    {
+      "area": "Source and admission",
+      "checks": "Exact authored locked transforms/materials/profile/default, Delay-only inventory, arbitrary placed identity, strict foreign/duplicate/capacity/unknown goal rejection; no solution prefill."
+    },
+    {
+      "area": "Goal arithmetic",
+      "checks": "Missing source/target, wrong epoch/node, source order, signed-phase before/equal/after threshold, zero/nonfinite/overflow duration boundaries as admitted; earliest bypass forever false; source root cause and timer event times distinguished."
+    },
+    {
+      "area": "Native/wire/save",
+      "checks": "Typed goal/schema forward cutover and malformed atomic rejection, exact save/load goal/profile/connections, shared existing First principles Captured regression."
+    },
+    {
+      "area": "Actual Chrome",
+      "checks": "Select Wait for it, inspect fixed parts and Delay1 inventory, genuinely place/configure/wire. Positive and direct-early-bypass at source0/.45/1; missing each link and too-short delay fail goal without solver fault; arbitrary Delay identity supported."
+    },
+    {
+      "area": "Lifecycle and presentation",
+      "checks": "No early solved; Lamp/hand/shared solved feedback; Pause/resume and Reset while counting/after solved, exact retry, Save/Load and puzzle switch; no stale animation ACK or source epoch revival."
+    },
+    {
+      "area": "Build/identity/publication",
+      "checks": "Affected native/JS/build closure, exact CI Release local actual UI, scoped source/diff/membership review and single SnapshotApproval, then remote/CI/loaded identities plus genuine deployed goal/retry controls."
+    }
+  ],
+  "pipeDisposition": {
+    "record": "../tim-pipe/docs/verification/P0-048-map/review-20261004.json",
+    "status": "Fail/Incomplete, experiments stopped at design handoff; persistence/search alternatives unapproved. No Pipe code or evidence substitution in this lesson."
+  },
+  "current": "Frozen304-input candidate approved; owner may commit/push exact snapshot normally. Remote/CI/deployed13 and production-origin lesson acceptance remain required before terminal scoped Pass.",
+  "earlyModelReview": {
+    "status": "Reviewed stable initial fixture/goal/wire portions only; callers/build still WIP, no whole-candidate Pass.",
+    "sources": [
+      "f770e6",
+      "b07a58",
+      "5cc8a1",
+      "355210",
+      "433591"
+    ],
+    "arithmetic": "Supported physical ordinal maximum is14400 (30s at480Hz), enforced in simulation/ABI. Absolute ordinal*2^36 and maximum120s duration fit Int64; no supported-run overflow finding. Generic far-origin helper improvement is optional within same scope, not a blocker. Signed phase exact equality/before/after independently derived.",
+    "model": "Goal source/target identity and first latch occurrence preserve generated-timer independence/early bypass permanence. Generic0..120s minimum bound needs current declaration/tests, authoredfixture remains exactly1s. InventoryKind/count replaces Ramp-specific field and strict puzzle validation rejects foreign choices. DelayedSignal source positions/profile knobs match content, exact Delay correction knots. No current issue found in these stable portions.",
+    "pending": "Owner compile/callers, actual shared solved animation and source tests; no competing reviewer build."
+  },
+  "callerReview": {
+    "status": "Source review of landed callers, no current concrete finding; executable/UI checks pending owner coherent boundary.",
+    "reads": [
+      "c2e0ba",
+      "0a2cf7",
+      "12fb63",
+      "c40ae7",
+      "a4737f",
+      "659057"
+    ],
+    "observations": "Goal feedback has independent shared target, committed/selected occurrence ownership, exact reliable ACK and same-world rejection retry, epoch retirement and cadence ordinal reset. Goal target is disjoint from admitted body/node/timer ranges; worker target capacity derives from current export. Picker/hint/objective/precision caller now maps typed lesson; Reset/build reconciliation clears solved feedback.",
+    "affectedControls": "Goal ACK/cadence/rejection/Reset stale-output controls; selected presentation cannot show early goal. Actual SOLVED must arrive during normal running despite timer observation lease traffic. Existing First principles requires both Receiver halo and independent SOLVED feedback; new wire/inventory field affects its save/admission callers.",
+    "limits": "No source-only scheduling fairness claim; no competing native build or browser used.",
+    "forwardFixes": "551688: noneditable picker restores selection only (preserves hint); Goal pumps before recurring Timer observation; relative ordinal comparison avoids incidental far-origin overflow while preserving exact signedphase. Independent native controls pass."
+  },
+  "focusedNative": {
+    "command": "dotnet test CuriousContraptions.tests --no-build --no-restore --nologo --filter 'FullyQualifiedName~DelayedSignalTests|FullyQualifiedName~WorkshopSaveTests|FullyQualifiedName~WorkshopHintTests|FullyQualifiedName~WorkshopActivationAnimationTests'",
+    "start": "4085d6",
+    "session": 91089,
+    "terminal": "81abc6",
+    "result": "70/70 Pass,0skipped,491ms,exit0",
+    "scope": "New lesson exact-source/timing/goal and existing save/hint/goal-ACK/cadence/Reset callers. Owner full509/509 receipt06fb28 remains separate."
+  },
+  "localUi": {
+    "result": "Pass for finite justified lesson/caller scope; no gameplay setters, imported solution or numeric placement menus.",
+    "build": "Exact CI Release b98ead/session57990; actual loaded13 response bytes match local-release-20261005.json original578d0a. Native shader8b7d04f1 unchanged from deployed Delay.",
+    "recipe": "Chrome1440x900 picker(740,48)→Wait for it(620,141); shelfDelay(91,155)→place(716,612). Select Delay→ConnectActivationOut(124,277)→Lamp(916,607)→typed action(136,233). Select Switch(526,620)→ConnectActivationOut(129,232)→Delay(714,612)→typed action. Run(685,836); same button Reset after awaiting settled Building. Actual menu1392,46 exposes difficulty/Save1055,161/Load1099,161/Pause1067,247/Resume1143,247.",
+    "configuration": {
+      "revision": 5,
+      "puzzle": 2,
+      "precision": 0.449951171875,
+      "instances": [
+        {
+          "kind": 1,
+          "locked": 1,
+          "id": 1,
+          "position": [
+            -3,
+            4,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "parameter": 0.340087890625
+        },
+        {
+          "kind": 4,
+          "locked": 1,
+          "id": 2,
+          "position": [
+            -3,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "parameter": 0.469970703125
+        },
+        {
+          "kind": 5,
+          "locked": 1,
+          "id": 3,
+          "position": [
+            3,
+            1,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "parameter": 0
+        },
+        {
+          "kind": 7,
+          "locked": 0,
+          "id": 4,
+          "position": [
+            -0.100006103515625,
+            1.100006103515625,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "parameter": 1
+        }
+      ],
+      "links": [
+        [
+          4,
+          3,
+          1,
+          1,
+          4
+        ],
+        [
+          2,
+          4,
+          1,
+          1,
+          4
+        ]
+      ]
+    },
+    "source": "Actual locked Ball(-3,4,0), Switch(-3,1,0), Lamp(3,1,0), Delay-only inventory1; canonical source thresholds .199951171875/.469970703125/.7998046875 at exact Half precision0/.449951171875/1 verified from actual commands. Generated Delay4 independent of fixture reference ID.",
+    "positive": "At all source knots Switch starts87, timer due207. Lamp is off through206, TimerElapsed ordinal828 lights Lamp and goal. SOLVED visibly present at221/227 during ordinary running. Original source occurrence ordinal346/phasebits58688 is retained; no cause-time substitution.",
+    "negative": "Direct bypass at every knot latches Lamp with source event87, stays unsolved beyond timer207. Missing output: timer finishes207, Lamp off. Missing input: source latches87, timer Ready/Lamp off. Real duration Apply0.5 starts87/finishes147, Lamp on but goal unsolved. No fault/console error.",
+    "lifecycle": "Pause113 freezes countdown/hand over650ms; Resume reaches207/SOLVED. Reset after solved and while Counting returns tick0/fresh Ready/idle Lamp and no SOLVED; retry reproduces. Actual Save→FirstPrinciples→Load restores exact canonical construction/goal/profiles/links except revision; retry solves. One Undo restores each edited wire/duration before next control.",
+    "exactSaveLoad": true,
+    "firstPrinciples": "Genuine palette ramps placed498,404 and674,509, blue rings dragged405,477→385,441 and562,545→556,504. Actual rotations qZ−.173583984375/.98486328125 and−.1751708984375/.984375; precision .05999755859375 (not relabelled exact0). Capture ordinal1374/phasebits26064; visible SOLVED and separate CaptureTarget2 + GoalTargetMax actual Animation opacity1 same occurrence. Reset restores Ball/ramps, clears capture/SOLVED. Second run added compact output observation to disambiguate side-on halo, not unrelated numerical requalification.",
+    "unsuccessfulSetup": "Immediate click batches occasionally preceded async selection/Reset UI; retained failed gestures produced no expected command. Slider first near-left .02 then corrected by real drag to exact0. Earlier samples.slice(length) empty when bounded5000 buffer full; switched to epoch selection without altering game. No false negative or invented product failure.",
+    "raw": "ui-setup-20261005.raw.json; ui-first-principles-20261005.raw.json. Original tool results retained in reviewer session under named entries below; blocked writes were not split/repackaged.",
+    "originalToolEntries": [
+      "waitStartupRaw",
+      "waitIdentityPickerRaw",
+      "waitFixtureRaw",
+      "waitPlaceRaw",
+      "waitWireTargetRaw",
+      "waitWireSourceRaw",
+      "waitFirstRunRaw",
+      "waitVisibleSolvedRaw",
+      "waitBypassSetupRaw",
+      "waitBypassRaw",
+      "waitSettingsRaw",
+      "waitForgivingSetupRaw",
+      "waitForgivingPositiveRaw",
+      "waitForgivingBypassRaw",
+      "waitForgivingBypassSetup2Raw",
+      "waitForgivingBypass2Raw",
+      "waitPrecisePositiveRaw",
+      "waitPreciseBypassRaw",
+      "waitConnectionsMenuRaw",
+      "waitMissingOutputRaw",
+      "waitMissingInputRaw",
+      "waitDurationDialogRaw",
+      "waitDurationDialog2Raw",
+      "waitShortDelayRaw",
+      "waitSavePauseRaw",
+      "waitLifecycleRaw",
+      "waitLoadRetryRaw",
+      "waitFirstPrinciplesStartRaw",
+      "waitRampPlaceRaw",
+      "waitRampRotatePlaceRaw",
+      "waitFirstPrinciplesRunRaw",
+      "waitFinalUiResetRaw",
+      "waitFirstPrinciplesChannelsRaw",
+      "waitUiCleanupRaw"
+    ],
+    "evidenceWriteLimits": "Anvil oversize-content op_01M43XRB2GPYZGC9VQVE9PKYKV blocked1.15MB ui-difficulties original; backend-unavailable op_01M43XRYF5J1ZR79F85DEWMAYE and exact retriable repeat op_01M43XVPZ95JA9M89WJQPY2SNE blocked ui-controls original. No file write/bypass; original tool/session evidence and these assertions retained per coordinator. Allowed setup/FirstPrinciples evidence has long-line scan warning; no complete secret-scan claim.",
+    "cleanup": "Owned Chrome page closed; simulation/animation workers retired with page. Only connector about:blank remains."
+  },
+  "finalSupportingChecks": {
+    "native": "Independent12/12 delayed goal/source/schema12 rejection Pass84ms af722b; prior independent70/70 applicable. Owner full509/50906fb28 separately retained.",
+    "transport": "Independent node --experimental-vm-modules tools/workshop-animation-output.test.mjs Pass19targets01551c. Initial command omitted requiredVMflag and failed2af7c9; corrected invocation only, no code change.",
+    "snapshot": "a92f11 independently verified304inputs/291sources/8,087,691B, zero mismatch/duplicates, exact basea36b2e6 and closure5b231c539c73d924bae9ebf172528f04ece34d519b15d0d6f278693f99d6edcf. Diffchecke44d98 clean; source/caller and docs actualdiff reviewed. Excluded generated non-resourceUID/import/hook artifacts are not runtime inputs; no deletedsource.",
+    "impact": "Unchanged deployed Delay shared f16 shader/part/timer law reused by exact identity and admitted same centered sphere/static Box path. New generic inventory/save/wire and Goal channel are covered by70+12 native,19target transport, actual all-knot lesson and FirstPrinciples. No Pipe experimental law imported.",
+    "limits": "P0-032/034/global qualification and retained startup/tick misses remain open; local startup1369ms first-frame log is ordinary observation, not controlled cold-cache/device performance Pass."
+  },
+  "snapshotApproval": {
+    "candidate": "playable-candidate-paths.json",
+    "closure": "5b231c539c73d924bae9ebf172528f04ece34d519b15d0d6f278693f99d6edcf",
+    "decision": "Approve exact304 inputs and owner24 commitPaths with original review/implementation/artifact supplements only; no runtime drift. Normal hooks required.",
+    "remaining": [
+      "Verify committed/pushed exact candidate identities and successful exact-head CI build/tests/deployment.",
+      "Compare single original CI artifact selected13 bytes with actual production loaded responses.",
+      "Genuine deployed Wait for it placement/wiring/positive and early-bypass goal behavior, source difficulty controls, duration/connection failure, Pause/Reset/retry and Save/Load, plus affected FirstPrinciples capture/goal feedback.",
+      "Record terminal scoped verdict; no dependent publication completion claim beforehand."
+    ]
+  }
+}

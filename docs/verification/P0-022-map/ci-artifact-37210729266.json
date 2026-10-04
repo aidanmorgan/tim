@@ -1,0 +1,98 @@
+{
+  "kind": "OriginalCiArtifactReceipt",
+  "run": 37210729266,
+  "commit": "a36b2e6118761ac090f7940cae060ba22a49abd2",
+  "artifactId": 11306198052,
+  "githubApiOriginal": "7f3a3e",
+  "downloadOriginal": "847085/ad28c5",
+  "archive": {
+    "path": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/github-pages.zip",
+    "bytes": 106178518,
+    "sha256": "36af9216835568feb2d79af35a31ad625ccb298f19f57e1b93b0c6c982c8c365"
+  },
+  "tar": {
+    "path": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/artifact.tar",
+    "bytes": 203591680,
+    "sha256": "9b28492dfba4c992a6663630a66e6dbc1793416ed23913a0b2e6144af8315b11"
+  },
+  "assets": [
+    {
+      "path": "workshop-client.js",
+      "bytes": 30930,
+      "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/workshop-client.js"
+    },
+    {
+      "path": "godot.pck",
+      "bytes": 39164,
+      "sha256": "76dfd18d8062ae359d2aee0d5a1180a22423fd3bf5032bac46060a779b4a32c9",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/godot.pck"
+    },
+    {
+      "path": "native-clock.js",
+      "bytes": 3017,
+      "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/native-clock.js"
+    },
+    {
+      "path": "simulation/worker.js",
+      "bytes": 14209,
+      "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/simulation/worker.js"
+    },
+    {
+      "path": "simulation/physics.wgsl",
+      "bytes": 97985,
+      "sha256": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/simulation/physics.wgsl"
+    },
+    {
+      "path": "animation/worker.js",
+      "bytes": 5382,
+      "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/animation/worker.js"
+    },
+    {
+      "path": "_framework/CuriousContraptions.wasm",
+      "bytes": 600853,
+      "sha256": "690654757fa3941664c84ffa1f0666a59d8772800590b272f016eb7fd05d16a8",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/_framework/CuriousContraptions.wasm"
+    },
+    {
+      "path": "_framework/CuriousContraptions.web.wasm",
+      "bytes": 6933,
+      "sha256": "4e0e36efa2c16462f0ea2bedc0c1996ccad7a069c48819063cd2dca34921ae75",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/_framework/CuriousContraptions.web.wasm"
+    },
+    {
+      "path": "_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 16149,
+      "sha256": "7c5e03676a0bf2ebe4b42a72445c12b54e1064ce722fe19487b9ca63f05a0a2f",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/_framework/CuriousContraptions.Animation.wasm"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+      "bytes": 384789,
+      "sha256": "bf5f28ffce13758502982e6b5ddfcd32733eb5d6ed95cd1a827dfb907d45cd6e",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/animation/_framework/CuriousContraptions.Animation.Worker.wasm"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 67861,
+      "sha256": "4eb1a0ae4afae250b0eefc8815bbc3d4e700fed593d8554131ce849f15fe0e20",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/animation/_framework/CuriousContraptions.Animation.wasm"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 67861,
+      "sha256": "4eb1a0ae4afae250b0eefc8815bbc3d4e700fed593d8554131ce849f15fe0e20",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/simulation/_framework/CuriousContraptions.Animation.wasm"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+      "bytes": 409365,
+      "sha256": "b97ce91c5de1606fa5726784d448d46edcfbd2a5ca5d87d22cf76dc9dd0e9b37",
+      "localPath": "/Users/aidan/dev/personal/tim-delay/.tools/p022-ci-37210729266/selected/simulation/_framework/CuriousContraptions.Simulation.wasm"
+    }
+  ]
+}

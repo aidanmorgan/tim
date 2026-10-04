@@ -1,0 +1,25 @@
+{
+  "kind": "UnpublishedPipeDisposition",
+  "owner": "/root/p025_implementation",
+  "reviewer": "/root/p025_review",
+  "status": "Deferred unfinished; no experimental shader adopted or published",
+  "worktree": "/Users/aidan/dev/personal/tim-pipe",
+  "base": "a36b2e6118761ac090f7940cae060ba22a49abd2",
+  "runtime": "037016554f061b40f5932a2c93332565eb31d1e47704f37eead9c2b274c534d4",
+  "latestCandidate": "252b162956d67b2027acd7ace920367ad802c7945e7ed627831485e3deefaf54",
+  "observations": [
+    "Actual037016 UI capture/lifecycle succeeded; applicable numerical cases remain unresolved.",
+    "252b saved26→27 advances, but fresh fast launch fails5; first support removal at12/4096 is outward normal residual .0014486312866210938, above unchanged1/1024.",
+    "Exact accepted12 scalar neighborhood contains28 jointly admissible midpoint/two-sided-endpoint responses. This proves a missed sustained-circle response, not a generic persistent-load law.",
+    "Finite607c shoulder31 closing-ring plateau and mouth37 ring apex remain separate failures. Zero-radius friction disk requires independent exact-zero closure; captured first release has zero tangents so that flaw does not explain it."
+  ],
+  "retry": "At the next playable readiness reassessment, compare this return with independent element/fixture outcomes; historical order is not a dependency. If resuming Pipe, the same pair must approve directed free-gap-acceleration load classification and a four-sweep joint response proposal before code. No J>0 persistence shortcut, forced retention, wider precision, added sweeps, budget/tolerance change or runtime grid search.",
+  "records": [
+    "docs/verification/P0-048-map/review-20261004.json",
+    "docs/verification/P0-048-map/chord-response-20261005.raw.json",
+    "docs/verification/P0-048-map/chord-first-release-20261005.raw.json",
+    "docs/verification/P0-048-map/loaded-endpoint12-20261005.raw.json"
+  ],
+  "recordLocation": "Paths refer to the retained unpublished tim-pipe worktree; originals remain there, not current shipped content."
+}
+

@@ -12,6 +12,7 @@ internal interface IWorkshopClient : IAsyncDisposable
     void ControlHint(AnimationControlKind kind, bool visible);
     bool TryHint(ulong frame, out WorkshopHintSample sample);
     void RecordHintPresentation(ulong frame);
+    bool TryGoalOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity);
     bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity);
     void RecordCapturePresentation(ulong frame);
     bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend);

@@ -8,7 +8,7 @@ const source = await readFile('CuriousContraptions.Animation.Worker/wwwroot/work
 let imports, closed = false, controls = 0;
 const messages = [];
 const host = {
-    OutputKinds: () => [1, 2, 3], TargetCapacity: () => 18,
+    OutputKinds: () => [1, 2, 3], TargetCapacity: () => 19,
     Bootstrap: () => {}, AnimationControl: () => { controls++; }
 };
 const runtime = {

@@ -158,9 +158,9 @@ public sealed partial class BrowserWorkshopClient
     private void ReconcileAnimationSchedule(WorkshopSchedule schedule)
     {
         if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
-        { _captureSample = null; _captureRequested = null; _captureWorld = schedule.World.WorldGeneration; _lastCaptureOrdinal = 0; RetireActivationFeedback(); }
+        { _captureSample = null; _captureRequested = null; _captureWorld = schedule.World.WorldGeneration; _lastCaptureOrdinal = 0; RetireActivationFeedback(); RetireGoalFeedback(); }
         if (_schedule?.Revision != schedule.Revision)
-        { _lastHintOrdinal = _lastCaptureOrdinal = 0; Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); }
+        { _lastHintOrdinal = _lastCaptureOrdinal = _goalOrdinal = 0; Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); }
     }
     private void ReceiveAnimation() => ReceiveAnimation(EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
@@ -179,7 +179,7 @@ public sealed partial class BrowserWorkshopClient
                 sample.Timer != command.Timer || sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _hintAcknowledged = sample.Pulse.Value; _animationPending = null;
-            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); return; }
+            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); return; }
         }
         if (cadence.Value < active.Revision.Value) return;
         if (sample.Target == HintTarget)
@@ -208,6 +208,7 @@ public sealed partial class BrowserWorkshopClient
             }
             _captureSample = sample;
         }
+        else if (sample.Target == GoalTarget) ReceiveGoalSample(sample, kind, active);
         else if (sample.Timer.Phase != AnimationTimerPhase.None) ReceiveTimerSample(sample, kind, active);
         else ReceiveActivationSample(sample, kind, active);
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
@@ -233,7 +234,7 @@ public sealed partial class BrowserWorkshopClient
         if (_hasPresentationFrame && frame < _presentationFrame) throw new ArgumentException("Display frame identity reversed.");
         if (_hasPresentationFrame && frame == _presentationFrame) return _frameAdmitted;
         _hasPresentationFrame = true; _presentationFrame = frame;
-        _frameAdmitted = _framePoseTaken = _frameHintTaken = _frameCaptureTaken = false;
+        _frameAdmitted = _framePoseTaken = _frameHintTaken = _frameCaptureTaken = _frameGoalTaken = false;
         Array.Clear(_activationFrameTaken);
         _frameObservedAt = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         if (_preparation is not null || _schedule is not { } schedule ||

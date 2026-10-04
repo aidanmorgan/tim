@@ -1,0 +1,74 @@
+{
+  "kind": "LocalReleaseIdentity",
+  "base": "a36b2e6118761ac090f7940cae060ba22a49abd2",
+  "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+  "original": "1d7b5a/caf13a/b98ead",
+  "url": "http://127.0.0.1:8062/",
+  "assets": [
+    {
+      "path": "workshop-client.js",
+      "bytes": 30930,
+      "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497"
+    },
+    {
+      "path": "godot.pck",
+      "bytes": 39164,
+      "sha256": "cad1fd70ee9763609cd953b29e8babd75d2ed762e7c035b84b4ada060f9f38e6"
+    },
+    {
+      "path": "native-clock.js",
+      "bytes": 3017,
+      "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f"
+    },
+    {
+      "path": "simulation/worker.js",
+      "bytes": 14209,
+      "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb"
+    },
+    {
+      "path": "simulation/physics.wgsl",
+      "bytes": 97985,
+      "sha256": "8b7d04f1b3abab01a6329c926e4124b9f57ad5c2990cfba6c5e273db83553b72"
+    },
+    {
+      "path": "animation/worker.js",
+      "bytes": 5382,
+      "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+    },
+    {
+      "path": "_framework/CuriousContraptions.wasm",
+      "bytes": 609557,
+      "sha256": "286c75fc4c95991a1c00df488dd359b106d0b03f59f3674c274be93fafc38113"
+    },
+    {
+      "path": "_framework/CuriousContraptions.web.wasm",
+      "bytes": 6933,
+      "sha256": "fd19aeee1a42cd80de4a4e07dabfffa2b96681a3fccca276422b3038fefb32c5"
+    },
+    {
+      "path": "_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 16149,
+      "sha256": "91dc62acccb51c957d1d37af60d46a76d304adc8230a37585e0951f83ff01a48"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+      "bytes": 390421,
+      "sha256": "abd5586663a7aa8d2bdd6a6cc0944bc180e201b17bc860f0bb14388fd396e3fa"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 67861,
+      "sha256": "88f66db8c1a0696f6b622cf68e9ce0048ff412e8e861e621e53ce87f6e24bf12"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 67861,
+      "sha256": "88f66db8c1a0696f6b622cf68e9ce0048ff412e8e861e621e53ce87f6e24bf12"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+      "bytes": 414485,
+      "sha256": "ca7e9c3256b9b23cc0d5162655918dacca13a2660a406cb30c326e7d36846ac2"
+    }
+  ]
+}

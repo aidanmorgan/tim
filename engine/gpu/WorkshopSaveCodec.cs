@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopSaveVersion : uint { CanonicalConstruction = 5 }
+public enum WorkshopSaveVersion : uint { CanonicalConstruction = 6 }
 public readonly record struct WorkshopSavedConstruction(WorkshopConstruction Construction, GpuBodyId NextBodyId);
 
 /// <summary>Construction-only storage boundary; shares the canonical declaration codec with GPU admission.</summary>

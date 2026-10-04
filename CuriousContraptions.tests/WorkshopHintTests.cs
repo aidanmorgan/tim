@@ -321,6 +321,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
             if (Disposed || Next is not { } value) { sample = default; return false; }
             Next = null; sample = value; _consumed = value.Opacity; return true;
         }
+        public bool TryGoalOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity) { opacity = default; return false; }
         public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
         { opacity = default; return false; }
         public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend) { blend = default; return false; }

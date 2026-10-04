@@ -43,7 +43,7 @@ public partial class MachineWorld
     {
         opacity = (Half)0;
         return GoalPhase == WorkshopGoalPhase.Solved && _workshopClient is not null &&
-            _workshopClient.TryCaptureOpacity(frame, _workshopPresentation, out opacity);
+            _workshopClient.TryGoalOpacity(frame, _workshopPresentation, out opacity);
     }
     public PartDefinition BasketballDefinition => Registry.Definitions[WorkshopPartKind.Basketball];
 
