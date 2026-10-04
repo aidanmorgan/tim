@@ -4,6 +4,7 @@ const scope = new URL('./', document.baseURI);
 const script = new URL('workshop-isolation-worker.js', scope);
 const markerKey = 'workshop-isolation:' + scope.pathname;
 let phase = Phase.waiting, controller, deadline = 0, lastNavigation = 0, timer, pendingCleanup, showFailure, retire;
+let navigationToUsableMilliseconds;
 let resolveQualified, rejectQualified, rejectFailure;
 const qualification = new Promise((resolve, reject) => { resolveQualified = resolve; rejectQualified = reject; });
 const failure = new Promise((_, reject) => { rejectFailure = reject; });
@@ -28,7 +29,7 @@ export function stopIsolation(error) {
 }
 function checkDeadline() {
     if (phase === Phase.failed) throw new Error('Workshop isolation startup is retired.');
-    if (navigationTime() > deadline) throw new Error('StartupFailed: navigation-to-usable exceeded five seconds.');
+    if (navigationTime() > deadline) throw new Error('StartupFailed: isolation handshake exceeded five seconds.');
 }
 function changedController() {
     if (phase !== Phase.waiting && navigator.serviceWorker.controller !== controller)
@@ -101,7 +102,7 @@ export async function prepareIsolation(displayFailure) {
         checkDeadline();
         attempt[3] = lastNavigation;
         sessionStorage.setItem(markerKey, JSON.stringify(attempt));
-        timer = setTimeout(() => stopIsolation(new Error('StartupFailed: navigation-to-usable exceeded five seconds.')),
+        timer = setTimeout(() => stopIsolation(new Error('StartupFailed: isolation handshake exceeded five seconds.')),
             Math.max(0, deadline - navigationTime()));
         navigator.serviceWorker.addEventListener('controllerchange', changedController);
         const registration = await bounded(navigator.serviceWorker.register(script.href,
@@ -123,17 +124,18 @@ export async function prepareIsolation(displayFailure) {
             location.reload();
             return false;
         }
+        sessionStorage.removeItem(markerKey);
         phase = Phase.booting;
+        clearTimeout(timer);
         return true;
     } catch (error) { stopIsolation(error); return false; }
 }
 export function requireIsolation() {
-    checkDeadlineUnlessQualified();
+    if (phase === Phase.waiting) checkDeadline();
     if ((phase !== Phase.booting && phase !== Phase.qualified) || !globalThis.crossOriginIsolated ||
         navigator.serviceWorker.controller !== controller)
         throw new Error('Workshop isolation policy is unavailable or changed.');
 }
-function checkDeadlineUnlessQualified() { if (phase !== Phase.qualified) checkDeadline(); }
 export function watchIsolation(callback) {
     requireIsolation();
     if (retire) throw new Error('Workshop isolation already has a transport owner.');
@@ -142,7 +144,7 @@ export function watchIsolation(callback) {
 }
 export function isolationQualified() {
     requireIsolation();
-    sessionStorage.removeItem(markerKey);
+    navigationToUsableMilliseconds ??= navigationTime() - (deadline - 5000);
     phase = Phase.qualified;
     clearTimeout(timer);
     resolveQualified();
@@ -150,5 +152,6 @@ export function isolationQualified() {
 export function waitForQualification() { return qualification; }
 export function isolationEvidence() {
     return { policyVersion, phase, isolated: globalThis.crossOriginIsolated === true,
-        controlled: navigator.serviceWorker.controller === controller, scope: scope.href };
+        controlled: navigator.serviceWorker.controller === controller, scope: scope.href,
+        navigationToUsableMilliseconds };
 }
