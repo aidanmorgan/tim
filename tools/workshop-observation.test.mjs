@@ -7,12 +7,13 @@ import { MessagePort } from 'node:worker_threads';
 const source = await readFile('CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
 for (const captureMode of [1, 2]) {
     let imports, flushes = 0, release, throwOutput = false;
-    const messages = [];
+    const messages = [], stallStates = [];
     const host = {
-        OperationAbi: () => [0, 1], StateBytes: () => 18064, ScheduleRoles: () => [1, 2],
+        OperationAbi: () => [0, 1], StateBytes: () => 18576, ScheduleRoles: () => [1, 2],
         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
         Dispatch: async () => { await new Promise(resolve => { release = resolve; }); },
-        FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); }
+        FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); },
+        SetReliableStall: value => stallStates.push(value)
     };
     const runtime = {
         setModuleImports: (_, methods) => { imports = methods; },
@@ -94,7 +95,12 @@ for (const captureMode of [1, 2]) {
     release();
     await reset;
     assert.equal(flushes, 3, 'acknowledgement-only Reset announces sealed observation');
+    await self.onmessage({ data: { reliableStalled: true } });
+    await self.onmessage({ data: { reliableStalled: false } });
+    assert.deepEqual(stallStates, [true, false], 'actual worker forwards current boolean state');
     imports.dispose();
+    await self.onmessage({ data: { reliableStalled: true } });
+    assert.deepEqual(stallStates, [true, false], 'disposed worker cannot update stall state');
     console.log(JSON.stringify({ captureMode, passed: true, controls: ['pending', 'staleReceipt',
-        'queuedTerminal', 'activeCommand', 'matchingReceipt', 'duplicateReceipt', 'outputFailure', 'ordinaryReadNoExport', 'acknowledgementOnlyReset', 'dispose'] }));
+        'queuedTerminal', 'activeCommand', 'matchingReceipt', 'duplicateReceipt', 'outputFailure', 'ordinaryReadNoExport', 'acknowledgementOnlyReset', 'currentReliableStall', 'dispose'] }));
 }

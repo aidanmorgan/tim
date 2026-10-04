@@ -73,6 +73,8 @@ Planned order: **Basketball drop/Reset → Receiver capture feedback → finish 
 
 **True prerequisites:** ball-drop, basket-capture, the existing Ramp declaration/affine contact and canonical source fixture values, plus only the Captured goal's named-body/event and once-only success feedback. Save is needed only for this level's save acceptance; switch/lamp is not a prerequisite.
 
+**Current playable mode:** manual ramp placement. Preserve the authored assistance and precision data, including future contact-bearing ramp nudging, but report physical nudging unsupported in this mode. Do not substitute cosmetic correction or teleport physical ramps. Receiver guide/capture behavior at the authored knots remains part of this slice; later shared prescribed-motion work must deliver physical ramp nudging.
+
 **Acceptance:** successful two-ramp path; misaligned/missing ramp, wrong-body and too-short/too-fast capture controls; actual typed placements/goal identity, once-only Solved transition and visible success feedback, exact Reset/save and the receiver's actual authored assistance knots at 0, 0.45 and 1, including the declared guide force and capture margin/speed/dwell at each knot without moving physical walls. The goal cannot pass from mere overlap or a native reference solution. Existing per-instance FIX rows remain separately identifiable.
 
 **Estimate/stop:** one already authored level and one new-to-the-GPU contact orientation family. No all-level difficulty sweep, new hints or reward redesign. Keep the approved visible style.

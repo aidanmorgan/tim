@@ -7,10 +7,10 @@
     "independentReviewer": "/root/p025_review",
     "identityNote": "Distinct retained role instances in the root collaboration tree. Reviewer resumed under this canonical role; role continuity does not assert an older process remained alive. No opaque process identity was exposed. Reviewer made review-only evidence writes."
   },
-  "verdict": "SnapshotApproval",
+  "verdict": "Pass",
   "prepublicationVerdict": "Pass",
   "unresolvedFindings": [],
-  "scope": "Current playable criteria under docs/delivery-workflow.md#playable-first; this is neither deployed completion nor full engine/device/performance qualification.",
+  "scope": "Terminal scoped playable Source/Native/Chrome/publication Pass under docs/delivery-workflow.md#playable-first. No full engine/device/performance qualification.",
   "contracts": [
     "docs/planning/invest/vertical-delivery.md#construction-save",
     "docs/engine-contracts.md",
@@ -409,5 +409,92 @@
     "Verify actual deployed current bundle/source mapping and relevant asset identities using existing Pages workflow.",
     "At deployed origin exercise genuine Save→edit→Load→Run/capture→Reset and meaningful Running Save control; record deployed lifecycle/errors and terminal playable verdict."
   ],
-  "approval": "Implementation may now commit/push/deploy the exact candidate. No deliverable/source edits are authorized by this review. Changed relevant inputs invalidate affected approval. Completion and next dependent slice await the publication-dependent checks."
+  "approval": "Approved candidate and three independently reviewed forward fixes are committed and deployed. All named publication-dependent gameplay and identity checks pass; next manual First principles slice may proceed.",
+  "prepublicationApproval": "Implementation may now commit/push/deploy the exact candidate. No deliverable/source edits are authorized by this review. Changed relevant inputs invalidate affected approval. Completion and next dependent slice await the publication-dependent checks.",
+  "publication": {
+    "verdict": "Pass",
+    "commit": "a0153a45db688e8d22b67c5036fbcdab7d2f380f",
+    "origin": "https://aidanmorgan.github.io/tim/",
+    "run": 37168599707,
+    "runUrl": "https://github.com/aidanmorgan/tim/actions/runs/37168599707",
+    "ciArtifact": "ci-artifact-37168599707.json",
+    "raw": {
+      "path": "publication-checks-20261004.raw.json",
+      "originals": 23,
+      "bytes": 1150404,
+      "sha256": "538b66c0c83fdf707c9ee465534d54258ff33610697374751d17ca27a892bfa0",
+      "encoding": "Lossless gzip/base64 of exact original tool-result JSON UTF-8, including failed attempts, screenshots, commands and results.",
+      "gate": "Permitted pre-write warn/partialScan=true for compressed non-secret evidence high-entropy string; not a full clean pre-write scan."
+    },
+    "remote": "Original4396b2 verifies origin/main a0153a45 and263 frozen candidate inputs with only explicitly approved build/client/isolation/contract deltas. Remaining brief and concise receipts independently reviewed as truthful status updates; no unexpected runtime drift.",
+    "forwardFixes": [
+      {
+        "commit": "e5e1237590f0a40d48670e27a8c88ed2fb9fb29d",
+        "finding": "Clean CI publish lacked worker project.assets.json; original run37166626959 Failed after native Pass.",
+        "change": "Two separate Restore tasks before unchanged worker bundle targets; identical properties/no Restore output contamination.",
+        "approval": "Independent source7fc363/d09c0a plus owner's absent-assets normal publishc55c21; approved before commit.",
+        "receipt": "build-restore-fix-20261004.json"
+      },
+      {
+        "commit": "fae217d34c11687975a33035f4876a76ee2969fc",
+        "finding": "Two actual fresh deployed loads on e5e1237 killed still-loading game at navigation5s; one hash-observed and one plain no-wrapper control.",
+        "change": "Retire completed isolation timer and persisted attempt marker; preserve5s isolation handshake, controller fail-closed behavior and one reload.",
+        "approval": "Independent6/6 actual-module controls58b1c2, local actual startup/reload and source review; approved before commit.",
+        "receipt": "startup-boundary-fix-20261004.json"
+      },
+      {
+        "commit": "a0153a45db688e8d22b67c5036fbcdab7d2f380f",
+        "finding": "Two actual fresh deployed loads on fae217d hit client5s timer while runtime loading was included; exact stage varied, no exclusive serial-download attribution.",
+        "change": "Load both workers concurrently; arm unchanged5000ms GPU/clock deadline only after both source-proved managed-ready envelopes. Preserve S master/A owned peer+port; reject premature/duplicate events. Reviewer found and owner fixed premature A output before consumer delivery.",
+        "approval": "Independent29/29 actual-source controls9ab97f, actual local startup/reload/Run/capture/Reset and exact source hashes; approved before commit.",
+        "receipt": "concurrent-runtime-startup-20261004.json"
+      }
+    ],
+    "identity": {
+      "commit": "a0153a45db688e8d22b67c5036fbcdab7d2f380f",
+      "run": 37168599707,
+      "selected": 13,
+      "loadedResponses": 29,
+      "mismatches": [],
+      "missing": []
+    },
+    "gameplay": {
+      "recipe": "Fresh Chrome1440x900 at deployed origin; ordinary manual reload; shelfBall(128,154)→place(720,485); shelfReceiver(128,205)→place(720,485); menu(1392,45) Save(1056,161); closemenu/DeleteReceiver; shelfReceiver→place(930,485); menu Load(1100,161); closemenu Run(687,836); capture; menu Save whileRunning; Reset(687,836). Read-only command/publication observation only; no gameplay setters or imported solution.",
+      "saveRevision": {
+        "before": "2",
+        "after": "3",
+        "epochSame": true,
+        "tickSame": true
+      },
+      "savedBytes": 312,
+      "canonicalLoadDifferences": [],
+      "canonicalResetDifferences": [],
+      "resetPhase": "Building",
+      "resetTick": 0,
+      "saveDuringRun": {
+        "commandCountBefore": 7,
+        "commandCountAfter": 7,
+        "durableBytesUnchanged": true
+      },
+      "capture": {
+        "tick": 43,
+        "bodyId": 1,
+        "sensorId": 4294967350,
+        "eventOrdinal": 168,
+        "latched": true
+      },
+      "acknowledgements": "All8 actual commands Applied, including exact Load/Run/Reset.",
+      "errors": [],
+      "cleanup": "Manual reload closed both prior workers; final owned context close retired both new workers; all4 closed."
+    },
+    "startup": {
+      "coldNavigationToUsableMs": 7715.349853515625,
+      "reloadNavigationToUsableMs": 1106.885009765625,
+      "functional": "Both reach qualified isolation, actual GPUReady and AnimationQualified; reload Ready, clearedmarker; no timeout or fake ready.",
+      "performance": "Cold7715.35ms exceeds unchanged≤5000ms target: retain Fail at P0-034. No startup optimization/qualification claim; detailed hardware/device performance remains deferred."
+    },
+    "applicableReuse": "Save wire/canonical schema/numerical law unchanged by build/startup fixes; earlier exact local negative/admission/storage/allocator proof remains applicable. Direct changed bootstrap/error/disposal and ordinary lifecycle proof rerun. Final deployed positive/control checks independently executed.",
+    "remainingPublicationChecks": [],
+    "next": "Manual First principles ramps with generic typed collection/shared force-driven guide/shared named Captured→Solved; no release qualification implied."
+  }
 }

@@ -12,6 +12,17 @@ function sequence(bytes) {
     if (!(bytes instanceof Uint8Array) || bytes.length < 8) throw new Error('Invalid command identity.');
     return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(0, true);
 }
+function updateReliableStall(client, current) {
+    let oldest = 0;
+    for (const pending of client.pending.values()) oldest = Math.max(oldest, current - pending.started);
+    for (const receipt of client.acknowledgements.values()) oldest = Math.max(oldest, current - receipt.started);
+    const stalled = oldest > 500;
+    if (stalled !== client.stalled) {
+        client.stalled = stalled;
+        client.worker.postMessage({ reliableStalled: stalled });
+    }
+    return oldest;
+}
 function fail(client, error, retiring = false) {
     if (client.failure) return;
     client.failure = error;
@@ -197,7 +208,7 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         const pending = client.pending.get(key);
                         if (!pending) throw new Error('Unexpected worker acknowledgement.');
                         client.pending.delete(key);
-                        client.acknowledgements.set(key, message.acknowledgement);
+                        client.acknowledgements.set(key, { bytes: message.acknowledgement, started: pending.started, taken: false });
                         pending.resolve();
                     } else if (message.memoryResult instanceof Uint8Array) {
                         receiveMemoryResult(client, message.memoryResult, received);
@@ -262,12 +273,10 @@ export function activate(id) {
             client.serviceCallback();
             if (!document.hidden && current - client.lastReply > 1000)
                 throw new Error('Worker fault: matching clock reply missing for 1000ms.');
-            let oldest = 0;
-            for (const pending of client.pending.values()) oldest = Math.max(oldest, current - pending.started);
+            const oldest = updateReliableStall(client, current);
             client.state = oldest > 2000 || client.candidateTimedOut ? client.states.timedOut
                 : oldest > 50 ? client.states.backpressure : client.states.ready;
-            if (oldest > 500 && !client.stalled) { client.stalled = true; client.worker.postMessage({ reliableStalled: true }); }
-            if (oldest === 0) client.stalled = false;
+
         } catch (error) { fail(client, error); }
     }, 10);
 }
@@ -448,10 +457,20 @@ export function send(id, bytes) {
 }
 export function acknowledgement(id, identity) {
     const client = owner(id), key = sequence(identity);
-    const bytes = client.acknowledgements.get(key);
-    if (!bytes) throw new Error('The command acknowledgement is not available.');
+    if (client.failure) throw client.failure;
+    const receipt = client.acknowledgements.get(key);
+    if (!receipt || receipt.taken) throw new Error('The command acknowledgement is not available.');
+    receipt.taken = true;
+    return receipt.bytes;
+}
+export function completeAcknowledgement(id, identity) {
+    const client = owner(id), key = sequence(identity);
+    if (client.failure) throw client.failure;
+    const receipt = client.acknowledgements.get(key);
+    if (!receipt?.taken) throw new Error('The command acknowledgement is not leased.');
+    // C# has validated the complete response and its command/session identity.
     client.acknowledgements.delete(key);
-    return bytes;
+    updateReliableStall(client, now());
 }
 export function dispose(id) {
     const client = clients.get(id);

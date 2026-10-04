@@ -10,7 +10,7 @@ public sealed class WorkshopSimulationTests
     private static WorkshopSimulation Create(ControlledDevice device, ControlledClock? clock = null, ControlledInstallation? installation = null) =>
         new(device, clock ?? new ControlledClock(), Settings, new(1), installation ?? new ControlledInstallation());
     private static WorkshopConstruction BallConstruction(ulong revision = 2) =>
-        new(new(revision), WorkshopInput.Basketball(new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1), Settings);
+        new(new(revision), Settings, new(WorkshopInput.Basketball(new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
 
     [Fact]
     public async Task SaveChangesRevisionOnceWithoutChangingWorldOrDispatchingGpu()

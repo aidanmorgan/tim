@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopSaveVersion : uint { CanonicalConstruction = 1 }
+public enum WorkshopSaveVersion : uint { CanonicalConstruction = 2 }
 public readonly record struct WorkshopSavedConstruction(WorkshopConstruction Construction, GpuBodyId NextBodyId);
 
 /// <summary>Construction-only storage boundary; shares the canonical declaration codec with GPU admission.</summary>
@@ -41,9 +41,10 @@ public static class WorkshopSaveCodec
     private static void Validate(WorkshopSavedConstruction save)
     {
         save.Construction.Validate();
-        if (save.NextBodyId.Value == 0 ||
-            (save.Construction.Ball is { } ball && save.NextBodyId.Value <= ball.Id.Value) ||
-            (save.Construction.Receiver is { } receiver && save.NextBodyId.Value <= receiver.Id.Value))
+        if (save.NextBodyId.Value == 0)
             throw new ArgumentException("Saved construction allocator is invalid.");
+        foreach (var instance in save.Construction.Instances)
+            if (save.NextBodyId.Value <= instance.Id.Value)
+                throw new ArgumentException("Saved construction allocator is invalid.");
     }
 }

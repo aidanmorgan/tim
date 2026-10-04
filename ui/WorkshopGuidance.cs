@@ -410,11 +410,19 @@ public partial class Workshop
                 GetViewport().SetInputAsHandled();
                 return;
             }
-            if (input is InputEventMouseMotion rotate && _rotationGizmo.Drag(_camera, rotate.Position, rotate.ShiftPressed))
+            if (input is InputEventMouseMotion rotate)
             {
-                
-                GetViewport().SetInputAsHandled();
-                return;
+                try
+                {
+                    if (_rotationGizmo.Drag(_camera, rotate.Position, rotate.ShiftPressed))
+                    { GetViewport().SetInputAsHandled(); return; }
+                }
+                catch (ArgumentException error)
+                {
+                    EndGizmo(true);
+                    _status.Text = "Placement unchanged: " + error.Message;
+                    GetViewport().SetInputAsHandled(); return;
+                }
             }
             if (input is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: false })
             {

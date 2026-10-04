@@ -109,7 +109,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void HideAndFreeModeSelectionCancelRevealAndRestoreBaseline()
+    public void HideRestoresBaselineAndUnadmittedModeSelectionPreservesReveal()
     {
         var scene = Scene();
         try
@@ -126,12 +126,17 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
             scene._Process(QuarterDuration);
             Assert.Equal(.103515625f, hint.Modulate.A);
             var picker = Control<OptionButton>(scene, WorkshopAnimationControl.LevelPicker);
-            picker.EmitSignal(OptionButton.SignalName.ItemSelected, 1);
-            Assert.False(hint.IsVisibleInTree());
-            Assert.Equal(1, hint.Modulate.A);
+            var construction = scene.World.Construction;
+            var selected = picker.Selected;
+            // This fixture owns hint samples only, with no admitted gameplay session.
+            // A mode change now requires an atomic canonical construction command.
+            picker.EmitSignal(OptionButton.SignalName.ItemSelected, 0);
+            Assert.Equal(selected, picker.Selected);
+            Assert.Equal(construction, scene.World.Construction);
+            Assert.True(hint.IsVisibleInTree());
+            Assert.Equal(.103515625f, hint.Modulate.A);
             scene._Process(QuarterDuration);
-            Assert.Equal(1, hint.Modulate.A);
-            Reveal(scene);
+            Assert.Equal(.103515625f, hint.Modulate.A);
             Publish((Half).5);
             scene._Process(QuarterDuration * 2);
             Assert.Equal(.5f, hint.Modulate.A);
@@ -221,6 +226,77 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void CommittedBuildingClearsSolvedWithEitherAcknowledgementOrder(bool acknowledgementFirst)
+    {
+        var scene = Scene();
+        try
+        {
+            var solved = Control<Label>(scene, WorkshopAnimationControl.Solved);
+            solved.Visible = true;
+            SetSceneField(scene, "_solvedPresentationEpoch", new SimulationEpoch(1));
+            SetSceneField(scene, "_displayedWorkshopPhase", WorkshopSimulationPhase.Running);
+            // Native projection boundary only: actual command/cursor ownership is tested separately.
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            if (acknowledgementFirst) InvokeScene(scene, "ResetUiAnimations");
+            InvokeScene(scene, "ReconcileCommittedUi");
+            Assert.False(solved.Visible);
+            Assert.Equal(default, SceneField<SimulationEpoch>(scene, "_solvedPresentationEpoch"));
+            InvokeScene(scene, "ReconcileCommittedUi");
+            Assert.False(solved.Visible);
+        }
+        finally { Release(scene); }
+    }
+
+    [Fact]
+    public void BuildingGoalCleanupPreservesHintsAndStaleResetCannotClearNewRunningGoal()
+    {
+        var scene = Scene();
+        try
+        {
+            var hint = Reveal(scene); Publish((Half).5); scene._Process(0);
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
+            SetSceneField(scene, "_displayedWorkshopPhase", WorkshopSimulationPhase.Building);
+            InvokeScene(scene, "ReconcileCommittedUi");
+            InvokeScene(scene, "ReconcileCommittedUi");
+            Assert.True(hint.Visible); Assert.Equal(.5f, hint.Modulate.A);
+            var solved = Control<Label>(scene, WorkshopAnimationControl.Solved);
+            solved.Visible = true; SetSceneField(scene, "_solvedPresentationEpoch", new SimulationEpoch(2));
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Running);
+            // The valid older Reset ACK is inapplicable; its finally reconciles the newer committed phase.
+            InvokeScene(scene, "ReconcileCommittedUi");
+            Assert.True(solved.Visible);
+            Assert.Equal(new SimulationEpoch(2), SceneField<SimulationEpoch>(scene, "_solvedPresentationEpoch"));
+        }
+        finally { Release(scene); }
+    }
+
+    [Fact]
+    public void GoalCleanupPrecedesAnUnavailableHintTransport()
+    {
+        var scene = Scene();
+        try
+        {
+            var solved = Control<Label>(scene, WorkshopAnimationControl.Solved); solved.Visible = true;
+            SetSceneField(scene, "_solvedPresentationEpoch", new SimulationEpoch(1));
+            _client.RejectHint = true;
+            Assert.Throws<System.Reflection.TargetInvocationException>(() => InvokeScene(scene, "ResetUiAnimations"));
+            Assert.False(solved.Visible);
+            Assert.Equal(default, SceneField<SimulationEpoch>(scene, "_solvedPresentationEpoch"));
+            _client.RejectHint = false;
+        }
+        finally { _client.RejectHint = false; Release(scene); }
+    }
+
+    private static void InvokeScene(Workshop scene, string method) => typeof(Workshop).GetMethod(method,
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(scene, null);
+    private static void SetSceneField<T>(Workshop scene, string field, T value) => typeof(Workshop).GetField(field,
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.SetValue(scene, value);
+    private static T SceneField<T>(Workshop scene, string field) => (T)typeof(Workshop).GetField(field,
+        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(scene)!;
+
     private sealed class HintReadClient : IWorkshopClient
     {
         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
@@ -231,10 +307,12 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
         public WorkshopHintSample? Next;
         public ulong Pulse;
         public bool Disposed;
+        public bool RejectHint;
         public Func<float> ReadOpacity = null!;
         private Half _consumed;
         public void ControlHint(HintControlKind kind, bool visible)
         {
+            if (RejectHint) throw new InvalidOperationException("An animation control is pending.");
             Assert.True(Enum.IsDefined(kind));
             if (kind is HintControlKind.Hide or HintControlKind.Reveal) Next = null;
         }

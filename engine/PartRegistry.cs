@@ -19,13 +19,18 @@ public sealed class PartRegistry
         var receiver = ResourceLoader.Load<PartDefinition>("res://parts/catalog/basket.tres");
         if (receiver is null || receiver.Scene is null || receiver.WorkshopKind != WorkshopPartKind.Receiver || receiver.Parameters.Count != 0)
             throw new ArgumentException("Canonical Receiver resource is invalid.");
+        var ramp = ResourceLoader.Load<PartDefinition>("res://parts/catalog/ramp.tres");
+        if (ramp is null || ramp.Scene is null || ramp.WorkshopKind != WorkshopPartKind.Ramp ||
+            ramp.Ramp is null || ramp.Parameters.Count != 0) throw new ArgumentException("Canonical Ramp resource is invalid.");
+        ramp.Ramp.Capture();
         _definitions.Clear();
         _definitions.Add(WorkshopPartKind.Basketball, ball);
         _definitions.Add(WorkshopPartKind.Receiver, receiver);
+        _definitions.Add(WorkshopPartKind.Ramp, ramp);
     }
     public MachinePart Create(WorkshopPartKind kind)
     {
-        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver) || !_definitions.TryGetValue(kind, out var definition))
+        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp) || !_definitions.TryGetValue(kind, out var definition))
             throw new ArgumentException("This catalogue part is not supported by the current GPU Workshop.");
         var part = definition.Scene.Instantiate<MachinePart>();
         try { part.Configure(definition); return part; }

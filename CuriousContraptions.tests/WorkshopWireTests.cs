@@ -322,8 +322,7 @@ public sealed class WorkshopWireTests
         var candidate = cursor.PrepareAcknowledgement(command, response, order, disposed);
         cursor.Commit(candidate); return new(response, candidate.Applicable);
     }
-    private static WorkshopConstruction Construction => new(new(2),
-        WorkshopInput.Basketball(new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1), Settings);
+    private static WorkshopConstruction Construction => new(new(2), Settings, new(WorkshopInput.Basketball(new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
 
 
     [Fact]
@@ -493,7 +492,7 @@ public sealed class WorkshopWireTests
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction),
             WorkshopSimulationPhase.Building, read, Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
-        var proposed = current with { Revision = new(3), Ball = ball with { Cell = new(32, 64, 0) } };
+        var proposed = current.WithInstance(ball with { Cell = new(32, 64, 0) }) with { Revision = new(3) };
         BrowserWorkshopClient.ValidateCommandRead(response, proposed, current);
         Assert.Throws<ArgumentException>(() => BrowserWorkshopClient.ValidateCommandRead(
             response with { Result = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None) }, proposed, current));
@@ -615,7 +614,7 @@ public sealed class WorkshopWireTests
             Rotation = new(BitConverter.UInt16BitsToHalf(0x8000), (Half)0, (Half)0, (Half)1)
         };
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
-            new(0x30000000000001), new(1), Construction with { Ball = ball }, Session: Session, Cadence: new(1), Projection: new(1));
+            new(0x30000000000001), new(1), Construction.WithoutInstance(Construction.Ball!.Value.Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(command);
         Assert.Equal(bytes, WorkshopWire.Encode(WorkshopWire.DecodeCommand(bytes)));
     }
@@ -635,7 +634,7 @@ public sealed class WorkshopWireTests
 
 
     private static PhysicsSceneDeclaration GenericScene => WorkshopPhysicsCompiler.Compile(
-        Construction with { Ball = Construction.Ball!.Value with { Id = new(1) } }, new(101, 206));
+        Construction.WithoutInstance(Construction.Ball!.Value.Id).WithInstance(Construction.Ball!.Value with { Id = new(1) }), new(101, 206));
     [Fact]
     public void AuthoredCompilerRejectsWideBodyIdentityWithoutChangingWireIdentityDomain()
     {
@@ -667,6 +666,58 @@ public sealed class WorkshopWireTests
         var reset = PhysicsGpuAbi.Admission(GenericScene, new(3), Profile);
         Assert.Equal(3UL, PhysicsGpuAbi.ReadDynamicBody(reset)!.Value.Body.Epoch);
         Assert.Equal(body.Rotation, PhysicsGpuAbi.ReadDynamicBody(reset)!.Value.Rotation);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(.45)]
+    [InlineData(1)]
+    public void GuideDeclarationPreservesAuthoredKnotsAndRejectsCandidateMutation(double precision)
+    {
+        var construction = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)precision));
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        Assert.Equal(1, scene.Guides.Length);
+        var guide = scene.Guides[0];
+        var knot = construction.Puzzle.ReceiverAssistance.Evaluate(construction.Puzzle.Precision);
+        Assert.Equal(construction.Puzzle.Goal.Body, guide.Target);
+        Assert.Equal(construction.Puzzle.Goal.Target, guide.Frame);
+        Assert.Equal(knot.GuideAcceleration, guide.MaximumAcceleration);
+        Assert.Equal(knot.CaptureMargin, guide.SupportMargin);
+        Assert.Equal(new MetreVector((Half)(-1.1), (Half).5, (Half)(-1.1)), guide.Minimum);
+        Assert.Equal(new MetreVector((Half)1.1, (Half)1.5, (Half)1.1), guide.Maximum);
+        var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
+        PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
+        Assert.Equal((uint)PhysicsStateVersion.GenericMechanical, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        Assert.Equal(1u, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(96)));
+        for (var offset = PhysicsGpuAbi.GuidesOffset; offset < PhysicsGpuAbi.MotionOffset; offset++)
+        {
+            var changed = (byte[])bytes.Clone(); changed[offset] ^= 1;
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, bytes, new(0)));
+        }
+    }
+
+    [Fact]
+    public void GuideAdmissionRejectsUnsupportedOrAmbiguousForceOwnership()
+    {
+        var scene = WorkshopPhysicsCompiler.Compile(FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)0)), new(1, 2));
+        var guide = scene.Guides[0];
+        PhysicsSceneDeclaration Replace(params PlanarGuideDeclaration[] values) => new(scene.Document, scene.NextIdentity,
+            scene.Bodies, scene.Colliders, scene.Materials, scene.Sensors, values);
+        Assert.Throws<ArgumentException>(() => Replace(guide with { MaximumAcceleration = new((Half)13) }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { SupportMargin = new(Half.NaN) }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { Frame = guide.Target }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { Target = guide.Frame }));
+        Assert.Throws<ArgumentException>(() => Replace(guide with { Target = new(99) }));
+        Assert.Throws<ArgumentException>(() => Replace(guide, guide with { Id = new(guide.Id.Value + 1) }));
+        var input = new[] { guide }; var copied = Replace(input); input[0] = default;
+        Assert.Equal(guide, copied.Guides[0]);
+        Assert.Empty(GenericScene.Guides.ToArray());
+        var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
+        foreach (var (offset, value) in new[] { (0, 3u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, 1u) })
+        {
+            var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(offset), value);
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBody(changed));
+        }
     }
 
     [Theory]
@@ -759,6 +810,42 @@ public sealed class WorkshopWireTests
         }
     }
 
+    [Fact]
+    public void ForceDrivenMotionSamplesItsDeclaredQuadraticAndValidatesLocalCertificate()
+    {
+        var state = GenericEndpoint(1, 0, (Half)0);
+        var body = PhysicsGpuAbi.ReadDynamicBody(state)!.Value.Body;
+        var bytes = state.AsSpan(PhysicsGpuAbi.MotionOffset).ToArray();
+        var seed = bytes.AsSpan(PhysicsMotionRead.HeaderBytes, PhysicsMotionRead.PieceBytes).ToArray();
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes, 4);
+        for (var index = 0; index < 4; index++)
+        {
+            var offset = PhysicsMotionRead.HeaderBytes + index * PhysicsMotionRead.PieceBytes;
+            seed.CopyTo(bytes, offset);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), (uint)PhysicsMotionKind.ForceDrivenQuadratic);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 4), (uint)index);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 8), (uint)index + 1);
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 12), (uint)index);
+            WriteHalf(bytes, offset + 88, (Half)32);
+            WriteHalf(bytes, offset + 104, (Half).5);
+            WriteHalf(bytes, offset + 106, (Half).002);
+            WriteHalf(bytes, offset + 108, (Half).00006103515625);
+        }
+        var motion = PhysicsMotionRead.Decode(bytes, body, new(1));
+        Assert.True(motion.TrySample(.5, out var pose));
+        Assert.Equal(0, pose.Cell.X);
+        Assert.Equal((Half)(16 * .5 * 32 * Math.Pow(.5 / 480, 2)), pose.Local.X);
+        foreach (var offset in new[] { 104, 106, 108 })
+        {
+            var changed = (byte[])bytes.Clone(); WriteHalf(changed, PhysicsMotionRead.HeaderBytes + offset, Half.NaN);
+            Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(changed, body, new(1)));
+        }
+        var missing = (byte[])bytes.Clone(); WriteHalf(missing, PhysicsMotionRead.HeaderBytes + 106, (Half)0);
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(missing, body, new(1)));
+        var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(unknown.AsSpan(PhysicsMotionRead.HeaderBytes), 4);
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(unknown, body, new(1)));
+    }
+
     public enum CanonicalPaddingRegion { UnusedBodies, UnusedSensors, UnusedMotion, BodyPadding, MotionPadding }
 
     [Theory]
@@ -838,7 +925,7 @@ public sealed class WorkshopWireTests
         Assert.Same(first, duplicate);
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(command with { Kind = WorkshopCommandKind.Run, Construction = null })));
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(command with { Epoch = new(2) })));
-        var different = command with { Construction = Construction with { Ball = null } };
+        var different = command with { Construction = Construction.WithoutInstance(Construction.Ball!.Value.Id) };
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(different)));
         bytes[16] ^= 1; // caller cannot change the retained identity after admission.
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(bytes));

@@ -271,7 +271,7 @@ public static partial class Program
     }
 
     [JSExport]
-    public static void ReliableStalled() => _reliableStalled = true;
+    public static void SetReliableStall(bool stalled) => _reliableStalled = stalled;
 
     [JSExport]
     public static void DeviceLost()

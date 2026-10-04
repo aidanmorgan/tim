@@ -11,8 +11,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     private static readonly RuntimeSessionId Session = new(0x20000000000001, ulong.MaxValue);
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
-    private static readonly WorkshopConstruction Construction = new(new(7),
-        WorkshopInput.Basketball(new(3), 0, 8.875, 0, 0, 0, 0, 1), Settings);
+    private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Basketball(new(3), 0, 8.875, 0, 0, 0, 0, 1)));
 
     private static byte[] Record(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile)
     {

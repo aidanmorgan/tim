@@ -28,22 +28,27 @@ struct ResidenceSensor {
     eventOrdinal: u32, eventPhase: f16, pad2: f16, pad3: vec2<u32>,
     pad4: array<vec4<u32>, 2>,
 }
+struct PlanarGuide {
+    id: vec2<u32>, frame: u32, targetBody: u32,
+    translation: vec4<f16>, rotation: vec4<f16>,
+    low: vec4<f16>, high: vec4<f16>, controls: vec4<f16>, pad: vec2<u32>,
+}
 struct MotionPiece {
     kind: u32, startOrdinal: u32, endOrdinal: u32, anchorOrdinal: u32,
     phases: vec4<f16>, bodyId: vec2<u32>,
     cell: vec3<i32>, pad0: u32,
     localDrag: vec4<f16>, rotation: vec4<f16>, velocity: vec4<f16>,
     angular: vec4<f16>, gravity: vec4<f16>, acceleration: vec4<f16>,
-    angularAcceleration: vec4<f16>, pad1: vec2<u32>, pad2: vec4<u32>,
+    angularAcceleration: vec4<f16>, forceError: vec4<f16>, pad2: vec4<u32>,
 }
 struct PhysicsState {
     version: u32, status: u32, failure: u32, bodyCount: u32,
     colliderCount: u32, materialCount: u32, sensorCount: u32, dynamicBody: u32,
     epoch: vec2<u32>, tick: vec2<u32>, cadence: u32, physical: u32,
     cadenceRevision: vec2<u32>, document: vec4<u32>, nextIdentity: vec2<u32>,
-    ordinal: u32, captures: u32, reserved: array<vec4<u32>, 2>,
+    ordinal: u32, captures: u32, guideCount: u32, reserved0: u32, reserved1: vec2<u32>, reserved2: vec4<u32>,
     bodies: array<RigidBody, 16>, colliders: array<Collider, 32>,
-    materials: array<Material, 16>, sensors: array<ResidenceSensor, 8>,
+    materials: array<Material, 16>, sensors: array<ResidenceSensor, 8>, guides: array<PlanarGuide, 8>,
 }
 // Preserve the ABI layout while excluding previous presentation output from Advance copies.
 struct PhysicsWorld {
@@ -59,11 +64,12 @@ struct ShapeQuery {
 }
 struct SurfacePair { failure: u32, restitution: f16, threshold: f16, friction: f16 }
 struct VelocityResult { failure: u32, velocity: vec3<f16>, angular: vec3<f16> }
-struct MotionCurve { body: RigidBody, supported: bool, acceleration: vec3<f16>, angularAcceleration: vec3<f16> }
+struct MotionCurve { body: RigidBody, supported: bool, forceDriven: bool, acceleration: vec3<f16>, angularAcceleration: vec3<f16>, accelerationError: f16, eventVelocityError: f16, eventPositionError: f16 }
 
 @group(0) @binding(0) var<storage, read> committed: PhysicsWorld;
 @group(0) @binding(1) var<storage, read_write> candidate: PhysicsWorld;
 var<private> sensorOperations: array<u32, 8>;
+var<private> guideOperations: array<u32, 8>;
 
 const NO_BODY: u32 = 0xffffffffu;
 const PHASE_SCALE: f16 = 4096h;
@@ -136,9 +142,15 @@ fn multiply_rotation(a: vec4<f16>, b: vec4<f16>) -> vec4<f16> {
 fn rotation_at(q0: vec4<f16>, omega: vec3<f16>, elapsed: f16) -> vec4<f16> {
     let speed = length3(omega);
     if (speed == 0h || elapsed == 0h) { return q0; }
-    if (!(speed >= 0.00006103515625h && speed <= 64h && elapsed <= 2h)) { fail(FAILURE_DOMAIN); return q0; }
-    let halfAngle = speed * elapsed * 0.5h;
-    let turn = vec4<f16>((omega / speed) * sin(halfAngle), cos(halfAngle));
+    if (!(speed >= 0h && speed <= 64h && elapsed <= 2h)) { fail(FAILURE_DOMAIN); return q0; }
+    // The continuous small-angle limit avoids dividing by a subnormal speed.
+    // With speed < 2^-14 and elapsed <= 2, halfAngle < 2^-14: omitted cosine
+    // and sine terms are below 2^-29 and 4e-14 respectively. Angular state is unchanged.
+    var turn = vec4<f16>(omega * (elapsed * 0.5h), 1h);
+    if (speed >= 0.00006103515625h) {
+        let halfAngle = speed * elapsed * 0.5h;
+        turn = vec4<f16>((omega / speed) * sin(halfAngle), cos(halfAngle));
+    }
     let q = multiply_rotation(turn, q0);
     let squared = dot(q, q);
     if (!(squared >= 0.98h && squared <= 1.02h)) { fail(FAILURE_ARITHMETIC); return q0; }
@@ -170,7 +182,7 @@ fn curve_query(curve: MotionCurve, ordinal: u32, phase: f16) -> MotionQuery {
         !(k >= 0h && k <= 0.125h)) { return query_failure(FAILURE_DOMAIN); }
     var acceleration = gravity(body) - k * velocity0;
     var x = k * elapsed;
-    if (curve.supported) {
+    if (curve.supported || curve.forceDriven) {
         if (elapsed > 0.0020847320556640625h || !finite3(curve.acceleration) ||
             length3(curve.acceleration) > 64h || !finite3(curve.angularAcceleration) ||
             length3(curve.angularAcceleration / 16h) > 64h) { return query_failure(FAILURE_DOMAIN); }
@@ -180,7 +192,11 @@ fn curve_query(curve: MotionCurve, ordinal: u32, phase: f16) -> MotionQuery {
         x * (-0.008331298828125h + x * 0.0013885498046875h)));
     let d = 1h + x * (-0.5h + x * (0.1666259765625h +
         x * (-0.041656494140625h + x * 0.008331298828125h)));
-    let displacement = velocity0 * elapsed + acceleration * (elapsed * elapsed * p);
+    var displacement = velocity0 * elapsed + acceleration * (elapsed * elapsed * p);
+    if (curve.forceDriven) {
+        let u = (f16(whole) + fraction) / (PHYSICAL_RATE / 32h);
+        displacement = (velocity0 * u) * 0.03125h + ((acceleration * u) * u) * 0.00048828125h;
+    }
     let velocity = velocity0 + acceleration * (elapsed * d);
     if (!finite3(displacement) || !finite3(velocity) || length3(velocity) > 64h) {
         return query_failure(FAILURE_DOMAIN);
@@ -200,7 +216,7 @@ fn curve_query(curve: MotionCurve, ordinal: u32, phase: f16) -> MotionQuery {
         rotation_at(body.segmentRotation, body.segmentAngular.xyz + curve.angularAcceleration * (elapsed * 0.5h), elapsed));
 }
 fn motion(body: RigidBody, ordinal: u32, phase: f16) -> MotionQuery {
-    return curve_query(MotionCurve(body, false, vec3<f16>(0h), vec3<f16>(0h)), ordinal, phase);
+    return curve_query(MotionCurve(body, false, false, vec3<f16>(0h), vec3<f16>(0h), 0h, 0h, 0h), ordinal, phase);
 }
 fn relative_point(point: MotionQuery, frame: RigidBody) -> vec3<f16> {
     // Integer subtraction precedes narrowing; absolute world positions never supply a small gap.
@@ -423,6 +439,159 @@ fn vector_inverse_rotate(q: vec4<f16>, v: VectorRange) -> VectorRange {
     let turn = vector_add(vector_scale(first, range_value(q.w)), vector_cross(-q.xyz, first));
     return vector_add(v, vector_scale(turn, factor));
 }
+
+
+fn guide_divide_bounds(numerator: f16, denominator: f16) -> ScalarRange {
+    if (!(denominator >= 0.00006103515625h && denominator <= 16384h)) {
+        fail(FAILURE_ARITHMETIC); return range_value(0h);
+    }
+    if (numerator == 0h) { return range_value(0h); }
+    let approximate = numerator / denominator;
+    var result = ScalarRange(approximate, approximate);
+    for (var attempt = 0u; attempt < 32u; attempt++) {
+        let lower = range_multiply(range_value(result.lo), range_value(denominator));
+        let upper = range_multiply(range_value(result.hi), range_value(denominator));
+        let lowReady = lower.hi <= numerator; let highReady = upper.lo >= numerator;
+        if (lowReady && highReady) { return result; }
+        if (!lowReady) { result.lo = range_lower(result.lo); }
+        if (!highReady) { result.hi = range_upper(result.hi); }
+    }
+    fail(FAILURE_ARITHMETIC); return result;
+}
+fn guide_root_bounds(value: f16) -> ScalarRange {
+    // Only radial lengths above one need sqrt; avoid subnormal reciprocal domains.
+    if (!(value >= 1h && value <= 1024h)) { fail(FAILURE_DOMAIN); return range_value(1h); }
+    let approximate = sqrt(value);
+    var result = ScalarRange(approximate, approximate);
+    for (var attempt = 0u; attempt < 32u; attempt++) {
+        let lower = range_multiply(range_value(result.lo), range_value(result.lo));
+        let upper = range_multiply(range_value(result.hi), range_value(result.hi));
+        let lowReady = lower.hi <= value; let highReady = upper.lo >= value;
+        if (lowReady && highReady) { return result; }
+        if (!lowReady) { result.lo = down_positive(result.lo); }
+        if (!highReady) { result.hi = up_nonnegative(result.hi); }
+    }
+    fail(FAILURE_ARITHMETIC); return result;
+}
+fn guide_rotation_bounds(q: vec4<f16>, value: VectorRange) -> VectorRange {
+    if (all(q.xyz == vec3<f16>(0h))) { return value; }
+    var norm = range_value(0h);
+    for (var axis = 0u; axis < 4u; axis++) {
+        norm = range_add(norm, range_multiply(range_value(q[axis]), range_value(q[axis])));
+    }
+    let factor = ScalarRange(guide_divide_bounds(2h,norm.hi).lo, guide_divide_bounds(2h,norm.lo).hi);
+    let first = vector_cross(-q.xyz,value);
+    return vector_add(value,vector_scale(vector_add(vector_scale(first,range_value(q.w)),
+        vector_cross(-q.xyz,first)),factor));
+}
+
+// Force samples retain the enclosure of the authored continuous law through every
+// Half operation. This is an error certificate, not a second numerical state.
+struct GuideForceSample { acceleration: vec3<f16>, enclosure: VectorRange }
+struct GuideMidpoint { enabled: bool, acceleration: vec3<f16>, error: f16 }
+fn guide_point(q: MotionQuery, guide: PlanarGuide) -> vec3<f16> {
+    let frame = candidate.state.bodies[guide.frame];
+    return inverse_rotate(guide.rotation, inverse_rotate(frame.rotation, relative_point(q, frame)) - guide.translation.xyz);
+}
+fn guide_velocity(q: MotionQuery, guide: PlanarGuide) -> vec3<f16> {
+    return inverse_rotate(guide.rotation, inverse_rotate(candidate.state.bodies[guide.frame].rotation, q.velocity));
+}
+fn guide_point_range(q: MotionQuery, guide: PlanarGuide) -> VectorRange {
+    let frame = candidate.state.bodies[guide.frame];
+    let cells = q.cell - frame.cell;
+    if (any(abs(cells) > vec3<i32>(2048))) { fail(FAILURE_DOMAIN); return vector_value(vec3<f16>(0h)); }
+    let local = vector_add(vector_value(q.local), vector_value(-frame.local.xyz));
+    let point = vector_scale(vector_add(vector_value(vec3<f16>(cells)), local), range_value(0.0625h));
+    return guide_rotation_bounds(guide.rotation, vector_add(
+        guide_rotation_bounds(frame.rotation, point), vector_value(-guide.translation.xyz)));
+}
+fn guide_inside(q: MotionQuery, guide: PlanarGuide, radius: f16) -> bool {
+    let p = guide_point(q, guide);
+    return guide.controls.x > 0h && all(p >= guide.low.xyz) && all(p <= guide.high.xyz) &&
+        p.y - radius >= guide.controls.y - guide.controls.z && guide_velocity(q, guide).y <= 0h;
+}
+fn guide_departing(q: MotionQuery, guide: PlanarGuide, radius: f16, acceleration: vec3<f16>) -> bool {
+    let p = guide_point(q, guide); let v = guide_velocity(q, guide);
+    let a = inverse_rotate(guide.rotation, inverse_rotate(candidate.state.bodies[guide.frame].rotation, acceleration));
+    for (var axis = 0u; axis < 3u; axis++) {
+        let outwardLow = v[axis] < 0h || (v[axis] == 0h && a[axis] < 0h);
+        let outwardHigh = v[axis] > 0h || (v[axis] == 0h && a[axis] > 0h);
+        if ((p[axis] == guide.low[axis] && outwardLow) || (p[axis] == guide.high[axis] && outwardHigh)) { return true; }
+    }
+    if (p.y - radius == guide.controls.y - guide.controls.z && (v.y < 0h || (v.y == 0h && a.y < 0h))) { return true; }
+    return v.y == 0h && a.y > 0h;
+}
+fn guide_force(local: vec3<f16>, enclosed: VectorRange, guide: PlanarGuide) -> GuideForceSample {
+    let flat = vec3<f16>(local.x, 0h, local.z);
+    let nominal = -flat * (guide.controls.x / max(1h, length3(flat)));
+    var radial = enclosed; radial.lo.y = 0h; radial.hi.y = 0h;
+    var squared = range_value(0h);
+    for (var axis = 0u; axis < 3u; axis += 2u) {
+        let value = ScalarRange(radial.lo[axis], radial.hi[axis]);
+        var square = range_multiply(value, value); square.lo = max(0h, square.lo);
+        squared = range_add(squared, square);
+    }
+    var denominator = range_value(1h);
+    if (squared.lo > 1h) { denominator.lo = max(1h,guide_root_bounds(squared.lo).lo); }
+    if (squared.hi > 1h) { denominator.hi = max(1h,guide_root_bounds(squared.hi).hi); }
+    let scale = ScalarRange(guide_divide_bounds(-guide.controls.x,denominator.lo).lo,
+        guide_divide_bounds(-guide.controls.x,denominator.hi).hi);
+    let localRange = vector_scale(radial, scale);
+    let frameRotation = candidate.state.bodies[guide.frame].rotation;
+    let enclosedWorld = guide_rotation_bounds(vec4<f16>(-frameRotation.xyz, frameRotation.w),
+        guide_rotation_bounds(vec4<f16>(-guide.rotation.xyz, guide.rotation.w), localRange));
+    return GuideForceSample(rotate(frameRotation, rotate(guide.rotation, nominal)), enclosedWorld);
+}
+fn guide_midpoint(body: RigidBody, initial: MotionQuery, ordinal: u32, phase: f16, radius: f16) -> GuideMidpoint {
+    let base = gravity(body) - body.massDragGravityXY.y * initial.velocity;
+    var result = GuideMidpoint(false, base, 0h);
+    for (var index = 0u; index < candidate.state.guideCount; index++) {
+        let guide = candidate.state.guides[index];
+        if (guide.targetBody != candidate.state.dynamicBody || !guide_inside(initial, guide, radius) ||
+            guide_departing(initial, guide, radius, base)) { continue; }
+        let point = guide_point(initial, guide); let pointRange = guide_point_range(initial, guide);
+        let first = guide_force(point, pointRange, guide);
+        let drag = range_value(body.massDragGravityXY.y);
+        let initialAcceleration = base + first.acceleration;
+        let initialRange = vector_add(vector_value(gravity(body)),
+            vector_add(first.enclosure, vector_scale(vector_value(-initial.velocity), drag)));
+        // hUnits=512*h stays normal across the complete physical phase lattice.
+        let hUnits = (PHASE_SCALE - phase) / (8h * PHYSICAL_RATE);
+        let phaseRange = range_subtract(range_value(PHASE_SCALE), range_value(phase));
+        let durationUnits = ScalarRange(max(0h,guide_divide_bounds(phaseRange.lo,8h * PHYSICAL_RATE).lo),
+            guide_divide_bounds(phaseRange.hi,8h * PHYSICAL_RATE).hi);
+        let time = range_multiply(durationUnits, range_value(0.0009765625h));
+        let halfTime = hUnits * 0.0009765625h;
+        let localVelocity = guide_velocity(initial, guide);
+        let velocityRange = guide_rotation_bounds(guide.rotation,
+            guide_rotation_bounds(candidate.state.bodies[guide.frame].rotation, vector_value(initial.velocity)));
+        let midpoint = point + localVelocity * halfTime;
+        let midpointRange = vector_add(pointRange, vector_scale(velocityRange, time));
+        let middle = guide_force(midpoint, midpointRange, guide);
+        let middleVelocity = initial.velocity + initialAcceleration * halfTime;
+        let middleVelocityRange = vector_add(vector_value(initial.velocity), vector_scale(initialRange, time));
+        let nominal = gravity(body) + middle.acceleration - body.massDragGravityXY.y * middleVelocity;
+        let enclosure = vector_add(vector_value(gravity(body)),
+            vector_add(middle.enclosure, vector_scale(middleVelocityRange, range_value(-body.massDragGravityXY.y))));
+        var arithmetic = 0h;
+        for (var axis = 0u; axis < 3u; axis++) {
+            arithmetic = up_nonnegative(arithmetic + up_nonnegative(max(
+                abs(nominal[axis] - enclosure.lo[axis]), abs(enclosure.hi[axis] - nominal[axis]))));
+        }
+        // |a|<=37, |v|<64.125, J<=776. Every retained subinterval is within h.
+        // The midpoint predictor's acceleration error is <=(12*37+.125*776)*h²/8.
+        // Use hUnits so the positive quadratic never relies on subnormal t*t.
+        let jerk = up_nonnegative(up_nonnegative(0.7578125h * durationUnits.hi));
+        let predictor = up_nonnegative(up_nonnegative(0.00025844573974609375h * durationUnits.hi) * durationUnits.hi);
+        let error = up_nonnegative(arithmetic + up_nonnegative(jerk + predictor));
+        if (!finite3(nominal) || length3(nominal) > 37h || !(error <= 4h)) {
+            fail(FAILURE_DOMAIN); return result;
+        }
+        result = GuideMidpoint(true, nominal, error);
+    }
+    return result;
+}
+
 fn clearance_endpoint(curve: MotionCurve, ordinal: u32, phase: f16,
     collider: Collider, radius: f16) -> f16 {
     let body = curve.body;
@@ -442,7 +611,10 @@ fn clearance_endpoint(curve: MotionCurve, ordinal: u32, phase: f16,
     var acceleration = vector_add(vector_value(gravity(body)),
         vector_scale(vector_value(-v0), range_value(body.massDragGravityXY.y)));
     var x = range_multiply(u, range_multiply(range_value(body.massDragGravityXY.y), range_value(0.03125h)));
-    if (curve.supported) { acceleration = vector_value(curve.acceleration); x = range_value(0h); }
+    if (curve.supported || curve.forceDriven) { acceleration = vector_value(curve.acceleration); x = range_value(0h); }
+    if (curve.forceDriven) {
+        acceleration = vector_add(acceleration, VectorRange(vec3<f16>(-curve.accelerationError), vec3<f16>(curve.accelerationError)));
+    }
     var polynomial = range_value(0.0013885498046875h);
     polynomial = range_add(range_value(-0.008331298828125h), range_multiply(x, polynomial));
     polynomial = range_add(range_value(0.041656494140625h), range_multiply(x, polynomial));
@@ -456,6 +628,10 @@ fn clearance_endpoint(curve: MotionCurve, ordinal: u32, phase: f16,
         vector_add(vector_value(-frame.local.xyz), displacement));
     if (any(abs(fine.lo) > vec3<f16>(128h)) || any(abs(fine.hi) > vec3<f16>(128h))) {
         return -65504h;
+    }
+    if (curve.eventPositionError > 0h) {
+        let error = up_nonnegative(curve.eventPositionError * 16h);
+        fine = vector_add(fine,VectorRange(vec3<f16>(-error),vec3<f16>(error)));
     }
     var coarse = vector_inverse_rotate(frame.rotation, vector_value(vec3<f16>(cells)));
     fine = vector_inverse_rotate(frame.rotation, fine);
@@ -542,16 +718,16 @@ fn collision(curve: MotionCurve, ordinal: u32, start: f16, end: f16,
         }
         let phaseWidth = interval.right - interval.left;
         let acceleration = select(gravity(curve.body) - curve.body.massDragGravityXY.y *
-            (curve.body.segmentVelocity.xyz * 32h), curve.acceleration, curve.supported);
-        let accelerationBound = up_nonnegative(length3(acceleration) * 1.03125h);
+            (curve.body.segmentVelocity.xyz * 32h), curve.acceleration, curve.supported || curve.forceDriven);
+        let accelerationBound = up_nonnegative(up_nonnegative(length3(acceleration) + curve.accelerationError) * 1.03125h);
         let accelerationDelta = up_nonnegative((phaseWidth / PHASE_SCALE) *
             up_nonnegative(accelerationBound / PHYSICAL_RATE));
         // Velocity is v0+a0*f(t), monotone f on the admitted force domain. End norms
         // plus this curve's interval acceleration/rounding allowance bound the interval.
         let localSpeed = min(SPEED_BOUND,
-            up_nonnegative(max(length3(a.velocity), length3(b.velocity)) * 1.03125h + accelerationDelta));
+            up_nonnegative(max(length3(a.velocity), length3(b.velocity)) * 1.03125h + accelerationDelta + curve.eventVelocityError));
         let scale = max(radius, max(abs(da.gap), abs(db.gap)));
-        let guard = up_nonnegative(scale * 0.0078125h);
+        let guard = up_nonnegative(up_nonnegative(scale * 0.0078125h) + curve.eventPositionError);
         let endpointLower = down_signed(max(da.gap, db.gap) - guard);
         // Even the global128U/s bound travels less than.267U per physical substep.
         if (endpointLower > 1h) { continue; }
@@ -582,7 +758,7 @@ fn collision(curve: MotionCurve, ordinal: u32, start: f16, end: f16,
                 // Free acceleration factor >= 1-x on x=k*t in[0,.25].
                 // Derive x from this interval; k=0 and supported curves are exactly one.
                 let drag = curve.body.massDragGravityXY.y;
-                if (!curve.supported && projected < 0h && drag > 0h) {
+                if (!curve.supported && !curve.forceDriven && projected < 0h && drag > 0h) {
                     let whole = i32(ordinal) - i32(curve.body.segmentOrdinal);
                     let fraction = (interval.right - curve.body.segmentLocalPhase.w) / PHASE_SCALE;
                     let elapsed = (f16(whole) + fraction) / PHYSICAL_RATE;
@@ -621,7 +797,7 @@ fn valid_header() -> bool {
     return candidate.state.version == STATE_VERSION && candidate.state.status == STATUS_COMMITTED &&
         candidate.state.failure == FAILURE_NONE && candidate.state.bodyCount <= BODY_CAPACITY &&
         candidate.state.colliderCount <= COLLIDER_CAPACITY && candidate.state.materialCount <= MATERIAL_CAPACITY &&
-        candidate.state.sensorCount <= SENSOR_CAPACITY && any(candidate.state.epoch != vec2<u32>(0u)) &&
+        candidate.state.sensorCount <= SENSOR_CAPACITY && candidate.state.guideCount <= GUIDE_CAPACITY && any(candidate.state.epoch != vec2<u32>(0u)) &&
         any(candidate.state.document != vec4<u32>(0u)) && any(candidate.state.cadenceRevision != vec2<u32>(0u)) &&
         candidate.state.physical == PHYSICAL_480 && steps(candidate.state.cadence) != 0u &&
         candidate.state.tick.y == 0u && candidate.state.tick.x <= 14400u / steps(candidate.state.cadence) &&
@@ -693,6 +869,22 @@ fn validate_scene() -> bool {
             !(s.controls.y >= 0.0009765625h && s.controls.y <= 30h) ||
             s.phase > RESIDENCE_QUALIFIED || s.sequence > 1u) { fail(FAILURE_DECLARATION); return false; }
     }
+    for (var i = 0u; i < candidate.state.guideCount; i++) {
+        let g = candidate.state.guides[i];
+        if (g.frame >= candidate.state.bodyCount || g.targetBody != candidate.state.dynamicBody ||
+            candidate.state.bodies[g.frame].motion != MOTION_STATIC || g.frame == g.targetBody ||
+            all(g.id == vec2<u32>(0u)) || !finite3(g.translation.xyz) || any(abs(g.translation.xyz) > vec3<f16>(16h)) ||
+            !(dot(g.rotation, g.rotation) >= 0.998h && dot(g.rotation, g.rotation) <= 1.002h) ||
+            !finite3(g.low.xyz) || !finite3(g.high.xyz) || any(g.low.xyz >= g.high.xyz) ||
+            any(abs(g.low.xyz) > vec3<f16>(16h)) || any(abs(g.high.xyz) > vec3<f16>(16h)) ||
+            !(g.controls.x >= 0h && g.controls.x <= 12h) ||
+            !(g.controls.y >= -16h && g.controls.y <= 16h) || !(g.controls.z >= 0h && g.controls.z <= 1h)) {
+            fail(FAILURE_DECLARATION); return false;
+        }
+        for (var j = 0u; j < i; j++) {
+            if (candidate.state.guides[j].targetBody == g.targetBody) { fail(FAILURE_DECLARATION); return false; }
+        }
+    }
     return candidate.state.failure == FAILURE_NONE;
 }
 
@@ -708,7 +900,7 @@ fn supported_collider(slot: u32, collider: u32) -> bool {
 }
 fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasticCollider: u32) -> MotionCurve {
     let original = candidate.state.bodies[slot];
-    var result = MotionCurve(original, false, vec3<f16>(0h), vec3<f16>(0h));
+    var result = MotionCurve(original, false, false, vec3<f16>(0h), vec3<f16>(0h), 0h, 0h, 0h);
     let initial = motion(original, ordinal, phase);
     if (initial.failure != FAILURE_NONE) { fail(initial.failure); return result; }
     candidate.state.bodies[slot].supportCount = 0u;
@@ -716,21 +908,34 @@ fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasti
     for (var i = 0u; i < 4u; i++) { candidate.state.bodies[slot].support[i] = ContactSlot(0u, 0u, 0h, 0h, 0h, 0h); }
     var normals: array<vec3<f16>, 4>;
     var surfaces: array<SurfacePair, 4>;
-    let acceleration = gravity(original) - original.massDragGravityXY.y * initial.velocity;
+    let guide = guide_midpoint(original, initial, ordinal, phase, sphere.dimensions.x);
+    let acceleration = guide.acceleration;
+    if (guide.enabled) {
+        var body = original;
+        body.segmentCell = initial.cell; body.segmentOrdinal = ordinal;
+        body.segmentLocalPhase = vec4<f16>(initial.local, phase);
+        if (phase >= 2048h) { body.segmentOrdinal++; body.segmentLocalPhase.w -= PHASE_SCALE; }
+        body.segmentVelocity = vec4<f16>(initial.velocity / 32h,0h);
+        body.segmentAngular = vec4<f16>(initial.angular,0h); body.segmentRotation = initial.rotation;
+        result = MotionCurve(body, false, true, acceleration, vec3<f16>(0h), guide.error, 0h, 0h);
+    }
     for (var i = 0u; i < candidate.state.colliderCount; i++) {
         if (candidate.state.colliders[i].body == slot) { continue; }
         let q = shape_query(initial, candidate.state.colliders[i], sphere.dimensions.x);
         if (q.failure != FAILURE_NONE) { fail(q.failure); return result; }
         let vn = dot(initial.velocity, q.normal);
         // Outgoing impacts retain their free trajectory. Zero normal motion under a closing
-        // force becomes support; the impulse stage handles genuinely incoming velocity first.
+        // force becomes support. An owned neutral contact remains in the coupled solve
+        // because another contact can drive it; positive separating force releases it.
+        // The impulse stage handles genuinely incoming velocity first.
         var ownsZeroNormal = inelasticCollider == i;
         for (var prior = 0u; prior < original.supportCount; prior++) {
             if (original.support[prior].collider == i && original.support[prior].feature == q.feature) { ownsZeroNormal = true; }
         }
         if (q.gap > sphere.dimensions.x * CONTACT_BAND_FRACTION ||
             (vn > 0h && !ownsZeroNormal) || abs(vn) > 0.0009765625h ||
-            dot(acceleration, q.normal) >= 0h) { continue; }
+            dot(acceleration, q.normal) > 0h ||
+            (dot(acceleration, q.normal) == 0h && !ownsZeroNormal)) { continue; }
         let count = candidate.state.bodies[slot].supportCount;
         if (count >= 4u) { fail(FAILURE_CONTACT_BUDGET); return result; }
         let material = surface_pair(sphere.material, candidate.state.colliders[i].material);
@@ -789,7 +994,7 @@ fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasti
     body.segmentAngular = vec4<f16>(initial.angular, 0h);
     body.segmentRotation = initial.rotation;
     candidate.state.bodies[slot].phase = MOTION_SUPPORTED;
-    return MotionCurve(body, true, dv * 512h, dw * 512h);
+    return MotionCurve(body, true, guide.enabled, dv * 512h, dw * 512h, guide.error, 0h, 0h);
 }
 
 fn finish_support(slot: u32, q: MotionQuery, radius: f16) -> bool {
@@ -816,7 +1021,7 @@ fn finish_support(slot: u32, q: MotionQuery, radius: f16) -> bool {
     return true;
 }
 
-struct SensorCuts { values: array<f16, 32>, count: u32, operations: u32 }
+struct CurveCuts { values: array<f16, 32>, count: u32, operations: u32, uncertainty: f16 }
 fn sensor_point(q: MotionQuery, sensor: ResidenceSensor) -> vec3<f16> {
     let frame = candidate.state.bodies[sensor.frame];
     return inverse_rotate(sensor.rotation,
@@ -839,7 +1044,7 @@ fn sensor_query_value(curve: MotionCurve, sensor: ResidenceSensor, q: MotionQuer
     // Thus the sign of d|v|^2/dt is the sign of v.a0. Supported curves have
     // constant effective acceleration. Scaled operands avoid large squared speeds.
     let a = select(gravity(curve.body) - curve.body.massDragGravityXY.y *
-        (curve.body.segmentVelocity.xyz * 32h), curve.acceleration, curve.supported);
+        (curve.body.segmentVelocity.xyz * 32h), curve.acceleration, curve.supported || curve.forceDriven);
     let vs = max(abs(q.velocity.x), max(abs(q.velocity.y), abs(q.velocity.z)));
     let ascale = max(abs(a.x), max(abs(a.y), abs(a.z)));
     if (vs == 0h || ascale == 0h) { return 0h; }
@@ -848,7 +1053,7 @@ fn sensor_query_value(curve: MotionCurve, sensor: ResidenceSensor, q: MotionQuer
 fn sensor_value(curve: MotionCurve, sensor: ResidenceSensor, ordinal: u32, phase: f16, kind: u32) -> f16 {
     return sensor_query_value(curve, sensor, curve_query(curve, ordinal, phase), kind);
 }
-fn add_cut(cuts: ptr<function, SensorCuts>, value: f16) {
+fn add_cut(cuts: ptr<function, CurveCuts>, value: f16) {
     for (var i = 0u; i < (*cuts).count; i++) {
         if ((*cuts).values[i] == value) { return; }
     }
@@ -862,7 +1067,7 @@ fn add_cut(cuts: ptr<function, SensorCuts>, value: f16) {
 }
 fn sensor_root(curve: MotionCurve, sensor: ResidenceSensor, ordinal: u32,
     begin: f16, end: f16, beginQuery: MotionQuery, endQuery: MotionQuery,
-    kind: u32, boundary: f16, cuts: ptr<function, SensorCuts>) {
+    kind: u32, boundary: f16, cuts: ptr<function, CurveCuts>) {
     var low = begin; var high = end;
     let first = sensor_query_value(curve, sensor, beginQuery, kind);
     let last = sensor_query_value(curve, sensor, endQuery, kind);
@@ -883,6 +1088,241 @@ fn sensor_root(curve: MotionCurve, sensor: ResidenceSensor, ordinal: u32,
     // contribute eligible time unless both sides are eligible.
     add_cut(cuts, low); add_cut(cuts, high);
 }
+
+struct GuideHorizon { phase: f16, uncertainty: f16 }
+fn guide_value(q: MotionQuery, guide: PlanarGuide, component: u32) -> f16 {
+    if (q.failure != FAILURE_NONE) { fail(q.failure); return 0h; }
+    if (component < 3u) { return guide_point(q,guide)[component]; }
+    return guide_velocity(q,guide)[component - 3u];
+}
+
+fn guide_curve_bounds(curve: MotionCurve, ordinal: u32, phase: f16, guide: PlanarGuide, component: u32) -> ScalarRange {
+    let body = curve.body;
+    let fraction = range_multiply(range_subtract(range_value(phase),range_value(body.segmentLocalPhase.w)),range_value(0.000244140625h));
+    let elapsedSteps = range_add(range_value(f16(i32(ordinal)-i32(body.segmentOrdinal))),fraction);
+    let u = ScalarRange(max(0h,guide_divide_bounds(elapsedSteps.lo,PHYSICAL_RATE/32h).lo),
+        guide_divide_bounds(elapsedSteps.hi,PHYSICAL_RATE/32h).hi);
+    let v0 = body.segmentVelocity.xyz*32h;
+    var acceleration = vector_add(vector_value(gravity(body)),vector_scale(vector_value(-v0),range_value(body.massDragGravityXY.y)));
+    var x = range_multiply(u,range_multiply(range_value(body.massDragGravityXY.y),range_value(0.03125h)));
+    if (curve.supported || curve.forceDriven) { acceleration=vector_value(curve.acceleration);x=range_value(0h); }
+    if (curve.accelerationError>0h) {
+        acceleration=vector_add(acceleration,VectorRange(vec3<f16>(-curve.accelerationError),vec3<f16>(curve.accelerationError)));
+    }
+    var positionPolynomial=range_value(0.0013885498046875h);
+    positionPolynomial=range_add(range_value(-0.008331298828125h),range_multiply(x,positionPolynomial));
+    positionPolynomial=range_add(range_value(0.041656494140625h),range_multiply(x,positionPolynomial));
+    positionPolynomial=range_add(range_value(-0.1666259765625h),range_multiply(x,positionPolynomial));
+    positionPolynomial=range_add(range_value(0.5h),range_multiply(x,positionPolynomial));
+    var velocityPolynomial=range_value(0.008331298828125h);
+    velocityPolynomial=range_add(range_value(-0.041656494140625h),range_multiply(x,velocityPolynomial));
+    velocityPolynomial=range_add(range_value(0.1666259765625h),range_multiply(x,velocityPolynomial));
+    velocityPolynomial=range_add(range_value(-0.5h),range_multiply(x,velocityPolynomial));
+    velocityPolynomial=range_add(range_value(1h),range_multiply(x,velocityPolynomial));
+    var value:VectorRange;
+    let frame=candidate.state.bodies[guide.frame];
+    if (component<3u) {
+        let cells=body.segmentCell-frame.cell;
+        if (any(abs(cells)>vec3<i32>(2048))) { fail(FAILURE_DOMAIN);return range_value(0h); }
+        let displacement=vector_add(vector_scale(vector_value(v0*.5h),u),
+            vector_scale(vector_scale(acceleration,range_value(.015625h)),range_multiply(range_multiply(u,u),positionPolynomial)));
+        let fine=vector_add(vector_value(body.segmentLocalPhase.xyz),vector_add(vector_value(-frame.local.xyz),displacement));
+        value=vector_scale(vector_add(vector_value(vec3<f16>(cells)),fine),range_value(.0625h));
+        value=vector_add(value,VectorRange(vec3<f16>(-curve.eventPositionError),vec3<f16>(curve.eventPositionError)));
+        value=guide_rotation_bounds(guide.rotation,vector_add(guide_rotation_bounds(frame.rotation,value),vector_value(-guide.translation.xyz)));
+    } else {
+        value=vector_add(vector_value(v0),vector_scale(acceleration,range_multiply(range_multiply(u,range_value(.03125h)),velocityPolynomial)));
+        value=vector_add(value,VectorRange(vec3<f16>(-curve.eventVelocityError),vec3<f16>(curve.eventVelocityError)));
+        value=guide_rotation_bounds(guide.rotation,guide_rotation_bounds(frame.rotation,value));
+    }
+    let axis=component%3u;
+    return ScalarRange(value.lo[axis],value.hi[axis]);
+}
+
+
+
+fn guide_interval_outside(curve: MotionCurve, guide: PlanarGuide, ordinal: u32, begin: f16) -> bool {
+    // Every remaining interval is <=1/480s. The existing128U/s conservative
+    // speed bound travels <.267U; a binary half-unit envelope includes that
+    // motion in any rigid guide frame, without assuming monotonic endpoints.
+    for (var axis=0u;axis<3u;axis++) {
+        let point=guide_curve_bounds(curve,ordinal,begin,guide,axis);
+        if (range_upper(point.hi+.5h)<guide.low[axis] ||
+            range_lower(point.lo-.5h)>guide.high[axis]) { return true; }
+    }
+    return false;
+}
+
+fn guide_constant_component(curve: MotionCurve, guide: PlanarGuide, component: u32) -> bool {
+    let v0=curve.body.segmentVelocity.xyz*32h;
+    var acceleration=vector_add(vector_value(gravity(curve.body)),
+        vector_scale(vector_value(-v0),range_value(curve.body.massDragGravityXY.y)));
+    if (curve.supported || curve.forceDriven) { acceleration=vector_value(curve.acceleration); }
+    let frame=candidate.state.bodies[guide.frame];
+    let localAcceleration=guide_rotation_bounds(guide.rotation,guide_rotation_bounds(frame.rotation,acceleration));
+    let axis=component%3u;
+    if (localAcceleration.lo[axis]!=0h || localAcceleration.hi[axis]!=0h) { return false; }
+    let localVelocity=guide_rotation_bounds(guide.rotation,guide_rotation_bounds(frame.rotation,vector_value(v0)));
+    if (axis!=1u && (curve.forceDriven || curve.eventVelocityError>0h || curve.eventPositionError>0h)) {
+        // A zero sampled acceleration can be cancellation, not nonlinear
+        // invariance. Horizontal radial symmetry needs exact p=v=g=0.
+        let anchor=MotionQuery(FAILURE_NONE,curve.body.segmentCell,curve.body.segmentLocalPhase.xyz,
+            v0,curve.body.segmentAngular.xyz,curve.body.segmentRotation);
+        let point=guide_point_range(anchor,guide);
+        let localGravity=guide_rotation_bounds(guide.rotation,guide_rotation_bounds(frame.rotation,vector_value(gravity(curve.body))));
+        if (point.lo[axis]!=0h || point.hi[axis]!=0h || localVelocity.lo[axis]!=0h || localVelocity.hi[axis]!=0h ||
+            localGravity.lo[axis]!=0h || localGravity.hi[axis]!=0h) { return false; }
+    }
+    if (component>=3u) { return true; }
+    return localVelocity.lo[axis]==0h && localVelocity.hi[axis]==0h;
+}
+
+
+struct GuideDeparture {
+    id: vec2<u32>, component: u32, boundary: f16, phase: f16,
+    increasing: bool, proved: bool,
+}
+var<private> pendingGuideDepartures: array<GuideDeparture,32>;
+var<private> ownedGuideDepartures: array<GuideDeparture,32>;
+var<private> pendingGuideDepartureCount: u32;
+var<private> ownedGuideDepartureCount: u32;
+fn guide_departure_owned(curve: MotionCurve, guide: PlanarGuide, ordinal: u32,
+    begin: f16, end: f16, component: u32, boundary: f16) -> bool {
+    if (component>=3u) { return false; }
+    for (var index=0u;index<ownedGuideDepartureCount;index++) {
+        let owned=ownedGuideDepartures[index];
+        if (!owned.proved || any(owned.id!=guide.id) || owned.component!=component ||
+            owned.boundary!=boundary || begin<owned.phase) { continue; }
+        let first=guide_curve_bounds(curve,ordinal,begin,guide,component+3u);
+        let last=guide_curve_bounds(curve,ordinal,end,guide,component+3u);
+        if ((owned.increasing && first.lo>0h && last.lo>0h) ||
+            (!owned.increasing && first.hi<0h && last.hi<0h)) { return true; }
+        // Unknown direction cannot reuse a prior crossing certificate.
+        ownedGuideDepartures[index].proved=false;
+    }
+    return false;
+}
+fn pending_guide_departure(curve: MotionCurve, guide: PlanarGuide, ordinal: u32,
+    component: u32, boundary: f16, phase: f16, increasing: bool) {
+    if (pendingGuideDepartureCount>=32u) { fail(FAILURE_ROOT_BUDGET);return; }
+    let value=guide_curve_bounds(curve,ordinal,phase,guide,component);
+    let proved=select((value.hi<boundary),(value.lo>boundary),increasing);
+    pendingGuideDepartures[pendingGuideDepartureCount]=GuideDeparture(guide.id,component,boundary,phase,increasing,proved);
+    pendingGuideDepartureCount++;
+}
+fn retain_guide_departures(curve: MotionCurve, ordinal: u32, phase: f16) {
+    for (var index=0u;index<pendingGuideDepartureCount;index++) {
+        let pending=pendingGuideDepartures[index];
+        if (pending.phase==phase && pending.component>=3u) { ownedGuideDepartureCount=0u;break; }
+    }
+    for (var index=0u;index<pendingGuideDepartureCount;index++) {
+        let pending=pendingGuideDepartures[index];
+        if (pending.phase!=phase || pending.component>=3u || !pending.proved) { continue; }
+        var actualSide=false;
+        for (var guideIndex=0u;guideIndex<candidate.state.guideCount;guideIndex++) {
+            let guide=candidate.state.guides[guideIndex];if (any(guide.id!=pending.id)) { continue; }
+            let actual=guide_curve_bounds(curve,ordinal,phase,guide,pending.component);
+            actualSide=select((actual.hi<pending.boundary),(actual.lo>pending.boundary),pending.increasing);
+        }
+        if (!actualSide) { continue; }
+        var destination=ownedGuideDepartureCount;
+        for (var previous=0u;previous<ownedGuideDepartureCount;previous++) {
+            let owned=ownedGuideDepartures[previous];
+            if (all(owned.id==pending.id) && owned.component==pending.component && owned.boundary==pending.boundary) {
+                destination=previous;break;
+            }
+        }
+        if (destination>=32u) { fail(FAILURE_ROOT_BUDGET);return; }
+        ownedGuideDepartures[destination]=pending;
+        if (destination==ownedGuideDepartureCount) { ownedGuideDepartureCount++; }
+    }
+}
+
+fn guide_root(curve: MotionCurve, guide: PlanarGuide, ordinal: u32,
+    begin: f16, end: f16, component: u32, boundary: f16, cuts: ptr<function, CurveCuts>) {
+    if (guide_constant_component(curve,guide,component) ||
+        guide_departure_owned(curve,guide,ordinal,begin,end,component,boundary)) { return; }
+    let first=guide_curve_bounds(curve,ordinal,begin,guide,component);
+    let last=guide_curve_bounds(curve,ordinal,end,guide,component);
+    if ((first.hi < boundary && last.hi < boundary) || (first.lo > boundary && last.lo > boundary)) { return; }
+    if (first.lo==boundary && first.hi==boundary) {
+        add_cut(cuts,begin);
+        if (last.lo==boundary && last.hi==boundary) { return; }
+        // A monotone interval departing an exact endpoint has no interior root.
+        if (last.hi < boundary || last.lo > boundary) { return; }
+    }
+    if (last.lo==boundary && last.hi==boundary) {
+        add_cut(cuts,end);
+        pending_guide_departure(curve,guide,ordinal,component,boundary,end,last.lo>=first.hi);
+        return;
+    }
+    let increasing=guide_value(curve_query(curve,ordinal,end),guide,component)>=
+        guide_value(curve_query(curve,ordinal,begin),guide,component);
+    var lower=begin;var upper=end;
+    // Locate the first possibly crossed point using directed side certificates.
+    var low=begin;var high=end;
+    loop {
+        if ((*cuts).operations>=SENSOR_ROOT_BUDGET) { fail(FAILURE_ROOT_BUDGET);return; }
+        let middle=low+(high-low)*.5h;if (middle==low || middle==high) { lower=low;break; }
+        (*cuts).operations++;
+        let value=guide_curve_bounds(curve,ordinal,middle,guide,component);
+        let before=select((value.lo > boundary),(value.hi < boundary),increasing);
+        if (before) { low=middle; } else { high=middle; }
+    }
+    // Upper ownership must survive the force impulse introduced by this very
+    // bracket. Keep the original first-possible lower endpoint, but search the
+    // far side with a conservative entire-remaining-step prospective impulse.
+    var prospective=curve;
+    let remaining=guide_divide_bounds(range_upper(PHASE_SCALE-begin)*.000244140625h,PHYSICAL_RATE).hi;
+    prospective.eventVelocityError=up_nonnegative(curve.eventVelocityError+up_nonnegative(up_nonnegative(12h*remaining)*1.002h));
+    prospective.eventPositionError=up_nonnegative(curve.eventPositionError+guide_divide_bounds(prospective.eventVelocityError,PHYSICAL_RATE).hi);
+    // Locate the first definitely crossed point; the whole plateau is retained.
+    low=begin;high=end;
+    loop {
+        if ((*cuts).operations>=SENSOR_ROOT_BUDGET) { fail(FAILURE_ROOT_BUDGET);return; }
+        let middle=low+(high-low)*.5h;if (middle==low || middle==high) { upper=high;break; }
+        (*cuts).operations++;
+        let value=guide_curve_bounds(prospective,ordinal,middle,guide,component);
+        let after=select((value.hi < boundary),(value.lo > boundary),increasing);
+        if (after) { high=middle; } else { low=middle; }
+    }
+    (*cuts).uncertainty=max((*cuts).uncertainty,range_upper(upper-lower));
+    add_cut(cuts,upper);
+    pending_guide_departure(prospective,guide,ordinal,component,boundary,upper,increasing);
+}
+fn guide_horizon(curve: MotionCurve, ordinal: u32, begin: f16, radius: f16) -> GuideHorizon {
+    pendingGuideDepartureCount=0u;
+    var result = GuideHorizon(PHASE_SCALE,0h);
+    for (var index = 0u; index < candidate.state.guideCount; index++) {
+        let guide = candidate.state.guides[index];
+        if (guide.controls.x == 0h || guide_interval_outside(curve,guide,ordinal,begin)) { continue; }
+        var cuts: CurveCuts; cuts.operations = guideOperations[index];
+        add_cut(&cuts,begin); add_cut(&cuts,PHASE_SCALE);
+        // Position components have at most one extremum on either admitted
+        // polynomial/quadratic law. Bracket every extremum before spatial roots.
+        for (var axis = 0u; axis < 3u; axis++) {
+            guide_root(curve,guide,ordinal,begin,PHASE_SCALE,axis+3u,0h,&cuts);
+        }
+        let extrema = cuts;
+        for (var part = 0u; part + 1u < extrema.count; part++) {
+            let left = extrema.values[part]; let right = extrema.values[part+1u];
+            for (var axis = 0u; axis < 3u; axis++) {
+                guide_root(curve,guide,ordinal,left,right,axis,guide.low[axis],&cuts);
+                guide_root(curve,guide,ordinal,left,right,axis,guide.high[axis],&cuts);
+            }
+            guide_root(curve,guide,ordinal,left,right,1u,
+                guide.controls.y-guide.controls.z+radius,&cuts);
+        }
+        guideOperations[index] = cuts.operations;
+        if (candidate.state.failure != FAILURE_NONE) { return result; }
+        for (var cut = 0u; cut < cuts.count; cut++) {
+            if (cuts.values[cut] > begin && cuts.values[cut] < result.phase) { result.phase = cuts.values[cut]; }
+        }
+        result.uncertainty = max(result.uncertainty,cuts.uncertainty);
+    }
+    return result;
+}
+
 fn reset_episode(index: u32) {
     candidate.state.sensors[index].phase = RESIDENCE_OUTSIDE;
     candidate.state.sensors[index].startOrdinal = 0u;
@@ -933,7 +1373,7 @@ fn append_motion(curve: MotionCurve, ordinal: u32, begin: f16, end: f16) {
     let index = candidate.motionHeader.x;
     if (index >= 72u) { fail(FAILURE_MOTION_CAPACITY); return; }
     var piece: MotionPiece;
-    piece.kind = select(1u, 2u, curve.supported);
+    piece.kind = select(select(1u, 2u, curve.supported), 3u, curve.forceDriven);
     piece.startOrdinal = ordinal; piece.endOrdinal = ordinal;
     var a = begin; var b = end;
     if (a >= 2048h) { piece.startOrdinal++; a -= PHASE_SCALE; }
@@ -947,6 +1387,11 @@ fn append_motion(curve: MotionCurve, ordinal: u32, begin: f16, end: f16) {
     piece.angular = body.segmentAngular; piece.gravity = vec4<f16>(gravity(body),0h);
     piece.acceleration = vec4<f16>(curve.acceleration,0h);
     piece.angularAcceleration = vec4<f16>(curve.angularAcceleration,0h);
+    if (curve.forceDriven || curve.eventVelocityError > 0h) {
+        piece.forceError = vec4<f16>(curve.accelerationError,
+            up_nonnegative(guide_divide_bounds(curve.accelerationError,PHYSICAL_RATE).hi + curve.eventVelocityError),
+            up_nonnegative(guide_divide_bounds(guide_divide_bounds(curve.accelerationError,PHYSICAL_RATE).hi,2h * PHYSICAL_RATE).hi + curve.eventPositionError),0h);
+    }
     candidate.motionPieces[index] = piece;
     candidate.motionHeader.x++;
 }
@@ -969,13 +1414,13 @@ fn residence_interval(curve: MotionCurve, ordinal: u32, begin: f16, end: f16) {
         let constantTrajectory = all(curve.body.segmentVelocity.xyz == vec3<f16>(0h)) &&
             all(curve.body.segmentAngular.xyz == vec3<f16>(0h)) &&
             all(curve.angularAcceleration == vec3<f16>(0h)) &&
-            all(select(gravity(curve.body), curve.acceleration, curve.supported) == vec3<f16>(0h));
+            all(select(gravity(curve.body), curve.acceleration, curve.supported || curve.forceDriven) == vec3<f16>(0h));
         if (constantTrajectory) {
             if (sensor_eligible(first, sensor)) { qualify_interval(index, ordinal, begin, end, true); }
             else { reset_episode(index); }
             continue;
         }
-        var cuts: SensorCuts; cuts.operations = sensorOperations[index];
+        var cuts: CurveCuts; cuts.operations = sensorOperations[index];
         add_cut(&cuts, begin); add_cut(&cuts, end);
         // Split at the three position extrema and the speed extremum of this
         // implemented polynomial/quadratic segment, then locate each open boundary.
@@ -1069,27 +1514,51 @@ fn advance() {
     for (var substep = 0u; substep < count; substep++) {
         let ordinal = candidate.state.ordinal + substep;
         for (var i = 0u; i < candidate.state.sensorCount; i++) { sensorOperations[i] = 0u; }
+        for (var i = 0u; i < candidate.state.guideCount; i++) { guideOperations[i] = 0u; }
         var low = 0h; var complete = false; var inelasticCollider = NO_BODY;
+        var carriedVelocityError=0h;var carriedPositionError=0h;
+        ownedGuideDepartureCount=0u;
         for (var event = 0u; event < IMPACT_BUDGET; event++) {
-            let curve = support_curve(slot, ordinal, low, sphere, inelasticCollider);
+            var curve = support_curve(slot, ordinal, low, sphere, inelasticCollider);
+            curve.eventVelocityError=carriedVelocityError;curve.eventPositionError=carriedPositionError;
+            let horizon = guide_horizon(curve,ordinal,low,sphere.dimensions.x);
+            if (horizon.uncertainty > 0h) {
+                // Even an unresolved enter+exit sliver differs by at most A<=12.
+                // Over the enclosing substep drag amplification is <1.001; use1.002.
+                let dt = guide_divide_bounds(horizon.uncertainty * 0.000244140625h,PHYSICAL_RATE).hi;
+                curve.eventVelocityError = up_nonnegative(carriedVelocityError + up_nonnegative(up_nonnegative(12h*dt)*1.002h));
+                curve.eventPositionError = up_nonnegative(carriedPositionError + guide_divide_bounds(curve.eventVelocityError,PHYSICAL_RATE).hi);
+            }
             inelasticCollider = NO_BODY;
             if (candidate.state.failure != FAILURE_NONE) { return; }
             let body = curve.body;
             var earliest = no_hit();
             for (var i = 0u; i < candidate.state.colliderCount; i++) {
                 if (candidate.state.colliders[i].body == slot || supported_collider(slot, i)) { continue; }
-                let h = collision(curve, ordinal, low, PHASE_SCALE, i, sphere.dimensions.x);
+                let h = collision(curve, ordinal, low, horizon.phase, i, sphere.dimensions.x);
                 if (h.failure != FAILURE_NONE) { fail(h.failure); return; }
                 if (h.found && (!earliest.found || h.phase < earliest.phase)) { earliest = h; }
             }
             if (!earliest.found) {
-                let q = curve_query(curve, ordinal, PHASE_SCALE);
+                let q = curve_query(curve, ordinal, horizon.phase);
                 if (q.failure != FAILURE_NONE) { fail(q.failure); return; }
-                residence_interval(curve, ordinal, low, PHASE_SCALE);
+                residence_interval(curve, ordinal, low, horizon.phase);
                 if (candidate.state.failure != FAILURE_NONE) { return; }
                 if (curve.supported && !finish_support(slot, q, sphere.dimensions.x)) { return; }
-                install_query(slot, q); complete = true;
-                if (curve.supported || (ordinal + 1u) % PRIMARY_SEGMENT_STEPS == 0u) { anchor(slot, ordinal + 1u, 0h); }
+                install_query(slot, q);
+                if (horizon.phase < PHASE_SCALE) {
+                    if (!(horizon.phase > low)) { fail(FAILURE_ROOT_BUDGET); return; }
+                    if (curve.eventVelocityError>0h || curve.accelerationError>0h) {
+                        carriedVelocityError=up_nonnegative(curve.eventVelocityError+guide_divide_bounds(curve.accelerationError,PHYSICAL_RATE).hi);
+                        carriedPositionError=up_nonnegative(curve.eventPositionError+guide_divide_bounds(carriedVelocityError,PHYSICAL_RATE).hi);
+                    }
+                    retain_guide_departures(curve,ordinal,horizon.phase);
+                    if (candidate.state.failure!=FAILURE_NONE) { return; }
+                    anchor(slot,ordinal,horizon.phase); low = horizon.phase;
+                    continue;
+                }
+                complete = true;
+                if (curve.supported || curve.forceDriven || (ordinal + 1u) % PRIMARY_SEGMENT_STEPS == 0u) { anchor(slot, ordinal + 1u, 0h); }
                 break;
             }
             residence_interval(curve, ordinal, low, earliest.phase);
@@ -1110,6 +1579,11 @@ fn advance() {
             residence_after_impulse(q);
             if (candidate.state.failure != FAILURE_NONE) { return; }
             install_query(slot, q); candidate.state.bodies[slot].impacts++;
+            if (curve.eventVelocityError>0h || curve.accelerationError>0h) {
+                carriedVelocityError=up_nonnegative(curve.eventVelocityError+guide_divide_bounds(curve.accelerationError,PHYSICAL_RATE).hi);
+                carriedPositionError=up_nonnegative(curve.eventPositionError+guide_divide_bounds(carriedVelocityError,PHYSICAL_RATE).hi);
+            }
+            ownedGuideDepartureCount=0u;
             anchor(slot, ordinal, earliest.phase);
             low = earliest.phase;
             if (low == PHASE_SCALE) { complete = true; break; }

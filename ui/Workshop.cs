@@ -53,9 +53,9 @@ public partial class Workshop : Node3D
         MakeInterface();
         InitializeUiAnimations();
         MakeGuidance();
-        _picker.AddItem("Campaign · unavailable");
+        _picker.AddItem("First principles");
         _picker.AddItem("Free workshop");
-        LoadMode(WorkshopMode.Free);
+        PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
         catch (Exception error) { if (_workshopUiRemoved) return; _status.Text = error.Message; _state.Text = "GPU UNAVAILABLE"; }
@@ -254,6 +254,8 @@ public partial class Workshop : Node3D
         _status.HorizontalAlignment = HorizontalAlignment.Center;
         _status.MouseFilter = Control.MouseFilterEnum.Ignore;
         _canvas.AddChild(_status);
+        _success = Text("SOLVED!", 26, Mint); _success.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Solved);
+        _success.Position = new(850, 30); _success.Visible = false; _canvas.AddChild(_success);
         // Secondary actions live in one scrollable menu, closed by default.
         var options = Panel(new(1020, 90), new(396, 680));
         _optionsPanel = options.GetParent<Control>();
@@ -274,11 +276,7 @@ public partial class Workshop : Node3D
         _precisionText = Text("Balanced");
         _optionsContents.AddChild(_precisionText);
         _precision = new HSlider { MinValue = 0, MaxValue = 100, Value = 45 };
-        _precision.ValueChanged += value =>
-        {
-            _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";
-            _status.Text = "Free Workshop keeps the Receiver’s capture settings unchanged.";
-        };
+        _precision.ValueChanged += ChangePrecision;
         _optionsContents.AddChild(_precision);
         _optionsContents.AddChild(Text("Forgiving                         Precise", 12, Muted));
         _friction = new CheckButton { Text = "More surface friction" };
@@ -325,32 +323,6 @@ public partial class Workshop : Node3D
         var targetHeight = height + chromeHeight;
         if (Mathf.Abs(panel.Size.Y - targetHeight) > .1f)
             panel.Size = new(panel.Size.X, targetHeight);
-    }
-
-    private enum WorkshopMode { Free }
-    private void SelectModeFromPicker(int index)
-    {
-        if (index != FreeWorkshopIndex)
-        {
-            _status.Text = "Campaign levels are not supported by the current GPU Workshop.";
-            _picker.Select(FreeWorkshopIndex);
-            return;
-        }
-        LoadMode(WorkshopMode.Free);
-    }
-
-    private void LoadMode(WorkshopMode mode)
-    {
-        if (mode != WorkshopMode.Free) throw new ArgumentException("Unsupported Workshop mode.");
-        ResetUiAnimations();
-        _inventory = World.Registry.Definitions.Values
-            .Where(d => d.WorkshopKind is WorkshopPartKind.Basketball or WorkshopPartKind.Receiver).ToDictionary(d => d.WorkshopKind, _ => 1);
-        _title.Text = "Free workshop";
-        _task.Text = "Place a Basketball and Receiver, then Run. Reset restores the starting arrangement.";
-        _hint.Visible = _task.Visible = _hintButton.Visible = false;
-        _optionsPanel.Visible = _objectivePanel.Visible = false;
-        SetBuildUi(); RefreshPalette();  RefreshLayers();
-        _placementHeight = new((Half)(3)); SetBuildView(false);
     }
 
     private void RefreshPalette()
@@ -516,17 +488,14 @@ public partial class Workshop : Node3D
             var position = at.Snapped(Vector3.One * .1f);
             var rotation = _preview?.Quaternion ?? Quaternion.Identity;
             var chosen = _tool.Value;
-            var proposed = chosen switch
-            {
-                WorkshopPartKind.Basketball => World.Construction with { Ball = World.CaptureBasketball(_nextId, position, rotation) },
-                WorkshopPartKind.Receiver => World.Construction with { Receiver = World.CaptureReceiver(_nextId, position, rotation) },
-                _ => throw new ArgumentException("Unsupported placement kind.")
-            };
+            var placedId = _nextId;
+            var proposed = World.Construction.WithInstance(World.CaptureInstance(chosen, placedId, position, rotation,
+                _preview is RampPart ramp ? ramp.CanonicalDimensions : null));
             var accepted = await SubmitConstruction(proposed);
             if (_workshopUiRemoved) return;
             if (!accepted) { _undo.RemoveAt(_undo.Count - 1); return; }
             _nextId = new(_nextId.Value + 1);
-            var part = World.Parts.Single(p => p.Definition.WorkshopKind == chosen);
+            var part = World.Parts.Single(p => p.AuthoredId == placedId);
             Select(part);
             _tool = null;
             ClearPreview();
@@ -593,14 +562,9 @@ public partial class Workshop : Node3D
     private async void DeleteSelected()
     {
         if (!CanEdit || _selected is not { Locked: false }) return;
-        var kind = _selected.Definition.WorkshopKind;
+        var id = _selected.AuthoredId;
         PushUndo(); Select(null);
-        var proposed = kind switch
-        {
-            WorkshopPartKind.Basketball => World.Construction with { Ball = null },
-            WorkshopPartKind.Receiver => World.Construction with { Receiver = null },
-            _ => throw new ArgumentException("Unsupported selected part.")
-        };
+        var proposed = World.Construction.WithoutInstance(id);
         var accepted = await SubmitConstruction(proposed);
         if (_workshopUiRemoved) return;
         if (!accepted) _undo.RemoveAt(_undo.Count - 1);
@@ -687,7 +651,12 @@ public partial class Workshop : Node3D
             WorkshopSimulationPhase.Completed or WorkshopSimulationPhase.Faulted)) return;
         _displayedWorkshopPhase = phase;
         _inRun = IsRuntimePhase(phase);
-        if (phase == WorkshopSimulationPhase.Building) { SetBuildUi(); return; }
+        if (phase == WorkshopSimulationPhase.Building)
+        {
+            // Committed state owns goal visibility even when its Reset ACK is no longer applicable.
+            // Do not reset autonomous hints during ordinary Building reconciliation.
+            ClearGoalFeedback(); SetBuildUi(); return;
+        }
         if (!_inRun) return;
         WorkshopIcons.Apply(_run, "■  Back to building");
         _precision.Editable = false; _friction.Disabled = true;
@@ -747,14 +716,14 @@ public partial class Workshop : Node3D
         {
             ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance();
         }
+        PresentGoalFeedback();
     }
-
-
-
 
     private void ShowHint()
     {
-        _hint.Text = "Place the Basketball at two different heights and compare its fall.";
+        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples
+            ? "Start with a gentle slope below the ball. Use the second ramp to continue the journey toward the receiver."
+            : "Place the Basketball at two different heights and compare its fall.";
         if (_hint.Visible) HideHint();
         else { _hint.Visible = true; RevealHint(); }
         _objectivePanel.Size = new(266, 0);
@@ -808,8 +777,8 @@ public partial class Workshop : Node3D
             var accepted = await SubmitConstruction(saved.Construction);
             // Authority may have committed even if subsequent scene restoration failed.
             applied = World.Construction.Revision.Value > priorRevision.Value &&
-                World.Construction.Ball == saved.Construction.Ball &&
-                World.Construction.Receiver == saved.Construction.Receiver;
+                World.Construction.Instances.Equals(saved.Construction.Instances) &&
+                World.Construction.Puzzle == saved.Construction.Puzzle;
             if (applied) _nextId = new(Math.Max(_nextId.Value, saved.NextBodyId.Value));
             if (_workshopUiRemoved) return;
             if (!accepted)
@@ -818,6 +787,7 @@ public partial class Workshop : Node3D
                 return;
             }
             Select(null); _tool = null; ClearPreview(); _dragging = false; _undo.Clear();
+            ResetUiAnimations(); PresentMode();
             _status.Text = "Construction loaded. Ready to run.";
         }
         catch (Exception error)

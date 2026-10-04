@@ -14,6 +14,7 @@ public static class WorkshopPhysicsCompiler
         var colliders = new List<ColliderDeclaration>();
         var materials = new List<ContactMaterialDeclaration>();
         var sensors = new List<ResidenceSensorDeclaration>();
+        var guides = new List<PlanarGuideDeclaration>();
         var plane = new GpuBodyId(InternalIdentityBase);
         var planeMaterial = new GpuMaterialId(InternalIdentityBase + 1);
         var height = WorkshopInput.Position((double)WorkshopConstruction.WorkbenchSurface.Value);
@@ -48,11 +49,30 @@ public static class WorkshopPhysicsCompiler
                     new((Half)(-.66), (Half)(-.4), (Half)(-.66)),
                     new((Half).66, (Half)((Half).45 + receiver.Capture.Margin.Value), (Half).66),
                     receiver.Capture.SpeedLimit, receiver.Capture.Dwell, receiver.Capture.Participation));
+            if (construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples && construction.Ball is { } guided)
+            {
+                var assistance = construction.Puzzle.ReceiverAssistance.Evaluate(construction.Puzzle.Precision);
+                guides.Add(new(new(first + 7), receiver.Id, guided.Id, RigidLocalPose.Identity,
+                    new((Half)(-1.1), (Half).5, (Half)(-1.1)), new((Half)1.1, (Half)1.5, (Half)1.1),
+                    new((Half).5), assistance.CaptureMargin, assistance.GuideAcceleration));
+            }
             void AddBox(ulong id, MetreVector position, MetreVector half) =>
                 colliders.Add(new(new(id), receiver.Id, material, ColliderShapeKind.Box,
                     new(position, CanonicalRotation.Identity), new((Half)0), half));
         }
-        return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray());
+        foreach (var instance in construction.Instances)
+        {
+            if (instance is not WorkshopRamp ramp) continue;
+            var first = PartIdentities(ramp.Id); next = Math.Max(next, first + 16);
+            var material = new GpuMaterialId(first);
+            bodies.Add(new(ramp.Id, RigidMotionKind.Static, ramp.Cell, ramp.Local, ramp.Rotation,
+                default, default, new((Half)0), default, new((Half)0)));
+            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3)));
+            colliders.Add(new(new(first + 1), ramp.Id, material, ColliderShapeKind.Box,
+                RigidLocalPose.Identity, new((Half)0), new((Half)(ramp.Dimensions.Length.Value * (Half).5), (Half)(RampDimensions.Thickness.Value * (Half).5),
+                    (Half)(ramp.Dimensions.Width.Value * (Half).5))));
+        }
+        return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray());
     }
     public static GpuSensorId CaptureSensor(WorkshopReceiver receiver) => new(checked(PartIdentities(receiver.Id) + 6));
 

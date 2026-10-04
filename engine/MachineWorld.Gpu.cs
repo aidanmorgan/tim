@@ -18,7 +18,7 @@ public partial class MachineWorld
     private byte _workshopPositionWrites;
     private WorkshopPresentationSample _workshopPresentation;
     public WorkshopPhase WorkshopPhase { get; private set; } = WorkshopPhase.Uninitialized;
-    public WorkshopConstruction Construction { get; private set; } = new(new(1), null, WorkshopCadenceSettings.Default());
+    public WorkshopConstruction Construction { get; private set; } = new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty);
     public WorkshopRead WorkshopRead { get; private set; }
     public string? WorkshopFault { get; private set; }
     public bool HasPendingCommand => _workshopClient?.Pending is not null;
@@ -36,6 +36,14 @@ public partial class MachineWorld
             WorkshopFault = "Pending candidate cancelled. Its original result remains tracked; Reset after completion or reload if recovery is blocked.";
         }
         return new(response.Result, delivery.Applicable);
+    }
+    public WorkshopGoalPhase GoalPhase => _workshopClient is null ? WorkshopGoalPhase.NotApplicable :
+        WorkshopGoalEvaluator.Evaluate(Construction.Puzzle.Goal, WorkshopRead, _workshopClient.Epoch);
+    public bool TryGoalOpacity(ulong frame, out Half opacity)
+    {
+        opacity = (Half)0;
+        return GoalPhase == WorkshopGoalPhase.Solved && _workshopClient is not null &&
+            _workshopClient.TryCaptureOpacity(frame, _workshopPresentation, out opacity);
     }
     public PartDefinition BasketballDefinition => Registry.Definitions[WorkshopPartKind.Basketball];
 
@@ -83,15 +91,28 @@ public partial class MachineWorld
         return WorkshopInput.Receiver(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W);
     }
 
+    public IWorkshopInstance CaptureInstance(WorkshopPartKind kind, GpuBodyId id, Vector3 position, Quaternion rotation, RampDimensions? rampDimensions = null)
+    {
+        var q = rotation.Normalized();
+        return kind switch
+        {
+            WorkshopPartKind.Basketball => CaptureBasketball(id, position, q),
+            WorkshopPartKind.Receiver => CaptureReceiver(id, position, q),
+            WorkshopPartKind.Ramp => WorkshopInput.Ramp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                rampDimensions ?? Registry.Definitions[WorkshopPartKind.Ramp].Ramp!.Capture()),
+            _ => throw new ArgumentException("Unsupported instance kind.")
+        };
+    }
+
     private MachinePart? Part(WorkshopPartKind kind) => _parts.FirstOrDefault(p => p.Definition.WorkshopKind == kind);
 
-    public async Task<WorkshopCompletion> ReplaceConstruction(WorkshopBall? ball, WorkshopReceiver? receiver)
+    public async Task<WorkshopCompletion> ReplaceConstruction(WorkshopConstruction proposed)
     {
         if (_workshopPending || WorkshopPhase != WorkshopPhase.Building)
             return new(new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy), false);
         if (Construction.Revision.Value == ulong.MaxValue)
             return new(new(WorkshopCommandOutcome.Rejected, WorkshopRejection.IdentityExhausted), false);
-        var next = new WorkshopConstruction(new(Construction.Revision.Value + 1), ball, Construction.Settings, receiver);
+        var next = proposed with { Revision = new(Construction.Revision.Value + 1), Settings = Construction.Settings };
         next.Validate();
         var delivery = await ExecuteWorkshop(WorkshopCommandKind.Construct, next);
         var response = delivery.Response;
@@ -241,27 +262,25 @@ public partial class MachineWorld
 
     public void RestoreConstructionPresentation()
     {
-        Restore(WorkshopPartKind.Basketball, Construction.Ball?.Cell, Construction.Ball?.Local, Construction.Ball?.Rotation);
-        Restore(WorkshopPartKind.Receiver, Construction.Receiver?.Cell, Construction.Receiver?.Local, Construction.Receiver?.Rotation);
-        if (Part(WorkshopPartKind.Receiver) is BasketPart receiver) receiver.ApplyHalo((Half)0);
-    }
-
-    private void Restore(WorkshopPartKind kind, CellOrigin? cell, LocalPosition? local, CanonicalRotation? rotation)
-    {
-        var part = Part(kind);
-        if (cell is null)
+        foreach (var part in _parts.ToArray())
+            if (!Construction.Instances.Any(instance => instance.Id == part.AuthoredId && instance.Kind == part.Definition.WorkshopKind))
+            { _parts.Remove(part); _bodies.Remove(part); RemoveChild(part); part.Free(); }
+        foreach (var instance in Construction.Instances)
         {
-            if (part is not null) { _parts.Remove(part); _bodies.Remove(part); RemoveChild(part); part.Free(); }
-            return;
+            var part = _parts.FirstOrDefault(candidate => candidate.AuthoredId == instance.Id);
+            if (part is null)
+            {
+                part = Registry.Create(instance.Kind); part.AuthoredId = instance.Id;
+                part.EnsureConstructed(); AddChild(part); _parts.Add(part); _bodies.Add(part);
+            }
+            if (part.Definition.WorkshopKind != instance.Kind) throw new ArgumentException("Authored identity changed part kind.");
+            if (instance is WorkshopRamp ramp && part is RampPart rampPart) rampPart.ApplyDimensions(ramp.Dimensions);
+            part.Locked = instance.Locked;
+            part.Position = RenderPosition(instance.Cell, instance.Local);
+            var q = instance.Rotation;
+            part.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
+            if (part is BasketPart receiver) receiver.ApplyHalo((Half)0);
         }
-        if (part is null)
-        {
-            part = Registry.Create(kind); part.EnsureConstructed(); AddChild(part);
-            _parts.Add(part); _bodies.Add(part);
-        }
-        part.Position = RenderPosition(cell.Value, local!.Value);
-        var q = rotation!.Value;
-        part.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
     }
 
     private void ApplyWorkshopPosition(Vector3 position)

@@ -7,7 +7,7 @@ namespace CuriousContraptions;
 
 /// <summary>Closed identities for the controls used by presentation integration.
 /// Node names are an explicit Godot/automation boundary, never behaviour selectors.</summary>
-public enum WorkshopAnimationControl { Hint, ShowHint, Goal, Run, LevelPicker, Menu }
+public enum WorkshopAnimationControl { Hint, ShowHint, Goal, Run, LevelPicker, Menu, Solved }
 
 public static class WorkshopAnimationControlBoundary
 {
@@ -19,6 +19,7 @@ public static class WorkshopAnimationControlBoundary
         WorkshopAnimationControl.Run=>"RunMachine",
         WorkshopAnimationControl.LevelPicker=>"LevelPicker",
         WorkshopAnimationControl.Menu=>"Menu",
+        WorkshopAnimationControl.Solved=>"PuzzleSolved",
         _=>throw new ArgumentOutOfRangeException(nameof(control))
     };
 }
@@ -41,7 +42,11 @@ public partial class Workshop
         _hint.Visible = false;
         ApplyHintOpacity(new((Half)1));
     }
-    private void ResetUiAnimations() => HideHint();
+    private void ResetUiAnimations()
+    {
+        ClearGoalFeedback();
+        HideHint();
+    }
     private void PresentUiAnimations(double delta)
     {
         if (!double.IsFinite(delta) || delta < 0) throw new ArgumentOutOfRangeException(nameof(delta));

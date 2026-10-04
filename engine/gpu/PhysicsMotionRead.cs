@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsMotionKind : uint { FreePolynomial = 1, SupportedQuadratic = 2 }
+public enum PhysicsMotionKind : uint { FreePolynomial = 1, SupportedQuadratic = 2, ForceDrivenQuadratic = 3 }
 
 /// <summary>Immutable GPU-authored render trajectory for exactly one complete physical commit.</summary>
 public sealed class PhysicsMotionRead
@@ -68,10 +68,10 @@ public sealed class PhysicsMotionRead
             var anchor = Time(U32(piece, 12), H(piece, 20));
             if (!Enum.IsDefined(kind) || U64(piece, 24) != body!.Value.Id.Value || start != previous ||
                 end <= start || end > U32(bytes, 12) * 4096.0 || anchor > start ||
-                end - anchor > (kind == PhysicsMotionKind.SupportedQuadratic ? 4096 : PhysicsGpuAbi.PrimarySegmentSteps * 4096) ||
+                end - anchor > (kind != PhysicsMotionKind.FreePolynomial ? 4096 : PhysicsGpuAbi.PrimarySegmentSteps * 4096) ||
                 !HalfBits.Equal(H(piece, 22), (Half)WorkshopCadenceSettings.PhysicalFrequency) ||
                 !Zero(piece[44..48]) || !Zero(piece[70..72]) || !Zero(piece[78..80]) ||
-                !Zero(piece[86..88]) || !Zero(piece[94..96]) || !Zero(piece[102..128]))
+                !Zero(piece[86..88]) || !Zero(piece[94..96]) || !Zero(piece[102..104]) || !Zero(piece[110..128]))
                 throw new ArgumentException("Invalid motion piece identity, interval or padding.");
             var launch = new CanonicalBody(body.Value.Id, body.Value.Epoch, body.Value.Tick,
                 Cell(piece), new(H(piece,48),H(piece,50),H(piece,52)),
@@ -82,6 +82,18 @@ public sealed class PhysicsMotionRead
             PhysicsDeclarationBounds.Range(H(piece,54),(Half)0,(Half).125);
             if (kind == PhysicsMotionKind.FreePolynomial && (!Zero(piece[88..94]) || !Zero(piece[96..102])))
                 throw new ArgumentException("Free motion carries constrained acceleration.");
+            if (kind == PhysicsMotionKind.ForceDrivenQuadratic || !Zero(piece[104..110]))
+            {
+                var accelerationError = H(piece,104); var velocityError = H(piece,106); var positionError = H(piece,108);
+                PhysicsDeclarationBounds.Range(accelerationError,(Half)0,(Half)4);
+                PhysicsDeclarationBounds.Range(velocityError,(Half)0,(Half).5);
+                PhysicsDeclarationBounds.Range(positionError,(Half)0,(Half).01);
+                if ((double)velocityError < (double)accelerationError / WorkshopCadenceSettings.PhysicalFrequency ||
+                    (double)positionError < (double)velocityError / (2 * WorkshopCadenceSettings.PhysicalFrequency))
+                    throw new ArgumentException("Force motion omitted its outward error certificate.");
+            }
+            if (kind != PhysicsMotionKind.ForceDrivenQuadratic && !HalfBits.Equal(H(piece,104),(Half)0))
+                throw new ArgumentException("Only force-driven motion carries an acceleration allowance.");
             previous = end;
         }
         if (body.HasValue && previous != U32(bytes, 12) * 4096.0)
@@ -100,7 +112,7 @@ public sealed class PhysicsMotionRead
             // Right-continuous impact selection. The last exact endpoint comes from its committed read.
             if (units < begin || units >= end) continue;
             var elapsed = (physicalOrdinal - U32(p,12) - (double)H(p,20) / 4096) / (double)H(p,22);
-            var supported = (PhysicsMotionKind)U32(p,0) == PhysicsMotionKind.SupportedQuadratic;
+            var supported = (PhysicsMotionKind)U32(p,0) != PhysicsMotionKind.FreePolynomial;
             var k = (double)H(p,54); var x = supported ? 0 : k * elapsed;
             var polynomial = .5 + x * ((double)(Half)(-1.0/6) + x * ((double)(Half)(1.0/24) +
                 x * ((double)(Half)(-1.0/120) + x * (double)(Half)(1.0/720))));

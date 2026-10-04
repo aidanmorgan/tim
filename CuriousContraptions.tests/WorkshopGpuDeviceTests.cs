@@ -16,7 +16,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(duringQualification);
         var device = new WorkshopGpuDevice(transport, Document);
-        var pending = device.Admit(new(new(1), null, Settings), new(1), Profile, new(1)).AsTask();
+        var pending = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
         Assert.False(pending.IsCompleted);
         await device.DisposeAsync();
         await device.DisposeAsync();
@@ -27,7 +27,7 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(0, transport.Reads);
         Assert.Equal(0, transport.Commits);
         await Assert.ThrowsAsync<ObjectDisposedException>(() =>
-            device.Admit(new(new(1), null, Settings), new(1), Profile, new(2)).AsTask());
+            device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(2)).AsTask());
         Assert.Equal(0, transport.Commits);
     }
 
@@ -36,7 +36,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(false);
         var device = new WorkshopGpuDevice(transport, Document);
-        var pending = device.Admit(new(new(1), null, Settings), new(1), Profile, new(1)).AsTask();
+        var pending = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
         transport.Record[136] = 1;
         transport.Held.SetResult();
         await Assert.ThrowsAsync<ArgumentException>(() => pending);
@@ -51,7 +51,7 @@ public sealed class WorkshopGpuDeviceTests
         var transport = new HeldTransport(false);
         var device = new WorkshopGpuDevice(transport, Document);
         transport.Held.SetResult();
-        var admitted = await device.Admit(new(new(1), null, Settings), new(1), Profile, new(1));
+        var admitted = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1));
         device.Commit(admitted.Sequence);
         device.Discard(admitted.Sequence);
         transport.Record[4] = (byte)PhysicsCandidateStatus.Invalid;
@@ -63,7 +63,7 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(2, transport.Discards);
         transport.Record[4] = (byte)PhysicsCandidateStatus.Committed;
         transport.Record[8] = (byte)PhysicsFailure.None;
-        var next = await device.Admit(new(new(1), null, Settings), new(1), Profile, new(3));
+        var next = await device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(3));
         device.Commit(next.Sequence);
         device.Discard(next.Sequence);
         Assert.Equal(2, transport.Commits);
@@ -76,7 +76,7 @@ public sealed class WorkshopGpuDeviceTests
     {
         var transport = new HeldTransport(false);
         var device = new WorkshopGpuDevice(transport, Document);
-        var pending = device.Admit(new(new(1), null, Settings), new(1), Profile, new(1)).AsTask();
+        var pending = device.Admit(new(new(1), Settings, WorkshopInstances.Empty), new(1), Profile, new(1)).AsTask();
         transport.Record[8] = byte.MaxValue;
         transport.Held.SetResult();
         await Assert.ThrowsAsync<ArgumentException>(() => pending);
@@ -95,7 +95,7 @@ public sealed class WorkshopGpuDeviceTests
         var settings = Settings with { Simulation = cadence };
         var profile = Profile with { Cadence = cadence, Revision = new(2) };
         // Corrupt the actual staged descriptor to the old120Hz/revision1 profile.
-        var pending = device.Admit(new(new(1), null, settings), new(1), profile, new(1)).AsTask();
+        var pending = device.Admit(new(new(1), settings, WorkshopInstances.Empty), new(1), profile, new(1)).AsTask();
         BinaryPrimitives.WriteUInt32LittleEndian(transport.Record.AsSpan(48), (uint)SimulationCadence.Hz120);
         BinaryPrimitives.WriteUInt64LittleEndian(transport.Record.AsSpan(56), 1);
         transport.Held.SetResult();

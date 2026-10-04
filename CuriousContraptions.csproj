@@ -32,14 +32,17 @@
         <Compile Include="engine/MachinePart.cs" />
         <Compile Include="engine/PartDefinition.cs" />
         <Compile Include="engine/BasketballMaterialResource.cs" />
+        <Compile Include="engine/RampDimensionsResource.cs" />
         <Compile Include="engine/PartRegistry.cs" />
         <Compile Include="engine/PartArt.cs" />
         <Compile Include="engine/Workbench.cs" />
         <Compile Include="engine/IResizablePart.cs" />
         <Compile Include="parts/BallPart.cs" />
         <Compile Include="parts/BasketPart.cs" />
+        <Compile Include="parts/RampPart.cs" />
         <Compile Include="ui/Workshop.cs" />
         <Compile Include="ui/WorkshopGpu.cs" />
+        <Compile Include="ui/WorkshopPuzzle.cs" />
         <Compile Include="ui/WorkshopGuidance.cs" />
         <Compile Include="ui/WorkshopAnimation.cs" />
         <Compile Include="ui/WorkshopIcons.cs" />

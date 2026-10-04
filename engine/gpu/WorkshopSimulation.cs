@@ -63,7 +63,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     public WorkshopSimulation(IWorkshopGpuDevice device, IWorkshopCaptureClock clock, WorkshopCadenceSettings settings, CadenceRevision revision, IWorkshopInstallation installation)
     {
         settings.Validate(); Profile = new(settings.Simulation, settings.Physical, revision); Profile.Validate();
-        Construction = new(new(1), null, settings);
+        Construction = new(new(1), settings, WorkshopInstances.Empty);
         _installation = installation ?? throw new ArgumentNullException(nameof(installation));
         _device = device ?? throw new ArgumentNullException(nameof(device));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));

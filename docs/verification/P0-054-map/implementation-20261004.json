@@ -1,0 +1,44 @@
+{
+  "implementation": "/root/p025_implementation",
+  "reviewer": "/root/p025_review",
+  "date": "2026-10-04",
+  "scope": "First principles manual two-ramp playable slice: typed instances/puzzle/save, shared static boxes and f16 planar guide, named capture/Solved, ordinary ACK/Reset fixes.",
+  "candidate": "playable-candidate-paths.json",
+  "checks": [
+    {
+      "command": "dotnet test CuriousContraptions.tests --nologo",
+      "result": "444 passed, 0 failed/skipped; exit 0; test duration 844 ms",
+      "original": "b4a1bd"
+    },
+    {
+      "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+      "result": "exit 0; normal Production bundle finalized",
+      "original": "21031a",
+      "artifactIdentityOriginal": "0a41a8"
+    },
+    {
+      "command": "node --experimental-vm-modules tools/workshop-observation.test.mjs",
+      "result": "Both capture modes and all controls pass; exit 0",
+      "original": "723adf",
+      "priorAttempt": "7d4c54 omitted required VM flag and failed before fixture execution."
+    },
+    {
+      "command": "Existing GuideProbe full PhysicsGpuAbi.ValidateCandidate on guide-final-numerical-20261004.raw.json rows",
+      "result": "8/8 exact retained source/candidate pairs accepted; exit 0",
+      "original": "109a23"
+    },
+    {
+      "command": "Anvil scoped AST/regex check of shader, declaration, ABI, compiler, motion decoder and wire tests",
+      "result": "0 warnings/errors"
+    }
+  ],
+  "numerical": "Reviewer checked all six 48-tick free-guide controls against the unchanged oracle and all three 600-tick authored trajectories. Actual canonical sphere radius is 0.340087890625 U, diameter 0.68017578125 U. The earlier smaller positional threshold was stricter; no runtime or tolerance increase followed.",
+  "reviewEvidence": [
+    "playable-contact-review-20261004.json",
+    "reliable-ack-review-20261004.json",
+    "guide-final-numerical-20261004.raw.json"
+  ],
+  "content": "Only current first_principles object replaces HEAD's object in published content/puzzles.json; exact HEAD prefix/remainder retained. Review input stays outside publication. The sole admitted JSON reader tests entry[0]'s 99 canonical Half knot fields, whose bytes are unchanged from the passed native run.",
+  "limits": "Manual placement only. Physical ramp nudging, full campaign/component coverage and detailed performance/device qualification remain required later. No performance Pass or global audit claim. Independent SnapshotApproval and deployed verification still required.",
+  "preservation": "Original failed numerical/compile/build/UI attempts remain in owning review/raw records. No new compatibility path, per-part solver, CPU fallback or budget increase."
+}

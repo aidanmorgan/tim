@@ -45,7 +45,7 @@ public partial class Workshop
         RefreshPalette();
         try
         {
-            var result = await World.ReplaceConstruction(construction.Ball, construction.Receiver);
+            var result = await World.ReplaceConstruction(construction);
             if (_workshopUiRemoved) return false;
             if (!result.Applicable) return false;
             if (result.Result.Outcome != WorkshopCommandOutcome.Applied)
@@ -72,14 +72,10 @@ public partial class Workshop
         if (!CanEdit || _selected is null) return;
         try
         {
-            var proposed = _selected.Definition.WorkshopKind switch
-            {
-                WorkshopPartKind.Basketball when World.Construction.Ball is { } ball =>
-                    World.Construction with { Ball = World.CaptureBasketball(ball.Id, _selected.Position, _selected.Quaternion) },
-                WorkshopPartKind.Receiver when World.Construction.Receiver is { } receiver =>
-                    World.Construction with { Receiver = World.CaptureReceiver(receiver.Id, _selected.Position, _selected.Quaternion) },
-                _ => throw new ArgumentException("Selected part is not in the construction.")
-            };
+            if (_selected.Locked) throw new ArgumentException("Fixed puzzle instances cannot be edited.");
+            var proposed = World.Construction.WithInstance(World.CaptureInstance(_selected.Definition.WorkshopKind,
+                _selected.AuthoredId, _selected.Position, _selected.Quaternion,
+                _selected is RampPart ramp ? ramp.CanonicalDimensions : null));
             // Live pointer motion is an input preview, never retained canonical construction.
             World.RestoreConstructionPresentation();
             var accepted = await SubmitConstruction(proposed);

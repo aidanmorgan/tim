@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 3 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 4 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, ContactResidual, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
@@ -21,11 +21,13 @@ public static class PhysicsGpuAbi
     public const int ColliderBytes = 96;
     public const int MaterialBytes = 32;
     public const int SensorBytes = 128;
+    public const int GuideBytes = 64;
     public const int BodiesOffset = HeaderBytes;
     public const int CollidersOffset = BodiesOffset + PhysicsSceneDeclaration.BodyCapacity * BodyBytes;
     public const int MaterialsOffset = CollidersOffset + PhysicsSceneDeclaration.ColliderCapacity * ColliderBytes;
     public const int SensorsOffset = MaterialsOffset + PhysicsSceneDeclaration.MaterialCapacity * MaterialBytes;
-    public const int MotionOffset = SensorsOffset + PhysicsSceneDeclaration.SensorCapacity * SensorBytes;
+    public const int GuidesOffset = SensorsOffset + PhysicsSceneDeclaration.SensorCapacity * SensorBytes;
+    public const int MotionOffset = GuidesOffset + PhysicsSceneDeclaration.GuideCapacity * GuideBytes;
     public const int ByteLength = MotionOffset + PhysicsMotionRead.ByteLength;
     public const uint NoBody = uint.MaxValue;
     // A binary eighth-second primary segment bounds elapsed-value quantization.
@@ -39,7 +41,7 @@ public static class PhysicsGpuAbi
         U32(data, 0, (uint)PhysicsStateVersion.GenericMechanical);
         U32(data, 12, (uint)scene.Bodies.Length); U32(data, 16, (uint)scene.Colliders.Length);
         U32(data, 20, (uint)scene.Materials.Length); U32(data, 24, (uint)scene.Sensors.Length);
-        U32(data, 28, NoBody);
+        U32(data, 28, NoBody); U32(data, 96, (uint)scene.Guides.Length);
         U64(data, 32, epoch.Value); U32(data, 48, (uint)profile.Cadence);
         U32(data, 52, (uint)profile.Physical); U64(data, 56, profile.Revision.Value);
         U64(data, 64, scene.Document.Low); U64(data, 72, scene.Document.High); U64(data, 80, scene.NextIdentity);
@@ -81,6 +83,16 @@ public static class PhysicsGpuAbi
             Vector(record, 40, sensor.Minimum.X, sensor.Minimum.Y, sensor.Minimum.Z);
             Vector(record, 48, sensor.Maximum.X, sensor.Maximum.Y, sensor.Maximum.Z);
             H(record, 56, sensor.SpeedLimit.Value); H(record, 58, sensor.Dwell.Value);
+        }
+        for (var i = 0; i < scene.Guides.Length; i++)
+        {
+            var guide = scene.Guides[i]; var record = data.Slice(GuidesOffset + i * GuideBytes, GuideBytes);
+            U64(record, 0, guide.Id.Value); U32(record, 8, BodySlot(scene, guide.Frame));
+            U32(record, 12, BodySlot(scene, guide.Target)); Pose(record, 16, guide.Pose);
+            Vector(record, 32, guide.Minimum.X, guide.Minimum.Y, guide.Minimum.Z);
+            Vector(record, 40, guide.Maximum.X, guide.Maximum.Y, guide.Maximum.Z);
+            H(record, 48, guide.MaximumAcceleration.Value); H(record, 50, guide.SupportHeight.Value);
+            H(record, 52, guide.SupportMargin.Value);
         }
         return bytes;
     }
@@ -163,7 +175,8 @@ public static class PhysicsGpuAbi
             R32(candidate, 88) != checked((uint)(expectedTick.Value * profile.Substeps)) ||
             !candidate[..4].SequenceEqual(source[..4]) ||
             !candidate[12..40].SequenceEqual(source[12..40]) ||
-            !candidate[48..88].SequenceEqual(source[48..88]))
+            !candidate[48..88].SequenceEqual(source[48..88]) ||
+            !candidate[96..100].SequenceEqual(source[96..100]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
         var bodyCount = checked((int)R32(source, 12)); var dynamicSlot = R32(source, 28);
         var dynamicCount = 0;
@@ -251,8 +264,10 @@ public static class PhysicsGpuAbi
             captured += current.OccurrenceCount;
         }
         if (R32(candidate, 92) != captured ||
-            !AllZero(candidate[(SensorsOffset + sensorCount * SensorBytes)..MotionOffset]))
+            !AllZero(candidate[(SensorsOffset + sensorCount * SensorBytes)..GuidesOffset]))
             throw new ArgumentException("Capture count or unused sensor slots changed.");
+        if (!candidate[GuidesOffset..MotionOffset].SequenceEqual(source[GuidesOffset..MotionOffset]))
+            throw new ArgumentException("Guide declaration changed.");
         if (expectedTick.Value != 0 && (R32(candidate, MotionOffset + 4) != profile.Substeps ||
             R32(candidate, MotionOffset + 12) != R32(candidate, 88)))
             throw new ArgumentException("Motion profile differs from its committed world.");
@@ -282,6 +297,7 @@ const BODY_CAPACITY:u32={PhysicsSceneDeclaration.BodyCapacity}u;
 const COLLIDER_CAPACITY:u32={PhysicsSceneDeclaration.ColliderCapacity}u;
 const MATERIAL_CAPACITY:u32={PhysicsSceneDeclaration.MaterialCapacity}u;
 const SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.SensorCapacity}u;
+const GUIDE_CAPACITY:u32={PhysicsSceneDeclaration.GuideCapacity}u;
 const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
 const STATUS_COMMITTED:u32={(uint)PhysicsCandidateStatus.Committed}u;
 const STATUS_INVALID:u32={(uint)PhysicsCandidateStatus.Invalid}u;
@@ -319,8 +335,9 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             R32(data, 16) > PhysicsSceneDeclaration.ColliderCapacity ||
             R32(data, 20) > PhysicsSceneDeclaration.MaterialCapacity ||
             R32(data, 24) > PhysicsSceneDeclaration.SensorCapacity ||
+            R32(data, 96) > PhysicsSceneDeclaration.GuideCapacity ||
             (R64(data, 64) == 0 && R64(data, 72) == 0) || R64(data, 80) == 0 ||
-            !AllZero(data[96..128]))
+            !AllZero(data[100..128]))
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;

@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 8 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 9 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null);
@@ -19,7 +19,9 @@ public readonly record struct WorkshopResponse(CommandSequence Sequence, Worksho
 public static class WorkshopWire
 {
     public const int CommandHeaderBytes = 72;
-    public const int ConstructionBytes = 288;
+    public const int ConstructionHeaderBytes = 320;
+    public const int InstanceBytes = 128;
+    public const int ConstructionBytes = ConstructionHeaderBytes + WorkshopInstances.Capacity * InstanceBytes;
     public const int ResponseBytes = 512 + PhysicsMotionRead.ByteLength;
     public static bool Matches(WorkshopCommand command, SimulationEpoch epoch, AuthorityRevision revision,
         RuntimeSessionId session, CadenceRevision cadence, ProjectionEpoch projection) =>
@@ -292,68 +294,72 @@ public static class WorkshopWire
     internal static void WriteConstruction(Span<byte> data, WorkshopConstruction construction)
     {
         if (data.Length != ConstructionBytes) throw new ArgumentException("Invalid construction width.");
-        construction.Validate();
-        data.Clear();
-        WorkshopCadenceWire.Write(construction.Settings, data[128..160]);
+        construction.Validate(); data.Clear();
         BinaryPrimitives.WriteUInt64LittleEndian(data, construction.Revision.Value);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[8..], construction.Ball is null ? 0u : 1u);
-        if (construction.Receiver is { } receiver)
+        BinaryPrimitives.WriteUInt32LittleEndian(data[8..], checked((uint)construction.Instances.Count));
+        WorkshopCadenceWire.Write(construction.Settings, data[16..48]);
+        WorkshopPuzzleWire.Write(data[48..304], construction.Puzzle);
+        for (var i = 0; i < construction.Instances.Count; i++)
         {
-            BinaryPrimitives.WriteUInt32LittleEndian(data[160..], 1);
-            new CanonicalBody(receiver.Id, 0, 0, receiver.Cell, receiver.Local, default).Write(data[176..256]);
-            Write(data[256..], receiver.Rotation.X); Write(data[258..], receiver.Rotation.Y);
-            Write(data[260..], receiver.Rotation.Z); Write(data[262..], receiver.Rotation.W);
-            Write(data[264..], receiver.Capture.Margin.Value); Write(data[266..], receiver.Capture.SpeedLimit.Value);
-            Write(data[268..], receiver.Capture.Dwell.Value);
-            BinaryPrimitives.WriteUInt32LittleEndian(data[272..], (uint)receiver.Capture.Participation);
+            var instance = construction.Instances[i];
+            var slot = data.Slice(ConstructionHeaderBytes + i * InstanceBytes, InstanceBytes);
+            BinaryPrimitives.WriteUInt32LittleEndian(slot, (uint)instance.Kind);
+            BinaryPrimitives.WriteUInt32LittleEndian(slot[4..], instance.Locked ? 1u : 0u);
+            new CanonicalBody(instance.Id, 0, 0, instance.Cell, instance.Local, default).Write(slot[16..96]);
+            Write(slot[96..], instance.Rotation.X); Write(slot[98..], instance.Rotation.Y);
+            Write(slot[100..], instance.Rotation.Z); Write(slot[102..], instance.Rotation.W);
+            switch (instance)
+            {
+                case WorkshopBall ball:
+                    Write(slot[104..], ball.Material.Radius.Value); Write(slot[106..], ball.Material.Mass.Value);
+                    Write(slot[108..], ball.Material.Bounce.Value); Write(slot[110..], ball.Material.Drag.Value);
+                    Write(slot[112..], ball.Material.Buoyancy.Value); break;
+                case WorkshopReceiver receiver:
+                    Write(slot[104..], receiver.Capture.Margin.Value); Write(slot[106..], receiver.Capture.SpeedLimit.Value);
+                    Write(slot[108..], receiver.Capture.Dwell.Value);
+                    BinaryPrimitives.WriteUInt32LittleEndian(slot[112..], (uint)receiver.Capture.Participation); break;
+                case WorkshopRamp ramp:
+                    Write(slot[104..], ramp.Dimensions.Length.Value); Write(slot[106..], ramp.Dimensions.Width.Value); break;
+                default: throw new ArgumentException("Unsupported instance declaration.");
+            }
         }
-        if (construction.Ball is not { } ball) return;
-        new CanonicalBody(ball.Id, 0, 0, ball.Cell, ball.Local, default).Write(data.Slice(16, CanonicalBody.ByteLength));
-        Write(data[96..], ball.Rotation.X); Write(data[98..], ball.Rotation.Y);
-        Write(data[100..], ball.Rotation.Z); Write(data[102..], ball.Rotation.W);
-        Write(data[104..], ball.Material.Radius.Value); Write(data[106..], ball.Material.Mass.Value);
-        Write(data[108..], ball.Material.Bounce.Value); Write(data[110..], ball.Material.Drag.Value);
-        Write(data[112..], ball.Material.Buoyancy.Value);
     }
 
     internal static WorkshopConstruction ReadConstruction(ReadOnlySpan<byte> data)
     {
         if (data.Length != ConstructionBytes) throw new ArgumentException("Invalid construction width.");
-        var revision = new ConstructionRevision(BinaryPrimitives.ReadUInt64LittleEndian(data));
         var count = BinaryPrimitives.ReadUInt32LittleEndian(data[8..]);
-        if (count > 1 || !Zero(data[12..16]) || !Zero(data[114..128]))
-            throw new ArgumentException("Unsupported construction shape.");
-        WorkshopBall? ball = null;
-        if (count == 1)
+        if (count > WorkshopInstances.Capacity || !Zero(data[12..16]) || !Zero(data[304..ConstructionHeaderBytes]) ||
+            !Zero(data[(ConstructionHeaderBytes + checked((int)count) * InstanceBytes)..]))
+            throw new ArgumentException("Invalid construction count or padding.");
+        var instances = new IWorkshopInstance[count];
+        for (var i = 0; i < instances.Length; i++)
         {
-            var body = CanonicalBody.Decode(data[16..96]);
+            var slot = data.Slice(ConstructionHeaderBytes + i * InstanceBytes, InstanceBytes);
+            var kind = (WorkshopPartKind)BinaryPrimitives.ReadUInt32LittleEndian(slot);
+            var locked = BinaryPrimitives.ReadUInt32LittleEndian(slot[4..]);
+            if (locked > 1 || !Zero(slot[8..16])) throw new ArgumentException("Invalid authored instance flags.");
+            var body = CanonicalBody.Decode(slot[16..96]);
             if (body.Epoch != 0 || body.Tick != 0 || !HalfBits.IsPositiveZero(body.Velocity))
                 throw new ArgumentException("Construction contains live simulation state.");
-            ball = new(body.Id, body.Cell, body.Local,
-                new(Read(data[96..]), Read(data[98..]), Read(data[100..]), Read(data[102..])),
-                new(new(Read(data[104..])), new(Read(data[106..])), new(Read(data[108..])),
-                    new(Read(data[110..])), new(Read(data[112..]))));
+            var rotation = new CanonicalRotation(Read(slot[96..]), Read(slot[98..]), Read(slot[100..]), Read(slot[102..]));
+            instances[i] = kind switch
+            {
+                WorkshopPartKind.Basketball when Zero(slot[114..]) => new WorkshopBall(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])), new(Read(slot[110..])), new(Read(slot[112..]))), locked == 1),
+                WorkshopPartKind.Receiver when Zero(slot[110..112]) && Zero(slot[116..]) => new WorkshopReceiver(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])),
+                        (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[112..])), locked == 1),
+                WorkshopPartKind.Ramp when Zero(slot[108..]) => new WorkshopRamp(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[104..])), new(Read(slot[106..]))), locked == 1),
+                _ => throw new ArgumentException("Unsupported instance kind or parameters.")
+            };
         }
-        else if (!Zero(data[16..128])) throw new ArgumentException("Empty construction has nonzero payload.");
-        var receiverCount = BinaryPrimitives.ReadUInt32LittleEndian(data[160..]);
-        if (receiverCount > 1 || !Zero(data[164..176]) || !Zero(data[270..272]) || !Zero(data[276..288]))
-            throw new ArgumentException("Invalid Receiver declaration shape.");
-        WorkshopReceiver? receiver = null;
-        if (receiverCount != 0)
-        {
-            var body = CanonicalBody.Decode(data[176..256]);
-            if (body.Epoch != 0 || body.Tick != 0 || !HalfBits.IsPositiveZero(body.Velocity))
-                throw new ArgumentException("Authored Receiver contains live state.");
-            receiver = new(body.Id, body.Cell, body.Local,
-                new(Read(data[256..]), Read(data[258..]), Read(data[260..]), Read(data[262..])),
-                new(new(Read(data[264..])), new(Read(data[266..])), new(Read(data[268..])),
-                    (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(data[272..])));
-        }
-        else if (!Zero(data[176..288])) throw new ArgumentException("Absent Receiver contains payload.");
-        var construction = new WorkshopConstruction(revision, ball, WorkshopCadenceWire.Read(data[128..160]), receiver);
-        construction.Validate();
-        return construction;
+        var construction = new WorkshopConstruction(new(BinaryPrimitives.ReadUInt64LittleEndian(data)),
+            WorkshopCadenceWire.Read(data[16..48]), new(instances), WorkshopPuzzleWire.Read(data[48..304]));
+        construction.Validate(); return construction;
     }
+
     private static bool Zero(ReadOnlySpan<byte> bytes)
     {
         foreach (var value in bytes) if (value != 0) return false;

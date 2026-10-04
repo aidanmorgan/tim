@@ -10,6 +10,7 @@ public readonly record struct PhysicsDocumentId(ulong Low, ulong High);
 public readonly record struct GpuColliderId(ulong Value);
 public readonly record struct GpuMaterialId(ulong Value);
 public readonly record struct GpuSensorId(ulong Value);
+public readonly record struct GpuForceId(ulong Value);
 public readonly record struct FrictionCoefficient(Half Value);
 public readonly record struct LinearSpeed(Half Value);
 public readonly record struct DurationSeconds(Half Value);
@@ -128,6 +129,26 @@ public readonly record struct ResidenceSensorDeclaration(
     }
 }
 
+/// <summary>Bounded descending-only planar centring in a declared static frame; the GPU evaluates the force.</summary>
+public readonly record struct PlanarGuideDeclaration(
+    GpuForceId Id, GpuBodyId Frame, GpuBodyId Target, RigidLocalPose Pose,
+    MetreVector Minimum, MetreVector Maximum, Metres SupportHeight, Metres SupportMargin, Acceleration MaximumAcceleration)
+{
+    public void Validate()
+    {
+        if (Id.Value == 0 || Frame.Value == 0 || Target.Value == 0 || Frame == Target)
+            throw new ArgumentException("Invalid guide identity.");
+        Pose.Validate();
+        PhysicsDeclarationBounds.Vector(Minimum.X, Minimum.Y, Minimum.Z, (Half)16);
+        PhysicsDeclarationBounds.Vector(Maximum.X, Maximum.Y, Maximum.Z, (Half)16);
+        if (Minimum.X >= Maximum.X || Minimum.Y >= Maximum.Y || Minimum.Z >= Maximum.Z)
+            throw new ArgumentException("Guide bounds must enclose a volume.");
+        PhysicsDeclarationBounds.Range(SupportHeight.Value, (Half)(-16), (Half)16);
+        PhysicsDeclarationBounds.Range(SupportMargin.Value, (Half)0, (Half)1);
+        PhysicsDeclarationBounds.Range(MaximumAcceleration.Value, (Half)0, (Half)12);
+    }
+}
+
 /// <summary>One immutable owner of compiled physical declarations. Array order is not public identity.</summary>
 public sealed class PhysicsSceneDeclaration
 {
@@ -135,24 +156,28 @@ public sealed class PhysicsSceneDeclaration
     public const int ColliderCapacity = 32;
     public const int MaterialCapacity = 16;
     public const int SensorCapacity = 8;
+    public const int GuideCapacity = 8;
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
     private readonly ResidenceSensorDeclaration[] _sensors;
+    private readonly PlanarGuideDeclaration[] _guides;
     public PhysicsDocumentId Document { get; }
     public ulong NextIdentity { get; }
     public ReadOnlySpan<RigidBodyDeclaration> Bodies => _bodies;
     public ReadOnlySpan<ColliderDeclaration> Colliders => _colliders;
     public ReadOnlySpan<ContactMaterialDeclaration> Materials => _materials;
     public ReadOnlySpan<ResidenceSensorDeclaration> Sensors => _sensors;
+    public ReadOnlySpan<PlanarGuideDeclaration> Guides => _guides;
 
     public PhysicsSceneDeclaration(PhysicsDocumentId document, ulong nextIdentity,
         ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders,
-        ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors)
+        ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
+        ReadOnlySpan<PlanarGuideDeclaration> guides)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
             bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
-            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity)
+            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity)
             throw new ArgumentException("Invalid physics document or capacity.");
         var ids = new HashSet<ulong>();
         var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>();
@@ -200,13 +225,23 @@ public sealed class PhysicsSceneDeclaration
                 !bodyMap.TryGetValue(sensor.Target, out var target) || target.Motion != RigidMotionKind.Dynamic)
                 throw new ArgumentException("Residence requires an admitted static frame and dynamic target.");
         }
+        var guidedBodies = new HashSet<GpuBodyId>();
+        foreach (var guide in guides)
+        {
+            guide.Validate(); Identity(guide.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(guide.Frame, out var frame) || frame.Motion != RigidMotionKind.Static ||
+                !bodyMap.TryGetValue(guide.Target, out var target) || target.Motion != RigidMotionKind.Dynamic ||
+                !dynamicColliders.Contains(guide.Target) || !guidedBodies.Add(guide.Target))
+                throw new ArgumentException("Guide requires a static frame and one uniquely guided dynamic sphere.");
+        }
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
-        _materials = materials.ToArray(); _sensors = sensors.ToArray();
+        _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray();
         Array.Sort(_bodies, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_colliders, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_materials, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_sensors, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        Array.Sort(_guides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)

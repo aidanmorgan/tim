@@ -86,6 +86,8 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private static partial Task Send(int client, byte[] command);
     [JSImport("acknowledgement", "workshopClient")]
     private static partial byte[] Acknowledgement(int client, byte[] sequence);
+    [JSImport("completeAcknowledgement", "workshopClient")]
+    private static partial void CompleteAcknowledgement(int client, byte[] sequence);
     [JSImport("dispose", "workshopClient")]
     private static partial void DisposeClient(int client);
 
@@ -102,7 +104,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         System.Security.Cryptography.RandomNumberGenerator.Fill(identity);
         var session = WorkshopWire.ReadSession(identity);
         var client = new BrowserWorkshopClient(session);
-        client._construction = new(new(1), null, WorkshopCadenceSettings.Default());
+        client._construction = new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty);
         client._id = new(await CreateClient([(int)WorkshopTransportState.Ready, (int)WorkshopTransportState.Backpressure,
             (int)WorkshopTransportState.TimedOut, (int)WorkshopTransportState.Indeterminate, (int)WorkshopTransportState.RecoveryBlocked],
             identity, [(int)WorkshopClockWire.Version, (int)NativeClockProfile.Chromium154MacIsolated,
@@ -191,6 +193,9 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                 if (response.Result.Outcome == WorkshopCommandOutcome.Applied && construction is { } admitted)
                     _construction = admitted;
             }
+            // A valid terminal receipt releases its lease even when a newer read owns presentation.
+            // Decode/identity/history failures above keep the reliable work unresolved.
+            CompleteAcknowledgement(_id.Value, encodedIdentity);
             return new(response, prepared.Applicable);
         }
         finally { _pending--; if (_constructionOwner == identity) { _proposedConstruction = null; _constructionOwner = null; } if (Pending == identity) Pending = null; }

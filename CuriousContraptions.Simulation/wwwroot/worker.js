@@ -243,7 +243,7 @@ self.onmessage = async event => {
         } catch (error) { self.postMessage({ failure: true, detail: String(error) }); }
         return;
     }
-    if (event.data?.reliableStalled === true) { host.ReliableStalled(); return; }
+    if (typeof event.data?.reliableStalled === 'boolean') { if (!disposed) host.SetReliableStall(event.data.reliableStalled); return; }
     const receipt = event.data?.readAcknowledged;
     if (receipt instanceof Uint8Array) {
         acknowledgeRead(receipt);
@@ -264,7 +264,7 @@ self.onmessage = async event => {
         return;
     }
     const bytes = event.data?.bytes;
-    if (!(bytes instanceof Uint8Array) || bytes.length < 72 || bytes.length > 360 || activeRequests >= 2) {
+    if (!(bytes instanceof Uint8Array) || bytes.length < 72 || bytes.length > 1416 || activeRequests >= 2) {
         self.postMessage({ rejected: true, detail: 'Invalid or saturated Workshop command transport.' });
         return;
     }

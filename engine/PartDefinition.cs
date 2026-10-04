@@ -2,8 +2,6 @@ using Godot;
 
 namespace CuriousContraptions;
 
-public enum WorkshopPartKind { Unsupported, Basketball, Receiver }
-
 [GlobalClass]
 public partial class PartDefinition : Resource
 {
@@ -11,9 +9,10 @@ public partial class PartDefinition : Resource
     [Export] public string Id
     {
         get => _id;
-        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "basket" => WorkshopPartKind.Receiver, _ => WorkshopPartKind.Unsupported }; }
+        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, _ => WorkshopPartKind.Unsupported }; }
     }
     public WorkshopPartKind WorkshopKind { get; private set; }
+    [Export] public RampDimensionsResource? Ramp { get; set; }
     [Export] public BasketballMaterialResource? Basketball { get; set; }
     [Export] public string Title { get; set; } = "";
     [Export] public string Category { get; set; } = "Structure";

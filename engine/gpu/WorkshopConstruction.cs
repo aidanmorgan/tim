@@ -48,8 +48,9 @@ public readonly record struct BasketballMaterial(
 
 /// <summary>Durable construction uses canonical bits and identities, never a live Godot transform.</summary>
 public readonly record struct WorkshopBall(
-    GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, BasketballMaterial Material)
+    GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, BasketballMaterial Material, bool Locked = false) : IWorkshopInstance
 {
+    public WorkshopPartKind Kind => WorkshopPartKind.Basketball;
     public void Validate()
     {
         Material.Validate();
@@ -71,8 +72,9 @@ public readonly record struct ReceiverCaptureSettings(
     }
 }
 public readonly record struct WorkshopReceiver(
-    GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, ReceiverCaptureSettings Capture)
+    GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, ReceiverCaptureSettings Capture, bool Locked = false) : IWorkshopInstance
 {
+    public WorkshopPartKind Kind => WorkshopPartKind.Receiver;
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
@@ -81,16 +83,20 @@ public readonly record struct WorkshopReceiver(
 }
 
 /// <summary>Immutable authored Workshop composition; parts compile declarations for the shared engine.</summary>
-public readonly record struct WorkshopConstruction(ConstructionRevision Revision, WorkshopBall? Ball, WorkshopCadenceSettings Settings, WorkshopReceiver? Receiver = null)
+public readonly record struct WorkshopConstruction(ConstructionRevision Revision, WorkshopCadenceSettings Settings, WorkshopInstances Instances, WorkshopPuzzle Puzzle = default)
 {
+    public WorkshopBall? Ball => Instances.Find<WorkshopBall>();
+    public WorkshopReceiver? Receiver => Instances.Find<WorkshopReceiver>();
+    public WorkshopConstruction WithInstance(IWorkshopInstance instance) => this with { Instances = Instances.With(instance) };
+    public WorkshopConstruction WithoutInstance(GpuBodyId id) => this with { Instances = Instances.Without(id) };
     public static Acceleration Gravity => new((Half)9.81);
     public static Metres WorkbenchSurface => new((Half)(-0.46));
     public void Validate()
     {
         if (Revision.Value == 0) throw new ArgumentException("Construction revision must be nonzero.");
-        Settings.Validate(); Ball?.Validate(); Receiver?.Validate();
-        if (Ball is { } ball && Receiver is { } receiver && ball.Id == receiver.Id)
-            throw new ArgumentException("Authored body identities must be unique.");
+        Settings.Validate();
+        ArgumentNullException.ThrowIfNull(Instances);
+        Instances.Validate(); Puzzle.Validate(this);
     }
 }
 
@@ -115,6 +121,15 @@ public static class WorkshopInput
         var result = new WorkshopReceiver(id, new(px.Cell, py.Cell, pz.Cell),
             new(px.Local, py.Local, pz.Local), new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)),
             ReceiverCaptureSettings.Free);
+        result.Validate(); return result;
+    }
+
+    public static WorkshopRamp Ramp(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, RampDimensions dimensions)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopRamp(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), dimensions);
         result.Validate(); return result;
     }
 

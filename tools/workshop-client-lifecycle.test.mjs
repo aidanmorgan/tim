@@ -8,7 +8,7 @@ import vm from 'node:vm';
 const path = new URL('../CuriousContraptions.web/wwwroot/workshop-client.js', import.meta.url);
 const source = readFileSync(path, 'utf8');
 const executable = source.replace(/^import .*;\n/gm, '').replace(/^export /gm, '') +
-    '\n;({create, activate, probe, status, dispose, qualified});';
+    '\n;({create, activate, probe, status, dispose, qualified, send, acknowledgement, completeAcknowledgement});';
 // These integers are the C# WorkshopTransportState values at the JS import boundary.
 const state = Object.freeze({ Ready: 0, Backpressure: 1, TimedOut: 2, Indeterminate: 3, RecoveryBlocked: 4 });
 
@@ -254,4 +254,73 @@ test('premature Animation output fails without delivering to the managed consume
     h.workers[1].onmessage({ data: { animationOutput: new Uint8Array(96) } });
     await assert.rejects(h.creation, /precedes admission/);
     assert.equal(h.outputCalls(), 0); assert.ok(h.workers.every(worker => worker.terminated));
+});
+
+function commandIdentity(sequence) {
+    const bytes = new Uint8Array(72);
+    new DataView(bytes.buffer).setBigUint64(0, sequence, true);
+    return bytes;
+}
+function stallStates(h) { return h.messages.filter(item => typeof item.reliableStalled === 'boolean').map(item => item.reliableStalled); }
+
+test('delayed valid ACK clears current stall only after managed validation completion', async () => {
+    const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
+    const bytes = commandIdentity(1n), pending = h.api.send(id, bytes);
+    h.clock(500); h.tick(); assert.deepEqual(stallStates(h), []);
+    h.clock(501); h.tick(); assert.deepEqual(stallStates(h), [true]);
+    h.workers[0].onmessage({ data: { acknowledgement: bytes } }); await pending;
+    assert.deepEqual(stallStates(h), [true], 'arrival is not validated completion');
+    assert.deepEqual(h.api.acknowledgement(id, bytes), bytes);
+    h.tick(); assert.deepEqual(stallStates(h), [true], 'leased but unvalidated remains unresolved');
+    // Represents return from the actual C# decode/cursor/admission boundary, including valid inapplicable receipts.
+    h.api.completeAcknowledgement(id, bytes);
+    assert.deepEqual(stallStates(h), [true, false]);
+    h.tick(); assert.deepEqual(stallStates(h), [true, false], 'state transitions do not repeat');
+    assert.throws(() => h.api.completeAcknowledgement(id, bytes), /not leased/);
+    h.api.dispose(id);
+});
+
+test('completing an older ACK cannot clear another aged request or exceed two leases', async () => {
+    const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
+    const a = commandIdentity(1n), b = commandIdentity(2n), c = commandIdentity(3n);
+    const pa = h.api.send(id, a), pb = h.api.send(id, b);
+    h.clock(501); h.tick();
+    h.workers[0].onmessage({ data: { acknowledgement: a } }); await pa;
+    h.api.acknowledgement(id, a);
+    await assert.rejects(h.api.send(id, c), /capacity/);
+    h.api.completeAcknowledgement(id, a); assert.deepEqual(stallStates(h), [true]);
+    h.workers[0].onmessage({ data: { acknowledgement: b } }); await pb;
+    assert.throws(() => h.api.completeAcknowledgement(id, b), /not leased/);
+    h.api.acknowledgement(id, b); h.api.completeAcknowledgement(id, b);
+    assert.deepEqual(stallStates(h), [true, false]); h.api.dispose(id);
+});
+
+test('taken but invalid ACK cannot release capacity or report healthy without completion', async () => {
+    const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
+    const a = commandIdentity(1n), b = commandIdentity(2n), c = commandIdentity(3n);
+    const pa = h.api.send(id, a);
+    h.clock(501); h.tick();
+    h.workers[0].onmessage({ data: { acknowledgement: a } }); await pa;
+    h.api.acknowledgement(id, a); // Managed rejection never calls completeAcknowledgement.
+    assert.throws(() => h.api.acknowledgement(id, a), /not available/);
+    assert.throws(() => h.api.completeAcknowledgement(id, c), /not leased/);
+    const pb = h.api.send(id, b); pb.catch(() => {});
+    await assert.rejects(h.api.send(id, c), /capacity/);
+    h.clock(502); h.tick(); assert.deepEqual(stallStates(h), [true]);
+    const handler = h.workers[0].onmessage;
+    h.api.dispose(id);
+    handler({ data: { acknowledgement: b } });
+    assert.throws(() => h.api.completeAcknowledgement(id, a), /disposed/);
+    assert.deepEqual(stallStates(h), [true]);
+});
+
+for (const duplicate of [false, true]) test(`unmatched or duplicate ACK faults without clearing stall (${duplicate})`, async () => {
+    const h = await clientHarness(), id = await h.ready(); h.publish(id); h.api.activate(id);
+    const a = commandIdentity(1n), pending = h.api.send(id, a); pending.catch(() => {});
+    h.clock(501); h.tick();
+    if (duplicate) { h.workers[0].onmessage({ data: { acknowledgement: a } }); await pending; }
+    h.workers[0].onmessage({ data: { acknowledgement: duplicate ? a : commandIdentity(2n) } });
+    assert.equal(h.api.status(id), state.Indeterminate);
+    assert.equal(h.workers[0].terminated, true);
+    assert.deepEqual(stallStates(h), [true]); h.api.dispose(id);
 });
