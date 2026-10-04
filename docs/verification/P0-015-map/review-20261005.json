@@ -1,0 +1,343 @@
+{
+  "schema": 1,
+  "slice": "CAT-015-D/I bounded Bumper interaction",
+  "reviewer": "/root/p025_review",
+  "implementationOwner": "/root/p025_implementation",
+  "date": "2026-10-05",
+  "base": "2581862f9124888959f5987b2f9e76a47219a004",
+  "status": "SnapshotApproval",
+  "scope": "Basketball contact with a placed Bumper through generic static Sphere geometry, finite paid radial contact response and committed overlapping impact feedback. No Pipe solver variant. One new catalogue element.",
+  "authority": [
+    "docs/planning/invest/current-consumers.md#cat-015-i",
+    "docs/planning/requirements.md#current-cat-015",
+    "docs/planning/requirements.md#todo-157",
+    "docs/planning/work-register.md#work-cat-015-d",
+    "docs/planning/work-register.md#work-cat-015-i",
+    "docs/planning/work-register.md#work-cat-015-v",
+    "docs/gpu-f16-physics.md",
+    "parts/BumperPart.cs",
+    "parts/catalog/bumper.tres"
+  ],
+  "approvedModel": {
+    "geometry": "Static Sphere radius Half(.65), source restitution1; actual radial normal and exterior gap rho-(R+r). Positive rho lower bounds justify convex clearance/normal variation. Existing four support sweeps qualify only with actual endpoint and full error-bearing radial interval checks. Apex and off-axis rest/graze must pass before admission.",
+    "storage": "Explicit new finite preload parameterization E0=.5*(referenceMass=1kg)*strength^2; canonical strength0..20/default8. One owner reservoir, no recharge or harvesting during Run; Reset restores preload, Save stores construction.",
+    "response": "Ordinary material impact first. Extra centre-radial impulse targets max(natural radial speed,strength) subject to available energy; tangent and omega are unchanged by this extra impulse. Static anchor reaction does no mechanical work. Multi-body connected actuation is not claimed.",
+    "arithmetic": "At most4 proposals. Each actual emitted canonical velocity is certified by directed work m*deltaV dot (vBefore+deltaV/2), without subtracting large kinetic energies. Over-budget proposal rescales impulse by downward E/Wupper, not sqrt. Require finite guarded operations, strict progress, workUpper<=store and existing speed64. Debit max(0,down(store-workUpper)); surplus debit is signed numerical residual, never physical loss credit. Canonical signed zeros are equal; positive nonzero differences cannot disappear through FTZ. Positive request underflow fails explicitly. Legitimate no-request/unchanged response spends zero.",
+    "events": "Accepted approaching physical impact at inclusive Half(.05) approach threshold; per-body cooldown is72 physical480Hz ordinals with phase retained, equivalent source18/120 seconds. Eligible strength0/depleted/stronger-natural impact still counts/pulses, rejected/cooldown/miss/rest/separating does not. Physical state, store, cooldown and occurrence commit/rollback together.",
+    "animation": "Shared worker consumes committed impact identities; no scene physics callback. Source overlapping additive-clamped sin-squared pulse over Half(.32) cosmetic seconds, expansion1+.24*pulse and RestColor #fff0c2 to gold #f7cb52. Multiple impacts must not restart/snap away existing ring feedback."
+  },
+  "oracle": {
+    "inputs": "Freeze exact canonical fixture bytes at executable handoff. Reference fixtures may directly declare state; genuine UI proof must use palette/config/gizmos and never setters/imported solutions.",
+    "headOn": "Gravity/drag0: solve |p0+v*t-C|=R+r independently. Choose actual head-on moving sphere and start separation with positive hit time; compare first contact time/normal and before/after velocities. General straight-line t uses earliest nonnegative root of |d|^2+2(d dot v)t+|v|^2t^2=(R+r)^2. Tangent/discriminant and depth misses remain controls.",
+    "paid": "Generic mass1, incoming normal speed4, restitution Half(.55)*1, strength8 and E0=32J: natural rebound about2.1992, paid result about8, work about29.5817J, remaining about2.4183J before canonical/debit rounding. Repeating the same incoming state after cooldown yields limited rebound about3.1102, not another8. Exact expected values derive from canonical inputs, not these rounded prose numbers.",
+    "strongerNatural": "With normal speed20 and same material, natural rebound about10.9961>strength8: zero extra impulse/store debit but eligible hit/pulse. Strength0 likewise preserves natural collision.",
+    "rest": "Apex zero-velocity placement under gravity must rest without boost/pulse. Off-axis low-speed rest-to-roll/graze must follow exterior sphere geometry and ordinary friction, without infinite tangent-plane support or deliberate surface glue. Stationary/separating controls do not spend energy.",
+    "ledger": "Whole-Run signed body kinetic+potential+reservoir balance, including spin and independently derived material/drag/friction work, against existing max(Q,5%*(E0+Win+Wout)), Q=2^-10J. Reservoir debit surplus remains residual. No per-hit tolerance reset; zero available work cannot sustain useful extra boost.",
+    "bounds": "Existing position<=5% characteristic span (Basketball diameter.68), speed<=10% characteristic speed, orientation<=5deg and intended hit/miss/event exactness. Existing contact correction/work limits remain; no universal microscopic sign test."
+  },
+  "criteria": [
+    {
+      "id": "B1",
+      "impact": "New static Sphere query/admission/compiler/ABI",
+      "checks": "Canonical radius/material/pose, head-on timing, true graze/depth miss, translated/rotated static frame, initial overlap rejection; all actual GPU.",
+      "status": "Pass for stated first-playable scope; evidence and retained limits below."
+    },
+    {
+      "id": "B2",
+      "impact": "Shared curved support/CCD",
+      "checks": "Apex rest, off-axis rest-to-roll/graze and separating control; current Plane/Box regression only where changed shared code requires it. No blanket reuse of unqualified Pipe support.",
+      "status": "Pass for stated first-playable scope; evidence and retained limits below."
+    },
+    {
+      "id": "B3",
+      "impact": "New generic reservoir and impulse law",
+      "checks": "Paid/limited/exhausted/stronger-natural/strength0; finite max strength and zero/last quantum; no-progress/overflow rejection; directed actual work and full signed ledger.",
+      "status": "Pass for stated first-playable scope; evidence and retained limits below."
+    },
+    {
+      "id": "B4",
+      "impact": "Discrete physical occurrences and transaction",
+      "checks": "Inclusive threshold, cooldown just-before/at/after exact phase deadline, repeated return, stable body identity, rollback after paid candidate rejection, Reset cancels old occurrences and replenishes exactly.",
+      "status": "Pass for stated first-playable scope; evidence and retained limits below."
+    },
+    {
+      "id": "B5",
+      "impact": "Shared animation and presenter",
+      "checks": "One pulse per eligible committed hit, zero for rejected/rest/miss; overlapping expansion/gold sum without snap; delayed delivery, Pause/Reset ownership and first visible frame within current affected lifecycle.",
+      "status": "Pass for stated first-playable scope; evidence and retained limits below."
+    },
+    {
+      "id": "B6",
+      "impact": "Authoring/content/save",
+      "checks": "Palette actual placement/config with strength0/default/max, canonical displayed value/Apply/Cancel/Undo, exact Save/Load/Run/Reset construction restoration; forward unsupported schema rejection.",
+      "status": "Pass for stated first-playable scope; evidence and retained limits below."
+    },
+    {
+      "id": "B7",
+      "impact": "Actual playable outcome",
+      "checks": "Genuine UI paid redirection and repeated return/limited-store comparison, missed/depth/strength0 controls, committed visible feedback. Actual placed configuration verified.",
+      "status": "Pass for stated first-playable scope; evidence and retained limits below."
+    },
+    {
+      "id": "B8",
+      "impact": "Build/publication",
+      "checks": "Affected native/browser worker callers and tests, exact CI Release, justified source/resource closure, single frozen SnapshotApproval, remote+original CI artifact+loaded identities and production-origin affected UI. Performance only affected workload observations; named global device/performance gates remain open.",
+      "status": "Pre-publication Pass; exact remote/CI artifact/deployed identity and production-origin checks pending."
+    }
+  ],
+  "retainedChildren": [
+    "CAT-015 full fixture/difficulty coverage including bumper_sidekick and bumper_depth authored assistance",
+    "Sequence157 coupled multi-body work and sequence158 connected actuation beyond the admitted static anchor/one sphere",
+    "Global P0-030/031/032/034/035 qualification",
+    "Pipe unresolved source037016 and review-only252b persistence/search proposal",
+    "CAT-015 cosmetic ring settling after a stopped goal; current pulse follows selected physical time/Pause. Existing Wait for it SOLVED continues Running; no ordinary stopped-goal defect inferred."
+  ],
+  "originalEvidence": [
+    "69b244 source/card inspection (register output overbroad and truncated; no completeness inferred)",
+    "dc972f exact CAT015 D/I/V, todo157 and numeric authority",
+    "b3ad81 resource and sequence157/158 scope",
+    "b55aa0 current support/shape source inspection",
+    "d7ab15 compiler/material read; Basketball canonical mass bits15360=1kg",
+    "Bumper model approval messages in current same-pair session; no runtime Pass"
+  ],
+  "next": "Implementation owner may commit/push exact frozen candidate. Reviewer retains production Chrome ownership and finishes enumerated publication-dependent checks before terminal Pass.",
+  "geometryBoundary": {
+    "sourceFirst": "71fde79d40b49f2029a8a9276e7cf1f45c95ecf842a78b474bdbaca9e95e7fbf",
+    "sourceCurrent": "4e726887cd548dd01d3f18882870592c40576a7f2019d3e98ab62dee2fd161e1",
+    "input": "81fd5610a68435df030425bc5dc56bf49eb1ea9184b3e936b8bdadbdd9f0705e",
+    "environment": "Chrome154.0.8037.93; WebGPU Apple metal-3; shader-f16",
+    "compile": "Actual shader compilation zero messages. Original setup attempts import/require unavailable in connector VM, no shader execution; final source/input injected from read-only captured bytes.",
+    "findings": [
+      {
+        "id": "B2-I1",
+        "status": "Scoped source fix inspected",
+        "problem": "Early sphere support certificate omitted carried/guide-horizon errors.",
+        "fix": "Current2cf certifies actual accepted span after errors and earliest event selection; includes event velocity error."
+      },
+      {
+        "id": "B1-I2",
+        "status": "Resolved for retained55 and original drop120 by Sphere normal-domain and separating certificates",
+        "problem": "sphere-drop admits then RootBudget4 at candidate55 after54 committed ticks; no impact.",
+        "last": {
+          "tick": 54,
+          "ordinal": 216,
+          "position": [
+            0,
+            4.997314453125,
+            0
+          ],
+          "velocity": [
+            0,
+            -4.4375,
+            0
+          ],
+          "impacts": 0
+        },
+        "evidence": "geometry-first-20261005.raw.json, parse43283b; unchanged original19088B predecessor/candidate retained"
+      },
+      {
+        "id": "B2-I3",
+        "status": "Open Fail",
+        "problem": "Off-axis support is physically loaded but fixed-normal solve omits exterior normal acceleration; endpoint outward residual crosses retention bound, releases, then zero-gap departing interval exhausts RootBudget.",
+        "evidence": "geometry-departure-20261005.raw.json rows[4], parse65d2ae; exact87dea437 marker physicalDifferences[] outside104..127",
+        "marker": {
+          "phases": [
+            0,
+            0.00390625
+          ],
+          "gaps": [
+            0,
+            0
+          ],
+          "vn": [
+            0.0010051727294921875,
+            0.0010051727294921875
+          ],
+          "iteration": 20,
+          "depth": 20,
+          "stack": 20
+        },
+        "reference": {
+          "tick39FreeGapAcceleration": -8.728103253951137,
+          "tick40FreeGapAcceleration": -8.680869848734664,
+          "tick39GeometricVn": 0.0009502046169783063,
+          "tick40GeometricVn": 0.0011297224744204895,
+          "tick39Jn": 0.0184326171875,
+          "tick39Tangent1": 0.0021381378173828125
+        },
+        "decision": "Zero-endpoint concavity certificate held after physical classification; no support/model patch approved. Need smallest geometric support correction, not ownership glue or tolerance expansion."
+      },
+      {
+        "id": "B2-I4",
+        "status": "Scoped fix/replay progression",
+        "problem": "Curvature candidate7637 changed sweep target but retained planar-zero final residual consumer.",
+        "fix": "70d0 shares recomputed target in final check; exact loaded39->40 succeeds, original rolling reaches63."
+      },
+      {
+        "id": "B2-I5",
+        "status": "Scoped fix/replay progression",
+        "problem": "70d0 actual endpoint normal velocity fails at64 though target residual passes.",
+        "evidence": "geometry-curvature-20261005.raw.json,248b8b;2bcd stage102;0fa/d95e no-query captures physically identical outside reserved24B.",
+        "diagnosis": "Decoded endpoint velocity equals solved velocity. Exact geometric endpoint vn=-.00064929, actual canonical queried normal exact dot=-.00104713 and executed dot=-.00109482. Normal quantization, not large curvature truncation, explains discrepancy.",
+        "fix": "465252 uses sweep0 geometric target and remaining existing3 sweeps actual emitted endpoint residual with positive applied/end-normal sensitivity; same shared trial/final curve; exact63->64 passes and original rolling reaches72."
+      },
+      {
+        "id": "B2-I6",
+        "status": "Scoped source/replay progression",
+        "problem": "465252 candidate73 fails whole-piece radial-band certificate at ordinal291/0->4096; actual endpoint gap=-.00048828125 and vn=-.0000591278076171875 pass.",
+        "evidence": "geometry-endpoint-20261005.raw.json,9ec38a;737237 marker physicalDifferences[];stage103.",
+        "next": "2ff6 squared-radius chord certificate passes exact73. Original rolling then reaches73 and fails74 at different final-response predicate."
+      },
+      {
+        "id": "B1-I7",
+        "status": "Scoped supporting Pass",
+        "problem": "True high-speed free departure initially RootBudget at slightly negative rounded gap.",
+        "fix": "1731 uses existing full-interval convex squared clearance against upward-rounded certificate-only radius r-band under original nonnegative endpoint velocities. Actual collider/contact radius unchanged.",
+        "result": "Exact first tick and12tick original launch pass. No impact/support/spin; final(.39990234375,4.940948486328125),v(4,-.98095703125); free reference(.4,4.940927734375),v(4,-.98125)."
+      },
+      {
+        "id": "B2-I8",
+        "status": "Scoped numerical progression; coherent endpoint validator passes120",
+        "problem": "2ff6 rolling74 fails final approximate curvature-target residual after actual endpoint feedback.",
+        "evidence": "geometry-radial-20261005.raw.json; a62a marker physically identical outside104..127.",
+        "marker": {
+          "stage": 101,
+          "ordinal": 294,
+          "phase": [
+            0,
+            4096
+          ],
+          "target": -0.005558013916015625,
+          "actual": -0.00673675537109375,
+          "Jn": 0.00885009765625,
+          "hUnits": 1.06640625
+        },
+        "next": "Reconcile final geometric/complementarity/work obligations; no further band tuning or unexplained guard removal.",
+        "resolution": "133a replaces Sphere-only first-order seed check with actual canonical endpoint constraint, retains feature/band/error/finite/impulse guards and Plane/Box validation. No threshold change."
+      }
+    ],
+    "remaining": "Coherent ABI6/native integration and affected actual-game route; paid boundary/rollback/transport checks. No unresolved geometry run failure on133a, no complete Bumper Pass.",
+    "resources": "One reviewer-owned isolated GPU page, ABI5 geometry and ABI6 paid contexts retained separately; idle after bounded checks.",
+    "controls": {
+      "drop": "120 ticks complete,2impacts; analytic finalYerror .0009732746523 and speederror .008482911178 (af342e). Full energy/motion/native validation pending.",
+      "miss": "120 ticks complete,0impacts, exact expectedY1.09375",
+      "graze": "120 ticks complete,1impact with spin; full trajectory/work oracle pending",
+      "apex": "133a affected120tick recheck exactrest/support1/noimpact.",
+      "offaxis": "133a full120 completes. First support loss88, small recontact89, free90; reference true unload .737552s lies in this interval. Max position error .00620114U and orientation1.666644deg pass; signed energy residual-.02135636J vs2.657988J bound. Native ABI5 validation pending or coherentABI6 replay.",
+      "separating": "Original1tick passes once on1731; noimpact/support,vy1.91796875",
+      "stationary": "Original120 passes once on1731; exactpose/zero velocity and spin,noimpact/support",
+      "fastRelease": "133a affected12tick recheck same free trajectory/0support/0impacts."
+    },
+    "currentReviewCandidate": "133aaf69e5f4ee1198decd65d8de4bbc806df201df29dec24278e7012810f907",
+    "releaseCandidate": "1731c6227006761543aa5cdc3877767168aa155af6bb73eae529fc4ab7048438",
+    "oracle": {
+      "evidence": "geometry-final-endpoint-20261005.raw.json; independent RK4 rolling/sliding Coulomb reference ea270d, not runtime physics.",
+      "referenceConvergence": "1/48000 vs1/96000s maxposition9.76e-10U,maxangle4.71e-10rad",
+      "initialOverlap": "Canonical source radius below exact contact by3.6664e-6U; reference initial radial correction explicitly reported, potential delta3.475e-5J; no tolerance fitting.",
+      "limits": "5% canonical .68U diameter=.034U position;5degrees orientation; max(2^-10,.05*(E0+Win+Wout))J",
+      "friction": "Independent declared Coulomb sliding loss .01316795696J; no observed numerical energy drop counted as work."
+    }
+  },
+  "pulseDeliveryRisk": "Cooldown>=9 physical ordinals limits one event/owner in a max8stepcommit, not lost multi-commit reads. Inspect actual committed occurrence queue before UI/read coalescing; never infer missing timestamps from hitcount. Ordinary ACK/Pause/Reset/staleepoch controls remain required.",
+  "paidBoundary": {
+    "shader": "00956a630df9bb82a36ec55332aa5377af3e1361c79c7b5f8ff6fb503ad8f3ff",
+    "input": "66cd6ec7322e7b6c4785eb4a3697bc1e85bda713f19af425a9ed0998d1899d14",
+    "ABI": "6/19600",
+    "evidence": "paid-first-20261005.raw.json; originalcompile zeroerrors; original00956 retained before exact-zero branch correction.",
+    "result": "Default/zero/depleted/stronger-natural24tick controls complete. Last subnormal rejects Arithmetic7 on firsthit, reservoir/count unchanged.",
+    "default": {
+      "event": [
+        13,
+        560
+      ],
+      "incoming": 4,
+      "natural": 2.19921875,
+      "outgoing": 8,
+      "remaining": 2.310546875,
+      "reportedDebit": 29.6875,
+      "physicalAddedKE": 29.58171844482422
+    },
+    "controls": {
+      "zero": "natural2.19921875,count1,debit0",
+      "depleted": "natural2.19921875,count1,debit0",
+      "strongerNatural": "incoming20,outgoing11,store32,count1,debit0,event3/-1524",
+      "lastQuantum": "count0,store2^-24,workbytes unchanged; statusInvalid/Arithmetic, noimpactcommit"
+    },
+    "open": "Exact-identical finite canonical paid proposal incorrectly fails; owner correcting to valid unchangedresponse. Positive arithmetic underflow still rejects. Actual transport/rollback/UI/cooldown/repeated-return pending."
+  },
+  "currentRuntimeBoundary": {
+    "servedShader": "2d05d7b2277b30aafff3cc955e706c6751323db4c77a4b983d41d36cbe1ec43e",
+    "servedReleaseReceipt": "local-release-20261005.json",
+    "loaded13": "All13 actual Playwright response raw bytes match receipt; last live responses used, stale response handles rejected.",
+    "ui": {
+      "route": "Genuine palette Bumper id1 at(2.399993896484375,3,3.6999969482421875), strength8; Basketball id2 lifted using Y gizmo then floor-plane drag, y5.074424743652344. Initial offset z3.600006103515625; final head-on aligned z3.6999969482421875 with actual drag.",
+      "passed": [
+        "Paid redirect and visible gold enlarged ring, event227/phase−702, tick57 vy7.90234375/vz−1.1376953125, remaining3.029296875",
+        "Pause75 stable, Resume101 then Reset exact initial position/velocity/store32/count0",
+        "Strength0 entered text Apply without Enter: naturalvy2.443359375, debit0, pulse1",
+        "Strength20 entered text Apply: preload200, actualvy19.828125,remaining2.373046875",
+        "Save8 layout→change0→Load restores8/layout/preload32",
+        "Actual moved-ball miss131, count0/store32/no pulse/no solver failure",
+        "Head-on real return hits57 and251, second reduced responsevy4.8984375 and store.0019521713256835938"
+      ],
+      "screenshots": [
+        ".playwright-mcp/page-2026-10-04T19-01-36-361Z.png",
+        ".playwright-mcp/page-2026-10-04T19-08-07-448Z.png"
+      ],
+      "failed": "Third head-on return causes Arithmetic7 at failed371; exact physical maps preserved in ui-third-return-20261005.raw.json. Native rejection335a51 expected.",
+      "observationLimits": "Original first observer only retained6 full reads; later compact event/position summaries plus last8 actual mapped GPU states. No mutation/injected scene or events."
+    },
+    "causalFix": {
+      "shader": "032e09dc4d444e56510507cfe509c9b366104b1e684d2f7b320019bad18e7eb2",
+      "diagnostic": "d376 existing-value marker physical equality excluding108..127; stage3vn2.6953125/E.0019521713256835938/desiredsame/requested0. Rationalized equivalent proposal preserves all actual response/debit gates.",
+      "exact": "Saved370→371 committed, native5527e0 accepted",
+      "continuation": "400 accepted later ticks through770/rest, no failure,7 eligibleevents/10materialimpacts. Third371 unchangedcanonical response debit0 retainsstore;437 debit.001443862915;473 .000395298004;493 consumes.000113427639→zero;513 exhausted eventdebit0."
+    },
+    "boundaryChecks": {
+      "current": "2d05 transformed120, maximum24,repeatedreturn230 completed; initialoverlap declarationreject. Native finalpair4f0647/fa2258/3bb63a accepted.",
+      "exactEligibility": "feaf reference helper calls current contact_work_response: adjacentbelow/equal/aboveHalf.05 yields counts0/1/1; signedphase before/at/after72 yields1/2/2/1/2.",
+      "zeroDisk": "Current2d05 exact inline branch extracted into reference arithmetic helper retains ±6minsubnormal atlimit0. Candidate9bed explicitzero returns0; normalzero,positiveprojection,inside andpositive tiny controls unchanged. Source/GPU arithmetic proof, not observed UI fault or whole support-call replay.",
+      "native": "Independent affected44/44 no-build Pass be5297/748ms; ownerfull516/51636f788 retained."
+    }
+  },
+  "finalCandidate": {
+    "manifest": "playable-candidate-paths.json",
+    "manifestSha256": "8818baf361547ea1523fc65b49d3ca4d9478198a3992bc0cd82f89c1c2605b22",
+    "closureSha256": "d27204c0cea5bb6501b0bc352c1cabdf475bcb57ecc653796916424f1543f460",
+    "inputs": 349,
+    "sources": 312,
+    "totalBytes": 10450906,
+    "base": "2581862f9124888959f5987b2f9e76a47219a004",
+    "independentChecks": "964180 all349 path bytes/hashes exact/no duplicates;02cad0 closure recomputed exact, declared res:// source/resource references all included, no deletion;b5dd92 changed source outside candidate none; owner b9bb9e compile/resource membership audited; final Release13 actual responses all exact."
+  },
+  "finalChecks": {
+    "kernel": "f9eee3e0de6f278f43dd2b5d475682bdbf2f7059f1e4e6c451f962e3ca99b3f5",
+    "build": "Exact CI Release fafa00/45589/013a08; local-release-final-20261005.json SHA9df908b205a515363cbd5afd9bf199de4a4812c795428eb809e73669f7c1be1b",
+    "native": "Owner517/5172363b0; independent44/44 be5297 and final current read/animation22/22 2c2638;0skipped. Test-only changed fixture highuint retains compiler domain; no runtime weakening.",
+    "gpu": "Final9 selected apex120/offaxis120/true-release12/paid24/zero24/depleted24/stronger24/max24/lastquantum3+reject: all admitted/accepted/failed full19600B snapshots byte-identical to independently reviewed applicable results, no error. Thus existing actual motion/oracles apply. Explicit current zero-disk helper5 controls Pass (previous defect repaired). Threshold/cooldown actual routine controls retained unchanged by rational proposal for zero-strength inputs.",
+    "energy": "Existing full rolling/graze/drop independent position/orientation/signed-work references retained. Added23ce7b combined body+reservoir signed residuals: max−.669258J, repeated−.100268J, within unchanged5% bounds; reservoir surplus never credited as physical loss. b06895 body-only oracle incl actual canonical paid anchor velocities and material impact reference: max residual0/bound10.5582J; repeated+.002279J/bound6.15529J. Source-specific fixed potential datum−.4599609375.",
+    "finalUi": {
+      "result": "Pass, same actual authored saved head-on construction loaded on final13, no setters/imported solutions.",
+      "events": "57,251,371,437,473,493,513;7 exact committed identities delivered, no missing pulse/ownership exceptions; third unchanged response retains store, later paid responses exhaust at493, exhausted513 stillpulses.",
+      "overlap": "Close473/493 events overlap atPause505, visibly expanded gold ring; subsequent636 restsvelocity0 and base ring. Screenshots19-17-27-954 and19-17-47-629.",
+      "reset": "Final Resetepoch3 and Loadepoch4 restore exact authoredposition(2.399993896484375,5.074424743652344,3.6999969482421875),velocity0,count0,energy32;oldpulsehistory retired.",
+      "config": "Final pendingtext7 Cancel leaves32/no command;Apply7 gives24.5;Undo restores32. Prior exact2d05 UI0/default20/miss/SaveLoad proof reused for unchanged authoring/resource/response outcomes; final selected numerical fullbytes confirm applicable formula behavior.",
+      "sharedDelay": "Actual picker Wait for it, paletteDelay, typedSwitch→Delay→Lamp connections; final currentwire14 emits3activations/1timer/0work, visible SOLVED screenshot19-20-34-354, stillRunningthrough1572;ResetandLoad return savedBumper. Previous complete difficulty/negative lesson evidence unchanged and retained.",
+      "errors": "No console/read/animation/lifecycle errors after ordinary successful reload; two workers retained across Run/Pause/Reset/lesson switching.",
+      "performance": "Observed ordinary foreground Bumper637 rAF intervals median8.33ms,p959.94,max10.325;640 mixedread/install dispatch p953.79,max94.81ms (notpureAdvance metric). No cold/matched-device/global performance claim."
+    },
+    "startup": "First final local reload exceeded existing5s GPU/clock startup bound before anytypedread; screenshot19-16-37-938/errorsretained. Advertised ordinary reload recovery reachedBuilding/bothworkers/noerrors within4.5s. Uncompressed local server and firstnewshadercompile confounded; no timeout alteration. Required ordinary production-origin startup remains publication-dependent; detailedmatchedcoldqualification staysP0-034."
+  },
+  "snapshotApproval": {
+    "verdict": "SnapshotApproval",
+    "scope": "First manually constructed Bumper + necessary shared staticSphere/paidwork/occurrence/pulse/currentwire closure; zero unresolved unintended regressions in required-now scope. Not fullCAT015, authoredBumpercampaign, cosmetic aftergoalsettle, Pipe or globaldevice/workload/faultqualification.",
+    "exactInputClosure": "d27204c0cea5bb6501b0bc352c1cabdf475bcb57ecc653796916424f1543f460",
+    "remainingPublicationDependent": [
+      "Normal commit/push exact approved inputs and explicit supplements; reviewer remote file/closure reconciliation.",
+      "Exact CI test/build/static/upload/deploy success; single original CI artifact13 identity receipt owned by implementation owner.",
+      "Actual production-origin normal startup within current bound; reconcile loaded13 rawbytes with original CIartifact.",
+      "Genuine production UI Bumper placement/configuration, paidredirect/pulse, meaningfulmiss orzero control, repeated/exhausted/overlap/rest, Pause/Reset/SaveLoad; preserve source/currentpreviouscriteria and scoped performance/lifecycle observations."
+    ],
+    "drift": "Relevant input changes invalidate affected approval; no approval from documentation or receipt alone."
+  }
+}

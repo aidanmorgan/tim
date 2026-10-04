@@ -578,7 +578,7 @@ public sealed class WorkshopWireTests
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(3), new(0), null, new(ulong.MaxValue))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(response);
-        Assert.Equal(11536, bytes.Length);
+        Assert.Equal(12048, bytes.Length);
         Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
         bytes[58] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
@@ -714,7 +714,7 @@ public sealed class WorkshopWireTests
         Assert.Equal(guide, copied.Guides[0]);
         Assert.Empty(GenericScene.Guides.ToArray());
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
-        foreach (var (offset, value) in new[] { (0, 3u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, 1u) })
+        foreach (var (offset, value) in new[] { (0, 3u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, (uint)PhysicsSceneDeclaration.ContactWorkCapacity + 1), (108, 1u) })
         {
             var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(offset), value);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBody(changed));

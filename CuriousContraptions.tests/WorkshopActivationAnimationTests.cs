@@ -165,6 +165,83 @@ public sealed class WorkshopActivationAnimationTests
         Assert.False(Field<bool>(client,"_goalRetry"));
     }
 
+
+    [Fact]
+    public void ContactPulseOwnsEachOccurrenceAndResetRetiresPendingAcknowledgements()
+    {
+        var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+        var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
+        Set(client, "_readScene", scene);
+        var declaration = scene.ContactWorks[0];
+        var initial = new ContactWorkRead(declaration.Id, declaration.Owner, declaration.Target, 0, default, 0, (Half)0,
+            new((Half)0), declaration.InitialEnergy, new((Half)0));
+        WorkshopRead Read(ContactWorkRead value) => new(new(1), new(4), null,
+            ContactWorks: new(new[] { value }));
+        Invoke(client, "ObserveContactFeedback", Read(initial));
+        var hit = initial with { OccurrenceCount = 1, Collider = new(4), EventOrdinal = 16,
+            EventPhase = (Half)(-1024), ApproachSpeed = new((Half)4),
+            RemainingEnergy = new((Half)20), LastDebit = new((Half)12) };
+        Invoke(client, "ObserveContactFeedback", Read(hit));
+        Invoke(client, "ObserveContactFeedback", Read(hit));
+        var pulses = Field<System.Collections.IList>(client, "_contactPulses");
+        Assert.Single(pulses.Cast<object>());
+        Assert.IsType<ArgumentException>(Assert.Throws<TargetInvocationException>(() =>
+            Invoke(client, "ObserveContactFeedback", Read(hit with { OccurrenceCount = 3 }))).InnerException);
+        foreach (var malformed in new[] {
+            hit with { OccurrenceCount=2, EventOrdinal=88, RemainingEnergy=new((Half)21), LastDebit=new((Half)0) },
+            hit with { OccurrenceCount=2, EventOrdinal=88, LastDebit=new((Half)1) },
+            hit with { OccurrenceCount=2, EventOrdinal=88, EventPhase=(Half)(-1025), LastDebit=new((Half)0) } })
+            Assert.IsType<ArgumentException>(Assert.Throws<TargetInvocationException>(() =>
+                Invoke(client, "ObserveContactFeedback", Read(malformed))).InnerException);
+        Assert.Single(pulses.Cast<object>());
+        var second = hit with { OccurrenceCount=2, EventOrdinal=88, LastDebit=new((Half)0) };
+        Invoke(client, "ObserveContactFeedback", Read(second));
+        Invoke(client, "ObserveContactFeedback", Read(second));
+        Assert.Equal(2,pulses.Count);
+        var control = Control with { Target = new((2UL << 32) + 2), Kind = AnimationControlKind.Impulse,
+            From = (Half)0, To = (Half)1, Duration = (Half).32, EventOrdinal = hit.EventOrdinal, EventPhase = hit.EventPhase };
+        var encoded = WorkshopAnimationWire.Control(Session, new(1), new(1), control);
+        Assert.Equal(control, WorkshopAnimationWire.ReadControl(encoded, Session, new(1), new(1)));
+        var pulse = pulses[0]!;
+        pulse.GetType().GetField("Requested")!.SetValue(pulse, control);
+        SetPending(client, control, new(1));
+        var cadence = Schedule(1, 2); Invoke(client, "ReconcileAnimationSchedule", cadence); Set(client, "_schedule", cadence);
+        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Acknowledgement, 1));
+        Assert.Null(pulse.GetType().GetField("Requested")!.GetValue(pulse));
+        Assert.Null(pulse.GetType().GetField("Segment")!.GetValue(pulse));
+        pulse.GetType().GetField("Requested")!.SetValue(pulse, control);
+        SetPending(client, control, new(2));
+        var wrong = Output(control, new(2), AnimationOutputKind.Acknowledgement, 1);
+        BinaryPrimitives.WriteUInt16LittleEndian(wrong.AsSpan(132), BitConverter.HalfToUInt16Bits((Half).4));
+        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(wrong));
+        Assert.NotNull(Field<ChannelControl?>(client, "_animationPending"));
+        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Acknowledgement, 1));
+        Assert.NotNull(pulse.GetType().GetField("Segment")!.GetValue(pulse));
+        SetPending(client, control, new(2));
+        var reset = Schedule(2, 3); Invoke(client, "ReconcileAnimationSchedule", reset); Set(client, "_schedule", reset);
+        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Acknowledgement, 1));
+        Assert.Empty(pulses); Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+    }
+
+    [Fact]
+    public void SharedPulseUsesPhysicalEventTimeWithExactEndpointsPauseAndOverlap()
+    {
+        var segment = AnimationPulseSegment.Create(new((Half).32));
+        const uint ordinal = 480;
+        var occurred = (ordinal - .25) / 480;
+        var peak = occurred + (double)(Half).32 / 2;
+        Assert.Equal((Half)0, segment.Sample(occurred, ordinal, (Half)(-1024)));
+        Assert.Equal((Half)1, segment.Sample(peak, ordinal, (Half)(-1024)));
+        Assert.Equal((Half)1, segment.Sample(peak, ordinal, (Half)(-1024)));
+        Assert.Equal((Half)0, segment.Sample(occurred + (double)(Half).32, ordinal, (Half)(-1024)));
+        var overlap = (Half)(segment.Sample(peak, ordinal, (Half)(-1024)) +
+            segment.Sample(peak, ordinal + 72, (Half)(-1024)));
+        Assert.Equal((Half)1, Half.Min((Half)1, overlap));
+    }
+
     private static BrowserWorkshopClient Client()
     {
         var client = (BrowserWorkshopClient)Activator.CreateInstance(typeof(BrowserWorkshopClient),
@@ -195,6 +272,8 @@ public sealed class WorkshopActivationAnimationTests
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(86), WorkshopAnimationWire.Version);
         WorkshopAnimationWire.WriteTimer(bytes, control.Timer);
+        if (control.Kind == AnimationControlKind.Impulse)
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(132), BitConverter.HalfToUInt16Bits(control.Duration));
         return bytes;
         void U64(int offset, ulong value) => BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset), value);
     }

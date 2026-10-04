@@ -90,6 +90,7 @@ public sealed partial class BrowserWorkshopClient
                 var cursor = _cursor.PrepareInstallation(prepared.Endpoint);
                 _history.Commit(history); _cursor.Commit(cursor);
                 ReconcileAnimationSchedule(schedule);
+                ObserveContactFeedback(prepared.Endpoint.Read);
                 _schedule = schedule; _preparation = null;
                 _construction = (_proposedConstruction ?? _construction) with { Settings = schedule.Settings };
                 _lastPresentation = new(schedule.FirstPresentation.Value - 1);
@@ -158,7 +159,7 @@ public sealed partial class BrowserWorkshopClient
     private void ReconcileAnimationSchedule(WorkshopSchedule schedule)
     {
         if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
-        { _captureSample = null; _captureRequested = null; _captureWorld = schedule.World.WorldGeneration; _lastCaptureOrdinal = 0; RetireActivationFeedback(); RetireGoalFeedback(); }
+        { _captureSample = null; _captureRequested = null; _captureWorld = schedule.World.WorldGeneration; _lastCaptureOrdinal = 0; RetireActivationFeedback(); RetireGoalFeedback(); RetireContactFeedback(schedule.World.WorldGeneration); }
         if (_schedule?.Revision != schedule.Revision)
         { _lastHintOrdinal = _lastCaptureOrdinal = _goalOrdinal = 0; Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); }
     }
@@ -176,12 +177,19 @@ public sealed partial class BrowserWorkshopClient
         {
             if (_animationPending is not { } command || cadence != _animationPendingCadence || sample.Pulse.Value != command.Sequence ||
                 sample.Property != command.Property || sample.Target != command.Target || sample.World != command.World || sample.Generation != command.Generation ||
-                sample.Timer != command.Timer || sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
+                sample.Timer != command.Timer || !HalfBits.Equal(sample.PulseDuration,
+                    command.Kind == AnimationControlKind.Impulse ? command.Duration : (Half)0) || sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _hintAcknowledged = sample.Pulse.Value; _animationPending = null;
-            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); return; }
+            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); RetryRejectedContact(command); return; }
         }
-        if (cadence.Value < active.Revision.Value) return;
+        if (cadence.Value < active.Revision.Value)
+        {
+            if (kind == AnimationOutputKind.Acknowledgement && sample.World == active.World.WorldGeneration &&
+                sample.PulseDuration > (Half)0)
+                RetryStaleContactAcknowledgement(sample);
+            return;
+        }
         if (sample.Target == HintTarget)
         {
             if (sample.Property != AnimationProperty.Opacity || sample.World.Value != 0 || sample.EventOrdinal != 0 || sample.EventPhase != (Half)0)
@@ -209,6 +217,7 @@ public sealed partial class BrowserWorkshopClient
             _captureSample = sample;
         }
         else if (sample.Target == GoalTarget) ReceiveGoalSample(sample, kind, active);
+        else if (sample.PulseDuration > (Half)0) ReceiveContactSample(sample, kind, active);
         else if (sample.Timer.Phase != AnimationTimerPhase.None) ReceiveTimerSample(sample, kind, active);
         else ReceiveActivationSample(sample, kind, active);
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.

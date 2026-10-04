@@ -114,6 +114,39 @@ for (const captureMode of [1, 2]) {
     await self.onmessage({ data: { reliableStalled: true } });
     await self.onmessage({ data: { reliableStalled: false } });
     assert.deepEqual(stallStates, [true, false], 'actual worker forwards current boolean state');
+    const held = publication(100n), eventOne = publication(102n), eventTwo = publication(104n), latest = publication(105n);
+    imports.publish(held, false);
+    imports.publish(publication(101n), false);
+    assert.equal(imports.reserveOccurrenceRead(), true);
+    imports.publish(eventOne, false, true);
+    imports.publish(publication(103n), false);
+    assert.equal(imports.reserveOccurrenceRead(), true);
+    imports.publish(eventTwo, false, true);
+    imports.publish(latest, false);
+    const controlsBefore = messages.filter(item => item.scheduleControl).length;
+    imports.scheduleControl(new Uint8Array([7]), 1);
+    assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore);
+    for (const expected of [eventOne, eventTwo, latest]) {
+        const current = messages.filter(item => item.read).at(-1).read;
+        await self.onmessage({ data: { readAcknowledged: receipt(current) } });
+        assert.deepEqual(messages.filter(item => item.read).at(-1).read, expected);
+        assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore,
+            'installation cannot overtake a committed occurrence or final endpoint');
+    }
+    await self.onmessage({ data: { readAcknowledged: receipt(latest) } });
+    assert.equal(messages.filter(item => item.scheduleControl).length, controlsBefore + 1);
+    const capacityHeld = publication(200n);
+    imports.publish(capacityHeld, false);
+    for (let index = 0; index < 64; index++) {
+        assert.equal(imports.reserveOccurrenceRead(), true);
+        imports.publish(publication(BigInt(201 + index)), false, true);
+    }
+    assert.equal(imports.reserveOccurrenceRead(), false, 'backpressure precedes the next GPU commit');
+    await self.onmessage({ data: { readAcknowledged: receipt(capacityHeld) } });
+    assert.equal(imports.reserveOccurrenceRead(), true, 'exact ACK returns one reserved capacity slot');
+    imports.releaseOccurrenceRead();
+    for (let index = 0; index < 64; index++)
+        await self.onmessage({ data: { readAcknowledged: receipt(publication(BigInt(201 + index))) } });
     imports.dispose();
     await self.onmessage({ data: { reliableStalled: true } });
     assert.deepEqual(stallStates, [true, false], 'disposed worker cannot update stall state');

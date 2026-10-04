@@ -124,10 +124,13 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick);
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers;
             _candidateNetwork = network;
+            var workCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(104)));
+            Span<ContactWorkRead> contactWorks = stackalloc ContactWorkRead[PhysicsSceneDeclaration.ContactWorkCapacity];
+            for (var i = 0; i < workCount; i++) contactWorks[i] = PhysicsGpuAbi.ReadContactWork(bytes, i);
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(32))),
                 expectedTick, body?.Body, Rotation: body?.Rotation, Angular: body?.AngularVelocity ?? default,
                 Captures: _candidateCaptures, Activations: _candidateActivations, Timers: _candidateTimers,
-                Motion: motion);
+                Motion: motion, ContactWorks: new(contactWorks[..workCount]));
             _candidateWorld = bytes;
             _candidateProfile = profile;
 #if PLAYTEST

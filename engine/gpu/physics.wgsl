@@ -39,6 +39,12 @@ struct ContactTrigger {
     sequence: u32, collider: u32, eventOrdinal: u32, eventPhase: f16, approachSpeed: f16,
     pad1: vec4<u32>,
 }
+struct ContactWork {
+    id: vec2<u32>, owner: u32, targetBody: u32,
+    controls: vec4<f16>, cooldown: u32, pad0: u32,
+    sequence: u32, collider: u32, eventOrdinal: u32, eventPhase: f16, approachSpeed: f16,
+    energy: vec4<f16>, pad1: vec2<u32>,
+}
 struct MotionPiece {
     kind: u32, startOrdinal: u32, endOrdinal: u32, anchorOrdinal: u32,
     phases: vec4<f16>, bodyId: vec2<u32>,
@@ -52,9 +58,9 @@ struct PhysicsState {
     colliderCount: u32, materialCount: u32, sensorCount: u32, dynamicBody: u32,
     epoch: vec2<u32>, tick: vec2<u32>, cadence: u32, physical: u32,
     cadenceRevision: vec2<u32>, document: vec4<u32>, nextIdentity: vec2<u32>,
-    ordinal: u32, captures: u32, guideCount: u32, triggerCount: u32, reserved1: vec2<u32>, reserved2: vec4<u32>,
+    ordinal: u32, captures: u32, guideCount: u32, triggerCount: u32, workCount: u32, reserved1: u32, reserved2: vec4<u32>,
     bodies: array<RigidBody, 16>, colliders: array<Collider, 32>,
-    materials: array<Material, 16>, sensors: array<ResidenceSensor, 8>, guides: array<PlanarGuide, 8>, triggers: array<ContactTrigger, 8>,
+    materials: array<Material, 16>, sensors: array<ResidenceSensor, 8>, guides: array<PlanarGuide, 8>, triggers: array<ContactTrigger, 8>, contactWorks: array<ContactWork, 8>,
 }
 // Preserve the ABI layout while excluding previous presentation output from Advance copies.
 struct PhysicsWorld {
@@ -295,6 +301,14 @@ fn shape_query(point: MotionQuery, collider: Collider, radius: f16) -> ShapeQuer
     if (collider.shape == SHAPE_PLANE) {
         return ShapeQuery(FAILURE_NONE, p.y - radius,
             collider_normal(vec3<f16>(0h, 1h, 0h), collider), 0u, false);
+    }
+    if (collider.shape == SHAPE_SPHERE) {
+        let distance = length3(p);
+        if (!(distance >= 0.00006103515625h)) {
+            return ShapeQuery(FAILURE_DOMAIN, 0h, vec3<f16>(0h), 0u, false);
+        }
+        return ShapeQuery(FAILURE_NONE, (distance - collider.dimensions.x) - radius,
+            collider_normal(p, collider), 0u, distance > 4h);
     }
     if (collider.shape != SHAPE_BOX) { return ShapeQuery(FAILURE_PAIR, 0h, vec3<f16>(0h), 0u, false); }
     let extents = collider.dimensions.yzw;
@@ -665,7 +679,7 @@ fn clearance_endpoint(curve: MotionCurve, ordinal: u32, phase: f16,
         vector_scale(vector_value(-v0), range_value(body.massDragGravityXY.y)));
     var x = range_multiply(u, range_multiply(range_value(body.massDragGravityXY.y), range_value(0.03125h)));
     if (curve.supported || curve.forceDriven) { acceleration = vector_value(curve.acceleration); x = range_value(0h); }
-    if (curve.forceDriven) {
+    if (curve.forceDriven || (collider.shape == SHAPE_SPHERE && curve.accelerationError > 0h)) {
         acceleration = vector_add(acceleration, VectorRange(vec3<f16>(-curve.accelerationError), vec3<f16>(curve.accelerationError)));
     }
     var polynomial = range_value(0.0013885498046875h);
@@ -675,7 +689,12 @@ fn clearance_endpoint(curve: MotionCurve, ordinal: u32, phase: f16,
     polynomial = range_add(range_value(0.5h), range_multiply(x, polynomial));
     let quadratic = range_multiply(range_multiply(u, u), polynomial);
     // Local displacement is 16*(v0*t+a*t*t*P), expressed without tiny t*t.
-    let displacement = vector_add(vector_scale(vector_value(v0 * 0.5h), u),
+    var scaledVelocity = vector_value(v0 * 0.5h);
+    if (collider.shape == SHAPE_SPHERE && curve.eventVelocityError > 0h) {
+        let error = up_nonnegative(curve.eventVelocityError * 0.5h);
+        scaledVelocity = vector_add(scaledVelocity, VectorRange(vec3<f16>(-error), vec3<f16>(error)));
+    }
+    let displacement = vector_add(vector_scale(scaledVelocity, u),
         vector_scale(vector_scale(acceleration, range_value(0.015625h)), quadratic));
     var fine = vector_add(vector_value(body.segmentLocalPhase.xyz),
         vector_add(vector_value(-frame.local.xyz), displacement));
@@ -693,18 +712,22 @@ fn clearance_endpoint(curve: MotionCurve, ordinal: u32, phase: f16,
     fine = vector_inverse_rotate(collider.rotation, fine);
     // Exact power-of-two scale: squared clearance below is in 1024 U^2 units.
     coarse.lo *= 2h; coarse.hi *= 2h; fine.lo *= 2h; fine.hi *= 2h;
+    var inflatedRadius = range_value(radius * 32h);
+    if (collider.shape == SHAPE_SPHERE) {
+        inflatedRadius = range_add(inflatedRadius, range_value(collider.dimensions.x * 32h));
+    }
     var outside: array<ScalarRange, 3>;
     var minusRadius: array<ScalarRange, 3>;
     var dominant = 0u;
     for (var axis = 0u; axis < 3u; axis++) {
         outside[axis] = range_value(0h);
-        minusRadius[axis] = range_value(-radius * 32h);
+        minusRadius[axis] = range_negate(inflatedRadius);
         if (collider.shape == SHAPE_PLANE && axis != 1u) { continue; }
         var c = ScalarRange(coarse.lo[axis], coarse.hi[axis]);
         var f = ScalarRange(fine.lo[axis], fine.hi[axis]);
         var extent = 0h;
-        if (collider.shape == SHAPE_BOX) {
-            extent = collider.dimensions[axis + 1u] * 32h;
+        if (collider.shape == SHAPE_BOX || collider.shape == SHAPE_SPHERE) {
+            if (collider.shape == SHAPE_BOX) { extent = collider.dimensions[axis + 1u] * 32h; }
             let joined = range_add(c, f);
             if (joined.hi < 0h) { c = range_negate(c); f = range_negate(f); }
             else if (joined.lo < 0h) {
@@ -716,14 +739,14 @@ fn clearance_endpoint(curve: MotionCurve, ordinal: u32, phase: f16,
         let d = range_add(face, f);
         outside[axis] = ScalarRange(max(0h, d.lo), max(0h, d.hi));
         // Subtract radius before adding the small local term; no nearly equal squares.
-        minusRadius[axis] = range_add(range_subtract(face, range_value(radius * 32h)), f);
+        minusRadius[axis] = range_add(range_subtract(face, inflatedRadius), f);
         if (outside[axis].lo > outside[dominant].lo) { dominant = axis; }
     }
     if (!(outside[dominant].lo > 0h)) { return -65504h; }
     for (var axis = 0u; axis < 3u; axis++) {
         if (outside[axis].hi > 128h) { return -65504h; }
     }
-    let plusRadius = range_add(outside[dominant], range_value(radius * 32h));
+    let plusRadius = range_add(outside[dominant], inflatedRadius);
     var lower = range_multiply(minusRadius[dominant], plusRadius).lo;
     for (var axis = 0u; axis < 3u; axis++) {
         if (axis != dominant) {
@@ -739,6 +762,7 @@ fn clearance_interval(curve: MotionCurve, ordinal: u32, interval: TimeInterval,
     let right = clearance_endpoint(curve, ordinal, interval.right, collider, radius);
     if (!(min(left, right) > 0h)) { return false; }
     // Squared distance to a convex box has Hessian <=2I, including feature changes.
+    // For an exterior sphere the squared centre distance has Hessian exactly2I;
     // F'' <=2(V^2+D*A); the endpoint chord falls by at most M*h^2/8.
     let v = up_nonnegative(speedBound / (PHYSICAL_RATE / 16h));
     let d = up_nonnegative(distanceBound / (PHYSICAL_RATE / 16h));
@@ -779,7 +803,9 @@ fn collision(curve: MotionCurve, ordinal: u32, start: f16, end: f16,
         // plus this curve's interval acceleration/rounding allowance bound the interval.
         let localSpeed = min(SPEED_BOUND,
             up_nonnegative(max(length3(a.velocity), length3(b.velocity)) * 1.03125h + accelerationDelta + curve.eventVelocityError));
-        let scale = max(radius, max(abs(da.gap), abs(db.gap)));
+        let surfaceRadius = select(radius, up_nonnegative(radius + collider.dimensions.x),
+            collider.shape == SHAPE_SPHERE);
+        let scale = max(surfaceRadius, max(abs(da.gap), abs(db.gap)));
         let guard = up_nonnegative(up_nonnegative(scale * 0.0078125h) + curve.eventPositionError);
         let endpointLower = down_signed(max(da.gap, db.gap) - guard);
         // Even the global128U/s bound travels less than.267U per physical substep.
@@ -791,48 +817,73 @@ fn collision(curve: MotionCurve, ordinal: u32, start: f16, end: f16,
         let lower = down_positive(max(0h, enclosedGap));
         // The overlap/correction band does not activate restitution at a positive gap.
         if (lower > 0h) { continue; }
-        if (da.gap > 0h && db.gap > 0h && enclosedGap >= -band * PHASE_SCALE) {
+        var distance = down_positive(radius - band);
+        var normalDomain = enclosedGap >= -band * PHASE_SCALE;
+        if (collider.shape == SHAPE_SPHERE) {
+            // Sphere normals are smooth on every positive centre radius, independently
+            // of the body correction band. This lower includes query and curve errors.
+            distance = down_signed(down_positive(radius + collider.dimensions.x) +
+                down_signed(ldexp(enclosedGap, -12)));
+            // Smaller conservative radii decline this optional proof before division.
+            normalDomain = finite(distance) && distance >= 0.0625h;
+        }
+        let positiveEndpoints = da.gap > 0h && db.gap > 0h;
+        let departingSphere = collider.shape == SHAPE_SPHERE &&
+            da.gap >= -band && da.gap <= band && db.gap >= -band;
+        if (normalDomain && (positiveEndpoints || departingSphere)) {
             // A strictly closing interval has its minimum at the right endpoint.
             // Keep this complementary certificate when endpoint arithmetic cannot
             // resolve a positive near-root gap; it encloses normal rotation as well.
-            let distance = down_positive(radius - band);
             let normalTravel = up_nonnegative(up_nonnegative(travel / PHASE_SCALE) +
                 up_nonnegative(2h * guard));
             let normalDelta = up_nonnegative(2h * up_nonnegative(normalTravel / distance));
             let variation = up_nonnegative(accelerationDelta +
                 up_nonnegative(normalDelta * localSpeed) +
                 up_nonnegative(localSpeed * 0.03125h));
-            if (dot(b.velocity, db.normal) < -variation) { continue; }
-            // A positive-gap rebound apex needs no impulse. Outside the convex
-            // static shape, distance curvature is at most speed^2 / distance.
-            // A negative upper bound makes the minimum an interval endpoint.
-            if (localSpeed < down_positive(sqrt(accelerationBound * distance))) {
-                var projected = max(dot(acceleration, da.normal), dot(acceleration, db.normal));
-                // Free acceleration factor >= 1-x on x=k*t in[0,.25].
-                // Derive x from this interval; k=0 and supported curves are exactly one.
-                let drag = curve.body.massDragGravityXY.y;
-                if (!curve.supported && !curve.forceDriven && projected < 0h && drag > 0h) {
-                    let whole = i32(ordinal) - i32(curve.body.segmentOrdinal);
-                    let fraction = (interval.right - curve.body.segmentLocalPhase.w) / PHASE_SCALE;
-                    let elapsed = (f16(whole) + fraction) / PHYSICAL_RATE;
-                    let xUpper = min(0.25h, up_nonnegative(drag * up_nonnegative(elapsed)));
-                    projected *= down_positive(1h - xUpper);
+            if (departingSphere && vn > variation && dot(b.velocity, db.normal) > variation) { continue; }
+            if (positiveEndpoints) {
+                if (dot(b.velocity, db.normal) < -variation) { continue; }
+                // A positive-gap rebound apex needs no impulse. Outside the convex
+                // static shape, distance curvature is at most speed^2 / distance.
+                // A negative upper bound makes the minimum an interval endpoint.
+                if (localSpeed < down_positive(sqrt(accelerationBound * distance))) {
+                    var projected = max(dot(acceleration, da.normal), dot(acceleration, db.normal));
+                    // Free acceleration factor >= 1-x on x=k*t in[0,.25].
+                    // Derive x from this interval; k=0 and supported curves are exactly one.
+                    let drag = curve.body.massDragGravityXY.y;
+                    if (!curve.supported && !curve.forceDriven && projected < 0h && drag > 0h) {
+                        let whole = i32(ordinal) - i32(curve.body.segmentOrdinal);
+                        let fraction = (interval.right - curve.body.segmentLocalPhase.w) / PHASE_SCALE;
+                        let elapsed = (f16(whole) + fraction) / PHYSICAL_RATE;
+                        let xUpper = min(0.25h, up_nonnegative(drag * up_nonnegative(elapsed)));
+                        projected *= down_positive(1h - xUpper);
+                    }
+                    let curvature = up_nonnegative(localSpeed * up_nonnegative(localSpeed / distance));
+                    let uncertainty = up_nonnegative(up_nonnegative(accelerationBound * normalDelta) +
+                        curvature + up_nonnegative(accelerationBound * 0.03125h));
+                    if (projected < -uncertainty) { continue; }
                 }
-                let curvature = up_nonnegative(localSpeed * up_nonnegative(localSpeed / distance));
-                let uncertainty = up_nonnegative(up_nonnegative(accelerationBound * normalDelta) +
-                    curvature + up_nonnegative(accelerationBound * 0.03125h));
-                if (projected < -uncertainty) { continue; }
+                let distanceBound = up_nonnegative(up_nonnegative(surfaceRadius + max(da.gap, db.gap)) +
+                    up_nonnegative(guard + up_nonnegative(travel / PHASE_SCALE)));
+                if (clearance_interval(curve, ordinal, interval, collider, radius,
+                    distanceBound, localSpeed, accelerationBound)) { continue; }
             }
-            let distanceBound = up_nonnegative(up_nonnegative(radius + max(da.gap, db.gap)) +
-                up_nonnegative(guard + up_nonnegative(travel / PHASE_SCALE)));
-            if (clearance_interval(curve, ordinal, interval, collider, radius,
-                distanceBound, localSpeed, accelerationBound)) { continue; }
         }
         // Rounded tangency may plateau at zero after feature release. Retire that
         // separating interval only when its enclosure also limits any unresolved
         // penetration to the existing contact band; no exact no-root claim is made.
-        if (da.gap <= band && vn >= 0h &&
-            dot(b.velocity, db.normal) >= 0h && enclosedGap >= -band * PHASE_SCALE) { continue; }
+        if (da.gap <= band && vn >= 0h && dot(b.velocity, db.normal) >= 0h) {
+            if (enclosedGap >= -band * PHASE_SCALE) { continue; }
+            if (collider.shape == SHAPE_SPHERE && da.gap >= -band && db.gap >= -band) {
+                // This certificate proves only the existing bounded penetration,
+                // never an early contact surface. Round its inner radius upward.
+                let certificateRadius = up_nonnegative(radius - band);
+                let distanceBound = up_nonnegative(up_nonnegative(surfaceRadius + max(abs(da.gap), abs(db.gap))) +
+                    up_nonnegative(guard + up_nonnegative(travel / PHASE_SCALE)));
+                if (clearance_interval(curve, ordinal, interval, collider, certificateRadius,
+                    distanceBound, localSpeed, accelerationBound)) { continue; }
+            }
+        }
         let middle = interval.left + (interval.right - interval.left) * 0.5h;
         if (middle == interval.left || middle == interval.right || interval.depth >= 20u) {
             if (db.gap <= 0h && dot(b.velocity, db.normal) < 0h) {
@@ -850,7 +901,7 @@ fn valid_header() -> bool {
     return candidate.state.version == STATE_VERSION && candidate.state.status == STATUS_COMMITTED &&
         candidate.state.failure == FAILURE_NONE && candidate.state.bodyCount <= BODY_CAPACITY &&
         candidate.state.colliderCount <= COLLIDER_CAPACITY && candidate.state.materialCount <= MATERIAL_CAPACITY &&
-        candidate.state.sensorCount <= SENSOR_CAPACITY && candidate.state.guideCount <= GUIDE_CAPACITY && candidate.state.triggerCount <= TRIGGER_CAPACITY && any(candidate.state.epoch != vec2<u32>(0u)) &&
+        candidate.state.sensorCount <= SENSOR_CAPACITY && candidate.state.guideCount <= GUIDE_CAPACITY && candidate.state.triggerCount <= TRIGGER_CAPACITY && candidate.state.workCount <= CONTACT_WORK_CAPACITY && any(candidate.state.epoch != vec2<u32>(0u)) &&
         any(candidate.state.document != vec4<u32>(0u)) && any(candidate.state.cadenceRevision != vec2<u32>(0u)) &&
         candidate.state.physical == PHYSICAL_480 && steps(candidate.state.cadence) != 0u &&
         candidate.state.tick.y == 0u && candidate.state.tick.x <= 14400u / steps(candidate.state.cadence) &&
@@ -901,7 +952,8 @@ fn validate_scene() -> bool {
         if (candidate.state.bodies[c.body].motion == MOTION_DYNAMIC) {
             if (c.shape != SHAPE_SPHERE || !(c.dimensions.x >= 0.0625h && c.dimensions.x <= 2h) ||
                 !zero4(c.translation)) { fail(FAILURE_PAIR); return false; }
-        } else if (c.shape == SHAPE_SPHERE ||
+        } else if ((c.shape == SHAPE_SPHERE && (!(c.dimensions.x >= 0.0625h && c.dimensions.x <= 2h) ||
+            !zero4(vec4<f16>(0h, c.dimensions.yzw)))) ||
             (c.shape == SHAPE_BOX && (!finite3(c.dimensions.yzw) || any(c.dimensions.yzw < vec3<f16>(0.0009765625h)) ||
                 any(c.dimensions.yzw > vec3<f16>(4h))))) { fail(FAILURE_PAIR); return false; }
     }
@@ -947,6 +999,29 @@ fn validate_scene() -> bool {
             fail(FAILURE_DECLARATION); return false;
         }
     }
+    for (var i = 0u; i < candidate.state.workCount; i++) {
+        let w = candidate.state.contactWorks[i];
+        if (all(w.id == vec2<u32>(0u)) || w.owner >= candidate.state.bodyCount ||
+            w.targetBody != candidate.state.dynamicBody || w.targetBody >= candidate.state.bodyCount ||
+            w.owner == w.targetBody || candidate.state.bodies[w.owner].motion != MOTION_STATIC ||
+            !(w.controls.x >= 0h && w.controls.x <= 20h) || !(w.controls.y >= 0h && w.controls.y <= 200h) ||
+            !(w.controls.z >= 0h && w.controls.z <= 64h) || !positive_zero(w.controls.w) ||
+            w.cooldown < 9u || w.cooldown > 14400u || w.sequence > 1601u ||
+            !(w.energy.x >= 0h && w.energy.x <= w.controls.y) ||
+            !(w.energy.y >= 0h && w.energy.y <= w.controls.y) ||
+            !positive_zero(w.energy.z) || !positive_zero(w.energy.w) || w.pad0 != 0u || any(w.pad1 != vec2<u32>(0u))) {
+            fail(FAILURE_DECLARATION); return false;
+        }
+        var hasCollider = false;
+        for (var c = 0u; c < candidate.state.colliderCount; c++) {
+            if (candidate.state.colliders[c].body == w.owner) { hasCollider = true; }
+        }
+        if (!hasCollider) { fail(FAILURE_DECLARATION); return false; }
+        for (var j = 0u; j < i; j++) {
+            if (candidate.state.contactWorks[j].owner == w.owner ||
+                all(candidate.state.contactWorks[j].id == w.id)) { fail(FAILURE_DECLARATION); return false; }
+        }
+    }
     return candidate.state.failure == FAILURE_NONE;
 }
 
@@ -960,6 +1035,212 @@ fn supported_collider(slot: u32, collider: u32) -> bool {
     }
     return false;
 }
+
+fn sphere_radius_square_range(curve: MotionCurve, ordinal: u32, low: f16, high: f16,
+    collider: Collider) -> ScalarRange {
+    let body = curve.body;
+    let frame = candidate.state.bodies[collider.body];
+    let cells = body.segmentCell - frame.cell;
+    if (any(abs(cells) > vec3<i32>(128))) { return ScalarRange(-65504h, 65504h); }
+    let phase = ScalarRange(low, high);
+    let fraction = range_multiply(range_subtract(phase, range_value(body.segmentLocalPhase.w)),
+        range_value(0.000244140625h));
+    let stepsRange = range_add(range_value(f16(i32(ordinal) - i32(body.segmentOrdinal))), fraction);
+    let u = ScalarRange(max(0h, range_lower(stepsRange.lo / (PHYSICAL_RATE / 32h))),
+        range_upper(stepsRange.hi / (PHYSICAL_RATE / 32h)));
+    if (!(u.lo >= 0h && u.hi <= 0.125h)) { return ScalarRange(-65504h, 65504h); }
+    var acceleration = vector_value(curve.acceleration);
+    if (curve.accelerationError > 0h) {
+        acceleration = vector_add(acceleration,
+            VectorRange(vec3<f16>(-curve.accelerationError), vec3<f16>(curve.accelerationError)));
+    }
+    var velocity = vector_value(body.segmentVelocity.xyz * 16h);
+    if (curve.eventVelocityError > 0h) {
+        let velocityError = up_nonnegative(curve.eventVelocityError * 0.5h);
+        velocity = vector_add(velocity,
+            VectorRange(vec3<f16>(-velocityError), vec3<f16>(velocityError)));
+    }
+    let displacement = vector_add(
+        vector_scale(velocity, u),
+        vector_scale(vector_scale(acceleration, range_value(0.0078125h)), range_multiply(u, u)));
+    var fine = vector_add(vector_add(vector_value(body.segmentLocalPhase.xyz),
+        vector_value(-frame.local.xyz)), displacement);
+    let positionError = up_nonnegative(curve.eventPositionError * 16h);
+    if (positionError > 0h) {
+        fine = vector_add(fine, VectorRange(vec3<f16>(-positionError), vec3<f16>(positionError)));
+    }
+    var coarse = vector_inverse_rotate(frame.rotation, vector_value(vec3<f16>(cells)));
+    fine = vector_inverse_rotate(frame.rotation, fine);
+    fine = vector_add(fine, vector_value(-collider.translation.xyz * 16h));
+    coarse = vector_inverse_rotate(collider.rotation, coarse);
+    fine = vector_inverse_rotate(collider.rotation, fine);
+    let point = vector_scale(vector_add(coarse, fine), range_value(2h));
+    if (any(abs(point.lo) > vec3<f16>(128h)) || any(abs(point.hi) > vec3<f16>(128h))) { return ScalarRange(-65504h, 65504h); }
+    var square = range_value(0h);
+    for (var axis = 0u; axis < 3u; axis++) {
+        let component = ScalarRange(point.lo[axis], point.hi[axis]);
+        let product = range_multiply(component, component);
+        let lower = select(max(0h, product.lo), 0h, component.lo <= 0h && component.hi >= 0h);
+        square = range_add(square, ScalarRange(lower, product.hi));
+    }
+    return square;
+}
+
+fn sphere_scaled_norm_upper(value: VectorRange) -> f16 {
+    let bound = max(abs(value.lo), abs(value.hi));
+    if (!finite3(bound) || any(bound > vec3<f16>(256h))) { return -1h; }
+    var square = 0h;
+    for (var axis = 0u; axis < 3u; axis++) {
+        let scaled = up_nonnegative(bound[axis] / 30h);
+        square = up_nonnegative(square + up_nonnegative(scaled * scaled));
+    }
+    return up_nonnegative(sqrt(square));
+}
+
+fn sphere_support_chord_band(curve: MotionCurve, ordinal: u32, low: f16, high: f16,
+    collider: Collider, radius: f16) -> bool {
+    if (!curve.supported || !(high >= low && high - low <= PHASE_SCALE)) { return false; }
+    let left = sphere_radius_square_range(curve, ordinal, low, low, collider);
+    let right = sphere_radius_square_range(curve, ordinal, high, high, collider);
+    if (!(min(left.lo, right.lo) >= 0h && max(left.hi, right.hi) < 65504h)) { return false; }
+    let body = curve.body;
+    let frame = candidate.state.bodies[collider.body];
+    let fraction = range_multiply(range_subtract(ScalarRange(low, high),
+        range_value(body.segmentLocalPhase.w)), range_value(0.000244140625h));
+    let steps = range_add(range_value(f16(i32(ordinal) - i32(body.segmentOrdinal))), fraction);
+    let u = ScalarRange(max(0h, range_lower(steps.lo / 15h)), range_upper(steps.hi / 15h));
+    if (!(u.lo >= 0h && u.hi <= 0.125h)) { return false; }
+    var acceleration = vector_add(vector_value(curve.acceleration),
+        VectorRange(vec3<f16>(-curve.accelerationError), vec3<f16>(curve.accelerationError)));
+    var velocity = vector_add(vector_value(body.segmentVelocity.xyz * 32h),
+        vector_scale(acceleration, range_multiply(u, range_value(0.03125h))));
+    velocity = vector_add(velocity,
+        VectorRange(vec3<f16>(-curve.eventVelocityError), vec3<f16>(curve.eventVelocityError)));
+    // Enclose both static rigid maps before taking derivative norms.
+    acceleration = vector_inverse_rotate(collider.rotation,
+        vector_inverse_rotate(frame.rotation, acceleration));
+    velocity = vector_inverse_rotate(collider.rotation,
+        vector_inverse_rotate(frame.rotation, velocity));
+    let v = sphere_scaled_norm_upper(velocity);
+    let a = sphere_scaled_norm_upper(acceleration);
+    if (!(v >= 0h && a >= 0h)) { return false; }
+    let width = up_nonnegative((high - low) / PHASE_SCALE);
+    let endpointDistance = up_nonnegative(up_nonnegative(sqrt(max(left.hi, right.hi))) / 32h);
+    let distance = up_nonnegative(endpointDistance +
+        up_nonnegative(up_nonnegative(v * 0.0625h) * width));
+    if (!(distance > 0h && distance <= 8h)) { return false; }
+    let d = up_nonnegative(distance / 30h);
+    // F=rho^2 in 1024 U^2: |F''|<=2048(V^2+D*A).
+    // The symmetric endpoint chord error is (V^2+D*A)*fraction^2/900.
+    let rate = up_nonnegative(up_nonnegative(v * v) + up_nonnegative(d * a));
+    let loss = up_nonnegative(rate * up_nonnegative(width * width));
+    let centre = range_add(range_value(collider.dimensions.x * 32h), range_value(radius * 32h));
+    let band = range_value(ldexp(radius, -1));
+    let inner = range_subtract(centre, band);
+    let outer = range_add(centre, band);
+    if (!(inner.lo > 0h && outer.hi <= 128h && finite(loss))) { return false; }
+    let lower = range_lower(min(left.lo, right.lo) - loss);
+    let upper = range_upper(max(left.hi, right.hi) + loss);
+    return lower >= range_multiply(inner, inner).hi &&
+        upper <= range_multiply(outer, outer).lo;
+}
+
+fn sphere_support_target(initial: vec3<f16>, velocity: vec3<f16>, normal: vec3<f16>,
+    centreDistance: f16, h: f16) -> f16 {
+    // Exterior tangency requires a_n=-|v_t|^2/rho. This first-order endpoint
+    // target uses the current midpoint velocity in the fixed starting radial frame.
+    let midpointVelocity = (initial + velocity) * 0.5h;
+    let tangentVelocity = midpointVelocity - normal * dot(midpointVelocity, normal);
+    let tangentSpeed = length3(tangentVelocity);
+    if (!(tangentSpeed <= 128h)) { fail(FAILURE_DOMAIN); return 0h; }
+    // h<1/400, speed<=128 and rho>=1/16 bound every product/division.
+    return -((h * tangentSpeed) * tangentSpeed) / centreDistance;
+}
+
+fn supported_response_curve(original: RigidBody, initial: MotionQuery, ordinal: u32, phase: f16,
+    hUnits: f16, velocity: vec3<f16>, omega: vec3<f16>, guideEnabled: bool, guideError: f16) -> MotionCurve {
+    let fallback = MotionCurve(original, false, false, vec3<f16>(0h), vec3<f16>(0h), 0h, 0h, 0h);
+    let dv = (velocity - initial.velocity) / hUnits;
+    let dw = (omega - initial.angular) / hUnits;
+    if (any(abs(dv) > vec3<f16>(0.125h)) || any(abs(dw) > vec3<f16>(2h))) {
+        fail(FAILURE_DOMAIN); return fallback;
+    }
+    var body = original;
+    body.segmentCell = initial.cell;
+    body.segmentOrdinal = ordinal;
+    body.segmentLocalPhase = vec4<f16>(initial.local, phase);
+    if (phase >= 2048h) { body.segmentOrdinal++; body.segmentLocalPhase.w -= PHASE_SCALE; }
+    body.segmentVelocity = vec4<f16>(initial.velocity / 32h, 0h);
+    body.segmentAngular = vec4<f16>(initial.angular, 0h);
+    body.segmentRotation = initial.rotation;
+    return MotionCurve(body, true, guideEnabled, dv * 512h, dw * 512h, guideError, 0h, 0h);
+}
+
+fn sphere_support_band(curve: MotionCurve, ordinal: u32, low: f16, high: f16,
+    collider: Collider, radius: f16) -> bool {
+    if (sphere_support_chord_band(curve, ordinal, low, high, collider, radius)) { return true; }
+    let body = curve.body;
+    let frame = candidate.state.bodies[collider.body];
+    let cells = body.segmentCell - frame.cell;
+    if (any(abs(cells) > vec3<i32>(128))) { return false; }
+    let phase = ScalarRange(low, high);
+    let fraction = range_multiply(range_subtract(phase, range_value(body.segmentLocalPhase.w)),
+        range_value(0.000244140625h));
+    let stepsRange = range_add(range_value(f16(i32(ordinal) - i32(body.segmentOrdinal))), fraction);
+    let u = ScalarRange(max(0h, range_lower(stepsRange.lo / (PHYSICAL_RATE / 32h))),
+        range_upper(stepsRange.hi / (PHYSICAL_RATE / 32h)));
+    if (!(u.lo >= 0h && u.hi <= 0.125h)) { return false; }
+    var acceleration = vector_value(curve.acceleration);
+    if (curve.accelerationError > 0h) {
+        acceleration = vector_add(acceleration,
+            VectorRange(vec3<f16>(-curve.accelerationError), vec3<f16>(curve.accelerationError)));
+    }
+    var velocity = vector_value(body.segmentVelocity.xyz * 16h);
+    if (curve.eventVelocityError > 0h) {
+        let velocityError = up_nonnegative(curve.eventVelocityError * 0.5h);
+        velocity = vector_add(velocity,
+            VectorRange(vec3<f16>(-velocityError), vec3<f16>(velocityError)));
+    }
+    let displacement = vector_add(
+        vector_scale(velocity, u),
+        vector_scale(vector_scale(acceleration, range_value(0.0078125h)), range_multiply(u, u)));
+    var fine = vector_add(vector_add(vector_value(body.segmentLocalPhase.xyz),
+        vector_value(-frame.local.xyz)), displacement);
+    let positionError = up_nonnegative(curve.eventPositionError * 16h);
+    if (positionError > 0h) {
+        fine = vector_add(fine, VectorRange(vec3<f16>(-positionError), vec3<f16>(positionError)));
+    }
+    var coarse = vector_inverse_rotate(frame.rotation, vector_value(vec3<f16>(cells)));
+    fine = vector_inverse_rotate(frame.rotation, fine);
+    fine = vector_add(fine, vector_value(-collider.translation.xyz * 16h));
+    coarse = vector_inverse_rotate(collider.rotation, coarse);
+    fine = vector_inverse_rotate(collider.rotation, fine);
+    let point = vector_scale(vector_add(coarse, fine), range_value(0.0625h));
+    if (any(abs(point.lo) > vec3<f16>(4h)) || any(abs(point.hi) > vec3<f16>(4h))) { return false; }
+    var square = range_value(0h);
+    for (var axis = 0u; axis < 3u; axis++) {
+        let component = ScalarRange(point.lo[axis], point.hi[axis]);
+        let product = range_multiply(component, component);
+        let lower = select(max(0h, product.lo), 0h, component.lo <= 0h && component.hi >= 0h);
+        square = range_add(square, ScalarRange(lower, product.hi));
+    }
+    let centreRadius = range_add(range_value(collider.dimensions.x), range_value(radius));
+    let band = range_value(ldexp(radius, -6));
+    let inner = range_subtract(centreRadius, band);
+    let outer = range_add(centreRadius, band);
+    if (!(inner.lo > 0h && outer.hi <= 4.0625h)) { return false; }
+    return square.lo >= range_multiply(inner, inner).hi &&
+        square.hi <= range_multiply(outer, outer).lo;
+}
+
+fn friction_disk(proposal: vec2<f16>, limit: f16) -> vec2<f16> {
+    // The zero-radius Coulomb disk contains only zero, including subnormal proposals.
+    if (limit == 0h) { return vec2<f16>(0h); }
+    let size = length3(vec3<f16>(proposal, 0h));
+    if (size > limit && size >= 0.00006103515625h) { return proposal * (limit / size); }
+    return proposal;
+}
+
 fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasticCollider: u32) -> MotionCurve {
     let original = candidate.state.bodies[slot];
     var result = MotionCurve(original, false, false, vec3<f16>(0h), vec3<f16>(0h), 0h, 0h, 0h);
@@ -970,6 +1251,7 @@ fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasti
     for (var i = 0u; i < 4u; i++) { candidate.state.bodies[slot].support[i] = ContactSlot(0u, 0u, 0h, 0h, 0h, 0h); }
     var normals: array<vec3<f16>, 4>;
     var surfaces: array<SurfacePair, 4>;
+    var centreDistances: array<f16, 4>;
     let guide = guide_midpoint(original, initial, ordinal, phase, sphere.dimensions.x);
     let acceleration = guide.acceleration;
     if (guide.enabled) {
@@ -1003,6 +1285,13 @@ fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasti
         let material = surface_pair(sphere.material, candidate.state.colliders[i].material);
         if (material.failure != FAILURE_NONE) { fail(material.failure); return result; }
         normals[count] = q.normal; surfaces[count] = material;
+        if (candidate.state.colliders[i].shape == SHAPE_SPHERE) {
+            let centreDistance = length3(collider_point(initial, candidate.state.colliders[i]));
+            if (!(centreDistance >= 0.0625h && centreDistance <= 4.125h)) {
+                fail(FAILURE_DOMAIN); return result;
+            }
+            centreDistances[count] = centreDistance;
+        }
         candidate.state.bodies[slot].support[count] = ContactSlot(i, q.feature, 0h, 0h, 0h, 0h);
         candidate.state.bodies[slot].supportCount = count + 1u;
     }
@@ -1018,7 +1307,27 @@ fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasti
     for (var sweep = 0u; sweep < 4u; sweep++) {
         for (var i = 0u; i < count; i++) {
             var contact = candidate.state.bodies[slot].support[i]; let normal = normals[i];
-            let nextNormal = max(0h, contact.normalImpulse - dot(velocity, normal));
+            var targetNormal = 0h;
+            if (candidate.state.colliders[contact.collider].shape == SHAPE_SPHERE) {
+                targetNormal = sphere_support_target(initial.velocity, velocity, normal, centreDistances[i], h);
+                if (candidate.state.failure != FAILURE_NONE) { return result; }
+            }
+            var nextNormal = max(0h, contact.normalImpulse + targetNormal - dot(velocity, normal));
+            if (sweep > 0u && candidate.state.colliders[contact.collider].shape == SHAPE_SPHERE) {
+                let trial = supported_response_curve(original, initial, ordinal, phase, hUnits,
+                    velocity, omega, guide.enabled, guide.error);
+                if (candidate.state.failure != FAILURE_NONE) { return result; }
+                let endpoint = curve_query(trial, ordinal, PHASE_SCALE);
+                let shape = shape_query(endpoint, candidate.state.colliders[contact.collider], sphere.dimensions.x);
+                let sensitivity = dot(normal, shape.normal);
+                if (endpoint.failure != FAILURE_NONE || shape.failure != FAILURE_NONE ||
+                    shape.feature != contact.feature || !(sensitivity > 0.5h && sensitivity <= 2h)) {
+                    fail(FAILURE_DOMAIN); return result;
+                }
+                // A proposal against the actual canonical endpoint, rechecked after
+                // all coupled sweeps. The fixed applied basis and unilateral law remain.
+                nextNormal = max(0h, contact.normalImpulse - dot(endpoint.velocity, shape.normal) / sensitivity);
+            }
             let deltaNormal = nextNormal - contact.normalImpulse;
             velocity += normal * deltaNormal; contact.normalImpulse = nextNormal;
             let t0 = tangent_axis(normal); let t1 = cross(normal, t0);
@@ -1026,9 +1335,8 @@ fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasti
             let previousTangent = vec2<f16>(contact.tangent0, contact.tangent1);
             var nextTangent = previousTangent -
                 vec2<f16>(dot(pointVelocity, t0), dot(pointVelocity, t1)) / 3.5h;
-            let tangentSize = length3(vec3<f16>(nextTangent, 0h));
             let limit = surfaces[i].friction * nextNormal;
-            if (tangentSize > limit && tangentSize >= 0.00006103515625h) { nextTangent *= limit / tangentSize; }
+            nextTangent = friction_disk(nextTangent, limit);
             let change = nextTangent - previousTangent;
             let delta = t0 * change.x + t1 * change.y;
             velocity += delta; omega += cross(-normal, delta) * (2.5h / sphere.dimensions.x);
@@ -1040,23 +1348,35 @@ fn support_curve(slot: u32, ordinal: u32, phase: f16, sphere: Collider, inelasti
         fail(FAILURE_DOMAIN); return result;
     }
     for (var i = 0u; i < count; i++) {
-        if (dot(velocity, normals[i]) < -0.0009765625h) { fail(FAILURE_RESIDUAL); return result; }
+        let contact = candidate.state.bodies[slot].support[i];
+        // Sphere's curvature target initializes the solve. Later sweeps enforce
+        // the actual canonical endpoint, certified on the accepted interval below.
+        if (candidate.state.colliders[contact.collider].shape == SHAPE_SPHERE) { continue; }
+        if (dot(velocity, normals[i]) < -0.0009765625h) {
+            fail(FAILURE_RESIDUAL); return result;
+        }
     }
-    let dv = (velocity - initial.velocity) / hUnits;
-    let dw = (omega - initial.angular) / hUnits;
-    if (any(abs(dv) > vec3<f16>(0.125h)) || any(abs(dw) > vec3<f16>(2h))) {
-        fail(FAILURE_DOMAIN); return result;
-    }
-    var body = original;
-    body.segmentCell = initial.cell;
-    body.segmentOrdinal = ordinal;
-    body.segmentLocalPhase = vec4<f16>(initial.local, phase);
-    if (phase >= 2048h) { body.segmentOrdinal++; body.segmentLocalPhase.w -= PHASE_SCALE; }
-    body.segmentVelocity = vec4<f16>(initial.velocity / 32h, 0h);
-    body.segmentAngular = vec4<f16>(initial.angular, 0h);
-    body.segmentRotation = initial.rotation;
+    let emitted = supported_response_curve(original, initial, ordinal, phase, hUnits,
+        velocity, omega, guide.enabled, guide.error);
+    if (candidate.state.failure != FAILURE_NONE) { return result; }
     candidate.state.bodies[slot].phase = MOTION_SUPPORTED;
-    return MotionCurve(body, true, guide.enabled, dv * 512h, dw * 512h, guide.error, 0h, 0h);
+    return emitted;
+}
+fn certify_sphere_support(slot: u32, curve: MotionCurve, ordinal: u32,
+    low: f16, high: f16, radius: f16) -> bool {
+    for (var i = 0u; i < candidate.state.bodies[slot].supportCount; i++) {
+        let collider = candidate.state.colliders[candidate.state.bodies[slot].support[i].collider];
+        if (collider.shape != SHAPE_SPHERE) { continue; }
+        let endpoint = curve_query(curve, ordinal, high);
+        let shape = shape_query(endpoint, collider, radius);
+        if (endpoint.failure != FAILURE_NONE || shape.failure != FAILURE_NONE ||
+            shape.feature != candidate.state.bodies[slot].support[i].feature ||
+            dot(endpoint.velocity, shape.normal) < -0.0009765625h ||
+            !sphere_support_band(curve, ordinal, low, high, collider, radius)) {
+            fail(FAILURE_RESIDUAL); return false;
+        }
+    }
+    return true;
 }
 
 fn finish_support(slot: u32, q: MotionQuery, radius: f16) -> bool {
@@ -1537,6 +1857,14 @@ fn admit() {
     if (candidate.state.tick.x != 0u || candidate.state.tick.y != 0u || candidate.state.ordinal != 0u || candidate.state.captures != 0u || any(candidate.motionHeader != vec4<u32>(0u))) {
         fail(FAILURE_DECLARATION); return;
     }
+    for (var i = 0u; i < candidate.state.workCount; i++) {
+        let w = candidate.state.contactWorks[i];
+        if (w.sequence != 0u || w.collider != 0u || w.eventOrdinal != 0u ||
+            !positive_zero(w.eventPhase) || !positive_zero(w.approachSpeed) ||
+            w.energy.x != w.controls.y || !positive_zero(w.energy.y)) {
+            fail(FAILURE_DECLARATION); return;
+        }
+    }
     if (candidate.state.dynamicBody == NO_BODY) { return; }
     let sphere = candidate.state.colliders[sphere_collider(candidate.state.dynamicBody)];
     let body = candidate.state.bodies[candidate.state.dynamicBody];
@@ -1567,6 +1895,105 @@ fn contact_occurrence(collider: u32, ordinal: u32, phase: f16, velocity: vec3<f1
         candidate.state.triggers[i].approachSpeed = approach;
     }
 }
+struct PaidResponse { velocity: vec3<f16>, remaining: f16, debit: f16 }
+fn canonical_motion_bits(value: f16) -> u32 {
+    let bits = bitcast<u32>(vec2<f16>(value, 0h)) & 65535u;
+    return select(bits, 0u, (bits & 32767u) == 0u);
+}
+fn same_canonical_motion(first: vec3<f16>, second: vec3<f16>) -> bool {
+    return canonical_motion_bits(first.x) == canonical_motion_bits(second.x) &&
+        canonical_motion_bits(first.y) == canonical_motion_bits(second.y) &&
+        canonical_motion_bits(first.z) == canonical_motion_bits(second.z);
+}
+fn paid_response(natural: vec3<f16>, normal: vec3<f16>, mass: f16,
+    targetSpeed: f16, available: f16) -> PaidResponse {
+    let unchanged = PaidResponse(natural, available, 0h);
+    let vn = dot(natural, normal);
+    if (!(vn >= 0h && vn <= 128h) || !finite3(natural) || !finite3(normal) || any(abs(normal) > vec3<f16>(2h))) {
+        fail(FAILURE_DOMAIN); return unchanged;
+    }
+    if (available == 0h || targetSpeed <= vn) { return unchanged; }
+    // The bounded per-mass proposal avoids E/m overflow for a small mass.
+    var energyPerMass = 256h;
+    if (!(mass <= 1h && available >= ldexp(mass, 8))) { energyPerMass = available / mass; }
+    if (!(energyPerMass > 0h && energyPerMass <= 256h)) { fail(FAILURE_ARITHMETIC); return unchanged; }
+    let energySpeed = sqrt(vn * vn + 2h * energyPerMass);
+    let denominator = energySpeed + vn;
+    if (!(denominator > 0h && denominator <= 260h)) { fail(FAILURE_ARITHMETIC); return unchanged; }
+    // Rationalized sqrt difference retains a small representable request before
+    // checking the actual emitted response; no store quantum is discarded.
+    let requested = min(targetSpeed - vn, (2h * energyPerMass) / denominator);
+    if (!(requested > 0h && requested <= 20h)) { fail(FAILURE_ARITHMETIC); return unchanged; }
+    var impulse = mass * requested;
+    if (!(impulse >= 0.00006103515625h && impulse <= 20480h)) { fail(FAILURE_ARITHMETIC); return unchanged; }
+    for (var proposal = 0u; proposal < 4u; proposal++) {
+        let speedChange = impulse / mass;
+        if (!(speedChange > 0h && speedChange <= 32h)) { fail(FAILURE_ARITHMETIC); return unchanged; }
+        let after = natural + normal * speedChange;
+        if (!finite3(after) || length3(after) > 64h) { fail(FAILURE_DOMAIN); return unchanged; }
+        // Equality includes both zero signs; a nonzero change is enclosed below,
+        // never accepted as free work because a tiny subtraction flushed.
+        if (same_canonical_motion(after, natural)) { return unchanged; }
+        var workPerMass = range_value(0h);
+        for (var axis = 0u; axis < 3u; axis++) {
+            let delta = range_subtract(range_value(after[axis]), range_value(natural[axis]));
+            let midpoint = range_multiply(range_add(range_value(after[axis]), range_value(natural[axis])), range_value(0.5h));
+            if (max(abs(delta.lo), abs(delta.hi)) > 32h || max(abs(midpoint.lo), abs(midpoint.hi)) > 65h) {
+                fail(FAILURE_DOMAIN); return unchanged;
+            }
+            workPerMass = range_add(workPerMass, range_multiply(delta, midpoint));
+        }
+        if (mass > 1h && max(abs(workPerMass.lo), abs(workPerMass.hi)) > down_positive(65504h / mass)) {
+            fail(FAILURE_DOMAIN); return unchanged;
+        }
+        let work = range_multiply(workPerMass, range_value(mass));
+        if (!(work.hi > 0h && work.hi < 65504h) || candidate.state.failure != FAILURE_NONE) {
+            fail(FAILURE_ARITHMETIC); return unchanged;
+        }
+        if (work.hi <= available) {
+            let remaining = down_positive(available - work.hi);
+            // Remaining rounds down; surplus debit is numerical residual, not
+            // credited dissipative work. The reported debit is canonical storage loss.
+            return PaidResponse(after, remaining, available - remaining);
+        }
+        // W(sJ)=sL+s^2Q with L,Q>=0: linear ratio is the conservative proposal.
+        // Every proposed canonical response is checked again, never trusted by ratio.
+        let ratio = down_positive(available / work.hi);
+        let next = down_positive(impulse * ratio);
+        if (!(ratio > 0h && next >= 0.00006103515625h && next < impulse)) {
+            fail(FAILURE_ARITHMETIC); return unchanged;
+        }
+        impulse = next;
+    }
+    fail(FAILURE_ARITHMETIC); return unchanged;
+}
+fn contact_work_response(collider: u32, ordinal: u32, phase: f16,
+    incoming: vec3<f16>, natural: vec3<f16>, normal: vec3<f16>) -> vec3<f16> {
+    let approach = max(0h, -dot(incoming, normal));
+    var eventOrdinal = ordinal; var eventPhase = phase;
+    if (eventPhase >= 2048h) { eventOrdinal++; eventPhase -= PHASE_SCALE; }
+    for (var i = 0u; i < candidate.state.workCount; i++) {
+        let work = candidate.state.contactWorks[i];
+        if (work.owner != candidate.state.colliders[collider].body || approach < work.controls.z) { continue; }
+        if (work.sequence > 0u) {
+            let due = work.eventOrdinal + work.cooldown;
+            if (eventOrdinal < due || (eventOrdinal == due && eventPhase < work.eventPhase)) { continue; }
+        }
+        if (work.sequence >= 1601u) { fail(FAILURE_DOMAIN); return natural; }
+        let paid = paid_response(natural, normal, candidate.state.bodies[work.targetBody].massDragGravityXY.x,
+            work.controls.x, work.energy.x);
+        if (candidate.state.failure != FAILURE_NONE) { return natural; }
+        candidate.state.contactWorks[i].sequence = work.sequence + 1u;
+        candidate.state.contactWorks[i].collider = collider;
+        candidate.state.contactWorks[i].eventOrdinal = eventOrdinal;
+        candidate.state.contactWorks[i].eventPhase = eventPhase;
+        candidate.state.contactWorks[i].approachSpeed = approach;
+        candidate.state.contactWorks[i].energy = vec4<f16>(paid.remaining, paid.debit, 0h, 0h);
+        return paid.velocity;
+    }
+    return natural;
+}
+
 @compute @workgroup_size(1)
 fn advance() {
     candidate.state = committed.state;
@@ -1623,6 +2050,10 @@ fn advance() {
                 if (h.failure != FAILURE_NONE) { fail(h.failure); return; }
                 if (h.found && (!earliest.found || h.phase < earliest.phase)) { earliest = h; }
             }
+            // Exclusion is valid only for the actual emitted prefix after all carried
+            // and guide-horizon errors are attached to this curve.
+            let acceptedEnd = select(horizon.phase, earliest.phase, earliest.found);
+            if (!certify_sphere_support(slot, curve, ordinal, low, acceptedEnd, sphere.dimensions.x)) { return; }
             if (!earliest.found) {
                 let q = curve_query(curve, ordinal, horizon.phase);
                 if (q.failure != FAILURE_NONE) { fail(q.failure); return; }
@@ -1656,7 +2087,11 @@ fn advance() {
                 inelasticCollider = earliest.collider;
             }
             residence_after_impulse(earliest.value);
-            var q = earliest.value; q.velocity = response.velocity; q.angular = response.angular;
+            var q = earliest.value;
+            q.velocity = contact_work_response(earliest.collider, ordinal, earliest.phase,
+                earliest.value.velocity, response.velocity, earliest.shape.normal);
+            q.angular = response.angular;
+            if (candidate.state.failure != FAILURE_NONE) { return; }
             residence_after_impulse(q);
             q = contact_position(q, earliest.collider, sphere.dimensions.x);
             if (q.failure != FAILURE_NONE) { fail(q.failure); return; }

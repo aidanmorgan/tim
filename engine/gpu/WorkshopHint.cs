@@ -3,18 +3,19 @@ using System.Buffers.Binary;
 using CuriousContraptions.Presentation;
 namespace CuriousContraptions.Gpu;
 
-public enum AnimationControlKind : uint { Reveal = 1, Hide = 2, Visibility = 3, Endpoint = 4, TimerObservation = 5 }
+public enum AnimationControlKind : uint { Reveal = 1, Hide = 2, Visibility = 3, Endpoint = 4, TimerObservation = 5, Impulse = 6 }
 public enum AnimationOutputKind : uint { Acknowledgement = 1, Sample = 2, Rejected = 3 }
 public readonly record struct WorkshopHintSample(ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, Half Opacity);
 public readonly record struct WorkshopAnimationControl(AnimationTargetId Target, SimulationEpoch World,
     ulong Sequence, ulong Generation, AnimationControlKind Kind, bool Visible,
     Half From, Half To, Half Duration, AnimationCurve Curve, uint EventOrdinal = 0, Half EventPhase = default, AnimationProperty Property = AnimationProperty.Opacity, AnimationTimerObservation Timer = default);
 public readonly record struct WorkshopAnimationSample(AnimationTargetId Target, SimulationEpoch World,
-    ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, Half Value, uint EventOrdinal, Half EventPhase, AnimationProperty Property, AnimationTimerObservation Timer = default);
+    ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, Half Value, uint EventOrdinal, Half EventPhase, AnimationProperty Property, AnimationTimerObservation Timer = default, Half PulseDuration = default);
 public static class WorkshopAnimationWire
 {
-    public const ushort Version = 3;
-    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + 3;
+    public const ushort Version = 4;
+    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + ContactWorkCapacity + 3;
+    private const int ContactWorkCapacity = PhysicsSceneDeclaration.ContactWorkCapacity;
     public const int ControlBytes = 144;
     public const int OutputBytes = 144;
     public static byte[] Control(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence,
@@ -46,7 +47,7 @@ public static class WorkshopAnimationWire
     {
         Identity(bytes, ControlBytes, session, master, cadence);
         var visible = BinaryPrimitives.ReadUInt32LittleEndian(bytes[52..]);
-        if (visible > 1 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[90..]) != Version || BinaryPrimitives.ReadUInt32LittleEndian(bytes[92..]) != 0)
+        if (visible > 1 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[132..]) != 0 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[90..]) != Version || BinaryPrimitives.ReadUInt32LittleEndian(bytes[92..]) != 0)
             throw new ArgumentException("Invalid animation channel control padding.");
         var value = new WorkshopAnimationControl(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[56..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[64..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),
@@ -62,6 +63,9 @@ public static class WorkshopAnimationWire
         if ((value.Kind == AnimationControlKind.TimerObservation) != (value.Timer.Phase != AnimationTimerPhase.None) ||
             (value.Kind == AnimationControlKind.TimerObservation && (value.World.Value == 0 || value.Property != AnimationProperty.ColourBlend)))
             throw new ArgumentException("Timer observation requires its committed world channel.");
+        if (value.Kind == AnimationControlKind.Impulse && (value.World.Value == 0 ||
+            value.Property != AnimationProperty.ColourBlend || value.From != (Half)0 || value.To != (Half)1))
+            throw new ArgumentException("Impulse requires an owned committed occurrence.");
         if (value.Target.Value == 0 || value.Sequence == 0 || value.Generation == 0 ||
             !IsChannel(value.Property) || !Enum.IsDefined(value.Kind) || !Enum.IsDefined(value.Curve) || !Half.IsFinite(value.From) ||
             !Half.IsFinite(value.To) || value.From < (Half)0 || value.From > (Half)1 ||
@@ -83,8 +87,11 @@ public static class WorkshopAnimationWire
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[72..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..])),
             new(BinaryPrimitives.ReadInt64LittleEndian(bytes[48..])), ReadHalf(bytes,56),
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]), ReadHalf(bytes,84), (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[58..]), ReadTimer(bytes));
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]), ReadHalf(bytes,84), (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[58..]), ReadTimer(bytes), ReadHalf(bytes,132));
         result.AppliedAt.Validate();
+        if (!Half.IsFinite(result.PulseDuration) || result.PulseDuration < (Half)0 || result.PulseDuration > (Half)30 ||
+            (result.PulseDuration > (Half)0 && (result.World.Value == 0 || result.Property != AnimationProperty.ColourBlend || result.Timer != default)))
+            throw new ArgumentException("Invalid committed pulse segment.");
         if (!IsChannel(result.Property) || !Enum.IsDefined(kind) || result.Generation == 0 || !Half.IsFinite(result.Value) ||
             result.Value < (Half)0 || result.Value > (Half)1 || !Half.IsFinite(result.EventPhase) ||
             result.EventPhase < (Half)(-2048) || result.EventPhase >= (Half)2048 ||
@@ -104,7 +111,7 @@ public static class WorkshopAnimationWire
     }
     private static AnimationTimerObservation ReadTimer(ReadOnlySpan<byte> bytes)
     {
-        if (BinaryPrimitives.ReadUInt32LittleEndian(bytes[132..]) != 0 ||
+        if (BinaryPrimitives.ReadUInt16LittleEndian(bytes[134..]) != 0 ||
             BinaryPrimitives.ReadUInt64LittleEndian(bytes[136..]) != 0)
             throw new ArgumentException("Invalid timer animation padding.");
         var timer = new AnimationTimerObservation(BinaryPrimitives.ReadUInt64LittleEndian(bytes[96..]),

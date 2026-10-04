@@ -1,0 +1,31 @@
+{
+  "kind": "BoundedPlayableDesign",
+  "date": "2026-10-05",
+  "slice": "CAT-015 Pinball bumper: real contact, paid radial response and committed feedback",
+  "baseCommit": "2581862f9124888959f5987b2f9e76a47219a004",
+  "implementationOwner": "/root/p025_implementation",
+  "reviewOwner": "/root/p025_review",
+  "authority": [
+    "docs/planning/requirements.md#current-cat-015",
+    "docs/planning/requirements.md#todo-157",
+    "docs/planning/invest/current-consumers.md#cat-015-i",
+    "parts/BumperPart.cs",
+    "parts/catalog/bumper.tres"
+  ],
+  "model": {
+    "geometry": "Static Sphere radius Half(.65), original static restitution1/threshold.1/friction.3. True radial gap and normal; directed positive-rho clearance/normal bounds. Existing four-sweep support only when actual exterior-sphere endpoint and whole-piece correction-band checks pass. Apex rest and off-axis rest/graze decide applicability before any alternative integrator.",
+    "store": "Explicit typed reference mass1kg and initial energy E0=Half(.5*mReference*strength²), strength0..20/default8. This named reservoir parameterization is a newly approved finite-work model, not an inherited spring constant. No recharge from impact/cooldown; Reset replenishes, Save construction-only.",
+    "response": "Ordinary material impact first. Propose outward radial impulse toward max(vNatural,min(strength,sqrt(vNatural²+2E/m))); tangent and angular velocity receive no boost impulse. Reconstruct actual canonical velocity, certify directed m*deltaV·(vNatural+deltaV/2) and debit a downward remaining store. No report-only refund or assigned velocity. Conservative surplus debit is signed numerical residual, never physical dissipation credit.",
+    "boundedArithmetic": "At most4 proposal tests per accepted impact, retaining existing CCD/contact budgets. Cap E/m at256 by a finite guard; nominal radial bound128 permits square+512 below65504 while actual speed remains<=64. Over-budget proposal uses downward J*(E/workUpper), strictly decreasing. Nonfinite, positive-underflow/no-progress or exhausted certification rejects the transaction. Equality treats signed zeros equally, but no nonzero canonical difference may disappear via FTZ; use directed subtraction for all changed outputs. Exact unchanged actual velocity spendszero.",
+    "events": "Every eligible accepted impact retains hit count/Bumped/pulse even for zero/depleted store or stronger natural rebound. Threshold Half(.05), per-target cooldown exactly72 physical480Hz ordinals preserving signed phase. Miss/graze without qualifying impact, stationary/separating and cooldown/rejected contacts emit no pulse. Physics/store/cooldown/hit history commit or rollback together.",
+    "animation": "Shared worker owns overlapping impact pulses; .32s sin² envelope, additive-clamped overlap, scale1+.24*amount and original cream/gold blend. Renderer observes committed hit occurrence, never body callback or local timer."
+  },
+  "firstChecks": [
+    "Actual GPU single material/paid impact and miss, static sphere apex rest and off-axis rest/graze under unchanged limits.",
+    "Paid/strengthzero/depleted/last-quantum/no-progress and failed-candidate rollback with signed total energy ledger.",
+    "Genuine UI palette/pose/strength control, radial redirection and visible pulse, repeated-return energy decline, miss/rest/Reset/SaveLoad."
+  ],
+  "preservation": "No unapproved Pipe solver imported; original Pipe failures retain owners. bumper_sidekick and bumper_depth, general multiple-dynamic-body coupled effective mass and full device/performance gates remain named owners, not claimed by this first interaction.",
+  "approval": "Independent reviewer approved bounded Sphere path and corrected max4 paid-response design in current thread; owning review will independently bind source and actual results."
+}
+

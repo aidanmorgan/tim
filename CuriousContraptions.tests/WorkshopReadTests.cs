@@ -149,6 +149,31 @@ public sealed class WorkshopReadTests
         Assert.Equal(encoded, WorkshopWire.Encode(WorkshopWire.DecodeResponse(encoded)));
     }
 
+    [Fact]
+    public void CurrentWireContactOccurrenceMustOwnColliderAndInclusiveThreshold()
+    {
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+        var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,23));
+        var declaration = scene.ContactWorks[0];
+        var owned = scene.Colliders.ToArray().First(c=>c.Body==declaration.Owner).Id;
+        var foreign = scene.Colliders.ToArray().First(c=>c.Body==declaration.Target).Id;
+        var body = new CanonicalBody(new(1),2,1,default,default,default);
+        var motion = PhysicsMotionRead.Decode(MotionBytes(body),body,new(1));
+        var hit = new ContactWorkRead(declaration.Id,declaration.Owner,declaration.Target,1,owned,1,(Half)0,
+            declaration.Threshold,new((Half)20),new((Half)12));
+        WorkshopResponse Wire(ContactWorkRead work) => WorkshopWire.DecodeResponse(WorkshopWire.Encode(
+            Response(MotionRead(body,motion) with { ContactWorks=new(new[] {work}) })));
+        BrowserWorkshopClient.ValidateCommandRead(Wire(hit),null,construction);
+        foreach (var invalid in new[] {
+            hit with { Collider=foreign },
+            hit with { Collider=new(ulong.MaxValue) },
+            hit with { ApproachSpeed=new(BitConverter.UInt16BitsToHalf(
+                (ushort)(BitConverter.HalfToUInt16Bits(declaration.Threshold.Value)-1))) } })
+            Assert.Throws<ArgumentException>(()=>BrowserWorkshopClient.ValidateCommandRead(Wire(invalid),null,construction));
+    }
+
     private static WorkshopRead MotionRead(CanonicalBody body, PhysicsMotionRead motion) =>
         new(new(2), new(1), body, new(4),
             new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000)),
@@ -174,4 +199,3 @@ public sealed class WorkshopReadTests
     private static void U32(byte[] bytes, int offset, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), value);
     private static void H(byte[] bytes, int offset, Half value) => BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), BitConverter.HalfToUInt16Bits(value));
 }
-

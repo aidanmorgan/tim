@@ -62,7 +62,7 @@ public partial class Workshop
         var authored = first || delayed;
         _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : FreeWorkshopIndex);
         _inventory = authored ? new Dictionary<WorkshopPartKind, int> { [World.Construction.Puzzle.InventoryKind] = checked((int)World.Construction.Puzzle.InventoryCount) }
-            : new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Basketball] = 1, [WorkshopPartKind.Receiver] = 1, [WorkshopPartKind.ImpactSwitch] = 2, [WorkshopPartKind.SignalLamp] = 1, [WorkshopPartKind.Wall] = 1, [WorkshopPartKind.Delay] = 1 };
+            : new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Basketball] = 1, [WorkshopPartKind.Receiver] = 1, [WorkshopPartKind.ImpactSwitch] = 2, [WorkshopPartKind.SignalLamp] = 1, [WorkshopPartKind.Wall] = 1, [WorkshopPartKind.Delay] = 1, [WorkshopPartKind.PinballBumper] = 1 };
         _title.Text = first ? "First principles" : delayed ? "Wait for it" : "Free workshop";
         _task.Text = first ? "Guide the orange ball into the green receiver. Place the two ramps to build a path through the air."
             : delayed ? "Light the lamp only after the delay box finishes its countdown."

@@ -16,6 +16,7 @@ public static class WorkshopPhysicsCompiler
         var sensors = new List<ResidenceSensorDeclaration>();
         var guides = new List<PlanarGuideDeclaration>();
         var triggers = new List<ContactTriggerDeclaration>();
+        var contactWorks = new List<ContactWorkDeclaration>();
         var plane = new GpuBodyId(InternalIdentityBase);
         var planeMaterial = new GpuMaterialId(InternalIdentityBase + 1);
         var height = WorkshopInput.Position((double)WorkshopConstruction.WorkbenchSurface.Value);
@@ -82,7 +83,7 @@ public static class WorkshopPhysicsCompiler
         }
         foreach (var instance in construction.Instances)
         {
-            if (instance is not (WorkshopSwitch or WorkshopLamp or WorkshopDelay)) continue;
+            if (instance is not (WorkshopSwitch or WorkshopLamp or WorkshopDelay or WorkshopBumper)) continue;
             var first = PartIdentities(instance.Id); next = Math.Max(next, first + 16);
             var material = new GpuMaterialId(first);
             bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
@@ -97,6 +98,14 @@ public static class WorkshopPhysicsCompiler
                 if (construction.Ball is { } target)
                     triggers.Add(new(ContactTrigger(trigger.Id), trigger.Id, target.Id, trigger.Trigger.Threshold));
             }
+            else if (instance is WorkshopBumper bumper)
+            {
+                colliders.Add(new(new(first + 1), bumper.Id, material, ColliderShapeKind.Sphere,
+                    RigidLocalPose.Identity, new((Half).65), default));
+                if (construction.Ball is { } target)
+                    contactWorks.Add(new(ContactWork(bumper.Id), bumper.Id, target.Id,
+                        bumper.Work.Strength, bumper.Work.Preload, new((Half).05), 72));
+            }
             else if (instance is WorkshopDelay)
                 AddStaticBox(first + 1, new((Half)0, (Half)(-.7), (Half)0), new((Half).675, (Half).075, (Half).4));
             else AddStaticBox(first + 1, new((Half)0, (Half)(-.35), (Half)0), new((Half).425, (Half).1, (Half).425));
@@ -104,11 +113,13 @@ public static class WorkshopPhysicsCompiler
                 colliders.Add(new(new(id), instance.Id, material, ColliderShapeKind.Box,
                     new(position, CanonicalRotation.Identity), new((Half)0), half));
         }
-        return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray());
+        return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray());
     }
     public static GpuSensorId CaptureSensor(WorkshopReceiver receiver) => new(checked(PartIdentities(receiver.Id) + 6));
 
     public static GpuContactTriggerId ContactTrigger(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
+
+    public static GpuContactWorkId ContactWork(GpuBodyId owner) => new(checked(PartIdentities(owner) + 8));
 
     private static ulong PartIdentities(GpuBodyId id)
     {

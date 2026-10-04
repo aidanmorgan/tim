@@ -269,6 +269,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         ValidateRead(response.Read, _construction);
         var boundary = response.Phase == WorkshopSimulationPhase.Completed ? PresentationBoundary.Completed : PresentationBoundary.Continuous;
         var history = PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(milliseconds));
+        ObserveContactFeedback(response.Read);
         _cursor.Commit(prepared);
         _history.Commit(history);
     }
@@ -365,6 +366,25 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (read.Tick.Value != 0 && (read.Motion is not { } motion ||
             motion.Substeps != construction.Settings.PhysicalStepsPerCommit))
             throw new ArgumentException("Motion cadence differs from the admitted construction.");
+        if (read.ContactWorks.Count != scene.ContactWorks.Length) throw new ArgumentException("Contact work population changed.");
+        for (var i = 0; i < read.ContactWorks.Count; i++)
+        {
+            var value = read.ContactWorks[i]; var declaration = scene.ContactWorks[i]; value.Validate();
+            var end = checked((uint)(read.Tick.Value * (ulong)construction.Settings.PhysicalStepsPerCommit));
+            if (value.Id != declaration.Id || value.Owner != declaration.Owner || value.Target != declaration.Target ||
+                value.RemainingEnergy.Value > declaration.InitialEnergy.Value || value.LastDebit.Value > declaration.InitialEnergy.Value ||
+                value.EventOrdinal > end || (value.EventOrdinal == end && value.EventPhase > (Half)0) ||
+                (read.Tick.Value == 0 && (value.OccurrenceCount != 0 || value.RemainingEnergy != declaration.InitialEnergy)))
+                throw new ArgumentException("Contact work does not belong to the admitted construction/time.");
+            if (value.OccurrenceCount != 0)
+            {
+                var ownedCollider = false;
+                foreach (var collider in scene.Colliders)
+                    if (collider.Id == value.Collider && collider.Body == declaration.Owner) ownedCollider = true;
+                if (!ownedCollider || value.ApproachSpeed.Value < declaration.Threshold.Value)
+                    throw new ArgumentException("Contact work does not own its collider or meet its threshold.");
+            }
+        }
         network.ValidateRead(read.Activations, read.Timers, read.Tick, construction.Settings.PhysicalStepsPerCommit, scene);
         var expectedSensors = construction.Ball.HasValue && construction.Receiver.HasValue ? 1 : 0;
         if (read.Captures.Count != expectedSensors || read.Rotation.HasValue != read.Ball.HasValue)

@@ -100,6 +100,7 @@ public sealed class ActivationTimerTests
         var (network,_,first,_) = Fixture();
         var counting=network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3));
         var finished=network.Consume(counting.Activations,counting.Timers,[],new(123));
+        foreach(var withContact in new[]{false,true})
         foreach(var (logical,tick) in new[]{(counting,3UL),(finished,123UL)})
         {
             var body=new CanonicalBody(new(1),1,tick,default,default,default);
@@ -114,12 +115,15 @@ public sealed class ActivationTimerTests
             var read=new WorkshopRead(new(1),new(tick),body,new(2),
                 new(WorkshopClockDomain.SimulationMonotonic,new(1),new(100000000),new(100000)),
                 CanonicalRotation.Identity,Motion:PhysicsMotionRead.Decode(bytes,body,new(tick)),
-                Activations:logical.Activations,Timers:logical.Timers);
+                Activations:logical.Activations,Timers:logical.Timers,
+                ContactWorks:withContact ? new(new[]{new ContactWorkRead(new(99),new(8),new(1),1,new(17),8,(Half)512,
+                    new((Half)4),new((Half)20),new((Half)12))}) : default);
             var response=new WorkshopResponse(default,WorkshopResponseKind.Read,new(WorkshopCommandOutcome.Applied,WorkshopRejection.None),
                 WorkshopSimulationPhase.Running,read,new(1,2),new(1),new(1),new(1),new(1),new(tick));
             var encoded=WorkshopWire.Encode(response);
             var decoded=WorkshopWire.DecodeResponse(encoded);
             Assert.True(read.HasSameContent(decoded.Read));
+            Assert.Equal(withContact ? 1 : 0, decoded.Read.ContactWorks.Count);
             Assert.Equal(logical.Timers[0],decoded.Read.Timers[0]);
             Assert.Equal(Node(logical.Activations,3),Node(decoded.Read.Activations,3));
         }

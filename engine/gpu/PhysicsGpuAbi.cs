@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 5 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 6 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, ContactResidual, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
@@ -14,7 +14,7 @@ public readonly record struct ResidenceRead(GpuSensorId Id, ResidencePhase Phase
 public readonly record struct PhysicsBodyRead(CanonicalBody Body, CanonicalRotation Rotation, AngularVelocity AngularVelocity);
 
 /// <summary>One bounded generic scene/state ABI. Physical arithmetic lives only in the matching WGSL module.</summary>
-public static class PhysicsGpuAbi
+public static partial class PhysicsGpuAbi
 {
     public const int HeaderBytes = 128;
     public const int BodyBytes = 256;
@@ -29,7 +29,9 @@ public static class PhysicsGpuAbi
     public const int SensorsOffset = MaterialsOffset + PhysicsSceneDeclaration.MaterialCapacity * MaterialBytes;
     public const int GuidesOffset = SensorsOffset + PhysicsSceneDeclaration.SensorCapacity * SensorBytes;
     public const int TriggersOffset = GuidesOffset + PhysicsSceneDeclaration.GuideCapacity * GuideBytes;
-    public const int MotionOffset = TriggersOffset + PhysicsSceneDeclaration.TriggerCapacity * TriggerBytes;
+    public const int ContactWorkBytes = 64;
+    public const int ContactWorksOffset = TriggersOffset + PhysicsSceneDeclaration.TriggerCapacity * TriggerBytes;
+    public const int MotionOffset = ContactWorksOffset + PhysicsSceneDeclaration.ContactWorkCapacity * ContactWorkBytes;
     public const int ByteLength = MotionOffset + PhysicsMotionRead.ByteLength;
     public const uint NoBody = uint.MaxValue;
     // A binary eighth-second primary segment bounds elapsed-value quantization.
@@ -44,6 +46,7 @@ public static class PhysicsGpuAbi
         U32(data, 12, (uint)scene.Bodies.Length); U32(data, 16, (uint)scene.Colliders.Length);
         U32(data, 20, (uint)scene.Materials.Length); U32(data, 24, (uint)scene.Sensors.Length);
         U32(data, 28, NoBody); U32(data, 96, (uint)scene.Guides.Length); U32(data, 100, (uint)scene.Triggers.Length);
+        U32(data, 104, (uint)scene.ContactWorks.Length);
         U64(data, 32, epoch.Value); U32(data, 48, (uint)profile.Cadence);
         U32(data, 52, (uint)profile.Physical); U64(data, 56, profile.Revision.Value);
         U64(data, 64, scene.Document.Low); U64(data, 72, scene.Document.High); U64(data, 80, scene.NextIdentity);
@@ -101,6 +104,13 @@ public static class PhysicsGpuAbi
             var trigger = scene.Triggers[i]; var record = data.Slice(TriggersOffset + i * TriggerBytes, TriggerBytes);
             U64(record, 0, trigger.Id.Value); U32(record, 8, BodySlot(scene, trigger.Owner));
             U32(record, 12, BodySlot(scene, trigger.Target)); H(record, 16, trigger.Threshold.Value);
+        }
+        for (var i = 0; i < scene.ContactWorks.Length; i++)
+        {
+            var work = scene.ContactWorks[i]; var record = data.Slice(ContactWorksOffset + i * ContactWorkBytes, ContactWorkBytes);
+            U64(record, 0, work.Id.Value); U32(record, 8, BodySlot(scene, work.Owner)); U32(record, 12, BodySlot(scene, work.Target));
+            H(record, 16, work.TargetSpeed.Value); H(record, 18, work.InitialEnergy.Value); H(record, 20, work.Threshold.Value);
+            U32(record, 24, work.CooldownPhysicalSteps); H(record, 48, work.InitialEnergy.Value);
         }
         return bytes;
     }
@@ -215,7 +225,7 @@ public static class PhysicsGpuAbi
             !candidate[..4].SequenceEqual(source[..4]) ||
             !candidate[12..40].SequenceEqual(source[12..40]) ||
             !candidate[48..88].SequenceEqual(source[48..88]) ||
-            !candidate[96..104].SequenceEqual(source[96..104]))
+            !candidate[96..108].SequenceEqual(source[96..108]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
         var bodyCount = checked((int)R32(source, 12)); var dynamicSlot = R32(source, 28);
         var dynamicCount = 0;
@@ -318,8 +328,9 @@ public static class PhysicsGpuAbi
                 Before(trigger.EventOrdinal, trigger.EventPhase, R32(source, 88), (Half)0)))
                 throw new ArgumentException("Impact event does not belong to this candidate interval.");
         }
-        if (!AllZero(candidate[(TriggersOffset + triggerCount * TriggerBytes)..MotionOffset]))
+        if (!AllZero(candidate[(TriggersOffset + triggerCount * TriggerBytes)..ContactWorksOffset]))
             throw new ArgumentException("Unused contact trigger slots changed.");
+        ValidateContactWorkCandidate(candidate, source, expectedTick);
         if (expectedTick.Value != 0 && (R32(candidate, MotionOffset + 4) != profile.Substeps ||
             R32(candidate, MotionOffset + 12) != R32(candidate, 88)))
             throw new ArgumentException("Motion profile differs from its committed world.");
@@ -328,7 +339,7 @@ public static class PhysicsGpuAbi
 
     private static bool ValidFeature(ColliderShapeKind shape, uint feature)
     {
-        if (shape == ColliderShapeKind.Plane) return feature == 0;
+        if (shape is ColliderShapeKind.Plane or ColliderShapeKind.Sphere) return feature == 0;
         if (shape != ColliderShapeKind.Box) return false;
         if (feature is >= 64 and <= 69) return true;
         return feature < 64 && feature != 21 && (feature & 3) <= 2 &&
@@ -351,6 +362,7 @@ const MATERIAL_CAPACITY:u32={PhysicsSceneDeclaration.MaterialCapacity}u;
 const SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.SensorCapacity}u;
 const GUIDE_CAPACITY:u32={PhysicsSceneDeclaration.GuideCapacity}u;
 const TRIGGER_CAPACITY:u32={PhysicsSceneDeclaration.TriggerCapacity}u;
+const CONTACT_WORK_CAPACITY:u32={PhysicsSceneDeclaration.ContactWorkCapacity}u;
 const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
 const STATUS_COMMITTED:u32={(uint)PhysicsCandidateStatus.Committed}u;
 const STATUS_INVALID:u32={(uint)PhysicsCandidateStatus.Invalid}u;
@@ -390,8 +402,9 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             R32(data, 24) > PhysicsSceneDeclaration.SensorCapacity ||
             R32(data, 96) > PhysicsSceneDeclaration.GuideCapacity ||
             R32(data, 100) > PhysicsSceneDeclaration.TriggerCapacity ||
+            R32(data, 104) > PhysicsSceneDeclaration.ContactWorkCapacity ||
             (R64(data, 64) == 0 && R64(data, 72) == 0) || R64(data, 80) == 0 ||
-            !AllZero(data[104..128]))
+            !AllZero(data[108..128]))
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;

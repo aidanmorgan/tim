@@ -158,12 +158,14 @@ public sealed class PhysicsSceneDeclaration
     public const int SensorCapacity = 8;
     public const int GuideCapacity = 8;
     public const int TriggerCapacity = 8;
+    public const int ContactWorkCapacity = 8;
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
     private readonly ResidenceSensorDeclaration[] _sensors;
     private readonly PlanarGuideDeclaration[] _guides;
     private readonly ContactTriggerDeclaration[] _triggers;
+    private readonly ContactWorkDeclaration[] _contactWorks;
     public PhysicsDocumentId Document { get; }
     public ulong NextIdentity { get; }
     public ReadOnlySpan<RigidBodyDeclaration> Bodies => _bodies;
@@ -172,15 +174,18 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<ResidenceSensorDeclaration> Sensors => _sensors;
     public ReadOnlySpan<PlanarGuideDeclaration> Guides => _guides;
     public ReadOnlySpan<ContactTriggerDeclaration> Triggers => _triggers;
+    public ReadOnlySpan<ContactWorkDeclaration> ContactWorks => _contactWorks;
 
     public PhysicsSceneDeclaration(PhysicsDocumentId document, ulong nextIdentity,
         ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders,
         ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
-        ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default)
+        ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default,
+        ReadOnlySpan<ContactWorkDeclaration> contactWorks = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
             bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
-            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity)
+            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity ||
+            contactWorks.Length > ContactWorkCapacity)
             throw new ArgumentException("Invalid physics document or capacity.");
         var ids = new HashSet<ulong>();
         var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>();
@@ -216,8 +221,6 @@ public sealed class PhysicsSceneDeclaration
                 if (inertia < 1.0 / 65504 || inertia > 16384)
                     throw new ArgumentException("Sphere inertia exceeds the admitted arithmetic domain.");
             }
-            else if (collider.Shape == ColliderShapeKind.Sphere)
-                throw new ArgumentException("Static sphere pair capability is not yet admitted.");
         }
         if (dynamicColliders.Count != dynamicCount)
             throw new ArgumentException("Every dynamic body requires its sphere collider.");
@@ -249,15 +252,29 @@ public sealed class PhysicsSceneDeclaration
             foreach (var collider in colliders) if (collider.Body == trigger.Owner) colliderFound = true;
             if (!colliderFound) throw new ArgumentException("Contact trigger owner has no physical collider.");
         }
+        var workOwners = new HashSet<GpuBodyId>();
+        foreach (var work in contactWorks)
+        {
+            work.Validate(); Identity(work.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(work.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
+                !bodyMap.TryGetValue(work.Target, out var target) || target.Motion != RigidMotionKind.Dynamic ||
+                !workOwners.Add(work.Owner))
+                throw new ArgumentException("Contact work requires one reservoir per static owner and a dynamic target.");
+            var colliderFound = false;
+            foreach (var collider in colliders) if (collider.Body == work.Owner) colliderFound = true;
+            if (!colliderFound) throw new ArgumentException("Contact work owner has no physical collider.");
+        }
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();
+        _contactWorks = contactWorks.ToArray();
         Array.Sort(_bodies, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_colliders, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_materials, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_sensors, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_guides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_triggers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        Array.Sort(_contactWorks, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)
@@ -283,4 +300,3 @@ internal static class PhysicsDeclarationBounds
     internal static bool Zero(Half value) => BitConverter.HalfToUInt16Bits(value) == 0;
     internal static bool Zero(Half x, Half y, Half z) => Zero(x) && Zero(y) && Zero(z);
 }
-

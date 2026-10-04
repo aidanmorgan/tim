@@ -4,7 +4,7 @@
   "base": "a36b2e6118761ac090f7940cae060ba22a49abd2",
   "owner": "/root/p025_implementation",
   "reviewer": "/root/p025_review",
-  "verdict": "SnapshotApproval — exact local pre-publication criteria Pass; terminal publication-dependent verification pending",
+  "verdict": "Pass — deployed scoped Wait for it goal/retry loop; not full catalogue or device/performance qualification",
   "sourceAcceptance": {
     "fixture": "content/puzzles.json:delayed_signal",
     "requirements": [
@@ -71,7 +71,7 @@
     "record": "../tim-pipe/docs/verification/P0-048-map/review-20261004.json",
     "status": "Fail/Incomplete, experiments stopped at design handoff; persistence/search alternatives unapproved. No Pipe code or evidence substitution in this lesson."
   },
-  "current": "Frozen304-input candidate approved; owner may commit/push exact snapshot normally. Remote/CI/deployed13 and production-origin lesson acceptance remain required before terminal scoped Pass.",
+  "current": "Completed and independently deployed at2581862f9124888959f5987b2f9e76a47219a004, Pages37219134589. No unresolved unintended regression in the justified lesson/caller scope. Pipe and named broader children remain open; next ready outcome requires coordinator selection.",
   "earlyModelReview": {
     "status": "Reviewed stable initial fixture/goal/wire portions only; callers/build still WIP, no whole-candidate Pass.",
     "sources": [
@@ -267,5 +267,55 @@
       "Genuine deployed Wait for it placement/wiring/positive and early-bypass goal behavior, source difficulty controls, duration/connection failure, Pause/Reset/retry and Save/Load, plus affected FirstPrinciples capture/goal feedback.",
       "Record terminal scoped verdict; no dependent publication completion claim beforehand."
     ]
+  },
+  "publication": {
+    "verdict": "Pass",
+    "commit": "2581862f9124888959f5987b2f9e76a47219a004",
+    "parent": "a36b2e6118761ac090f7940cae060ba22a49abd2",
+    "url": "https://aidanmorgan.github.io/tim/",
+    "remote": "Independent342b7a: origin/main exact approved head; all304 committed input hashes/sizes match closure5b231c539c73d924bae9ebf172528f04ece34d519b15d0d6f278693f99d6edcf.",
+    "ci": "Pages37219134589 exact-head build/deploy success original440015; coordinator original native stdouta48195 confirms509/509,0failed/0skipped,2s. Normal protected commit/push owner originals e762cb/96bc01.",
+    "artifact": "ci-artifact-37219134589.json: original artifact11309296686 ZIP106184751B SHAd2cb7c7b104c181bcc0d9151b4c9940c82d3fbda656b55ccd478002c6975d2cb. Independent8a4c16 verified original ZIP, tar1894515bbc9b2c896d5001ef87f3c85b156ab1e2c67f8d941936b8d7894206cc and13member identities without duplicate download.",
+    "loaded": "All13 actual production loaded identities match original CI. CDP response.body re-encodes shader comment text to97987B; actual fetch arrayBuffer97985B exact8b7d04f1, and inverse protocol Latin1 recovery is byte-for-byte equal to that raw response. No source change or comment-based identity waiver. Initial helper used unavailable server TextDecoder; corrected browser-context decoder retained original failure.",
+    "positive": "Actual picker/Delay placement/wiring matches local recipe with generated Delay4. All exact source precision0/.449951171875/1: source87, due207, Lamp off206, timer+Lamp occurrence828 and visible SOLVED at227 while Running.",
+    "controls": "At all three knots, real direct bypass latches target87 and remains unsolved after timer207. Missing input keeps timer Ready; missing output permits Finished but Lamp off. Entered0.5 with ordinary Apply lights Lamp147 but stays unsolved. No injected events/imported solutions/numeric placement menus.",
+    "lifecycle": "Pause113 holds unchanged across650ms; Resume shows SOLVED207. Reset after solved and while counting yields new epoch/tick0/idle latches/Ready timer and clears SOLVED. Save→FirstPrinciples→Load restores every construction payload byte except revision, then same retry87→207 succeeds.",
+    "exactSaveLoad": true,
+    "firstPrinciples": "Genuine two ramps placed/rotated with rings; capture ordinal1374/phasebits26064. Both actual shared animation outputs CaptureTarget2 and GoalTargetMax publish opacityHalf1 for same occurrence, visible SOLVED. Reset restores arrangement/clears capture+SOLVED.",
+    "setupLimit": "Initial intended forgiving slider gesture acknowledged Halfbits10854 rather than0; that incidental positive run is not exact-knot evidence. Subsequent real knob drag acknowledged0 before explicit positive and bypass controls. No hidden setter or tolerance change.",
+    "errors": "Zero observed console errors or solver/lifecycle faults. Owned Chrome page closed after final Reset, only connector about:blank remains.",
+    "originalRawFiles": [
+      "ui-deployed-startup-20261005.raw.json",
+      "ui-deployed-failures-20261005.raw.json",
+      "ui-deployed-lifecycle-20261005.raw.json",
+      "ui-deployed-first-principles-20261005.raw.json"
+    ],
+    "originalToolEntries": [
+      "waitDeployStartupRaw",
+      "waitDeployIdentityPickerRaw",
+      "waitDeployShaderPlaceRaw",
+      "waitDeployShaderPlace2Raw",
+      "waitDeployPositiveRaw",
+      "waitDeployBalancedBypassRaw",
+      "waitDeployPrecisePositiveRaw",
+      "waitDeployPreciseBypassRaw",
+      "waitDeployForgivingPositiveRaw",
+      "waitDeployForgivingAdjustRaw",
+      "waitDeployForgivingExactPositiveRaw",
+      "waitDeployForgivingBypassRaw",
+      "waitDeployMissingInputRaw",
+      "waitDeployMissingOutputRaw",
+      "waitDeployShortDelayRaw",
+      "waitDeploySavePauseRaw",
+      "waitDeployLifecycleRaw",
+      "waitDeployPuzzleSwitchRaw",
+      "waitDeployLoadRetryRaw",
+      "waitDeployRampPlaceRaw",
+      "waitDeployRampRotateRaw",
+      "waitDeployFirstPrinciplesRaw",
+      "waitDeployCleanupRaw"
+    ],
+    "evidenceWriteLimit": "ui-deployed-difficulties original920647B write blocked by Anvil validation-backend-unavailable op_01M43YNC4C6WBV52V4HRR778MD; not written/split/repackaged. Original named tool/session outputs retained. Other allowed originals warned only on embedded long screenshot lines; no comprehensive secret-scan claim.",
+    "scope": "All required publication-dependent items enumerated in SnapshotApproval are satisfied. This is an authored delayed_signal interaction and affected shared-goal caller Pass, not all CAT022 lessons, Pipe numeric closure,150-level campaign or global performance/device/fault qualification."
   }
 }

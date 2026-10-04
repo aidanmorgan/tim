@@ -17,6 +17,7 @@ function disposeOwned() {
     device = undefined;
     readyCandidate = false;
     resultBytes = undefined;
+    occurrenceReads.length = 0; pendingScheduleControls.length = 0; latestRead = undefined; occurrenceReadReserved = false;
     buffers.forEach(buffer => buffer.destroy());
     input?.destroy(); readback?.destroy(); ownedDevice?.destroy();
     buffers = [];
@@ -35,17 +36,34 @@ function requireLifetime(owner) {
 }
 let dispatchReadbackMs = 0;
 let latestRead, pendingReadIdentity;
+const occurrenceReads = [];
+const occurrenceReadCapacity = 64;
+let occurrenceReadReserved = false;
+const pendingScheduleControls = [];
+function forwardScheduleControl(bytes, recipient) {
+    if (recipient === roles[0]) self.postMessage({ scheduleControl: bytes }, [bytes.buffer]);
+    else if (recipient === roles[1] && animationPort)
+        animationPort.postMessage({ scheduleControl: bytes }, [bytes.buffer]);
+    else throw new Error('Unknown or retired schedule recipient.');
+}
+function flushScheduleControls() {
+    if (pendingReadIdentity || latestRead || occurrenceReads.length) return;
+    while (pendingScheduleControls.length) {
+        const item = pendingScheduleControls.shift();
+        forwardScheduleControl(item.bytes, item.recipient);
+    }
+}
 function flushRead() {
-    if (pendingReadIdentity || !latestRead) return;
-    const bytes = latestRead;
-    latestRead = undefined;
+    if (pendingReadIdentity || (occurrenceReads.length === 0 && !latestRead)) return;
+    const bytes = occurrenceReads.length ? occurrenceReads.shift() : latestRead;
+    if (bytes === latestRead) latestRead = undefined;
     pendingReadIdentity = new Uint8Array(24);
     pendingReadIdentity.set(bytes.subarray(64, 80));
     pendingReadIdentity.set(bytes.subarray(104, 112), 16);
     self.postMessage({ read: bytes, dispatchReadbackMs }, [bytes.buffer]);
 }
 function flushObservation() {
-    if (!observationPending || activeRequests !== 0 || pendingReadIdentity || latestRead) return;
+    if (!observationPending || activeRequests !== 0 || pendingReadIdentity || latestRead || occurrenceReads.length) return;
     observationPending = false;
     try { host.FlushObservation(); }
     catch { /* Diagnostic output failure cannot reject an admitted read; missing trace remains Incomplete. */ }
@@ -56,16 +74,17 @@ function acknowledgeRead(receipt) {
     pendingReadIdentity = undefined;
     // A queued terminal must become the next pending identity before any diagnostic output.
     flushRead();
+    flushScheduleControls();
     flushObservation();
 }
 runtime.setModuleImports('workshopGpu', {
     now() { return clockNow(); },
     scheduleControl(bytes, recipient) {
         const value = new Uint8Array(bytes);
-        if (recipient === roles[0]) self.postMessage({ scheduleControl: value }, [value.buffer]);
-        else if (recipient === roles[1] && animationPort)
-            animationPort.postMessage({ scheduleControl: value }, [value.buffer]);
-        else throw new Error('Unknown or retired schedule recipient.');
+        if (pendingReadIdentity || latestRead || occurrenceReads.length) {
+            if (pendingScheduleControls.length >= 4) throw new Error('Schedule drain capacity exceeded.');
+            pendingScheduleControls.push({ bytes: value, recipient });
+        } else forwardScheduleControl(value, recipient);
     },
     async initialize(preamble) {
         const owner = lifetime;
@@ -185,10 +204,24 @@ runtime.setModuleImports('workshopGpu', {
         try { self.postMessage({ failure: true, detail }); }
         finally { self.close(); }
     },
-    publish(bytes, pending) {
+    reserveOccurrenceRead() {
+        if (occurrenceReadReserved) throw new Error('A physical publication reservation is already owned.');
+        if (occurrenceReads.length >= occurrenceReadCapacity) return false;
+        occurrenceReadReserved = true;
+        return true;
+    },
+    releaseOccurrenceRead() { occurrenceReadReserved = false; },
+    publish(bytes, pending, retainOccurrence = false) {
         observationPending = pending;
         const result = new Uint8Array(bytes);
-        latestRead = result;
+        if (retainOccurrence) {
+            if (!occurrenceReadReserved || occurrenceReads.length >= occurrenceReadCapacity)
+                throw new Error('Committed occurrence lacks its reserved reliable read slot.');
+            // This later complete endpoint subsumes an unsent ordinary observation.
+            latestRead = undefined;
+            occurrenceReads.push(result);
+        } else latestRead = result;
+        occurrenceReadReserved = false;
         flushRead();
     },
     dispose: disposeOwned

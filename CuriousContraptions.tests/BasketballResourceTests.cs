@@ -11,7 +11,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay },
+        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper },
             registry.Definitions.Keys.OrderBy(kind => kind));
         var definition = registry.Definitions[WorkshopPartKind.Basketball];
         Assert.Empty(definition.Parameters);
@@ -217,6 +217,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
         { opacity = default; return false; }
         public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend) { blend = default; return false; }
+        public bool TryContactWorkFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out uint count, out Half blend) { count = 0; blend = (Half)0; return false; }
         public bool TryTimerFrame(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out CuriousContraptions.Presentation.AnimationTimerFrame result) { result = default; return false; }
         public void RecordCapturePresentation(ulong frame) => throw new InvalidOperationException("No capture opacity was supplied by this fixture.");
         public void RecordHintPresentation(ulong frame) => throw new InvalidOperationException("No hint was supplied by this fixture.");

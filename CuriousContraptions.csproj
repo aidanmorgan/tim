@@ -36,6 +36,7 @@
         <Compile Include="engine/RampDimensionsResource.cs" />
         <Compile Include="engine/WallDimensionsResource.cs" />
         <Compile Include="engine/DelayDurationResource.cs" />
+        <Compile Include="engine/BumperWorkResource.cs" />
         <Compile Include="engine/PartRegistry.cs" />
         <Compile Include="engine/PartArt.cs" />
         <Compile Include="engine/Workbench.cs" />
@@ -47,6 +48,7 @@
         <Compile Include="parts/LampPart.cs" />
         <Compile Include="parts/WallPart.cs" />
         <Compile Include="parts/DelayPart.cs" />
+        <Compile Include="parts/BumperPart.cs" />
         <Compile Include="ui/Workshop.cs" />
         <Compile Include="ui/WorkshopGpu.cs" />
         <Compile Include="ui/WorkshopConnections.cs" />

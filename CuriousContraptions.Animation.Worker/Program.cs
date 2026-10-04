@@ -213,9 +213,11 @@ public static partial class Program
             throw new InvalidOperationException("Animation control requires qualified master time.");
         if (control.Kind != AnimationControlKind.Visibility)
         {
-            var from = control.Kind == AnimationControlKind.TimerObservation
+            if (control.Kind == AnimationControlKind.Impulse)
+                _ = AnimationPulseSegment.Create(new(control.Duration));
+            var from = control.Kind == AnimationControlKind.Impulse ? (Half)1 : control.Kind == AnimationControlKind.TimerObservation
                 ? AnimationTimerSegment.Create(control.Timer).Endpoint.Value : control.From;
-            var to = control.Kind == AnimationControlKind.TimerObservation ? from : control.To;
+            var to = control.Kind is AnimationControlKind.TimerObservation or AnimationControlKind.Impulse ? from : control.To;
             var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, from),
                 WorkshopAnimationWire.Value(control.Property, to), new AnimationDurationSeconds(control.Duration),
                 control.Curve, AnimationRepeat.Once, AnimationClock.Presentation);
@@ -260,6 +262,8 @@ public static partial class Program
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(80), control.EventOrdinal);
         BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
         WorkshopAnimationWire.WriteTimer(Output, control.Timer);
+        if (control.Kind == AnimationControlKind.Impulse)
+            BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(132), BitConverter.HalfToUInt16Bits(control.Duration));
         SendOutput(Output);
     }
 }

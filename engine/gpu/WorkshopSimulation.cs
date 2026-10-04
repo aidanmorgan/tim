@@ -8,7 +8,7 @@ public enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Can
 public enum WorkshopRejection { None, Busy, InvalidConstruction, WrongRevision, WrongPhase, GpuAdmission, DeviceLost, InvalidRead, IdentityExhausted, StaleGeneration, Cancelled, AlreadyCommitted, Capacity, ReliableStalled, Transport }
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, CanonicalBody? Ball, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
-    CanonicalRotation? Rotation = null, AngularVelocity Angular = default, PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default);
+    CanonicalRotation? Rotation = null, AngularVelocity Angular = default, PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default);
 public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, WorkshopRead Read);
 
 /// <summary>Implemented only by the simulation worker's WebGPU adapter. No numerical host alternative.</summary>
@@ -365,6 +365,15 @@ public sealed class WorkshopSimulation : IAsyncDisposable
 
     private static void ValidateInitialRead(WorkshopRead read, WorkshopConstruction construction, SimulationEpoch epoch)
     {
+        var physics = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
+        if (read.ContactWorks.Count != physics.ContactWorks.Length) throw new ArgumentException("Admission work population changed.");
+        for (var i = 0; i < read.ContactWorks.Count; i++)
+        {
+            var work = physics.ContactWorks[i];
+            var expected = new ContactWorkRead(work.Id, work.Owner, work.Target, 0, default, 0, (Half)0,
+                new((Half)0), work.InitialEnergy, new((Half)0));
+            if (read.ContactWorks[i] != expected) throw new ArgumentException("Admission retained spent contact work.");
+        }
         var network = WorkshopActivationCompiler.Compile(construction);
         var initial = network.Clear();
         var timers = network.ClearTimers();
@@ -395,8 +404,17 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             read.Tick.Value != source.Tick.Value + 1 || (read.Ball is null) != (source.Ball is null))
             throw new ArgumentException("GPU tick read does not match the active transaction.");
         if (read.Rotation.HasValue != read.Ball.HasValue || read.Captures.Count != source.Captures.Count ||
-            read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count)
+            read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count)
             throw new ArgumentException("Physical read population changed.");
+        for (var i = 0; i < read.ContactWorks.Count; i++)
+        {
+            var before = source.ContactWorks[i]; var after = read.ContactWorks[i]; after.Validate();
+            if (before.Id != after.Id || before.Owner != after.Owner || before.Target != after.Target ||
+                after.OccurrenceCount < before.OccurrenceCount || after.OccurrenceCount > before.OccurrenceCount + 1 ||
+                after.RemainingEnergy.Value > before.RemainingEnergy.Value ||
+                (after.OccurrenceCount == before.OccurrenceCount && after != before))
+                throw new ArgumentException("Committed work identity, occurrence or reservoir changed inconsistently.");
+        }
         read.Rotation?.Validate();
         PhysicsDeclarationBounds.Vector(read.Angular.X, read.Angular.Y, read.Angular.Z, (Half)64);
         for (var i = 0; i < read.Captures.Count; i++)

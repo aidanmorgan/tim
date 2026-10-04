@@ -11,6 +11,7 @@
     <Compile Include="../engine/presentation/AnimationFollowDefinition.cs" Link="AnimationFollowDefinition.cs" />
     <Compile Include="../engine/presentation/AnimationImpulseDefinition.cs" Link="AnimationImpulseDefinition.cs" />
     <Compile Include="../engine/presentation/AnimationOscillationDefinition.cs" Link="AnimationOscillationDefinition.cs" />
+    <Compile Include="../engine/presentation/AnimationPulseSegment.cs" Link="AnimationPulseSegment.cs" />
     <Compile Include="../engine/presentation/AnimationTimerSegment.cs" Link="AnimationTimerSegment.cs" />
   </ItemGroup>
 </Project>

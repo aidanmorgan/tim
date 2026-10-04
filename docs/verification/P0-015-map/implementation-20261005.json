@@ -1,0 +1,57 @@
+{
+  "kind": "ScopedImplementationEvidence",
+  "slice": "CAT-015 first playable Bumper interaction",
+  "date": "2026-10-05",
+  "owner": "/root/p025_implementation",
+  "reviewer": "/root/p025_review",
+  "base": "2581862f9124888959f5987b2f9e76a47219a004",
+  "candidate": "playable-candidate-paths.json",
+  "artifact": "local-release-final-20261005.json",
+  "checks": [
+    {
+      "command": "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --nologo --no-build --no-restore",
+      "original": "b9b6c1/session38569/2363b0",
+      "result": "517 passed, 0 failed/skipped, 1 s; current read/transaction callers. Shader's final rationalized proposal/zero-disk source is independently GPU-reviewed, not claimed from native tests."
+    },
+    {
+      "command": "node --experimental-vm-modules tools/workshop-observation.test.mjs",
+      "original": "326248",
+      "result": "Pass: held ACK, two event reads, coalesced ordinary tail, ordered controls, bounded precommit reservation."
+    },
+    {
+      "command": "node --experimental-vm-modules tools/workshop-animation-output.test.mjs",
+      "original": "ce25d3",
+      "result": "Pass: all27 declared targets, held receipt, latest replacement, ordered drain, overflow, late-disposal output."
+    },
+    {
+      "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+      "original": "fafa00/session45589/013a08",
+      "result": "Exit0, final13 identity receipt."
+    },
+    {
+      "command": "Scoped C# Compile/resource membership and deletion audit",
+      "original": "b9bb9e",
+      "result": "312 source inputs; compile/resource/missing/changed-source-outside/deleted arrays all empty."
+    },
+    {
+      "command": "git diff --check",
+      "original": "3b3958",
+      "result": "Exit0."
+    },
+    {
+      "command": "anvil_check changed source paths",
+      "original": "same acceptance-boundary tool call preceding3b3958",
+      "result": "0 warnings; local backend/not-wired. No daemon architecture or global qualification claim."
+    }
+  ],
+  "retainedFailures": [
+    "Original geometry progression/fixes and numerical oracles are in independent review/raw files; failed candidates remain reference-only.",
+    "Original local2d05 actual third return370→371 failed Arithmetic7. Physical-equal d376 isolated rounded sqrt subtraction; exact032e rationalization passed the step and400 further ticks to770/rest with natural depletion and exhausted events.",
+    "Native fixture controls initially used a body ID outside authored compiler domain; changed mock-only fixture to admitted high uint identity. Full native then found one stale registry expected enum list, corrected to include Bumper; final517 pass supersedes neither original failure record.",
+    "First cold final-preview startup exceeded five-second qualification; ordinary reload recovered. Preserve observation under startup/performance qualification; no timeout relaxation or performance Pass.",
+    "Long encoded raw/fixture lines produced Anvil incomplete secret-scan warnings and were explicitly allowed; no scan-clean claim."
+  ],
+  "normalProtection": "Shared .git/hooks/pre-commit invokes this worktree's exact local .githooks/pre-commit, staged-test check and anvil hook. Local prerequisite copies are excluded from source delivery; no hook bypass.",
+  "independentEvidence": "review-20261005.json owns criterion/impact matrix, source findings, actual Chrome GPU/UI tests, applicability and required SnapshotApproval/deployed verdict.",
+  "remaining": "Independent exact SnapshotApproval, protected commit/push, original CI artifact and deployed identities/actual controls. Full catalogue/fixtures and cosmetic stopped-goal settling remain named later criteria."
+}

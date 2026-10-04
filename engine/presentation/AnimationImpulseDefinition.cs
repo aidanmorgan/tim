@@ -67,7 +67,7 @@ public sealed record AnimationImpulseDefinition
             _=>throw new InvalidOperationException("Unsupported impulse curve.")
         };
     }
-    private static double SquaredSine(double phase)
+    internal static double SquaredSine(double phase)
     {
         var sine=Math.Sin(Math.PI*phase);return sine*sine;
     }

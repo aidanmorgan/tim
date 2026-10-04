@@ -10,7 +10,7 @@ public sealed class WorkshopSimulationTests
     private static WorkshopSimulation Create(ControlledDevice device, ControlledClock? clock = null, ControlledInstallation? installation = null) =>
         new(device, clock ?? new ControlledClock(), Settings, new(1), installation ?? new ControlledInstallation());
     private static WorkshopConstruction BallConstruction(ulong revision = 2) =>
-        new(new(revision), Settings, new(WorkshopInput.Basketball(new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
+        new(new(revision), Settings, new(WorkshopInput.Basketball(new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
 
     [Fact]
     public async Task SaveChangesRevisionOnceWithoutChangingWorldOrDispatchingGpu()
@@ -549,6 +549,45 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(restored,simulation.Committed);
     }
 
+    [Fact]
+    public async Task PaidWorkStepInstallationRejectsAtomicallyAndResetRestoresPreload()
+    {
+        var device = new ControlledDevice(); var installation = new ControlledInstallation();
+        await using var simulation = Create(device, installation: installation);
+        await simulation.Initialize();
+        var construction = new WorkshopConstruction(new(2), Settings, new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+        var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
+        await simulation.Run(); await simulation.Pause();
+        var before = simulation.Committed; var commits = device.Commits;
+        var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
+        var collider = scene.Colliders.ToArray().First(value=>value.Body==new GpuBodyId(2)).Id;
+        WorkshopRead Paid(WorkshopRead read) => read with {
+            ContactWorks = new(new[] { read.ContactWorks[0] with {
+                OccurrenceCount=1, Collider=collider, EventOrdinal=1, EventPhase=(Half)0,
+                ApproachSpeed=new((Half)4), RemainingEnergy=new((Half)16), LastDebit=new((Half)16) } }) };
+        installation.HoldNext = true;
+        var rejected = simulation.Step().AsTask(); device.CompleteAdvance(0,Paid);
+        Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
+        installation.Pending[0].Completion.SetException(new WorkshopInstallationException());
+        Assert.Equal(WorkshopRejection.Transport,(await rejected).Reason);
+        Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
+        var accepted = simulation.Step().AsTask(); device.CompleteAdvance(1,Paid); await accepted;
+        Assert.Equal(1u,simulation.Committed.ContactWorks[0].OccurrenceCount);
+        Assert.Equal((Half)16,simulation.Committed.ContactWorks[0].RemainingEnergy.Value);
+        var spent = simulation.Committed;
+        var pending = simulation.Step().AsTask();
+        var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
+        var restored = simulation.Committed;
+        Assert.Equal(0u,restored.ContactWorks[0].OccurrenceCount);
+        Assert.Equal((Half)32,restored.ContactWorks[0].RemainingEnergy.Value);
+        Assert.Equal((Half)0,restored.ContactWorks[0].LastDebit.Value);
+        Assert.Equal(0ul,restored.Tick.Value); Assert.NotEqual(spent.Epoch,restored.Epoch);
+        device.CompleteAdvance(2); Assert.Equal(WorkshopCommandOutcome.Superseded,(await pending).Outcome);
+        Assert.Equal(restored,simulation.Committed);
+    }
+
     private sealed class ControlledInstallation : IWorkshopInstallation
     {
         public bool HoldNext { get; set; }
@@ -606,7 +645,13 @@ public sealed class WorkshopSimulationTests
                 ? new CanonicalBody(ball.Id, epoch.Value, 0, ball.Cell, ball.Local, default) : null,
                 Rotation: construction.Ball?.Rotation,
                 Activations: WorkshopActivationCompiler.Compile(construction).Clear(),
-                Timers: WorkshopActivationCompiler.Compile(construction).ClearTimers());
+                Timers: WorkshopActivationCompiler.Compile(construction).ClearTimers(),
+                ContactWorks: InitialContactWork(construction));
+        private static PhysicsContactWorkRead InitialContactWork(WorkshopConstruction construction) =>
+            !construction.Instances.ToArray().Any(part => part.Kind == WorkshopPartKind.PinballBumper) ? default :
+            new(WorkshopPhysicsCompiler.Compile(construction,new(1,2)).ContactWorks.ToArray()
+                .Select(work => new ContactWorkRead(work.Id,work.Owner,work.Target,0,default,0,(Half)0,
+                    default,work.InitialEnergy,default)).ToArray());
         public void FailAdvance(int index) => _advances[index].Completion.SetException(new InvalidOperationException("Injected old transport failure."));
         public void CompleteAdvance(int index, Func<WorkshopRead, WorkshopRead>? transform = null)
         {
