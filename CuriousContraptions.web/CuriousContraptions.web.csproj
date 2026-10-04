@@ -74,6 +74,9 @@
     <!-- Build the independent numerical worker normally; a failed worker export fails the host bundle. -->
     <Target Name="BuildWorkshopWorker" BeforeTargets="_WasmGenerateAppBundle">
         <MSBuild Projects="../CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj"
+                 Targets="Restore" Properties="Configuration=$(Configuration)"
+                 RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish" />
+        <MSBuild Projects="../CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj"
                  Targets="GetWorkshopWorkerBundle" Properties="Configuration=$(Configuration)"
                  RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish">
             <Output TaskParameter="TargetOutputs" ItemName="_WorkshopWorkerBundle" />
@@ -85,6 +88,9 @@
               DestinationFiles="@(_WorkshopWorkerBundle->'$(WasmAppDir)/simulation/%(BundleRelativePath)')" />
     </Target>
     <Target Name="BuildWorkshopAnimation" BeforeTargets="_WasmGenerateAppBundle">
+        <MSBuild Projects="../CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj"
+                 Targets="Restore" Properties="Configuration=$(Configuration)"
+                 RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish" />
         <MSBuild Projects="../CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj"
                  Targets="GetWorkshopAnimationBundle" Properties="Configuration=$(Configuration)"
                  RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish">
