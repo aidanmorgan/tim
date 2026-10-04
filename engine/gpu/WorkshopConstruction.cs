@@ -83,12 +83,13 @@ public readonly record struct WorkshopReceiver(
 }
 
 /// <summary>Immutable authored Workshop composition; parts compile declarations for the shared engine.</summary>
-public readonly record struct WorkshopConstruction(ConstructionRevision Revision, WorkshopCadenceSettings Settings, WorkshopInstances Instances, WorkshopPuzzle Puzzle = default)
+public readonly record struct WorkshopConstruction(ConstructionRevision Revision, WorkshopCadenceSettings Settings, WorkshopInstances Instances, WorkshopPuzzle Puzzle = default, WorkshopConnections Connections = null!)
 {
     public WorkshopBall? Ball => Instances.Find<WorkshopBall>();
     public WorkshopReceiver? Receiver => Instances.Find<WorkshopReceiver>();
     public WorkshopConstruction WithInstance(IWorkshopInstance instance) => this with { Instances = Instances.With(instance) };
-    public WorkshopConstruction WithoutInstance(GpuBodyId id) => this with { Instances = Instances.Without(id) };
+    public WorkshopConnections Connections { get; init; } = Connections ?? WorkshopConnections.Empty;
+    public WorkshopConstruction WithoutInstance(GpuBodyId id) => this with { Instances = Instances.Without(id), Connections = Connections.Without(id) };
     public static Acceleration Gravity => new((Half)9.81);
     public static Metres WorkbenchSurface => new((Half)(-0.46));
     public void Validate()
@@ -96,7 +97,7 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
         if (Revision.Value == 0) throw new ArgumentException("Construction revision must be nonzero.");
         Settings.Validate();
         ArgumentNullException.ThrowIfNull(Instances);
-        Instances.Validate(); Puzzle.Validate(this);
+        Instances.Validate(); ArgumentNullException.ThrowIfNull(Connections); Connections.Validate(Instances); Puzzle.Validate(this);
     }
 }
 
@@ -133,6 +134,22 @@ public static class WorkshopInput
         result.Validate(); return result;
     }
 
+    public static WorkshopSwitch Switch(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, ContactTriggerSettings trigger)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopSwitch(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), trigger);
+        result.Validate(); return result;
+    }
+    public static WorkshopLamp Lamp(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopLamp(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)));
+        result.Validate(); return result;
+    }
     internal static (int Cell, Half Local) Position(double metres)
     {
         if (!double.IsFinite(metres) || metres < -64 || metres > 64)

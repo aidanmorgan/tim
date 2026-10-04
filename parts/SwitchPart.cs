@@ -1,35 +1,22 @@
 using Godot;
-using System.Collections.Generic;
+using System;
 namespace CuriousContraptions;
 
+/// <summary>Artwork and immutable visual bindings; shared GPU declarations own both colliders.</summary>
 public partial class SwitchPart : MachinePart
 {
-    private MeshInstance3D _button = null!;
-    public override bool CanSendActivation => true;
-    public override IEnumerable<ConnectionPort> ConnectionPorts =>
-    [
-        new(SocketId.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, new(.45f, 0, .4f)),
-        new(SocketId.PowerIn, ConnectionDomain.Electrical, PortDirection.Input, new(-.58f, 0, 0)),
-        new(SocketId.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.58f, 0, 0))
-    ];
-    public override IEnumerable<ElectricalRoute> ElectricalRoutes =>
-        [new(SocketId.PowerIn, SocketId.Supply, Active)];
-
     protected override void Build()
     {
         PickRadius = .65f;
         PartArt.Sphere(Visual, .08f, new("#293954"), new(-.58f, 0, 0));
         PartArt.Sphere(Visual, .08f, new("#293954"), new(.58f, 0, 0));
-        AddBox(new(0, -.15f, 0), new(1.1f, .25f, 1), new("#2c3a4c"));
-        AddBox(new(0, .05f, 0), new(.8f, .18f, .75f), Definition.Color, false);
-        _button = PartArt.Cylinder(Visual, .38f, .18f, Definition.Color, new(0, .06f, 0));
+        PartArt.Box(Visual, new(1.1f, .25f, 1), new("#2c3a4c"), new(0, -.15f, 0));
+        var button = PartArt.Cylinder(Visual, .38f, .18f, Definition.Color, new(0, .06f, 0));
         PartArt.Sphere(Visual, .09f, new("#ffd899"), new(.45f, 0, .4f));
-    }
-    public override void OnContact(MachinePart body, float speed, MachineWorld world)
-    {
-        if (speed < Assistance(world.Precision).TriggerThreshold) return;
-        world.Activate(this);
-        _button.Position = new(0, -.02f, 0);
-        ((StandardMaterial3D)_button.MaterialOverride).AlbedoColor = new("#bff5b0");
+        var pressed = new Color("#bff5b0");
+        BindVisual(button, WorkshopVisualProperty.LocalY, (Half).06, (Half)(-.02));
+        BindVisual(button, WorkshopVisualProperty.AlbedoRed, (Half)Definition.Color.R, (Half)pressed.R);
+        BindVisual(button, WorkshopVisualProperty.AlbedoGreen, (Half)Definition.Color.G, (Half)pressed.G);
+        BindVisual(button, WorkshopVisualProperty.AlbedoBlue, (Half)Definition.Color.B, (Half)pressed.B);
     }
 }

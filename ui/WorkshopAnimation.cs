@@ -33,12 +33,12 @@ public partial class Workshop
     {
         if (!_hint.IsInsideTree()) return;
         _hintAnimationVisible = _hint.IsVisibleInTree();
-        World.ControlHint(HintControlKind.Reveal, _hintAnimationVisible);
+        World.ControlHint(AnimationControlKind.Reveal, _hintAnimationVisible);
         ApplyHintOpacity(new((Half)0));
     }
     private void HideHint()
     {
-        World.ControlHint(HintControlKind.Hide, false);
+        World.ControlHint(AnimationControlKind.Hide, false);
         _hint.Visible = false;
         ApplyHintOpacity(new((Half)1));
     }
@@ -54,7 +54,7 @@ public partial class Workshop
         var visible = _hint.IsVisibleInTree();
         if (visible != _hintAnimationVisible)
         {
-            World.ControlHint(HintControlKind.Visibility, visible);
+            World.ControlHint(AnimationControlKind.Visibility, visible);
             _hintAnimationVisible = visible;
         }
         if (World.TryHint(out var sample))

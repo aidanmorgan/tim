@@ -3,20 +3,22 @@ using System.Buffers.Binary;
 using CuriousContraptions.Presentation;
 namespace CuriousContraptions.Gpu;
 
-public enum HintControlKind : uint { Reveal = 1, Hide = 2, Visibility = 3, Endpoint = 4 }
-public enum HintOutputKind : uint { Acknowledgement = 1, Sample = 2, Rejected = 3 }
+public enum AnimationControlKind : uint { Reveal = 1, Hide = 2, Visibility = 3, Endpoint = 4 }
+public enum AnimationOutputKind : uint { Acknowledgement = 1, Sample = 2, Rejected = 3 }
 public readonly record struct WorkshopHintSample(ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, Half Opacity);
-public readonly record struct WorkshopOpacityControl(AnimationTargetId Target, SimulationEpoch World,
-    ulong Sequence, ulong Generation, HintControlKind Kind, bool Visible,
-    Half From, Half To, Half Duration, AnimationCurve Curve, uint EventOrdinal = 0, Half EventPhase = default);
-public readonly record struct WorkshopOpacitySample(AnimationTargetId Target, SimulationEpoch World,
-    ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, Half Opacity, uint EventOrdinal, Half EventPhase);
-public static class WorkshopHintWire
+public readonly record struct WorkshopAnimationControl(AnimationTargetId Target, SimulationEpoch World,
+    ulong Sequence, ulong Generation, AnimationControlKind Kind, bool Visible,
+    Half From, Half To, Half Duration, AnimationCurve Curve, uint EventOrdinal = 0, Half EventPhase = default, AnimationProperty Property = AnimationProperty.Opacity);
+public readonly record struct WorkshopAnimationSample(AnimationTargetId Target, SimulationEpoch World,
+    ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, Half Value, uint EventOrdinal, Half EventPhase, AnimationProperty Property);
+public static class WorkshopAnimationWire
 {
+    public const ushort Version = 2;
+    public const int TargetCapacity = ActivationNetwork.Capacity + 2;
     public const int ControlBytes = 96;
     public const int OutputBytes = 96;
     public static byte[] Control(RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence,
-        WorkshopOpacityControl control)
+        WorkshopAnimationControl control)
     {
         session.Validate(); cadence.Validate(); Validate(control);
         if (master.Value == 0) throw new ArgumentException("Invalid animation master.");
@@ -34,58 +36,65 @@ public static class WorkshopHintWire
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(80), (uint)control.Curve);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(84), control.EventOrdinal);
         WriteHalf(bytes, 88, control.EventPhase);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(78), (ushort)control.Property);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(90), Version);
         return bytes;
     }
-    public static WorkshopOpacityControl ReadControl(ReadOnlySpan<byte> bytes, RuntimeSessionId session,
+    public static WorkshopAnimationControl ReadControl(ReadOnlySpan<byte> bytes, RuntimeSessionId session,
         ClockGeneration master, CadenceRevision cadence)
     {
         Identity(bytes, ControlBytes, session, master, cadence);
         var visible = BinaryPrimitives.ReadUInt32LittleEndian(bytes[52..]);
-        if (visible > 1 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[78..]) != 0 ||
-            BinaryPrimitives.ReadUInt16LittleEndian(bytes[90..]) != 0 || BinaryPrimitives.ReadUInt32LittleEndian(bytes[92..]) != 0)
-            throw new ArgumentException("Invalid opacity control padding.");
-        var value = new WorkshopOpacityControl(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[56..])),
+        if (visible > 1 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[90..]) != Version || BinaryPrimitives.ReadUInt32LittleEndian(bytes[92..]) != 0)
+            throw new ArgumentException("Invalid animation channel control padding.");
+        var value = new WorkshopAnimationControl(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[56..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[64..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),
-            BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..]), (HintControlKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[48..]),
+            BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..]), (AnimationControlKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[48..]),
             visible != 0, ReadHalf(bytes,72), ReadHalf(bytes,74), ReadHalf(bytes,76),
             (AnimationCurve)BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]),
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[84..]), ReadHalf(bytes,88));
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[84..]), ReadHalf(bytes,88), (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[78..]));
         Validate(value); return value;
     }
-    private static void Validate(WorkshopOpacityControl value)
+    private static void Validate(WorkshopAnimationControl value)
     {
         if (value.Target.Value == 0 || value.Sequence == 0 || value.Generation == 0 ||
-            !Enum.IsDefined(value.Kind) || !Enum.IsDefined(value.Curve) || !Half.IsFinite(value.From) ||
+            !IsChannel(value.Property) || !Enum.IsDefined(value.Kind) || !Enum.IsDefined(value.Curve) || !Half.IsFinite(value.From) ||
             !Half.IsFinite(value.To) || value.From < (Half)0 || value.From > (Half)1 ||
             value.To < (Half)0 || value.To > (Half)1 || !Half.IsFinite(value.Duration) ||
             value.Duration <= (Half)0 || value.Duration > (Half)30 ||
-            (value.Kind == HintControlKind.Endpoint && value.From != value.To) ||
+            (value.Kind == AnimationControlKind.Endpoint && value.From != value.To) ||
             !Half.IsFinite(value.EventPhase) || value.EventPhase < (Half)(-2048) || value.EventPhase >= (Half)2048 ||
             (value.EventOrdinal == 0 && value.EventPhase < (Half)0) ||
             (value.World.Value == 0 && (value.EventOrdinal != 0 || value.EventPhase != (Half)0)))
-            throw new ArgumentException("Invalid opacity declaration.");
+            throw new ArgumentException("Invalid animation channel declaration.");
     }
-    public static WorkshopOpacitySample Read(ReadOnlySpan<byte> bytes, RuntimeSessionId session,
-        ClockGeneration master, CadenceRevision cadence, out HintOutputKind kind)
+    public static WorkshopAnimationSample Read(ReadOnlySpan<byte> bytes, RuntimeSessionId session,
+        ClockGeneration master, CadenceRevision cadence, out AnimationOutputKind kind)
     {
         Identity(bytes, OutputBytes, session, master, cadence);
-        if (BinaryPrimitives.ReadUInt16LittleEndian(bytes[58..]) != 0 ||
-            BinaryPrimitives.ReadUInt16LittleEndian(bytes[86..]) != 0 || BinaryPrimitives.ReadUInt64LittleEndian(bytes[88..]) != 0) throw new ArgumentException("Invalid opacity padding.");
-        kind = (HintOutputKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[60..]);
-        var result = new WorkshopOpacitySample(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[64..])),
+        if (BinaryPrimitives.ReadUInt16LittleEndian(bytes[86..]) != Version || BinaryPrimitives.ReadUInt64LittleEndian(bytes[88..]) != 0) throw new ArgumentException("Invalid animation channel padding.");
+        kind = (AnimationOutputKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[60..]);
+        var result = new WorkshopAnimationSample(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[64..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[72..])), BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]),
             new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..])),
             new(BinaryPrimitives.ReadInt64LittleEndian(bytes[48..])), ReadHalf(bytes,56),
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]), ReadHalf(bytes,84));
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[80..]), ReadHalf(bytes,84), (AnimationProperty)BinaryPrimitives.ReadUInt16LittleEndian(bytes[58..]));
         result.AppliedAt.Validate();
-        if (!Enum.IsDefined(kind) || result.Generation == 0 || !Half.IsFinite(result.Opacity) ||
-            result.Opacity < (Half)0 || result.Opacity > (Half)1 || !Half.IsFinite(result.EventPhase) ||
+        if (!IsChannel(result.Property) || !Enum.IsDefined(kind) || result.Generation == 0 || !Half.IsFinite(result.Value) ||
+            result.Value < (Half)0 || result.Value > (Half)1 || !Half.IsFinite(result.EventPhase) ||
             result.EventPhase < (Half)(-2048) || result.EventPhase >= (Half)2048 ||
             (result.EventOrdinal == 0 && result.EventPhase < (Half)0) ||
             (result.World.Value == 0 && (result.EventOrdinal != 0 || result.EventPhase != (Half)0)))
-            throw new ArgumentException("Invalid opacity output.");
+            throw new ArgumentException("Invalid animation channel output.");
         return result;
     }
+    public static bool IsChannel(AnimationProperty property) => property is AnimationProperty.Opacity or AnimationProperty.ColourBlend;
+    public static AnimationValue Value(AnimationProperty property, Half value) => property switch
+    {
+        AnimationProperty.Opacity => new(new AnimationOpacity(value)),
+        AnimationProperty.ColourBlend => new(new AnimationColourBlend(value)),
+        _ => throw new ArgumentException("Unsupported animation channel.")
+    };
     private static void Identity(ReadOnlySpan<byte> bytes, int length, RuntimeSessionId session, ClockGeneration master, CadenceRevision cadence)
     {
         if (bytes.Length != length || WorkshopWire.ReadSession(bytes[..16]) != session ||

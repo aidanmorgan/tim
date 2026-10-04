@@ -209,6 +209,7 @@ public partial class Workshop : Node3D
         _paletteScroll.AddChild(_palette);
         _detail = Paragraph("Choose a part, then click the workbench.", 14, Muted, new(180, 0));
         left.AddChild(_detail);
+        _connectionChoices = new VBoxContainer(); left.AddChild(_connectionChoices);
         _cancelButton = Button("Cancel / deselect", CancelTool);
         _cancelButton.Visible = false;
         left.AddChild(_cancelButton);
@@ -376,6 +377,8 @@ public partial class Workshop : Node3D
         EndGizmo(false);
         if (GodotObject.IsInstanceValid(_selected)) _selected!.SetSelected(false);
         _selected = part;
+        if (part is null) _linkSource = null;
+        RefreshConnectionChoices();
         if (part == null) { _detail.Text = ""; return; }
         part.SetSelected(true);
         if (!_inRun) SetLayer(part.Position.Z);
@@ -472,6 +475,7 @@ public partial class Workshop : Node3D
     }
     private async void Click(Vector2 screen)
     {
+        if (_linkSource is not null) { ChooseConnectionTarget(Pick(screen)); return; }
         if (_tool is null && _rotationGizmo.Begin(_camera, screen))
         {
             PushUndo();
@@ -778,7 +782,8 @@ public partial class Workshop : Node3D
             // Authority may have committed even if subsequent scene restoration failed.
             applied = World.Construction.Revision.Value > priorRevision.Value &&
                 World.Construction.Instances.Equals(saved.Construction.Instances) &&
-                World.Construction.Puzzle == saved.Construction.Puzzle;
+                World.Construction.Puzzle == saved.Construction.Puzzle &&
+                World.Construction.Connections.Equals(saved.Construction.Connections);
             if (applied) _nextId = new(Math.Max(_nextId.Value, saved.NextBodyId.Value));
             if (_workshopUiRemoved) return;
             if (!accepted)

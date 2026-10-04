@@ -120,7 +120,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                 throw new ArgumentException("Unexpected master bootstrap identity.");
             client._peer = peer;
             client._clock = new(peer);
-            AnimationKinds(client._id.Value, [(int)HintOutputKind.Acknowledgement, (int)HintOutputKind.Sample, (int)HintOutputKind.Rejected]);
+            AnimationKinds(client._id.Value, [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected]);
             ActivateClient(client._id.Value);
             if (client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay)
             {
@@ -337,16 +337,35 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             throw new InvalidOperationException("Worker session is unavailable; its unacknowledged operations remain indeterminate.");
     }
 
-    internal static void ValidateCommandRead(WorkshopResponse response, WorkshopConstruction? proposed, WorkshopConstruction current) =>
-        ValidateRead(response.Read, response.Result.Outcome == WorkshopCommandOutcome.Applied ? proposed ?? current : current);
+    internal static void ValidateCommandRead(WorkshopResponse response, WorkshopConstruction? proposed, WorkshopConstruction current)
+    {
+        var construction = response.Result.Outcome == WorkshopCommandOutcome.Applied ? proposed ?? current : current;
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(response.Session.Low, response.Session.High));
+        ValidateReadContent(response.Read, construction, WorkshopActivationCompiler.Compile(construction), scene);
+    }
 
-    private static void ValidateRead(WorkshopRead read, WorkshopConstruction construction)
+    private WorkshopConstruction? _readConstruction;
+    private ActivationNetwork? _readActivationNetwork;
+    private PhysicsSceneDeclaration? _readScene;
+    private void ValidateRead(WorkshopRead read, WorkshopConstruction construction)
+    {
+        if (_readConstruction != construction)
+        {
+            var scene = WorkshopPhysicsCompiler.Compile(construction, new(Peer.Session.Low, Peer.Session.High));
+            var network = WorkshopActivationCompiler.Compile(construction);
+            _readScene = scene; _readActivationNetwork = network; _readConstruction = construction;
+        }
+        ValidateReadContent(read, construction, _readActivationNetwork!, _readScene!);
+    }
+    private static void ValidateReadContent(WorkshopRead read, WorkshopConstruction construction,
+        ActivationNetwork network, PhysicsSceneDeclaration scene)
     {
         if (read.Tick.Value > construction.Settings.RunTickLimit || (read.Ball is null) != (construction.Ball is null))
             throw new ArgumentException("Read does not own the admitted construction.");
         if (read.Tick.Value != 0 && (read.Motion is not { } motion ||
             motion.Substeps != construction.Settings.PhysicalStepsPerCommit))
             throw new ArgumentException("Motion cadence differs from the admitted construction.");
+        network.ValidateRead(read.Activations, read.Tick, construction.Settings.PhysicalStepsPerCommit, scene);
         var expectedSensors = construction.Ball.HasValue && construction.Receiver.HasValue ? 1 : 0;
         if (read.Captures.Count != expectedSensors || read.Rotation.HasValue != read.Ball.HasValue)
             throw new ArgumentException("Read physical/sensor population differs from its construction.");

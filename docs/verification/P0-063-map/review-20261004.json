@@ -1,0 +1,338 @@
+{
+  "scope": "CAT-063-I Impact switch / CAT-035-I Signal lamp activation integration",
+  "reviewer": {
+    "role": "/root/p025_review",
+    "independence": "Review-only; deliverables owned by /root/p025_implementation",
+    "identityLimit": "Runtime process identifier is not exposed by this tool interface; retained canonical reviewer role."
+  },
+  "verdict": "Incomplete: physical contact plus source/native/transport activation/animation boundaries pass; actual UI, Production and publication criteria remain pending.",
+  "currentBoundary": {
+    "shader": "5322ed5aa8e87568cd7ecd4a28f4519d0cc469adc785f92933ef7d0856cacf21",
+    "inputs": "95d6c2566927bd2568cc0a68ba16ac7349d57e41cd33403c16327d4608c4c0cd",
+    "abi": 5,
+    "stateBytes": 19088,
+    "validatorAssembly": "160e9559d288844c8cdf4acb0f910b47e5e6610a7a099adcdc5f17844d2c5c3f",
+    "identityReceipt": "b8f279"
+  },
+  "matrix": [
+    {
+      "criterion": "Source geometry/material and threshold",
+      "impact": "Compiler and shared contact event",
+      "result": "Scoped Pass",
+      "basis": "Both switch static boxes retained; base material restitution1/threshold.1/friction.3; default threshold Half(.8); pre-response normal approach inclusive.",
+      "limits": "Source electrical PowerIn→Supply pass-through remains unsupported/deferred; no electrical solver admitted."
+    },
+    {
+      "criterion": "Canonical connection/configuration ownership and rejection",
+      "impact": "Wire10/save3, immutable collection, First principles inventory",
+      "result": "Supporting model Pass",
+      "basis": "Independent Save tests30/30 c22696; source inspection of added FirstPrinciples foreign instance/edge and serialized-invalid controls eade31. Expanded39/39 reported by owner19d6b6; not relabelled independent."
+    },
+    {
+      "criterion": "Actual shared GPU contact positive/negative/boundary",
+      "impact": "ABI v5, both compute entrypoints, event record",
+      "result": "Scoped Pass",
+      "basis": "Seven byte-exact admissions; 840 successful ticks; drop/base-box/equal/above positive, miss/gentle/below negative. Complete details/raw retained.",
+      "limits": "Standalone actual Chrome GPU fixture, not gameplay UI or full-run qualification. Each positive occurs once in120ticks, not a claim about all future bounces."
+    },
+    {
+      "criterion": "Complete native candidate validation",
+      "impact": "Current physical ABI decoder and event guards",
+      "result": "Scoped Pass",
+      "basis": "All11 retained first-event/final source-candidate pairs pass exact frozen validator.",
+      "limits": "Not all840 full states retained or native-validated."
+    },
+    {
+      "criterion": "Atomic physics plus activation commit",
+      "impact": "WorkshopGpuDevice, ActivationNetwork, Simulation/read/pose history",
+      "result": "Supporting source/native Pass",
+      "basis": "Full physical validation and network Consume precede Commit; catch discards both candidate states; committed state changes only at owned Commit. Requested explicit invalid-event no-Commit preservation test."
+    },
+    {
+      "criterion": "Shared Animation and real placed connected gameplay",
+      "impact": "Renderer/property bindings, event identity, scene/UI/save/reset",
+      "result": "Incomplete",
+      "basis": "Shared evaluator and transport controls independently pass after A1–A4 fixes; real UI still pending."
+    },
+    {
+      "criterion": "Production publication",
+      "impact": "Build, exact candidate/remote/assets and deployed controls",
+      "result": "Incomplete",
+      "basis": "No SnapshotApproval or publication for this slice."
+    }
+  ],
+  "physicalResults": [
+    {
+      "name": "drop",
+      "admissionExact": true,
+      "ticks": 120,
+      "failures": [],
+      "events": [
+        {
+          "tick": 68,
+          "collider": "4294967346",
+          "ordinal": 268,
+          "phaseBits": 24768,
+          "speedBits": 17771
+        }
+      ]
+    },
+    {
+      "name": "miss",
+      "admissionExact": true,
+      "ticks": 120,
+      "failures": [],
+      "events": []
+    },
+    {
+      "name": "gentle",
+      "admissionExact": true,
+      "ticks": 120,
+      "failures": [],
+      "events": []
+    },
+    {
+      "name": "below",
+      "admissionExact": true,
+      "ticks": 120,
+      "failures": [],
+      "events": []
+    },
+    {
+      "name": "equal",
+      "admissionExact": true,
+      "ticks": 120,
+      "failures": [],
+      "events": [
+        {
+          "tick": 3,
+          "collider": "4294967346",
+          "ordinal": 12,
+          "phaseBits": 57888,
+          "speedBits": 14950
+        }
+      ]
+    },
+    {
+      "name": "above",
+      "admissionExact": true,
+      "ticks": 120,
+      "failures": [],
+      "events": [
+        {
+          "tick": 3,
+          "collider": "4294967346",
+          "ordinal": 12,
+          "phaseBits": 57948,
+          "speedBits": 14951
+        }
+      ]
+    },
+    {
+      "name": "base-box",
+      "admissionExact": true,
+      "ticks": 120,
+      "failures": [],
+      "events": [
+        {
+          "tick": 75,
+          "collider": "4294967345",
+          "ordinal": 297,
+          "phaseBits": 24960,
+          "speedBits": 16802
+        }
+      ]
+    }
+  ],
+  "raw": "docs/verification/P0-063-map/contact-gpu-20261004.raw.json",
+  "nativeCommand": "dotnet reference/switch-lamp/bin/Debug/net10.0/ContactProbe.dll docs/verification/P0-063-map/contact-gpu-20261004.raw.json pairs <name>",
+  "nativeOriginalResults": [
+    {
+      "name": "drop-68",
+      "chunk_id": "98cfbc",
+      "wall_time_seconds": 0.000005583,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "drop-120",
+      "chunk_id": "71d6a3",
+      "wall_time_seconds": 0.000005583,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "miss-120",
+      "chunk_id": "171473",
+      "wall_time_seconds": 0.000005666,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "gentle-120",
+      "chunk_id": "f3da10",
+      "wall_time_seconds": 0.000007125,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "below-120",
+      "chunk_id": "adc665",
+      "wall_time_seconds": 0.00000575,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "equal-3",
+      "chunk_id": "e0d033",
+      "wall_time_seconds": 0.000005333,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "equal-120",
+      "chunk_id": "55f0d9",
+      "wall_time_seconds": 0.000005625,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "above-3",
+      "chunk_id": "e6d21d",
+      "wall_time_seconds": 0.000006708,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "above-120",
+      "chunk_id": "70a6ff",
+      "wall_time_seconds": 0.00000725,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "base-box-75",
+      "chunk_id": "74b2eb",
+      "wall_time_seconds": 0.000006708,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    },
+    {
+      "name": "base-box-120",
+      "chunk_id": "2170a6",
+      "wall_time_seconds": 0.000006333,
+      "exit_code": 0,
+      "original_token_count": 7,
+      "output": "{\"valid\":true,\"count\":1}\n"
+    }
+  ],
+  "controlsExpectedBeforeExecution": "drop upper box; base-box base only; equality and one-Half-above qualify; one-Half-below, gentle, miss do not",
+  "gateLimit": "Generated raw saved after Anvil warn allowing write; long binary-data line not fully secret-scanned.",
+  "deferred": "Existing performance/device/cold-cache qualification limits retained from preceding playable slices; no global or performance Pass.",
+  "animationReview": {
+    "status": "Supporting source/native/transport Pass; actual gameplay remains Incomplete.",
+    "findings": [
+      {
+        "id": "A1",
+        "source": "engine/gpu/BrowserWorkshopClient.Schedule.cs ReceiveAnimation",
+        "observation": "First output at new cadence calls RetireActivationFeedback before validating activation sample, clearing its owner request. Same-world cadence transitions retain A tracks but clear B request ownership.",
+        "required": "Reset publication ordinals without destroying applicable activation ownership; retire requests on actual world retirement. First-output valid ACK, same-world cadence and retired-world ACK controls.",
+        "status": "Closed by actual source re-review and independent affected controls."
+      },
+      {
+        "id": "A2",
+        "source": "engine/gpu/BrowserWorkshopClient.cs ValidateRead",
+        "observation": "No activation construction-consistency validation before browser history. Wire structure alone permits unknown node/owner, disconnected target or invalid admission/event-time state.",
+        "required": "Bounded typed declaration/population/route/event identity checks at current read boundary; meaningful malformed/stale controls.",
+        "status": "Closed by actual source re-review and independent affected controls."
+      },
+      {
+        "id": "A3",
+        "source": "CuriousContraptions.Animation.Worker/wwwroot/worker.js output",
+        "observation": "latestSamples cap remains2 while managed target capacity10; multiple admitted tracks behind held receipt can overflow.",
+        "required": "Declared target capacity at transport boundary with held receipt/replacement/drain/disposal controls.",
+        "status": "Closed by actual source re-review and independent affected controls."
+      },
+      {
+        "id": "A4",
+        "source": "BrowserWorkshopClient.Schedule.cs ReceiveAnimation / CuriousContraptions.web/wwwroot/workshop-client.js animationOutput",
+        "observation": "Managed ReceiveAnimation clears its lease then synchronously PumpActivations; JS releases its lease only after deliver returns, so next control throws unavailable/pending.",
+        "required": "Pump from existing next presentation after delivery returns; verify two-owner ACK/control ordering.",
+        "status": "Closed by actual source re-review and independent affected controls."
+      }
+    ],
+    "sourceReads": [
+      "b74823",
+      "c350e3",
+      "cf8e63",
+      "f0b096",
+      "435b1d"
+    ],
+    "consistentDesign": "One generic ColourBlend track per node, immutable typed rendering endpoints evaluated through shared AnimationValue.Blend; part callbacks removed. Epoch change applies neutral bindings. Pending source fixes and focused controls prevent approval.",
+    "gpuApplicability": "No shader/input change reported or observed since exact5322ed5a/95d6c256 boundary. No GPU repeat.",
+    "fixEvidence": {
+      "native": {
+        "command": "dotnet test CuriousContraptions.tests --no-build --nologo --filter 'FullyQualifiedName~WorkshopActivationAnimationTests|FullyQualifiedName~ContactActivationTests|FullyQualifiedName~WorkshopGpuDeviceTests'",
+        "start": {
+          "status": "fulfilled",
+          "value": {
+            "chunk_id": "4ce202",
+            "wall_time_seconds": 1.001996833,
+            "session_id": 86735,
+            "original_token_count": 50,
+            "output": "Test run for /Users/aidan/dev/personal/tim/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)\nA total of 1 test files matched the specified pattern.\n"
+          }
+        },
+        "result": {
+          "chunk_id": "266190",
+          "wall_time_seconds": 0.000010458,
+          "exit_code": 0,
+          "original_token_count": 33,
+          "output": "\nPassed!  - Failed:     0, Passed:    26, Skipped:     0, Total:    26, Duration: 142 ms - CuriousContraptions.tests.dll (net10.0)\n"
+        }
+      },
+      "transport": [
+        {
+          "status": "fulfilled",
+          "value": {
+            "chunk_id": "45fadb",
+            "wall_time_seconds": 0.000007334,
+            "exit_code": 0,
+            "original_token_count": 83,
+            "output": "{\"passed\":true,\"targets\":10,\"controls\":[\"declaredCapacity\",\"heldReceipt\",\"latestReplacement\",\"orderedDrain\",\"overflow\",\"renamedControl\",\"disposedLateOutput\"]}\n(node:62685) ExperimentalWarning: VM Modules is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+          }
+        },
+        {
+          "status": "fulfilled",
+          "value": {
+            "chunk_id": "e3992e",
+            "wall_time_seconds": 0.000007041,
+            "exit_code": 0,
+            "original_token_count": 635,
+            "output": "✔ normal publication activates exactly one service and retains startup qualification (2.176375ms)\n✔ delayed managed publication has no callback until explicit activation (0.705875ms)\n✔ default and missing IDs reject without scheduling or changing the ready owner (0.482291ms)\n✔ pre-ready activation rejects atomically and subsequent legitimate activation succeeds (0.34325ms)\n✔ duplicate activation preserves the one original timer and owner state (0.361416ms)\n✔ startup timeout before worker readiness rejects creation and activation (0.367084ms)\n✔ startup timeout after JS return remains anchored to both runtime readiness (0.332167ms)\n✔ worker failure rejects activation without invoking managed service (0.337583ms)\n✔ disposal before managed publication prevents later activation (0.320416ms)\n✔ disposal after activation makes a captured late callback inert (0.374375ms)\n✔ failure after activation makes a captured late callback inert (0.31175ms)\n✔ activation does not reset the 1000ms worker liveness boundary (0.320292ms)\n✔ both runtimes must be ready before the one qualification deadline (0,1) (0.309291ms)\n✔ both runtimes must be ready before the one qualification deadline (1,0) (0.269041ms)\n✔ duplicate runtime readiness rejects worker 0 (0.280959ms)\n✔ early ready rejects worker 0 (0.283ms)\n✔ duplicate runtime readiness rejects worker 1 (0.241792ms)\n✔ early ready rejects worker 1 (0.2385ms)\n✔ early Animation qualification rejects before bootstrap (0.285667ms)\n✔ duplicate authoritative Animation peer rejects without a second transfer (0.282167ms)\n✔ disposal during asset loading prevents late readiness from rearming (0.552917ms)\n✔ Animation constructor failure closes the already owned Simulation worker (0.3685ms)\n✔ premature Animation output fails without delivering to the managed consumer (0.348584ms)\n✔ delayed valid ACK clears current stall only after managed validation completion (0.492625ms)\n✔ completing an older ACK cannot clear another aged request or exceed two leases (0.4985ms)\n✔ taken but invalid ACK cannot release capacity or report healthy without completion (0.441208ms)\n✔ unmatched or duplicate ACK faults without clearing stall (false) (0.323625ms)\n✔ unmatched or duplicate ACK faults without clearing stall (true) (0.3035ms)\n✔ two animation owners send sequential controls only after managed ACK delivery returns (0.450334ms)\nℹ tests 29\nℹ suites 0\nℹ pass 29\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 73.965917\n"
+          }
+        }
+      ],
+      "sourceReceipts": [
+        "386bca",
+        "1830d6",
+        "c370eb",
+        "b433a4",
+        "eae7db",
+        "ed2c26"
+      ],
+      "meaning": "Direct actual parser controls cover first ACK, same-world cadence, retired ACK, wrong property/event. Generic read controls reject malformed declaration/routing/time. Device invalid admission retains physical bytes/logical state and Commit count. Actual worker JS executes with mocked managed exports, not actual WASM; client fixture executes shipped JS with mocked workers. Actual Chrome UI remains required.",
+      "fixtureCorrection": "Owner unfiltered471/472 run22518e exposed old read-validation fixture using codec-wide ID outside admitted compiler domain. Approved local low-ID correction for that one test; broad codec identity roundtrip remains unchanged."
+    }
+  }
+}

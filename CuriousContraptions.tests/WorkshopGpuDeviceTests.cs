@@ -186,11 +186,40 @@ public sealed class WorkshopGpuDeviceTests
         await device.DisposeAsync();
     }
 
+    [Fact]
+    public async Task InvalidActivationAdmissionPreservesCommittedPhysicsAndLogicalCheckpoint()
+    {
+        var transport = new HeldTransport(false); transport.Held.SetResult();
+        var device = new WorkshopGpuDevice(transport, Document);
+        var construction = new WorkshopConstruction(new(1), Settings, new(
+            WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
+            WorkshopInput.Switch(new(2), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
+            WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
+                new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
+        var first = await device.Admit(construction, new(1), Profile, new(1));
+        device.Commit(first.Sequence); device.Discard(first.Sequence);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var physical = (byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!;
+        var expected = (byte[])physical.Clone();
+        var logical = (PhysicsActivationRead)typeof(WorkshopGpuDevice).GetField("_committedActivations", flags)!.GetValue(device)!;
+        transport.ReadMutation = bytes => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.TriggersOffset + 32), 1);
+        await Assert.ThrowsAsync<ArgumentException>(() => device.Admit(construction, new(2), Profile, new(2)).AsTask());
+        Assert.Equal(1, transport.Commits);
+        Assert.Equal(expected, (byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!);
+        var after = (PhysicsActivationRead)typeof(WorkshopGpuDevice).GetField("_committedActivations", flags)!.GetValue(device)!;
+        Assert.Equal(logical[0], after[0]); Assert.Equal(logical[1], after[1]);
+        transport.ReadMutation = null;
+        var reset = await device.Admit(construction, new(2), Profile, new(3));
+        Assert.Equal(ActivationPhase.Clear, reset.Read.Activations[0].Phase);
+        device.Commit(reset.Sequence); device.Discard(reset.Sequence); await device.DisposeAsync();
+    }
+
     private sealed class HeldTransport(bool holdInitialization) : IWorkshopGpuTransport
     {
         public TaskCompletionSource Held { get; } = new();
         public byte[] Record { get; private set; } = [];
         public int Initializations, Stages, Reads, Commits, Disposals, Discards;
+        public Action<byte[]>? ReadMutation;
         public Task Initialize(string preamble)
         { Initializations++; return holdInitialization ? Held.Task : Task.CompletedTask; }
         public Task Stage(byte[] input, WorkshopGpuOperation operation)
@@ -211,7 +240,7 @@ public sealed class WorkshopGpuDeviceTests
             }
             return Held.Task;
         }
-        public byte[] Read() { Reads++; return (byte[])Record.Clone(); }
+        public byte[] Read() { Reads++; var bytes = (byte[])Record.Clone(); ReadMutation?.Invoke(bytes); return bytes; }
         public void Commit() => Commits++;
         public void Discard() => Discards++;
         public bool DeviceReady() => Disposals == 0;

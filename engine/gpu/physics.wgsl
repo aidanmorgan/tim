@@ -33,6 +33,12 @@ struct PlanarGuide {
     translation: vec4<f16>, rotation: vec4<f16>,
     low: vec4<f16>, high: vec4<f16>, controls: vec4<f16>, pad: vec2<u32>,
 }
+struct ContactTrigger {
+    id: vec2<u32>, owner: u32, targetBody: u32,
+    controls: vec4<f16>, pad0: vec2<u32>,
+    sequence: u32, collider: u32, eventOrdinal: u32, eventPhase: f16, approachSpeed: f16,
+    pad1: vec4<u32>,
+}
 struct MotionPiece {
     kind: u32, startOrdinal: u32, endOrdinal: u32, anchorOrdinal: u32,
     phases: vec4<f16>, bodyId: vec2<u32>,
@@ -46,9 +52,9 @@ struct PhysicsState {
     colliderCount: u32, materialCount: u32, sensorCount: u32, dynamicBody: u32,
     epoch: vec2<u32>, tick: vec2<u32>, cadence: u32, physical: u32,
     cadenceRevision: vec2<u32>, document: vec4<u32>, nextIdentity: vec2<u32>,
-    ordinal: u32, captures: u32, guideCount: u32, reserved0: u32, reserved1: vec2<u32>, reserved2: vec4<u32>,
+    ordinal: u32, captures: u32, guideCount: u32, triggerCount: u32, reserved1: vec2<u32>, reserved2: vec4<u32>,
     bodies: array<RigidBody, 16>, colliders: array<Collider, 32>,
-    materials: array<Material, 16>, sensors: array<ResidenceSensor, 8>, guides: array<PlanarGuide, 8>,
+    materials: array<Material, 16>, sensors: array<ResidenceSensor, 8>, guides: array<PlanarGuide, 8>, triggers: array<ContactTrigger, 8>,
 }
 // Preserve the ABI layout while excluding previous presentation output from Advance copies.
 struct PhysicsWorld {
@@ -797,7 +803,7 @@ fn valid_header() -> bool {
     return candidate.state.version == STATE_VERSION && candidate.state.status == STATUS_COMMITTED &&
         candidate.state.failure == FAILURE_NONE && candidate.state.bodyCount <= BODY_CAPACITY &&
         candidate.state.colliderCount <= COLLIDER_CAPACITY && candidate.state.materialCount <= MATERIAL_CAPACITY &&
-        candidate.state.sensorCount <= SENSOR_CAPACITY && candidate.state.guideCount <= GUIDE_CAPACITY && any(candidate.state.epoch != vec2<u32>(0u)) &&
+        candidate.state.sensorCount <= SENSOR_CAPACITY && candidate.state.guideCount <= GUIDE_CAPACITY && candidate.state.triggerCount <= TRIGGER_CAPACITY && any(candidate.state.epoch != vec2<u32>(0u)) &&
         any(candidate.state.document != vec4<u32>(0u)) && any(candidate.state.cadenceRevision != vec2<u32>(0u)) &&
         candidate.state.physical == PHYSICAL_480 && steps(candidate.state.cadence) != 0u &&
         candidate.state.tick.y == 0u && candidate.state.tick.x <= 14400u / steps(candidate.state.cadence) &&
@@ -883,6 +889,15 @@ fn validate_scene() -> bool {
         }
         for (var j = 0u; j < i; j++) {
             if (candidate.state.guides[j].targetBody == g.targetBody) { fail(FAILURE_DECLARATION); return false; }
+        }
+    }
+    for (var i = 0u; i < candidate.state.triggerCount; i++) {
+        let trigger = candidate.state.triggers[i];
+        if (all(trigger.id == vec2<u32>(0u)) || trigger.owner >= candidate.state.bodyCount ||
+            trigger.targetBody != candidate.state.dynamicBody || trigger.targetBody >= candidate.state.bodyCount ||
+            trigger.owner == trigger.targetBody || candidate.state.bodies[trigger.owner].motion != MOTION_STATIC ||
+            !(trigger.controls.x >= 0h && trigger.controls.x <= 64h) || trigger.sequence > 1u) {
+            fail(FAILURE_DECLARATION); return false;
         }
     }
     return candidate.state.failure == FAILURE_NONE;
@@ -1488,6 +1503,23 @@ fn admit() {
         }
     }
 }
+// First qualifying physical impact per trigger in this candidate. Discrete routing
+// consumes only the fully validated candidate and commits with the same GPU swap.
+fn contact_occurrence(collider: u32, ordinal: u32, phase: f16, velocity: vec3<f16>, normal: vec3<f16>) {
+    let approach = max(0h, -dot(velocity, normal));
+    for (var i = 0u; i < candidate.state.triggerCount; i++) {
+        let trigger = candidate.state.triggers[i];
+        if (trigger.sequence != 0u || trigger.owner != candidate.state.colliders[collider].body ||
+            approach < trigger.controls.x) { continue; }
+        var eventOrdinal = ordinal; var eventPhase = phase;
+        if (eventPhase >= 2048h) { eventOrdinal++; eventPhase -= PHASE_SCALE; }
+        candidate.state.triggers[i].sequence = 1u;
+        candidate.state.triggers[i].collider = collider;
+        candidate.state.triggers[i].eventOrdinal = eventOrdinal;
+        candidate.state.triggers[i].eventPhase = eventPhase;
+        candidate.state.triggers[i].approachSpeed = approach;
+    }
+}
 @compute @workgroup_size(1)
 fn advance() {
     candidate.state = committed.state;
@@ -1508,6 +1540,11 @@ fn advance() {
     candidate.state.captures = 0u;
     for (var i = 0u; i < candidate.state.sensorCount; i++) {
         candidate.state.sensors[i].sequence = 0u; candidate.state.sensors[i].eventOrdinal = 0u; candidate.state.sensors[i].eventPhase = 0h;
+    }
+    for (var i = 0u; i < candidate.state.triggerCount; i++) {
+        candidate.state.triggers[i].sequence = 0u; candidate.state.triggers[i].collider = 0u;
+        candidate.state.triggers[i].eventOrdinal = 0u; candidate.state.triggers[i].eventPhase = 0h;
+        candidate.state.triggers[i].approachSpeed = 0h;
     }
     let slot = candidate.state.dynamicBody;
     let sphere = candidate.state.colliders[sphere_collider(slot)];
@@ -1578,6 +1615,7 @@ fn advance() {
             if (q.failure != FAILURE_NONE) { fail(q.failure); return; }
             residence_after_impulse(q);
             if (candidate.state.failure != FAILURE_NONE) { return; }
+            contact_occurrence(earliest.collider, ordinal, earliest.phase, earliest.value.velocity, earliest.shape.normal);
             install_query(slot, q); candidate.state.bodies[slot].impacts++;
             if (curve.eventVelocityError>0h || curve.accelerationError>0h) {
                 carriedVelocityError=up_nonnegative(curve.eventVelocityError+guide_divide_bounds(curve.accelerationError,PHYSICAL_RATE).hi);

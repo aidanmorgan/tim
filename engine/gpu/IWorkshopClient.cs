@@ -9,11 +9,12 @@ public enum WorkshopTransportState { Ready, Backpressure, TimedOut, Indeterminat
 internal interface IWorkshopClient : IAsyncDisposable
 {
     WorkshopCadenceSettings Settings { get; }
-    void ControlHint(HintControlKind kind, bool visible);
+    void ControlHint(AnimationControlKind kind, bool visible);
     bool TryHint(ulong frame, out WorkshopHintSample sample);
     void RecordHintPresentation(ulong frame);
     bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity);
     void RecordCapturePresentation(ulong frame);
+    bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend);
     SimulationEpoch Epoch { get; }
     AuthorityRevision Revision { get; }
     WorkshopCommandIdentity? Pending { get; }

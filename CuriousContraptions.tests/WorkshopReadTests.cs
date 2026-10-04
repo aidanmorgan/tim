@@ -58,7 +58,7 @@ public sealed class WorkshopReadTests
         var second = WorkshopWire.DecodeResponse(encoded).Read;
         Assert.True(first.HasSameContent(second));
         var changed = (byte[])encoded.Clone();
-        H(changed, 512 + piece + 54, (Half).125);
+        H(changed, WorkshopWire.ReadMotionOffset + piece + 54, (Half).125);
         Assert.False(first.HasSameContent(WorkshopWire.DecodeResponse(changed).Read));
         changed = (byte[])encoded.Clone();
         U32(changed, 268, 2);
@@ -107,7 +107,7 @@ public sealed class WorkshopReadTests
         Assert.True(motion.Bytes.SequenceEqual(expected));
         var read = MotionRead(body, motion);
         var encoded = WorkshopWire.Encode(Response(read));
-        Assert.True(encoded.AsSpan(512).SequenceEqual(expected));
+        Assert.True(encoded.AsSpan(WorkshopWire.ReadMotionOffset).SequenceEqual(expected));
         Assert.Equal(encoded, WorkshopWire.Encode(WorkshopWire.DecodeResponse(encoded)));
     }
 

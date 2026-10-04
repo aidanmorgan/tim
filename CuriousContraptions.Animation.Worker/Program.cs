@@ -6,7 +6,7 @@ using CuriousContraptions.Presentation;
 
 [assembly: SupportedOSPlatform("browser")]
 
-/// <summary>Independent owner of the existing hint animation; all evaluation uses S master time.</summary>
+/// <summary>Independent owner of the declared animation channels; all evaluation uses S master time.</summary>
 public static partial class Program
 {
     private static WorkshopClockPeer? _peer;
@@ -14,16 +14,16 @@ public static partial class Program
     private static WorkshopSchedule? _schedule;
     private static Preparation? _prepared;
     private static byte[]? _queuedControl;
-    private static readonly AnimationBatch Tracks = new(2);
-    private static readonly Track[] Instances = new Track[2];
+    private static readonly AnimationBatch Tracks = new(WorkshopAnimationWire.TargetCapacity);
+    private static readonly Track[] Instances = new Track[WorkshopAnimationWire.TargetCapacity];
     private struct Track
     {
         public AnimationHandle? Handle;
-        public WorkshopOpacityControl Control;
+        public WorkshopAnimationControl Control;
     }
     private static ulong _commandSequence, _lastOrdinal, _evaluationSequence;
     private static MasterTimeNanoseconds _lastApplied;
-    private static readonly byte[] Output = new byte[WorkshopHintWire.OutputBytes];
+    private static readonly byte[] Output = new byte[WorkshopAnimationWire.OutputBytes];
     private static readonly byte[] Result = new byte[WorkshopScheduleWire.HeaderBytes + WorkshopScheduleWire.ResultBytes];
     private readonly record struct Preparation(ScheduleControlHeader Header, WorkshopCadenceSettings Settings,
         SimulationEpoch World, SimulationTick Tick, WorkshopSimulationPhase Phase);
@@ -31,7 +31,8 @@ public static partial class Program
     private static WorkshopClockMapping Clock => _clock ?? throw new InvalidOperationException("Animation mapping is not installed.");
 
     public static void Main() { }
-    [JSExport] public static int[] OutputKinds() => [(int)HintOutputKind.Acknowledgement, (int)HintOutputKind.Sample, (int)HintOutputKind.Rejected];
+    [JSExport] public static int TargetCapacity() => WorkshopAnimationWire.TargetCapacity;
+    [JSExport] public static int[] OutputKinds() => [(int)AnimationOutputKind.Acknowledgement, (int)AnimationOutputKind.Sample, (int)AnimationOutputKind.Rejected];
     [JSImport("now", "workshopAnimation")] private static partial double NativeMilliseconds();
     [JSImport("probe", "workshopAnimation")] private static partial void SendProbe(byte[] bytes);
     [JSImport("control", "workshopAnimation")] private static partial void SendControl(byte[] bytes);
@@ -72,7 +73,7 @@ public static partial class Program
         _lastApplied = WorkshopPulse.Deadline(schedule.Settings.AnimationRate, due);
         for (var i = 0; i < Instances.Length; i++)
             if (Instances[i].Handle is { } handle)
-                Emit(HintOutputKind.Sample, due.Value, Instances[i].Control, Tracks.Read(handle).Value.Opacity.Value);
+                Emit(AnimationOutputKind.Sample, due.Value, Instances[i].Control, BitConverter.UInt16BitsToHalf(Tracks.Read(handle).Value.CanonicalBits));
         _lastOrdinal = due.Value;
     }
 
@@ -164,20 +165,20 @@ public static partial class Program
     private static void DrainControl()
     {
         if (_queuedControl is not { } bytes) return;
-        _queuedControl = null; HintControl(bytes);
+        _queuedControl = null; AnimationControl(bytes);
     }
 
     [JSExport]
-    public static void HintControl(byte[] bytes)
+    public static void AnimationControl(byte[] bytes)
     {
-        if (_schedule is not { } schedule || bytes.Length != WorkshopHintWire.ControlBytes)
+        if (_schedule is not { } schedule || bytes.Length != WorkshopAnimationWire.ControlBytes)
             throw new InvalidOperationException("Animation installation is not available.");
         var cadence = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(24)));
         cadence.Validate();
-        var control = WorkshopHintWire.ReadControl(bytes, Peer.Session, Peer.Generation, cadence);
+        var control = WorkshopAnimationWire.ReadControl(bytes, Peer.Session, Peer.Generation, cadence);
         if (control.Sequence <= _commandSequence || cadence.Value > schedule.Revision.Value ||
             control.World.Value > schedule.World.WorldGeneration.Value)
-            throw new ArgumentException("Foreign opacity control.");
+            throw new ArgumentException("Foreign channel control.");
         if (_prepared is not null)
         {
             if (_queuedControl is not null) throw new InvalidOperationException("Deferred animation control capacity exceeded.");
@@ -187,12 +188,12 @@ public static partial class Program
             (control.World.Value != 0 && control.World != schedule.World.WorldGeneration))
         {
             _commandSequence = control.Sequence;
-            Emit(HintOutputKind.Rejected, control.Sequence, control, control.From, cadence); return;
+            Emit(AnimationOutputKind.Rejected, control.Sequence, control, control.From, cadence); return;
         }
         // This admission supports autonomous timed clips and world-bound constant endpoint drives.
         // Timed world feedback awaits its committed-history capability; it cannot borrow UI time.
-        if (control.World.Value != 0 && control.Kind == HintControlKind.Reveal)
-            throw new ArgumentException("Timed world opacity requires a committed-world history.");
+        if (control.World.Value != 0 && control.Kind == AnimationControlKind.Reveal)
+            throw new ArgumentException("Timed world channel requires a committed-world history.");
         var slot = -1; var vacant = -1;
         for (var i = 0; i < Instances.Length; i++)
         {
@@ -202,22 +203,22 @@ public static partial class Program
         if (slot < 0) slot = vacant;
         if (slot < 0) throw new InvalidOperationException("Animation target capacity exceeded.");
         var previous = Instances[slot];
-        if (previous.Handle is not null && (control.World != previous.Control.World ||
+        if (previous.Handle is not null && (control.Property != previous.Control.Property || control.World != previous.Control.World ||
             control.Generation < previous.Control.Generation ||
-            (control.Kind == HintControlKind.Visibility && control.Generation != previous.Control.Generation)))
+            (control.Kind == AnimationControlKind.Visibility && control.Generation != previous.Control.Generation)))
             throw new ArgumentException("Stale animation target generation.");
-        if (control.Kind == HintControlKind.Visibility && previous.Handle is null)
+        if (control.Kind == AnimationControlKind.Visibility && previous.Handle is null)
             throw new ArgumentException("Visibility requires its registered target.");
         if (!Clock.TryMasterNow(WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), out var now))
             throw new InvalidOperationException("Animation control requires qualified master time.");
-        if (control.Kind != HintControlKind.Visibility)
+        if (control.Kind != AnimationControlKind.Visibility)
         {
-            var definition = new AnimationDefinition(new AnimationValue(new AnimationOpacity(control.From)),
-                new AnimationValue(new AnimationOpacity(control.To)), new AnimationDurationSeconds(control.Duration),
+            var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, control.From),
+                WorkshopAnimationWire.Value(control.Property, control.To), new AnimationDurationSeconds(control.Duration),
                 control.Curve, AnimationRepeat.Once, AnimationClock.Presentation);
             if (previous.Handle is { } old) Tracks.Remove(old);
-            var handle = Tracks.Register(new(control.Target, AnimationProperty.Opacity), definition);
-            if (control.Kind == HintControlKind.Reveal)
+            var handle = Tracks.Register(new(control.Target, control.Property), definition);
+            if (control.Kind == AnimationControlKind.Reveal)
             {
                 Tracks.StartAt(handle, (double)now.Lower / WorkshopPulse.NanosecondsPerSecond);
                 _lastOrdinal = Math.Max(_lastOrdinal, WorkshopPulse.Due(schedule.Settings.AnimationRate,
@@ -232,14 +233,14 @@ public static partial class Program
             Instances[slot].Control = control;
         }
         _commandSequence = control.Sequence;
-        Emit(HintOutputKind.Acknowledgement, control.Sequence, control,
-            Tracks.Read(Instances[slot].Handle!.Value).Value.Opacity.Value);
+        Emit(AnimationOutputKind.Acknowledgement, control.Sequence, control,
+            BitConverter.UInt16BitsToHalf(Tracks.Read(Instances[slot].Handle!.Value).Value.CanonicalBits));
     }
 
-    private static void Emit(HintOutputKind kind, ulong ordinal, WorkshopOpacityControl control, Half opacity, CadenceRevision? cadence = null)
+    private static void Emit(AnimationOutputKind kind, ulong ordinal, WorkshopAnimationControl control, Half channel, CadenceRevision? cadence = null)
     {
-        if (!Half.IsFinite(opacity) || opacity < (Half)0 || opacity > (Half)1)
-            throw new ArgumentException("Invalid evaluated opacity.");
+        if (!Half.IsFinite(channel) || channel < (Half)0 || channel > (Half)1)
+            throw new ArgumentException("Invalid evaluated channel.");
         Output.AsSpan().Clear();
         WorkshopWire.WriteSession(Output, Peer.Session);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(16), Peer.Generation.Value);
@@ -247,7 +248,9 @@ public static partial class Program
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(32), control.Generation);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(40), ordinal);
         BinaryPrimitives.WriteInt64LittleEndian(Output.AsSpan(48), _lastApplied.Value);
-        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(56), BitConverter.HalfToUInt16Bits(opacity));
+        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(56), BitConverter.HalfToUInt16Bits(channel));
+        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(58), (ushort)control.Property);
+        BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(86), WorkshopAnimationWire.Version);
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(60), (uint)kind);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(64), control.Target.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(72), control.World.Value);

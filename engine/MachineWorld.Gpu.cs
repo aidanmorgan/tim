@@ -47,7 +47,7 @@ public partial class MachineWorld
     }
     public PartDefinition BasketballDefinition => Registry.Definitions[WorkshopPartKind.Basketball];
 
-    public void ControlHint(HintControlKind kind, bool visible) => _workshopClient?.ControlHint(kind, visible);
+    public void ControlHint(AnimationControlKind kind, bool visible) => _workshopClient?.ControlHint(kind, visible);
     public bool TryHint(out WorkshopHintSample sample)
     {
         if (_workshopClient is null) { sample = default; return false; }
@@ -100,6 +100,9 @@ public partial class MachineWorld
             WorkshopPartKind.Receiver => CaptureReceiver(id, position, q),
             WorkshopPartKind.Ramp => WorkshopInput.Ramp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 rampDimensions ?? Registry.Definitions[WorkshopPartKind.Ramp].Ramp!.Capture()),
+            WorkshopPartKind.ImpactSwitch => WorkshopInput.Switch(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
+            WorkshopPartKind.SignalLamp => WorkshopInput.Lamp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             _ => throw new ArgumentException("Unsupported instance kind.")
         };
     }
@@ -227,6 +230,9 @@ public partial class MachineWorld
             if (Part(WorkshopPartKind.Receiver) is BasketPart receiver &&
                 _workshopClient.TryCaptureOpacity(frame, _workshopPresentation, out var opacity))
             { receiver.ApplyHalo(opacity); _workshopClient.RecordCapturePresentation(frame); }
+            foreach (var part in _parts)
+                if (part.HasActivationBindings && _workshopClient.TryActivationBlend(frame, _workshopPresentation,
+                    new(part.AuthoredId.Value), out var blend)) part.ApplyActivationBlend(blend);
             var position = Part(WorkshopPartKind.Basketball)?.Position ?? Vector3.Zero;
             var rotation = Part(WorkshopPartKind.Basketball)?.Quaternion ?? Quaternion.Identity;
             _workshopClient.RecordPresentation(presentation, selected, new(frame,
@@ -239,6 +245,8 @@ public partial class MachineWorld
     private void ApplyWorkshopRead(WorkshopRead read)
     {
         ValidateWorkshopRead(read, Construction);
+        if (read.Epoch != WorkshopRead.Epoch)
+            foreach (var part in _parts) if (part.HasActivationBindings) part.ApplyActivationBlend((Half)0);
         WorkshopRead = read;
         Ticks = checked((int)read.Tick.Value);
         Running = WorkshopPhase == WorkshopPhase.Running;
@@ -280,6 +288,7 @@ public partial class MachineWorld
             var q = instance.Rotation;
             part.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
             if (part is BasketPart receiver) receiver.ApplyHalo((Half)0);
+            if (part.HasActivationBindings) part.ApplyActivationBlend((Half)0);
         }
     }
 

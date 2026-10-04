@@ -237,4 +237,96 @@ public sealed class WorkshopSaveTests
             }
         }
     }
+
+    private static WorkshopSavedConstruction ActivationSaved()
+    {
+        var trigger = new WorkshopSwitch(new(2), new(0, 16, 0), default, CanonicalRotation.Identity, ContactTriggerSettings.Default);
+        var lamp = new WorkshopLamp(new(3), new(48, 16, 0), default, CanonicalRotation.Identity);
+        var link = new WorkshopConnection(trigger.Id, WorkshopSocket.ActivationOut, lamp.Id,
+            WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation);
+        return new(new(new(4), WorkshopCadenceSettings.Default(), new(trigger, lamp), Connections: new(link)), new(4));
+    }
+
+    [Fact]
+    public void ActivationInstancesThresholdAndTypedEdgeRoundTripExactly()
+    {
+        var save = ActivationSaved();
+        var bytes = WorkshopSaveCodec.Encode(save);
+        var decoded = WorkshopSaveCodec.Decode(bytes);
+        Assert.Equal(save, decoded);
+        Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
+        Assert.Equal((Half).8, ((WorkshopSwitch)decoded.Construction.Instances[0]).Trigger.Threshold.Value);
+        // Authored values are canonical data, never replaced by the Free Workshop default.
+        var changed = save with { Construction = save.Construction.WithInstance(
+            ((WorkshopSwitch)save.Construction.Instances[0]) with { Trigger = new(new((Half).47)) }) };
+        Assert.Equal(changed, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(changed)));
+        Assert.Single(decoded.Construction.Connections);
+    }
+
+    [Fact]
+    public void ConnectionsRejectWrongDomainPortDirectionIdentityAndDuplicates()
+    {
+        var save = ActivationSaved(); var construction = save.Construction; var link = construction.Connections[0];
+        foreach (var invalid in new[]
+        {
+            link with { Domain = WorkshopConnectionDomain.Electrical },
+            link with { Domain = (WorkshopConnectionDomain)99 },
+            link with { Output = WorkshopSocket.PowerIn },
+            link with { Input = WorkshopSocket.Supply },
+            link with { Source = link.Target, Target = link.Source },
+            link with { Target = new(99) }, link with { Target = link.Source },
+            link with { Input = (WorkshopSocket)99 }
+        })
+            Assert.Throws<ArgumentException>(() => (construction with { Connections = new(invalid) }).Validate());
+        Assert.Throws<ArgumentException>(() => (construction with { Connections = new(link, link) }).Validate());
+        var source = new[] { link }; var immutable = new WorkshopConnections(source); source[0] = default;
+        Assert.Equal(link, immutable[0]);
+        Assert.Single(construction.Connections);
+        Assert.Empty(construction.WithoutInstance(link.Source).Connections);
+        Assert.Empty(construction.WithoutInstance(link.Target).Connections);
+    }
+
+    [Fact]
+    public void ConnectionPaddingCountsAndPriorSchemasRejectBeforeAdmission()
+    {
+        var save = ActivationSaved();
+        foreach (var offset in new[] { 24 + 12, 24 + WorkshopWire.ConnectionsOffset + 28,
+            24 + WorkshopWire.ConnectionsOffset + WorkshopWire.ConnectionBytes })
+        {
+            var bytes = WorkshopSaveCodec.Encode(save); bytes[offset] = 255;
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+        }
+        var previous = WorkshopSaveCodec.Encode(save);
+        BinaryPrimitives.WriteUInt32LittleEndian(previous.AsSpan(4), 2);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(previous));
+        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), save.Construction,
+            Session: new(1, 2), Cadence: new(1), Projection: new(1));
+        var wire = WorkshopWire.Encode(command);
+        Assert.Equal(command, WorkshopWire.DecodeCommand(wire));
+        BinaryPrimitives.WriteUInt32LittleEndian(wire.AsSpan(12), 9);
+        Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeCommand(wire));
+    }
+
+    [Fact]
+    public void FirstPrinciplesRejectsForeignInstancesAndConnections()
+    {
+        var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(11), new(12), new((Half)1));
+        var activation = ActivationSaved().Construction;
+        foreach (var instance in activation.Instances)
+            Assert.Throws<ArgumentException>(() => puzzle.WithInstance(instance).Validate());
+        Assert.Throws<ArgumentException>(() => (puzzle with { Connections = activation.Connections }).Validate());
+    }
+
+    [Theory]
+    [InlineData(0, 99u)]
+    [InlineData(8, 99u)]
+    [InlineData(16, (uint)WorkshopConnectionDomain.Electrical)]
+    [InlineData(20, (uint)WorkshopSocket.ActivationIn)]
+    [InlineData(24, (uint)WorkshopSocket.ActivationOut)]
+    public void SerializedInvalidConnectionsRejectBeforeAdmission(int lane, uint value)
+    {
+        var bytes = WorkshopSaveCodec.Encode(ActivationSaved());
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(24 + WorkshopWire.ConnectionsOffset + lane), value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+    }
 }

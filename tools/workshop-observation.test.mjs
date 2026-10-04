@@ -42,7 +42,7 @@ for (const captureMode of [1, 2]) {
     let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
     const stallStates = [];
     const host = {
-        OperationAbi: () => [0, 1], StateBytes: () => 18576, ScheduleRoles: () => [1, 2],
+        OperationAbi: () => [0, 1], StateBytes: () => 19088, ScheduleRoles: () => [1, 2],
         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
         PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
         ClockReply: () => new Uint8Array(144),
@@ -61,7 +61,7 @@ for (const captureMode of [1, 2]) {
     releasePreparation();
     await preparing;
     function publication(identity) {
-        const bytes = new Uint8Array(9744);
+        const bytes = new Uint8Array(10256);
         bytes.fill(7, 64, 80);
         new DataView(bytes.buffer).setBigUint64(104, identity, true);
         return bytes;
@@ -106,7 +106,7 @@ for (const captureMode of [1, 2]) {
     throwOutput = false;
     const reset = self.onmessage({ data: { bytes: new Uint8Array(72) } });
     await Promise.resolve();
-    imports.acknowledge(new Uint8Array(9744), true);
+    imports.acknowledge(new Uint8Array(10256), true);
     assert.equal(flushes, 2);
     release();
     await reset;
@@ -139,7 +139,7 @@ for (const control of Object.values(StartupControl)) {
         popErrorScope: () => new Promise(resolve => { releaseErrorScope = resolve; })
     };
     const host = {
-        OperationAbi: () => [0, 1], StateBytes: () => 18576, ScheduleRoles: () => [1, 2],
+        OperationAbi: () => [0, 1], StateBytes: () => 19088, ScheduleRoles: () => [1, 2],
         CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
         PrepareGpu: () => control === StartupControl.EarlyLoss
             ? boundary.imports.initialize('fixture preamble')

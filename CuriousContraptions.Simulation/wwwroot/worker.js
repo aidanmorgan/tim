@@ -276,7 +276,7 @@ self.onmessage = async event => {
         return;
     }
     const bytes = event.data?.bytes;
-    if (!(bytes instanceof Uint8Array) || bytes.length < 72 || bytes.length > 1416 || activeRequests >= 2) {
+    if (!(bytes instanceof Uint8Array) || bytes.length < 72 || bytes.length > 1672 || activeRequests >= 2) {
         self.postMessage({ rejected: true, detail: 'Invalid or saturated Workshop command transport.' });
         return;
     }

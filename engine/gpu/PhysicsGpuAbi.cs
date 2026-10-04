@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 4 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 5 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, ContactResidual, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
@@ -22,12 +22,14 @@ public static class PhysicsGpuAbi
     public const int MaterialBytes = 32;
     public const int SensorBytes = 128;
     public const int GuideBytes = 64;
+    public const int TriggerBytes = 64;
     public const int BodiesOffset = HeaderBytes;
     public const int CollidersOffset = BodiesOffset + PhysicsSceneDeclaration.BodyCapacity * BodyBytes;
     public const int MaterialsOffset = CollidersOffset + PhysicsSceneDeclaration.ColliderCapacity * ColliderBytes;
     public const int SensorsOffset = MaterialsOffset + PhysicsSceneDeclaration.MaterialCapacity * MaterialBytes;
     public const int GuidesOffset = SensorsOffset + PhysicsSceneDeclaration.SensorCapacity * SensorBytes;
-    public const int MotionOffset = GuidesOffset + PhysicsSceneDeclaration.GuideCapacity * GuideBytes;
+    public const int TriggersOffset = GuidesOffset + PhysicsSceneDeclaration.GuideCapacity * GuideBytes;
+    public const int MotionOffset = TriggersOffset + PhysicsSceneDeclaration.TriggerCapacity * TriggerBytes;
     public const int ByteLength = MotionOffset + PhysicsMotionRead.ByteLength;
     public const uint NoBody = uint.MaxValue;
     // A binary eighth-second primary segment bounds elapsed-value quantization.
@@ -41,7 +43,7 @@ public static class PhysicsGpuAbi
         U32(data, 0, (uint)PhysicsStateVersion.GenericMechanical);
         U32(data, 12, (uint)scene.Bodies.Length); U32(data, 16, (uint)scene.Colliders.Length);
         U32(data, 20, (uint)scene.Materials.Length); U32(data, 24, (uint)scene.Sensors.Length);
-        U32(data, 28, NoBody); U32(data, 96, (uint)scene.Guides.Length);
+        U32(data, 28, NoBody); U32(data, 96, (uint)scene.Guides.Length); U32(data, 100, (uint)scene.Triggers.Length);
         U64(data, 32, epoch.Value); U32(data, 48, (uint)profile.Cadence);
         U32(data, 52, (uint)profile.Physical); U64(data, 56, profile.Revision.Value);
         U64(data, 64, scene.Document.Low); U64(data, 72, scene.Document.High); U64(data, 80, scene.NextIdentity);
@@ -93,6 +95,12 @@ public static class PhysicsGpuAbi
             Vector(record, 40, guide.Maximum.X, guide.Maximum.Y, guide.Maximum.Z);
             H(record, 48, guide.MaximumAcceleration.Value); H(record, 50, guide.SupportHeight.Value);
             H(record, 52, guide.SupportMargin.Value);
+        }
+        for (var i = 0; i < scene.Triggers.Length; i++)
+        {
+            var trigger = scene.Triggers[i]; var record = data.Slice(TriggersOffset + i * TriggerBytes, TriggerBytes);
+            U64(record, 0, trigger.Id.Value); U32(record, 8, BodySlot(scene, trigger.Owner));
+            U32(record, 12, BodySlot(scene, trigger.Target)); H(record, 16, trigger.Threshold.Value);
         }
         return bytes;
     }
@@ -165,6 +173,37 @@ public static class PhysicsGpuAbi
     }
 
 
+    public static ContactTriggerRead ReadTrigger(ReadOnlySpan<byte> data, int slot)
+    {
+        if (ReadFailure(data) != PhysicsFailure.None || slot < 0 || (uint)slot >= R32(data, 100))
+            throw new ArgumentException("Invalid contact trigger read.");
+        var record = data.Slice(TriggersOffset + slot * TriggerBytes, TriggerBytes);
+        var owner = R32(record, 8); var target = R32(record, 12); var count = R32(record, 32);
+        if (R64(record, 0) == 0 || owner >= R32(data, 12) || target >= R32(data, 12) || target != R32(data, 28) || owner == target ||
+            (RigidMotionKind)R32(data, BodiesOffset + checked((int)owner) * BodyBytes + 8) != RigidMotionKind.Static ||
+            !Half.IsFinite(RH(record, 16)) || RH(record, 16) < (Half)0 || RH(record, 16) > (Half)64 ||
+            !AllZero(record[18..32]) || !AllZero(record[48..]) || count > 1)
+            throw new ArgumentException("Invalid contact trigger declaration or padding.");
+        var collider = default(GpuColliderId);
+        if (count == 0)
+        {
+            if (!AllZero(record[36..48])) throw new ArgumentException("An absent impact retained event data.");
+        }
+        else
+        {
+            var colliderSlot = R32(record, 36);
+            if (colliderSlot >= R32(data, 16) ||
+                R32(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes + 8) != owner ||
+                !AdmittedTime(R32(record, 40), RH(record, 44), R32(data, 88)) ||
+                !Half.IsFinite(RH(record, 46)) || RH(record, 46) < RH(record, 16) || RH(record, 46) > (Half)128)
+                throw new ArgumentException("Invalid qualifying impact identity, time or normal speed.");
+            collider = new(R64(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes));
+        }
+        return new(new(R64(record, 0)), new(R64(data, BodiesOffset + checked((int)owner) * BodyBytes)),
+            new(R64(data, BodiesOffset + checked((int)target) * BodyBytes)), count, collider,
+            R32(record, 40), RH(record, 44), new(RH(record, 46)));
+    }
+
     /// <summary>Required before committing a GPU result; selected reads alone do not qualify a candidate.</summary>
     public static PhysicsMotionRead ValidateCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick)
     {
@@ -176,7 +215,7 @@ public static class PhysicsGpuAbi
             !candidate[..4].SequenceEqual(source[..4]) ||
             !candidate[12..40].SequenceEqual(source[12..40]) ||
             !candidate[48..88].SequenceEqual(source[48..88]) ||
-            !candidate[96..100].SequenceEqual(source[96..100]))
+            !candidate[96..104].SequenceEqual(source[96..104]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
         var bodyCount = checked((int)R32(source, 12)); var dynamicSlot = R32(source, 28);
         var dynamicCount = 0;
@@ -266,8 +305,21 @@ public static class PhysicsGpuAbi
         if (R32(candidate, 92) != captured ||
             !AllZero(candidate[(SensorsOffset + sensorCount * SensorBytes)..GuidesOffset]))
             throw new ArgumentException("Capture count or unused sensor slots changed.");
-        if (!candidate[GuidesOffset..MotionOffset].SequenceEqual(source[GuidesOffset..MotionOffset]))
+        if (!candidate[GuidesOffset..TriggersOffset].SequenceEqual(source[GuidesOffset..TriggersOffset]))
             throw new ArgumentException("Guide declaration changed.");
+        var triggerCount = checked((int)R32(source, 100));
+        for (var i = 0; i < triggerCount; i++)
+        {
+            var offset = TriggersOffset + i * TriggerBytes;
+            if (!candidate.Slice(offset, 32).SequenceEqual(source.Slice(offset, 32)))
+                throw new ArgumentException("Contact trigger declaration changed.");
+            var trigger = ReadTrigger(candidate, i);
+            if (trigger.OccurrenceCount != 0 && (expectedTick.Value == 0 ||
+                Before(trigger.EventOrdinal, trigger.EventPhase, R32(source, 88), (Half)0)))
+                throw new ArgumentException("Impact event does not belong to this candidate interval.");
+        }
+        if (!AllZero(candidate[(TriggersOffset + triggerCount * TriggerBytes)..MotionOffset]))
+            throw new ArgumentException("Unused contact trigger slots changed.");
         if (expectedTick.Value != 0 && (R32(candidate, MotionOffset + 4) != profile.Substeps ||
             R32(candidate, MotionOffset + 12) != R32(candidate, 88)))
             throw new ArgumentException("Motion profile differs from its committed world.");
@@ -298,6 +350,7 @@ const COLLIDER_CAPACITY:u32={PhysicsSceneDeclaration.ColliderCapacity}u;
 const MATERIAL_CAPACITY:u32={PhysicsSceneDeclaration.MaterialCapacity}u;
 const SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.SensorCapacity}u;
 const GUIDE_CAPACITY:u32={PhysicsSceneDeclaration.GuideCapacity}u;
+const TRIGGER_CAPACITY:u32={PhysicsSceneDeclaration.TriggerCapacity}u;
 const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
 const STATUS_COMMITTED:u32={(uint)PhysicsCandidateStatus.Committed}u;
 const STATUS_INVALID:u32={(uint)PhysicsCandidateStatus.Invalid}u;
@@ -336,8 +389,9 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             R32(data, 20) > PhysicsSceneDeclaration.MaterialCapacity ||
             R32(data, 24) > PhysicsSceneDeclaration.SensorCapacity ||
             R32(data, 96) > PhysicsSceneDeclaration.GuideCapacity ||
+            R32(data, 100) > PhysicsSceneDeclaration.TriggerCapacity ||
             (R64(data, 64) == 0 && R64(data, 72) == 0) || R64(data, 80) == 0 ||
-            !AllZero(data[100..128]))
+            !AllZero(data[104..128]))
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;

@@ -22,15 +22,14 @@ public sealed partial class BrowserWorkshopClient
     private ulong _hintGeneration, _hintSequence, _hintAcknowledged;
     private WorkshopHintSample? _hintSample;
     private static readonly AnimationTargetId HintTarget = new(1), CaptureTarget = new(2);
-    private WorkshopOpacitySample? _captureSample;
+    private WorkshopAnimationSample? _captureSample;
     private CaptureLatch? _captureRequested;
     private SimulationEpoch _captureWorld;
     private ulong _lastCaptureOrdinal;
     private bool _frameCaptureTaken;
-    private WorkshopOpacityControl? _animationPending;
+    private WorkshopAnimationControl? _animationPending;
     private CadenceRevision _animationPendingCadence;
     private ulong _lastHintOrdinal;
-    private CadenceRevision _hintCadence;
     private readonly record struct Preparation(ScheduleControlHeader Header, WorkshopCadenceSettings Settings,
         WorkshopResponse Endpoint, ScheduleTransition Transition);
     public WorkshopCadenceSettings Settings => _schedule?.Settings ?? _construction.Settings;
@@ -39,7 +38,7 @@ public sealed partial class BrowserWorkshopClient
     [JSImport("animationKinds", "workshopClient")] private static partial void AnimationKinds(int client, int[] kinds);
     [JSImport("displayRate", "workshopClient")] private static partial int[] DisplayRate(int client);
     [JSImport("scheduleResult", "workshopClient")] private static partial void ScheduleResult(int client, byte[] bytes);
-    [JSImport("hint", "workshopClient")] private static partial void SendHint(int client, byte[] bytes);
+    [JSImport("animationControl", "workshopClient")] private static partial void SendAnimationControl(int client, byte[] bytes);
 
     private void ReceiveSchedule()
     {
@@ -90,8 +89,7 @@ public sealed partial class BrowserWorkshopClient
                 var history = _history.PrepareInstall(schedule, prepared.Endpoint, mapped, boundary, Clock.DisplayEpoch);
                 var cursor = _cursor.PrepareInstallation(prepared.Endpoint);
                 _history.Commit(history); _cursor.Commit(cursor);
-                if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
-                { _captureSample = null; _captureRequested = null; _captureWorld = schedule.World.WorldGeneration; _lastCaptureOrdinal = 0; }
+                ReconcileAnimationSchedule(schedule);
                 _schedule = schedule; _preparation = null;
                 _construction = (_proposedConstruction ?? _construction) with { Settings = schedule.Settings };
                 _lastPresentation = new(schedule.FirstPresentation.Value - 1);
@@ -125,23 +123,23 @@ public sealed partial class BrowserWorkshopClient
         ScheduleResult(_id.Value, result);
     }
 
-    public void ControlHint(HintControlKind kind, bool visible)
+    public void ControlHint(AnimationControlKind kind, bool visible)
     {
         if (_schedule is not { } schedule || _preparation is not null) return;
-        if (kind == HintControlKind.Endpoint) throw new ArgumentException("Hint requires its autonomous control.");
-        var generation = kind is HintControlKind.Reveal or HintControlKind.Hide ? checked(_hintGeneration + 1) : _hintGeneration;
+        if (kind == AnimationControlKind.Endpoint) throw new ArgumentException("Hint requires its autonomous control.");
+        var generation = kind is AnimationControlKind.Reveal or AnimationControlKind.Hide ? checked(_hintGeneration + 1) : _hintGeneration;
         if (generation == 0) return;
-        var control = new WorkshopOpacityControl(HintTarget, default, checked(_hintSequence + 1), generation,
-            kind, visible, kind == HintControlKind.Hide ? (Half)1 : (Half)0, (Half)1, (Half).16, AnimationCurve.SmoothStep);
-        SendOpacity(control, schedule);
+        var control = new WorkshopAnimationControl(HintTarget, default, checked(_hintSequence + 1), generation,
+            kind, visible, kind == AnimationControlKind.Hide ? (Half)1 : (Half)0, (Half)1, (Half).16, AnimationCurve.SmoothStep);
+        SendAnimation(control, schedule);
         _hintGeneration = generation;
-        if (kind != HintControlKind.Visibility) _hintSample = null;
+        if (kind != AnimationControlKind.Visibility) _hintSample = null;
     }
-    private void SendOpacity(WorkshopOpacityControl control, WorkshopSchedule schedule)
+    private void SendAnimation(WorkshopAnimationControl control, WorkshopSchedule schedule)
     {
         if (_animationPending is not null) throw new InvalidOperationException("An animation control is pending.");
-        var bytes = WorkshopHintWire.Control(Peer.Session, Peer.Generation, schedule.Revision, control);
-        SendHint(_id.Value, bytes);
+        var bytes = WorkshopAnimationWire.Control(Peer.Session, Peer.Generation, schedule.Revision, control);
+        SendAnimationControl(_id.Value, bytes);
         _hintSequence = control.Sequence; _animationPending = control; _animationPendingCadence = schedule.Revision;
     }
     private void PumpCapture()
@@ -151,60 +149,67 @@ public sealed partial class BrowserWorkshopClient
             latest.Read.Epoch != schedule.World.WorldGeneration || latest.Read.Captures.Count == 0) return;
         var capture = latest.Read.Captures[0];
         if (capture.Phase != CaptureLatchPhase.Latched) return;
-        var control = new WorkshopOpacityControl(CaptureTarget, latest.Read.Epoch, checked(_hintSequence + 1), 1,
-            HintControlKind.Endpoint, true, (Half)1, (Half)1, (Half)1, AnimationCurve.Linear,
+        var control = new WorkshopAnimationControl(CaptureTarget, latest.Read.Epoch, checked(_hintSequence + 1), 1,
+            AnimationControlKind.Endpoint, true, (Half)1, (Half)1, (Half)1, AnimationCurve.Linear,
             capture.EventOrdinal, capture.EventPhase);
-        SendOpacity(control, schedule);
+        SendAnimation(control, schedule);
         _captureRequested = capture; _captureWorld = latest.Read.Epoch;
     }
-    private void ReceiveAnimation()
+    private void ReconcileAnimationSchedule(WorkshopSchedule schedule)
     {
-        var bytes = EventBytes(_id.Value);
-        if (bytes.Length != WorkshopHintWire.OutputBytes) throw new ArgumentException("Invalid Animation frame.");
+        if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
+        { _captureSample = null; _captureRequested = null; _captureWorld = schedule.World.WorldGeneration; _lastCaptureOrdinal = 0; RetireActivationFeedback(); }
+        if (_schedule?.Revision != schedule.Revision)
+        { _lastHintOrdinal = _lastCaptureOrdinal = 0; Array.Clear(_activationOrdinals); }
+    }
+    private void ReceiveAnimation() => ReceiveAnimation(EventBytes(_id.Value));
+    internal void ReceiveAnimation(byte[] bytes)
+    {
+        if (bytes.Length != WorkshopAnimationWire.OutputBytes) throw new ArgumentException("Invalid Animation frame.");
         var cadence = new CadenceRevision(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(24)));
         cadence.Validate();
-        var sample = WorkshopHintWire.Read(bytes, Peer.Session, Peer.Generation, cadence, out var kind);
+        var sample = WorkshopAnimationWire.Read(bytes, Peer.Session, Peer.Generation, cadence, out var kind);
         var active = _schedule ?? throw new InvalidOperationException("Animation output before schedule.");
         if (cadence.Value > active.Revision.Value) throw new ArgumentException("Future Animation cadence.");
         // Reliable ACK belongs to its exact sent command even if a world transition has since retired its target.
-        if (kind is HintOutputKind.Acknowledgement or HintOutputKind.Rejected)
+        if (kind is AnimationOutputKind.Acknowledgement or AnimationOutputKind.Rejected)
         {
             if (_animationPending is not { } command || cadence != _animationPendingCadence || sample.Pulse.Value != command.Sequence ||
-                sample.Target != command.Target || sample.World != command.World || sample.Generation != command.Generation ||
+                sample.Property != command.Property || sample.Target != command.Target || sample.World != command.World || sample.Generation != command.Generation ||
                 sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _hintAcknowledged = sample.Pulse.Value; _animationPending = null;
-            if (kind == HintOutputKind.Rejected) return;
+            if (kind == AnimationOutputKind.Rejected) return;
         }
         if (cadence.Value < active.Revision.Value) return;
-        if (_hintCadence != cadence) { _hintCadence = cadence; _lastHintOrdinal = _lastCaptureOrdinal = 0; }
         if (sample.Target == HintTarget)
         {
-            if (sample.World.Value != 0 || sample.EventOrdinal != 0 || sample.EventPhase != (Half)0)
+            if (sample.Property != AnimationProperty.Opacity || sample.World.Value != 0 || sample.EventOrdinal != 0 || sample.EventPhase != (Half)0)
                 throw new ArgumentException("Autonomous output carried a world event.");
             if (sample.Generation < _hintGeneration) return;
             if (sample.Generation != _hintGeneration) throw new ArgumentException("Future UI generation.");
-            if (kind == HintOutputKind.Sample)
+            if (kind == AnimationOutputKind.Sample)
             {
                 if (sample.Pulse.Value <= _lastHintOrdinal) throw new ArgumentException("Reversed UI publication.");
                 _lastHintOrdinal = sample.Pulse.Value;
             }
-            _hintSample = new(sample.Generation, sample.Pulse, sample.AppliedAt, sample.Opacity);
+            _hintSample = new(sample.Generation, sample.Pulse, sample.AppliedAt, sample.Value);
         }
         else if (sample.Target == CaptureTarget)
         {
             if (sample.World.Value < active.World.WorldGeneration.Value) return;
-            if (sample.World != _captureWorld || _captureRequested is not { } capture || sample.Generation != 1 ||
+            if (sample.Property != AnimationProperty.Opacity || sample.World != _captureWorld || _captureRequested is not { } capture || sample.Generation != 1 ||
                 sample.EventOrdinal != capture.EventOrdinal || !HalfBits.Equal(sample.EventPhase, capture.EventPhase))
                 throw new ArgumentException("World feedback does not own the committed occurrence.");
-            if (kind == HintOutputKind.Sample)
+            if (kind == AnimationOutputKind.Sample)
             {
                 if (sample.Pulse.Value <= _lastCaptureOrdinal) throw new ArgumentException("Reversed world publication.");
                 _lastCaptureOrdinal = sample.Pulse.Value;
             }
             _captureSample = sample;
         }
-        else throw new ArgumentException("Unknown animation target.");
+        else ReceiveActivationSample(sample, kind, active);
+        // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
     }
     public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
     {
@@ -214,7 +219,7 @@ public sealed partial class BrowserWorkshopClient
             physical.Evidence.WorldEpoch != sample.World || physical.Captures.Count != 1 ||
             physical.Captures[0] != capture || physical.FeedbackCapture is null)
         { opacity = default; return false; }
-        _frameCaptureTaken = true; _captureSample = null; opacity = sample.Opacity; return true;
+        _frameCaptureTaken = true; _captureSample = null; opacity = sample.Value; return true;
     }
     public void RecordCapturePresentation(ulong frame)
     {
@@ -228,6 +233,7 @@ public sealed partial class BrowserWorkshopClient
         if (_hasPresentationFrame && frame == _presentationFrame) return _frameAdmitted;
         _hasPresentationFrame = true; _presentationFrame = frame;
         _frameAdmitted = _framePoseTaken = _frameHintTaken = _frameCaptureTaken = false;
+        Array.Clear(_activationFrameTaken);
         _frameObservedAt = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         if (_preparation is not null || _schedule is not { } schedule ||
             !Clock.TryMasterNow(_frameObservedAt, out var master)) return false;

@@ -157,11 +157,13 @@ public sealed class PhysicsSceneDeclaration
     public const int MaterialCapacity = 16;
     public const int SensorCapacity = 8;
     public const int GuideCapacity = 8;
+    public const int TriggerCapacity = 8;
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
     private readonly ResidenceSensorDeclaration[] _sensors;
     private readonly PlanarGuideDeclaration[] _guides;
+    private readonly ContactTriggerDeclaration[] _triggers;
     public PhysicsDocumentId Document { get; }
     public ulong NextIdentity { get; }
     public ReadOnlySpan<RigidBodyDeclaration> Bodies => _bodies;
@@ -169,15 +171,16 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<ContactMaterialDeclaration> Materials => _materials;
     public ReadOnlySpan<ResidenceSensorDeclaration> Sensors => _sensors;
     public ReadOnlySpan<PlanarGuideDeclaration> Guides => _guides;
+    public ReadOnlySpan<ContactTriggerDeclaration> Triggers => _triggers;
 
     public PhysicsSceneDeclaration(PhysicsDocumentId document, ulong nextIdentity,
         ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders,
         ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
-        ReadOnlySpan<PlanarGuideDeclaration> guides)
+        ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
             bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
-            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity)
+            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity)
             throw new ArgumentException("Invalid physics document or capacity.");
         var ids = new HashSet<ulong>();
         var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>();
@@ -234,14 +237,27 @@ public sealed class PhysicsSceneDeclaration
                 !dynamicColliders.Contains(guide.Target) || !guidedBodies.Add(guide.Target))
                 throw new ArgumentException("Guide requires a static frame and one uniquely guided dynamic sphere.");
         }
+        var owners = new HashSet<GpuBodyId>();
+        foreach (var trigger in triggers)
+        {
+            trigger.Validate(); Identity(trigger.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(trigger.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
+                !bodyMap.TryGetValue(trigger.Target, out var target) || target.Motion != RigidMotionKind.Dynamic ||
+                !owners.Add(trigger.Owner))
+                throw new ArgumentException("Contact trigger requires a unique static owner and dynamic target.");
+            var colliderFound = false;
+            foreach (var collider in colliders) if (collider.Body == trigger.Owner) colliderFound = true;
+            if (!colliderFound) throw new ArgumentException("Contact trigger owner has no physical collider.");
+        }
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
-        _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray();
+        _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();
         Array.Sort(_bodies, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_colliders, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_materials, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_sensors, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_guides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        Array.Sort(_triggers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)

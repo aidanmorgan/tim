@@ -11,7 +11,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp },
+        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp },
             registry.Definitions.Keys.OrderBy(kind => kind));
         var definition = registry.Definitions[WorkshopPartKind.Basketball];
         Assert.Empty(definition.Parameters);
@@ -178,10 +178,11 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             return true;
         }
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
-        public void ControlHint(HintControlKind kind, bool visible) => throw new InvalidOperationException("Hint control is outside this held read/ACK fixture.");
+        public void ControlHint(AnimationControlKind kind, bool visible) => throw new InvalidOperationException("Hint control is outside this held read/ACK fixture.");
         public bool TryHint(ulong frame, out WorkshopHintSample sample) { sample = default; return false; }
         public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
         { opacity = default; return false; }
+        public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend) { blend = default; return false; }
         public void RecordCapturePresentation(ulong frame) => throw new InvalidOperationException("No capture opacity was supplied by this fixture.");
         public void RecordHintPresentation(ulong frame) => throw new InvalidOperationException("No hint was supplied by this fixture.");
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }

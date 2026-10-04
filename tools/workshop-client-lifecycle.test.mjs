@@ -8,13 +8,13 @@ import vm from 'node:vm';
 const path = new URL('../CuriousContraptions.web/wwwroot/workshop-client.js', import.meta.url);
 const source = readFileSync(path, 'utf8');
 const executable = source.replace(/^import .*;\n/gm, '').replace(/^export /gm, '') +
-    '\n;({create, activate, probe, status, dispose, qualified, send, acknowledgement, completeAcknowledgement});';
+    '\n;({create, activate, probe, status, dispose, qualified, send, acknowledgement, completeAcknowledgement, animationControl, animationKinds});';
 // These integers are the C# WorkshopTransportState values at the JS import boundary.
 const state = Object.freeze({ Ready: 0, Backpressure: 1, TimedOut: 2, Indeterminate: 3, RecoveryBlocked: 4 });
 
 async function clientHarness(loadRuntimes = true, failAnimationConstructor = false) {
     const intervals = new Map(), timers = new Map(), workers = [], errors = [], probes = [], messages = [];
-    let timerId = 0, milliseconds = 0, publishedId = 0, calls = 0, outputCalls = 0, resolveWorker;
+    let timerId = 0, milliseconds = 0, publishedId = 0, calls = 0, outputCalls = 0, outputCallback, resolveWorker;
     const workerCreated = new Promise(resolve => { resolveWorker = resolve; });
     const profile = new Float64Array([2, 1, 1, 0, 0.001, 1, 1]);
     const context = {
@@ -48,7 +48,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     view.setUint32(56, 1, true); view.setUint32(60, 2, true);
     const service = () => { calls++; probes.push(publishedId); api.probe(publishedId, new Uint8Array([1])); };
     const creation = api.create(Object.values(state), session, [2, 2, 64, 72, 96, 160, 1, 2], 1, false,
-        () => {}, () => {}, () => {}, () => { outputCalls++; }, service, () => {}, () => {}, () => {});
+        () => {}, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, () => {}, () => {});
     creation.catch(() => {});
     await workerCreated;
     await Promise.resolve();
@@ -62,6 +62,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     return {
         api, creation, intervals, timers, workers, errors, probes, messages, runtimeReady,
         get startup() { return startup(); },
+        onOutput: callback => { outputCallback = callback; },
         calls: () => calls, outputCalls: () => outputCalls, publish: id => { publishedId = id; },
         clock: value => { milliseconds = value; },
         ready: async () => {
@@ -323,4 +324,25 @@ for (const duplicate of [false, true]) test(`unmatched or duplicate ACK faults w
     assert.equal(h.api.status(id), state.Indeterminate);
     assert.equal(h.workers[0].terminated, true);
     assert.deepEqual(stallStates(h), [true]); h.api.dispose(id);
+});
+
+
+test('two animation owners send sequential controls only after managed ACK delivery returns', async () => {
+    const h = await clientHarness(), id = await h.ready();
+    h.workers[0].onmessage({ data: { animationPeer: new Uint8Array(64) } });
+    h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
+    h.workers[1].onmessage({ data: { qualified: true } });
+    h.api.animationKinds(id, [1, 2, 3]);
+    const first = new Uint8Array(96), second = new Uint8Array(96);
+    new DataView(first.buffer).setBigUint64(56, 4n, true);
+    new DataView(second.buffer).setBigUint64(56, 5n, true);
+    h.api.animationControl(id, first);
+    h.onOutput(() => assert.throws(() => h.api.animationControl(id, second), /pending/));
+    const ack = new Uint8Array(96); new DataView(ack.buffer).setUint32(60, 1, true);
+    h.workers[1].onmessage({ data: { animationOutput: ack } });
+    assert.equal(h.errors.length, 0);
+    h.onOutput(() => {}); h.api.animationControl(id, second);
+    h.workers[1].onmessage({ data: { animationOutput: ack } });
+    assert.equal(h.messages.filter(message => message.animationControl).length, 2);
+    assert.equal(h.errors.length, 0); h.api.dispose(id);
 });

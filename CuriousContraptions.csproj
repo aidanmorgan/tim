@@ -30,6 +30,7 @@
         <Compile Include="engine/MachineWorld.cs" />
         <Compile Include="engine/MachineWorld.Gpu.cs" />
         <Compile Include="engine/MachinePart.cs" />
+        <Compile Include="engine/WorkshopVisualBinding.cs" />
         <Compile Include="engine/PartDefinition.cs" />
         <Compile Include="engine/BasketballMaterialResource.cs" />
         <Compile Include="engine/RampDimensionsResource.cs" />
@@ -40,8 +41,11 @@
         <Compile Include="parts/BallPart.cs" />
         <Compile Include="parts/BasketPart.cs" />
         <Compile Include="parts/RampPart.cs" />
+        <Compile Include="parts/SwitchPart.cs" />
+        <Compile Include="parts/LampPart.cs" />
         <Compile Include="ui/Workshop.cs" />
         <Compile Include="ui/WorkshopGpu.cs" />
+        <Compile Include="ui/WorkshopConnections.cs" />
         <Compile Include="ui/WorkshopPuzzle.cs" />
         <Compile Include="ui/WorkshopGuidance.cs" />
         <Compile Include="ui/WorkshopAnimation.cs" />

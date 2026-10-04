@@ -254,6 +254,7 @@ public partial class Workshop
 
     private void CancelTool()
     {
+        _linkSource = null;
         _tool = null;
         _dragging = _orbiting = _lifting = false;
         ClearPreview();
@@ -267,7 +268,8 @@ public partial class Workshop
         PresentUiAnimations(delta);
         PanCamera((float)delta);
         var target = _preview ?? _selected;
-        _cancelButton.Visible = !_inRun && (_tool is not null);
+        _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);
+        _connectionChoices.Visible = CanEdit && (_selected is not null || _linkSource is not null);
         _removeButton.Visible = _preview == null && _selected is { Locked: false };
         _partTools.Visible = !_inRun && target is { Locked: false } && !_rotationGizmo.Dragging && !_optionsPanel.Visible;
         _rotationGizmo.Follow(_selected, !_inRun && _tool is null, _camera);

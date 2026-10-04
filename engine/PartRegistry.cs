@@ -23,14 +23,21 @@ public sealed class PartRegistry
         if (ramp is null || ramp.Scene is null || ramp.WorkshopKind != WorkshopPartKind.Ramp ||
             ramp.Ramp is null || ramp.Parameters.Count != 0) throw new ArgumentException("Canonical Ramp resource is invalid.");
         ramp.Ramp.Capture();
+        var impactSwitch = ResourceLoader.Load<PartDefinition>("res://parts/catalog/switch.tres");
+        var lamp = ResourceLoader.Load<PartDefinition>("res://parts/catalog/lamp.tres");
+        if (impactSwitch is null || impactSwitch.Scene is null || impactSwitch.WorkshopKind != WorkshopPartKind.ImpactSwitch || impactSwitch.Parameters.Count != 0 ||
+            lamp is null || lamp.Scene is null || lamp.WorkshopKind != WorkshopPartKind.SignalLamp || lamp.Parameters.Count != 0)
+            throw new ArgumentException("Canonical activation resources are invalid.");
         _definitions.Clear();
         _definitions.Add(WorkshopPartKind.Basketball, ball);
         _definitions.Add(WorkshopPartKind.Receiver, receiver);
         _definitions.Add(WorkshopPartKind.Ramp, ramp);
+        _definitions.Add(WorkshopPartKind.ImpactSwitch, impactSwitch);
+        _definitions.Add(WorkshopPartKind.SignalLamp, lamp);
     }
     public MachinePart Create(WorkshopPartKind kind)
     {
-        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp) || !_definitions.TryGetValue(kind, out var definition))
+        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp) || !_definitions.TryGetValue(kind, out var definition))
             throw new ArgumentException("This catalogue part is not supported by the current GPU Workshop.");
         var part = definition.Scene.Instantiate<MachinePart>();
         try { part.Configure(definition); return part; }

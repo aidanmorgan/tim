@@ -64,7 +64,7 @@ public partial class Workshop
             _status.Text = error.Message;
             return false;
         }
-        finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); RefreshLayers(); } }
+        finally { if (!_workshopUiRemoved) { _gpuPending = false; RefreshPalette(); RefreshLayers(); RefreshConnectionChoices(); RefreshConnectionArtwork(); } }
     }
 
     private async void CommitSelected()

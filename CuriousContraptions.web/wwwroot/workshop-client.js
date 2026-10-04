@@ -247,14 +247,14 @@ export function scheduleResult(id, bytes) {
     const scheduleControl = new Uint8Array(bytes);
     client.worker.postMessage({ scheduleControl }, [scheduleControl.buffer]);
 }
-export function hint(id, bytes) {
+export function animationControl(id, bytes) {
     const client = owner(id);
     if (client.failure) throw client.failure;
     if (!client.animationQualified || client.hintPending) throw new Error('Animation control is unavailable or pending.');
-    const hintControl = new Uint8Array(bytes);
-    if (hintControl.length !== 96) throw new Error('Invalid hint command.');
+    const animationControl = new Uint8Array(bytes);
+    if (animationControl.length !== 96) throw new Error('Invalid animation command.');
     client.hintPending = true;
-    client.animation.postMessage({ hintControl }, [hintControl.buffer]);
+    client.animation.postMessage({ animationControl }, [animationControl.buffer]);
 }
 export function bootstrap(id) {
     const client = owner(id);

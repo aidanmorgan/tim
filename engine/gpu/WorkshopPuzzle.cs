@@ -47,7 +47,7 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
             return;
         }
         PhysicsDeclarationBounds.Range(Precision.Value, (Half)0, (Half)1);
-        if (RampInventory != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||
+        if (construction.Connections.Count != 0 || RampInventory != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||
             BallAssistance != FirstPrinciples.BallAssistance || ReceiverAssistance != FirstPrinciples.ReceiverAssistance || RampAssistance != FirstPrinciples.RampAssistance)
             throw new ArgumentException("Unsupported First principles authored settings.");
         var expectedBall = FirstPrinciples.Ball(Goal.Body);
@@ -56,7 +56,8 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
             Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(expectedReceiver))
             throw new ArgumentException("Fixed puzzle declarations changed.");
         foreach (var instance in construction.Instances)
-            if (instance is WorkshopRamp ramp && ramp.Locked) throw new ArgumentException("Inventory ramps remain editable.");
+            if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopRamp) || instance is WorkshopRamp { Locked: true })
+                throw new ArgumentException("Unsupported puzzle inventory instance.");
     }
 }
 

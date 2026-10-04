@@ -1,0 +1,124 @@
+using System.Buffers.Binary;
+using System.Reflection;
+using CuriousContraptions.Gpu;
+using CuriousContraptions.Presentation;
+using ChannelControl = CuriousContraptions.Gpu.WorkshopAnimationControl;
+
+namespace CuriousContraptions.Tests;
+
+public sealed class WorkshopActivationAnimationTests
+{
+    private static readonly RuntimeSessionId Session = new(11, 22);
+    private static readonly ActivationLatch Latch = new(new(2), new(2), ActivationPhase.Latched,
+        new(55), new(1), new(44), 10, (Half)0, new((Half).8));
+    private static ChannelControl Control => new(new(4), new(1), 1, 1, AnimationControlKind.Endpoint,
+        true, (Half)1, (Half)1, (Half)1, AnimationCurve.Linear, 10, (Half)0, AnimationProperty.ColourBlend);
+
+    [Fact]
+    public void TypedAnimationChannelRejectsRetiredSchemaUnknownPropertyAndForeignIdentity()
+    {
+        var bytes = WorkshopAnimationWire.Control(Session, new(1), new(1), Control);
+        Assert.Equal(Control, WorkshopAnimationWire.ReadControl(bytes, Session, new(1), new(1)));
+        foreach (var (offset, value) in new[] { (90, 0), (78, 0), (78, 99), (92, 1) })
+        {
+            var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(offset), (ushort)value);
+            Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(changed, Session, new(1), new(1)));
+        }
+        Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.ReadControl(bytes, new(1, 2), new(1), new(1)));
+        var output = Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1);
+        Assert.Equal(AnimationProperty.ColourBlend, WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _).Property);
+        output[86] = 0;
+        Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Read(output, Session, new(1), new(1), out _));
+    }
+
+    [Fact]
+    public void SharedBindingEvaluationPreservesCanonicalNeutralActiveAndIntermediateValues()
+    {
+        var neutral = new AnimationValue(new AnimationMetres((Half).06));
+        var active = new AnimationValue(new AnimationMetres((Half)(-.02)));
+        Assert.Equal(neutral, AnimationValue.Blend(neutral, active, new((Half)0)));
+        Assert.Equal(active, AnimationValue.Blend(neutral, active, new((Half)1)));
+        Assert.Equal((Half)(((double)(Half).06 + (double)(Half)(-.02)) * .5),
+            AnimationValue.Blend(neutral, active, new((Half).5)).Metres.Value);
+        Assert.Throws<ArgumentException>(() => AnimationValue.Blend(neutral, new(new AnimationOpacity((Half)1)), new((Half)1)));
+    }
+
+    [Fact]
+    public void FirstAnimationOutputCanBeTheOwnedActivationAcknowledgement()
+    {
+        var client = Client(); SetPending(client, Control, new(1));
+        Requested(client)[0] = Latch;
+        client.ReceiveAnimation(Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1));
+        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+        Assert.Equal(Latch, Requested(client)[0]);
+        Assert.Equal((Half)1, Samples(client)[0]!.Value.Value);
+    }
+
+    [Fact]
+    public void SameWorldCadenceRetainsOwnershipAndRestartsOnlySampleOrdinals()
+    {
+        var client = Client(); Requested(client)[0] = Latch;
+        Field<ulong[]>(client, "_activationOrdinals")[0] = 100;
+        var schedule = Schedule(1, 2);
+        Invoke(client, "ReconcileAnimationSchedule", schedule); Set(client, "_schedule", schedule);
+        Assert.Equal(Latch, Requested(client)[0]);
+        Assert.Equal(0ul, Field<ulong[]>(client, "_activationOrdinals")[0]);
+        client.ReceiveAnimation(Output(Control, new(2), AnimationOutputKind.Sample, 1));
+        Assert.NotNull(Samples(client)[0]);
+    }
+
+    [Fact]
+    public void RetiredWorldAcknowledgementDrainsItsLeaseWithoutRevivingVisuals()
+    {
+        var client = Client(); Requested(client)[0] = Latch; SetPending(client, Control, new(1));
+        var next = Schedule(2, 2); Invoke(client, "ReconcileAnimationSchedule", next); Set(client, "_schedule", next);
+        Assert.Null(Requested(client)[0]);
+        client.ReceiveAnimation(Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1));
+        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+        Assert.Null(Requested(client)[0]); Assert.Null(Samples(client)[0]);
+    }
+
+    [Fact]
+    public void WrongPropertyOrOccurrenceCannotReleaseOwnedAnimationLease()
+    {
+        foreach (var invalid in new[] { Control with { Property = AnimationProperty.Opacity }, Control with { EventOrdinal = 11 } })
+        {
+            var client = Client(); Requested(client)[0] = Latch; SetPending(client, Control, new(1));
+            Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(invalid, new(1), AnimationOutputKind.Acknowledgement, 1)));
+            Assert.Equal(Control, Field<ChannelControl?>(client, "_animationPending")); Assert.Null(Samples(client)[0]);
+        }
+    }
+
+    private static BrowserWorkshopClient Client()
+    {
+        var client = (BrowserWorkshopClient)Activator.CreateInstance(typeof(BrowserWorkshopClient),
+            BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { Session }, null)!;
+        Set(client, "_peer", new WorkshopClockPeer(Session, new(1), new(0), new(1), new(100_000), WorkshopRuntimeRole.Browser));
+        Set(client, "_schedule", Schedule(1, 1)); return client;
+    }
+    private static WorkshopSchedule Schedule(ulong world, ulong revision) => WorkshopSchedule.Create(
+        WorkshopCadenceSettings.Default(), new(revision), new(1), new(0), new(0), new(0), new(0),
+        new(new(world), new(revision), new(0), new(0), WorldPlayback.Running));
+    private static void SetPending(BrowserWorkshopClient client, ChannelControl control, CadenceRevision cadence)
+    { Set(client, "_animationPending", control); Set(client, "_animationPendingCadence", cadence); }
+    private static ActivationLatch?[] Requested(BrowserWorkshopClient c) => Field<ActivationLatch?[]>(c, "_activationRequested");
+    private static WorkshopAnimationSample?[] Samples(BrowserWorkshopClient c) => Field<WorkshopAnimationSample?[]>(c, "_activationSamples");
+    private static T Field<T>(object owner, string name) => (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!;
+    private static void Set(object owner, string name, object? value) => owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(owner, value);
+    private static void Invoke(object owner, string name, object value) => owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(owner, new[] { value });
+    private static byte[] Output(ChannelControl control, CadenceRevision cadence, AnimationOutputKind kind, ulong ordinal)
+    {
+        var bytes = new byte[WorkshopAnimationWire.OutputBytes];
+        U64(0, Session.Low); U64(8, Session.High); U64(16, 1); U64(24, cadence.Value);
+        U64(32, control.Generation); U64(40, ordinal);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(56), BitConverter.HalfToUInt16Bits(control.To));
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(58), (ushort)control.Property);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(60), (uint)kind);
+        U64(64, control.Target.Value); U64(72, control.World.Value);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(80), control.EventOrdinal);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(86), WorkshopAnimationWire.Version);
+        return bytes;
+        void U64(int offset, ulong value) => BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset), value);
+    }
+}

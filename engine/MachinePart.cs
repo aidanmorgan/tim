@@ -1,5 +1,7 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions;
 
@@ -17,7 +19,7 @@ public partial class MachinePart : Node3D
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp) ||
+        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp) ||
             (definition.WorkshopKind == WorkshopPartKind.Basketball && definition.Basketball is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Ramp && definition.Ramp is null) ||
             definition.Parameters.Count != 0)
@@ -39,6 +41,15 @@ public partial class MachinePart : Node3D
         _highlight.RotationDegrees = new(90, 0, 0);
         _highlight.Visible = false;
         _built = true;
+    }
+    private readonly List<WorkshopVisualBinding> _bindings = new();
+    protected void BindVisual(MeshInstance3D target, WorkshopVisualProperty property, Half neutral, Half active) =>
+        _bindings.Add(new(target, property, neutral, active));
+    internal bool HasActivationBindings => _bindings.Count != 0;
+    internal void ApplyActivationBlend(Half value)
+    {
+        var progress = new AnimationColourBlend(value);
+        foreach (var binding in _bindings) binding.Apply(progress);
     }
     protected virtual void Build() { }
     public void SetSelected(bool selected)

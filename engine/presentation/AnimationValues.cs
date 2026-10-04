@@ -188,6 +188,14 @@ public readonly record struct AnimationValue
         else if (Property is not (AnimationProperty.LocalRotationAngle or AnimationProperty.LocalTranslation))
             AnimationNumbers.Unit(_value);
     }
+    public static AnimationValue Blend(AnimationValue from, AnimationValue to, AnimationColourBlend progress)
+    {
+        SameProperty(from, to);
+        AnimationNumbers.Unit(progress.Value);
+        if (progress.Value == (Half)0) return from;
+        if (progress.Value == (Half)1) return to;
+        return Narrow(from.Property, Math.FusedMultiplyAdd(to.Number - from.Number, (double)progress.Value, from.Number));
+    }
     internal static AnimationValue Narrow(AnimationProperty property, double value)
     {
         if (!double.IsFinite(value)) throw new ArgumentOutOfRangeException(nameof(value));

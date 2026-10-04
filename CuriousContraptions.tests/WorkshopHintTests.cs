@@ -310,11 +310,11 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
         public bool RejectHint;
         public Func<float> ReadOpacity = null!;
         private Half _consumed;
-        public void ControlHint(HintControlKind kind, bool visible)
+        public void ControlHint(AnimationControlKind kind, bool visible)
         {
             if (RejectHint) throw new InvalidOperationException("An animation control is pending.");
             Assert.True(Enum.IsDefined(kind));
-            if (kind is HintControlKind.Hide or HintControlKind.Reveal) Next = null;
+            if (kind is AnimationControlKind.Hide or AnimationControlKind.Reveal) Next = null;
         }
         public bool TryHint(ulong frame, out WorkshopHintSample sample)
         {
@@ -323,6 +323,7 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
         }
         public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
         { opacity = default; return false; }
+        public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend) { blend = default; return false; }
         public void RecordCapturePresentation(ulong frame) => throw new InvalidOperationException("No capture opacity was supplied by this fixture.");
         public void RecordHintPresentation(ulong frame) => Assert.Equal((float)_consumed, ReadOpacity());
         public bool TryRead(out WorkshopResponse response) { response = default; return false; }

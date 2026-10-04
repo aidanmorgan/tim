@@ -4,7 +4,7 @@ import { admitNativeClock, nativeNow, nativeClockEvidence } from '../native-cloc
 await admitNativeClock();
 const runtime = await dotnet.create();
 let host, port, service, disposed = false, bootstrapped = false, qualified = false;
-let lastReply = 0, outputKinds, pendingSample;
+let lastReply = 0, outputKinds, targetCapacity, pendingSample;
 const latestSamples = new Map();
 function closeOwned() {
     if (disposed) return;
@@ -40,11 +40,12 @@ runtime.setModuleImports('workshopAnimation', {
         requirePort().postMessage({ scheduleControl: value }, [value.buffer]);
     },
     output(bytes) {
+        if (disposed) return;
         const value = new Uint8Array(bytes);
         const kind = new DataView(value.buffer).getUint32(60, true);
         if (kind === outputKinds[1]) {
             const target = new DataView(value.buffer).getBigUint64(64, true);
-            if (!latestSamples.has(target) && latestSamples.size >= 2)
+            if (!latestSamples.has(target) && latestSamples.size >= targetCapacity)
                 throw new Error('Animation latest target capacity exceeded.');
             latestSamples.set(target, value); flushSample();
         }
@@ -52,6 +53,7 @@ runtime.setModuleImports('workshopAnimation', {
         else throw new Error('Unknown Animation output kind.');
     },
     qualified() {
+        if (disposed) return;
         if (!qualified) { qualified = true; self.postMessage({ qualified: true }); }
     },
     acceptedReply() { lastReply = nativeNow(); }
@@ -59,6 +61,8 @@ runtime.setModuleImports('workshopAnimation', {
 const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
 host = exports.Program;
 outputKinds = Array.from(host.OutputKinds());
+targetCapacity = host.TargetCapacity();
+if (!Number.isSafeInteger(targetCapacity) || targetCapacity <= 0) throw new Error('Invalid declared Animation target capacity.');
 self.onmessage = event => {
     if (disposed) return;
     try {
@@ -96,8 +100,8 @@ self.onmessage = event => {
                 !receipt.every((value, index) => value === pendingSample[index]))
                 throw new Error('Foreign Animation publication receipt.');
             pendingSample = undefined; flushSample();
-        } else if (message.hintControl instanceof Uint8Array && bootstrapped) {
-            host.HintControl(message.hintControl);
+        } else if (message.animationControl instanceof Uint8Array && bootstrapped) {
+            host.AnimationControl(message.animationControl);
         } else if (message.dispose === true) {
             closeOwned(); self.close();
         } else throw new Error('Unsupported Animation browser envelope.');

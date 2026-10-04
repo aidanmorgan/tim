@@ -1,0 +1,202 @@
+{
+  "schema": "workshop-scoped-implementation-v1",
+  "slice": [
+    "CAT-063-I",
+    "CAT-035-I"
+  ],
+  "owner": "/root/p025_implementation",
+  "reviewer": "/root/p025_review",
+  "baseCommit": "20c35c7d6cec0e137ac64308c082891d85ed0479",
+  "status": "Local source/native/GPU/Production/actual UI checks pass with no unresolved findings; exact candidate awaiting independent SnapshotApproval. Publication-dependent checks remain.",
+  "behavior": "Generic accepted-impact declarations feed an immutable discrete activation graph before GPU commit. Shared Animation channels and typed visual bindings present switch press and lamp colour/emission. Canonical typed connections and thresholds roundtrip through current Save/Load; unsupported electrical routes reject.",
+  "schemas": {
+    "physicsState": 5,
+    "stateBytes": 19088,
+    "wire": 10,
+    "constructionBytes": 1600,
+    "maximumCommandBytes": 1672,
+    "save": 3,
+    "saveBytes": 1624,
+    "responseBytes": 10256,
+    "animationChannel": 2,
+    "animationFrameBytes": 96,
+    "animationTargetCapacity": 10
+  },
+  "evidence": {
+    "review": "docs/verification/P0-063-map/review-20261004.json",
+    "gpu": "docs/verification/P0-063-map/contact-gpu-20261004.raw.json",
+    "emitter": "reference/switch-lamp/Program.cs",
+    "emitterProject": "reference/switch-lamp/ContactProbe.csproj",
+    "inputs": "reference/switch-lamp/inputs.json"
+  },
+  "checks": [
+    {
+      "command": "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --nologo --filter 'FullyQualifiedName~WorkshopSaveTests|FullyQualifiedName~ContactActivationTests|FullyQualifiedName~WorkshopWireTests|FullyQualifiedName~WorkshopReadTests|FullyQualifiedName~WorkshopHintTests'",
+      "original": "91caea",
+      "result": "Passed139/139,663ms"
+    },
+    {
+      "command": "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --nologo",
+      "original": "22518e",
+      "result": "471 passed / 1 failed,472 total,990ms. Existing rejected-pose fixture used a codec-wide ID outside current admitted compiler domain."
+    },
+    {
+      "command": "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --nologo --filter FullyQualifiedName~RejectedConstructionReadValidatesAgainstCurrentAdmittedPose",
+      "original": "128de8",
+      "result": "Passed1/1,34ms after fixture-only low-ID correction; current/proposed pose and rejection assertions preserved."
+    },
+    {
+      "command": "node --experimental-vm-modules tools/workshop-client-lifecycle.test.mjs",
+      "original": "b387d8",
+      "result": "Passed29/29,16.853125ms; includes two-owner ACK callback lease ordering."
+    },
+    {
+      "command": "node --experimental-vm-modules tools/workshop-animation-output.test.mjs",
+      "original": "31f3b0",
+      "result": {
+        "passed": true,
+        "targets": 10,
+        "controls": [
+          "declaredCapacity",
+          "heldReceipt",
+          "latestReplacement",
+          "orderedDrain",
+          "overflow",
+          "renamedControl",
+          "disposedLateOutput"
+        ]
+      }
+    },
+    {
+      "command": "node --experimental-vm-modules tools/workshop-observation.test.mjs",
+      "original": "19cd14",
+      "result": "Both capture modes and all three existing startup controls passed with current state/read widths."
+    },
+    {
+      "command": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+      "start": "f49ee9",
+      "terminal": "c80927",
+      "exitCode": 0,
+      "originalTerminalOutput": "  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll\n  Generated app bundle at /Users/aidan/dev/personal/tim/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/AppBundle/\n  Generated app bundle at /Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/\n  TwoDog: web app bundle finalized at /Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/\n  TwoDog: deployed godot.pck to the app bundle\n  TwoDog: wrote 804 precompressed sibling file(s)\n"
+    }
+  ],
+  "retainedFailedAttempts": [
+    {
+      "original": "27dd61",
+      "result": "133/137; four old read-size/header/motion-offset fixture assumptions corrected for forward ABI."
+    },
+    {
+      "original": "4297e4",
+      "result": "Two compile errors at instance/static read-validation seam and uint cadence argument; corrected without weakening validation."
+    },
+    {
+      "original": "faad78",
+      "result": "71/72; old three-part catalogue expectation corrected to exact five admitted parts."
+    }
+  ],
+  "independentSupportingChecks": "Reviewer record owns independent native26/26, actual GPU seven controls/840 ticks/eleven full candidate pairs, and actual JS module checks. A1 cadence ownership, A2 activation read provenance, A3 transport capacity and A4 ACK reentrancy findings were independently closed before export.",
+  "artifacts": {
+    "origin": "http://127.0.0.1:8060/",
+    "mode": "Production",
+    "buildCommand": "dotnet publish CuriousContraptions.web -c Release --nologo -p:PlaytestDiagnostics=false",
+    "terminal": "c80927",
+    "assets": [
+      {
+        "path": "_framework/CuriousContraptions.wasm",
+        "bytes": 555797,
+        "sha256": "17851c9d3bf768db56469b3ad2730b04548c72d3e4a0a0d5422b5618e8462bac"
+      },
+      {
+        "path": "_framework/CuriousContraptions.web.wasm",
+        "bytes": 6933,
+        "sha256": "663dba18a1cf1767098ff88756a7e3cd2abc3551d7434af474eabb96f0f3a1c4"
+      },
+      {
+        "path": "_framework/dotnet.boot.js",
+        "bytes": 7464,
+        "sha256": "2038ffdc5ab291d49035fecb6b2569e0f6bed6c61e6bd6dfadfe89f334b8ba2d"
+      },
+      {
+        "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+        "bytes": 354581,
+        "sha256": "267348d64a6ef359e637a7448690c6afdd47d13cd912e241ed77e55d05139f78"
+      },
+      {
+        "path": "animation/_framework/dotnet.boot.js",
+        "bytes": 37451,
+        "sha256": "112ea95e59ecf41dcdefc99fdbf48fbac61a297b92802d79f7d29e222e19385a"
+      },
+      {
+        "path": "animation/worker.js",
+        "bytes": 5382,
+        "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+      },
+      {
+        "path": "godot.pck",
+        "bytes": 33656,
+        "sha256": "42a69e40ceb8e94fe85631c7c3f3908975500db0b681644681bf3bcce2ffdbc4"
+      },
+      {
+        "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+        "bytes": 378645,
+        "sha256": "f7c82d3f4c16a7edc8db1280a58bdc326dd0abb7aa3663d102cff0bb5ae724a9"
+      },
+      {
+        "path": "simulation/_framework/dotnet.boot.js",
+        "bytes": 37421,
+        "sha256": "8f4a0b28858b891884137ec2cf30e506085d6ff4df98a4744718ab80e4ec2ac0"
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "bytes": 95572,
+        "sha256": "5322ed5aa8e87568cd7ecd4a28f4519d0cc469adc785f92933ef7d0856cacf21"
+      },
+      {
+        "path": "simulation/worker.js",
+        "bytes": 14209,
+        "sha256": "a7a51f99b8cf4f012dae971519f5de7799bcd2c43a1381e1c0af6359421f6bbb"
+      },
+      {
+        "path": "workshop-client.js",
+        "bytes": 30927,
+        "sha256": "2ed8fb55b34709fa9969ad8bce842d109ae2edc512a19247ed6a90fb71c7c4c7"
+      },
+      {
+        "path": "workshop-isolation.js",
+        "bytes": 8331,
+        "sha256": "230d8abff03fb57ccbcc6b5b88c6fce9c96c6cbab9feeac39d23d85c840f7291"
+      }
+    ]
+  },
+  "limitations": [
+    "Electrical pass-through and campaign-authored threshold curves are not admitted by this activation slice.",
+    "No global performance/device qualification. Existing whole-step and navigation targets remain deferred failures; cold compiler-cache qualification remains incomplete.",
+    "Native/mock boundary controls supplement actual GPU/UI proof; they do not replace gameplay verification."
+  ],
+  "candidate": "playable-candidate-paths.json",
+  "localUi": "Reviewer independently verified actual placed Ball/Switch/Lamp and typed edge, first activation tick68, stable event identity, visible button/light, Save/edit/Load, connection Undo non-resurrection, Running Save rejection, disconnected/gentle/miss/incompatible target controls, exact physical and logical Reset, and affected Receiver/Hint schema2 regression. Original raw proof and independent verdict are owned by the review record.",
+  "scopedSourceChecks": {
+    "anvil": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"warnings\":[],\"summary\":{\"total\":0,\"errors\":0,\"warnings\":0,\"info\":0,\"suppressed\":0},\"executionTimeMs\":9,\"checksRun\":[\"antipattern\"],\"hasBlockingWarnings\":false,\"workspaceRoot\":\".\",\"backend\":\"local\",\"daemonStatus\":\"not-wired\"}"
+        }
+      ],
+      "isError": false
+    },
+    "unownedInputDrift": {
+      "original": "7b8d54",
+      "onlyPath": "content/puzzles.json",
+      "disposition": "Retain exact HEAD campaign blob; unrelated worktree campaign edits remain unstaged."
+    },
+    "obsoleteActivePathSearch": {
+      "original": "d1f101",
+      "hits": []
+    },
+    "whitespace": {
+      "original": "e53590",
+      "exitCode": 0
+    }
+  }
+}

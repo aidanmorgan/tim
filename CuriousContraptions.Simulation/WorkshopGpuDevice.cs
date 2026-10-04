@@ -26,6 +26,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private byte[] _candidateWorld = [];
     private PhysicsCaptureRead _committedCaptures;
     private PhysicsCaptureRead _candidateCaptures;
+    private PhysicsActivationRead _committedActivations, _candidateActivations;
+    private ActivationNetwork? _committedNetwork, _candidateNetwork;
 #if PLAYTEST
     private byte[] _diagnosticCandidate = [];
     internal byte[] DiagnosticCommitted { get; private set; } = [];
@@ -61,7 +63,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         if (construction.Settings.Simulation != profile.Cadence || construction.Settings.Physical != profile.Physical)
             throw new ArgumentException("Construction and physical profile differ.");
         var scene = WorkshopPhysicsCompiler.Compile(construction, document);
-        return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence);
+        return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, WorkshopActivationCompiler.Compile(construction));
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence)
     {
@@ -69,10 +71,11 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(32)) != committed.Epoch.Value ||
             BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(40)) != committed.Tick.Value)
             throw new ArgumentException("Advance does not own the committed physical world.");
-        return Stage([], WorkshopGpuOperation.Advance, _committedProfile, new(checked(committed.Tick.Value + 1)), sequence);
+        return Stage([], WorkshopGpuOperation.Advance, _committedProfile, new(checked(committed.Tick.Value + 1)), sequence,
+            _committedNetwork ?? throw new InvalidOperationException("No committed activation declarations."));
     }
 
-    private async ValueTask<WorkshopGpuCandidate> Stage(byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence)
+    private async ValueTask<WorkshopGpuCandidate> Stage(byte[] input, WorkshopGpuOperation operation, WorkshopGpuProfile profile, SimulationTick expectedTick, CommandSequence sequence, ActivationNetwork network)
     {
         profile.Validate();
         await _gate.WaitAsync();
@@ -111,9 +114,17 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
                 captures[i] = previous.Consume(sensor);
             }
             _candidateCaptures = new(captures[..sensorCount]);
+            // Every physical byte/event is validated before discrete evaluation. Neither
+            // candidate is visible until the existing ownership-checked Commit below.
+            var triggerCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(100)));
+            Span<ContactTriggerRead> triggers = stackalloc ContactTriggerRead[PhysicsSceneDeclaration.TriggerCapacity];
+            for (var i = 0; i < triggerCount; i++) triggers[i] = PhysicsGpuAbi.ReadTrigger(bytes, i);
+            _candidateActivations = operation == WorkshopGpuOperation.Admit ? network.Clear() :
+                network.Consume(_committedActivations, triggers[..triggerCount]);
+            _candidateNetwork = network;
             var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(32))),
                 expectedTick, body?.Body, Rotation: body?.Rotation, Angular: body?.AngularVelocity ?? default,
-                Captures: _candidateCaptures,
+                Captures: _candidateCaptures, Activations: _candidateActivations,
                 Motion: motion);
             _candidateWorld = bytes;
             _candidateProfile = profile;
@@ -128,6 +139,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             _initialized = !_disposed && transport.DeviceReady();
             _active = default;
             _candidateWorld = []; _candidateCaptures = default;
+            _candidateActivations = default; _candidateNetwork = null;
             transport.Discard();
             _gate.Release();
             throw;
@@ -141,6 +153,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         transport.Commit();
         _committedProfile = _candidateProfile;
         _committedWorld = _candidateWorld; _committedCaptures = _candidateCaptures;
+        _committedActivations = _candidateActivations; _committedNetwork = _candidateNetwork;
 #if PLAYTEST
         DiagnosticCommitted = _diagnosticCandidate;
 #endif
@@ -150,6 +163,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         if (_active != sequence || sequence.Value == 0) return;
         _active = default;
         _candidateWorld = []; _candidateCaptures = default;
+        _candidateActivations = default; _candidateNetwork = null;
 #if PLAYTEST
         _diagnosticCandidate = [];
 #endif
@@ -162,6 +176,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
         _disposed = true;
         _committedWorld = []; _candidateWorld = [];
         _committedCaptures = default; _candidateCaptures = default;
+        _committedActivations = default; _candidateActivations = default;
+        _committedNetwork = null; _candidateNetwork = null;
         transport.Dispose();
         return ValueTask.CompletedTask;
     }
