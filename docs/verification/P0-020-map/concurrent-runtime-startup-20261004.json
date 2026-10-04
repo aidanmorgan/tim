@@ -1,0 +1,47 @@
+{
+  "slice": "P0-020 playable publication forward fix",
+  "baseCommit": "fae217d34c11687975a33035f4876a76ee2969fc",
+  "problem": "Two fresh deployed attempts passed isolation but the client five-second qualification timer included worker runtime loading and expired before usability. Different observed stages mean serial loading was not established as the exclusive cause.",
+  "change": "Start Simulation and Animation runtime loading concurrently. Arm the unchanged 5000ms GPU/clock qualification deadline only after both existing post-runtime awaitingBootstrap envelopes. Simulation remains authoritative; Animation waits its master-issued peer and owned port. Reject premature/duplicate envelopes and contain constructor/error/disposal paths.",
+  "source": [
+    {
+      "path": "CuriousContraptions.web/wwwroot/workshop-client.js",
+      "sha256": "3afa76e44399ed2128082cbd3dfcc22614afb15b59a9aab256dbd83f81c10f0e"
+    },
+    {
+      "path": "tools/workshop-client-lifecycle.test.mjs",
+      "sha256": "5e0d1b586e0a59e49b7f121da25a21c2fa56b9377ac6d071db8e0508fd664270"
+    },
+    {
+      "path": "docs/engine-contracts.md",
+      "sha256": "d583e1f815b725d6e99e1edd68b026528e12e3a4ff42941de49829cffbd159df"
+    }
+  ],
+  "checks": [
+    {
+      "command": "node --test tools/workshop-client-lifecycle.test.mjs tools/workshop-isolation.test.mjs",
+      "originalToolResult": "d8dd52",
+      "exitCode": 0,
+      "result": "29/29 passed; 23 current client lifecycle and 6 unchanged isolation controls",
+      "durationMs": 71.617458
+    },
+    {
+      "command": "dotnet publish CuriousContraptions.web/CuriousContraptions.web.csproj -c Release -p:PlaytestDiagnostics=false --verbosity minimal",
+      "session": 9688,
+      "originalToolResults": [
+        "d66d0c",
+        "2fc37c",
+        "3ce043"
+      ],
+      "exitCode": 0,
+      "result": "Normal Production AppBundle export complete; source and bundled client bytes equal."
+    },
+    {
+      "command": "Anvil antipattern check for changed client and actual-source test",
+      "result": "0 warnings, 0 errors"
+    }
+  ],
+  "review": "review-20261004.json",
+  "priorDeployedArtifact": "ci-artifact-37167784179.json",
+  "scope": "No numerical, wire, GPU worker, Animation evaluator or gameplay change. Navigation performance target remains unqualified; new production-origin startup and gameplay checks remain required."
+}

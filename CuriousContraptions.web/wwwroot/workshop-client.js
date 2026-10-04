@@ -97,17 +97,61 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
         client.unwatchIsolation = watchIsolation(error => fail(client, error));
         await new Promise((resolve, reject) => {
             client.bootstrapReject = reject;
-            client.startup = setTimeout(() => fail(client, new Error('StartupFailed: usable GPU and clock qualification exceeded five seconds.')), 5000);
-            let readyReceived = false;
+            let readyReceived = false, simulationAwaiting = false, animationAwaiting = false;
+            let bootstrapStarted = false, animationBootstrapped = false;
+            const animation = new Worker(new URL('./animation/worker.js', document.baseURI), { type: 'module' });
+            client.animation = animation;
+            function beginBootstrap() {
+                if (client.failure || !clients.has(id) || bootstrapStarted || !simulationAwaiting || !animationAwaiting) return;
+                bootstrapStarted = true;
+                // Download/runtime loading precedes qualification; the same bounded handshake starts once both can participate.
+                client.startup = setTimeout(() => fail(client, new Error('StartupFailed: usable GPU and clock qualification exceeded five seconds.')), 5000);
+                const bootstrap = new Uint8Array(bootstrapBytes);
+                worker.postMessage({ bootstrap, captureMode }, [bootstrap.buffer]);
+            }
+            animation.onerror = error => fail(client, new Error(error.message || 'Animation worker failed.'));
+            animation.onmessage = incoming => {
+                if (client.failure || !clients.has(id)) return;
+                try {
+                    const item = incoming.data;
+                    if (item.awaitingBootstrap === true) {
+                        if (animationAwaiting) throw new Error('Duplicate Animation runtime readiness.');
+                        animationAwaiting = true;
+                        beginBootstrap();
+                    } else if (item.ready === true) {
+                        if (!animationBootstrapped || client.animationReady || !(item.nativeClock instanceof Float64Array) ||
+                            item.nativeClock.length !== 7 || item.nativeClock[0] !== nativeProfile ||
+                            item.nativeClock[1] !== 1 || item.nativeClock[2] !== 1)
+                            throw new Error('Invalid Animation native-clock admission.');
+                        client.animationReady = true;
+                    } else if (item.qualified === true) {
+                        if (!client.animationReady || client.animationQualified) throw new Error('Duplicate Animation qualification.');
+                        client.animationQualified = true;
+                    } else if (item.animationOutput instanceof Uint8Array) {
+                        if (!animationBootstrapped || !client.animationReady) throw new Error('Animation output precedes admission.');
+                        if (item.animationOutput.length !== 96) throw new Error('Wrong Animation output length.');
+                        deliver(client, item.animationOutput, now(), animationOutput);
+                        const kind = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 96).getUint32(60, true);
+                        if (kind === client.hintKinds[1]) {
+                            const animationAcknowledged = item.animationOutput.slice();
+                            animation.postMessage({ animationAcknowledged }, [animationAcknowledged.buffer]);
+                        } else if (kind === client.hintKinds[0] || kind === client.hintKinds[2]) {
+                            if (!client.hintPending) throw new Error('Unsolicited hint acknowledgement.');
+                            client.hintPending = false;
+                        } else throw new Error('Unknown Animation output.');
+                    } else throw new Error(item.detail || 'Unknown Animation envelope.');
+                } catch (error) { fail(client, error); }
+            };
             worker.onmessage = event => {
                 if (client.failure || !clients.has(id)) return;
                 try {
                     const received = now(), message = event.data;
                     if (message.awaitingBootstrap === true) {
-                        const bootstrap = new Uint8Array(bootstrapBytes);
-                        worker.postMessage({ bootstrap, captureMode }, [bootstrap.buffer]);
+                        if (simulationAwaiting) throw new Error('Duplicate Simulation runtime readiness.');
+                        simulationAwaiting = true;
+                        beginBootstrap();
                     } else if (message.ready === true) {
-                        if (readyReceived) throw new Error('Duplicate worker bootstrap.');
+                        if (!bootstrapStarted || readyReceived) throw new Error('Invalid worker bootstrap.');
                         if (message.captureMode !== captureMode) throw new Error('Worker capture mode differs from the browser build.');
                         const profile = message.nativeClock;
                         if (!(profile instanceof Float64Array) || profile.length !== 7 || !profile.every(Number.isFinite) ||
@@ -135,43 +179,13 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         client.bootstrapReject = null;
                         resolve();
                     } else if (message.animationPeer instanceof Uint8Array) {
-                        if (client.animation || !client.animationPort) throw new Error('Duplicate Animation ownership.');
-                        const animation = new Worker(new URL('./animation/worker.js', document.baseURI), { type: 'module' });
-                        client.animation = animation;
-                        animation.onerror = error => fail(client, new Error(error.message || 'Animation worker failed.'));
-                        animation.onmessage = incoming => {
-                            if (client.failure) return;
-                            try {
-                                const item = incoming.data;
-                                if (item.awaitingBootstrap === true) {
-                                    const bootstrap = message.animationPeer;
-                                    const clockPort = client.animationPort;
-                                    if (!clockPort) throw new Error('Animation port was already transferred.');
-                                    client.animationPort = undefined;
-                                    animation.postMessage({ bootstrap, clockPort }, [bootstrap.buffer, clockPort]);
-                                } else if (item.ready === true) {
-                                    if (client.animationReady || !(item.nativeClock instanceof Float64Array) ||
-                                        item.nativeClock.length !== 7 || item.nativeClock[0] !== nativeProfile ||
-                                        item.nativeClock[1] !== 1 || item.nativeClock[2] !== 1)
-                                        throw new Error('Invalid Animation native-clock admission.');
-                                    client.animationReady = true;
-                                } else if (item.qualified === true) {
-                                    if (!client.animationReady || client.animationQualified) throw new Error('Duplicate Animation qualification.');
-                                    client.animationQualified = true;
-                                } else if (item.animationOutput instanceof Uint8Array) {
-                                    if (item.animationOutput.length !== 96) throw new Error('Wrong Animation output length.');
-                                    deliver(client, item.animationOutput, now(), animationOutput);
-                                    const kind = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 96).getUint32(60, true);
-                                    if (kind === client.hintKinds[1]) {
-                                        const animationAcknowledged = item.animationOutput.slice();
-                                        animation.postMessage({ animationAcknowledged }, [animationAcknowledged.buffer]);
-                                    } else if (kind === client.hintKinds[0] || kind === client.hintKinds[2]) {
-                                        if (!client.hintPending) throw new Error('Unsolicited hint acknowledgement.');
-                                        client.hintPending = false;
-                                    } else throw new Error('Unknown Animation output.');
-                                } else throw new Error(item.detail || 'Unknown Animation envelope.');
-                            } catch (error) { fail(client, error); }
-                        };
+                        if (!readyReceived || animationBootstrapped || !animationAwaiting || !client.animationPort)
+                            throw new Error('Invalid Animation ownership.');
+                        const bootstrap = message.animationPeer;
+                        const clockPort = client.animationPort;
+                        client.animationPort = undefined;
+                        animationBootstrapped = true;
+                        animation.postMessage({ bootstrap, clockPort }, [bootstrap.buffer, clockPort]);
                     } else if (message.scheduleControl instanceof Uint8Array) {
                         deliver(client, message.scheduleControl, received, scheduleControl);
                     } else if (message.clockReply instanceof Uint8Array) {
