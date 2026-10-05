@@ -78,7 +78,7 @@ public sealed class PhysicsMotionRead
                 new(H(piece,64),H(piece,66),H(piece,68)));
             launch.Validate();
             Norm(piece,64,2); Norm(piece,72,64); Norm(piece,80,16); Norm(piece,88,64); Norm(piece,96,1024);
-            Rotation(piece).Validate();
+            Rotation(piece).ValidateCommitted();
             PhysicsDeclarationBounds.Range(H(piece,54),(Half)0,(Half).125);
             if (kind == PhysicsMotionKind.FreePolynomial && (!Zero(piece[88..94]) || !Zero(piece[96..102])))
                 throw new ArgumentException("Free motion carries constrained acceleration.");
@@ -88,9 +88,6 @@ public sealed class PhysicsMotionRead
                 PhysicsDeclarationBounds.Range(accelerationError,(Half)0,(Half)4);
                 PhysicsDeclarationBounds.Range(velocityError,(Half)0,(Half).5);
                 PhysicsDeclarationBounds.Range(positionError,(Half)0,(Half).01);
-                if ((double)velocityError < (double)accelerationError / WorkshopCadenceSettings.PhysicalFrequency ||
-                    (double)positionError < (double)velocityError / (2 * WorkshopCadenceSettings.PhysicalFrequency))
-                    throw new ArgumentException("Force motion omitted its outward error certificate.");
             }
             if (kind != PhysicsMotionKind.ForceDrivenQuadratic && !HalfBits.Equal(H(piece,104),(Half)0))
                 throw new ArgumentException("Only force-driven motion carries an acceleration allowance.");

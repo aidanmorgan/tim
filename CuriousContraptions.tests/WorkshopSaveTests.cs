@@ -5,6 +5,56 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopSaveTests
 {
+    [Theory]
+    [InlineData(0)]
+    [InlineData(.45)]
+    [InlineData(1)]
+    public void ReceiverForceRegionSurvivesSaveAndCompilesWithoutPuzzleSelection(double precision)
+    {
+        var receiver = FirstPrinciples.Receiver(new(3), new((Half)precision)) with { Locked = false };
+        var construction = Saved().Construction.WithInstance(receiver);
+        var saved = new WorkshopSavedConstruction(construction, new(7));
+        var bytes = WorkshopSaveCodec.Encode(saved);
+        var decoded = WorkshopSaveCodec.Decode(bytes);
+        Assert.Equal(saved, decoded);
+        var scene = WorkshopPhysicsCompiler.Compile(decoded.Construction, new(1, 2));
+        {
+            var guide = Assert.Single(scene.Guides.ToArray());
+            Assert.Equal(receiver.ForceRegion.Minimum, guide.Minimum);
+            Assert.Equal(receiver.ForceRegion.Maximum, guide.Maximum);
+            Assert.Equal(receiver.ForceRegion.MaximumAcceleration, guide.MaximumAcceleration);
+            Assert.Equal(receiver.ForceRegion.SupportHeight, guide.SupportHeight);
+            Assert.Equal(receiver.ForceRegion.SupportMargin, guide.SupportMargin);
+        }
+        Assert.Equal((Half)0, Assert.Single(WorkshopPhysicsCompiler.Compile(Saved().Construction, new(1, 2)).Guides.ToArray()).MaximumAcceleration.Value);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), 7);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+    }
+
+    [Theory]
+    [InlineData(116, 0x7e00)]
+    [InlineData(118, 0x7c00)]
+    [InlineData(120, 0xfc00)]
+    [InlineData(122, 0xc000)]
+    [InlineData(124, 0x0000)]
+    [InlineData(126, 0xc000)]
+    [InlineData(128, 0x4c40)]
+    [InlineData(130, 0xbc00)]
+    [InlineData(130, 0x4000)]
+    [InlineData(132, 0xbc00)]
+    [InlineData(132, 0x4a80)]
+    [InlineData(134, 0x0001)]
+    public void InvalidForceRegionRejectsWithoutChangingExistingConstruction(int field, int bits)
+    {
+        var saved = Saved();
+        var original = WorkshopSaveCodec.Encode(saved);
+        var malformed = (byte[])original.Clone();
+        var receiverOffset = 24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes;
+        BinaryPrimitives.WriteUInt16LittleEndian(malformed.AsSpan(receiverOffset + field), (ushort)bits);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(malformed));
+        Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
+    }
+
     private static WorkshopSavedConstruction Saved()
     {
         var ball = WorkshopInput.Basketball(new(2), .125, 3, -.25, 0, 0, 0, 1);
@@ -151,6 +201,18 @@ public sealed class WorkshopSaveTests
         var updated = FirstPrinciples.WithPrecision(construction, new((Half).5));
         Assert.Equal(a, updated.Instances[2]); Assert.Equal(b, updated.Instances[3]);
         Assert.Equal(construction.Puzzle.Goal, updated.Puzzle.Goal);
+        foreach (var knot in new[] { (Half)0, (Half).45, (Half)1 })
+        {
+            updated = FirstPrinciples.WithPrecision(updated, new(knot));
+            var expected = FirstPrinciples.Receiver(construction.Puzzle.Goal.Target, new(knot));
+            Assert.Equal(expected, updated.Receiver);
+            var guide = Assert.Single(WorkshopPhysicsCompiler.Compile(updated, new(1, 2)).Guides.ToArray());
+            Assert.Equal(expected.ForceRegion.MaximumAcceleration, guide.MaximumAcceleration);
+            Assert.Equal(expected.ForceRegion.SupportMargin, guide.SupportMargin);
+            Assert.Equal(a, updated.Instances[2]); Assert.Equal(b, updated.Instances[3]);
+            var changedSave = new WorkshopSavedConstruction(updated, new(15));
+            Assert.Equal(changedSave, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(changedSave)));
+        }
     }
 
     public enum PuzzleDamage { Id, Mode, Precision, Inventory, Body, Target, EventSource, Profile, Lock }

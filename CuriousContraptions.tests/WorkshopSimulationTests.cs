@@ -13,6 +13,24 @@ public sealed class WorkshopSimulationTests
         new(new(revision), Settings, new(WorkshopInput.Basketball(new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
 
     [Fact]
+    public async Task RoundedGpuRotationCommitsThroughTheSimulationReadBoundary()
+    {
+        var device = new ControlledDevice();
+        await using var simulation = Create(device);
+        await simulation.Initialize();
+        var admission = simulation.Construct(BallConstruction()).AsTask();
+        device.CompleteAdmission(0); await admission;
+        await simulation.Run();
+        var advance = simulation.Advance().AsTask();
+        // Actual First principles tick86 output: normalised f16, norm squared1.0012203.
+        var rotation = new CanonicalRotation((Half)0, (Half)0, (Half)(-.301513671875), (Half).9541015625);
+        device.CompleteAdvance(0, read => read with { Rotation = rotation });
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await advance).Outcome);
+        Assert.Equal(WorkshopSimulationPhase.Running, simulation.Phase);
+        Assert.Equal(rotation, simulation.Committed.Rotation);
+    }
+
+    [Fact]
     public async Task SaveChangesRevisionOnceWithoutChangingWorldOrDispatchingGpu()
     {
         var device = new ControlledDevice();

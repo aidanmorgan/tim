@@ -714,7 +714,7 @@ public sealed class WorkshopWireTests
         Assert.Equal(guide, copied.Guides[0]);
         Assert.Empty(GenericScene.Guides.ToArray());
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
-        foreach (var (offset, value) in new[] { (0, 3u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, (uint)PhysicsSceneDeclaration.ContactWorkCapacity + 1), (108, 1u) })
+        foreach (var (offset, value) in new[] { (0, 3u), (0, 6u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, (uint)PhysicsSceneDeclaration.ContactWorkCapacity + 1), (108, 1u) })
         {
             var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(offset), value);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBody(changed));
@@ -812,7 +812,7 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public void ForceDrivenMotionSamplesItsDeclaredQuadraticAndValidatesLocalCertificate()
+    public void ForceDrivenMotionSamplesQuadraticAndAcceptsGameGradeResiduals()
     {
         var state = GenericEndpoint(1, 0, (Half)0);
         var body = PhysicsGpuAbi.ReadDynamicBody(state)!.Value.Body;
@@ -841,10 +841,28 @@ public sealed class WorkshopWireTests
             var changed = (byte[])bytes.Clone(); WriteHalf(changed, PhysicsMotionRead.HeaderBytes + offset, Half.NaN);
             Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(changed, body, new(1)));
         }
-        var missing = (byte[])bytes.Clone(); WriteHalf(missing, PhysicsMotionRead.HeaderBytes + 106, (Half)0);
-        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(missing, body, new(1)));
+        var residual = (byte[])bytes.Clone(); WriteHalf(residual, PhysicsMotionRead.HeaderBytes + 106, (Half)0);
+        Assert.True(PhysicsMotionRead.Decode(residual, body, new(1)).TrySample(.5, out var continued));
+        Assert.Equal(pose, continued);
+        WriteHalf(residual, PhysicsMotionRead.HeaderBytes + 106, (Half)(-1));
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(residual, body, new(1)));
         var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(unknown.AsSpan(PhysicsMotionRead.HeaderBytes), 4);
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(unknown, body, new(1)));
+    }
+
+    [Fact]
+    public void RoundedGpuQuaternionDoesNotTripAuthoredInputNormGate()
+    {
+        var rotation = new CanonicalRotation((Half).57861328125, (Half)(-.57275390625),
+            (Half).55712890625, (Half).1676025390625);
+        rotation.ValidateCommitted();
+        Assert.Throws<ArgumentException>(() => rotation.Validate());
+        var state = GenericEndpoint(1, 0, (Half)0);
+        var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
+        for (var i = 0; i < 4; i++) WriteHalf(state, PhysicsGpuAbi.BodiesOffset + 40 + i * 2, values[i]);
+        Assert.Equal(rotation, PhysicsGpuAbi.ReadDynamicBody(state)!.Value.Rotation);
+        Assert.Throws<ArgumentException>(() => (rotation with { X = Half.NaN }).ValidateCommitted());
+        Assert.Throws<ArgumentException>(() => default(CanonicalRotation).ValidateCommitted());
     }
 
     public enum CanonicalPaddingRegion { UnusedBodies, UnusedSensors, UnusedMotion, BodyPadding, MotionPadding }

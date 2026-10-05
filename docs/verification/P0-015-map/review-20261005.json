@@ -5,7 +5,7 @@
   "implementationOwner": "/root/p025_implementation",
   "date": "2026-10-05",
   "base": "2581862f9124888959f5987b2f9e76a47219a004",
-  "status": "SnapshotApproval",
+  "status": "Pass",
   "scope": "Basketball contact with a placed Bumper through generic static Sphere geometry, finite paid radial contact response and committed overlapping impact feedback. No Pipe solver variant. One new catalogue element.",
   "authority": [
     "docs/planning/invest/current-consumers.md#cat-015-i",
@@ -100,7 +100,7 @@
     "d7ab15 compiler/material read; Basketball canonical mass bits15360=1kg",
     "Bumper model approval messages in current same-pair session; no runtime Pass"
   ],
-  "next": "Implementation owner may commit/push exact frozen candidate. Reviewer retains production Chrome ownership and finishes enumerated publication-dependent checks before terminal Pass.",
+  "next": "Terminal scoped deployed Pass for the first manually constructed Bumper interaction on f61faf4. Coordinator may select the next independently ready playable outcome. Retained CAT-015 authored lessons/difficulty, cosmetic settle, Pipe and named global qualification remain open.",
   "geometryBoundary": {
     "sourceFirst": "71fde79d40b49f2029a8a9276e7cf1f45c95ecf842a78b474bdbaca9e95e7fbf",
     "sourceCurrent": "4e726887cd548dd01d3f18882870592c40576a7f2019d3e98ab62dee2fd161e1",
@@ -339,5 +339,73 @@
       "Genuine production UI Bumper placement/configuration, paidredirect/pulse, meaningfulmiss orzero control, repeated/exhausted/overlap/rest, Pause/Reset/SaveLoad; preserve source/currentpreviouscriteria and scoped performance/lifecycle observations."
     ],
     "drift": "Relevant input changes invalidate affected approval; no approval from documentation or receipt alone."
+  },
+  "publication": {
+    "verdict": "Pass",
+    "scope": "Exact approved first playable Bumper slice only; no unresolved unintended required-now gameplay regression. Initial cold startup timeout remains a recorded P0-034 Fail, not reclassified as startup/performance Pass.",
+    "commit": "f61faf4ef09ee4ec1784516d183a62e52aadade2",
+    "parent": "2581862f9124888959f5987b2f9e76a47219a004",
+    "remote": "8901f2: origin/main exact commit; all349 committed inputs/10450906 bytes/d27204c0 closure exact, drift[].",
+    "ci": {
+      "run": 37228313346,
+      "url": "https://github.com/aidanmorgan/tim/actions/runs/37228313346",
+      "success": "root c97d6f / owner dcef3b",
+      "tests": "517 passed,0 failed,0 skipped,2s; original root e2ad16 / owner5550c0",
+      "artifact": "ci-artifact-37228313346.json",
+      "artifactId": 11312542251,
+      "archiveSha256": "95bb05e3d2f33a6bffec7b548f8b1726d09fb10255ba811c18e0e2d8ff2fea17",
+      "originalIdentity": "d90978; single owner download, no duplicate"
+    },
+    "deployed": {
+      "url": "https://aidanmorgan.github.io/tim/",
+      "date": "2026-10-05",
+      "loadedIdentities": "All13 original CI artifact byte lengths/hashes match actual production responses. Twelve direct response.body matches; shader CDP text response was Latin1-decoded/re-encoded (+2 bytes). Its actual loaded response reversed losslessly to123979 bytes, maxcode194, SHA f9eee3e0de6f278f43dd2b5d475682bdbf2f7059f1e4e6c451f962e3ca99b3f5; independent fetch arrayBuffer exactly agrees. No source change or identity waiver.",
+      "originals": [
+        "bumperDeployedLoaded13Raw",
+        "bumperDeployedShaderBytesRaw",
+        "bumperDeployedShaderActualResponseRaw"
+      ]
+    },
+    "startup": {
+      "first": "Ordinary initial production navigation failed existing five-second usable GPU/clock qualification; zero typed reads, workers retired. Screenshot .playwright-mcp/page-2026-10-04T19-33-09-057Z.png; bumperDeployedStartupFailureRaw and bumperDeployedStartupTimingRaw retain errors/timings.",
+      "recovery": "Advertised ordinary reload reached Building,2 workers,errors[] in5335ms total navigation; qualification timer did not fire. Console firstframe5018ms=399download+4620starting; total boot timing differs from qualification interval.",
+      "scopeDecision": "Coordinator explicitly applied existing playable-first precedence: retain first-attempt timeout Fail under P0-034; successful ordinary qualification/reload supports scoped playable acceptance. No timeout fitting, compiler-cause inference, cold-start or broad performance Pass. Owner source inspection58cf90/507e46 only establishes possible async stages.",
+      "original": "bumperDeployedNavigationRaw/bumperDeployedStartupRaw/bumperDeployedRetryRaw"
+    },
+    "gameplay": {
+      "construction": "Actual palette Bumper→(712,616), Basketball→(570,530), actual Y gizmo drag then horizontal body drag/fine alignment. Bumper id1 position(2.399993896484375,3,3.6999969482421875),strength8; Basketball id2 position(2.399993896484375,5.074424743652344,3.6999969482421875),v0. No imported solution/setter/numeric placement. Save through actual menu before Run.",
+      "first": "Tick57 event226 phase1345, vy7.96484375, store32→3.091796875, debit28.90625; visible gold pulse. Pause81 held identical state.",
+      "repeated": "Eligible count1..7 at57/251/371/437/473/493/513, identical reviewed local event sequence and reservoir debits. Third return completes; no event loss/fault. Store reaches0 at493; exhausted513 debit0 still eligible. Overlap473/493 visible atPause497; Resume→rest635 position(2.399993896484375,3.990478515625,3.6999969482421875),v0,count7,store0.",
+      "negative": "Actual pending strength0 text Apply withoutEnter setsstore0; tick57 natural reboundvy2.484375 versus powered7.96484375, eligiblepulse/count1/debit0. Unchanged local maxstrength/miss controls remain applicable by exact relevant source/UI identity.",
+      "lifecycle": "Reset after default run restores exact initial position/v0/count0/store32. Zero-control Reset then actual Load restores savedstrength8/pose/store32 at epoch10. Two workers remain; no errors after successful startup.",
+      "screenshots": [
+        ".playwright-mcp/page-2026-10-04T19-34-23-068Z.png",
+        ".playwright-mcp/page-2026-10-04T19-34-43-261Z.png",
+        ".playwright-mcp/page-2026-10-04T19-35-01-740Z.png",
+        ".playwright-mcp/page-2026-10-04T19-35-13-914Z.png",
+        ".playwright-mcp/page-2026-10-04T19-35-27-465Z.png"
+      ],
+      "originals": [
+        "bumperDeployedConstructionRaw",
+        "bumperDeployedFirstHitRaw",
+        "bumperDeployedOverlapRaw",
+        "bumperDeployedRestResetRaw",
+        "bumperDeployedZeroRaw",
+        "bumperDeployedSaveLoadRaw"
+      ]
+    },
+    "performance": {
+      "foregroundFrames": 723,
+      "medianMs": 8.33,
+      "p95Ms": 10.07,
+      "maxMs": 10.34,
+      "mixedDispatchSamples": 734,
+      "mixedDispatchP95Ms": 3.925,
+      "mixedDispatchMaxMs": 97.665,
+      "limitation": "Scoped ordinary Run/Pause/Reset observation; mixed dispatch includes installation/startup. No matched cold, global device/workload or fault qualification claim.",
+      "original": "bumperDeployedPerformanceConfigRaw"
+    },
+    "originalEvidenceLocation": "Original retained Playwright connector outputs and session screenshots under the names above; no duplicate raw repackaging or receipt-only deployment.",
+    "retained": "All earlier criteria/findings/oracles remain in this record; source cosmetic after-goal settling, complete authored CAT-015 fixtures/difficulty, P0-030/031/032/034/035 and Pipe persistence/search are not closed."
   }
 }

@@ -51,12 +51,11 @@ public static class WorkshopPhysicsCompiler
                     new((Half)(-.66), (Half)(-.4), (Half)(-.66)),
                     new((Half).66, (Half)((Half).45 + receiver.Capture.Margin.Value), (Half).66),
                     receiver.Capture.SpeedLimit, receiver.Capture.Dwell, receiver.Capture.Participation));
-            if (construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples && construction.Ball is { } guided)
+            if (construction.Ball is { } guided)
             {
-                var assistance = construction.Puzzle.ReceiverAssistance.Evaluate(construction.Puzzle.Precision);
+                var region = receiver.ForceRegion;
                 guides.Add(new(new(first + 7), receiver.Id, guided.Id, RigidLocalPose.Identity,
-                    new((Half)(-1.1), (Half).5, (Half)(-1.1)), new((Half)1.1, (Half)1.5, (Half)1.1),
-                    new((Half).5), assistance.CaptureMargin, assistance.GuideAcceleration));
+                    region.Minimum, region.Maximum, region.SupportHeight, region.SupportMargin, region.MaximumAcceleration));
             }
             void AddBox(ulong id, MetreVector position, MetreVector half) =>
                 colliders.Add(new(new(id), receiver.Id, material, ColliderShapeKind.Box,

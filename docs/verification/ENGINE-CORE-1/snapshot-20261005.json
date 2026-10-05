@@ -1,0 +1,231 @@
+{
+  "publicationEnvironment": {
+    "normalPreCommit": "Shared .git/hooks/pre-commit invokes worktree .githooks/pre-commit. Exact existing root copies restore missing local dependencies; execute unchanged, do not bypass.",
+    "localOnlyInputs": [
+      {
+        "path": ".githooks/pre-commit",
+        "sha256": "06b596457ca28409633252379bb8f3d78584ded6dc4341354df1f564ce9f84a1"
+      },
+      {
+        "path": "tools/anvil/CheckStagedTests.cs",
+        "sha256": "b818ccebcd39be919361b9afeefdf6b6d54c14cc6dd9738f191aa2c1b3864fd9"
+      },
+      {
+        "path": "tools/anvil/no-skipped-tests.json",
+        "sha256": "1264775c9781fbadc20eae640f4f85721db8c339e6c1bf35f72e1cd8f468e964"
+      },
+      {
+        "path": ".anvil.yaml",
+        "sha256": "55105b86de9d5994a8d43ae4626ce5e146d75cbaf977860747942021aad14e55"
+      }
+    ],
+    "origin": "/Users/aidan/dev/personal/tim",
+    "membership": "Local publication-environment inputs only; excluded from authored source and commit. No new policy or runtime implementation.",
+    "limitation": "Original has no .anvilrc/.anvilrc.json; exact existing .anvil.yaml preserved too. CLI0.14.1-beta status reports ready_restart_required/config absent/policy defaults/worktree not durably registered/daemon not attesting. Direct MCP gates function; full protection is not claimed. No shared daemon restart or new policy installation. Normal precommit must run unchanged."
+  },
+  "slice": "ENGINE-CORE-1",
+  "kind": "ImmutableScopedSnapshot",
+  "baseCommit": "f61faf4ef09ee4ec1784516d183a62e52aadade2",
+  "branch": "codex/engine-core1",
+  "implementationOwner": "/root/implementation",
+  "independentReviewer": "/root/review",
+  "scope": "Existing single-body game-grade contact, typed Receiver guide declarations, atomic numerical continuation and necessary ABI/read/transport consumers; incoming Delay/Bumper retained.",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "fdbd499ed83b852ac011dce7c363d8891e4b84773c5f1d2307adb3dce33cc1fa"
+    },
+    {
+      "path": "CuriousContraptions.Simulation/Program.cs",
+      "sha256": "f202efd1841ccbc5c534f088a4435a8a40436face37213d213e3a4ffc04d8db5"
+    },
+    {
+      "path": "CuriousContraptions.Simulation/wwwroot/worker.js",
+      "sha256": "1ba70e817ce0094650c9991a21e20694ad070aa566cd2c17d0d435f7cc29d722"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopSaveTests.cs",
+      "sha256": "c3303964702678a1559d919c7ffb5927f6d2276a3df12d69201c72b5295bf1b4"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopSimulationTests.cs",
+      "sha256": "229143d47dc70203c03f8f96e35a830a80d2ad61e93e854b594c16c92eeb4a69"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopTraceTests.cs",
+      "sha256": "1e3b6dbf795080f10a3a77c3faecc96c3435771e97eabfdb5fce28f1c18dd563"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopWireTests.cs",
+      "sha256": "126db4518098069927f344875e660659ae9c00416ff4404c648638848591af9f"
+    },
+    {
+      "path": "TODO.md",
+      "sha256": "394a42e0f9af35bfec0126b777cb387cbf422466c9aac5ab0425970aeb182f91"
+    },
+    {
+      "path": "docs/delivery-workflow.md",
+      "sha256": "aca3a84eeb9738b8d66094bfb3cf4f92879d97d2e1c8dd4d3dbdaa9fed40933d"
+    },
+    {
+      "path": "docs/gpu-f16-physics.md",
+      "sha256": "f6e41caeb6063d0eb4a7171ddbbea28c8ab2d9e383ad075043fce5e24da41542"
+    },
+    {
+      "path": "docs/planning/invest/vertical-delivery.md",
+      "sha256": "c91658201fcc7892f9030eb6994d4d8cc1e5792e487d7160dfae08a31b8ab944"
+    },
+    {
+      "path": "engine/gpu/PhysicsGpuAbi.cs",
+      "sha256": "81622e5ff4b91777d2c338dc252f2a2bde768a00b184215f5f6a0aad6c0673d1"
+    },
+    {
+      "path": "engine/gpu/PhysicsMotionRead.cs",
+      "sha256": "6c4a022511addb4798e957720920d4af12a2e6e7d1ece55ce4acda2e6a9a5ae9"
+    },
+    {
+      "path": "engine/gpu/WorkshopConstruction.cs",
+      "sha256": "91c846dcfbf01a4271df2989d3d0188b2bde0e8181aac48b659c55e602e947a5"
+    },
+    {
+      "path": "engine/gpu/WorkshopPhysicsCompiler.cs",
+      "sha256": "ef7f34eca8ac5a2a99368e9731ddf794e09dc012879a9cf94ef63b91cddf065d"
+    },
+    {
+      "path": "engine/gpu/WorkshopPuzzle.cs",
+      "sha256": "66dcdf133188c2b32259db15c15a37d59647d9083ed3f8e515b00dcd97517193"
+    },
+    {
+      "path": "engine/gpu/WorkshopSaveCodec.cs",
+      "sha256": "55fe9fe12e50d8a9f34f5a7164c47be675a6d703c7ac5580c14d24b1578d4333"
+    },
+    {
+      "path": "engine/gpu/WorkshopSimulation.cs",
+      "sha256": "29a5d1098f826c8b5df11f1e6b2844b2e53736554886bb001f0112b3b598872e"
+    },
+    {
+      "path": "engine/gpu/WorkshopTraceRecord.cs",
+      "sha256": "d856ccb6440b84ac8f8b6022f69bcabbcc5dc255c173552b97cc7ab065a06df1"
+    },
+    {
+      "path": "engine/gpu/WorkshopWire.cs",
+      "sha256": "7e4686e60557e3cf47b7cffc2f0e8d78f7b96cf1bf80361ecb6b593dea193751"
+    },
+    {
+      "path": "engine/gpu/physics.wgsl",
+      "sha256": "5e828a163660a1d46c1282470ea2c94f9402f4d666e35c2174d39a78af8c5eca"
+    },
+    {
+      "path": "tools/workshop-observation.test.mjs",
+      "sha256": "b31676707864f12431f7b74739e0eb6b9c4e985dd96dab4f7e04d64dba63f2e0"
+    }
+  ],
+  "scopedDiff": {
+    "command": "git diff --binary HEAD -- <files paths in this snapshot>",
+    "sha256": "12cc2f55d2e337162a560586904bb577620ac07ae488c9046f3a6059cc6ca8ae",
+    "originalOutput": "21a512"
+  },
+  "unchangedInputs": {
+    "identity": "baseCommit above",
+    "paths": [
+      "engine/gpu/",
+      "engine/",
+      "ui/",
+      "parts/",
+      "assets/",
+      "scenes/",
+      "CuriousContraptions.Simulation/",
+      "CuriousContraptions.Animation/",
+      "CuriousContraptions.Animation.Worker/",
+      "CuriousContraptions.web/",
+      "CuriousContraptions.csproj",
+      "export_presets.cfg",
+      "project.godot",
+      ".github/workflows/pages.yml",
+      "docs/planning/requirements.md",
+      "docs/planning/invest/named-elements.md"
+    ],
+    "rule": "Listed changed files override this immutable base. Existing compiler/project inclusion defines the runtime dependency closure; no unrelated dirty-root input is used."
+  },
+  "localArtifact": {
+    "productionPublishSession": 61613,
+    "dotnet": "10.0.401",
+    "chrome": "154.0.8037.93",
+    "origins": [
+      {
+        "observer": "/root/implementation",
+        "url": "http://127.0.0.1:8060/"
+      },
+      {
+        "observer": "/root/review",
+        "url": "http://localhost:8060/"
+      }
+    ],
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "identities": [
+      {
+        "path": "_framework/dotnet.boot.js",
+        "sha256": "9540b35c9d9ecf581b95d97bd1ff2d7bb569a6e10d6169e03e87a5bc749a1a7d",
+        "loadedResponse": 422,
+        "observer": "/root/review"
+      },
+      {
+        "path": "simulation/_framework/dotnet.boot.js",
+        "sha256": "e6b046ba0979bf1697b7b989de54a4c96e737e57b66a3ec56b89b5a449053136",
+        "loadedResponse": 462,
+        "observer": "/root/review"
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "sha256": "5e828a163660a1d46c1282470ea2c94f9402f4d666e35c2174d39a78af8c5eca",
+        "loadedResponse": 408,
+        "observer": "/root/implementation"
+      },
+      {
+        "path": "simulation/worker.js",
+        "sha256": "1ba70e817ce0094650c9991a21e20694ad070aa566cd2c17d0d435f7cc29d722",
+        "identityScope": "exported bytes; actual UI transport behavior separately proved"
+      },
+      {
+        "path": "godot.pck",
+        "sha256": "1483b1db04857903382821f6b2c1813704559b4792420744af5cb3df470fcd88",
+        "identityScope": "exported bytes"
+      }
+    ]
+  },
+  "retiredAbsent": [
+    "engine/gpu/basketball.wgsl",
+    "engine/gpu/body-integration.wgsl",
+    "tools/GpuBodyFixture"
+  ],
+  "evidenceOutputs": [
+    "docs/verification/ENGINE-CORE-1/implementation-20261005.json",
+    "docs/verification/ENGINE-CORE-1/snapshot-20261005.json",
+    "docs/verification/ENGINE-CORE-1/review-20261005.json",
+    "docs/verification/P0-015-map/review-20261005.json",
+    "docs/verification/P0-015-map/ci-artifact-37228313346.json"
+  ],
+  "originalRaw": [
+    ".tools/engine-core1-first-failure.json",
+    ".tools/engine-core1-first-ui.json",
+    ".tools/engine-core1-knots-ui.json",
+    ".tools/reviewer-boundary/gpu-results.json",
+    ".tools/reviewer-boundary/clamp-review.json",
+    ".tools/reviewer-boundary/ui-results.json"
+  ],
+  "exclusions": [
+    "Unrelated original checkout runtime and parked Pipe changes",
+    "Generated docs PNG import files and reference C# UIDs excluded by web export",
+    "Generated runtime C# UIDs; not explicit C# compiler inputs",
+    ".tools and Playwright originals remain original local evidence, not duplicated publication packages"
+  ],
+  "publicationDependencies": [
+    "SnapshotApproval must approve this exact source before commit/push",
+    "CI production build/artifact and remote/deployed identity verification",
+    "Actual production20Runs each for First principles, Wait for it and manual Bumper; exact Reset and supported Save/Load before terminal Pass"
+  ],
+  "identityPolicy": "Evidence/review records are outputs, not source inputs; no self-hash or future receipt dependency. Later publication receipts and status updates must not change approved runtime/contracts. No global qualification claimed."
+}

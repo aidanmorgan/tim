@@ -96,6 +96,8 @@ public static partial class Program
     public static int[] OperationAbi() => [(int)WorkshopGpuOperation.Admit, (int)WorkshopGpuOperation.Advance];
     [JSExport]
     public static int StateBytes() => PhysicsGpuAbi.ByteLength;
+    [JSExport]
+    public static int[] CommandAbi() => [WorkshopWire.CommandHeaderBytes, WorkshopWire.CommandHeaderBytes + WorkshopWire.ConstructionBytes];
 
     [JSExport]
     public static async Task Dispatch(byte[] bytes)

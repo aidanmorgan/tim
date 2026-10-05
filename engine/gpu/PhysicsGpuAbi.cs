@@ -4,9 +4,9 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 6 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 7 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
-public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, ContactResidual, UnsupportedPair, Arithmetic, MotionCapacity }
+public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
 public enum ResidencePhase : uint { Outside, Dwelling, Qualified }
 public readonly record struct ResidenceRead(GpuSensorId Id, ResidencePhase Phase, uint OccurrenceCount,
@@ -155,7 +155,7 @@ public static partial class PhysicsGpuAbi
             (double)body.Velocity.Y * (double)body.Velocity.Y +
             (double)body.Velocity.Z * (double)body.Velocity.Z > 4)
             throw new ArgumentException("Committed velocity exceeds the vector bound.");
-        var rotation = ReadRotation(record, 40); rotation.Validate();
+        var rotation = ReadRotation(record, 40); rotation.ValidateCommitted();
         var angular = new AngularVelocity(RH(record, 56), RH(record, 58), RH(record, 60));
         PhysicsDeclarationBounds.Vector(angular.X, angular.Y, angular.Z, (Half)64);
         return new(body, rotation, angular);
@@ -259,7 +259,7 @@ public static partial class PhysicsGpuAbi
                 (double)segment.Velocity.Y * (double)segment.Velocity.Y +
                 (double)segment.Velocity.Z * (double)segment.Velocity.Z > 4)
                 throw new ArgumentException("Segment launch exceeds the vector bound.");
-            ReadRotation(actual, 112).Validate();
+            ReadRotation(actual, 112).ValidateCommitted();
             PhysicsDeclarationBounds.Vector(RH(actual, 120), RH(actual, 122), RH(actual, 124), (Half)64);
             var contacts = R32(actual, 132);
             if (contacts > 4 || !AllZero(actual.Slice(160 + checked((int)contacts) * 16, checked((int)(4 - contacts)) * 16)))
@@ -371,7 +371,6 @@ const FAILURE_DECLARATION:u32={(uint)PhysicsFailure.InvalidDeclaration}u;
 const FAILURE_DOMAIN:u32={(uint)PhysicsFailure.Domain}u;
 const FAILURE_CONTACT_BUDGET:u32={(uint)PhysicsFailure.ContactBudget}u;
 const FAILURE_ROOT_BUDGET:u32={(uint)PhysicsFailure.RootBudget}u;
-const FAILURE_RESIDUAL:u32={(uint)PhysicsFailure.ContactResidual}u;
 const FAILURE_PAIR:u32={(uint)PhysicsFailure.UnsupportedPair}u;
 const FAILURE_ARITHMETIC:u32={(uint)PhysicsFailure.Arithmetic}u;
 const FAILURE_MOTION_CAPACITY:u32={(uint)PhysicsFailure.MotionCapacity}u;

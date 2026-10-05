@@ -106,7 +106,8 @@ public static class FirstPrinciples
         return WorkshopInput.Receiver(id, 2.5, .9, 0, 0, 0, 0, 1) with
         {
             Locked = true,
-            Capture = new(assistance.CaptureMargin, assistance.CaptureSpeed, assistance.CaptureDwell, SensorParticipation.Enabled)
+            Capture = new(assistance.CaptureMargin, assistance.CaptureSpeed, assistance.CaptureDwell, SensorParticipation.Enabled),
+            ForceRegion = ReceiverForceRegion.Create(assistance.CaptureMargin, assistance.GuideAcceleration)
         };
     }
     public static WorkshopConstruction Create(ConstructionRevision revision, WorkshopCadenceSettings settings, GpuBodyId ball, GpuBodyId receiver, PuzzlePrecision precision)

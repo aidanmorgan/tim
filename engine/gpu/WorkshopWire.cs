@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 14 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 15 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null);
@@ -20,7 +20,7 @@ public static class WorkshopWire
 {
     public const int CommandHeaderBytes = 72;
     public const int ConstructionHeaderBytes = 320;
-    public const int InstanceBytes = 128;
+    public const int InstanceBytes = 160;
     public const int ConnectionsOffset = ConstructionHeaderBytes + WorkshopInstances.Capacity * InstanceBytes;
     public const int ConnectionBytes = 32;
     public const int ConstructionBytes = ConnectionsOffset + WorkshopConnections.Capacity * ConnectionBytes;
@@ -256,7 +256,7 @@ public static class WorkshopWire
         if (read.Motion is { } motion) motion.ValidateBinding(read.Ball, read.Tick);
         else if (read.Tick.Value != 0) throw new ArgumentException("Committed motion description is required.");
         if (read.Ball.HasValue != read.Rotation.HasValue) throw new ArgumentException("Body orientation is required.");
-        read.Rotation?.Validate();
+        read.Rotation?.ValidateCommitted();
         PhysicsDeclarationBounds.Vector(read.Angular.X, read.Angular.Y, read.Angular.Z, (Half)64);
         if (!read.Ball.HasValue && !PhysicsDeclarationBounds.Zero(read.Angular.X, read.Angular.Y, read.Angular.Z))
             throw new ArgumentException("Absent body has angular motion.");
@@ -339,7 +339,12 @@ public static class WorkshopWire
                 case WorkshopReceiver receiver:
                     Write(slot[104..], receiver.Capture.Margin.Value); Write(slot[106..], receiver.Capture.SpeedLimit.Value);
                     Write(slot[108..], receiver.Capture.Dwell.Value);
-                    BinaryPrimitives.WriteUInt32LittleEndian(slot[112..], (uint)receiver.Capture.Participation); break;
+                    BinaryPrimitives.WriteUInt32LittleEndian(slot[112..], (uint)receiver.Capture.Participation);
+                    Write(slot[116..], receiver.ForceRegion.Minimum.X); Write(slot[118..], receiver.ForceRegion.Minimum.Y);
+                    Write(slot[120..], receiver.ForceRegion.Minimum.Z); Write(slot[122..], receiver.ForceRegion.Maximum.X);
+                    Write(slot[124..], receiver.ForceRegion.Maximum.Y); Write(slot[126..], receiver.ForceRegion.Maximum.Z);
+                    Write(slot[128..], receiver.ForceRegion.SupportHeight.Value); Write(slot[130..], receiver.ForceRegion.SupportMargin.Value);
+                    Write(slot[132..], receiver.ForceRegion.MaximumAcceleration.Value); break;
                 case WorkshopRamp ramp:
                     Write(slot[104..], ramp.Dimensions.Length.Value); Write(slot[106..], ramp.Dimensions.Width.Value); break;
                 case WorkshopWall wall:
@@ -391,9 +396,12 @@ public static class WorkshopWire
             {
                 WorkshopPartKind.Basketball when Zero(slot[114..]) => new WorkshopBall(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])), new(Read(slot[110..])), new(Read(slot[112..]))), locked == 1),
-                WorkshopPartKind.Receiver when Zero(slot[110..112]) && Zero(slot[116..]) => new WorkshopReceiver(body.Id, body.Cell, body.Local, rotation,
+                WorkshopPartKind.Receiver when Zero(slot[110..112]) && Zero(slot[134..]) => new WorkshopReceiver(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])),
-                        (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[112..])), locked == 1),
+                        (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[112..])), locked == 1)
+                    { ForceRegion = new(new(Read(slot[116..]), Read(slot[118..]), Read(slot[120..])),
+                        new(Read(slot[122..]), Read(slot[124..]), Read(slot[126..])), new(Read(slot[128..])),
+                        new(Read(slot[130..])), new(Read(slot[132..]))) },
                 WorkshopPartKind.Ramp when Zero(slot[108..]) => new WorkshopRamp(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..]))), locked == 1),
                 WorkshopPartKind.Wall when Zero(slot[110..]) => new WorkshopWall(body.Id, body.Cell, body.Local, rotation,

@@ -42,7 +42,7 @@ for (const captureMode of [1, 2]) {
     let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
     const stallStates = [];
     const host = {
-        OperationAbi: () => [0, 1], StateBytes: () => 19088, ScheduleRoles: () => [1, 2],
+        CommandAbi: () => [72, 1928], OperationAbi: () => [0, 1], StateBytes: () => 19088, ScheduleRoles: () => [1, 2],
         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
         PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
         ClockReply: () => new Uint8Array(144),
@@ -172,7 +172,7 @@ for (const control of Object.values(StartupControl)) {
         popErrorScope: () => new Promise(resolve => { releaseErrorScope = resolve; })
     };
     const host = {
-        OperationAbi: () => [0, 1], StateBytes: () => 19088, ScheduleRoles: () => [1, 2],
+        CommandAbi: () => [72, 1928], OperationAbi: () => [0, 1], StateBytes: () => 19088, ScheduleRoles: () => [1, 2],
         CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
         PrepareGpu: () => control === StartupControl.EarlyLoss
             ? boundary.imports.initialize('fixture preamble')
@@ -206,4 +206,20 @@ for (const control of Object.values(StartupControl)) {
         control === StartupControl.DisposeThenReject ? 0 : 1, 'late failures cannot resurrect disposed ownership');
     assert.equal(boundary.messages.filter(item => item.read || item.acknowledgement).length, 0);
     console.log(JSON.stringify({ startupControl: control, passed: true }));
+}
+
+// The transport width comes from the managed canonical ABI, including new declaration lanes.
+{
+    let dispatched = 0;
+    const host = {
+        CommandAbi: () => [72, 1928], OperationAbi: () => [0, 1], StateBytes: () => 19600,
+        ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; }
+    };
+    const { self, messages } = await loadWorker(host);
+    for (const width of [72, 1672, 1928]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
+    assert.equal(dispatched, 3);
+    for (const width of [71, 1929]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });
+    assert.equal(dispatched, 3);
+    assert.equal(messages.filter(message => message.rejected).length, 2);
+    console.log(JSON.stringify({ canonicalCommandWidth: true, accepted: [72, 1672, 1928], rejected: [71, 1929] }));
 }

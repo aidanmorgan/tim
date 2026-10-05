@@ -1,0 +1,101 @@
+{
+  "kind": "OriginalCiArtifactReceipt",
+  "run": 37228313346,
+  "commit": "f61faf4ef09ee4ec1784516d183a62e52aadade2",
+  "artifactId": 11312542251,
+  "githubApiOriginal": "fde6e7",
+  "downloadOriginal": "b1f6ac/a8854f",
+  "ciSuccessOriginal": "dcef3b",
+  "identityOriginal": "d90978",
+  "archive": {
+    "path": "/Users/aidan/dev/personal/tim-wait/.tools/p015-ci-37228313346/github-pages.zip",
+    "bytes": 106292720,
+    "sha256": "95bb05e3d2f33a6bffec7b548f8b1726d09fb10255ba811c18e0e2d8ff2fea17"
+  },
+  "tar": {
+    "member": "artifact.tar",
+    "bytes": 203806720,
+    "sha256": "0f61fefc97da78a26e79ec37483c4004c3b1b9e4b8853e20e8e1908eb6a8324d",
+    "extraction": "Read in memory; original ZIP retained unchanged."
+  },
+  "assets": [
+    {
+      "path": "workshop-client.js",
+      "bytes": 30930,
+      "sha256": "b37122fccb2e92a954f0aad35bb2f717b73e2c42294c977d00defda287822497",
+      "archiveMember": "artifact.tar:./workshop-client.js"
+    },
+    {
+      "path": "godot.pck",
+      "bytes": 41972,
+      "sha256": "70945b4889bbc5da2889515a2579e33b405741b9698aba6cd628b7f40a316191",
+      "archiveMember": "artifact.tar:./godot.pck"
+    },
+    {
+      "path": "native-clock.js",
+      "bytes": 3017,
+      "sha256": "f594d04160b516ffb1c87375ccce8ec4321f910b4807be3c1db244ca7e44e34f",
+      "archiveMember": "artifact.tar:./native-clock.js"
+    },
+    {
+      "path": "simulation/worker.js",
+      "bytes": 16065,
+      "sha256": "680e2ef1f4a498594d75c428c030b06f20be0c8a463236f6c7b57cb40a5921d5",
+      "archiveMember": "artifact.tar:./simulation/worker.js"
+    },
+    {
+      "path": "simulation/physics.wgsl",
+      "bytes": 123979,
+      "sha256": "f9eee3e0de6f278f43dd2b5d475682bdbf2f7059f1e4e6c451f962e3ca99b3f5",
+      "archiveMember": "artifact.tar:./simulation/physics.wgsl"
+    },
+    {
+      "path": "animation/worker.js",
+      "bytes": 5382,
+      "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12",
+      "archiveMember": "artifact.tar:./animation/worker.js"
+    },
+    {
+      "path": "_framework/CuriousContraptions.wasm",
+      "bytes": 645397,
+      "sha256": "ba16a37046640dc2a40665517b83bf5c1f4f689c8e6f08f3b95a3a6dd2a7aa84",
+      "archiveMember": "artifact.tar:./_framework/CuriousContraptions.wasm"
+    },
+    {
+      "path": "_framework/CuriousContraptions.web.wasm",
+      "bytes": 6933,
+      "sha256": "403423a9fa8044f36e995f661e69af2022a7ddca05e5c850cb6de28e9200fc85",
+      "archiveMember": "artifact.tar:./_framework/CuriousContraptions.web.wasm"
+    },
+    {
+      "path": "_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 17685,
+      "sha256": "0ba859f55d123cc737b63da7b3d4e78febc3deb41911c21a3f42782c45734080",
+      "archiveMember": "artifact.tar:./_framework/CuriousContraptions.Animation.wasm"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+      "bytes": 411925,
+      "sha256": "9a302a1c8809fe7cccd77f897e5d18059d9ab1f7b8d8641c44adf409ba328913",
+      "archiveMember": "artifact.tar:./animation/_framework/CuriousContraptions.Animation.Worker.wasm"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 68885,
+      "sha256": "30a8ad1b0050a6b4a2a709388522ec987eda99652dc692a0b126c56b407e1888",
+      "archiveMember": "artifact.tar:./animation/_framework/CuriousContraptions.Animation.wasm"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+      "bytes": 68885,
+      "sha256": "30a8ad1b0050a6b4a2a709388522ec987eda99652dc692a0b126c56b407e1888",
+      "archiveMember": "artifact.tar:./simulation/_framework/CuriousContraptions.Animation.wasm"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+      "bytes": 437525,
+      "sha256": "e4b76749a3b143036d73b2152a28da9c6765f474c98dabc86d965f45ef906a8b",
+      "archiveMember": "artifact.tar:./simulation/_framework/CuriousContraptions.Simulation.wasm"
+    }
+  ]
+}

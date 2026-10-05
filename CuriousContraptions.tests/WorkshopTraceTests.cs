@@ -13,6 +13,19 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
     private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Basketball(new(3), 0, 8.875, 0, 0, 0, 0, 1)));
 
+    [Fact]
+    public void RoundedCommittedRotationPreservesTraceBits()
+    {
+        var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction, new(101, 207)), new(9), Profile);
+        var physical = PhysicsGpuAbi.ReadDynamicBody(state)!.Value;
+        var rotation = new CanonicalRotation((Half)0, (Half)0, (Half)(-.301513671875), (Half).9541015625);
+        var record = WorkshopTraceRecord.Encode(new(new(9), new(0), physical.Body, Rotation: rotation), Profile);
+        var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
+        for (var index = 0; index < values.Length; index++)
+            Assert.Equal(BitConverter.HalfToUInt16Bits(values[index]),
+                BinaryPrimitives.ReadUInt16LittleEndian(record.AsSpan(80 + index * 2)));
+    }
+
     private static byte[] Record(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile)
     {
         var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(101,207)), epoch, profile);

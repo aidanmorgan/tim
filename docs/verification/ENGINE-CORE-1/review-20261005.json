@@ -1,0 +1,293 @@
+{
+  "slice": "ENGINE-CORE-1",
+  "reviewStage": "SnapshotApproval",
+  "decision": "Approved",
+  "terminalVerdict": "Incomplete",
+  "scope": "Existing single-body playable contact and Receiver guidance declaration with necessary ABI, serialization, host read, transport and documentation closure. This is scoped playable development approval, not engine/catalogue/device/global qualification.",
+  "identity": {
+    "implementationOwner": "/root/implementation",
+    "independentReviewer": "/root/review",
+    "coordinator": "/root",
+    "roleEvidence": "Live collaboration agent tree and original separate implementation/review tool sessions; reviewer changed no deliverable source.",
+    "snapshot": "snapshot-20261005.json",
+    "baseCommit": "f61faf4ef09ee4ec1784516d183a62e52aadade2",
+    "sourceFiles": 22,
+    "scopedDiffSha256": "12cc2f55d2e337162a560586904bb577620ac07ae488c9046f3a6059cc6ca8ae",
+    "binding": "All 22 current source hashes and scoped diff independently verified. Snapshot immutable base supplies unchanged relevant inputs. Evidence/status records are outputs and are not hashed into their own approval."
+  },
+  "authority": [
+    "AGENTS.md",
+    "docs/delivery-workflow.md#playable-first",
+    "docs/delivery-workflow.md#standing-requirements",
+    "docs/gpu-f16-physics.md#game-grade-envelope",
+    "docs/planning/invest/vertical-delivery.md#rolling-playable-roadmap",
+    "docs/planning/requirements.md (affected standing and existing element criteria retained)"
+  ],
+  "criterionMatrix": [
+    {
+      "id": "ENGINE-CORE-1/contact",
+      "requirements": [
+        "REQ-07",
+        "REQ-08",
+        "REQ-13"
+      ],
+      "verdict": "Pass",
+      "expected": "Shared f16 game-grade slop/clamps and per-substep orientation normalization; authored invalid declarations reject; rounded committed values do not trigger residual certificates.",
+      "evidence": "Independent source review and actual GPU clamp boundary controls: old clamp220/512 failures retained; corrected helper2605 cases across .125,2,37,64,1024 caps, no cap violation/nonfinite/safe-small change. Conservative f16 error bound derived independently, not fitted to observed outputs. Committed quaternion source closure covers all six consumers; authored norm remains strict.",
+      "raw": ".tools/reviewer-boundary/clamp-review.json"
+    },
+    {
+      "id": "ENGINE-CORE-1/transaction",
+      "requirements": [
+        "REQ-03",
+        "REQ-05",
+        "REQ-08",
+        "REQ-09"
+      ],
+      "verdict": "Pass",
+      "expected": "Recoverable numerical candidate retains whole committed physical/work state with no partial debit/occurrence or unearned dwell; clock advances. Budget exhaustion retains latest solved pose and continues.",
+      "evidence": "Independent supplementary Chrome WebGPU normal/runtime-NaN-after-paid-impact/IMPACT_BUDGET1 cases:18 transitions accepted by native current ABI. Numerical rollback retains exact body pose and work bytes, no partial debit; budget tail preserves legitimate single paid work and continues. Source verifies Dwelling resets Outside, Qualified retained and per-tick occurrence cleared. Supplementary injection is not player UI proof or full fault qualification.",
+      "raw": ".tools/reviewer-boundary/gpu-results.json"
+    },
+    {
+      "id": "ENGINE-CORE-1/Receiver-declaration",
+      "requirements": [
+        "REQ-06",
+        "REQ-07",
+        "REQ-09"
+      ],
+      "verdict": "Pass",
+      "expected": "Receiver owns typed force-region values; compiler has no puzzle identity branch; all canonical values survive current wire/save; old and malformed input rejects atomically.",
+      "evidence": "Full160-byte instance wire15/save8 mapping and reserved-field validation reviewed. Native finite/bounds/rejection/precision transition checks pass. Actual existing two-ramp construction changed via UI to precision0 and1, guide12 and0 confirmed; both full3600 ticks capture. Balanced route also passed. Actual Save/Load canonical1928-byte payload offsets80:end equal before Save and after reload/Load.",
+      "raw": [
+        ".tools/engine-core1-first-failure.json",
+        ".tools/engine-core1-first-ui.json",
+        ".tools/engine-core1-knots-ui.json"
+      ]
+    },
+    {
+      "id": "ENGINE-CORE-1/FirstPrinciples-local",
+      "requirements": [
+        "REQ-08",
+        "REQ-09",
+        "REQ-11"
+      ],
+      "verdict": "Pass",
+      "expected": "Actual UI two-ramp route captures; missing second ramp does not; exact Reset and supported Save/Load.",
+      "evidence": "Owner actual balanced route full3600 tick Applied, first capture346/ordinal1383; missing second ramp full3600 no capture. Reviewer independently inspected originals and exact canonical Save/Load equality. Precision0/1 originals decoded independently: latch341/357, full3600 Applied, body except lifecycle epoch plus quaternion/angular Reset bits exact. No source setters/imported solution. Reviewer independently exercised affected shared path in Delay/Bumper UI.",
+      "raw": [
+        ".tools/engine-core1-first-ui.json",
+        ".tools/engine-core1-knots-ui.json"
+      ]
+    },
+    {
+      "id": "ENGINE-CORE-1/Delay-local",
+      "requirements": [
+        "REQ-05",
+        "REQ-08",
+        "REQ-09",
+        "REQ-11"
+      ],
+      "verdict": "Pass",
+      "expected": "Actual Switch→Delay→Lamp typed connections deliver after authored dwell; disconnected input does not light Lamp; exact lifecycle.",
+      "evidence": "Reviewer constructed through actual palette/connect actions. Positive starts87,due207 and Lamp/Delay occurrence828; full3600 Applied. Disconnected Switch→Delay control full3600 no Lamp and Ready timer. Reset exact body/rotation. Actual menu Save/Load fresh canonical Construct equal offsets80:end; commands4 and9 independently compared. Failed later Load gesture retained and excluded.",
+      "raw": ".tools/reviewer-boundary/ui-results.json"
+    },
+    {
+      "id": "ENGINE-CORE-1/Bumper-energy-local",
+      "requirements": [
+        "REQ-08",
+        "REQ-09",
+        "REQ-11"
+      ],
+      "verdict": "Pass",
+      "expected": "Actual manually placed Bumper pays its work; zero strength adds no energy; bounce apex declines; rested body does not self-start.",
+      "evidence": "Reviewer actual UI default positive first hit57/event226, debit28.90625/store32→3.091796875; depletes to zero and rests through3600 Applied. Actual strength0 fresh epoch22 first rebound vy2.484375, no energy/debit throughout; apex4.311920166015625→4.0867919921875→4.019439697265625→3.9992218017578125; ticks>240 stable y3.990478515625/vy0 through3600. Exact Reset and fresh actual UI Load restores default canonical payload/store32.",
+      "raw": ".tools/reviewer-boundary/ui-results.json"
+    },
+    {
+      "id": "ENGINE-CORE-1/ordinary-lifecycle",
+      "requirements": [
+        "REQ-01",
+        "REQ-03",
+        "REQ-05",
+        "REQ-09",
+        "REQ-10"
+      ],
+      "verdict": "Pass",
+      "expected": "Actual Run/Pause/Step/Resume/Reset/SaveLoad and worker cleanup; no replayed paid event.",
+      "evidence": "Bumper Pause held tick89 for1000ms; Step reached90 only; Resume reached119 with same single work count/event/debit. Two actual simulation/animation workers observed; sole reviewer page closed and connector reports no open tabs. Owner pages also closed. Retention/device/stall matrices remain later gates, not claimed here.",
+      "raw": ".tools/reviewer-boundary/ui-results.json"
+    },
+    {
+      "id": "ENGINE-CORE-1/build-and-admission",
+      "requirements": [
+        "REQ-05",
+        "REQ-06",
+        "REQ-07",
+        "REQ-13"
+      ],
+      "verdict": "Pass",
+      "expected": "Production build and all changed host/browser boundaries compile; current full Construct accepted, oversized/old/malformed input rejected.",
+      "evidence": "Production publish61613 exit0 with diagnostics false; prior533 full native plus final affected reviewer174/174 pass600ms after latest regression/precision tests. JS observation/lifecycle controls pass. Exact actual UI1928 commands exercised across all three recipes. Reviewer verified all five snapshot local artifact hashes, including actual loaded renderer/simulation manifests bound to correct localhost origin.",
+      "commands": [
+        "dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Release --no-build --filter 'FullyQualifiedName~WorkshopSimulationTests|FullyQualifiedName~WorkshopTraceTests|FullyQualifiedName~WorkshopSaveTests|FullyQualifiedName~WorkshopWireTests' --logger 'console;verbosity=minimal'",
+        "node --experimental-vm-modules tools/workshop-observation.test.mjs"
+      ],
+      "originalOutput": "f60040; original Node results and owner publish sessions in implementation record"
+    },
+    {
+      "id": "ENGINE-CORE-1/cleanup-and-docs",
+      "requirements": [
+        "REQ-06",
+        "REQ-11",
+        "REQ-12",
+        "REQ-14"
+      ],
+      "verdict": "Pass",
+      "expected": "One current scoped implementation, no parked Pipe admission; required deletions and source/evidence membership complete; current authority and next stage accurate.",
+      "evidence": "All22 hashes and diff match; no unmapped tracked modifications; retired2shaders/GpuBodyFixture absent in base/candidate; scoped active searches find no ContactResidual/FAILURE_RESIDUAL or retired paths, no puzzle-keyed compiler branch.81 current local links exist. Historical-ledger copies explicitly retired as authority. TODO refreshed; ENGINE-CORE-2a/2b/2c order retained. Actual picker retry clear_pipe unavailable among3 supported options, explicitly nongating. Original Bumper terminal review byte-equal preserved tim-wait original.",
+      "commands": [
+        "git diff --check",
+        "Scoped hash/membership/deletion check original d8398f",
+        "Current local link check original77eec2",
+        "Original Bumper review cmp original147960"
+      ]
+    }
+  ],
+  "impactMatrix": [
+    {
+      "area": "Shared physics state and numerical law",
+      "closure": "All existing single dynamic body paths, contact/guide/budget/retention, paid-work state and committed motion",
+      "coverage": "Three existing actual UI recipes plus energy controls and supplementary GPU/native boundaries",
+      "later": "ENGINE-CORE-2a multi-body core;2b CCD/certificate deletion;2c endpoint sensor migration"
+    },
+    {
+      "area": "Serialization and authored content",
+      "closure": "Receiver typed declaration, construction wire, saves, puzzle difficulty regeneration and complete managed→JS command width",
+      "coverage": "Exact payload/native rejection and actual UI SaveLoad/precision0/.45/1",
+      "later": "Full catalogue/fixture coverage remains named roadmap owners"
+    },
+    {
+      "area": "Transitive committed reads",
+      "closure": "PhysicsGpuAbi body+motion, PhysicsMotionRead, WorkshopWire, WorkshopSimulation, WorkshopTraceRecord",
+      "coverage": "Captured previously failing rounded quaternion native host/trace regressions and now successful actual FirstPrinciples",
+      "later": "General per-tick certificate removal remains2b"
+    },
+    {
+      "area": "Workers, clocks and presentation",
+      "closure": "Changed transport size only; shared clock advancement on numerical retention; actual normal lifecycle",
+      "coverage": "Actual2workers,Pause/Step/Resume,Reset/SaveLoad,visible intended outcomes and unchanged palette source",
+      "later": "REQ-02/03/04/05/10 detailed timing,retention,device/fault stress enforced atP0-032/034/035"
+    },
+    {
+      "area": "Build/protection",
+      "closure": "Release export and exact existing local normal precommit dependencies",
+      "coverage": "Five exported artifact identities verified;4local protection inputs (hook,staged checker,registry,existing .anvil.yaml) byte-equal root originals and hashes match snapshot; unchanged normalhook must execute. Existing warn policy retained, not weakened; CLI ready_restart_required/not durably registered status is not a protecting claim. Owner ran unchanged shared normal precommit against exact staged26paths: session84600/output1e66db,exit0; staged-source policy16files,0errors/warnings/suppressed,then anvil hook exit0. Actual commit must run it again normally.",
+      "later": "CI/remote/deployed verification is publication-dependent"
+    },
+    {
+      "area": "Documentation and evidence",
+      "closure": "Current AGENTS/workflow/GPU contract/roadmap/TODO, exact original upstream Bumper terminal evidence recovery",
+      "coverage": "Scoped consistency,81linkexistence,membership,deletion,originalidentity applicability",
+      "later": "Global audits remain P0-030/031/035; no global Pass claimed"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "originalVerdict": "Fail",
+      "issue": "Rounded finite committed quaternion was still subject to proof-grade norm admission.",
+      "disposition": "Resolved: authored and committed validation separated; normalize in shared shader; six runtime consumers reviewed."
+    },
+    {
+      "id": "F2",
+      "originalVerdict": "Fail",
+      "issue": "Retaining a discarded interval could incorrectly preserve uninterrupted Dwelling credit.",
+      "disposition": "Resolved: unqualified Dwelling reset Outside; Qualified retained; no rejected interval earns occurrences."
+    },
+    {
+      "id": "F3",
+      "originalVerdict": "Fail",
+      "issue": "Actual GPU original clamp exceeded host norm caps in220/512 vectors.",
+      "disposition": "Resolved: justified63/64 inner bound with accuracy-domain prescaling;2605 actualGPU cases pass; host caps unchanged."
+    },
+    {
+      "id": "F4",
+      "originalVerdict": "Fail",
+      "issue": "First actual UI placement rejected new1928 command at stale JS1672 limit.",
+      "disposition": "Resolved: transport obtains C# CommandAbi sizes; native/JS boundary and all real UI construction proofs pass."
+    },
+    {
+      "id": "F5",
+      "originalVerdict": "Fail",
+      "issue": "FirstPrinciples tick85 fault due to transitive simulation/trace authored quaternion validation missed by early patch.",
+      "disposition": "Resolved: captured candidate86 regression, committed validation closure, actual saved/reloaded route and0/1 routes complete3600."
+    },
+    {
+      "id": "F6",
+      "originalVerdict": "Fail",
+      "issue": "Current copied documentation falsely said incoming historical ledgers had been deleted.",
+      "disposition": "Resolved: explicit retained historical disposition and current authorities; no broad cleanup prerequisite."
+    },
+    {
+      "id": "F7",
+      "originalVerdict": "Incomplete",
+      "issue": "Snapshot origin incorrectly bound reviewer localhost responses to owner127.0.0.1.",
+      "disposition": "Resolved before approval: snapshot binds both actual origins by observer; same source/artifacts."
+    },
+    {
+      "id": "F8",
+      "originalVerdict": "Incomplete",
+      "issue": "Isolated worktree lacked local dependency files called by shared normal precommit.",
+      "disposition": "Resolved: exact4original protection/configuration inputs restored with Anvil allows and reviewer byte/hash verification; no policy bypass or new runtime source. CLI/MCP protection limitations remain explicit; actual normal precommit must run."
+    }
+  ],
+  "unresolvedUnintendedRegressions": [],
+  "knownRetainedLimitations": [
+    {
+      "issue": "Cold startup can hit existing5second worker deadline; warm reload recovered.",
+      "owner": "P0-034",
+      "scope": "Explicit startup/device qualification deferred by current game-grade/playable-first contract. Failed attempts retained; not silently converted to Pass."
+    },
+    {
+      "issue": "Global performance, retention/device/fault matrices, all elements and complete target engine architecture not qualified.",
+      "owner": "Named P0-030/031/032/034/035 and later roadmap slices",
+      "scope": "This approval covers only required-now scoped playable behavior."
+    }
+  ],
+  "originalEvidence": [
+    "implementation-20261005.json",
+    ".tools/reviewer-boundary/ui-results.json",
+    ".tools/reviewer-boundary/clamp-review.json",
+    ".tools/reviewer-boundary/gpu-results.json",
+    ".tools/engine-core1-first-failure.json",
+    ".tools/engine-core1-first-ui.json",
+    ".tools/engine-core1-knots-ui.json",
+    "Original Playwright screenshots,console and exact tool invocations retained in separate owner/reviewer sessions; not repackaged.",
+    "Normal precommit original session84600/output1e66db (implementation owner), exact26staged paths; reviewer output is subsequently staged."
+  ],
+  "publicationDependentChecks": [
+    {
+      "id": "PUB-1",
+      "expected": "Implementer commits/pushes only approved source overlay and listed evidence outputs using unchanged normal precommit; reviewer verifies exact committed/remote membership and identities."
+    },
+    {
+      "id": "PUB-2",
+      "expected": "CI production build succeeds; reviewer verifies resulting deployed source/asset identities and actual loaded production origin. CI nondeterministic artifact differences must be explained and bound, not assumed equal."
+    },
+    {
+      "id": "PUB-3",
+      "expected": "Actual production UI constructions:20full30second/3600tick Runs each for FirstPrinciples,WaitForIt,manualBumper with no tick fault and expected intended result; repeated exact Reset, reliable events, supported canonical SaveLoad verified from acknowledgements."
+    },
+    {
+      "id": "PUB-4",
+      "expected": "Production affected controls/lifecycle: missing second ramp,disconnected Delay,zero-strength/no-unpaid Bumper,rest/declining bounce,Pause/Step/Resume and precision endpoint behavior where environment applicability requires; retain original raw failed attempts. No imported solution,setter or numeric placement substitute."
+    },
+    {
+      "id": "PUB-5",
+      "expected": "Independent reviewer records terminal scoped Pass only after all required production checks and zero unresolved unintended regressions. Completion/dependent slices remain blocked until then."
+    }
+  ],
+  "approval": "The implementer may publish this exact frozen candidate under PUB-1 through PUB-5. This record is SnapshotApproval only; terminal verdict remains Incomplete until deployed verification. Relevant source/contract changes invalidate affected approval; evidence/status output updates do not create recursive review tasks."
+}

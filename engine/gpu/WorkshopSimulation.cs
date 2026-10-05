@@ -415,7 +415,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
                 (after.OccurrenceCount == before.OccurrenceCount && after != before))
                 throw new ArgumentException("Committed work identity, occurrence or reservoir changed inconsistently.");
         }
-        read.Rotation?.Validate();
+        read.Rotation?.ValidateCommitted();
         PhysicsDeclarationBounds.Vector(read.Angular.X, read.Angular.Y, read.Angular.Z, (Half)64);
         for (var i = 0; i < read.Captures.Count; i++)
             if (read.Captures[i].Sensor != source.Captures[i].Sensor ||

@@ -230,6 +230,7 @@ const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssembl
 host = exports.Program;
 roles = Array.from(host.ScheduleRoles());
 operations = Array.from(host.OperationAbi());
+const commandAbi = Array.from(host.CommandAbi());
 stateBytes = host.StateBytes();
 self.onmessage = async event => {
     let received;
@@ -309,7 +310,7 @@ self.onmessage = async event => {
         return;
     }
     const bytes = event.data?.bytes;
-    if (!(bytes instanceof Uint8Array) || bytes.length < 72 || bytes.length > 1672 || activeRequests >= 2) {
+    if (!(bytes instanceof Uint8Array) || bytes.length < commandAbi[0] || bytes.length > commandAbi[1] || activeRequests >= 2) {
         self.postMessage({ rejected: true, detail: 'Invalid or saturated Workshop command transport.' });
         return;
     }

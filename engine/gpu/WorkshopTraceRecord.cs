@@ -14,7 +14,7 @@ public static class WorkshopTraceRecord
         if (read.Epoch.Value == 0 || read.Tick.Value > profile.RunTickLimit || read.Captures.Count > 1 ||
             read.Ball.HasValue != read.Rotation.HasValue)
             throw new ArgumentException("Unsupported diagnostic composition.");
-        read.Ball?.Validate(); read.Rotation?.Validate();
+        read.Ball?.Validate(); read.Rotation?.ValidateCommitted();
         PhysicsDeclarationBounds.Vector(read.Angular.X,read.Angular.Y,read.Angular.Z,(Half)64);
         if (read.Ball is { } body && (body.Epoch != read.Epoch.Value || body.Tick != read.Tick.Value))
             throw new ArgumentException("Diagnostic body does not own its read.");
