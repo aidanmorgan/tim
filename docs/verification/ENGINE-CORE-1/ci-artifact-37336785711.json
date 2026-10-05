@@ -1,0 +1,222 @@
+{
+  "kind": "OriginalCiArtifactAndDeploymentReceipt",
+  "reviewer": "/root/review",
+  "sourceCommit": "2bdd900cf8192f112cfb607b135ace7ef0f0c4c0",
+  "approvedSnapshot": "snapshot-20261005.json",
+  "remoteMembership": {
+    "expectedPaths": 27,
+    "actualPaths": 27,
+    "sourceHashesMatched": 22,
+    "unexpected": [],
+    "missing": [],
+    "base": "f61faf4ef09ee4ec1784516d183a62e52aadade2",
+    "originalOutput": "6a7a33"
+  },
+  "artifact": {
+    "id": 11357445300,
+    "node_id": "MDg6QXJ0aWZhY3QxMTM1NzQ0NTMwMA==",
+    "name": "github-pages",
+    "size_in_bytes": 106305181,
+    "url": "https://api.github.com/repos/aidanmorgan/tim/actions/artifacts/11357445300",
+    "archive_download_url": "https://api.github.com/repos/aidanmorgan/tim/actions/artifacts/11357445300/zip",
+    "expired": false,
+    "digest": "sha256:9cd48a3315372cc27f10cecace49cebcf5b496ae8d9d254e67ba634d2796b845",
+    "created_at": "2026-10-05T15:59:57Z",
+    "updated_at": "2026-10-05T15:59:57Z",
+    "expires_at": "2026-10-06T15:59:50Z",
+    "workflow_run": {
+      "id": 37336785711,
+      "repository_id": 1390098517,
+      "head_repository_id": 1390098517,
+      "head_branch": "main",
+      "head_sha": "2bdd900cf8192f112cfb607b135ace7ef0f0c4c0"
+    }
+  },
+  "run": {
+    "conclusion": "success",
+    "createdAt": "2026-10-05T15:55:50Z",
+    "headSha": "2bdd900cf8192f112cfb607b135ace7ef0f0c4c0",
+    "jobs": [
+      {
+        "completedAt": "2026-10-05T16:00:00Z",
+        "conclusion": "success",
+        "databaseId": 111853460006,
+        "name": "build",
+        "startedAt": "2026-10-05T15:55:52Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-05T15:55:54Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-05T15:55:53Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:55:57Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-10-05T15:55:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:55:58Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@v4",
+            "number": 3,
+            "startedAt": "2026-10-05T15:55:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:56:17Z",
+            "conclusion": "success",
+            "name": "Install WebAssembly workload",
+            "number": 4,
+            "startedAt": "2026-10-05T15:55:58Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:56:58Z",
+            "conclusion": "success",
+            "name": "Test C# game",
+            "number": 5,
+            "startedAt": "2026-10-05T15:56:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:59:50Z",
+            "conclusion": "success",
+            "name": "Publish production browser bundle",
+            "number": 6,
+            "startedAt": "2026-10-05T15:56:58Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:59:50Z",
+            "conclusion": "success",
+            "name": "Check static deployment",
+            "number": 7,
+            "startedAt": "2026-10-05T15:59:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:59:57Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-pages-artifact@v3",
+            "number": 8,
+            "startedAt": "2026-10-05T15:59:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:59:57Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-dotnet@v4",
+            "number": 15,
+            "startedAt": "2026-10-05T15:59:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:59:57Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 16,
+            "startedAt": "2026-10-05T15:59:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T15:59:57Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 17,
+            "startedAt": "2026-10-05T15:59:57Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/aidanmorgan/tim/actions/runs/37336785711/job/111853460006"
+      },
+      {
+        "completedAt": "2026-10-05T16:00:13Z",
+        "conclusion": "success",
+        "databaseId": 111855346730,
+        "name": "deploy",
+        "startedAt": "2026-10-05T16:00:03Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-05T16:00:06Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-05T16:00:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T16:00:12Z",
+            "conclusion": "success",
+            "name": "Run actions/deploy-pages@v4",
+            "number": 2,
+            "startedAt": "2026-10-05T16:00:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-05T16:00:12Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 3,
+            "startedAt": "2026-10-05T16:00:12Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/aidanmorgan/tim/actions/runs/37336785711/job/111855346730"
+      }
+    ],
+    "status": "completed",
+    "updatedAt": "2026-10-05T16:00:14Z",
+    "url": "https://github.com/aidanmorgan/tim/actions/runs/37336785711"
+  },
+  "retainedOriginal": {
+    "path": ".tools/reviewer-boundary/github-pages-11357445300.zip",
+    "bytes": 106305181,
+    "sha256": "9cd48a3315372cc27f10cecace49cebcf5b496ae8d9d254e67ba634d2796b845",
+    "structure": "Original ZIP contains original artifact.tar; not repackaged. Inspected directly in memory without extracting a duplicate tree.",
+    "gate": "Preview plus API digest allow; partialScan true because106MBbinary cannot be full text scanned. Exact downloaded bytes independently match immutable API digest.",
+    "originalOutput": "544521"
+  },
+  "deployedOrigin": "https://aidanmorgan.github.io/tim/",
+  "identities": [
+    {
+      "path": "_framework/dotnet.boot.js",
+      "bytes": 7464,
+      "sha256": "9ee79cc9044ae751b58d5f8747e744c6def17f9f8ae0adabc09123fe3f561991"
+    },
+    {
+      "path": "simulation/_framework/dotnet.boot.js",
+      "bytes": 36190,
+      "sha256": "046f65cd7c7c91615ce12d87527a0391af23e916d2c8cce8537d9d00df79bc13"
+    },
+    {
+      "path": "simulation/physics.wgsl",
+      "bytes": 123550,
+      "sha256": "5e828a163660a1d46c1282470ea2c94f9402f4d666e35c2174d39a78af8c5eca"
+    },
+    {
+      "path": "simulation/worker.js",
+      "bytes": 16135,
+      "sha256": "1ba70e817ce0094650c9991a21e20694ad070aa566cd2c17d0d435f7cc29d722"
+    },
+    {
+      "path": "godot.pck",
+      "bytes": 41972,
+      "sha256": "944de215ad89b1b78cf7cfea9bf9fb5425a824be2756670ec0a023d58ae65742"
+    }
+  ],
+  "deployedGetComparison": {
+    "allFiveMatchOriginalCiArtifact": true,
+    "originalOutput": "cab26e",
+    "scope": "Independent production HTTP GET responses, not yet browser-loaded response identity. Actual page-loaded identities retained with ensuing production UI proof."
+  },
+  "localApplicability": "CI is a fresh production build of exact approved source. Managed boot manifests and Godot pack have CI-specific hashes; never assumed equal to local artifact. Shader and transport source bytes exactly match reviewed source. Required production UI acceptance still pending.",
+  "terminalVerdict": "Incomplete"
+}

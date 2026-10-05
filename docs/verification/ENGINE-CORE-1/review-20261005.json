@@ -1,8 +1,8 @@
 {
   "slice": "ENGINE-CORE-1",
-  "reviewStage": "SnapshotApproval",
-  "decision": "Approved",
-  "terminalVerdict": "Incomplete",
+  "reviewStage": "TerminalProductionReview",
+  "decision": "Pass",
+  "terminalVerdict": "Pass",
   "scope": "Existing single-body playable contact and Receiver guidance declaration with necessary ABI, serialization, host read, transport and documentation closure. This is scoped playable development approval, not engine/catalogue/device/global qualification.",
   "identity": {
     "implementationOwner": "/root/implementation",
@@ -13,7 +13,9 @@
     "baseCommit": "f61faf4ef09ee4ec1784516d183a62e52aadade2",
     "sourceFiles": 22,
     "scopedDiffSha256": "12cc2f55d2e337162a560586904bb577620ac07ae488c9046f3a6059cc6ca8ae",
-    "binding": "All 22 current source hashes and scoped diff independently verified. Snapshot immutable base supplies unchanged relevant inputs. Evidence/status records are outputs and are not hashed into their own approval."
+    "binding": "All 22 current source hashes and scoped diff independently verified. Snapshot immutable base supplies unchanged relevant inputs. Evidence/status records are outputs and are not hashed into their own approval.",
+    "publishedSourceCommit": "2bdd900cf8192f112cfb607b135ace7ef0f0c4c0",
+    "productionCiRun": 37336785711
   },
   "authority": [
     "AGENTS.md",
@@ -265,29 +267,195 @@
     ".tools/engine-core1-first-ui.json",
     ".tools/engine-core1-knots-ui.json",
     "Original Playwright screenshots,console and exact tool invocations retained in separate owner/reviewer sessions; not repackaged.",
-    "Normal precommit original session84600/output1e66db (implementation owner), exact26staged paths; reviewer output is subsequently staged."
+    "Normal precommit original session84600/output1e66db (implementation owner), exact26staged paths; reviewer output is subsequently staged.",
+    "ci-artifact-37336785711.json",
+    ".tools/engine-core1-production-ui.json",
+    ".tools/engine-core1-production-shader-response.txt",
+    ".tools/reviewer-boundary/production-ui.json",
+    ".tools/reviewer-boundary/production-commands.json",
+    ".tools/reviewer-boundary/production-read-observations.json",
+    ".tools/reviewer-boundary/production-zero-motion.json"
   ],
   "publicationDependentChecks": [
     {
       "id": "PUB-1",
-      "expected": "Implementer commits/pushes only approved source overlay and listed evidence outputs using unchanged normal precommit; reviewer verifies exact committed/remote membership and identities."
+      "expected": "Implementer commits/pushes only approved source overlay and listed evidence outputs using unchanged normal precommit; reviewer verifies exact committed/remote membership and identities.",
+      "verdict": "Pass",
+      "result": "Pass: independently verified parent f61faf4, remote2bdd900, exact27 committed paths (22 scoped files plus5 evidence), all frozen hashes. Normal unchanged precommit passed again at actual commit."
     },
     {
       "id": "PUB-2",
-      "expected": "CI production build succeeds; reviewer verifies resulting deployed source/asset identities and actual loaded production origin. CI nondeterministic artifact differences must be explained and bound, not assumed equal."
+      "expected": "CI production build succeeds; reviewer verifies resulting deployed source/asset identities and actual loaded production origin. CI nondeterministic artifact differences must be explained and bound, not assumed equal.",
+      "verdict": "Pass",
+      "result": "Pass: CI37336785711 succeeded, native535/535 no skips in3s. Original pages artifact11357445300 retained once, API digest matched. Actual owner/reviewer production-loaded renderer/simulation manifests, WGSL and worker match CI artifact; see ci-artifact-37336785711.json. CI managed metadata differs from local build by published commit/resource identities, explicitly bound rather than assumed byte-equal."
     },
     {
       "id": "PUB-3",
-      "expected": "Actual production UI constructions:20full30second/3600tick Runs each for FirstPrinciples,WaitForIt,manualBumper with no tick fault and expected intended result; repeated exact Reset, reliable events, supported canonical SaveLoad verified from acknowledgements."
+      "expected": "Actual production UI constructions:20full30second/3600tick Runs each for FirstPrinciples,WaitForIt,manualBumper with no tick fault and expected intended result; repeated exact Reset, reliable events, supported canonical SaveLoad verified from acknowledgements.",
+      "verdict": "Pass",
+      "result": "Pass: three recipes each20 actual production full3600-tick Runs (60 total); all exact Reset and actual menu Save/Load after every Run. Original command payload offsets80:end, fresh acknowledgement and exact initial body/rotation/angular/discrete state independently derived. No faults or unsupported imported solutions."
     },
     {
       "id": "PUB-4",
-      "expected": "Production affected controls/lifecycle: missing second ramp,disconnected Delay,zero-strength/no-unpaid Bumper,rest/declining bounce,Pause/Step/Resume and precision endpoint behavior where environment applicability requires; retain original raw failed attempts. No imported solution,setter or numeric placement substitute."
+      "expected": "Production affected controls/lifecycle: missing second ramp,disconnected Delay,zero-strength/no-unpaid Bumper,rest/declining bounce,Pause/Step/Resume and precision endpoint behavior where environment applicability requires; retain original raw failed attempts. No imported solution,setter or numeric placement substitute.",
+      "verdict": "Pass",
+      "result": "Pass: FirstPrinciples0/1 endpoints and missing-ramp control, disconnected Delay, zero-strength Bumper/declining bounce/rest, paid Pause/Step/Resume, exact controls lifecycle and two-worker/page cleanup completed. Five full control Runs plus one separate partial lifecycle control; neither partial nor failed UI gesture counted toward60 full positives."
     },
     {
       "id": "PUB-5",
-      "expected": "Independent reviewer records terminal scoped Pass only after all required production checks and zero unresolved unintended regressions. Completion/dependent slices remain blocked until then."
+      "expected": "Independent reviewer records terminal scoped Pass only after all required production checks and zero unresolved unintended regressions. Completion/dependent slices remain blocked until then.",
+      "verdict": "Pass",
+      "result": "Pass: this independent terminal review finds zero unresolved unintended regressions within the justified scope. Later device/performance/global qualification remains explicit, not claimed."
     }
   ],
-  "approval": "The implementer may publish this exact frozen candidate under PUB-1 through PUB-5. This record is SnapshotApproval only; terminal verdict remains Incomplete until deployed verification. Relevant source/contract changes invalidate affected approval; evidence/status output updates do not create recursive review tasks."
+  "approval": "Scoped terminal Pass for published ENGINE-CORE-1 at2bdd900 after all PUB-1..PUB-5 required-now checks. Zero unresolved unintended regressions. Publish only the listed evidence/status supplement with unchanged normal protections, retaining original scoped snapshot and runtime proof. This does not claim global catalogue, device, performance or full-engine qualification.",
+  "snapshotApprovalHistory": {
+    "decision": "Approved",
+    "sourceSnapshot": "snapshot-20261005.json",
+    "recordAtCommit": "2bdd900cf8192f112cfb607b135ace7ef0f0c4c0",
+    "terminalAtThatTime": "Incomplete",
+    "note": "Original prepublication approval remains in this record's git history; source and relevant contracts unchanged. TODO/evidence output updates are not candidate source changes."
+  },
+  "productionVerification": {
+    "origin": "https://aidanmorgan.github.io/tim/",
+    "sourceCommit": "2bdd900cf8192f112cfb607b135ace7ef0f0c4c0",
+    "artifactReceipt": "ci-artifact-37336785711.json",
+    "loadedIdentities": [
+      {
+        "path": "_framework/dotnet.boot.js",
+        "sha256": "9ee79cc9044ae751b58d5f8747e744c6def17f9f8ae0adabc09123fe3f561991",
+        "reviewerRequest": 422
+      },
+      {
+        "path": "simulation/_framework/dotnet.boot.js",
+        "sha256": "046f65cd7c7c91615ce12d87527a0391af23e916d2c8cce8537d9d00df79bc13",
+        "reviewerRequest": 461,
+        "ownerRequest": 462
+      },
+      {
+        "path": "simulation/physics.wgsl",
+        "sha256": "5e828a163660a1d46c1282470ea2c94f9402f4d666e35c2174d39a78af8c5eca",
+        "reviewerRequest": 825,
+        "ownerRequest": 825,
+        "byteHandling": "Original MCP response is Latin-1-decoded text. Encoding it as Latin-1 recovers123550 original bytes exactly matching retained CI archive. UTF-8 encoding text incorrectly adds2bytes at h² comment; original mismatch and diagnosis retained. No refetch substituted for loaded response."
+      }
+    ],
+    "firstPrinciples": {
+      "observer": "implementation owner; originals independently reviewed by reviewer",
+      "raw": ".tools/engine-core1-production-ui.json",
+      "positiveRuns": 20,
+      "endpointRuns": 2,
+      "negativeRuns": 1,
+      "fullTicksEach": 3600,
+      "balancedCaptureTick": 346,
+      "endpointCaptureTicks": [
+        341,
+        357
+      ],
+      "commands": 155,
+      "errors": [],
+      "independentDerivation": "All23 runs original command sequence Run/Reset/Save/Construct, canonical bytes80:end equality, exact Reset and Load body excluding lifecycle epoch plus quaternion/angular bits and discrete clear, fresh Load acknowledgement. FirstRun missing redundant scalar derived from originals. All23 original committed timing traces independently decoded contiguous1..3600. Original outputs61afdc,c1e208.",
+      "console": ".playwright-mcp/console-2026-10-05T16-02-06-443Z.log"
+    },
+    "reviewerRecipes": {
+      "raw": ".tools/reviewer-boundary/production-ui.json",
+      "streams": [
+        ".tools/reviewer-boundary/production-commands.json",
+        ".tools/reviewer-boundary/production-read-observations.json",
+        ".tools/reviewer-boundary/production-zero-motion.json"
+      ],
+      "delayPositiveRuns": 20,
+      "delayNegativeRuns": 1,
+      "bumperPositiveRuns": 20,
+      "bumperZeroRuns": 1,
+      "bumperPartialPauseControls": 1,
+      "fullTicksEach": 3600,
+      "commands": 194,
+      "selectedReadObservations": 1697,
+      "zeroMotionObservations": 3602,
+      "errors": [],
+      "independentLifecycleDerivation": "All43 cases independently reconstructed from original command slices and snapshots. Run/Reset/Save/Construct every full case, additional Pause/Step/Resume in separate partial case. Original canonical offsets80:end equal, Loadack sequence exact; body excluding epoch,rotation/angular,capture,activations,timers,work reset/load exact.",
+      "timing": "All42 full traces independently decoded29chunks each, contiguous committed ticks1..3600,finite nonnegative values,incomplete0. Existing partialPause trace42 intentionally ends at pause:154timings/incomplete1; not a fullRun criterion and not counted. Original console decoder command/results retained in reviewer session and numeric summaries in raw record.",
+      "console": ".playwright-mcp/console-2026-10-05T16-34-06-218Z.log"
+    },
+    "energy": {
+      "apices": [
+        {
+          "tick": 88,
+          "y": 4.311920166015625
+        },
+        {
+          "tick": 135,
+          "y": 4.0867919921875
+        },
+        {
+          "tick": 161,
+          "y": 4.019439697265625
+        },
+        {
+          "tick": 176,
+          "y": 3.9992218017578125
+        },
+        {
+          "tick": 184,
+          "y": 3.9931182861328125
+        },
+        {
+          "tick": 188,
+          "y": 3.991241455078125
+        },
+        {
+          "tick": 190,
+          "y": 3.9906845092773438
+        }
+      ],
+      "firstContact": {
+        "epoch": 104,
+        "tick": 57,
+        "phase": 5,
+        "y": 3.9991912841796875,
+        "vy": 2.484375,
+        "work": {
+          "count": 1,
+          "ordinal": 226,
+          "energy": 0,
+          "debit": 0
+        }
+      },
+      "nonzeroEnergy": 0,
+      "settledFromTick": 240,
+      "settledY": [
+        3.990478515625
+      ],
+      "settledVy": [
+        0
+      ]
+    },
+    "pause": {
+      "pausedTick": 155,
+      "heldMs": 1000,
+      "steppedTick": 156,
+      "resumedTick": 169,
+      "paidCount": 1,
+      "ordinal": 226,
+      "remainingEnergy": 3.091796875,
+      "debit": 28.90625,
+      "exactResetAndSaveLoad": true
+    },
+    "ordinaryReadCoalescing": "Owner run20 missed ordinary publication1547 and endpoint22 missed2440; reviewer Delaynegative and Bumper9/11/14/15/19/20 also had coalesced ordinary reads. Original complete Applied tick traces prove every physical tick. Worker intentionally replaces latestRead under acknowledgement backpressure; reliable occurrence delivery separate. Original failed extra-publication assertion retained; not weakened physical acceptance, no automatic reruns.",
+    "cleanup": "Both production observers closed sole pages; reviewer tool confirms no open tabs after observing exactly physics and animation workers. No retention/device stress claim.",
+    "failedAttempts": "Cold five-second startup failures retained under P0-034; warm page succeeded. Reviewer first Save gesture emitted no command and was corrected on same completedRun. Actual Bumper initial Rotate selection corrected using visible Move gizmo before anyRun. Mistaken reviewer SOLVED observation retracted after independently reading original negative screenshot, which correctly has no SOLVED label.",
+    "duration": "65 full production Runs total each30 simulated seconds =1950 simulated seconds, plus one partial Pause control. Existing per-tick duration sums and tool elapsed times retained. Human/setup/blocked durations unknown; no benchmark or new profiling collection."
+  },
+  "finalEvidencePublication": {
+    "approvedPaths": [
+      "TODO.md",
+      "docs/verification/ENGINE-CORE-1/implementation-20261005.json",
+      "docs/verification/ENGINE-CORE-1/review-20261005.json",
+      "docs/verification/ENGINE-CORE-1/ci-artifact-37336785711.json"
+    ],
+    "scope": "Evidence/status supplement only. Raw .tools originals remain referenced in place, not duplicated into new packages. No runtime, tests, contracts, roadmap or snapshot changes authorised by this supplement approval.",
+    "conditions": "Owner refreshes TODO/implementation to this terminal outcome and next ENGINE-CORE-2a; reviewer verifies their exact status-only diff before normal protected commit/push. No new approval work item.",
+    "publicationDependent": "Verify exact committed/remote supplement paths, normal hook and CI outcome; compare runtime/source-relevant tree to approved2bdd900 and explain generated commit-metadata boot/resource changes. Reuse current65-fullRun production proof after relevant-input equivalence; do not repeat60Runs for evidence-only metadata. Any relevant runtime/contract change reopens affected approval."
+  }
 }

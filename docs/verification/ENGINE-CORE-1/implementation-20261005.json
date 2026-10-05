@@ -1,6 +1,6 @@
 {
   "slice": "ENGINE-CORE-1",
-  "status": "ReadyForSnapshotReview",
+  "status": "Independent terminal scoped Pass for deployed 2bdd900cf8192f112cfb607b135ace7ef0f0c4c0; approved evidence/status supplement publication pending.",
   "base": "f61faf4ef09ee4ec1784516d183a62e52aadade2",
   "branch": "codex/engine-core1",
   "implementationOwner": "/root/implementation",
@@ -192,11 +192,10 @@
       "result": "Scoped retired shaders/GpuBodyFixture absent; puzzle/part identity search over shaders/compiler returns1 (no matches); owning JSON parses; requirements/named-elements files unchanged. Anvil changed-source check0warnings, local backend not-wired; not global/daemon qualification."
     }
   ],
-  "rawEvidence": "Original tool command/results remain in this implementation thread and reviewer/coordinator threads; session handles identify the original outputs. No terminal candidate frozen.",
+  "rawEvidence": "Original tool commands/results remain in the implementation, reviewer and coordinator threads. Frozen candidate and SnapshotApproval are recorded alongside this file. Owner production original commands, per-Run read snapshots and lifecycle assertions: .tools/engine-core1-production-ui.json; complete original tick timing remains in the console file referenced there.",
   "open": [
-    "Independent SnapshotApproval for frozen source/contracts/artifact identities",
-    "Authorized commit/push/CI production artifact and remote identity",
-    "Required production-origin20Runs per construction with exact Reset and supported Save/Load, before terminal scoped Pass"
+    "Normal protected evidence/status supplement commit/push; independent remote/CI and unchanged relevant-input verification",
+    "Then ENGINE-CORE-2a under the same implementation/review pair"
   ],
   "proceduralFinding": "A previous evidence edit was incorrectly applied after an Anvil interrupt because validation and write were batched without inspecting the decision. The diagnostic flagged a screenshot filename as a potential secret. A corrected full postimage removed that flagged string, received allow, then was applied; original raw evidence remains intact. Coordinator accepted the corrected current content. The first write was not approved. Subsequent gates are inspected before separate writes.",
   "loadedArtifacts": {
@@ -219,5 +218,38 @@
     }
   },
   "exclusions": "Godot-generated docs image imports/reference UIDs are excluded by the existing web export; runtime C# UIDs are generated importer outputs, not explicit compiler inputs. They and unrelated original checkout edits are excluded from this authored candidate.",
-  "knownExistingStartup": "First cold loads sometimes exceed the existing five-second qualification deadline in both unchanged production baseline and local candidate; one warm reload succeeds. Ordinary gameplay checks pass. Broader worker/startup/device qualification remains with P0-032/P0-034; this slice makes no startup reliability or device qualification claim."
+  "knownExistingStartup": "First cold loads sometimes exceed the existing five-second qualification deadline in both unchanged production baseline and local candidate; one warm reload succeeds. Ordinary gameplay checks pass. Broader worker/startup/device qualification remains with P0-032/P0-034; this slice makes no startup reliability or device qualification claim.",
+  "productionOwner": {
+    "commit": "2bdd900cf8192f112cfb607b135ace7ef0f0c4c0",
+    "ciRun": 37336785711,
+    "ciStatus": "success",
+    "nativeTests": {
+      "passed": 535,
+      "skipped": 0
+    },
+    "raw": ".tools/engine-core1-production-ui.json",
+    "shaderResponse": ".tools/engine-core1-production-shader-response.txt",
+    "result": "20 balanced First principles full 3600-tick Runs, precision 0/1 positives and missing-second-ramp negative completed on production. All 23 had exact Reset and actual Save/Load canonical equality with fresh acknowledgements; no runtime faults.",
+    "observerFinding": "Run 20's extra assertion expecting every ordinary read publication failed because tick 1547 was coalesced. Independent reviewer decoded the original Applied-only timing record: exactly contiguous committed ticks 1..3600, including 1547. Gameplay and lifecycle passed; no rerun. Precision 1 similarly coalesced ordinary tick 2440 with complete committed timing.",
+    "identity": "Actual loaded renderer/simulation manifests match CI. Exact shader response was exposed by connector as Latin-1 text; encode Latin-1 to recover original bytes, matching CI shader identity. Original response text and failed UTF-8 hashing attempt retained.",
+    "handoff": "Owner browser closed; reviewer owns remaining production Delay/Bumper matrix. No runtime changes."
+  },
+  "productionBannerInvestigation": {
+    "reported": "Reviewer initially read SOLVED as persisting after the disconnected Delay control.",
+    "originalNegative": ".playwright-mcp/page-2026-10-05T16-56-50-880Z.png",
+    "originalPositive": ".playwright-mcp/page-2026-10-05T16-55-41-271Z.png",
+    "disposition": "Owner and reviewer independently viewed the original negative screenshot: no SOLVED label. Reviewer corrected the mistaken visual read; no different violating frame exists. Current goal truth is epoch-bound, and committed Building/Reset clears goal feedback. No source change or rerun."
+  },
+  "productionComplete": {
+    "review": "review-20261005.json",
+    "verdict": "Pass",
+    "fullRuns": 65,
+    "firstPrinciples": 23,
+    "delay": 21,
+    "bumper": 21,
+    "partialPauseControl": 1,
+    "lifecycle": "Every full Run and the partial Pause control had exact Reset and actual Save/Load. All full committed tick traces contiguous 1..3600; no unresolved unintended regressions.",
+    "reviewerOriginalRaw": ".tools/reviewer-boundary/production-ui.json",
+    "publication": "Evidence/status only; original CI receipt retains its at-time Incomplete wording, superseded by terminal review. No runtime/source/contract changes and no duplicate raw evidence package. Reuse production proof after independent relevant-input equivalence."
+  }
 }
