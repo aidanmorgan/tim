@@ -20,7 +20,7 @@ internal static class WorkshopTimerWire
             var input = value.Input;
             U32(slot,32,(uint)input.Kind); U32(slot,36,input.Time.Ordinal); H(slot,40,input.Time.Phase);
             H(slot,42,input.Cause.ApproachSpeed.Value); U64(slot,48,input.Emitter.Value);
-            U64(slot,56,input.Cause.Trigger.Value); U64(slot,64,input.Cause.Body.Value);
+            U64(slot,56,input.Cause.Source.Value); U64(slot,64,input.Cause.Body.Value);
             U64(slot,72,input.Cause.Collider.Value); U32(slot,80,input.Cause.Time.Ordinal); H(slot,84,input.Cause.Time.Phase);
         }
     }

@@ -203,7 +203,139 @@ class DynamicBVH {
     }
 }
 
-function solveBoxSphere(box, sphere) {
+// Shared rigid-body and contact kernels. Every pair kind produces the same point records and the same
+// constraint row consumes them; no element or shape owns a solver branch beyond its manifold generator.
+const SUBSTEP_SECONDS = 1.0 / 480.0;
+const CONTACT_SLOP = 0.0002;          // allowed resting penetration; with the soft offset below rest stays inside the 0.5 mm envelope
+const SPECULATIVE_SLOP = 0.004;       // manifold admission margin added to the relative-speed term
+const MAX_LINEAR_SPEED = 64;          // m/s limit before position integration
+const MAX_ANGULAR_SPEED = 128;        // rad/s limit before orientation integration
+const SPEED_CLAMP = MAX_LINEAR_SPEED * (1 - 1 / 512);   // leaves room for Half rounding of the components below the host bound
+const SPIN_CLAMP = MAX_ANGULAR_SPEED * (1 - 1 / 512);
+const CONTACT_HERTZ = 60;             // Box2D v3 soft contact stiffness (<= substep rate / 4)
+const CONTACT_DAMPING_RATIO = 10;
+const MAX_PUSHOUT_SPEED = 3;          // m/s cap on the soft position-correction bias
+const SOLVER_ITERATIONS = 8;          // biased sweeps per substep (friction rows couple the manifolds of a pair chain)
+const RELAX_ITERATIONS = 4;           // unbiased sweeps at the integrated positions remove the bias velocity
+const BLOCK_REGULARIZATION = 1e-3;    // relative diagonal term: four coplanar rows span only three rigid DOF, so the joint system is rank-deficient
+const EDGE_FACE_ALIGNMENT = 0.99;     // |dot| above this treats a cross axis as the aligned face (face clipping); below it is edge-edge
+
+function makeSoft(hertz, zeta, h) {
+    const omega = 2 * Math.PI * hertz;
+    const a1 = 2 * zeta + h * omega;
+    const a2 = h * omega * a1;
+    const a3 = 1 / (1 + a2);
+    return { biasRate: omega / a1, massScale: a2 * a3, impulseScale: a3 };
+}
+
+// Canonical cell remainders are committed as Half in [-0.5, 0.5); carry on the rounded value, not the double.
+const halfScratch = new DataView(new ArrayBuffer(2));
+function toHalf(value) { setF16(halfScratch, 0, value); return getF16(halfScratch, 0); }
+
+function cross(ax, ay, az, bx, by, bz) {
+    return [ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx];
+}
+
+function readPrincipalInertia(view, offset) {
+    const mantissa = getF16(view, offset);
+    const exponent = view.getInt32(offset + 4, true);
+    return mantissa * Math.pow(2, exponent);
+}
+
+// World inverse inertia and centre of mass from the committed pose and the declared principal frame.
+function updateDynamicFrame(b) {
+    const q = quatMultiply([b.qx, b.qy, b.qz, b.qw], b.principal);
+    const e0 = rotateVector(q[0], q[1], q[2], q[3], 1, 0, 0);
+    const e1 = rotateVector(q[0], q[1], q[2], q[3], 0, 1, 0);
+    const e2 = rotateVector(q[0], q[1], q[2], q[3], 0, 0, 1);
+    const m = b.invIWorld;
+    for (let i = 0; i < 3; i++)
+        for (let j = 0; j < 3; j++)
+            m[i * 3 + j] = b.invI[0] * e0[i] * e0[j] + b.invI[1] * e1[i] * e1[j] + b.invI[2] * e2[i] * e2[j];
+    const c = rotateVector(b.qx, b.qy, b.qz, b.qw, b.comLocal[0], b.comLocal[1], b.comLocal[2]);
+    b.cmx = b.px + c[0]; b.cmy = b.py + c[1]; b.cmz = b.pz + c[2];
+}
+
+function applyInvInertia(b, x, y, z) {
+    const m = b.invIWorld;
+    return [m[0] * x + m[1] * y + m[2] * z, m[3] * x + m[4] * y + m[5] * z, m[6] * x + m[7] * y + m[8] * z];
+}
+
+function applyImpulse(b, px, py, pz, rx, ry, rz) {
+    if (b.motion !== 1) return;
+    b.vx += px * b.invMass; b.vy += py * b.invMass; b.vz += pz * b.invMass;
+    const t = cross(rx, ry, rz, px, py, pz);
+    const dw = applyInvInertia(b, t[0], t[1], t[2]);
+    b.wx += dw[0]; b.wy += dw[1]; b.wz += dw[2];
+}
+
+function pointVelocity(b, rx, ry, rz) {
+    if (b.motion !== 1) return [0, 0, 0];
+    return [b.vx + (b.wy * rz - b.wz * ry), b.vy + (b.wz * rx - b.wx * rz), b.vz + (b.wx * ry - b.wy * rx)];
+}
+
+// Collider world pose from its body and declared local pose; dynamic colliders refresh every substep.
+function refreshCollider(c) {
+    const body = c.body;
+    if (c.tx === 0 && c.ty === 0 && c.tz === 0) {
+        c.px = body.px; c.py = body.py; c.pz = body.pz;
+    } else {
+        const rot = rotateVector(body.qx, body.qy, body.qz, body.qw, c.tx, c.ty, c.tz);
+        c.px = body.px + rot[0]; c.py = body.py + rot[1]; c.pz = body.pz + rot[2];
+    }
+    const rq = c.rq;
+    if (rq[0] === 0 && rq[1] === 0 && rq[2] === 0) {
+        c.qx = body.qx; c.qy = body.qy; c.qz = body.qz; c.qw = body.qw;
+    } else {
+        const q = quatMultiply([body.qx, body.qy, body.qz, body.qw], rq);
+        c.qx = q[0]; c.qy = q[1]; c.qz = q[2]; c.qw = q[3];
+    }
+    c.u0 = rotateVector(c.qx, c.qy, c.qz, c.qw, 1, 0, 0);
+    c.u1 = rotateVector(c.qx, c.qy, c.qz, c.qw, 0, 1, 0);
+    c.u2 = rotateVector(c.qx, c.qy, c.qz, c.qw, 0, 0, 1);
+}
+
+// Extent used for speculative margins and angular AABB fattening.
+function colliderExtent(c) {
+    if (c.shapeKind === 0) return c.radius;
+    if (c.shapeKind === 1) return Math.hypot(c.hx, c.hy, c.hz);
+    return 0;
+}
+
+function boxVertex(box, sx, sy, sz) {
+    return [
+        box.px + sx * box.hx * box.u0[0] + sy * box.hy * box.u1[0] + sz * box.hz * box.u2[0],
+        box.py + sx * box.hx * box.u0[1] + sy * box.hy * box.u1[1] + sz * box.hz * box.u2[1],
+        box.pz + sx * box.hx * box.u0[2] + sy * box.hy * box.u1[2] + sz * box.hz * box.u2[2]
+    ];
+}
+
+// Contact point record: the normal points from body b toward body a; a receives +lambda n.
+function contactPoint(a, b, colA, colB, nx, ny, nz, px, py, pz, gap, feature) {
+    return { a, b, colA, colB, nx, ny, nz, px, py, pz, gap, feature };
+}
+
+function collideSpherePlane(sphere, plane, margin, out) {
+    const n = plane.u1;
+    const gap = (sphere.px - plane.px) * n[0] + (sphere.py - plane.py) * n[1] + (sphere.pz - plane.pz) * n[2] - sphere.radius;
+    if (gap > margin) return;
+    out.push(contactPoint(sphere.body, plane.body, sphere, plane, n[0], n[1], n[2],
+        sphere.px - sphere.radius * n[0], sphere.py - sphere.radius * n[1], sphere.pz - sphere.radius * n[2], gap, 0));
+}
+
+function collideSphereSphere(colA, colB, margin, out) {
+    const dx = colA.px - colB.px, dy = colA.py - colB.py, dz = colA.pz - colB.pz;
+    const distSq = dx * dx + dy * dy + dz * dz;
+    if (distSq <= 1e-12) return;
+    const dist = Math.sqrt(distSq);
+    const gap = dist - (colA.radius + colB.radius);
+    if (gap > margin) return;
+    const nx = dx / dist, ny = dy / dist, nz = dz / dist;
+    out.push(contactPoint(colA.body, colB.body, colA, colB, nx, ny, nz,
+        colB.px + nx * (colB.radius + gap * 0.5), colB.py + ny * (colB.radius + gap * 0.5), colB.pz + nz * (colB.radius + gap * 0.5), gap, 0));
+}
+
+function solveBoxSphere(box, sphere, margin) {
     const d = [sphere.px - box.px, sphere.py - box.py, sphere.pz - box.pz];
     const lx = d[0] * box.u0[0] + d[1] * box.u0[1] + d[2] * box.u0[2];
     const ly = d[0] * box.u1[0] + d[1] * box.u1[1] + d[2] * box.u1[2];
@@ -220,7 +352,7 @@ function solveBoxSphere(box, sphere) {
     if (distSq > 1e-12) {
         const dist = Math.sqrt(distSq);
         gap = dist - sphere.radius;
-        if (gap > 0.5) return null;
+        if (gap > margin) return null;
         nlx = dx / dist; nly = dy / dist; nlz = dz / dist;
     } else {
         const d_face_x = box.hx - Math.abs(lx);
@@ -252,78 +384,471 @@ function solveBoxSphere(box, sphere) {
     const fx = contactX === box.hx ? 1 : (contactX === -box.hx ? 2 : 0);
     const fy = contactY === box.hy ? 1 : (contactY === -box.hy ? 2 : 0);
     const fz = contactZ === box.hz ? 1 : (contactZ === -box.hz ? 2 : 0);
-    let featureId = fx | (fy << 2) | (fz << 4);
-    if (featureId === 21) featureId = 0;
+    const featureId = fx | (fy << 2) | (fz << 4);
 
-    return {
-        nx, ny, nz,
-        gap,
-        pcx, pcy, pcz,
-        featureId
-    };
+    return { nx, ny, nz, gap, pcx, pcy, pcz, featureId };
 }
 
-function solveBoxBox(boxA, boxB) {
+function collideBoxSphere(box, sphere, margin, out) {
+    const contact = solveBoxSphere(box, sphere, margin);
+    if (!contact) return;
+    out.push(contactPoint(sphere.body, box.body, sphere, box, contact.nx, contact.ny, contact.nz,
+        contact.pcx, contact.pcy, contact.pcz, contact.gap, contact.featureId));
+}
+
+// Area-maximizing reduction to at most four support points: deepest, farthest, largest triangle,
+// then the point on the far side of the first two that maximizes the quadrilateral.
+function reduceManifold(points, nx, ny, nz) {
+    if (points.length <= 4) return points;
+    let p1 = points[0];
+    for (const p of points) if (p.gap < p1.gap) p1 = p;
+    let p2 = null, best = -1;
+    for (const p of points) {
+        if (p === p1) continue;
+        const d = (p.px - p1.px) ** 2 + (p.py - p1.py) ** 2 + (p.pz - p1.pz) ** 2;
+        if (d > best) { best = d; p2 = p; }
+    }
+    const ex = p2.px - p1.px, ey = p2.py - p1.py, ez = p2.pz - p1.pz;
+    let p3 = null; best = -1; let sign3 = 0;
+    for (const p of points) {
+        if (p === p1 || p === p2) continue;
+        const c = cross(p.px - p1.px, p.py - p1.py, p.pz - p1.pz, ex, ey, ez);
+        const signed = c[0] * nx + c[1] * ny + c[2] * nz;
+        if (Math.abs(signed) > best) { best = Math.abs(signed); p3 = p; sign3 = Math.sign(signed); }
+    }
+    let p4 = null; best = -1;
+    for (const p of points) {
+        if (p === p1 || p === p2 || p === p3) continue;
+        const c = cross(p.px - p1.px, p.py - p1.py, p.pz - p1.pz, ex, ey, ez);
+        const signed = c[0] * nx + c[1] * ny + c[2] * nz;
+        if (Math.sign(signed) === sign3 && sign3 !== 0) continue;
+        if (Math.abs(signed) > best) { best = Math.abs(signed); p4 = p; }
+    }
+    if (p4 === null) {
+        for (const p of points) {
+            if (p === p1 || p === p2 || p === p3) continue;
+            const d = (p.px - p3.px) ** 2 + (p.py - p3.py) ** 2 + (p.pz - p3.pz) ** 2;
+            if (d > best) { best = d; p4 = p; }
+        }
+    }
+    return [p1, p2, p3, p4];
+}
+
+// Box against a half-space: the vertices within the margin, reduced to the four deepest supports.
+function collideBoxPlane(box, plane, margin, out) {
+    const n = plane.u1;
+    const candidates = [];
+    let index = 0;
+    for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) {
+        const v = boxVertex(box, sx, sy, sz);
+        const gap = (v[0] - plane.px) * n[0] + (v[1] - plane.py) * n[1] + (v[2] - plane.pz) * n[2];
+        if (gap <= margin)
+            candidates.push(contactPoint(box.body, plane.body, box, plane, n[0], n[1], n[2],
+                v[0] - gap * 0.5 * n[0], v[1] - gap * 0.5 * n[1], v[2] - gap * 0.5 * n[2], gap, index));
+        index++;
+    }
+    if (candidates.length === 0) return;
+    for (const p of reduceManifold(candidates, n[0], n[1], n[2])) out.push(p);
+}
+
+// Single support contact along the SAT normal: used for edge-edge axes and whenever face clipping yields no point.
+// Each box contributes the edge that supports it against the normal (the edge along its axis most perpendicular to n,
+// through its deepest vertex); the point is the midpoint of the closest points of those two segments, the gap the SAT separation.
+function supportContact(boxA, boxB, n, separation, feature, out) {
+    const supportEdge = (box, dx, dy, dz) => {
+        const axes = [box.u0, box.u1, box.u2], ext = [box.hx, box.hy, box.hz];
+        const dots = axes.map(u => dx * u[0] + dy * u[1] + dz * u[2]);
+        let along = 0;
+        for (let i = 1; i < 3; i++) if (Math.abs(dots[i]) < Math.abs(dots[along])) along = i;
+        const base = [box.px, box.py, box.pz];
+        for (let i = 0; i < 3; i++) {
+            if (i === along) continue;
+            const sign = Math.sign(dots[i]) || 1;
+            for (let k = 0; k < 3; k++) base[k] += sign * ext[i] * axes[i][k];
+        }
+        const dir = axes[along], h = ext[along];
+        return { p: [base[0] - h * dir[0], base[1] - h * dir[1], base[2] - h * dir[2]], d: [2 * h * dir[0], 2 * h * dir[1], 2 * h * dir[2]] };
+    };
+    const ea = supportEdge(boxA, -n[0], -n[1], -n[2]);
+    const eb = supportEdge(boxB, n[0], n[1], n[2]);
+    const [s, t] = closestSegmentParameters(ea, eb);
+    const a = [ea.p[0] + s * ea.d[0], ea.p[1] + s * ea.d[1], ea.p[2] + s * ea.d[2]];
+    const b = [eb.p[0] + t * eb.d[0], eb.p[1] + t * eb.d[1], eb.p[2] + t * eb.d[2]];
+    out.push(contactPoint(boxA.body, boxB.body, boxA, boxB, n[0], n[1], n[2],
+        (a[0] + b[0]) * 0.5, (a[1] + b[1]) * 0.5, (a[2] + b[2]) * 0.5, separation, feature));
+}
+
+// Closest points of two segments p + s*d, s and t clamped to [0, 1]; parallel segments resolve from the first segment's start.
+function closestSegmentParameters(ea, eb) {
+    const dot3 = (x, y) => x[0] * y[0] + x[1] * y[1] + x[2] * y[2];
+    const r = [ea.p[0] - eb.p[0], ea.p[1] - eb.p[1], ea.p[2] - eb.p[2]];
+    const aa = dot3(ea.d, ea.d), bb = dot3(eb.d, eb.d), ab = dot3(ea.d, eb.d), ar = dot3(ea.d, r), br = dot3(eb.d, r);
+    const denom = aa * bb - ab * ab;
+    const clamp = v => Math.min(1, Math.max(0, v));
+    let s = denom > 1e-12 * aa * bb ? clamp((ab * br - ar * bb) / denom) : 0;
+    let t = (ab * s + br) / bb;
+    if (t < 0) { t = 0; s = clamp(-ar / aa); }
+    else if (t > 1) { t = 1; s = clamp((ab - ar) / aa); }
+    return [s, t];
+}
+
+// Separating-axis test over 15 axes, then reference-face clipping of the incident face.
+function collideBoxBox(boxA, boxB, margin, out) {
     const u = [boxA.u0, boxA.u1, boxA.u2];
     const v = [boxB.u0, boxB.u1, boxB.u2];
     const ea = [boxA.hx, boxA.hy, boxA.hz];
     const eb = [boxB.hx, boxB.hy, boxB.hz];
-    const dp = [boxB.px - boxA.px, boxB.py - boxA.py, boxB.pz - boxA.pz];
+    const dp = [boxA.px - boxB.px, boxA.py - boxB.py, boxA.pz - boxB.pz];
 
-    const axes = [];
-    for (let i = 0; i < 3; i++) axes.push({ axis: u[i], type: 0, index: i });
-    for (let i = 0; i < 3; i++) axes.push({ axis: v[i], type: 1, index: i });
-    for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-            const cx = u[i][1] * v[j][2] - u[i][2] * v[j][1];
-            const cy = u[i][2] * v[j][0] - u[i][0] * v[j][2];
-            const cz = u[i][0] * v[j][1] - u[i][1] * v[j][0];
-            const l = Math.hypot(cx, cy, cz);
-            if (l > 1e-5) {
-                axes.push({ axis: [cx / l, cy / l, cz / l], type: 2, indexA: i, indexB: j });
-            }
+    let bestAxis = null, bestSeparation = -Infinity, bestType = -1, bestIndex = -1;
+    const consider = (L, type, index) => {
+        const rA = ea[0] * Math.abs(u[0][0] * L[0] + u[0][1] * L[1] + u[0][2] * L[2]) +
+                   ea[1] * Math.abs(u[1][0] * L[0] + u[1][1] * L[1] + u[1][2] * L[2]) +
+                   ea[2] * Math.abs(u[2][0] * L[0] + u[2][1] * L[1] + u[2][2] * L[2]);
+        const rB = eb[0] * Math.abs(v[0][0] * L[0] + v[0][1] * L[1] + v[0][2] * L[2]) +
+                   eb[1] * Math.abs(v[1][0] * L[0] + v[1][1] * L[1] + v[1][2] * L[2]) +
+                   eb[2] * Math.abs(v[2][0] * L[0] + v[2][1] * L[1] + v[2][2] * L[2]);
+        const dist = dp[0] * L[0] + dp[1] * L[1] + dp[2] * L[2];
+        const separation = Math.abs(dist) - (rA + rB);
+        if (separation > bestSeparation) {
+            bestSeparation = separation;
+            // The contact normal points from B toward A along the separating axis.
+            bestAxis = dist >= 0 ? [L[0], L[1], L[2]] : [-L[0], -L[1], -L[2]];
+            bestType = type; bestIndex = index;
         }
-    }
-
-    let minPen = Infinity;
-    let bestAxis = null;
-
-    for (const item of axes) {
-        const L = item.axis;
-        const rA = ea[0] * Math.abs(u[0][0]*L[0] + u[0][1]*L[1] + u[0][2]*L[2]) +
-                   ea[1] * Math.abs(u[1][0]*L[0] + u[1][1]*L[1] + u[1][2]*L[2]) +
-                   ea[2] * Math.abs(u[2][0]*L[0] + u[2][1]*L[1] + u[2][2]*L[2]);
-        const rB = eb[0] * Math.abs(v[0][0]*L[0] + v[0][1]*L[1] + v[0][2]*L[2]) +
-                   eb[1] * Math.abs(v[1][0]*L[0] + v[1][1]*L[1] + v[1][2]*L[2]) +
-                   eb[2] * Math.abs(v[2][0]*L[0] + v[2][1]*L[1] + v[2][2]*L[2]);
-        let dist = dp[0]*L[0] + dp[1]*L[1] + dp[2]*L[2];
-        let sign = 1;
-        if (dist < 0) {
-            dist = -dist;
-            sign = -1;
-        }
-        const pen = (rA + rB) - dist;
-        if (pen <= 0) return null;
-
-        if (pen < minPen) {
-            minPen = pen;
-            bestAxis = [sign * L[0], sign * L[1], sign * L[2]];
-        }
-    }
-
-    const normal = bestAxis;
-    const contactCenter = [
-        boxA.px + normal[0] * (boxA.hx - minPen * 0.5),
-        boxA.py + normal[1] * (boxA.hy - minPen * 0.5),
-        boxA.pz + normal[2] * (boxA.hz - minPen * 0.5)
-    ];
-
-    return {
-        nx: normal[0], ny: normal[1], nz: normal[2],
-        gap: -minPen,
-        pcx: contactCenter[0], pcy: contactCenter[1], pcz: contactCenter[2],
-        featureId: 64
     };
+    for (let i = 0; i < 3; i++) consider(u[i], 0, i);
+    for (let i = 0; i < 3; i++) consider(v[i], 1, i);
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+        const c = cross(u[i][0], u[i][1], u[i][2], v[j][0], v[j][1], v[j][2]);
+        const l = Math.hypot(c[0], c[1], c[2]);
+        if (l > 1e-5) consider([c[0] / l, c[1] / l, c[2] / l], 2, i * 3 + j);
+    }
+    if (bestAxis === null || bestSeparation > margin) return;
+    const n = bestAxis;
+    // Identity of this manifold's geometry: axis type and index, reference/incident faces; clip points add their own id below.
+    const axisFeature = (bestType << 4) | bestIndex;
+
+    // Reference face: the box face most aligned with the separating axis. A cross axis that is (nearly) a face normal is a
+    // face contact and clips normally; only a genuine edge-edge axis takes the single support contact.
+    let referenceIsA, refAxis;
+    if (bestType === 0) { referenceIsA = true; refAxis = bestIndex; }
+    else if (bestType === 1) { referenceIsA = false; refAxis = bestIndex; }
+    else {
+        let bestDot = -1;
+        for (let i = 0; i < 3; i++) {
+            const da = Math.abs(u[i][0] * n[0] + u[i][1] * n[1] + u[i][2] * n[2]);
+            if (da > bestDot) { bestDot = da; referenceIsA = true; refAxis = i; }
+            const db = Math.abs(v[i][0] * n[0] + v[i][1] * n[1] + v[i][2] * n[2]);
+            if (db > bestDot) { bestDot = db; referenceIsA = false; refAxis = i; }
+        }
+        if (bestDot < EDGE_FACE_ALIGNMENT) { supportContact(boxA, boxB, n, bestSeparation, axisFeature * 256 + 255, out); return; }
+    }
+    const ref = referenceIsA ? boxA : boxB;
+    const inc = referenceIsA ? boxB : boxA;
+    const refAxes = referenceIsA ? u : v, incAxes = referenceIsA ? v : u;
+    const refExt = referenceIsA ? ea : eb, incExt = referenceIsA ? eb : ea;
+    // The reference face's outward normal faces the incident box: toward B when A is the reference, toward A otherwise.
+    const outward = referenceIsA ? [-n[0], -n[1], -n[2]] : [n[0], n[1], n[2]];
+    const refDot = refAxes[refAxis][0] * outward[0] + refAxes[refAxis][1] * outward[1] + refAxes[refAxis][2] * outward[2];
+    const refSign = refDot >= 0 ? 1 : -1;
+    const refN = [refSign * refAxes[refAxis][0], refSign * refAxes[refAxis][1], refSign * refAxes[refAxis][2]];
+    const refCentre = [ref.px + refExt[refAxis] * refN[0], ref.py + refExt[refAxis] * refN[1], ref.pz + refExt[refAxis] * refN[2]];
+
+    // Incident face: the incident box face most anti-parallel to the reference normal.
+    let incAxis = 0, incDot = -1;
+    for (let i = 0; i < 3; i++) {
+        const d = Math.abs(incAxes[i][0] * refN[0] + incAxes[i][1] * refN[1] + incAxes[i][2] * refN[2]);
+        if (d > incDot) { incDot = d; incAxis = i; }
+    }
+    const incAlign = incAxes[incAxis][0] * refN[0] + incAxes[incAxis][1] * refN[1] + incAxes[incAxis][2] * refN[2];
+    const incSign = incAlign <= 0 ? 1 : -1;
+    const incCentre = [inc.px + incSign * incExt[incAxis] * incAxes[incAxis][0],
+        inc.py + incSign * incExt[incAxis] * incAxes[incAxis][1], inc.pz + incSign * incExt[incAxis] * incAxes[incAxis][2]];
+    const ia = (incAxis + 1) % 3, ib = (incAxis + 2) % 3;
+    // Each polygon vertex carries a geometric id: an incident-face corner (0..3) or, once clipped, the reference side
+    // plane that created it combined with the full id of the vertex that started its edge ((4 << plane) + source id), so a
+    // point keeps its id across substeps and no two vertices of one manifold share an id (ids stay below 64; 255 is the support fallback).
+    let polygon = [];
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sa, sb], corner) =>
+        polygon.push({ id: corner, p: [
+            incCentre[0] + sa * incExt[ia] * incAxes[ia][0] + sb * incExt[ib] * incAxes[ib][0],
+            incCentre[1] + sa * incExt[ia] * incAxes[ia][1] + sb * incExt[ib] * incAxes[ib][1],
+            incCentre[2] + sa * incExt[ia] * incAxes[ia][2] + sb * incExt[ib] * incAxes[ib][2]
+        ] }));
+
+    const featureBase = (axisFeature << 8) | ((referenceIsA ? 0 : 1) << 7) | (refAxis << 5) | ((refSign > 0 ? 0 : 1) << 4) | (incAxis << 2) | ((incSign > 0 ? 0 : 1) << 1);
+    // Sutherland-Hodgman clip against the four side planes of the reference face.
+    let plane = 0;
+    for (const side of [(refAxis + 1) % 3, (refAxis + 2) % 3]) {
+        for (const sign of [1, -1]) {
+            const axis = refAxes[side];
+            const limit = refExt[side];
+            const clipped = [];
+            for (let i = 0; i < polygon.length; i++) {
+                const p = polygon[i], q = polygon[(i + 1) % polygon.length];
+                const dpp = sign * ((p.p[0] - refCentre[0]) * axis[0] + (p.p[1] - refCentre[1]) * axis[1] + (p.p[2] - refCentre[2]) * axis[2]) - limit;
+                const dq = sign * ((q.p[0] - refCentre[0]) * axis[0] + (q.p[1] - refCentre[1]) * axis[1] + (q.p[2] - refCentre[2]) * axis[2]) - limit;
+                if (dpp <= 0) clipped.push(p);
+                if ((dpp <= 0) !== (dq <= 0)) {
+                    const t = dpp / (dpp - dq);
+                    clipped.push({ id: (4 << plane) + p.id, p: [p.p[0] + t * (q.p[0] - p.p[0]), p.p[1] + t * (q.p[1] - p.p[1]), p.p[2] + t * (q.p[2] - p.p[2])] });
+                }
+            }
+            polygon = clipped;
+            plane++;
+            if (polygon.length === 0) { supportContact(boxA, boxB, n, bestSeparation, featureBase * 256 + 255, out); return; }
+        }
+    }
+
+    const candidates = [];
+    for (const { id, p } of polygon) {
+        const gap = (p[0] - refCentre[0]) * refN[0] + (p[1] - refCentre[1]) * refN[1] + (p[2] - refCentre[2]) * refN[2];
+        if (gap > margin) continue;
+        const mid = [p[0] - gap * 0.5 * refN[0], p[1] - gap * 0.5 * refN[1], p[2] - gap * 0.5 * refN[2]];
+        candidates.push(contactPoint(boxA.body, boxB.body, boxA, boxB, n[0], n[1], n[2], mid[0], mid[1], mid[2], gap, featureBase * 256 + id));
+    }
+    if (candidates.length === 0) { supportContact(boxA, boxB, n, bestSeparation, featureBase * 256 + 255, out); return; }
+    for (const p of reduceManifold(candidates, n[0], n[1], n[2])) out.push(p);
+}
+
+// One generic Box2D v3 TGS Soft point constraint: lever arms, effective masses and a stable tangent basis.
+function prepareContact(c, cache) {
+    const A = c.a, B = c.b;
+    c.rAx = c.px - A.cmx; c.rAy = c.py - A.cmy; c.rAz = c.pz - A.cmz;
+    c.rBx = c.px - B.cmx; c.rBy = c.py - B.cmy; c.rBz = c.pz - B.cmz;
+    const nx = c.nx, ny = c.ny, nz = c.nz;
+    // Tangent basis derived from the normal alone so matching features keep their friction impulses.
+    let ax = 0, ay = 0, az = 0;
+    if (Math.abs(nx) <= Math.abs(ny) && Math.abs(nx) <= Math.abs(nz)) ax = 1;
+    else if (Math.abs(ny) <= Math.abs(nz)) ay = 1;
+    else az = 1;
+    const t1 = cross(nx, ny, nz, ax, ay, az);
+    const l1 = Math.hypot(t1[0], t1[1], t1[2]);
+    c.t1 = [t1[0] / l1, t1[1] / l1, t1[2] / l1];
+    c.t2 = cross(nx, ny, nz, c.t1[0], c.t1[1], c.t1[2]);
+    c.normalMass = effectiveMass(c, nx, ny, nz);
+    c.tangentMass1 = effectiveMass(c, c.t1[0], c.t1[1], c.t1[2]);
+    c.tangentMass2 = effectiveMass(c, c.t2[0], c.t2[1], c.t2[2]);
+    const vA = pointVelocity(A, c.rAx, c.rAy, c.rAz), vB = pointVelocity(B, c.rBx, c.rBy, c.rBz);
+    const vn = (vA[0] - vB[0]) * nx + (vA[1] - vB[1]) * ny + (vA[2] - vB[2]) * nz;
+    c.restitution = c.colA.restitution * c.colB.restitution;
+    c.threshold = Math.max(c.colA.bounceThreshold, c.colB.bounceThreshold);
+    c.friction = Math.sqrt(c.colA.friction * c.colB.friction);
+    const lo = Math.min(c.colA.index, c.colB.index), hi = Math.max(c.colA.index, c.colB.index);
+    c.key = lo + ':' + hi + ':' + c.feature;
+    const warm = cache.get(c.key);
+    c.lambdaN = warm ? warm.lambdaN : 0;
+    c.lambdaT1 = warm ? warm.lambdaT1 : 0;
+    c.lambdaT2 = warm ? warm.lambdaT2 : 0;
+    // The approach speed is the deepest pre-solve closing speed seen since the contact appeared: a speculative substep
+    // trims the approach before the surfaces meet, so the touching substep alone would under-read the impact.
+    c.relVel = Math.min(vn, warm ? warm.approach : 0);
+    c.maxImpulse = 0;
+    c.bounced = false;
+}
+
+function effectiveMass(c, dx, dy, dz) {
+    const A = c.a, B = c.b;
+    let k = (A.motion === 1 ? A.invMass : 0) + (B.motion === 1 ? B.invMass : 0);
+    if (A.motion === 1) {
+        const r = cross(c.rAx, c.rAy, c.rAz, dx, dy, dz);
+        const w = applyInvInertia(A, r[0], r[1], r[2]);
+        k += r[0] * w[0] + r[1] * w[1] + r[2] * w[2];
+    }
+    if (B.motion === 1) {
+        const r = cross(c.rBx, c.rBy, c.rBz, dx, dy, dz);
+        const w = applyInvInertia(B, r[0], r[1], r[2]);
+        k += r[0] * w[0] + r[1] * w[1] + r[2] * w[2];
+    }
+    return k > 0 ? 1 / k : 0;
+}
+
+function warmStartContact(c) {
+    const px = c.lambdaN * c.nx + c.lambdaT1 * c.t1[0] + c.lambdaT2 * c.t2[0];
+    const py = c.lambdaN * c.ny + c.lambdaT1 * c.t1[1] + c.lambdaT2 * c.t2[1];
+    const pz = c.lambdaN * c.nz + c.lambdaT1 * c.t1[2] + c.lambdaT2 * c.t2[2];
+    applyImpulse(c.a, px, py, pz, c.rAx, c.rAy, c.rAz);
+    applyImpulse(c.b, -px, -py, -pz, c.rBx, c.rBy, c.rBz);
+}
+
+function relativeVelocity(c) {
+    const vA = pointVelocity(c.a, c.rAx, c.rAy, c.rAz), vB = pointVelocity(c.b, c.rBx, c.rBy, c.rBz);
+    return [vA[0] - vB[0], vA[1] - vB[1], vA[2] - vB[2]];
+}
+
+// Separation at the current body poses: the manifold gap plus the normal component of each anchor's
+// displacement since the manifold was built, so the relax pass sees the integrated positions (TGS).
+function anchorDisplacement(b, rx, ry, rz) {
+    if (b.motion !== 1) return [0, 0, 0];
+    const dq = quatMultiply([b.qx, b.qy, b.qz, b.qw], [-b.q0[0], -b.q0[1], -b.q0[2], b.q0[3]]);
+    const r = rotateVector(dq[0], dq[1], dq[2], dq[3], rx, ry, rz);
+    return [b.cmx - b.cm0[0] + r[0] - rx, b.cmy - b.cm0[1] + r[1] - ry, b.cmz - b.cm0[2] + r[2] - rz];
+}
+
+function currentSeparation(c) {
+    const dA = anchorDisplacement(c.a, c.rAx, c.rAy, c.rAz), dB = anchorDisplacement(c.b, c.rBx, c.rBy, c.rBz);
+    return c.gap + (dA[0] - dB[0]) * c.nx + (dA[1] - dB[1]) * c.ny + (dA[2] - dB[2]) * c.nz;
+}
+
+// Coulomb friction row: two tangent axes with a circular cone on the accumulated impulse.
+function solveFriction(c) {
+    const v = relativeVelocity(c);
+    const vt1 = v[0] * c.t1[0] + v[1] * c.t1[1] + v[2] * c.t1[2];
+    const vt2 = v[0] * c.t2[0] + v[1] * c.t2[1] + v[2] * c.t2[2];
+    let n1 = c.lambdaT1 - c.tangentMass1 * vt1;
+    let n2 = c.lambdaT2 - c.tangentMass2 * vt2;
+    const maxFriction = c.friction * c.lambdaN;
+    const length = Math.hypot(n1, n2);
+    if (length > maxFriction) {
+        const scale = length > 0 ? maxFriction / length : 0;
+        n1 *= scale; n2 *= scale;
+    }
+    const d1 = n1 - c.lambdaT1, d2 = n2 - c.lambdaT2;
+    c.lambdaT1 = n1; c.lambdaT2 = n2;
+    const px = d1 * c.t1[0] + d2 * c.t2[0], py = d1 * c.t1[1] + d2 * c.t2[1], pz = d1 * c.t1[2] + d2 * c.t2[2];
+    applyImpulse(c.a, px, py, pz, c.rAx, c.rAy, c.rAz);
+    applyImpulse(c.b, -px, -py, -pz, c.rBx, c.rBy, c.rBz);
+}
+
+// Soft normal row with a speculative target velocity when separated (projected, one point).
+function solveNormalRow(c, useBias, soft, h) {
+    const v = relativeVelocity(c);
+    const vn = v[0] * c.nx + v[1] * c.ny + v[2] * c.nz;
+    const s = currentSeparation(c) + CONTACT_SLOP;
+    let bias = 0, massScale = 1, impulseScale = 0;
+    if (s > 0) bias = s / h;
+    else if (useBias) {
+        bias = Math.max(soft.biasRate * s, -MAX_PUSHOUT_SPEED);
+        massScale = soft.massScale; impulseScale = soft.impulseScale;
+    }
+    let impulse = -c.normalMass * massScale * (vn + bias) - impulseScale * c.lambdaN;
+    const total = Math.max(c.lambdaN + impulse, 0);
+    impulse = total - c.lambdaN;
+    c.lambdaN = total;
+    if (total > c.maxImpulse) c.maxImpulse = total;
+    applyImpulse(c.a, impulse * c.nx, impulse * c.ny, impulse * c.nz, c.rAx, c.rAy, c.rAz);
+    applyImpulse(c.b, -impulse * c.nx, -impulse * c.ny, -impulse * c.nz, c.rBx, c.rBy, c.rBz);
+}
+
+// Delassus coupling between two normal rows of the same pair: J_i M^-1 J_j^T.
+function couplingMass(ci, cj) {
+    const A = ci.a, B = ci.b;
+    let k = (A.motion === 1 ? A.invMass : 0) + (B.motion === 1 ? B.invMass : 0);
+    if (A.motion === 1) {
+        const ri = cross(ci.rAx, ci.rAy, ci.rAz, ci.nx, ci.ny, ci.nz);
+        const rj = cross(cj.rAx, cj.rAy, cj.rAz, cj.nx, cj.ny, cj.nz);
+        const w = applyInvInertia(A, rj[0], rj[1], rj[2]);
+        k += ri[0] * w[0] + ri[1] * w[1] + ri[2] * w[2];
+    }
+    if (B.motion === 1) {
+        const ri = cross(ci.rBx, ci.rBy, ci.rBz, ci.nx, ci.ny, ci.nz);
+        const rj = cross(cj.rBx, cj.rBy, cj.rBz, cj.nx, cj.ny, cj.nz);
+        const w = applyInvInertia(B, rj[0], rj[1], rj[2]);
+        k += ri[0] * w[0] + ri[1] * w[1] + ri[2] * w[2];
+    }
+    return k;
+}
+
+// Gaussian elimination with partial pivoting for n <= 4; null when singular.
+function solveLinear(matrix, rhs, n) {
+    const a = matrix.slice(), b = rhs.slice();
+    for (let col = 0; col < n; col++) {
+        let pivot = col;
+        for (let row = col + 1; row < n; row++) if (Math.abs(a[row * n + col]) > Math.abs(a[pivot * n + col])) pivot = row;
+        if (Math.abs(a[pivot * n + col]) < 1e-12) return null;
+        if (pivot !== col) {
+            for (let k = 0; k < n; k++) { const t = a[col * n + k]; a[col * n + k] = a[pivot * n + k]; a[pivot * n + k] = t; }
+            const t = b[col]; b[col] = b[pivot]; b[pivot] = t;
+        }
+        for (let row = col + 1; row < n; row++) {
+            const f = a[row * n + col] / a[col * n + col];
+            for (let k = col; k < n; k++) a[row * n + k] -= f * a[col * n + k];
+            b[row] -= f * b[col];
+        }
+    }
+    const x = new Array(n);
+    for (let row = n - 1; row >= 0; row--) {
+        let sum = b[row];
+        for (let k = row + 1; k < n; k++) sum -= a[row * n + k] * x[k];
+        x[row] = sum / a[row * n + row];
+    }
+    return x;
+}
+
+// Manifold block solve: the normal rows of one pair share a normal, so their Delassus matrix is solved jointly
+// (Gaussian elimination, n <= 4). A symmetric landing then receives symmetric impulses in one step instead of
+// the slow sequential convergence that spins a thin box. If any accumulated impulse would go negative or the
+// system is singular, the rows fall back to sequential projected solves.
+function solveNormalBlock(group, useBias, soft, h) {
+    const n = group.length;
+    if (n === 1) { solveNormalRow(group[0], useBias, soft, h); return; }
+    const rhs = new Array(n), scale = new Array(n), impulseScale = new Array(n), matrix = new Array(n * n);
+    for (let i = 0; i < n; i++) {
+        const c = group[i];
+        const v = relativeVelocity(c);
+        const vn = v[0] * c.nx + v[1] * c.ny + v[2] * c.nz;
+        const s = currentSeparation(c) + CONTACT_SLOP;
+        let bias = 0; scale[i] = 1; impulseScale[i] = 0;
+        if (s > 0) bias = s / h;
+        else if (useBias) { bias = Math.max(soft.biasRate * s, -MAX_PUSHOUT_SPEED); scale[i] = soft.massScale; impulseScale[i] = soft.impulseScale; }
+        rhs[i] = -(vn + bias);
+        for (let j = 0; j < n; j++) matrix[i * n + j] = couplingMass(c, group[j]);
+    }
+    // Four coplanar points against one body span three normal DOF, so regularize the diagonal before solving.
+    let trace = 0;
+    for (let i = 0; i < n; i++) trace += matrix[i * n + i];
+    for (let i = 0; i < n; i++) matrix[i * n + i] += BLOCK_REGULARIZATION * trace / n;
+    const solution = solveLinear(matrix, rhs, n);
+    if (solution === null) { for (const c of group) solveNormalRow(c, useBias, soft, h); return; }
+    const deltas = new Array(n);
+    for (let i = 0; i < n; i++) {
+        deltas[i] = scale[i] * solution[i] - impulseScale[i] * group[i].lambdaN;
+        if (group[i].lambdaN + deltas[i] < 0) { for (const c of group) solveNormalRow(c, useBias, soft, h); return; }
+    }
+    for (let i = 0; i < n; i++) {
+        const c = group[i];
+        c.lambdaN += deltas[i];
+        if (c.lambdaN > c.maxImpulse) c.maxImpulse = c.lambdaN;
+        applyImpulse(c.a, deltas[i] * c.nx, deltas[i] * c.ny, deltas[i] * c.nz, c.rAx, c.rAy, c.rAz);
+        applyImpulse(c.b, -deltas[i] * c.nx, -deltas[i] * c.ny, -deltas[i] * c.nz, c.rBx, c.rBy, c.rBz);
+    }
+}
+
+// One sweep: per manifold, friction rows then the joint normal solve.
+function sweepManifolds(groups, useBias, soft, h) {
+    for (const group of groups) {
+        for (const c of group) solveFriction(c);
+        solveNormalBlock(group, useBias, soft, h);
+    }
+}
+
+// Dissipative restitution from the pre-solve approach speed, once the surfaces have actually met; a speculative
+// row that only trimmed the approach must not bounce early, which would hand one corner the whole impact.
+function applyRestitution(c) {
+    if (c.restitution === 0 || c.relVel > -c.threshold || c.maxImpulse === 0 || currentSeparation(c) > 0) return;
+    c.bounced = true;
+    const v = relativeVelocity(c);
+    const vn = v[0] * c.nx + v[1] * c.ny + v[2] * c.nz;
+    let impulse = -c.normalMass * (vn + c.restitution * c.relVel);
+    const total = Math.max(c.lambdaN + impulse, 0);
+    impulse = total - c.lambdaN;
+    c.lambdaN = total;
+    if (total > c.maxImpulse) c.maxImpulse = total;
+    applyImpulse(c.a, impulse * c.nx, impulse * c.ny, impulse * c.nz, c.rAx, c.rAy, c.rAz);
+    applyImpulse(c.b, -impulse * c.nx, -impulse * c.ny, -impulse * c.nz, c.rBx, c.rBy, c.rBz);
+}
+
+function generateManifold(colA, colB, margin, out) {
+    const a = colA.shapeKind, b = colB.shapeKind;
+    if (a === 0 && b === 0) collideSphereSphere(colA, colB, margin, out);
+    else if (a === 0 && b === 2) collideSpherePlane(colA, colB, margin, out);
+    else if (a === 2 && b === 0) collideSpherePlane(colB, colA, margin, out);
+    else if (a === 1 && b === 0) collideBoxSphere(colA, colB, margin, out);
+    else if (a === 0 && b === 1) collideBoxSphere(colB, colA, margin, out);
+    else if (a === 1 && b === 2) collideBoxPlane(colA, colB, margin, out);
+    else if (a === 2 && b === 1) collideBoxPlane(colB, colA, margin, out);
+    else if (a === 1 && b === 1) collideBoxBox(colA, colB, margin, out);
 }
 
 function advanceCandidate(source, candidate) {
@@ -345,7 +870,8 @@ function advanceCandidate(source, candidate) {
     const colliderCount = view.getUint32(16, true);
     const dynamicCount = view.getUint32(28, true);
 
-    const motionOffset = 19744;
+    const orientationOffset = 19744;
+    const motionOffset = 20768;
     view.setUint32(motionOffset, dynamicCount * steps, true);
     view.setUint32(motionOffset + 4, steps, true);
     view.setUint32(motionOffset + 8, sourceOrdinal, true);
@@ -363,7 +889,6 @@ function advanceCandidate(source, candidate) {
 
     // Collect static bodies
     const staticBodies = [];
-    let planeY = -0.46;
     for (let slot = 0; slot < bodyCount; slot++) {
         const bodyOffset = 128 + slot * 128;
         const motion = view.getUint32(bodyOffset + 8, true);
@@ -386,18 +911,20 @@ function advanceCandidate(source, candidate) {
             bodySlot: slot,
             id: bodyIdLow,
             px, py, pz,
+            cmx: px, cmy: py, cmz: pz,
             qx, qy, qz, qw,
+            vx: 0, vy: 0, vz: 0, wx: 0, wy: 0, wz: 0,
+            invMass: 0,
             motion: 0
         });
     }
 
-    // Collect dynamic bodies
+    // Collect dynamic bodies: mass, centre of mass, principal frame and inertia come only from the compiled record.
     const dynamicBodies = [];
     for (let slot = 0; slot < bodyCount; slot++) {
         const bodyOffset = 128 + slot * 128;
         const motion = view.getUint32(bodyOffset + 8, true);
         if (motion !== 1) continue;
-
         const bodyIdLow = view.getUint32(bodyOffset, true);
         const bodyIdHigh = view.getUint32(bodyOffset + 4, true);
         const cellX = view.getInt32(bodyOffset + 16, true);
@@ -416,26 +943,19 @@ function advanceCandidate(source, candidate) {
         const wx = getF16(view, bodyOffset + 56);
         const wy = getF16(view, bodyOffset + 58);
         const wz = getF16(view, bodyOffset + 60);
-        const mass = getF16(view, bodyOffset + 64) || 1.0;
-        const invMass = mass > 0 ? 1.0 / mass : 1.0;
+        const mass = getF16(view, bodyOffset + 64);
         const gx = getF16(view, bodyOffset + 68);
         const gy = getF16(view, bodyOffset + 70);
         const gz = getF16(view, bodyOffset + 72);
-
-        const colliderSlot = view.getUint32(bodyOffset + 120, true);
-        const colliderOffset = 4352 + colliderSlot * 96;
-        const radius = getF16(view, colliderOffset + 40) || 0.34;
-        const materialSlot = view.getUint32(colliderOffset + 12, true);
-        const materialOffset = 10496 + materialSlot * 32;
-        const restitution = getF16(view, materialOffset + 8) || 0.75;
-        const bounceThreshold = getF16(view, materialOffset + 10) || 0.1;
-        const friction = getF16(view, materialOffset + 12) || 0.3;
+        const comLocal = [getF16(view, bodyOffset + 80), getF16(view, bodyOffset + 82), getF16(view, bodyOffset + 84)];
+        const principal = [getF16(view, bodyOffset + 88), getF16(view, bodyOffset + 90), getF16(view, bodyOffset + 92), getF16(view, bodyOffset + 94)];
+        const inertia = [readPrincipalInertia(view, bodyOffset + 96), readPrincipalInertia(view, bodyOffset + 104), readPrincipalInertia(view, bodyOffset + 112)];
 
         const px = (cellX + localX) / 16.0;
         const py = (cellY + localY) / 16.0;
         const pz = (cellZ + localZ) / 16.0;
 
-        dynamicBodies.push({
+        const body = {
             bodySlot: slot,
             bodyOffset,
             bodyIdLow,
@@ -447,22 +967,26 @@ function advanceCandidate(source, candidate) {
             qx, qy, qz, qw,
             vx, vy, vz,
             wx, wy, wz,
-            mass, invMass,
+            mass, invMass: 1.0 / mass,
             gx, gy, gz,
-            radius,
-            restitution,
-            bounceThreshold,
-            friction,
+            comLocal, principal,
+            // A zero or non-finite declared moment reads as infinite inertia (no rotation) rather than an infinite inverse.
+            invI: inertia.map(moment => Number.isFinite(moment) && moment > 0 ? 1.0 / moment : 0),
+            invIWorld: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            cmx: px, cmy: py, cmz: pz,
+            supportExtent: 0,
             dynamicIndex: dynamicBodies.length,
             motion: 1
-        });
+        };
+        updateDynamicFrame(body);
+        dynamicBodies.push(body);
     }
 
     const allBodies = new Map();
     for (let b of staticBodies) allBodies.set(b.bodySlot, b);
     for (let b of dynamicBodies) allBodies.set(b.bodySlot, b);
 
-    // Collect colliders
+    // Collect colliders; materials are the declared values with no substitution.
     const colliders = [];
     for (let c = 0; c < colliderCount; c++) {
         const offset = 4352 + c * 96;
@@ -482,62 +1006,44 @@ function advanceCandidate(source, candidate) {
         const hz = getF16(view, offset + 46);
 
         const matOffset = 10496 + materialSlot * 32;
-        const restitution = getF16(view, matOffset + 8) || 0.75;
-        const bounceThreshold = getF16(view, matOffset + 10) || 0.1;
-        const friction = getF16(view, matOffset + 12) || 0.3;
+        const restitution = getF16(view, matOffset + 8);
+        const bounceThreshold = getF16(view, matOffset + 10);
+        const friction = getF16(view, matOffset + 12);
 
         const body = allBodies.get(bodySlot);
         if (!body) continue;
 
-        let wpx, wpy, wpz, wqx, wqy, wqz, wqw;
-        if (tx === 0 && ty === 0 && tz === 0) {
-            wpx = body.px; wpy = body.py; wpz = body.pz;
-        } else {
-            const rot = rotateVector(body.qx, body.qy, body.qz, body.qw, tx, ty, tz);
-            wpx = body.px + rot[0];
-            wpy = body.py + rot[1];
-            wpz = body.pz + rot[2];
-        }
-
-        if (rqx === 0 && rqy === 0 && rqz === 0 && (rqw === 1 || rqw === 0)) {
-            wqx = body.qx; wqy = body.qy; wqz = body.qz; wqw = body.qw;
-        } else {
-            const q = quatMultiply([body.qx, body.qy, body.qz, body.qw], [rqx, rqy, rqz, rqw]);
-            wqx = q[0]; wqy = q[1]; wqz = q[2]; wqw = q[3];
-        }
-
-        const u0 = rotateVector(wqx, wqy, wqz, wqw, 1, 0, 0);
-        const u1 = rotateVector(wqx, wqy, wqz, wqw, 0, 1, 0);
-        const u2 = rotateVector(wqx, wqy, wqz, wqw, 0, 0, 1);
-
-        colliders.push({
+        const collider = {
             index: c,
             bodySlot,
             body,
             materialSlot,
             shapeKind,
             tx, ty, tz,
-            rq: [rqx, rqy, rqz, rqw],
-            px: wpx, py: wpy, pz: wpz,
-            qx: wqx, qy: wqy, qz: wqz, qw: wqw,
-            u0, u1, u2,
+            rq: (rqx === 0 && rqy === 0 && rqz === 0) ? [0, 0, 0, 1] : [rqx, rqy, rqz, rqw],
+            px: 0, py: 0, pz: 0,
+            qx: 0, qy: 0, qz: 0, qw: 1,
+            u0: [1, 0, 0], u1: [0, 1, 0], u2: [0, 0, 1],
             radius,
             hx, hy, hz,
             restitution,
             bounceThreshold,
             friction
-        });
-        if (shapeKind === 2) planeY = wpy;
+        };
+        refreshCollider(collider);
+        colliders.push(collider);
+        if (body.motion === 1) {
+            body.collider = collider;
+            // Guides compare the body's lowest extent with their support height.
+            body.supportExtent = shapeKind === 0 ? radius :
+                hx * Math.abs(collider.u0[1]) + hy * Math.abs(collider.u1[1]) + hz * Math.abs(collider.u2[1]);
+        }
     }
 
-    // TGS Soft constraint constants (Box2D v3 soft step formulation)
-    const dt = 1.0 / 480.0;
-    const omega = 60.0;
-    const zeta = 1.0;
-    const CONTACT_SLOP = 0.0005; // 0.5 mm
-    const bias_factor = omega / (2.0 * zeta + dt * omega);
+    const dt = SUBSTEP_SECONDS;
+    const soft = makeSoft(CONTACT_HERTZ, CONTACT_DAMPING_RATIO, dt);
 
-    // Build DynamicBVH with velocity fattening
+    // Build DynamicBVH with velocity fattening (linear and angular displacement over the tick).
     const bvh = new DynamicBVH();
     const tickTime = dt * steps;
     const VELOCITY_SLOP = 0.05;
@@ -546,16 +1052,17 @@ function advanceCandidate(source, candidate) {
         let minX, minY, minZ, maxX, maxY, maxZ;
         const b = c.body;
         const isDyn = b.motion === 1;
-        const fatX = isDyn ? (Math.abs(b.vx) + Math.abs(b.gx) * tickTime) * tickTime + VELOCITY_SLOP : VELOCITY_SLOP;
-        const fatY = isDyn ? (Math.abs(b.vy) + Math.abs(b.gy) * tickTime) * tickTime + VELOCITY_SLOP : VELOCITY_SLOP;
-        const fatZ = isDyn ? (Math.abs(b.vz) + Math.abs(b.gz) * tickTime) * tickTime + VELOCITY_SLOP : VELOCITY_SLOP;
+        const spin = isDyn ? Math.hypot(b.wx, b.wy, b.wz) * colliderExtent(c) * tickTime : 0;
+        const fatX = isDyn ? (Math.abs(b.vx) + Math.abs(b.gx) * tickTime) * tickTime + spin + VELOCITY_SLOP : VELOCITY_SLOP;
+        const fatY = isDyn ? (Math.abs(b.vy) + Math.abs(b.gy) * tickTime) * tickTime + spin + VELOCITY_SLOP : VELOCITY_SLOP;
+        const fatZ = isDyn ? (Math.abs(b.vz) + Math.abs(b.gz) * tickTime) * tickTime + spin + VELOCITY_SLOP : VELOCITY_SLOP;
 
         if (c.shapeKind === 2) {
             minX = -100; maxX = 100;
-            minY = -100; maxY = 20;
+            minY = -100; maxY = c.py + VELOCITY_SLOP;
             minZ = -100; maxZ = 100;
         } else if (c.shapeKind === 0) {
-            const r = c.radius || 0.34;
+            const r = c.radius;
             minX = c.px - r - fatX; maxX = c.px + r + fatX;
             minY = c.py - r - fatY; maxY = c.py + r + fatY;
             minZ = c.pz - r - fatZ; maxZ = c.pz + r + fatZ;
@@ -580,6 +1087,75 @@ function advanceCandidate(source, candidate) {
         if (colA.body.motion === 0 && colB.body.motion === 0) return;
         candidatePairs.push([colA, colB]);
     });
+
+    // Declared contact triggers and finite contact-work stores on a static owner respond to any dynamic body.
+    const emitContactEvents = (colStatic, bDyn, approach, normalTowardDyn, s) => {
+        const bStatic = colStatic.body;
+        const triggerCount = view.getUint32(100, true);
+        for (let t = 0; t < triggerCount; t++) {
+            const tOffset = 14624 + t * 64;
+            const owner = view.getUint32(tOffset + 8, true);
+            if (owner !== bStatic.bodySlot) continue;
+            const kind = view.getUint32(tOffset + 12, true);
+            const named = view.getUint32(tOffset + 24, true);
+            if (kind === 1 && named !== bDyn.bodySlot) continue;
+            const threshold = getF16(view, tOffset + 16);
+            if (approach >= threshold) {
+                const curCount = view.getUint32(tOffset + 32, true);
+                if (curCount === 0) {
+                    view.setUint32(tOffset + 32, 1, true);
+                    view.setUint32(tOffset + 36, colStatic.index, true);
+                    view.setUint32(tOffset + 40, sourceOrdinal + s + 1, true);
+                    setF16(view, tOffset + 44, 0);
+                    setF16(view, tOffset + 46, approach);
+                    view.setUint32(tOffset + 48, bDyn.bodySlot, true);
+                }
+            }
+        }
+        const contactWorkCount = view.getUint32(104, true);
+        const workOccCount = view.getUint32(108, true);
+        for (let w = 0; w < contactWorkCount; w++) {
+            const wOffset = 15136 + w * 64;
+            const owner = view.getUint32(wOffset + 8, true);
+            if (owner !== bStatic.bodySlot) continue;
+            const kind = view.getUint32(wOffset + 12, true);
+            const named = view.getUint32(wOffset + 28, true);
+            if (kind === 1 && named !== bDyn.bodySlot) continue;
+            const threshold = getF16(view, wOffset + 20);
+            if (approach < threshold) continue;
+            for (let o = 0; o < workOccCount; o++) {
+                const oOffset = 15648 + o * 32;
+                const occWork = view.getUint16(oOffset, true);
+                const targetLow = view.getUint32(oOffset + 4, true);
+                const targetHigh = view.getUint32(oOffset + 8, true);
+                if (occWork !== w || targetLow !== bDyn.bodyIdLow || targetHigh !== bDyn.bodyIdHigh) continue;
+                const prevSeq = view.getUint32(oOffset + 12, true);
+                const prevOrd = view.getUint32(oOffset + 16, true);
+                const cooldown = view.getUint32(wOffset + 24, true);
+                const curOrd = sourceOrdinal + s + 1;
+                const curCount = view.getUint32(wOffset + 32, true);
+                const sourceWorkCount = new DataView(source.buffer, source.byteOffset, source.byteLength).getUint32(wOffset + 32, true);
+                if (curCount === sourceWorkCount && (prevSeq === 0 || curOrd >= prevOrd + cooldown)) {
+                    const newCount = curCount + 1;
+                    view.setUint32(wOffset + 32, newCount, true);
+                    view.setUint16(oOffset + 2, colStatic.index, true);
+                    view.setUint32(oOffset + 12, newCount, true);
+                    view.setUint32(oOffset + 16, curOrd, true);
+                    setF16(view, oOffset + 20, 0);
+                    setF16(view, oOffset + 22, approach);
+                    setF16(view, oOffset + 24, 0);
+                    view.setUint8(oOffset + 26, 0);
+                    new Uint8Array(candidate.buffer, candidate.byteOffset + oOffset + 27, 5).fill(0);
+
+                    const targetSpeed = getF16(view, wOffset + 16);
+                    bDyn.vx = normalTowardDyn[0] * targetSpeed;
+                    bDyn.vy = normalTowardDyn[1] * targetSpeed;
+                    bDyn.vz = normalTowardDyn[2] * targetSpeed;
+                }
+                break;
+            }
+        }
+    };
 
     for (let s = 0; s < steps; s++) {
         // 1. Guides Force Evaluation
@@ -612,7 +1188,7 @@ function advanceCandidate(source, candidate) {
             const inside = loc[0] >= minX && loc[0] <= maxX &&
                            loc[1] >= minY && loc[1] <= maxY &&
                            loc[2] >= minZ && loc[2] <= maxZ &&
-                           loc[1] - targetBody.radius >= supportHeight - supportMargin &&
+                           loc[1] - targetBody.supportExtent >= supportHeight - supportMargin &&
                            locV[1] <= 0;
 
             if (inside) {
@@ -628,448 +1204,60 @@ function advanceCandidate(source, candidate) {
             }
         }
 
-        // 2. Symplectic Euler force & gravity integration
+        // 2. Symplectic Euler gravity integration about the centre of mass
         for (let b of dynamicBodies) {
             b.vx += b.gx * dt;
             b.vy += b.gy * dt;
             b.vz += b.gz * dt;
         }
 
-        // 3. Solve TGS Soft Contact Constraints
+        // 3. Narrowphase: one manifold per candidate pair from the current poses, up to four points each
+        for (let c of colliders) if (c.body.motion === 1) refreshCollider(c);
+        const contacts = [];
+        const manifolds = [];
         for (let [colA, colB] of candidatePairs) {
-            // A. Sphere-Plane Contact
-            if ((colA.shapeKind === 2 && colB.shapeKind === 0) || (colA.shapeKind === 0 && colB.shapeKind === 2)) {
-                const sphereCol = colA.shapeKind === 0 ? colA : colB;
-                const b = sphereCol.body;
-                if (b.motion !== 1) continue;
-
-                const gap = (b.py - b.radius) - planeY;
-                const featureKey = `plane_${b.id}`;
-                const v_normal = b.vy;
-                const v_rel = b.vy;
-
-                if (v_rel < -1e-4) {
-                    const d_spec = Math.abs(v_rel) * dt + CONTACT_SLOP;
-                    if (gap > 0 && gap <= d_spec) {
-                        const g = gap;
-                        const C = g;
-                        const v_target = -g / dt;
-                        const v_desired = v_target - bias_factor * C;
-                        const Delta_v = v_desired - v_normal;
-                        const cached = contactCache.get(featureKey);
-                        let lambda = cached?.lambda_n ?? 0;
-                        const v_in = Math.max(cached?.v_in ?? 0, Math.abs(v_rel));
-
-                        if (Delta_v > 0) {
-                            const delta_lambda = Delta_v / b.invMass;
-                            const new_lambda = Math.max(0, lambda + delta_lambda);
-                            const actual_delta = new_lambda - lambda;
-                            lambda = new_lambda;
-                            b.vy += actual_delta * b.invMass;
-                            contactCache.set(featureKey, { lambda_n: lambda, lambda_t: 0, v_in });
-                        }
-                        continue;
-                    }
-                }
-
-                if (gap <= 0) {
-                    const cached = contactCache.get(featureKey);
-                    const approach = Math.max(-b.vy, cached?.v_in ?? 0);
-                    const C = Math.min(0, gap + CONTACT_SLOP);
-                    const v_target = (approach > b.bounceThreshold) ? b.restitution * approach : 0;
-                    const Bias = v_target > 0 ? 0 : bias_factor * C;
-                    const v_desired = v_target - Bias;
-                    const Delta_v = v_desired - v_normal;
-
-                    let lambda = cached?.lambda_n ?? 0;
-
-                    if (approach >= -1e-4 && approach <= b.bounceThreshold && v_target === 0) {
-                        b.vy = -Bias;
-                        lambda = -b.gy * dt * b.mass;
-                        b.vx *= 0.95;
-                        b.vz *= 0.95;
-                        if (Math.abs(b.vx) < 1e-4) b.vx = 0;
-                        if (Math.abs(b.vz) < 1e-4) b.vz = 0;
-                        contactCache.set(featureKey, { lambda_n: lambda, lambda_t: 0 });
-                    } else if (Delta_v > 0) {
-                        const delta_lambda = Delta_v / b.invMass;
-                        const new_lambda = Math.max(0, lambda + delta_lambda);
-                        const actual_delta = new_lambda - lambda;
-                        lambda = new_lambda;
-                        b.vy += actual_delta * b.invMass;
-
-                        const speed_t = Math.hypot(b.vx, b.vz);
-                        if (speed_t > 1e-4) {
-                            const max_f = b.friction * actual_delta;
-                            const f_impulse = Math.min(speed_t * b.mass, max_f);
-                            b.vx -= (f_impulse * b.invMass) * (b.vx / speed_t);
-                            b.vz -= (f_impulse * b.invMass) * (b.vz / speed_t);
-                        }
-                        contactCache.set(featureKey, { lambda_n: lambda, lambda_t: 0 });
-                    }
-                } else {
-                    contactCache.delete(featureKey);
-                }
-            }
-            // B. Sphere-Sphere Contact
-            else if (colA.shapeKind === 0 && colB.shapeKind === 0) {
-                const bA = colA.body;
-                const bB = colB.body;
-                const dx = bA.px - bB.px;
-                const dy = bA.py - bB.py;
-                const dz = bA.pz - bB.pz;
-                const distSq = dx * dx + dy * dy + dz * dz;
-                // Static bodies carry no shape; both radii and materials belong to the paired colliders.
-                const rSum = colA.radius + colB.radius;
-                const featureKey = `sphere_${Math.min(bA.id, bB.id)}_${Math.max(bA.id, bB.id)}`;
-
-                if (distSq > 1e-6) {
-                    const dist = Math.sqrt(distSq);
-                    const nx = dx / dist;
-                    const ny = dy / dist;
-                    const nz = dz / dist;
-                    const gap = dist - rSum;
-                    const rvx = (bA.motion === 1 ? bA.vx : 0) - (bB.motion === 1 ? bB.vx : 0);
-                    const rvy = (bA.motion === 1 ? bA.vy : 0) - (bB.motion === 1 ? bB.vy : 0);
-                    const rvz = (bA.motion === 1 ? bA.vz : 0) - (bB.motion === 1 ? bB.vz : 0);
-                    const v_normal = rvx * nx + rvy * ny + rvz * nz;
-                    const v_rel = v_normal;
-                    const k = (bA.motion === 1 ? bA.invMass : 0) + (bB.motion === 1 ? bB.invMass : 0);
-
-                    if (v_rel < -1e-4) {
-                        const d_spec = Math.abs(v_rel) * dt + CONTACT_SLOP;
-                        if (gap > 0 && gap <= d_spec) {
-                            const g = gap;
-                            const C = g;
-                            const v_target = -g / dt;
-                            const v_desired = v_target - bias_factor * C;
-                            const Delta_v = v_desired - v_normal;
-                            const cached = contactCache.get(featureKey);
-                            let lambda = cached?.lambda_n ?? 0;
-                            const v_in = Math.max(cached?.v_in ?? 0, Math.abs(v_rel));
-
-                            if (Delta_v > 0 && k > 0) {
-                                const delta_lambda = Delta_v / k;
-                                const new_lambda = Math.max(0, lambda + delta_lambda);
-                                const actual_delta = new_lambda - lambda;
-                                lambda = new_lambda;
-
-                                if (bA.motion === 1) {
-                                    bA.vx += actual_delta * bA.invMass * nx;
-                                    bA.vy += actual_delta * bA.invMass * ny;
-                                    bA.vz += actual_delta * bA.invMass * nz;
-                                }
-                                if (bB.motion === 1) {
-                                    bB.vx -= actual_delta * bB.invMass * nx;
-                                    bB.vy -= actual_delta * bB.invMass * ny;
-                                    bB.vz -= actual_delta * bB.invMass * nz;
-                                }
-                                contactCache.set(featureKey, { lambda_n: lambda, lambda_t: 0, v_in });
-                            }
-                            continue;
-                        }
-                    }
-
-                    if (gap <= 0) {
-                        const cached = contactCache.get(featureKey);
-                        const approach = Math.max(-v_normal, cached?.v_in ?? 0);
-                        const restitution = colA.restitution * colB.restitution;
-                        const threshold = Math.max(colA.bounceThreshold, colB.bounceThreshold);
-                        const C = Math.min(0, gap + CONTACT_SLOP);
-                        const v_target = (approach > threshold) ? restitution * approach : 0;
-                        const Bias = v_target > 0 ? 0 : bias_factor * C;
-                        const v_desired = v_target - Bias;
-                        const Delta_v = v_desired - v_normal;
-
-                        let lambda = cached?.lambda_n ?? 0;
-
-                        if (Delta_v > 0 && k > 0) {
-                            const delta_lambda = Delta_v / k;
-                            const new_lambda = Math.max(0, lambda + delta_lambda);
-                            const actual_delta = new_lambda - lambda;
-                            lambda = new_lambda;
-
-                            if (bA.motion === 1) {
-                                bA.vx += actual_delta * bA.invMass * nx;
-                                bA.vy += actual_delta * bA.invMass * ny;
-                                bA.vz += actual_delta * bA.invMass * nz;
-                            }
-                            if (bB.motion === 1) {
-                                bB.vx -= actual_delta * bB.invMass * nx;
-                                bB.vy -= actual_delta * bB.invMass * ny;
-                                bB.vz -= actual_delta * bB.invMass * nz;
-                            }
-
-                            contactCache.set(featureKey, { lambda_n: lambda, lambda_t: 0 });
-                        }
-
-                        const isDynA = bA.motion === 1;
-                        const isDynB = bB.motion === 1;
-                        if ((isDynA && !isDynB) || (!isDynA && isDynB)) {
-                            const bDyn = isDynA ? bA : bB;
-                            const bStatic = isDynA ? bB : bA;
-                            const colStatic = isDynA ? colB : colA;
-                            const normStatic = isDynA ? [nx, ny, nz] : [-nx, -ny, -nz];
-                            const contactWorkCount = view.getUint32(104, true);
-                            const workOccCount = view.getUint32(108, true);
-                            for (let w = 0; w < contactWorkCount; w++) {
-                                const wOffset = 15136 + w * 64;
-                                const owner = view.getUint32(wOffset + 8, true);
-                                if (owner !== bStatic.bodySlot) continue;
-                                const kind = view.getUint32(wOffset + 12, true);
-                                const named = view.getUint32(wOffset + 28, true);
-                                if (kind === 1 && named !== bDyn.bodySlot) continue;
-                                const threshold = getF16(view, wOffset + 20);
-                                if (approach >= threshold) {
-                                    for (let o = 0; o < workOccCount; o++) {
-                                        const oOffset = 15648 + o * 32;
-                                        const occWork = view.getUint16(oOffset, true);
-                                        const targetLow = view.getUint32(oOffset + 4, true);
-                                        const targetHigh = view.getUint32(oOffset + 8, true);
-                                        if (occWork === w && targetLow === bDyn.bodyIdLow && targetHigh === bDyn.bodyIdHigh) {
-                                            const prevSeq = view.getUint32(oOffset + 12, true);
-                                            const prevOrd = view.getUint32(oOffset + 16, true);
-                                            const cooldown = view.getUint32(wOffset + 24, true);
-                                            const curOrd = sourceOrdinal + s + 1;
-                                            const curCount = view.getUint32(wOffset + 32, true);
-                                            const sourceWorkCount = new DataView(source.buffer, source.byteOffset, source.byteLength).getUint32(wOffset + 32, true);
-                                            if (curCount === sourceWorkCount && (prevSeq === 0 || curOrd >= prevOrd + cooldown)) {
-                                                const newCount = curCount + 1;
-                                                view.setUint32(wOffset + 32, newCount, true);
-                                                view.setUint16(oOffset + 2, colStatic.index, true);
-                                                view.setUint32(oOffset + 12, newCount, true);
-                                                view.setUint32(oOffset + 16, curOrd, true);
-                                                setF16(view, oOffset + 20, 0);
-                                                setF16(view, oOffset + 22, approach);
-                                                setF16(view, oOffset + 24, 0);
-                                                view.setUint8(oOffset + 26, 0);
-                                                new Uint8Array(candidate.buffer, candidate.byteOffset + oOffset + 27, 5).fill(0);
-
-                                                const targetSpeed = getF16(view, wOffset + 16) || 8.0;
-                                                bDyn.vx = normStatic[0] * targetSpeed;
-                                                bDyn.vy = normStatic[1] * targetSpeed;
-                                                bDyn.vz = normStatic[2] * targetSpeed;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        contactCache.delete(featureKey);
-                    }
-                } else {
-                    contactCache.delete(featureKey);
-                }
-            }
-            // C. Box-Sphere Contact
-            else if ((colA.shapeKind === 1 && colB.shapeKind === 0) || (colA.shapeKind === 0 && colB.shapeKind === 1)) {
-                const boxCol = colA.shapeKind === 1 ? colA : colB;
-                const sphereCol = colA.shapeKind === 0 ? colA : colB;
-                const b = sphereCol.body;
-                if (b.motion !== 1) continue;
-
-                const contact = solveBoxSphere(boxCol, b);
-                if (!contact) continue;
-
-                const featureKey = `box_${boxCol.index}_${b.id}_${contact.featureId}`;
-                const nx = contact.nx, ny = contact.ny, nz = contact.nz;
-                const rx = contact.pcx - b.px;
-                const ry = contact.pcy - b.py;
-                const rz = contact.pcz - b.pz;
-
-                const vpx = b.vx + (b.wy * rz - b.wz * ry);
-                const vpy = b.vy + (b.wz * rx - b.wx * rz);
-                const vpz = b.vz + (b.wx * ry - b.wy * rx);
-
-                const bBox = boxCol.body;
-                const vBx = bBox.motion === 1 ? bBox.vx : 0;
-                const vBy = bBox.motion === 1 ? bBox.vy : 0;
-                const vBz = bBox.motion === 1 ? bBox.vz : 0;
-
-                const rvx = vpx - vBx;
-                const rvy = vpy - vBy;
-                const rvz = vpz - vBz;
-
-                const vn = rvx * nx + rvy * ny + rvz * nz;
-                const v_normal = vn;
-                const v_rel = vn;
-                const k = b.invMass + (bBox.motion === 1 ? bBox.invMass : 0);
-
-                if (v_rel < -1e-4) {
-                    const d_spec = Math.abs(v_rel) * dt + CONTACT_SLOP;
-                    if (contact.gap > 0 && contact.gap <= d_spec) {
-                        const g = contact.gap;
-                        const C = g;
-                        const v_target = -g / dt;
-                        const v_desired = v_target - bias_factor * C;
-                        const Delta_vn = v_desired - v_normal;
-
-                        const cached = contactCache.get(featureKey);
-                        let lambda = cached?.lambda_n ?? 0;
-                        const v_in = Math.max(cached?.v_in ?? 0, Math.abs(v_rel));
-
-                        if (Delta_vn > 0 && k > 0) {
-                            const delta_lambda = Delta_vn / k;
-                            const new_lambda = Math.max(0, lambda + delta_lambda);
-                            const actual_delta = new_lambda - lambda;
-                            lambda = new_lambda;
-                            b.vx += actual_delta * b.invMass * nx;
-                            b.vy += actual_delta * b.invMass * ny;
-                            b.vz += actual_delta * b.invMass * nz;
-                            if (bBox.motion === 1) {
-                                bBox.vx -= actual_delta * bBox.invMass * nx;
-                                bBox.vy -= actual_delta * bBox.invMass * ny;
-                                bBox.vz -= actual_delta * bBox.invMass * nz;
-                            }
-                            contactCache.set(featureKey, { lambda_n: lambda, lambda_t: 0, v_in });
-                        }
-                        continue;
-                    }
-                }
-
-                if (contact.gap <= 0) {
-                    const cached = contactCache.get(featureKey);
-                    const approach = Math.max(-vn, cached?.v_in ?? 0);
-                    const C = Math.min(0, contact.gap + CONTACT_SLOP);
-                    const combinedRestitution = b.restitution * boxCol.restitution;
-                    const combinedThreshold = Math.max(b.bounceThreshold, boxCol.bounceThreshold);
-                    const v_target = (approach > combinedThreshold) ? combinedRestitution * approach : 0;
-                    const Bias = v_target > 0 ? 0 : bias_factor * C;
-                    const v_desired = v_target - Bias;
-                    const Delta_vn = v_desired - vn;
-
-                    let lambda = cached?.lambda_n ?? 0;
-                    let actual_delta = 0;
-
-                    if (approach <= b.bounceThreshold && v_target === 0) {
-                        const cur_vn = b.vx * nx + b.vy * ny + b.vz * nz;
-                        b.vx += (-Bias - cur_vn) * nx;
-                        b.vy += (-Bias - cur_vn) * ny;
-                        b.vz += (-Bias - cur_vn) * nz;
-                        const gn = b.gx * nx + b.gy * ny + b.gz * nz;
-                        lambda = -gn * dt * b.mass;
-                        actual_delta = Math.max(0, lambda);
-                        contactCache.set(featureKey, { lambda_n: lambda, lambda_t: 0 });
-                    } else if (Delta_vn > 0 && k > 0) {
-                        const delta_lambda = Delta_vn / k;
-                        const new_lambda = Math.max(0, lambda + delta_lambda);
-                        actual_delta = new_lambda - lambda;
-                        lambda = new_lambda;
-                        b.vx += actual_delta * b.invMass * nx;
-                        b.vy += actual_delta * b.invMass * ny;
-                        b.vz += actual_delta * b.invMass * nz;
-                        if (bBox.motion === 1) {
-                            bBox.vx -= actual_delta * bBox.invMass * nx;
-                            bBox.vy -= actual_delta * bBox.invMass * ny;
-                            bBox.vz -= actual_delta * bBox.invMass * nz;
-                        }
-                        contactCache.set(featureKey, { lambda_n: lambda, lambda_t: 0 });
-                    }
-
-                    // Tangential friction and rolling torque
-                    const n_vpx = b.vx + (b.wy * rz - b.wz * ry);
-                    const n_vpy = b.vy + (b.wz * rx - b.wx * rz);
-                    const n_vpz = b.vz + (b.wx * ry - b.wy * rx);
-                    const n_vn = n_vpx * nx + n_vpy * ny + n_vpz * nz;
-                    const vtx = n_vpx - n_vn * nx;
-                    const vty = n_vpy - n_vn * ny;
-                    const vtz = n_vpz - n_vn * nz;
-                    const speed_t = Math.hypot(vtx, vty, vtz);
-
-                    if (speed_t > 1e-4) {
-                        const tx = vtx / speed_t, ty = vty / speed_t, tz = vtz / speed_t;
-                        const Kt = 3.5 * b.invMass;
-                        const frictionCoeff = Math.sqrt(b.friction * boxCol.friction);
-                        const max_f = frictionCoeff * Math.max(lambda, actual_delta);
-                        const f_impulse = Math.min(speed_t / Kt, max_f);
-
-                        const dvx = -tx * f_impulse * b.invMass;
-                        const dvy = -ty * f_impulse * b.invMass;
-                        const dvz = -tz * f_impulse * b.invMass;
-                        b.vx += dvx;
-                        b.vy += dvy;
-                        b.vz += dvz;
-
-                        const cx = -(ny * dvz - nz * dvy) * (2.5 / b.radius);
-                        const cy = -(nz * dvx - nx * dvz) * (2.5 / b.radius);
-                        const cz = -(nx * dvy - ny * dvx) * (2.5 / b.radius);
-                        b.wx += cx;
-                        b.wy += cy;
-                        b.wz += cz;
-                    }
-
-                    if (bBox.motion === 0) {
-                        const triggerCount = view.getUint32(100, true);
-                        for (let t = 0; t < triggerCount; t++) {
-                            const tOffset = 14624 + t * 64;
-                            const owner = view.getUint32(tOffset + 8, true);
-                            if (owner !== bBox.bodySlot) continue;
-                            const kind = view.getUint32(tOffset + 12, true);
-                            const named = view.getUint32(tOffset + 24, true);
-                            if (kind === 1 && named !== b.bodySlot) continue;
-
-                            const threshold = getF16(view, tOffset + 16);
-                            if (approach >= threshold) {
-                                const curCount = view.getUint32(tOffset + 32, true);
-                                if (curCount === 0) {
-                                    view.setUint32(tOffset + 32, 1, true);
-                                    view.setUint32(tOffset + 36, boxCol.index, true);
-                                    view.setUint32(tOffset + 40, sourceOrdinal + s + 1, true);
-                                    setF16(view, tOffset + 44, 0);
-                                    setF16(view, tOffset + 46, approach);
-                                    view.setUint32(tOffset + 48, b.bodySlot, true);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    contactCache.delete(featureKey);
-                }
-            }
-            // D. Box-Box Contact
-            else if (colA.shapeKind === 1 && colB.shapeKind === 1) {
-                const bA = colA.body;
-                const bB = colB.body;
-                const contact = solveBoxBox(colA, colB);
-                if (contact && contact.gap <= 0) {
-                    const nx = contact.nx, ny = contact.ny, nz = contact.nz;
-                    const rvx = (bA.motion === 1 ? bA.vx : 0) - (bB.motion === 1 ? bB.vx : 0);
-                    const rvy = (bA.motion === 1 ? bA.vy : 0) - (bB.motion === 1 ? bB.vy : 0);
-                    const rvz = (bA.motion === 1 ? bA.vz : 0) - (bB.motion === 1 ? bB.vz : 0);
-                    const vn = rvx * nx + rvy * ny + rvz * nz;
-                    const approach = -vn;
-                    const k = (bA.motion === 1 ? bA.invMass : 0) + (bB.motion === 1 ? bB.invMass : 0);
-                    if (k > 0) {
-                        const C = Math.min(0, contact.gap + CONTACT_SLOP);
-                        const restitution = colA.restitution * colB.restitution;
-                        const v_target = (approach > Math.max(colA.bounceThreshold, colB.bounceThreshold)) ? restitution * approach : 0;
-                        const Bias = v_target > 0 ? 0 : bias_factor * C;
-                        const Delta_v = (v_target - Bias) - vn;
-                        if (Delta_v > 0) {
-                            const delta_lambda = Delta_v / k;
-                            if (bA.motion === 1) {
-                                bA.vx += delta_lambda * bA.invMass * nx;
-                                bA.vy += delta_lambda * bA.invMass * ny;
-                                bA.vz += delta_lambda * bA.invMass * nz;
-                            }
-                            if (bB.motion === 1) {
-                                bB.vx -= delta_lambda * bB.invMass * nx;
-                                bB.vy -= delta_lambda * bB.invMass * ny;
-                                bB.vz -= delta_lambda * bB.invMass * nz;
-                            }
-                        }
-                    }
-                }
-            }
+            // Stable pair order keeps the normal and tangent signs of a cached key identical between ticks.
+            if (colA.index > colB.index) { const swap = colA; colA = colB; colB = swap; }
+            const bA = colA.body, bB = colB.body;
+            const relSpeed = Math.hypot(bA.vx - bB.vx, bA.vy - bB.vy, bA.vz - bB.vz) +
+                Math.hypot(bA.wx, bA.wy, bA.wz) * colliderExtent(colA) + Math.hypot(bB.wx, bB.wy, bB.wz) * colliderExtent(colB);
+            const first = contacts.length;
+            generateManifold(colA, colB, SPECULATIVE_SLOP + relSpeed * dt, contacts);
+            if (contacts.length > first) manifolds.push(contacts.slice(first));
         }
+        for (const c of contacts) prepareContact(c, contactCache);
+        for (let b of dynamicBodies) { b.cm0 = [b.cmx, b.cmy, b.cmz]; b.q0 = [b.qx, b.qy, b.qz, b.qw]; }
 
-        // 4. Position Advancement and Motion Piece Recording
+        // 4. TGS Soft: warm start, biased solve, position integration, relax, restitution
+        for (const c of contacts) warmStartContact(c);
+        for (let iteration = 0; iteration < SOLVER_ITERATIONS; iteration++) sweepManifolds(manifolds, true, soft, dt);
+
         for (let b of dynamicBodies) {
-            b.localX += b.vx * dt * 16.0;
-            b.localY += b.vy * dt * 16.0;
-            b.localZ += b.vz * dt * 16.0;
+            const speed = Math.hypot(b.vx, b.vy, b.vz);
+            if (speed > SPEED_CLAMP) { const k = SPEED_CLAMP / speed; b.vx *= k; b.vy *= k; b.vz *= k; }
+            const spin = Math.hypot(b.wx, b.wy, b.wz);
+            if (spin > SPIN_CLAMP) { const k = SPIN_CLAMP / spin; b.wx *= k; b.wy *= k; b.wz *= k; }
+
+            const before = { cellX: b.cellX, cellY: b.cellY, cellZ: b.cellZ, localX: b.localX, localY: b.localY, localZ: b.localZ,
+                qx: b.qx, qy: b.qy, qz: b.qz, qw: b.qw };
+            // Orientation advances from the angular velocity; the origin follows the centre of mass.
+            let nqx = b.qx, nqy = b.qy, nqz = b.qz, nqw = b.qw;
+            const wLen = Math.hypot(b.wx, b.wy, b.wz);
+            if (wLen > 1e-9) {
+                const angle = wLen * dt;
+                const sAngle = Math.sin(angle * 0.5) / wLen;
+                const cAngle = Math.cos(angle * 0.5);
+                const nq = quatMultiply([b.wx * sAngle, b.wy * sAngle, b.wz * sAngle, cAngle], [b.qx, b.qy, b.qz, b.qw]);
+                const nqLen = Math.hypot(nq[0], nq[1], nq[2], nq[3]);
+                nqx = nq[0] / nqLen; nqy = nq[1] / nqLen; nqz = nq[2] / nqLen; nqw = nq[3] / nqLen;
+            }
+            const cmx = b.cmx + b.vx * dt, cmy = b.cmy + b.vy * dt, cmz = b.cmz + b.vz * dt;
+            const offset = rotateVector(nqx, nqy, nqz, nqw, b.comLocal[0], b.comLocal[1], b.comLocal[2]);
+            const nx = cmx - offset[0], ny = cmy - offset[1], nz = cmz - offset[2];
+            b.localX += (nx - b.px) * 16.0;
+            b.localY += (ny - b.py) * 16.0;
+            b.localZ += (nz - b.pz) * 16.0;
+            b.qx = nqx; b.qy = nqy; b.qz = nqz; b.qw = nqw;
 
             const carryX = Math.floor(b.localX + 0.5);
             const carryY = Math.floor(b.localY + 0.5);
@@ -1077,28 +1265,61 @@ function advanceCandidate(source, candidate) {
             b.cellX += carryX; b.localX -= carryX;
             b.cellY += carryY; b.localY -= carryY;
             b.cellZ += carryZ; b.localZ -= carryZ;
-            if (b.localX === 0.5) { b.cellX++; b.localX = -0.5; }
-            if (b.localY === 0.5) { b.cellY++; b.localY = -0.5; }
-            if (b.localZ === 0.5) { b.cellZ++; b.localZ = -0.5; }
+            if (toHalf(b.localX) >= 0.5) { b.cellX++; b.localX -= 1; }
+            if (toHalf(b.localY) >= 0.5) { b.cellY++; b.localY -= 1; }
+            if (toHalf(b.localZ) >= 0.5) { b.cellZ++; b.localZ -= 1; }
 
             b.px = (b.cellX + b.localX) / 16.0;
             b.py = (b.cellY + b.localY) / 16.0;
             b.pz = (b.cellZ + b.localZ) / 16.0;
 
-            const wLen = Math.hypot(b.wx, b.wy, b.wz);
-            if (wLen > 1e-6) {
-                const angle = wLen * dt;
-                const sAngle = Math.sin(angle * 0.5) / wLen;
-                const cAngle = Math.cos(angle * 0.5);
-                const dq = [b.wx * sAngle, b.wy * sAngle, b.wz * sAngle, cAngle];
-                const nq = quatMultiply(dq, [b.qx, b.qy, b.qz, b.qw]);
-                const nqLen = Math.hypot(nq[0], nq[1], nq[2], nq[3]) || 1.0;
-                b.qx = nq[0] / nqLen;
-                b.qy = nq[1] / nqLen;
-                b.qz = nq[2] / nqLen;
-                b.qw = nq[3] / nqLen;
+            // Game-grade: a non-finite candidate keeps the previous pose and drops its motion; the tick continues.
+            if (!Number.isFinite(b.px + b.py + b.pz + b.qx + b.qy + b.qz + b.qw + b.vx + b.vy + b.vz + b.wx + b.wy + b.wz)) {
+                Object.assign(b, before);
+                b.px = (b.cellX + b.localX) / 16.0; b.py = (b.cellY + b.localY) / 16.0; b.pz = (b.cellZ + b.localZ) / 16.0;
+                b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
             }
+            updateDynamicFrame(b);
+        }
 
+        for (let iteration = 0; iteration < RELAX_ITERATIONS; iteration++) sweepManifolds(manifolds, false, soft, dt);
+        for (const c of contacts) applyRestitution(c);
+        // Game-grade: a non-finite velocity produced by the final sweeps drops the motion; the finite pose stands.
+        for (let b of dynamicBodies)
+            if (!Number.isFinite(b.vx + b.vy + b.vz + b.wx + b.wy + b.wz)) b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
+
+        // Persist accumulated impulses by pair and feature for the next substep's warm start.
+        contactCache.clear();
+        // The carried approach is consumed by a bounce or by reaching the surface; a resting contact carries none.
+        for (const c of contacts) contactCache.set(c.key, { lambdaN: c.lambdaN, lambdaT1: c.lambdaT1, lambdaT2: c.lambdaT2, approach: (c.bounced || currentSeparation(c) <= 0) ? 0 : c.relVel });
+
+        // Declared static-owner responses to a qualifying approach (first touching point per manifold wins).
+        for (const c of contacts) {
+            if (c.maxImpulse <= 0 || currentSeparation(c) > 0) continue;
+            if (c.a.motion === 1 && c.b.motion === 0) emitContactEvents(c.colB, c.a, -c.relVel, [c.nx, c.ny, c.nz], s);
+            else if (c.b.motion === 1 && c.a.motion === 0) emitContactEvents(c.colA, c.b, -c.relVel, [-c.nx, -c.ny, -c.nz], s);
+        }
+
+        // Declared orientation-threshold sensors sample the substep endpoint: |<q, q0>| at or below the declared cosine
+        // half-angle fires once; the fired state is sticky until a fresh admission rearms it.
+        const orientationCount = view.getUint32(116, true);
+        for (let o = 0; o < orientationCount; o++) {
+            const oOffset = orientationOffset + o * 64;
+            if (view.getUint32(oOffset + 32, true) !== 0) continue;
+            const sensedSlot = view.getUint32(oOffset + 8, true);
+            const sensed = dynamicBodies.find(body => body.bodySlot === sensedSlot);
+            if (!sensed) continue;
+            const alignment = Math.abs(sensed.qx * getF16(view, oOffset + 16) + sensed.qy * getF16(view, oOffset + 18) +
+                sensed.qz * getF16(view, oOffset + 20) + sensed.qw * getF16(view, oOffset + 22));
+            if (alignment <= getF16(view, oOffset + 24)) {
+                view.setUint32(oOffset + 32, 1, true);
+                view.setUint32(oOffset + 36, sourceOrdinal + s + 1, true);
+                setF16(view, oOffset + 40, 0);
+            }
+        }
+
+        // Motion piece recording
+        for (let b of dynamicBodies) {
             const pieceOffset = motionOffset + headerBytes + (b.dynamicIndex * steps + s) * motionPieceBytes;
             new Uint8Array(candidate.buffer, candidate.byteOffset + pieceOffset, motionPieceBytes).fill(0);
             const pieceView = new DataView(candidate.buffer, candidate.byteOffset + pieceOffset, motionPieceBytes);

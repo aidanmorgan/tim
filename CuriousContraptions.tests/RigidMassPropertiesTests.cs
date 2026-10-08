@@ -118,11 +118,31 @@ public sealed class PhysicsBodyReadSetTests
     public void AngularMagnitudeRejectsComponentValidButVectorInvalidInput()
     {
         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default,
-            CanonicalRotation.Identity, default, new((Half)64, (Half)0, (Half)0), new((Half)1), default, default);
+            CanonicalRotation.Identity, default, new((Half)128, (Half)0, (Half)0), new((Half)1), default, default);
         body.Validate();
-        Assert.Throws<ArgumentException>(() => (body with { AngularVelocity = new((Half)64, (Half)64, (Half)0) }).Validate());
+        Assert.Throws<ArgumentException>(() => (body with { AngularVelocity = new((Half)128, (Half)128, (Half)0) }).Validate());
         (Read(1) with { AngularVelocity = body.AngularVelocity }).Validate();
-        Assert.Throws<ArgumentException>(() => (Read(1) with { AngularVelocity = new((Half)64, (Half)64, (Half)0) }).Validate());
+        Assert.Throws<ArgumentException>(() => (Read(1) with { AngularVelocity = new((Half)128, (Half)128, (Half)0) }).Validate());
+    }
+
+    [Fact]
+    public void DominoTileMomentsFollowTheDeclaredHalfExtentsAndMass()
+    {
+        var material = DominoMaterial.Default;
+        var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default, CanonicalRotation.Identity,
+            default, default, material.Mass, default, default);
+        var collider = new ColliderDeclaration(new(2), new(1), new(3), ColliderShapeKind.Box, RigidLocalPose.Identity, new((Half)0), material.HalfExtents);
+        var properties = RigidMassProperties.Compile(body, collider);
+        const double mass = .4, hx = .125, hy = .55, hz = .325;
+        Near(properties.X, mass * (hy * hy + hz * hz) / 3);
+        Near(properties.Y, mass * (hx * hx + hz * hz) / 3);
+        Near(properties.Z, mass * (hx * hx + hy * hy) / 3);
+        Assert.True(properties.X.Exponent > properties.Y.Exponent, "The tall tile resists tipping far more than spinning about its height");
+        static void Near(PrincipalInertia value, double expected)
+        {
+            value.Validate();
+            Assert.InRange(Math.Abs(Math.ScaleB((double)value.Mantissa, value.Exponent) - expected) / expected, 0, .003);
+        }
     }
 
     private static PhysicsBodyRead Read(ulong id) => new(

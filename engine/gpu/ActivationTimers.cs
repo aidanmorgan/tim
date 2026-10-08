@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace CuriousContraptions.Gpu;
 
-public enum ActivationOccurrenceKind : uint { Contact = 1, TimerElapsed = 2 }
+public enum ActivationOccurrenceKind : uint { Contact = 1, TimerElapsed = 2, Orientation = 3 }
 public enum ActivationTimerPhase : uint { Ready, Counting, Finished }
 
 /// <summary>Canonical physical boundary time, also used for integer-boundary controller outputs.</summary>
@@ -34,14 +34,17 @@ public readonly record struct ActivationTime(uint Ordinal, Half Phase) : ICompar
     }
 }
 
+/// <summary>Identity of a declared physical event source (contact trigger or orientation sensor) in the document identity space.</summary>
+public readonly record struct GpuEventSourceId(ulong Value);
+
 /// <summary>Physical provenance survives routing and delay without impersonating the delayed occurrence.</summary>
-public readonly record struct ActivationCause(GpuContactTriggerId Trigger, GpuBodyId Body,
+public readonly record struct ActivationCause(GpuEventSourceId Source, GpuBodyId Body,
     GpuColliderId Collider, ActivationTime Time, LinearSpeed ApproachSpeed)
 {
     public void Validate()
     {
         Time.Validate();
-        if (Trigger.Value == 0 || Body.Value == 0 || Collider.Value == 0 ||
+        if (Source.Value == 0 || Body.Value == 0 || Collider.Value == 0 ||
             !Half.IsFinite(ApproachSpeed.Value) || ApproachSpeed.Value < (Half)0 || ApproachSpeed.Value > (Half)4096)
             throw new ArgumentException("Invalid physical activation provenance.");
     }
@@ -54,7 +57,7 @@ public readonly record struct ActivationOccurrence(ActivationOccurrenceKind Kind
     {
         Time.Validate(); Cause.Validate();
         if (!Enum.IsDefined(Kind) || Emitter.Value == 0 || Time.CompareTo(Cause.Time) < 0 ||
-            (Kind == ActivationOccurrenceKind.Contact && Time != Cause.Time) ||
+            (Kind is ActivationOccurrenceKind.Contact or ActivationOccurrenceKind.Orientation && Time != Cause.Time) ||
             (Kind == ActivationOccurrenceKind.TimerElapsed && !PhysicsDeclarationBounds.Zero(Time.Phase)))
             throw new ArgumentException("Invalid activation occurrence.");
     }

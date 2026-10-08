@@ -14,8 +14,8 @@ internal static class WorkshopActivationWire
         for (var i = 0; i < read.Count; i++)
         {
             var value = read[i]; value.Validate(); var slot = bytes.Slice(i * RecordBytes, RecordBytes);
-            U64(slot, 0, value.Node.Value); U64(slot, 8, value.Owner.Value); U64(slot, 16, value.Trigger.Value);
-            U64(slot, 24, value.ContactBody.Value); U64(slot, 32, value.Collider.Value);
+            U64(slot, 0, value.Node.Value); U64(slot, 8, value.Owner.Value); U64(slot, 16, value.Source.Value);
+            U64(slot, 24, value.Body.Value); U64(slot, 32, value.Collider.Value);
             BinaryPrimitives.WriteUInt32LittleEndian(slot[40..], (uint)value.Phase);
             BinaryPrimitives.WriteUInt32LittleEndian(slot[44..], value.EventOrdinal);
             H(slot, 48, value.EventPhase); H(slot, 50, value.ApproachSpeed.Value);

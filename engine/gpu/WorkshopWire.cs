@@ -235,7 +235,7 @@ public static class WorkshopWire
         for (var i=0; i<read.Activations.Count; i++)
         {
             var value=read.Activations[i]; value.Validate();
-            if (value.Phase == ActivationPhase.Latched && (!read.Bodies.TryGet(value.ContactBody,out _) ||
+            if (value.Phase == ActivationPhase.Latched && (!read.Bodies.TryGet(value.Body,out _) ||
                 value.EventOrdinal>read.Tick.Value*8 || read.Tick.Value==0))
                 throw new ArgumentException("Activation event does not belong to a running physical world.");
         }
@@ -329,6 +329,10 @@ public static class WorkshopWire
                 case WorkshopBumper bumper:
                     Write(slot[104..], bumper.Work.Strength.Value); Write(slot[106..], bumper.Work.ReferenceMass.Value);
                     Write(slot[108..], bumper.Work.Preload.Value); break;
+                case WorkshopDomino domino:
+                    Write(slot[104..], domino.Material.HalfExtents.X); Write(slot[106..], domino.Material.HalfExtents.Y);
+                    Write(slot[108..], domino.Material.HalfExtents.Z); Write(slot[110..], domino.Material.Mass.Value);
+                    Write(slot[112..], domino.Material.Bounce.Value); Write(slot[114..], domino.Material.Friction.Value); break;
                 case WorkshopLamp: break;
                 default: throw new ArgumentException("Unsupported instance declaration.");
             }
@@ -384,6 +388,8 @@ public static class WorkshopWire
                     new(new(Read(slot[104..]))), locked == 1),
                 WorkshopPartKind.PinballBumper when Zero(slot[110..]) => new WorkshopBumper(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..]))), locked == 1),
+                WorkshopPartKind.Domino when Zero(slot[116..]) => new WorkshopDomino(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[104..]), Read(slot[106..]), Read(slot[108..])), new(Read(slot[110..])), new(Read(slot[112..])), new(Read(slot[114..]))), locked == 1),
                 WorkshopPartKind.SignalLamp when Zero(slot[104..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),
                 _ => throw new ArgumentException("Unsupported instance kind or parameters.")
             };

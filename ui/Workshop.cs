@@ -39,6 +39,7 @@ public partial class Workshop : Node3D
     private float _azimuth, _elevation, _zoom = 13.8f;
     private const int FreeWorkshopIndex = 1;
     private const int DelayedSignalIndex = 2;
+    private const int DominoEffectIndex = 3;
     private GpuBodyId _nextId = new(1);
     private IReadOnlyDictionary<WorkshopPartKind, PartAllowance> _inventory = new Dictionary<WorkshopPartKind, PartAllowance>();
     private readonly List<WorkshopConstruction> _undo = new();
@@ -57,6 +58,7 @@ public partial class Workshop : Node3D
         _picker.AddItem("First principles");
         _picker.AddItem("Free workshop");
         _picker.AddItem("Wait for it");
+        _picker.AddItem("The domino effect");
         PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
@@ -733,7 +735,9 @@ public partial class Workshop : Node3D
             ? "Start with a gentle slope below the ball. Use the second ramp to continue the journey toward the receiver."
             : World.Construction.Puzzle.Id == WorkshopPuzzleId.DelayedSignal
                 ? "Connect switch → delay → lamp. A trigger starts the one-second countdown; further triggers are ignored until Reset."
-                : "Place the Basketball at two different heights and compare its fall.";
+                : World.Construction.Puzzle.Id == WorkshopPuzzleId.DominoEffect
+                    ? "Stand four tiles between the ball and the fixed end domino, one metre apart, so each falling tile strikes the next. Connect the end domino → lamp."
+                    : "Place the Basketball at two different heights and compare its fall.";
         if (_hint.Visible) HideHint();
         else { _hint.Visible = true; RevealHint(); }
         _objectivePanel.Size = new(266, 0);

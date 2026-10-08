@@ -69,6 +69,7 @@ const UI_ANCHORS = {
         wall: { x: 130, y: 343 },
         delay: { x: 130, y: 390 },
         bumper: { x: 130, y: 450 },
+        domino: { x: 130, y: 562 },
         ramp: { x: 130, y: 155 },
     },
     picker: {
@@ -76,6 +77,7 @@ const UI_ANCHORS = {
         first_principles: { x: 600, y: 95 },
         free_workshop: { x: 600, y: 125 },
         delayed_signal: { x: 600, y: 155 },
+        domino_effect: { x: 600, y: 172 },
     },
     menu: {
         button: { x: 1394, y: 46 },
@@ -85,12 +87,12 @@ const UI_ANCHORS = {
         resume: { x: 1130, y: 240 },
     },
     dock: {
-        // Free workshop lists eight unlimited rows (Ramp appended last), so its part dock sits one row lower than before.
+        // Free workshop lists nine unlimited rows (Ramp, then Domino appended last), so its part dock sits one row lower than the eight-row layout.
         free_workshop: {
-            move: { x: 60, y: 605 },
-            rotate: { x: 104, y: 605 },
-            resize: { x: 148, y: 605 },
-            delete: { x: 192, y: 605 },
+            move: { x: 60, y: 656 },
+            rotate: { x: 104, y: 656 },
+            resize: { x: 148, y: 656 },
+            delete: { x: 192, y: 656 },
         },
         first_principles: {
             move: { x: 40, y: 275 },
@@ -103,32 +105,56 @@ const UI_ANCHORS = {
             rotate: { x: 72, y: 275 },
             resize: { x: 104, y: 275 },
             delete: { x: 136, y: 275 },
+        },
+        domino_effect: {
+            move: { x: 40, y: 275 },
+            rotate: { x: 72, y: 275 },
+            resize: { x: 104, y: 275 },
+            delete: { x: 136, y: 275 },
         }
     },
+    // Each "Connect ActivationOut" / "Disconnect signal" row above the dock pushes the part dock down by one row.
+    signalRowHeight: 41,
     // Activation wiring buttons rendered by ui/WorkshopConnections.cs inside the parts panel (Godot canvas).
     connections: {
-        // "Connect ActivationOut" row: a locked level part shows no configuration rows above it; a Delay shows its duration row first.
+        // "Connect ActivationOut" row: a locked level part shows no configuration rows above it; a Delay shows its duration row first;
+        // a Domino in the nine-row free workshop lists it under the palette.
         connect: {
             locked: { x: 133, y: 236 },
             delay: { x: 133, y: 277 },
+            domino: { x: 133, y: 644 },
         },
-        // "ActivationOut → ActivationIn" choice offered after clicking the target part.
-        choice: { x: 133, y: 232 },
+        // "ActivationOut → ActivationIn" choice offered after clicking the target part: the row takes the connect row's place.
+        choice: {
+            authored: { x: 133, y: 232 },
+            free_workshop: { x: 133, y: 644 },
+        },
     },
     // "Show hint" lightbulb button inside the objective panel (ui/Workshop.cs ShowHint); the panel height follows the task text.
     hint: {
         first_principles: { x: 1186, y: 260 },
         delayed_signal: { x: 1186, y: 214 },
+        domino_effect: { x: 1186, y: 260 },
+    },
+    // Fine rotate (ui/WorkshopGuidance.cs): the toggle sits at the foot of the Workshop menu; once the menu is scrolled to its end the
+    // "Tilt − / +" row (±5° about Z per press) is at a fixed position.
+    fineRotate: {
+        toggle: { x: 1056, y: 698 },
+        scrollAt: { x: 1200, y: 500 },
+        tilt: { decrease: { x: 1115, y: 413 }, increase: { x: 1159, y: 413 } },
     }
 } as const;
+
+export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect';
 
 export class WorkshopDriver {
     readonly browser: Browser;
     readonly context: BrowserContext;
     readonly page: Page;
     readonly baseUrl: string;
-    currentLevel: 'free_workshop' | 'first_principles' | 'delayed_signal' = 'free_workshop';
+    currentLevel: WorkshopLevel = 'free_workshop';
     capturedCount: number = 0;
+    private fineRotateOpen = false; // the Fine rotate toggle flips; a page reload or level change rebuilds the menu closed
 
     private constructor(browser: Browser, context: BrowserContext, page: Page, baseUrl: string) {
         this.browser = browser;
@@ -181,6 +207,7 @@ export class WorkshopDriver {
     async reload(): Promise<void> {
         this.capturedCount = 0;
         this.currentLevel = 'free_workshop';
+        this.fineRotateOpen = false;
         await this.page.reload();
         await this.waitForReady();
     }
@@ -207,10 +234,10 @@ export class WorkshopDriver {
     }
 
     // High-level UI operations (encapsulating all UI button locations)
-    async selectTool(kind: 'basketball' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver'): Promise<void> {
+    async selectTool(kind: 'basketball' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver' | 'domino'): Promise<void> {
         let anchor: { x: number; y: number } = UI_ANCHORS.palette[kind];
-        if (this.currentLevel === 'delayed_signal' && kind === 'delay') {
-            anchor = { x: 130, y: 155 };
+        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino')) {
+            anchor = { x: 130, y: 155 }; // the authored inventory's single palette row
         }
         if (this.currentLevel === 'free_workshop' && kind === 'ramp') {
             anchor = { x: 130, y: 511 }; // Ramp is the appended eighth free-workshop palette row.
@@ -219,10 +246,11 @@ export class WorkshopDriver {
         await this.clickAt(anchor.x, anchor.y, 200);
     }
 
-    async selectLevel(level: 'first_principles' | 'free_workshop' | 'delayed_signal'): Promise<void> {
+    async selectLevel(level: WorkshopLevel): Promise<void> {
         await this.clickAt(UI_ANCHORS.picker.button.x, UI_ANCHORS.picker.button.y, 300);
         await this.clickAt(UI_ANCHORS.picker[level].x, UI_ANCHORS.picker[level].y, 300);
         this.currentLevel = level;
+        this.fineRotateOpen = false;
         // Choosing a level disposes the worker client and creates a new one; wait for the same readiness as a fresh page.
         await this.waitForReady();
     }
@@ -230,7 +258,8 @@ export class WorkshopDriver {
     // Toggle the authored puzzle's hint through its real button (reveal on the first press, hide on the next).
     async showHint(): Promise<void> {
         const anchor = this.currentLevel === 'first_principles' ? UI_ANCHORS.hint.first_principles
-            : this.currentLevel === 'delayed_signal' ? UI_ANCHORS.hint.delayed_signal : null;
+            : this.currentLevel === 'delayed_signal' ? UI_ANCHORS.hint.delayed_signal
+            : this.currentLevel === 'domino_effect' ? UI_ANCHORS.hint.domino_effect : null;
         if (!anchor) throw new Error(`Level ${this.currentLevel} has no hint button`);
         await this.clickAt(anchor.x, anchor.y, 300);
     }
@@ -241,10 +270,27 @@ export class WorkshopDriver {
         await this.clickAt(x, y, 300);
     }
 
-    async setPartMode(mode: 'move' | 'rotate' | 'resize' | 'delete'): Promise<void> {
+    // signalRows: connection rows the selected part shows above its dock (a Domino shows "Connect ActivationOut"; a wired part adds "Disconnect signal").
+    async setPartMode(mode: 'move' | 'rotate' | 'resize' | 'delete', signalRows: number = 0): Promise<void> {
         const anchor = UI_ANCHORS.dock[this.currentLevel][mode];
         if (!anchor) throw new Error(`Unknown part mode ${mode} for level ${this.currentLevel}`);
-        await this.clickAt(anchor.x, anchor.y, 300);
+        await this.clickAt(anchor.x, anchor.y + signalRows * UI_ANCHORS.signalRowHeight, 300);
+    }
+
+    // Rotate the selected part about Z in 5° steps through the Workshop menu's Fine rotate row (positive steps press "Tilt +").
+    // Closing the menu with Escape also deselects the part, so select it again afterwards. Idempotent: the toggle is pressed only while closed.
+    async tiltSelectedByFineRotate(steps: number): Promise<void> {
+        await this.openMenu();
+        if (!this.fineRotateOpen) {
+            await this.clickAt(UI_ANCHORS.fineRotate.toggle.x, UI_ANCHORS.fineRotate.toggle.y, 400);
+            this.fineRotateOpen = true;
+        }
+        await this.page.mouse.move(UI_ANCHORS.fineRotate.scrollAt.x, UI_ANCHORS.fineRotate.scrollAt.y);
+        await this.page.mouse.wheel(0, 2000);
+        await this.page.waitForTimeout(500);
+        const button = steps >= 0 ? UI_ANCHORS.fineRotate.tilt.increase : UI_ANCHORS.fineRotate.tilt.decrease;
+        for (let i = 0; i < Math.abs(steps); i++) await this.clickAt(button.x, button.y, 300);
+        await this.closeMenu();
     }
 
     async tiltSelectedRamp(centerX: number, centerY: number, degrees: number = -20): Promise<void> {
@@ -334,12 +380,13 @@ export class WorkshopDriver {
     }
 
     // Wire an activation signal source → target purely through the Godot connection buttons.
-    async connectActivation(source: { x: number; y: number; panel: 'locked' | 'delay' }, target: { x: number; y: number }): Promise<void> {
+    async connectActivation(source: { x: number; y: number; panel: 'locked' | 'delay' | 'domino' }, target: { x: number; y: number }): Promise<void> {
         await this.selectPartAt(source.x, source.y);
         const connect = UI_ANCHORS.connections.connect[source.panel];
         await this.clickAt(connect.x, connect.y, 300);
         await this.clickAt(target.x, target.y, 600);
-        await this.clickAt(UI_ANCHORS.connections.choice.x, UI_ANCHORS.connections.choice.y, 800);
+        const choice = this.currentLevel === 'free_workshop' ? UI_ANCHORS.connections.choice.free_workshop : UI_ANCHORS.connections.choice.authored;
+        await this.clickAt(choice.x, choice.y, 800);
     }
 
     // Lift a freshly placed part and drop a different part kind directly beneath it (free workshop placement plane is y = 3 m).

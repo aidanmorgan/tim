@@ -52,7 +52,7 @@ public static partial class PhysicsGpuAbi
             events[i]=value;
         }
         if (!AllZero(data[(ContactWorksOffset+count*ContactWorkBytes)..WorkOccurrencesOffset]) ||
-            !AllZero(data[(WorkOccurrencesOffset+eventCount*WorkOccurrenceBytes)..MotionOffset]))
+            !AllZero(data[(WorkOccurrencesOffset+eventCount*WorkOccurrenceBytes)..OrientationSensorsOffset]))
             throw new ArgumentException("Unused contact-work slots changed.");
         return new(stores[..count],events[..eventCount]);
     }

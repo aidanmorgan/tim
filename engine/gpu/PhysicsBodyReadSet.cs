@@ -8,9 +8,9 @@ public readonly record struct PhysicsBodyRead(CanonicalBody Body, CanonicalRotat
     public void Validate()
     {
         Body.Validate(); Rotation.ValidateCommitted();
-        PhysicsDeclarationBounds.Vector(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z, (Half)64);
+        PhysicsDeclarationBounds.Vector(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z, (Half)128);
         var w = AngularVelocity;
-        if ((double)w.X * (double)w.X + (double)w.Y * (double)w.Y + (double)w.Z * (double)w.Z > 4096)
+        if ((double)w.X * (double)w.X + (double)w.Y * (double)w.Y + (double)w.Z * (double)w.Z > 16384)
             throw new ArgumentException("Angular velocity exceeds the admitted vector magnitude.");
         PhysicsDeclarationBounds.Vector(LocalCentreOfMass.X, LocalCentreOfMass.Y, LocalCentreOfMass.Z, (Half)16);
     }

@@ -116,7 +116,8 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
         if (Revision.Value == 0) throw new ArgumentException("Construction revision must be nonzero.");
         Settings.Validate();
         ArgumentNullException.ThrowIfNull(Instances);
-        Instances.Validate(); ArgumentNullException.ThrowIfNull(Connections); Connections.Validate(Instances); Puzzle.Validate(this);
+        Instances.Validate(); ArgumentNullException.ThrowIfNull(Connections); Connections.Validate(Instances);
+        WorkbenchCapacity.ValidateConnected(Instances, Connections); Puzzle.Validate(this);
     }
 }
 
@@ -184,6 +185,14 @@ public static class WorkshopInput
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopBumper(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
             new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), work);
+        result.Validate(); return result;
+    }
+    public static WorkshopDomino Domino(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopDomino(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), DominoMaterial.Default);
         result.Validate(); return result;
     }
     public static WorkshopLamp Lamp(GpuBodyId id, double x, double y, double z,

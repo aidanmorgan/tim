@@ -105,6 +105,7 @@ public partial class MachineWorld
                 Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopBumper bumper ? bumper.Work :
                     Registry.Definitions[WorkshopPartKind.PinballBumper].Bumper!.Capture()),
             WorkshopPartKind.SignalLamp => WorkshopInput.Lamp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+            WorkshopPartKind.Domino => WorkshopInput.Domino(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             _ => throw new ArgumentException("Unsupported instance kind.")
         };
     }

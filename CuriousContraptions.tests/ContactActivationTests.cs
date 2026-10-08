@@ -13,7 +13,7 @@ public sealed class ContactActivationTests
     private static PhysicsActivationRead Consume(ActivationNetwork network, PhysicsActivationRead prior, ContactTriggerRead[] events)
     {
         var tick = events.Length == 0 ? 1UL : events.Max(e => new ActivationTime(e.EventOrdinal,e.EventPhase).CeilingTick(4));
-        return network.Consume(prior, network.ClearTimers(), events, new(tick)).Activations;
+        return network.Consume(prior, network.ClearTimers(), events, new(tick), []).Activations;
     }
     private static void ValidateRead(ActivationNetwork network, PhysicsActivationRead read, SimulationTick tick,
         uint substeps, PhysicsSceneDeclaration scene) => network.ValidateRead(read, network.ClearTimers(), tick, substeps, scene);
@@ -98,7 +98,7 @@ public sealed class ContactActivationTests
         Assert.Equal(ActivationPhase.Latched, candidate[0].Phase);
         Assert.Equal(ActivationPhase.Latched, candidate[1].Phase);
         Assert.Equal(impact.Collider, candidate[1].Collider);
-        Assert.Equal(impact.Id, candidate[1].Trigger);
+        Assert.Equal(impact.Id.Value, candidate[1].Source.Value);
         var replay = Consume(network, candidate, new[] { impact });
         Assert.Equal(candidate[0], replay[0]); Assert.Equal(candidate[1], replay[1]);
         var bounced = Consume(network, candidate, new[] { impact with { EventOrdinal = 20, ApproachSpeed = new((Half)2) } });
@@ -148,8 +148,8 @@ public sealed class ContactActivationTests
         foreach (var changed in new[]
         {
             active[0] with { Node = new(1) }, active[0] with { Owner = new(99) },
-            active[0] with { Collider = new(99) }, active[0] with { Trigger = new(99) },
-            active[0] with { ContactBody = new(99) }, active[0] with { ApproachSpeed = new((Half).5) }
+            active[0] with { Collider = new(99) }, active[0] with { Source = new(99) },
+            active[0] with { Body = new(99) }, active[0] with { ApproachSpeed = new((Half).5) }
         }) Assert.Throws<ArgumentException>(() => ValidateRead(network, new(new[] { changed, active[1] }), new(3), 4, scene));
         var disconnected = Activation(false).Network;
         Assert.Throws<ArgumentException>(() => ValidateRead(disconnected, active, new(3), 4, scene));

@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-09-2026 02:40
+last_updated: 10-09-2026 07:15
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -48,13 +48,13 @@ development_status:
   4-3-legacy-presentation-code-retirement: done
   epic-4-retrospective: optional
 
-  epic-5: in-progress
-  5-1-dynamic-box-rigid-body-upright-stability: ready-for-dev
-  5-2-domino-cascade-orientation-threshold-sensor: backlog
+  epic-5: done
+  5-1-dynamic-box-rigid-body-upright-stability: done
+  5-2-domino-cascade-orientation-threshold-sensor: done
   epic-5-retrospective: optional
 
-  epic-6: backlog
-  6-1-bowling-ball-dynamic-sphere: backlog
+  epic-6: in-progress
+  6-1-bowling-ball-dynamic-sphere: ready-for-dev
   6-2-bumper-radial-impulse-work-store: backlog
   6-3-bumper-multi-angle-contacts: backlog
   6-4-prismatic-slider-tgs-soft-spring: backlog

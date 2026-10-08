@@ -612,7 +612,7 @@ public sealed class WorkshopSimulationTests
         var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,new GpuBodyId(1),1,collider,1,(Half)0,new((Half)1));
         WorkshopRead Counting(WorkshopRead read)
         {
-            var checkpoint = network.Consume(read.Activations,read.Timers,new[] {occurrence},read.Tick);
+            var checkpoint = network.Consume(read.Activations,read.Timers,new[] {occurrence},read.Tick,[]);
             network.ValidateRead(checkpoint.Activations,checkpoint.Timers,read.Tick,4,scene);
             return read with { Activations=checkpoint.Activations,Timers=checkpoint.Timers };
         }

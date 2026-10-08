@@ -50,6 +50,7 @@
         <Compile Include="parts/WallPart.cs" />
         <Compile Include="parts/DelayPart.cs" />
         <Compile Include="parts/BumperPart.cs" />
+        <Compile Include="parts/DominoPart.cs" />
         <Compile Include="ui/Workshop.cs" />
         <Compile Include="ui/WorkshopGpu.cs" />
         <Compile Include="ui/WorkshopConnections.cs" />

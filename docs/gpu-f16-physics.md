@@ -99,6 +99,7 @@ Every puzzle element is an instance of one or more shared physical capabilities 
 | **Force Regions** | Spatial bounds (box, cylinder, cone), bounded acceleration vector or field equation (gravity, directional guide, fan airflow, fluid buoyancy). | Applied during sub-step force accumulation; acceleration clamped to $\le 64\text{ m/s}^2$. |
 | **Sensors** | Spatial trigger volume, target filter mask, sensor kind (Aperture Crossing, Convex Residence), required dwell duration, velocity threshold. | Evaluated continuously: aperture crossings use exact sub-tick planar root-finding; residence sensors accumulate dwell over sub-steps. |
 | **Contact Triggers** | Target collision pair, approach velocity threshold, rearm condition. | First qualifying impact per tick generates a typed event occurrence; triggers mechanical or electrical transitions. |
+| **Orientation Sensors** | Sensed dynamic body, admitted initial orientation, threshold as the cosine of half the angle (Domino: 45°). | Evaluated at every sub-step endpoint: $|\langle q, q_0\rangle| \le \cos(\theta/2)$ fires one typed occurrence; the fired state is sticky within the world and only a fresh admission (Reset) rearms it. |
 | **Finite Work Stores** | Stored potential energy capacity, discharge rate limit, recharge coupling. | Thermodynamic power debiting: total power extracted by connected loads cannot exceed available stored power ($\Delta K \le E_{\text{store}}$). |
 | **Network Nodes** | Terminal IDs, node potential, branch conductance, transmission latency, spectral optical band, acoustic frequency. | Evaluated in staged domain sub-passes (Modified Nodal Analysis for circuits, ray marching for optics, acoustic field culling). |
 
@@ -146,7 +147,8 @@ The solver advances physical time at a fixed **120 Hz tick with 480 Hz sub-stepp
   If an object remains inside its fat AABB, zero tree modifications occur, eliminating up to 95% of tree updates for resting or sliding objects.
 
 ### 2. Narrowphase: Analytic Manifolds & 4-Point Area Reduction
-- **Branchless Analytic Primitives:** Sphere-Sphere, Sphere-Box, Box-Box (15-axis SAT), and Capsule-Plane are computed via closed-form geometry without iterative GJK/EPA loops.
+- **Branchless Analytic Primitives:** Sphere-Sphere, Sphere-Box, Box-Box (15-axis SAT with reference-face clipping), Sphere-Plane, Box-Plane (up to four deepest vertices) and Capsule-Plane are computed via closed-form geometry without iterative GJK/EPA loops.
+- **One Constraint Row for Every Pair:** each manifold point becomes the same TGS Soft row (lever arms about the centre of mass, world inverse inertia from the compiled principal moments, two-axis Coulomb friction with a circular cone, warm start keyed by collider pair and feature, speculative margin, dissipative restitution). Pair laws are geometric-mean friction, product restitution and maximum bounce threshold from the declared materials; no shape or element owns a different response.
 - **Hollow SDFs:** Pipes, chutes, and funnels evaluate signed distance fields with toroidal rim caps, eliminating snagging and internal face artifacts.
 - **4-Point Manifold Reduction:** Contact polygons from face clipping are reduced to the 4 area-maximizing extreme points (deepest point, furthest point, and two points maximizing triangle/quad area).
 - **Feature ID Warm-Starting:** Each contact point caches a 32-bit packed `FeatureId`. Matching features across sub-steps inherit accumulated normal and friction impulses, reducing solver convergence sweeps by over 50%.

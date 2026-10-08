@@ -18,6 +18,7 @@ public sealed class WorkbenchCapacityTests
         WorkshopPartKind.SignalLamp => WorkshopInput.Lamp(Id(), X(i), 1, 6, 0, 0, 0, 1),
         WorkshopPartKind.Delay => WorkshopInput.Delay(Id(), X(i), 1, -6, 0, 0, 0, 1, DelayDuration.Default),
         WorkshopPartKind.PinballBumper => WorkshopInput.Bumper(Id(), X(i), 3, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength((Half)8)),
+        WorkshopPartKind.Domino => WorkshopInput.Domino(Id(), X(i), .09, 2, 0, 0, 0, 1),
         _ => throw new ArgumentException("Unsupported test kind.")
     };
     private static WorkshopInstances Population(params (WorkshopPartKind Kind, int Count)[] groups)
@@ -66,6 +67,7 @@ public sealed class WorkbenchCapacityTests
     [Theory]
     [InlineData(WorkbenchTable.Instances, WorkshopPartKind.Wall, 33, WorkshopPartKind.Wall, 0)]
     [InlineData(WorkbenchTable.DynamicBodies, WorkshopPartKind.Basketball, 17, WorkshopPartKind.Wall, 0)]
+    [InlineData(WorkbenchTable.DynamicBodies, WorkshopPartKind.Domino, 9, WorkshopPartKind.Basketball, 8)]
     [InlineData(WorkbenchTable.Colliders, WorkshopPartKind.Receiver, 12, WorkshopPartKind.ImpactSwitch, 3)]
     [InlineData(WorkbenchTable.Sensors, WorkshopPartKind.Receiver, 2, WorkshopPartKind.Basketball, 9)]
     [InlineData(WorkbenchTable.Guides, WorkshopPartKind.Receiver, 2, WorkshopPartKind.Basketball, 1)]
@@ -92,6 +94,7 @@ public sealed class WorkbenchCapacityTests
     [InlineData(WorkshopPartKind.SignalLamp)]
     [InlineData(WorkshopPartKind.Delay)]
     [InlineData(WorkshopPartKind.PinballBumper)]
+    [InlineData(WorkshopPartKind.Domino)]
     public void DeclaredFootprintMatchesWhatTheCompilersEmit(WorkshopPartKind kind)
     {
         var construction = Free(Population((kind, 1)));
@@ -139,7 +142,7 @@ public sealed class WorkbenchCapacityTests
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
         WorkshopPartKind[] rows = [WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp,
-            WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Ramp];
+            WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Ramp, WorkshopPartKind.Domino];
         Assert.Equal(rows, WorkshopInventoryPolicy.Free.Keys.ToArray());
         Assert.All(WorkshopInventoryPolicy.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(Enum.GetValues<WorkshopPartKind>().Count(kind => kind != WorkshopPartKind.Unsupported), WorkshopInventoryPolicy.Free.Count);

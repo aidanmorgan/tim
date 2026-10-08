@@ -219,9 +219,9 @@
 <a id="cat-023-i"></a>
 ### CAT-023-I · domino
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-023). **Requirements (Incomplete):** [CAT-023](../requirements.md#current-cat-023). **Legacy deleted at this element's slice:** [parts/DominoPart.cs](../../../parts/DominoPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-023). **Requirements (Incomplete):** [CAT-023](../requirements.md#current-cat-023). **Legacy deleted at this element's slice:** the physics and tilt-sensor members of [parts/DominoPart.cs](../../../parts/DominoPart.cs) (the file remains artwork only). **Mode records:** Configuration=Fixed.
 
-**First visible interaction / minimum collaborators:** Basketball tips Domino into a second tile and its activation output is observed on Signal lamp. **Capability:** dynamic rigid Box body (mass, inertia, local centre-of-mass offset) plus an orientation-threshold sensor (angle from initial pose, emits once, rearms on Reset), both generic declarations. **Level:** domino_effect.
+**First visible interaction / minimum collaborators:** Basketball tips Domino into a second tile and its activation output is observed on Signal lamp. **Capability:** dynamic rigid Box body (mass, inertia; the local centre-of-mass offset is deferred to CAT-014) plus an orientation-threshold sensor (angle from initial pose, emits once, rearms on Reset), both generic declarations. **Level:** domino_effect.
 
 **Distinct controls / next boundary:** Near-but-no-contact, a 10° nudge does not emit, and once-only signal/Reset controls. **Done when:** domino_effect solved through the UI with four dominoes and fails with three; the lamp fires once per Run; Reset/Save-Load exact; `grep -i domino` in solver source finds nothing.
 

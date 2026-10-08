@@ -9,10 +9,10 @@ namespace CuriousContraptions.Tests;
 [Collection<NativeSceneCollection>]
 public class BodyDiagnosticTests(NativeSceneFixture godot)
 {
-    public enum Fixture { Ball, Domino, Spring }
+    public enum Fixture { Ball, Spring }
     private static string Kind(Fixture fixture)=>fixture switch
     {
-        Fixture.Ball=>"ball",Fixture.Domino=>"domino",Fixture.Spring=>WoundSpringPart.CatalogId,
+        Fixture.Ball=>"ball",Fixture.Spring=>WoundSpringPart.CatalogId,
         _=>throw new ArgumentOutOfRangeException(nameof(fixture))
     };
     private MachineWorld World()
@@ -30,8 +30,6 @@ public class BodyDiagnosticTests(NativeSceneFixture godot)
     [Theory]
     [InlineData(Fixture.Ball,false)]
     [InlineData(Fixture.Ball,true)]
-    [InlineData(Fixture.Domino,false)]
-    [InlineData(Fixture.Domino,true)]
     [InlineData(Fixture.Spring,false)]
     [InlineData(Fixture.Spring,true)]
     public void RuntimeReportReadsOwnedBodiesBeforePresentationAndWhilePaused(Fixture fixture,bool paused)

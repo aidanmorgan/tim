@@ -297,33 +297,6 @@ public class TrampolineTests(NativeSceneFixture godot)
         finally{world.Free();}
     }
 
-    [Fact]
-    public void BoxLoadUsesActualColliderRatherThanItsBoundingSphere()
-    {
-        var world=World();
-        try
-        {
-            var bed=Bed(world);
-            var tile=(DominoPart)world.AddPart(new(){Id=Id(Role.Cargo),Kind="domino",Position=[0,4.4f,0]});
-            // Lowest face is y=4.3: above the membrane, even though its bounding
-            // sphere would already overlap. The box remains a free shared body.
-            tile.InitialVelocity=Vector3.Down*2;
-            world.Start();
-            var rebounded=false;
-            for(var i=0;i<160;i++)
-            {
-                world.Step();
-                rebounded|=world.PhysicsAssembly.Body(new(tile,MachinePart.RootBody)).LinearVelocity.Y>.2f;
-            }
-            Assert.True(rebounded);
-            Assert.Equal(1,bed.ImpactCount);
-            Assert.Equal(BodyEnvelope.None,tile.CollisionEnvelope);
-            world.Restore();
-            Assert.Equal(0,world.Parts.OfType<TrampolinePart>().Single().ContactCount);
-        }
-        finally {world.Free();}
-    }
-
     [Theory]
     [InlineData(0f,.12f)]
     [InlineData(1201f,.12f)]

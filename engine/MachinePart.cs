@@ -34,7 +34,7 @@ public partial class MachinePart : Node3D
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper) ||
+        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino) ||
             (definition.WorkshopKind == WorkshopPartKind.Basketball && definition.Basketball is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Ramp && definition.Ramp is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Wall && definition.Wall is null) ||

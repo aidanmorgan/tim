@@ -34,7 +34,10 @@ public static partial class PhysicsGpuAbi
     public const int ContactWorksOffset = TriggersOffset + PhysicsSceneDeclaration.TriggerCapacity * TriggerBytes;
     public const int WorkOccurrencesOffset = ContactWorksOffset + PhysicsSceneDeclaration.ContactWorkCapacity * ContactWorkBytes;
     public const int WorkOccurrenceBytes = 32;
-    public const int MotionOffset = WorkOccurrencesOffset + PhysicsContactWorkRead.OccurrenceCapacity * WorkOccurrenceBytes;
+    // Orientation sensors: declaration (id, body slot, initial rotation, cos half-angle) in the first 32 bytes, sticky fired state after.
+    public const int OrientationSensorBytes = 64;
+    public const int OrientationSensorsOffset = WorkOccurrencesOffset + PhysicsContactWorkRead.OccurrenceCapacity * WorkOccurrenceBytes;
+    public const int MotionOffset = OrientationSensorsOffset + PhysicsSceneDeclaration.OrientationSensorCapacity * OrientationSensorBytes;
     public const int CacheOffset = MotionOffset + PhysicsMotionRead.ByteLength;
     public const int CacheCapacity = 888 * 4;
     public const int CacheBytes = 32;
@@ -52,7 +55,7 @@ public static partial class PhysicsGpuAbi
         U32(data, 12, (uint)scene.Bodies.Length); U32(data, 16, (uint)scene.Colliders.Length);
         U32(data, 20, (uint)scene.Materials.Length); U32(data, 24, (uint)scene.Sensors.Length);
         U32(data, 28, 0); U32(data, 96, (uint)scene.Guides.Length); U32(data, 100, (uint)scene.Triggers.Length);
-        U32(data, 104, (uint)scene.ContactWorks.Length);
+        U32(data, 104, (uint)scene.ContactWorks.Length); U32(data, 116, (uint)scene.OrientationSensors.Length);
         U64(data, 32, epoch.Value); U32(data, 48, (uint)profile.Cadence);
         U32(data, 52, (uint)profile.Physical); U64(data, 56, profile.Revision.Value);
         U64(data, 64, scene.Document.Low); U64(data, 72, scene.Document.High); U64(data, 80, scene.NextIdentity);
@@ -127,6 +130,13 @@ public static partial class PhysicsGpuAbi
             U32(record,28,work.Targets.Kind==BodyTargetKind.NamedBody ? BodySlot(scene,work.Targets.Body) : NoBody);
             H(record, 16, work.TargetSpeed.Value); H(record, 18, work.InitialEnergy.Value); H(record, 20, work.Threshold.Value);
             U32(record, 24, work.CooldownPhysicalSteps); H(record, 48, work.InitialEnergy.Value);
+        }
+        for (var i = 0; i < scene.OrientationSensors.Length; i++)
+        {
+            var sensor = scene.OrientationSensors[i];
+            var record = data.Slice(OrientationSensorsOffset + i * OrientationSensorBytes, OrientationSensorBytes);
+            U64(record, 0, sensor.Id.Value); U32(record, 8, BodySlot(scene, sensor.Body));
+            Rotation(record, 16, sensor.Initial); H(record, 24, sensor.Threshold.CosineHalfAngle);
         }
         var occurrence=0;
         for (var work=0; work<scene.ContactWorks.Length; work++)
@@ -265,6 +275,33 @@ public static partial class PhysicsGpuAbi
             targetId, count, collider, R32(record, 40), RH(record, 44), new(RH(record, 46)));
     }
 
+    public static OrientationSensorRead ReadOrientationSensor(ReadOnlySpan<byte> data, int slot)
+    {
+        if (ReadFailure(data) != PhysicsFailure.None || slot < 0 || (uint)slot >= R32(data, 116))
+            throw new ArgumentException("Invalid orientation sensor read.");
+        var record = data.Slice(OrientationSensorsOffset + slot * OrientationSensorBytes, OrientationSensorBytes);
+        var body = R32(record, 8); var phase = (OrientationSensorPhase)R32(record, 32);
+        if (R64(record, 0) == 0 || body >= R32(data, 12) || !Enum.IsDefined(phase) ||
+            !AllZero(record[12..16]) || !AllZero(record[26..32]) || !AllZero(record[42..]))
+            throw new ArgumentException("Invalid orientation sensor declaration or padding.");
+        var bodyRecord = data.Slice(BodiesOffset + checked((int)body) * BodyBytes, BodyBytes);
+        if ((RigidMotionKind)R32(bodyRecord, 8) != RigidMotionKind.Dynamic)
+            throw new ArgumentException("Orientation sensor body is not dynamic.");
+        ReadRotation(record, 16).Validate();
+        new OrientationThreshold(RH(record, 24)).Validate();
+        var ordinal = R32(record, 36); var eventPhase = RH(record, 40);
+        // Endpoint-sampled: a fired sensor names one substep boundary inside the admitted time; an armed one holds no event.
+        if (phase == OrientationSensorPhase.Armed
+            ? ordinal != 0 || !PhysicsDeclarationBounds.Zero(eventPhase)
+            : ordinal == 0 || !PhysicsDeclarationBounds.Zero(eventPhase) || !AdmittedTime(ordinal, eventPhase, R32(data, 88)))
+            throw new ArgumentException("Invalid orientation sensor event.");
+        var colliderSlot = R32(bodyRecord, 120);
+        if (colliderSlot >= R32(data, 16) || R32(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes + 8) != body)
+            throw new ArgumentException("Orientation sensor body has no owned collider.");
+        return new(new(R64(record, 0)), new(R64(bodyRecord, 0)),
+            new(R64(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes)), phase, ordinal, eventPhase);
+    }
+
     /// <summary>Required before committing a GPU result; selected reads alone do not qualify a candidate.</summary>
     public static PhysicsCandidateRead ValidateCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick)
     {
@@ -276,7 +313,7 @@ public static partial class PhysicsGpuAbi
             !candidate[..4].SequenceEqual(source[..4]) ||
             !candidate[12..40].SequenceEqual(source[12..40]) ||
             !candidate[48..88].SequenceEqual(source[48..88]) ||
-            !candidate[96..116].SequenceEqual(source[96..116]))
+            !candidate[96..120].SequenceEqual(source[96..120]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
         var bodyCount=checked((int)R32(source,12)); var dynamicCount=0;
         for (var i=0; i<bodyCount; i++)
@@ -347,6 +384,28 @@ public static partial class PhysicsGpuAbi
         if (!AllZero(candidate[(TriggersOffset + triggerCount * TriggerBytes)..ContactWorksOffset]))
             throw new ArgumentException("Unused contact trigger slots changed.");
         ValidateContactWorkCandidate(candidate, source, expectedTick);
+        var orientationCount = checked((int)R32(source, 116));
+        for (var i = 0; i < orientationCount; i++)
+        {
+            var offset = OrientationSensorsOffset + i * OrientationSensorBytes;
+            if (!candidate.Slice(offset, 32).SequenceEqual(source.Slice(offset, 32)))
+                throw new ArgumentException("Orientation sensor declaration changed.");
+            // At admission the body record still holds the admitted rotation: the sensor's initial pose must be exactly that.
+            // Later ticks keep the declaration bytes equal to the source, so the invariant carries forward.
+            if (expectedTick.Value == 0 && !candidate.Slice(offset + 16, 8).SequenceEqual(
+                    candidate.Slice(BodiesOffset + checked((int)R32(candidate, offset + 8)) * BodyBytes + 40, 8)))
+                throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
+            var current = ReadOrientationSensor(candidate, i); var previous = ReadOrientationSensor(source, i);
+            // Sticky within a world: a fired sensor never regresses or re-emits; a new event belongs to this interval.
+            if (previous.Phase == OrientationSensorPhase.Fired)
+            {
+                if (current != previous) throw new ArgumentException("A fired orientation sensor regressed or emitted again.");
+            }
+            else if (current.Phase == OrientationSensorPhase.Fired && (expectedTick.Value == 0 || current.EventOrdinal <= R32(source, 88)))
+                throw new ArgumentException("Orientation event does not belong to this candidate interval.");
+        }
+        if (!AllZero(candidate[(OrientationSensorsOffset + orientationCount * OrientationSensorBytes)..MotionOffset]))
+            throw new ArgumentException("Unused orientation sensor slots changed.");
         if (expectedTick.Value != 0 && (R32(candidate, MotionOffset + 4) != profile.Substeps ||
             R32(candidate, MotionOffset + 12) != R32(candidate, 88)))
             throw new ArgumentException("Motion profile differs from its committed world.");
@@ -424,6 +483,7 @@ const SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.SensorCapacity}u;
 const GUIDE_CAPACITY:u32={PhysicsSceneDeclaration.GuideCapacity}u;
 const TRIGGER_CAPACITY:u32={PhysicsSceneDeclaration.TriggerCapacity}u;
 const CONTACT_WORK_CAPACITY:u32={PhysicsSceneDeclaration.ContactWorkCapacity}u;
+const ORIENTATION_SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.OrientationSensorCapacity}u;
 const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
 const STATUS_COMMITTED:u32={(uint)PhysicsCandidateStatus.Committed}u;
 const STATUS_INVALID:u32={(uint)PhysicsCandidateStatus.Invalid}u;
@@ -465,7 +525,7 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             R32(data, 104) > PhysicsSceneDeclaration.ContactWorkCapacity ||
             (R64(data, 64) == 0 && R64(data, 72) == 0) || R64(data, 80) == 0 ||
             R32(data,28)>PhysicsBodyReadSet.Capacity || R32(data,108)>PhysicsContactWorkRead.OccurrenceCapacity ||
-            R32(data,112)>CacheCapacity || !AllZero(data[116..128]))
+            R32(data,112)>CacheCapacity || R32(data,116)>PhysicsSceneDeclaration.OrientationSensorCapacity || !AllZero(data[120..128]))
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;

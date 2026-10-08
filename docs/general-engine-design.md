@@ -47,7 +47,7 @@ An element is defined only by its visual, physics and animation behaviours: whic
 | Constraint, drive and transfer port | Body/frame endpoints, allowed degrees of freedom, axes/limits, stiffness/damping, bounded effort, source/store IDs and work-conjugate couplings | Shared Box2D v3 TGS Soft constraint rows and domain networks |
 | Force region | Static-frame region, declared bounded acceleration law (gravity, guide, fan/jet, buoyancy), admitted targets | Shared WASM SIMD force-region evaluator |
 | Material inventory and field | Species/mass, energy/enthalpy, phase/constitutive data, thermal/fluid/electrical/optical/acoustic/radiation ports, geometry and explicit environment boundaries | Shared multi-domain network solvers |
-| Sensor and contact trigger | Typed observable kind (residence, aperture, impact), target bodies/regions/frames, channel filters, threshold/hysteresis, dwell in ticks, capacity | WASM predicates sampled at substep endpoints; committed typed outputs |
+| Sensor and contact trigger | Typed observable kind (residence, aperture, impact, orientation threshold from the admitted pose), target bodies/regions/frames, channel filters, threshold/hysteresis, dwell in ticks, capacity | WASM predicates sampled at substep endpoints; committed typed outputs |
 | Controller definition | Finite enum states, typed Boolean/enum/event tests, integer tick/deadline operations, transition priority and typed actuator intents | Reusable C# discrete state machine; no physical formula |
 | Goal definition | Typed quantity/rate/window/order/protected-state predicate and target identities; exact occurrence and completion rules | WASM observations plus reusable C# goal orchestration |
 | Animation definition | Shared evaluator kind, typed curve/track parameters, start/end/duration/repeat, clock projection, feedback/event bindings, overlap/visibility/removal policy | Separate C# animation worker |
@@ -78,7 +78,7 @@ Each 120 Hz tick advances through four 480 Hz substeps under the [solver model](
    - **Acoustic and Pneumatic Fields:** Evaluates pressure distributions, duct flow continuity, acoustic cone projections, and nozzle momentum transfer.
    - **Thermodynamic Accounting:** Proportional power allocation debiting finite energy stores with strict conservation: kinetic energy gain cannot exceed stored potential ($\Delta K \le E_{\text{store}}$). No free energy.
 2. **External Forces and Velocity Integration:**
-   - Integrates gravitational acceleration, declared force regions (conveyor drag, airflow jets, buoyancy), and damping into linear and angular velocities using 128-bit SIMD vector instructions (`wasm_f32x4`).
+   - Integrates gravitational acceleration and declared force regions (conveyor drag, airflow jets, buoyancy) into linear velocity using 128-bit SIMD vector instructions (`wasm_f32x4`); angular velocity changes only through contact impulses. Rotation uses the compiled principal inertia of each body record (sphere and box alike); the solver carries no shape-specific inertia constants. The declared `LinearDrag` coefficient is compiled into the record but not yet applied by the worker (deferred work).
 3. **Broadphase Collision Detection:**
    - Queries the Dynamic AABB Bounding Volume Hierarchy (BVH). Leaf nodes use speculative velocity fattening ($|\mathbf{v}|\Delta t + \text{slop}$) and surface-area-heuristic incremental tree rotations.
    - Eliminates 85–95% of tree updates during steady motion, pruning non-colliding pairs in $O(N \log N)$ time.

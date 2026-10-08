@@ -312,6 +312,21 @@ public sealed class WorkshopWireTests
         return read with { Motion = PhysicsMotionRead.Decode(bytes, read.Bodies, read.Tick) };
     }
 
+    [Fact]
+    public void MotionPiecesAdmitTheWorkerAngularClampAndRejectBeyondIt()
+    {
+        // The worker clamps |omega| below 128 rad/s; the piece decode must admit 100 rad/s and reject (100,100,0) ≈ 141 rad/s.
+        var body = new CanonicalBody(new(1), 1, 1, new(0, 9, 0), default, default);
+        var read = new WorkshopRead(new(1), new(1), new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, new((Half)100, (Half)0, (Half)0), default) }));
+        var described = Described(read);
+        Assert.Equal((int)Profile.Substeps, described.Motion!.Count);
+        var bytes = described.Motion.Bytes.ToArray();
+        for (var i = 0; i < Profile.Substeps; i++)
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes + 74),
+                BitConverter.HalfToUInt16Bits((Half)100));
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, read.Bodies, read.Tick));
+    }
+
     private static PhysicsBodyReadSet Bodies(CanonicalBody body) =>
         new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default) });
     private static WorkshopBall OnlyBasketball(WorkshopConstruction construction) =>
@@ -732,7 +747,7 @@ public sealed class WorkshopWireTests
         Assert.Equal(guide, copied.Guides[0]);
         Assert.Empty(GenericScene.Guides.ToArray());
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
-        foreach (var (offset, value) in new[] { (0, 3u), (0, 6u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, (uint)PhysicsSceneDeclaration.ContactWorkCapacity + 1), (108, (uint)PhysicsContactWorkRead.OccurrenceCapacity + 1), (116, 1u) })
+        foreach (var (offset, value) in new[] { (0, 3u), (0, 6u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, (uint)PhysicsSceneDeclaration.ContactWorkCapacity + 1), (108, (uint)PhysicsContactWorkRead.OccurrenceCapacity + 1), (116, (uint)PhysicsSceneDeclaration.OrientationSensorCapacity + 1), (120, 1u) })
         {
             var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(offset), value);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(changed));

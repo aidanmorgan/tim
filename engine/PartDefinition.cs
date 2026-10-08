@@ -9,7 +9,7 @@ public partial class PartDefinition : Resource
     [Export] public string Id
     {
         get => _id;
-        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, "wall" => WorkshopPartKind.Wall, "delay" => WorkshopPartKind.Delay, "bumper" => WorkshopPartKind.PinballBumper, _ => WorkshopPartKind.Unsupported }; }
+        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, "wall" => WorkshopPartKind.Wall, "delay" => WorkshopPartKind.Delay, "bumper" => WorkshopPartKind.PinballBumper, "domino" => WorkshopPartKind.Domino, _ => WorkshopPartKind.Unsupported }; }
     }
     public WorkshopPartKind WorkshopKind { get; private set; }
     [Export] public BumperWorkResource? Bumper { get; set; }

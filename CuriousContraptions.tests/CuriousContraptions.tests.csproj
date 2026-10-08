@@ -51,6 +51,9 @@
         <Compile Include="WorkshopWallTests.cs" />
         <Compile Include="WorkshopDelayTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />
+        <Compile Include="WorkshopDominoTests.cs" />
+        <Compile Include="OrientationSensorTests.cs" />
+        <Compile Include="DominoEffectTests.cs" />
         <Compile Include="WorkbenchCapacityTests.cs" />
         <Compile Include="DelayedSignalTests.cs" />
         <Compile Include="ActivationTimerTests.cs" />

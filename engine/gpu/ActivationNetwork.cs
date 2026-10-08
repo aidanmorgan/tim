@@ -5,21 +5,21 @@ using System.Runtime.CompilerServices;
 namespace CuriousContraptions.Gpu;
 
 public readonly record struct ActivationNodeId(ulong Value);
-public enum ActivationNodeKind : uint { ContactSource = 1, Latch = 2, Timer = 3 }
+public enum ActivationNodeKind : uint { ContactSource = 1, Latch = 2, Timer = 3, OrientationSource = 4 }
 public enum ActivationPhase : uint { Clear, Latched }
 public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
-    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0);
+    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default);
 public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target);
 
 public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId Owner, ActivationPhase Phase,
-    GpuContactTriggerId Trigger, GpuBodyId ContactBody, GpuColliderId Collider, uint EventOrdinal,
+    GpuEventSourceId Source, GpuBodyId Body, GpuColliderId Collider, uint EventOrdinal,
     Half EventPhase, LinearSpeed ApproachSpeed, ActivationOccurrenceKind Kind = default,
     ActivationNodeId Emitter = default, uint CauseOrdinal = 0, Half CausePhase = default)
 {
     public ActivationOccurrence Occurrence => new(Kind, Emitter, new(EventOrdinal, EventPhase),
-        new(Trigger, ContactBody, Collider, new(CauseOrdinal, CausePhase), ApproachSpeed));
+        new(Source, Body, Collider, new(CauseOrdinal, CausePhase), ApproachSpeed));
     public static ActivationLatch From(ActivationNodeDeclaration node, ActivationOccurrence occurrence) =>
-        new(node.Id, node.Owner, ActivationPhase.Latched, occurrence.Cause.Trigger, occurrence.Cause.Body,
+        new(node.Id, node.Owner, ActivationPhase.Latched, occurrence.Cause.Source, occurrence.Cause.Body,
             occurrence.Cause.Collider, occurrence.Time.Ordinal, occurrence.Time.Phase, occurrence.Cause.ApproachSpeed,
             occurrence.Kind, occurrence.Emitter, occurrence.Cause.Time.Ordinal, occurrence.Cause.Time.Phase);
     public static ActivationLatch Clear(ActivationNodeDeclaration node) => new(node.Id, node.Owner,
@@ -33,7 +33,7 @@ public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId O
             throw new ArgumentException("Invalid activation latch.");
         if (Phase == ActivationPhase.Clear)
         {
-            if (Trigger.Value != 0 || ContactBody.Value != 0 || Collider.Value != 0 || EventOrdinal != 0 ||
+            if (Source.Value != 0 || Body.Value != 0 || Collider.Value != 0 || EventOrdinal != 0 ||
                 !PhysicsDeclarationBounds.Zero(EventPhase) || !PhysicsDeclarationBounds.Zero(ApproachSpeed.Value) ||
                 Kind != 0 || Emitter.Value != 0 || CauseOrdinal != 0 || !PhysicsDeclarationBounds.Zero(CausePhase))
                 throw new ArgumentException("Clear activation retained an event.");
@@ -84,6 +84,7 @@ public sealed class ActivationNetwork
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
         Array.Sort(_nodes, (a,b) => a.Id.Value.CompareTo(b.Id.Value));
         var owners = new HashSet<GpuBodyId>(); var triggers = new HashSet<GpuContactTriggerId>();
+        var sensors = new HashSet<GpuOrientationSensorId>();
         var timers = new List<ActivationTimerDeclaration>();
         for (var i = 0; i < _nodes.Length; i++)
         {
@@ -91,6 +92,7 @@ public sealed class ActivationNetwork
             if (node.Id.Value == 0 || node.Owner.Value == 0 || !Enum.IsDefined(node.Kind) || !owners.Add(node.Owner) ||
                 (i != 0 && _nodes[i - 1].Id == node.Id) ||
                 (node.Kind == ActivationNodeKind.ContactSource ? node.Trigger.Value == 0 || !triggers.Add(node.Trigger) : node.Trigger.Value != 0) ||
+                (node.Kind == ActivationNodeKind.OrientationSource ? node.Sensor.Value == 0 || !sensors.Add(node.Sensor) : node.Sensor.Value != 0) ||
                 (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0))
                 throw new ArgumentException("Invalid activation node declaration.");
             if (node.Kind == ActivationNodeKind.Timer) timers.Add(new(node.Id, node.DurationTicks));
@@ -100,7 +102,7 @@ public sealed class ActivationNetwork
         foreach (var edge in _edges)
             if (edge.Source == edge.Target || !links.Add(edge) || Slot(edge.Source) < 0 || Slot(edge.Target) < 0 ||
                 _nodes[Slot(edge.Source)].Kind == ActivationNodeKind.Latch ||
-                _nodes[Slot(edge.Target)].Kind == ActivationNodeKind.ContactSource)
+                _nodes[Slot(edge.Target)].Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.OrientationSource)
                 throw new ArgumentException("Unsupported activation edge.");
         Array.Sort(_edges, (a,b) => a.Source != b.Source ? a.Source.Value.CompareTo(b.Source.Value) : a.Target.Value.CompareTo(b.Target.Value));
     }
@@ -118,10 +120,11 @@ public sealed class ActivationNetwork
     }
 
     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
-        ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary)
+        ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations)
     {
         ValidatePopulation(committed, committedTimers);
         if (events.Length > PhysicsSceneDeclaration.TriggerCapacity) throw new ArgumentException("Contact capacity exceeded.");
+        if (orientations.Length > PhysicsSceneDeclaration.OrientationSensorCapacity) throw new ArgumentException("Orientation capacity exceeded.");
         var end = ActivationTime.Boundary(boundary, _substeps);
         Span<ActivationLatch> values = stackalloc ActivationLatch[Capacity];
         Span<ActivationTimerState> timers = stackalloc ActivationTimerState[Capacity];
@@ -141,7 +144,7 @@ public sealed class ActivationNetwork
             if (item.OccurrenceCount == 0) continue;
             var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
             var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Contact, _nodes[slot].Id, time,
-                new(item.Id, item.Target, item.Collider, time, item.ApproachSpeed));
+                new(new(item.Id.Value), item.Target, item.Collider, time, item.ApproachSpeed));
             occurrence.Validate();
             if (time.CompareTo(end) > 0) throw new ArgumentException("Future contact occurrence.");
             if (values[slot].Phase == ActivationPhase.Latched)
@@ -149,6 +152,41 @@ public sealed class ActivationNetwork
                 var prior = values[slot].Occurrence;
                 var order = time.CompareTo(prior.Time);
                 if (order < 0 || (order == 0 && occurrence != prior)) throw new ArgumentException("Stale or changed occurrence.");
+                continue;
+            }
+            pending[count++] = occurrence;
+        }
+        // Every orientation source must be read each tick: a missing read would silently leave its Domino unlatched.
+        for (var i = 0; i < _nodes.Length; i++)
+        {
+            if (_nodes[i].Kind != ActivationNodeKind.OrientationSource) continue;
+            var found = false;
+            for (var j = 0; j < orientations.Length; j++) if (orientations[j].Id == _nodes[i].Sensor) found = true;
+            if (!found) throw new ArgumentException("Orientation sensor read is missing.");
+        }
+        // A fired orientation sensor is sticky within its world: the committed latch and the read must agree exactly.
+        for (var i = 0; i < orientations.Length; i++)
+        {
+            var item = orientations[i]; var slot = -1;
+            for (var j = 0; j < _nodes.Length; j++)
+                if (_nodes[j].Kind == ActivationNodeKind.OrientationSource && _nodes[j].Sensor == item.Id) slot = j;
+            if (slot < 0 || item.Body != _nodes[slot].Owner || !Enum.IsDefined(item.Phase))
+                throw new ArgumentException("Unowned orientation occurrence.");
+            for (var j = 0; j < i; j++) if (orientations[j].Id == item.Id)
+                throw new ArgumentException("Duplicate orientation occurrence batch.");
+            if (item.Phase == OrientationSensorPhase.Armed)
+            {
+                if (values[slot].Phase == ActivationPhase.Latched) throw new ArgumentException("Orientation sensor regressed.");
+                continue;
+            }
+            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
+            var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, _nodes[slot].Id, time,
+                new(new(item.Id.Value), item.Body, item.Collider, time, new((Half)0)));
+            occurrence.Validate();
+            if (time.CompareTo(end) > 0) throw new ArgumentException("Future orientation occurrence.");
+            if (values[slot].Phase == ActivationPhase.Latched)
+            {
+                if (values[slot].Occurrence != occurrence) throw new ArgumentException("Changed orientation occurrence.");
                 continue;
             }
             pending[count++] = occurrence;
@@ -224,8 +262,11 @@ public sealed class ActivationNetwork
             var occurrence = value.Occurrence;
             ValidateOccurrence(occurrence, end, scene);
             if (node.Kind == ActivationNodeKind.ContactSource &&
-                (occurrence.Kind != ActivationOccurrenceKind.Contact || occurrence.Emitter != node.Id || occurrence.Cause.Trigger != node.Trigger))
+                (occurrence.Kind != ActivationOccurrenceKind.Contact || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.Trigger.Value))
                 throw new ArgumentException("Physical activation does not own its trigger.");
+            if (node.Kind == ActivationNodeKind.OrientationSource &&
+                (occurrence.Kind != ActivationOccurrenceKind.Orientation || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.Sensor.Value))
+                throw new ArgumentException("Orientation activation does not own its sensor.");
             if (node.Kind == ActivationNodeKind.Latch)
             {
                 var expected = EarliestInput(node.Id, values);
@@ -264,22 +305,42 @@ public sealed class ActivationNetwork
         occurrence.Validate();
         if (occurrence.Time.CompareTo(end) > 0) throw new ArgumentException("Future activation read.");
         var emitter = Slot(occurrence.Emitter);
-        if (emitter < 0 || (occurrence.Kind == ActivationOccurrenceKind.Contact ?
-            _nodes[emitter].Kind != ActivationNodeKind.ContactSource : _nodes[emitter].Kind != ActivationNodeKind.Timer))
-            throw new ArgumentException("Foreign activation emitter.");
-        ContactTriggerDeclaration? trigger = null;
-        foreach (var candidate in scene.Triggers) if (candidate.Id == occurrence.Cause.Trigger) trigger = candidate;
-        if (trigger is not { } contact || !contact.Targets.Contains(occurrence.Cause.Body) ||
-            occurrence.Cause.ApproachSpeed.Value < contact.Threshold.Value ||
-            (occurrence.Kind == ActivationOccurrenceKind.Contact && contact.Owner != _nodes[emitter].Owner))
-            throw new ArgumentException("Activation cause differs from the declared contact.");
+        var expectedKind = occurrence.Kind switch
+        {
+            ActivationOccurrenceKind.Contact => ActivationNodeKind.ContactSource,
+            ActivationOccurrenceKind.Orientation => ActivationNodeKind.OrientationSource,
+            _ => ActivationNodeKind.Timer
+        };
+        if (emitter < 0 || _nodes[emitter].Kind != expectedKind) throw new ArgumentException("Foreign activation emitter.");
+        // The document allocates every physical identity once, so one source id names at most one trigger or sensor.
+        ContactTriggerDeclaration? trigger = null; OrientationSensorDeclaration? sensor = null;
+        foreach (var candidate in scene.Triggers) if (candidate.Id.Value == occurrence.Cause.Source.Value) trigger = candidate;
+        foreach (var candidate in scene.OrientationSensors) if (candidate.Id.Value == occurrence.Cause.Source.Value) sensor = candidate;
+        GpuBodyId colliderOwner;
+        if (trigger is { } contact)
+        {
+            if (occurrence.Kind == ActivationOccurrenceKind.Orientation || !contact.Targets.Contains(occurrence.Cause.Body) ||
+                occurrence.Cause.ApproachSpeed.Value < contact.Threshold.Value ||
+                (occurrence.Kind == ActivationOccurrenceKind.Contact && contact.Owner != _nodes[emitter].Owner))
+                throw new ArgumentException("Activation cause differs from the declared contact.");
+            colliderOwner = contact.Owner;
+        }
+        else if (sensor is { } turned)
+        {
+            if (occurrence.Kind == ActivationOccurrenceKind.Contact || turned.Body != occurrence.Cause.Body ||
+                !PhysicsDeclarationBounds.Zero(occurrence.Cause.ApproachSpeed.Value) ||
+                (occurrence.Kind == ActivationOccurrenceKind.Orientation && turned.Body != _nodes[emitter].Owner))
+                throw new ArgumentException("Activation cause differs from the declared orientation sensor.");
+            colliderOwner = turned.Body;
+        }
+        else throw new ArgumentException("Activation cause names no declared source.");
         var dynamicTarget = false;
         foreach (var body in scene.Bodies)
             if (body.Id == occurrence.Cause.Body && body.Motion == RigidMotionKind.Dynamic) dynamicTarget = true;
         if (!dynamicTarget) throw new ArgumentException("Activation cause target is not dynamic.");
         var owned = false;
         foreach (var collider in scene.Colliders)
-            if (collider.Id == occurrence.Cause.Collider && collider.Body == contact.Owner) owned = true;
+            if (collider.Id == occurrence.Cause.Collider && collider.Body == colliderOwner) owned = true;
         if (!owned) throw new ArgumentException("Activation cause collider is unowned.");
     }
     private ActivationOccurrence? EarliestInput(ActivationNodeId target, PhysicsActivationRead values)
@@ -326,6 +387,9 @@ public static class WorkshopActivationCompiler
                 nodes.Add(new(new(lamp.Id.Value), lamp.Id, ActivationNodeKind.Latch, default));
             else if (instance is WorkshopDelay delay)
                 nodes.Add(new(new(delay.Id.Value), delay.Id, ActivationNodeKind.Timer, default, delay.Duration.Ticks(construction.Settings.Simulation)));
+            // A Domino owns a node only while wired: its orientation sensor compiles under the same condition.
+            else if (instance is WorkshopDomino domino && construction.Connections.HasSource(domino.Id))
+                nodes.Add(new(new(domino.Id.Value), domino.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(domino.Id)));
         }
         foreach (var link in construction.Connections) edges.Add(new(new(link.Source.Value), new(link.Target.Value)));
         return new(nodes.ToArray(), edges.ToArray(), new WorkshopGpuProfile(construction.Settings.Simulation,

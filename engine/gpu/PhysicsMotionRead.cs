@@ -91,7 +91,7 @@ public sealed class PhysicsMotionRead
             for (var axis=0; axis<3; axis++)
                 if (!Half.IsFinite(H(piece,48+axis*2)) || H(piece,48+axis*2)<(Half)(-.5) || H(piece,48+axis*2)>=(Half).5)
                     throw new ArgumentException("Motion COM remainder is not canonical.");
-            Norm(piece,64,2); Norm(piece,72,64); Norm(piece,80,16); Norm(piece,88,64); Norm(piece,96,1024);
+            Norm(piece,64,2); Norm(piece,72,128); Norm(piece,80,16); Norm(piece,88,64); Norm(piece,96,1024);
             Rotation(piece).ValidateCommitted();
             PhysicsDeclarationBounds.Range(H(piece,54),(Half)0,(Half).125);
             if (kind == PhysicsMotionKind.FreePolynomial && (!Zero(piece[88..94]) || !Zero(piece[96..102])))

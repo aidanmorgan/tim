@@ -20,9 +20,15 @@ public static class WorkshopPorts
         WorkshopPartKind.ImpactSwitch => SwitchPorts,
         WorkshopPartKind.SignalLamp => LampPorts,
         WorkshopPartKind.Delay => DelayPorts,
+        WorkshopPartKind.Domino => DominoPorts,
         WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall or WorkshopPartKind.PinballBumper => [],
         _ => throw new ArgumentException("Unsupported port owner.")
     };
+    // A Domino signals only; it declares no activation input, so wiring into one is rejected at the port check.
+    private static readonly WorkshopPort[] DominoPorts =
+    [
+        new(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output)
+    ];
     private static readonly WorkshopPort[] SwitchPorts =
     [
         new(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output)
@@ -44,6 +50,7 @@ public static class WorkshopPorts
         (WorkshopPartKind.SignalLamp, WorkshopSocket.ActivationIn) => default,
         (WorkshopPartKind.Delay, WorkshopSocket.ActivationIn) => new((Half)(-.72),(Half)0,(Half)0),
         (WorkshopPartKind.Delay, WorkshopSocket.ActivationOut) => new((Half).72,(Half)0,(Half)0),
+        (WorkshopPartKind.Domino, WorkshopSocket.ActivationOut) => new((Half)0, (Half).55, (Half)0),
         _ => throw new ArgumentException("This socket is not admitted for placement.")
     };
     public static bool Has(WorkshopPartKind kind, WorkshopSocket socket, WorkshopConnectionDomain domain, WorkshopPortDirection direction)
@@ -68,6 +75,11 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
     public WorkshopConnections With(WorkshopConnection connection) => new([.. _items, connection]);
     public WorkshopConnections Without(GpuBodyId id) => new(_items.Where(link => link.Source != id && link.Target != id).ToArray());
     public WorkshopConnections Without(WorkshopConnection connection) => new(_items.Where(link => link != connection).ToArray());
+    public bool HasSource(GpuBodyId id)
+    {
+        foreach (var link in _items) if (link.Source == id) return true;
+        return false;
+    }
     public void Validate(WorkshopInstances instances)
     {
         if (Count > Capacity) throw new ArgumentException("Connection capacity exceeded.");

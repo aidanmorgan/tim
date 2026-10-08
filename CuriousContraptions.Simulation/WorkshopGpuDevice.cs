@@ -120,8 +120,11 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             var triggerCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(100)));
             Span<ContactTriggerRead> triggers = stackalloc ContactTriggerRead[PhysicsSceneDeclaration.TriggerCapacity];
             for (var i = 0; i < triggerCount; i++) triggers[i] = PhysicsGpuAbi.ReadTrigger(bytes, i);
+            var orientationCount = checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(116)));
+            Span<OrientationSensorRead> orientations = stackalloc OrientationSensorRead[PhysicsSceneDeclaration.OrientationSensorCapacity];
+            for (var i = 0; i < orientationCount; i++) orientations[i] = PhysicsGpuAbi.ReadOrientationSensor(bytes, i);
             var logical = operation == WorkshopGpuOperation.Admit ? new ActivationCheckpoint(network.Clear(), network.ClearTimers()) :
-                network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick);
+                network.Consume(_committedActivations, _committedTimers, triggers[..triggerCount], expectedTick, orientations[..orientationCount]);
             _candidateActivations = logical.Activations; _candidateTimers = logical.Timers;
             _candidateNetwork = network;
             var contactWorks=PhysicsGpuAbi.ReadContactWorks(bytes);

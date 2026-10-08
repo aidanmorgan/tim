@@ -18,6 +18,7 @@ public static class WorkshopPhysicsCompiler
         var guides = new List<PlanarGuideDeclaration>();
         var triggers = new List<ContactTriggerDeclaration>();
         var contactWorks = new List<ContactWorkDeclaration>();
+        var orientationSensors = new List<OrientationSensorDeclaration>();
         var plane = new GpuBodyId(InternalIdentityBase);
         var planeMaterial = new GpuMaterialId(InternalIdentityBase + 1);
         var height = WorkshopInput.Position((double)WorkshopConstruction.WorkbenchSurface.Value);
@@ -37,6 +38,20 @@ public static class WorkshopPhysicsCompiler
             materials.Add(new(material, ball.Material.Bounce, new((Half).1), new((Half).3)));
             colliders.Add(new(new(first + 1), ball.Id, material, ColliderShapeKind.Sphere,
                 RigidLocalPose.Identity, ball.Material.Radius, default));
+        }
+        foreach (var domino in construction.Instances.OfType<WorkshopDomino>().OrderBy(d => d.Id.Value))
+        {
+            var first = PartIdentities(domino.Id); next = Math.Max(next, first + 64);
+            var material = new GpuMaterialId(first);
+            bodies.Add(new(domino.Id, RigidMotionKind.Dynamic, domino.Cell, domino.Local, domino.Rotation,
+                default, default, domino.Material.Mass,
+                new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new((Half)0)));
+            materials.Add(new(material, domino.Material.Bounce, DominoMaterial.BounceThreshold, domino.Material.Friction));
+            colliders.Add(new(new(first + 1), domino.Id, material, ColliderShapeKind.Box,
+                RigidLocalPose.Identity, new((Half)0), domino.Material.HalfExtents));
+            // The sensor exists only for a wired tile; its initial pose is the admitted placement, so Reset rearms it.
+            if (construction.Connections.HasSource(domino.Id))
+                orientationSensors.Add(new(OrientationSensor(domino.Id), domino.Id, domino.Rotation, WorkshopDomino.ActivationThreshold));
         }
         foreach (var receiver in construction.Instances.OfType<WorkshopReceiver>().OrderBy(r => r.Id.Value))
         {
@@ -115,11 +130,13 @@ public static class WorkshopPhysicsCompiler
                 colliders.Add(new(new(id), instance.Id, material, ColliderShapeKind.Box,
                     new(position, CanonicalRotation.Identity), new((Half)0), half));
         }
-        return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray());
+        return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray());
     }
     public static GpuSensorId CaptureSensor(WorkshopReceiver receiver) => new(checked(PartIdentities(receiver.Id) + 6));
 
     public static GpuContactTriggerId ContactTrigger(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
+
+    public static GpuOrientationSensorId OrientationSensor(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuContactWorkId ContactWork(GpuBodyId owner) => new(checked(PartIdentities(owner) + 8));
 

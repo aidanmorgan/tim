@@ -1,5 +1,9 @@
 # Deferred work
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`
+  summary: Apply the declared LinearDrag (body record byte 66) in the physics worker (own slice); balls currently roll without decay because the 0.95 resting-damping hack was deleted and the worker never read the drag.
+  evidence: worker.js reads mass/gravity/COM/inertia but not offset 66; Basketball declares drag .04 1/s; ENGINE-CORE/ANIM suites pass without it (cumulative 46/46).
+
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-2-mechanical-cosmetic-bindings.md`
   summary: ControlHint throws "An animation control is pending" when the single animation lease is busy (hint button, guidance visibility).
   evidence: Code trace Schedule.cs:127-141; pre-existing single-lease design from Story 4.1; reduced by the timer resend fix but not eliminated. RESOLVED by Story 4.3 (ANIM-1c): `BrowserWorkshopClient.ControlUi` queues the request and `PumpUiControls` sends it when the lease is free; unit facts `UiControlQueuesBehindTheLeaseAndSendsTheDeclaredHintClipWhenFree` and `QueuedRevealSurvivesAPendingPreparationAndSendsOnceItClears` (CuriousContraptions.tests/WorkshopActivationAnimationTests.cs).
@@ -48,3 +52,27 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-3-legacy-presentation-code-retirement.md`
   summary: Uncompiled parts/, engine/ScenePhysicsAssembly.cs, tools/Ownership and ~45 uncompiled tests still reference the deleted presentation types; WorkshopConstruction.Receiver first-match accessor is ambiguous once multiple receivers are admitted.
   evidence: Epic 7 purge scope (stories 7-3/7-4); make the accessor single-or-throw or remove it then.
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`
+  summary: worker.js supportExtent for a box is computed once per tick from the tick-start orientation; stale for a rotating box inside a guide region.
+  evidence: Unreachable today (guides target only WorkshopBall); recompute per substep when boxes become guide targets.
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`
+  summary: Broadphase AABB for a plane collider assumes a +Y normal; a tilted static plane would be culled.
+  evidence: Only the +Y bench plane exists; reject non-+Y planes at admission or derive the AABB from the normal when needed.
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`
+  summary: Joint 4x4 manifold solve falls back to sequential rows whenever any row would go negative (typical mid-topple), mixes soft/speculative row scales, and allocates per substep.
+  evidence: Blind/edge-case hunters; Murdoch probes show stable rest (0.39 mm, no creep) so quality not performance is at stake; address at the named performance gate.
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`
+  summary: Box-on-Ramp/Wall contact and the 16-dynamic-body rejection are proven in Node/unit only, not in Chrome.
+  evidence: Murdoch F6; Story 5.2's domino_effect has no Ramp (bench cascade only), so the Chrome proof of Box-on-Ramp/Wall contact remains open for a later slice (CAT-014 or the first Ramp-routed box level); the 16-body rejection stays unit-proven.
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`
+  summary: The physics worker is JavaScript doubles, not the wasm-simd128 f32 kernel AGENTS.md describes.
+  evidence: Murdoch F10; pre-existing architecture gap, roadmap Epic 16 / named performance gate.
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-2-domino-cascade-orientation-threshold-sensor.md`
+  summary: The host does not cross-check an orientation sensor's fired state against the committed body pose; fired state is worker-trusted like contact triggers.
+  evidence: Blind hunter; recorded design decision; a host-side pose check from the motion piece would make it verifiable.
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-2-domino-cascade-orientation-threshold-sensor.md`
+  summary: Precision slider is shown for DominoEffect but has no effect; CAT-023 "striker must not directly hit the second tile" is unasserted.
+  evidence: Blind hunter; difficulty/nudging and campaign tuning belong to Epic 15.
+- source_spec: `_bmad-output/implementation-artifacts/spec-5-2-domino-cascade-orientation-threshold-sensor.md`
+  summary: worker.js supportContact resolves exactly parallel support edges to an endpoint; node-cost rule duplicated in WorkshopActivationCompiler and WorkbenchCapacity.ValidateConnected; per-sensor linear body search per substep; clip-id uniqueness has no observing test.
+  evidence: Murdoch F2 (finite, non-launching), blind hunter, verification-gap; quality/performance gate items.

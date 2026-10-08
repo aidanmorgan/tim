@@ -51,7 +51,7 @@ public readonly record struct RigidBodyDeclaration(
         if (!Enum.IsDefined(Motion)) throw new ArgumentException("Undefined rigid motion.");
         new CanonicalBody(Id, 0, 0, Cell, Local, Velocity).Validate();
         Rotation.Validate();
-        PhysicsDeclarationBounds.Vector(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z, (Half)64);
+        PhysicsDeclarationBounds.Vector(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z, (Half)128);
         PhysicsDeclarationBounds.Vector(Gravity.X, Gravity.Y, Gravity.Z, (Half)16);
         PhysicsDeclarationBounds.Range(LinearDrag.Value, (Half)0, (Half)0.125);
         if (Motion == RigidMotionKind.Static)
@@ -67,7 +67,7 @@ public readonly record struct RigidBodyDeclaration(
         // Wide arithmetic is admission-only: it rejects an out-of-domain declaration, never integrates it.
         if (Squared(Velocity.X, Velocity.Y, Velocity.Z) > 4 ||
             Squared(Gravity.X, Gravity.Y, Gravity.Z) > 256 ||
-            Squared(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z) > 4096)
+            Squared(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z) > 16384)
             throw new ArgumentException("Linear motion, angular motion or gravity exceeds the admitted vector magnitude.");
     }
 
@@ -160,6 +160,7 @@ public sealed class PhysicsSceneDeclaration
     public const int GuideCapacity = 16;
     public const int TriggerCapacity = 8;
     public const int ContactWorkCapacity = 8;
+    public const int OrientationSensorCapacity = PhysicsBodyReadSet.Capacity;
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
@@ -167,6 +168,7 @@ public sealed class PhysicsSceneDeclaration
     private readonly PlanarGuideDeclaration[] _guides;
     private readonly ContactTriggerDeclaration[] _triggers;
     private readonly ContactWorkDeclaration[] _contactWorks;
+    private readonly OrientationSensorDeclaration[] _orientationSensors;
     public PhysicsDocumentId Document { get; }
     public ulong NextIdentity { get; }
     public ReadOnlySpan<RigidBodyDeclaration> Bodies => _bodies;
@@ -176,17 +178,18 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<PlanarGuideDeclaration> Guides => _guides;
     public ReadOnlySpan<ContactTriggerDeclaration> Triggers => _triggers;
     public ReadOnlySpan<ContactWorkDeclaration> ContactWorks => _contactWorks;
+    public ReadOnlySpan<OrientationSensorDeclaration> OrientationSensors => _orientationSensors;
 
     public PhysicsSceneDeclaration(PhysicsDocumentId document, ulong nextIdentity,
         ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders,
         ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
         ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default,
-        ReadOnlySpan<ContactWorkDeclaration> contactWorks = default)
+        ReadOnlySpan<ContactWorkDeclaration> contactWorks = default, ReadOnlySpan<OrientationSensorDeclaration> orientationSensors = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
             bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
             materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity ||
-            contactWorks.Length > ContactWorkCapacity)
+            contactWorks.Length > ContactWorkCapacity || orientationSensors.Length > OrientationSensorCapacity)
             throw new ArgumentException("Invalid physics document or capacity.");
         var ids = new HashSet<ulong>();
         var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>();
@@ -261,10 +264,21 @@ public sealed class PhysicsSceneDeclaration
             foreach (var collider in colliders) if (collider.Body == work.Owner) colliderFound = true;
             if (!colliderFound) throw new ArgumentException("Contact work owner has no physical collider.");
         }
+        var sensed = new HashSet<GpuBodyId>();
+        foreach (var sensor in orientationSensors)
+        {
+            sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(sensor.Body, out var body) || body.Motion != RigidMotionKind.Dynamic ||
+                !dynamicColliders.Contains(sensor.Body) || !sensed.Add(sensor.Body))
+                throw new ArgumentException("Orientation sensor requires one uniquely sensed dynamic body with its collider.");
+            // "Angle from the admitted pose" is a document invariant, not a compiler courtesy.
+            if (body.Rotation != sensor.Initial) throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
+        }
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();
-        _contactWorks = contactWorks.ToArray();
+        _contactWorks = contactWorks.ToArray(); _orientationSensors = orientationSensors.ToArray();
+        Array.Sort(_orientationSensors, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_bodies, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_colliders, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_materials, (a, b) => a.Id.Value.CompareTo(b.Id.Value));

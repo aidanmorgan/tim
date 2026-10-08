@@ -32,19 +32,19 @@ public sealed class ActivationTimerTests
     {
         var (network,scene,first,_) = Fixture();
         var clear = network.Clear(); var timers = network.ClearTimers();
-        var counting = network.Consume(clear,timers,new[]{first},new(3));
+        var counting = network.Consume(clear,timers,new[]{first},new(3),[]);
         Assert.Equal(ActivationTimerPhase.Ready,timers[0].Phase);
         Assert.Equal(ActivationTimerPhase.Counting,counting.Timers[0].Phase);
         Assert.Equal(3UL,counting.Timers[0].StartedTick); Assert.Equal(123UL,counting.Timers[0].DueTick);
-        var before = network.Consume(counting.Activations,counting.Timers,[],new(122));
+        var before = network.Consume(counting.Activations,counting.Timers,[],new(122),[]);
         Assert.Equal(ActivationPhase.Clear,Node(before.Activations,3).Phase);
-        var due = network.Consume(before.Activations,before.Timers,[],new(123));
+        var due = network.Consume(before.Activations,before.Timers,[],new(123),[]);
         var lamp = Node(due.Activations,3);
         Assert.Equal(ActivationTimerPhase.Finished,due.Timers[0].Phase);
         Assert.Equal(ActivationOccurrenceKind.TimerElapsed,lamp.Kind);
         Assert.Equal(new ActivationNodeId(4),lamp.Emitter);
         Assert.Equal(492u,lamp.EventOrdinal); Assert.Equal((Half)0,lamp.EventPhase);
-        Assert.Equal(first.EventOrdinal,lamp.CauseOrdinal); Assert.Equal(first.Id,lamp.Trigger);
+        Assert.Equal(first.EventOrdinal,lamp.CauseOrdinal); Assert.Equal(first.Id.Value,lamp.Source.Value);
         network.ValidateRead(due.Activations,due.Timers,new(123),4,scene);
         Assert.Throws<ArgumentException>(()=>network.ValidateRead(due.Activations,due.Timers,new(122),4,scene));
         Assert.Equal(ActivationTimerPhase.Ready,network.ClearTimers()[0].Phase);
@@ -53,14 +53,14 @@ public sealed class ActivationTimerTests
     public void BusyAndFinishedInputsDoNotRestartOrReemit()
     {
         var (network,_,first,second) = Fixture();
-        var counting = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3));
-        var busy = network.Consume(counting.Activations,counting.Timers,new[]{second},new(5));
+        var counting = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
+        var busy = network.Consume(counting.Activations,counting.Timers,new[]{second},new(5),[]);
         Assert.Equal(counting.Timers[0],busy.Timers[0]);
-        var finished = network.Consume(busy.Activations,busy.Timers,[],new(123));
-        var fresh = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3));
-        var freshFinished = network.Consume(fresh.Activations,fresh.Timers,[],new(123));
+        var finished = network.Consume(busy.Activations,busy.Timers,[],new(123),[]);
+        var fresh = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
+        var freshFinished = network.Consume(fresh.Activations,fresh.Timers,[],new(123),[]);
         var ignored = network.Consume(freshFinished.Activations,freshFinished.Timers,
-            new[]{second with {EventOrdinal=500}},new(125));
+            new[]{second with {EventOrdinal=500}},new(125),[]);
         Assert.Equal(ActivationPhase.Latched,Node(ignored.Activations,5).Phase);
         Assert.Equal(freshFinished.Timers[0],ignored.Timers[0]);
         Assert.Equal(Node(freshFinished.Activations,3),Node(ignored.Activations,3));
@@ -69,9 +69,9 @@ public sealed class ActivationTimerTests
     public void EarlierPhysicalBypassWinsOverDueAtSamePublicationBoundary()
     {
         var (network,scene,first,second) = Fixture(true);
-        var counting = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3));
+        var counting = network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
         var due = network.Consume(counting.Activations,counting.Timers,
-            new[]{second with {EventOrdinal=491}},new(123));
+            new[]{second with {EventOrdinal=491}},new(123),[]);
         Assert.Equal(ActivationOccurrenceKind.Contact,Node(due.Activations,3).Kind);
         Assert.Equal(new ActivationNodeId(5),Node(due.Activations,3).Emitter);
         Assert.Equal(ActivationTimerPhase.Finished,due.Timers[0].Phase);
@@ -98,8 +98,8 @@ public sealed class ActivationTimerTests
     public void CompleteWorkerResponseRoundTripsCountingAndFinishedTimerSections()
     {
         var (network,_,first,_) = Fixture();
-        var counting=network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3));
-        var finished=network.Consume(counting.Activations,counting.Timers,[],new(123));
+        var counting=network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
+        var finished=network.Consume(counting.Activations,counting.Timers,[],new(123),[]);
         foreach(var withContact in new[]{false,true})
         foreach(var (logical,tick) in new[]{(counting,3UL),(finished,123UL)})
         {
@@ -138,7 +138,7 @@ public sealed class ActivationTimerTests
     public void MalformedTimerReadAndWireRejectWithoutChangingCommittedState()
     {
         var (network,scene,first,_) = Fixture();
-        var counting=network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3));
+        var counting=network.Consume(network.Clear(),network.ClearTimers(),new[]{first},new(3),[]);
         var value=counting.Timers[0];
         foreach(var invalid in new[]{value with {DueTick=122},value with {StartedTick=2},
             value with {Phase=ActivationTimerPhase.Finished},value with {Node=new(99)}})
@@ -151,7 +151,7 @@ public sealed class ActivationTimerTests
             var changed=(byte[])bytes.Clone(); changed[offset]=255;
             Assert.Throws<ArgumentException>(()=>WorkshopTimerWire.Read(changed,1));
         }
-        Assert.Throws<ArgumentException>(()=>network.Consume(counting.Activations,counting.Timers,new[]{first,first},new(4)));
+        Assert.Throws<ArgumentException>(()=>network.Consume(counting.Activations,counting.Timers,new[]{first,first},new(4),[]));
         Assert.Equal(value,counting.Timers[0]);
     }
 }

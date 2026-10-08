@@ -33,7 +33,7 @@ public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, 
     public static WorkbenchFootprint Plane => new(1, 0, 1, 0, 0, 0);
     public static WorkbenchFootprint Of(WorkshopPartKind kind) => kind switch
     {
-        WorkshopPartKind.Basketball => new(1, 1, 1, 0, 0, 0),
+        WorkshopPartKind.Basketball or WorkshopPartKind.Domino => new(1, 1, 1, 0, 0, 0),
         WorkshopPartKind.Receiver => new(1, 0, ReceiverGeometry.Walls.Length, 0, 0, 0),
         WorkshopPartKind.Ramp or WorkshopPartKind.Wall => new(1, 0, 1, 0, 0, 0),
         WorkshopPartKind.ImpactSwitch => new(1, 0, 2, 1, 0, 1),
@@ -73,5 +73,16 @@ public static class WorkbenchCapacity
         if (total.Triggers > PhysicsSceneDeclaration.TriggerCapacity) throw new WorkbenchFullException(WorkbenchTable.Triggers);
         if (total.ContactWorks > PhysicsSceneDeclaration.ContactWorkCapacity) throw new WorkbenchFullException(WorkbenchTable.ContactWork);
         if (total.ActivationNodes > ActivationNetwork.Capacity) throw new WorkbenchFullException(WorkbenchTable.ActivationNodes);
+    }
+
+    /// <summary>A Domino compiles an activation node only while it is a connection source, so the node table is checked against the wiring.</summary>
+    public static void ValidateConnected(IReadOnlyList<IWorkshopInstance> instances, WorkshopConnections connections)
+    {
+        ArgumentNullException.ThrowIfNull(instances); ArgumentNullException.ThrowIfNull(connections);
+        var nodes = 0;
+        foreach (var instance in instances)
+            nodes += WorkbenchFootprint.Of(instance.Kind).ActivationNodes +
+                (instance.Kind == WorkshopPartKind.Domino && connections.HasSource(instance.Id) ? 1 : 0);
+        if (nodes > ActivationNetwork.Capacity) throw new WorkbenchFullException(WorkbenchTable.ActivationNodes);
     }
 }
