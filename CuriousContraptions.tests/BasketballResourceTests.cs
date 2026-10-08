@@ -11,7 +11,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall },
+        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper },
             registry.Definitions.Keys.OrderBy(kind => kind));
         var definition = registry.Definitions[WorkshopPartKind.Basketball];
         Assert.Empty(definition.Parameters);
@@ -27,6 +27,106 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             Assert.Equal((float)material.Radius.Value, sphere.Radius);
         }
         finally { ball.GetParent()?.RemoveChild(ball); ball.Free(); }
+    }
+
+    [Fact]
+    public void DelayArtworkUsesSharedFullTurnAndSourcePhasePalette()
+    {
+        var registry=new PartRegistry(); registry.Discover();
+        var delay=(DelayPart)registry.Create(WorkshopPartKind.Delay);
+        try
+        {
+            godot.Tree.Root.AddChild(delay);
+            var hand=delay.Visual.GetNode<Node3D>("CountdownHand");
+            var indicator=delay.Visual.GetChildren().OfType<MeshInstance3D>()
+                .Single(mesh=>mesh.Position==new Vector3(0,-.35f,.37f));
+            foreach(var (phase,progress,colour) in new[] {
+                (CuriousContraptions.Presentation.AnimationTimerPhase.Ready,(Half)0,new Color("#556573")),
+                (CuriousContraptions.Presentation.AnimationTimerPhase.Counting,(Half).25,new Color("#e8b764")),
+                (CuriousContraptions.Presentation.AnimationTimerPhase.Finished,(Half)1,new Color("#f7cb52")) })
+            {
+                delay.ApplyCosmetic(new(progress,phase));
+                var actual=((StandardMaterial3D)indicator.MaterialOverride).AlbedoColor;
+                Assert.Equal((float)(Half)colour.R,actual.R); Assert.Equal((float)(Half)colour.G,actual.G); Assert.Equal((float)(Half)colour.B,actual.B);
+                Assert.InRange(Math.Abs(hand.Rotation.Z-(float)(Half)((double)(Half)(-Math.Tau)*(double)progress)),0,.00001);
+            }
+            using var duration=new SpinBox {MinValue=(double)(Half).1,MaxValue=12,Step=0,Value=8.9375};
+            Assert.Equal(new DelayDuration(new((Half)8.9375)),DelayDuration.FromInput(duration.Value));
+            duration.Apply();
+            Assert.Equal(8.9375,duration.Value);
+            duration.GetLineEdit().Text="4";
+            Assert.Equal(8.9375,duration.Value);
+            duration.Apply();
+            Assert.Equal(4,duration.Value);
+        }
+        finally {delay.GetParent()?.RemoveChild(delay);delay.Free();}
+    }
+
+    [Fact]
+    public void BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples()
+    {
+        var registry=new PartRegistry(); registry.Discover();
+        var bumper=(BumperPart)registry.Create(WorkshopPartKind.PinballBumper);
+        var toggle=(SwitchPart)registry.Create(WorkshopPartKind.ImpactSwitch);
+        try
+        {
+            godot.Tree.Root.AddChild(bumper); godot.Tree.Root.AddChild(toggle);
+            var head=bumper.Visual.GetNode<MeshInstance3D>("BumperHead");
+            var ring=bumper.Visual.GetNode<MeshInstance3D>("ImpactRing");
+            var button=toggle.Visual.GetChildren().OfType<MeshInstance3D>().Single(mesh=>mesh.Mesh is CylinderMesh);
+            Assert.Equal(CosmeticCurves.PinballBumper,bumper.Cosmetic); Assert.Equal(CosmeticCurves.ImpactSwitch,toggle.Cosmetic);
+            var active=new WorkshopCosmeticSample((Half)1,CuriousContraptions.Presentation.AnimationTimerPhase.None);
+            bumper.ApplyCosmetic(active); toggle.ApplyCosmetic(active);
+            Assert.Equal(Vector3.One*(float)(Half).88,head.Scale); Assert.Equal(Vector3.One*(float)(Half)1.24,ring.Scale);
+            Assert.Equal((float)(Half)(82d/255),((StandardMaterial3D)ring.MaterialOverride).AlbedoColor.B);
+            var pressed=new Color("#bff5b0");
+            Assert.Equal((float)(Half)(-.02),button.Position.Y);
+            Assert.Equal((float)(Half)pressed.G,((StandardMaterial3D)button.MaterialOverride).AlbedoColor.G);
+            bumper.ApplyCosmetic(new(Half.NaN,CuriousContraptions.Presentation.AnimationTimerPhase.None));
+            bumper.ApplyCosmetic(new((Half)1.5,CuriousContraptions.Presentation.AnimationTimerPhase.None));
+            Assert.Equal(Vector3.One*(float)(Half).88,head.Scale); // game-grade: invalid blends keep the committed value
+            bumper.ApplyCosmetic(WorkshopCosmeticSample.Neutral); toggle.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
+            Assert.Equal(Vector3.One,head.Scale); Assert.Equal(Vector3.One,ring.Scale);
+            Assert.Equal((float)(Half)(194d/255),((StandardMaterial3D)ring.MaterialOverride).AlbedoColor.B);
+            Assert.Equal((float)(Half).06,button.Position.Y);
+            Assert.Equal((float)(Half)toggle.Definition.Color.R,((StandardMaterial3D)button.MaterialOverride).AlbedoColor.R);
+        }
+        finally
+        {
+            bumper.GetParent()?.RemoveChild(bumper); bumper.Free();
+            toggle.GetParent()?.RemoveChild(toggle); toggle.Free();
+        }
+    }
+
+    private partial class ProbePart : MachinePart
+    {
+        public Action<ProbePart>? Bindings;
+        protected override void Build() { PickRadius=.5f; Bindings?.Invoke(this); }
+        public void Bind(CosmeticCurveDeclaration declaration,CuriousContraptions.Presentation.AnimationTimerPhase phase=CuriousContraptions.Presentation.AnimationTimerPhase.None)
+        {
+            var mesh=PartArt.Sphere(Visual,.1f,Colors.White);
+            if (phase==CuriousContraptions.Presentation.AnimationTimerPhase.None) BindVisual(declaration,mesh,WorkshopVisualProperty.AlbedoRed,(Half)0,(Half)1);
+            else BindPhaseVisual(declaration,mesh,WorkshopVisualProperty.AlbedoRed,phase,(Half)1);
+        }
+    }
+
+    [Fact]
+    public void ArtworkBindingsRequireOneDeclaredCurveAndTimerPhasesOnlyForTimers()
+    {
+        var registry=new PartRegistry(); registry.Discover();
+        var definition=registry.Definitions[WorkshopPartKind.SignalLamp];
+        foreach (var bindings in new Action<ProbePart>[] {
+            probe=>probe.Bind(CosmeticCurveDeclaration.None),
+            probe=>{ probe.Bind(CosmeticCurves.ImpactSwitch); probe.Bind(CosmeticCurves.PinballBumper); },
+            probe=>probe.Bind(CosmeticCurves.ImpactSwitch,CuriousContraptions.Presentation.AnimationTimerPhase.Counting) })
+        {
+            var rejected=new ProbePart { Bindings=bindings }; rejected.Configure(definition);
+            try { Assert.Throws<ArgumentException>(rejected.EnsureConstructed); } finally { rejected.Free(); }
+        }
+        var accepted=new ProbePart { Bindings=probe=>{ probe.Bind(CosmeticCurves.Delay); probe.Bind(CosmeticCurves.Delay,CuriousContraptions.Presentation.AnimationTimerPhase.Finished); } };
+        accepted.Configure(definition);
+        try { accepted.EnsureConstructed(); Assert.True(accepted.HasCosmeticBindings); Assert.Equal(CosmeticCurves.Delay,accepted.Cosmetic); }
+        finally { accepted.Free(); }
     }
 
     [Fact]
@@ -76,13 +176,13 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             client.NextRead = new(default, WorkshopResponseKind.Read,
                 new(phase == WorkshopSimulationPhase.Faulted ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
                     phase == WorkshopSimulationPhase.Faulted ? WorkshopRejection.DeviceLost : WorkshopRejection.None),
-                phase, new(new(1), new(tick), null, new(tick + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(110_000_000), new(100_000))));
+                phase, new(new(1), new(tick), default, new(tick + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(110_000_000), new(100_000))));
             client.AdmitPendingRead(); // Actual callback admission may precede the next scene frame.
             if (sceneBeforeAck) world._Process(0);
             Assert.Equal(sceneBeforeAck ? phase : WorkshopSimulationPhase.Starting, world.WorkshopPhase);
             var original = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
-                new(new(1), default, null, new(1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000))), new(11, 23), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+                new(new(1), default, default, new(1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000))), new(11, 23), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
             client.RunAck.SetResult(original);
             var completion = await run;
             Assert.Equal(original, client.LastDelivery.Response);
@@ -115,7 +215,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             world._ExitTree();
             var original = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
-                new(new(1), default, null, new(1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000))), new(11, 23), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+                new(new(1), default, default, new(1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(100_000_000), new(100_000))), new(11, 23), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
             client.RunAck.SetResult(original);
             var completion = await run;
             Assert.False(completion.Applicable);
@@ -153,7 +253,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             else if (kind == WorkshopCommandKind.Reset)
                 response = new(command.Sequence, WorkshopResponseKind.Acknowledgement,
                     new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
-                    new(new(Epoch.Value + 1), default, null, new(Revision.Value + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))));
+                    new(new(Epoch.Value + 1), default, default, new(Revision.Value + 1), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))));
             else throw new ArgumentException("Unexpected test transport command.");
             response = response with { Session = Session, Cadence = new(1), MasterGeneration = new(1), Projection = new(response.Read.Epoch.Value), SourcePulse = new(response.Read.Tick.Value) };
             var prepared = _cursor.PrepareAcknowledgement(command, response, dispatched, _disposed);
@@ -180,9 +280,10 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void ControlHint(AnimationControlKind kind, bool visible) => throw new InvalidOperationException("Hint control is outside this held read/ACK fixture.");
         public bool TryHint(ulong frame, out WorkshopHintSample sample) { sample = default; return false; }
+        public bool TryGoalOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity) { opacity = default; return false; }
         public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
         { opacity = default; return false; }
-        public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend) { blend = default; return false; }
+        public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
         public void RecordCapturePresentation(ulong frame) => throw new InvalidOperationException("No capture opacity was supplied by this fixture.");
         public void RecordHintPresentation(ulong frame) => throw new InvalidOperationException("No hint was supplied by this fixture.");
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }

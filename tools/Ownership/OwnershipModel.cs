@@ -30,7 +30,7 @@ public sealed record OwnershipAssignment(
     [property: JsonRequired] OwnershipRule Rule,
     [property: JsonRequired] string MemberSha256);
 public readonly record struct DiagnosticId(string Value);
-public enum InspectionContext { ProductionRelease, ProductionDiagnostic, TestRelease, TestDiagnostic }
+public enum InspectionContext { ProductionRelease, ProductionDiagnostic, TestRelease, TestDiagnostic, GeometryRelease, AnimationRelease }
 public enum DispatchScope { NamedTarget, VirtualFamily, InterfaceFamily, ContextDelegates, External }
 public sealed record CallerEdge(InspectionContext Context, SourcePath Path, int Line,
     CallerId Caller, CallerId Target, DispatchScope Scope);

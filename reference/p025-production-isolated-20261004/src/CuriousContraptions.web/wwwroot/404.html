@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Curious Contraptions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<p>Returning to <a href="/tim/">Curious Contraptions</a>…</p>
+<script>
+  // Pages has no rewrite rules. Return unknown deep links to this project's
+  // root, retaining the route in a fragment without breaking relative assets.
+  const root = "/tim/";
+  const route = location.pathname.startsWith(root)
+    ? location.pathname.slice(root.length) : "";
+  location.replace(root + location.search + (location.hash || (route ? "#/" + route : "")));
+</script>
+</html>
+

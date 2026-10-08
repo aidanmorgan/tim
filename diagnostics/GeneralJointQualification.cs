@@ -13,7 +13,7 @@ internal sealed record GeneralJointReport(GeneralJointProbe Probe,int Steps,int 
 internal static class GeneralJointQualification
 {
     private static PhysicsObject Object(PhysicsBody body)=>new(body,
-        new CompoundGeometry([new(new ConvexSphere(.1),Transform3D.Identity)]),new(0,0,0));
+        new CompoundGeometry([new(new ConvexSphere(.1),AffineTransform.Identity)]),new(0,0,0));
     internal static GeneralJointReport Run(GeneralJointProbe probe)
     {
         CollisionVector center=default,velocity=default,spin=default,gravity=default;
@@ -33,10 +33,10 @@ internal static class GeneralJointQualification
         PhysicsJoint joint=probe switch
         {
             GeneralJointProbe.HingePendulum=>new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,
-                new(new(-1,0,0),RigidRotation.Identity),anchor,origin,ConnectedBodyCollision.Disabled,null),
-            GeneralJointProbe.Slider=>new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,origin,anchor,origin,ConnectedBodyCollision.Disabled,null),
+                new(new(-1,0,0),RigidRotation.Identity),anchor,origin,ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both),
+            GeneralJointProbe.Slider=>new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,origin,anchor,origin,ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both),
             GeneralJointProbe.SlackRope or GeneralJointProbe.TautRope=>new PhysicsRopeJoint(new(0),new([new(body,default),new(anchor,default)]),1,ConnectedBodyCollision.Disabled),
-            GeneralJointProbe.CoupledImpact=>new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,origin,anchor,origin,ConnectedBodyCollision.Disabled,null),
+            GeneralJointProbe.CoupledImpact=>new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,origin,anchor,origin,ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both),
             _=>throw new ArgumentOutOfRangeException(nameof(probe))
         };
         PhysicsBody? payload=null;
@@ -44,18 +44,18 @@ internal static class GeneralJointQualification
         if(probe==GeneralJointProbe.CoupledImpact)
         {
             payload=new(new(2),PhysicsMotionType.Dynamic,RigidPose.At(new(1,1,0)),new(0,-10,0),default,1,new(.1,.1,.1));
-            var beam=new CompoundGeometry([new(new ConvexBox(new(2,.1,.1)),Transform3D.Identity)]);
+            var beam=new CompoundGeometry([new(new ConvexBox(new(2,.1,.1)),AffineTransform.Identity)]);
             objects=[new(body,beam,new(0,0,0)),Object(anchor),Object(payload)];
         }
         else objects=[Object(body),Object(anchor)];
-        var world=new PhysicsWorld(objects,[joint],new(gravity));
+        var world=new PhysicsWorld([],objects,[joint],new(gravity));
         var before=world.Capture();
         const double duration=1.0/120;
         var results=new PhysicsStepResult[steps]; var impacts=new PhysicsImpact[steps][];
         double error=0,residual=0; var events=0; var sweeps=0;
         for(var i=0;i<steps;i++)
         {
-            results[i]=world.Step([],duration); impacts[i]=world.Impacts.ToArray();
+            results[i]=world.Step([],[],duration); impacts[i]=world.Impacts.ToArray();
             events+=results[i].Events; sweeps+=results[i].SweepIterations;
             error=Math.Max(error,joint.Error(1e-8));
             residual=Math.Max(residual,joint.VelocityConstraints(1e-7).Select(c=>c.Residual).DefaultIfEmpty(0).Max());
@@ -65,7 +65,7 @@ internal static class GeneralJointQualification
         var restored=world.Time==before.Time&&world.StepIndex==before.StepIndex&&world.Capture().BodyStates.SequenceEqual(before.BodyStates);
         var replay=true;
         for(var i=0;i<steps;i++)
-            replay &= world.Step([],duration)==results[i]&&world.Impacts.SequenceEqual(impacts[i]);
+            replay &= world.Step([],[],duration)==results[i]&&world.Impacts.SequenceEqual(impacts[i]);
         replay &= world.Time==after.Time&&world.StepIndex==after.StepIndex&&world.Capture().BodyStates.SequenceEqual(after.BodyStates);
         return new(probe,steps,events,sweeps,error,residual,
             [body.Center.X,body.Center.Y,body.Center.Z],[body.LinearVelocity.X,body.LinearVelocity.Y,body.LinearVelocity.Z],

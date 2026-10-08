@@ -1,4 +1,5 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System.Text.Json;
 using twodog.Testing;
 using twodog.Testing.Xunit;
@@ -7,8 +8,8 @@ namespace CuriousContraptions.Tests;
 
 // Measures our solver, not the original game's physics. Keep reference-footage
 // measurements separate until edition, geometry and capture timing are known.
-[Collection<HeadlessCollection>]
-public class PhysicsCalibrationTests(HeadlessFixture godot, ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class PhysicsCalibrationTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
     [Theory]
     [InlineData("ball", 0f)]
@@ -38,7 +39,7 @@ public class PhysicsCalibrationTests(HeadlessFixture godot, ITestOutputHelper ou
             var samples = Capture(world);
             world.Restore();
             Assert.Equal(new Vector3(0, 6, 0), world.Bodies.Single().Position);
-            Assert.Equal(Vector3.Zero, world.Bodies.Single().Velocity);
+            Assert.Equal(Vector3.Zero, world.Bodies.Single().InitialVelocity);
             var repeated = Capture(world);
             Assert.Equal(samples, repeated);
 
@@ -79,20 +80,19 @@ public class PhysicsCalibrationTests(HeadlessFixture godot, ITestOutputHelper ou
         finally { world.Free(); }
     }
 
-    private readonly record struct Sample(Vector3 Position, Vector3 Velocity, bool Visible);
+    private readonly record struct Sample(Vector3 Position, CollisionVector Velocity, bool Visible);
 
     private static Sample[] Capture(MachineWorld world)
     {
         world.Start();
         var body = world.Bodies.Single();
         var samples = new Sample[481];
-        samples[0] = new(body.Position, body.Velocity, body.Visible);
+        samples[0] = new(body.Position, world.PhysicsAssembly.Body(new(body,MachinePart.RootBody)).LinearVelocity, body.Visible);
         for (var tick = 1; tick < samples.Length; tick++)
         {
             world.Step();
-            samples[tick] = new(body.Position, body.Velocity, body.Visible);
+            samples[tick] = new(body.Position, world.PhysicsAssembly.Body(new(body,MachinePart.RootBody)).LinearVelocity, body.Visible);
         }
         return samples;
     }
 }
-

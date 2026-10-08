@@ -14,7 +14,7 @@ public readonly record struct SimulationTimerId
     }
 }
 public enum SimulationTimerPhase { Ready, Counting, Finished }
-public enum TimerTransactionPhase { Idle, Active }
+public enum SimulationTimerQuantity { ProgressFraction, RemainingFraction }
 public enum TimerCompletionPolicy { Latch, Rearm }
 public enum TimerBoundary { BeforeNetworks, BeforePhysics }
 public readonly record struct SimulationTimerDeclaration(SimulationTimerId Id,int DurationTicks,
@@ -36,7 +36,7 @@ public sealed class SimulationTimerSnapshot
 /// <summary>Renderer-independent digital timers with explicit completion and
 /// scheduling policies. Busy retriggers never restart a countdown. Reset creates a new
 /// declared world; Restore is an exact transaction rollback on the same owner.</summary>
-public sealed class SimulationTimers
+public sealed class SimulationTimers : SimulationTransactionParticipant
 {
     private readonly SimulationTimerDeclaration[] _declarations;
     private readonly SimulationTimerState[] _states;
@@ -44,7 +44,6 @@ public sealed class SimulationTimers
     private readonly SimulationTimerState[] _checkpoint;
     private int _checkpointTick;
     private TimerBoundary? _checkpointBoundary;
-    public TimerTransactionPhase TransactionPhase { get; private set; }
     private readonly Dictionary<SimulationTimerId,int> _indices=new();
     public int Tick { get; private set; }
     public TimerBoundary? Boundary { get; private set; }
@@ -66,6 +65,8 @@ public sealed class SimulationTimers
     }
     private int Index(SimulationTimerId id)=>_indices.TryGetValue(id,out var index)?index:
         throw new ArgumentException("Timer is not declared in this world.",nameof(id));
+    /// <summary>Borrowed authoritative producer view; publication must copy before the next mutation.</summary>
+    internal ReadOnlySpan<SimulationTimerState> PublicationReads=>_states;
     public SimulationTimerState Read(SimulationTimerId id)=>_states[Index(id)];
     public double Progress(SimulationTimerId id)
     {
@@ -76,6 +77,18 @@ public sealed class SimulationTimers
             SimulationTimerPhase.Counting=>Math.Clamp((double)(Tick-state.StartedTick)/(state.DueTick-state.StartedTick),0,1),
             SimulationTimerPhase.Finished=>1,
             _=>throw new InvalidOperationException("Unsupported timer phase.")
+        };
+    }
+    /// <summary>Dimensionless readings of authoritative timer state; no presentation clock.</summary>
+    public double ReadQuantity(SimulationTimerId id,SimulationTimerQuantity quantity)
+    {
+        if(!Enum.IsDefined(quantity))throw new ArgumentOutOfRangeException(nameof(quantity));
+        var progress=Progress(id);
+        return quantity switch
+        {
+            SimulationTimerQuantity.ProgressFraction=>progress,
+            SimulationTimerQuantity.RemainingFraction=>Read(id).Phase==SimulationTimerPhase.Counting?1-progress:0,
+            _=>throw new ArgumentOutOfRangeException(nameof(quantity))
         };
     }
     public bool Trigger(SimulationTimerId id,int tick)
@@ -113,35 +126,22 @@ public sealed class SimulationTimers
         Tick=tick;Boundary=boundary;
         return _elapsed.AsSpan(0,count);
     }
-    private void RequireTransactionPhase(TimerTransactionPhase expected)
+    protected override void CaptureCheckpoint()
     {
-        if(TransactionPhase!=expected)throw new InvalidOperationException("Invalid timer transaction phase.");
-    }
-    public void BeginTransaction()
-    {
-        RequireTransactionPhase(TimerTransactionPhase.Idle);
         _states.CopyTo(_checkpoint,0);_checkpointTick=Tick;_checkpointBoundary=Boundary;
-        TransactionPhase=TimerTransactionPhase.Active;
     }
-    public void CommitTransaction()
+    protected override void RestoreCheckpoint()
     {
-        RequireTransactionPhase(TimerTransactionPhase.Active);
-        TransactionPhase=TimerTransactionPhase.Idle;
-    }
-    public void RollbackTransaction()
-    {
-        RequireTransactionPhase(TimerTransactionPhase.Active);
         _checkpoint.CopyTo(_states,0);Tick=_checkpointTick;Boundary=_checkpointBoundary;
-        TransactionPhase=TimerTransactionPhase.Idle;
     }
     public SimulationTimerSnapshot Capture()
     {
-        RequireTransactionPhase(TimerTransactionPhase.Idle);
+        RequireTransactionPhase(SimulationTransactionPhase.Idle);
         return new(this,Tick,Boundary,_states);
     }
     public void Restore(SimulationTimerSnapshot snapshot)
     {
-        RequireTransactionPhase(TimerTransactionPhase.Idle);
+        RequireTransactionPhase(SimulationTransactionPhase.Idle);
         ArgumentNullException.ThrowIfNull(snapshot);
         if(!ReferenceEquals(snapshot.Owner,this))throw new ArgumentException("Snapshot belongs to another timer world.",nameof(snapshot));
         snapshot.Values.CopyTo(_states,0);Tick=snapshot.Tick;Boundary=snapshot.Boundary;

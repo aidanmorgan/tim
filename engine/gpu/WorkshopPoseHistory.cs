@@ -6,8 +6,8 @@ public enum PresentationBoundary { Continuous, Seed, Run, Completed }
 public enum PresentationQuality { AwaitingHistory, Interpolated, ClockInvalid, Stale, Terminal, Faulted, Retired }
 public readonly record struct PresentationSimulationTime(double Seconds);
 public readonly record struct PresentedBody(GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation);
-public readonly record struct WorkshopPresentationSample(PresentedBody? Body, MonotonicNanoseconds? DisplayWall,
-    PresentationSimulationTime SimulationTime, PresentationQuality Quality, WorkshopPresentationEvidence Evidence = default, PhysicsCaptureRead Captures = default, WorkshopClockStamp? FeedbackCapture = null, PhysicsActivationRead Activations = default);
+public readonly record struct WorkshopPresentationSample(PresentedBodySet Bodies, MonotonicNanoseconds? DisplayWall,
+    PresentationSimulationTime SimulationTime, PresentationQuality Quality, WorkshopPresentationEvidence Evidence = default, PhysicsCaptureRead Captures = default, WorkshopClockStamp? FeedbackCapture = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default);
 public readonly record struct PresentationEndpoint(SimulationTick Tick, WorkshopClockStamp Capture, MappedCapture? Mapped);
 public readonly record struct WorkshopPresentationEvidence(MonotonicNanoseconds SelectedAt, ulong ClockEpoch, ulong DisplayEpoch,
     SimulationEpoch WorldEpoch, PresentationEndpoint? Latest, PresentationEndpoint? Before, PresentationEndpoint? After);
@@ -124,8 +124,11 @@ public sealed class WorkshopPoseHistory
                 if (response.Read.Tick.Value < previous.Response.Read.Tick.Value ||
                     response.Read.Revision.Value < previous.Response.Read.Revision.Value)
                     throw new ArgumentException("Physical history cannot regress.");
-                if (response.Read.Ball?.Id != previous.Response.Read.Ball?.Id)
-                    throw new ArgumentException("A body identity change requires a committed discontinuity.");
+                if (response.Read.Bodies.Count != previous.Response.Read.Bodies.Count)
+                    throw new ArgumentException("Body population change requires a committed discontinuity.");
+                for (var bodyIndex = 0; bodyIndex < response.Read.Bodies.Count; bodyIndex++)
+                    if (response.Read.Bodies[bodyIndex].Body.Id != previous.Response.Read.Bodies[bodyIndex].Body.Id)
+                        throw new ArgumentException("Body identity change requires a committed discontinuity.");
                 if (response.Read.Tick == previous.Response.Read.Tick)
                 {
                     if (response.Read.Capture != previous.Response.Read.Capture ||
@@ -208,7 +211,7 @@ public sealed class WorkshopPoseHistory
             _simulationTime = endpoint.Tick.Value / SimulationFrequency;
             Quality = PresentationQuality.Terminal;
             if (wall is { } mappedWall) _displayWall = mappedWall.Value;
-            sample = new(Pose(endpoint), wall, new(_simulationTime), Quality, Captures: endpoint.Captures, FeedbackCapture: endpoint.Capture, Activations: endpoint.Activations);
+            sample = new(Pose(endpoint), wall, new(_simulationTime), Quality, Captures: endpoint.Captures, FeedbackCapture: endpoint.Capture, Activations: endpoint.Activations, Timers: endpoint.Timers);
             return true;
         }
         if (!clock.IsQualified || clock.DisplayEpoch != _clockEpoch)
@@ -252,7 +255,7 @@ public sealed class WorkshopPoseHistory
         _displayWall = requested; _simulationTime = timeSeconds;
         Quality = LatestAge(now) > StaleNanoseconds ? PresentationQuality.Stale : PresentationQuality.Interpolated;
         sample = new(body, new(requested), new(timeSeconds), Quality, Captures: first.Response.Read.Captures,
-            FeedbackCapture: first.Response.Read.Capture, Activations: first.Response.Read.Activations);
+            FeedbackCapture: first.Response.Read.Capture, Activations: first.Response.Read.Activations, Timers: first.Response.Read.Timers);
         return true;
     }
 
@@ -263,23 +266,36 @@ public sealed class WorkshopPoseHistory
         return age > long.MaxValue ? long.MaxValue : (long)Int128.Max(0, age);
     }
 
-    private static PresentedBody? Pose(WorkshopRead read) =>
-        read.Ball is { } value ? new(value.Id, value.Cell, value.Local,
-            read.Rotation ?? throw new ArgumentException("Missing physical orientation.")) : null;
+    private static PresentedBodySet Pose(WorkshopRead read)
+    {
+        Span<PresentedBody> poses = stackalloc PresentedBody[PhysicsBodyReadSet.Capacity];
+        for (var i = 0; i < read.Bodies.Count; i++)
+        {
+            var value = read.Bodies[i];
+            poses[i] = new(value.Body.Id, value.Body.Cell, value.Body.Local, value.Rotation);
+        }
+        return new(poses[..read.Bodies.Count]);
+    }
 
-    public static bool TrySampleWorld(WorkshopRead from, WorkshopRead to, double requestedTick, out PresentedBody? pose)
+    public static bool TrySampleWorld(WorkshopRead from, WorkshopRead to, double requestedTick, out PresentedBodySet poses)
     {
         if (!double.IsFinite(requestedTick) || requestedTick < from.Tick.Value || requestedTick > to.Tick.Value ||
-            from.Epoch != to.Epoch || (from.Ball is null) != (to.Ball is null))
+            from.Epoch != to.Epoch || from.Bodies.Count != to.Bodies.Count)
             throw new ArgumentException("Invalid committed motion selection.");
-        if (requestedTick == from.Tick.Value) { pose = Pose(from); return true; }
-        if (requestedTick == to.Tick.Value) { pose = Pose(to); return true; }
-        if (to.Tick.Value != from.Tick.Value + 1) { pose = null; return false; }
-        if (from.Ball is null) { pose = null; return true; }
-        if (from.Ball.Value.Id != to.Ball!.Value.Id) throw new ArgumentException("Motion body changed.");
-        if (to.Motion is { } motion && motion.TrySample(requestedTick * motion.Substeps, out var sampled))
-        { pose = sampled; return true; }
-        pose = null; return false; // Missing/coalesced commits never authorize an invented path.
+        for (var i = 0; i < from.Bodies.Count; i++)
+            if (from.Bodies[i].Body.Id != to.Bodies[i].Body.Id)
+                throw new ArgumentException("Motion body identity changed.");
+        if (requestedTick == from.Tick.Value) { poses = Pose(from); return true; }
+        if (requestedTick == to.Tick.Value) { poses = Pose(to); return true; }
+        poses = default;
+        if (to.Tick.Value != from.Tick.Value + 1) return false;
+        if (from.Bodies.Count == 0) return true;
+        if (to.Motion is not { } motion) return false;
+        Span<PresentedBody> values = stackalloc PresentedBody[PhysicsBodyReadSet.Capacity];
+        for (var i = 0; i < to.Bodies.Count; i++)
+            if (!motion.TrySample(to.Bodies[i].Body.Id, requestedTick * motion.Substeps, out values[i]))
+                return false;
+        poses = new(values[..to.Bodies.Count]); return true;
     }
     private static bool SameBody(WorkshopRead first, WorkshopRead second) => WorkshopRead.SamePhysicalContent(first, second);
 

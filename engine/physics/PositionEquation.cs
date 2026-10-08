@@ -10,7 +10,7 @@ public readonly record struct PositionEquation(ConstraintGradient Gradient,doubl
 /// velocity and commits all participants through the collision-checked projector.</summary>
 public static class PositionEquations
 {
-    public static void Project(ReadOnlySpan<PositionEquation> equations,PositionProjector projector)
+    internal static void Project(ReadOnlySpan<PositionEquation> equations,PositionProjector projector)
     {
         ArgumentNullException.ThrowIfNull(projector);
         if(equations.Length==0) return;

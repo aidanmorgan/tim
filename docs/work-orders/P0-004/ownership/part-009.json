@@ -58,13 +58,13 @@
       "Path": {
         "Value": "parts/BallPart.cs"
       },
-      "Sha256": "eb6b583f0de2d7daa527e67d86710d6e0ee3b24492a3f9e346bbfe74977d569b"
+      "Sha256": "91e6cb2681553fd87df895b81edc663909acb136ee57bf5a644cf7bf8fa9bd5b"
     },
     {
       "Path": {
         "Value": "parts/BasketPart.cs"
       },
-      "Sha256": "81e139c516cc867dd942b6ec4de5f561985b39636b461ffb481842b99bdef781"
+      "Sha256": "9c896736851644cfaff2f03a2712423ae011eb428a26e3bb9b08d60c3f63e453"
     },
     {
       "Path": {
@@ -382,7 +382,7 @@
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BasketPart_ScriptMethods.generated.cs"
       },
-      "Sha256": "9b09395e8621be7c3c356887d31ab2e9952bc5c79db58d87229888bb9b51af00"
+      "Sha256": "d0da042e12cceb1de136ce8c92bda08b4233e070313249c9ee273639a6c6632c"
     },
     {
       "Path": {

@@ -53,6 +53,13 @@ public sealed record AnimationImpulseDefinition
         PeakPhase=peakPhase;
         Duration=duration;Curve=curve;Overlap=overlap;Visibility=visibility;Clock=clock;Capacity=capacity;Timing=timing;
     }
+    /// <summary>The one peak phase each curve admits; declarations and the worker share this table.</summary>
+    public static AnimationPeakPhase CanonicalPeak(AnimationImpulseCurve curve)=>curve switch
+    {
+        AnimationImpulseCurve.LinearDecay or AnimationImpulseCurve.SmoothDecay=>new((Half)0),
+        AnimationImpulseCurve.SineSquaredPulse or AnimationImpulseCurve.SmoothRiseFall=>new((Half).5),
+        _=>throw new ArgumentOutOfRangeException(nameof(curve))
+    };
     internal double Envelope(double elapsed)
     {
         if(elapsed<=0)return PeakPhase.Value==(Half)0?1:0;
@@ -67,7 +74,7 @@ public sealed record AnimationImpulseDefinition
             _=>throw new InvalidOperationException("Unsupported impulse curve.")
         };
     }
-    private static double SquaredSine(double phase)
+    internal static double SquaredSine(double phase)
     {
         var sine=Math.Sin(Math.PI*phase);return sine*sine;
     }

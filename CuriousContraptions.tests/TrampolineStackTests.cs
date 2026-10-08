@@ -1,12 +1,13 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System.Text.Json;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class TrampolineStackTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class TrampolineStackTests(NativeSceneFixture godot)
 {
     private enum Role { Bed, Lower, Upper }
     // Test construction serialization boundary; internal decisions retain Role.
@@ -55,26 +56,26 @@ public class TrampolineStackTests(HeadlessFixture godot)
             for (var tick = 0; tick < 2400; tick++)
             {
                 world.Step();
-                if (tick >= 2388) samples.Add($"{tick}: lower={lower.Position.Y:R}/{lower.Velocity.Y:R}, upper={upper.Position.Y:R}/{upper.Velocity.Y:R}, compression={bed.Compression:R}");
+                if (tick >= 2388) samples.Add($"{tick}: lower={lower.Position.Y:R}/{world.PhysicsAssembly.Body(new(lower,MachinePart.RootBody)).LinearVelocity.Y:R}, upper={upper.Position.Y:R}/{world.PhysicsAssembly.Body(new(upper,MachinePart.RootBody)).LinearVelocity.Y:R}, compression={bed.Compression:R}");
                 if (tick >= 2280)
                 {
-                    Assert.InRange(lower.Velocity.Length(), 0, .03f);
-                    Assert.InRange(upper.Velocity.Length(), 0, .03f);
+                    Assert.InRange(world.PhysicsAssembly.Body(new(lower,MachinePart.RootBody)).LinearVelocity.Length, 0, .03f);
+                    Assert.InRange(world.PhysicsAssembly.Body(new(upper,MachinePart.RootBody)).LinearVelocity.Length, 0, .03f);
                 }
                 Assert.True(lower.Position.IsFinite() && upper.Position.IsFinite());
-                Assert.True(lower.Velocity.IsFinite() && upper.Velocity.IsFinite());
+                Assert.True(world.PhysicsAssembly.Body(new(lower,MachinePart.RootBody)).LinearVelocity.IsFinite && world.PhysicsAssembly.Body(new(upper,MachinePart.RootBody)).LinearVelocity.IsFinite);
                 Assert.InRange(bed.Compression, 0, TrampolinePart.MaximumStroke);
                 Assert.InRange(lower.Position.DistanceTo(upper.Position),
                     lower.Radius + upper.Radius - .002f, 2);
                 var energy = world.Gravity * (lower.Mass * lower.Position.Y + upper.Mass * upper.Position.Y)
-                    + .5f * lower.Mass * lower.Velocity.LengthSquared()
-                    + .5f * upper.Mass * upper.Velocity.LengthSquared() + bed.StoredElasticEnergy;
+                    + .5f * lower.Mass * world.PhysicsAssembly.Body(new(lower,MachinePart.RootBody)).LinearVelocity.LengthSquared
+                    + .5f * upper.Mass * world.PhysicsAssembly.Body(new(upper,MachinePart.RootBody)).LinearVelocity.LengthSquared + bed.StoredElasticEnergy;
                 Assert.InRange(energy, 0, initialEnergy * 1.01f);
             }
             Assert.Equal(1, bed.ContactCount);
             Assert.InRange(Math.Abs(bed.Compression - (lower.Mass + upper.Mass) * world.Gravity / 180), 0, .015f);
-            Assert.True(lower.Velocity.Length() <= .03f, string.Join(System.Environment.NewLine, samples));
-            Assert.InRange(upper.Velocity.Length(), 0, .03f);
+            Assert.True(world.PhysicsAssembly.Body(new(lower,MachinePart.RootBody)).LinearVelocity.Length <= .03f, string.Join(System.Environment.NewLine, samples));
+            Assert.InRange(world.PhysicsAssembly.Body(new(upper,MachinePart.RootBody)).LinearVelocity.Length, 0, .03f);
             Assert.InRange(Math.Abs(lower.Position.X) + Math.Abs(lower.Position.Z), 0, .001f);
             Assert.InRange(Math.Abs(upper.Position.X) + Math.Abs(upper.Position.Z), 0, .001f);
             world.Restore();

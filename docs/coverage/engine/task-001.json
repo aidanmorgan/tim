@@ -98,160 +98,160 @@
       "ProofOwner": "S004",
       "Artifacts": [
         {
-          "Path": "docs/adiabatic-gas-discharge.md",
-          "Hash": "713337d7d42daa6b525cfad1363625b70c223aba756f3dd5d0727003f8a5da86"
+          "Path": "docs/history/checkpoints/adiabatic-gas-discharge.md",
+          "Hash": "37b4fcfdc4a32125fc8239d697fdf229ce8042f21e7b2e6af5b37b83ca5be6f0"
         },
         {
-          "Path": "docs/airflow-conservation-regression.md",
-          "Hash": "870428a11506fa6d857e3a2c820cb9ac398bb79c4d3c09a14bb5901e92c99cd3"
+          "Path": "docs/history/checkpoints/airflow-conservation-regression.md",
+          "Hash": "84d746619711ddc13dcd1cae6d65ef99b934d140985561c9487c68ed5c868552"
         },
         {
-          "Path": "docs/axial-gas-potential.md",
-          "Hash": "1fa96e8c1be1b9688b7570ad99ca981f2ff40896642f17205c9ffc9d8331b6e8"
+          "Path": "docs/history/checkpoints/axial-gas-potential.md",
+          "Hash": "12003178ea97dd7ce5806cc7f367c225a3194e68c0893bdcaadac05327d04ce6"
         },
         {
-          "Path": "docs/bellows-configured-transfer.md",
-          "Hash": "d87c31e506aef7b18ad076ba4bf8330c922e331be0d747fd05f6efc9688fdd56"
+          "Path": "docs/history/checkpoints/bellows-configured-transfer.md",
+          "Hash": "243c0ddfcc98f7a9dbff1262b6955374c0da6289cbfb2d99e6bd8a2de741fd40"
         },
         {
-          "Path": "docs/bellows-transport-trace.md",
-          "Hash": "e92f86fccaa7e3daa26f89f83c363c3717342d8c1b1efbd2cd0beb3808864c42"
+          "Path": "docs/history/checkpoints/bellows-transport-trace.md",
+          "Hash": "b6d39b65f9fb5c1d00f737de343be26fce86493432e16402b17819bbd47d9c72"
         },
         {
           "Path": "docs/browser-physics-performance.md",
           "Hash": "225c95dc77536d677a49064de8e744191dad9b6b3ce0c830b69f4cd5c6c850c3"
         },
         {
-          "Path": "docs/conserved-jet-transfer.md",
-          "Hash": "0e50e057f5ddc2c0879244202a680c028ef413fa02a59ff2df00df595974b27e"
+          "Path": "docs/history/checkpoints/conserved-jet-transfer.md",
+          "Hash": "d06dae7601cf5a5847facad9333ac2fac9990080caa380073ed72d8004c1913a"
         },
         {
-          "Path": "docs/contact-coupling-repair.md",
-          "Hash": "d48c584d4ec59abf9b50f0d3e3cbbfc774c1cbc53676c28ef8970d6f0d363e2c"
+          "Path": "docs/history/checkpoints/contact-coupling-repair.md",
+          "Hash": "014135efb8b7776215fd6ff53b8a2a28775ecbcff07b88ae2b5f6e104a24f65b"
         },
         {
-          "Path": "docs/contact-scratch.md",
-          "Hash": "0d508f53d0cfb5bc4b7edcb6991e18a45b2ce9d755f16cdda5bc704767fc614c"
+          "Path": "docs/history/checkpoints/contact-scratch.md",
+          "Hash": "60ce80c39805015ddf65603b0d5ff05d7d71972bcf3240e7c8295e4ad89db1ce"
         },
         {
-          "Path": "docs/converging-gas-nozzle.md",
-          "Hash": "e1066d29a4cea353d2fe3a10043d6e40d1b3ba1a3c623fdb49b34cdabf248646"
+          "Path": "docs/history/checkpoints/converging-gas-nozzle.md",
+          "Hash": "9912de33fda01523fb63807c311b4ccbc48603c93f15c3cbf82b2cb939c7d867"
         },
         {
-          "Path": "docs/finite-gas-foundation.md",
+          "Path": "docs/history/checkpoints/finite-gas-foundation.md",
           "Hash": "f71d2ed14735968ec671490f38d6aaed3f45c1981dfb9b3459981e7af25f14b7"
         },
         {
-          "Path": "docs/finite-interval-support.md",
-          "Hash": "8620371c77a1e97a0cd15283096d3e7fddcd7c43a4bd78f174fb0016bee1b313"
+          "Path": "docs/history/checkpoints/finite-interval-support.md",
+          "Hash": "bbfa50550cc5f4ea7f75bcfde8b8031825aeb0cc3b8dd1334e132cff67444806"
         },
         {
-          "Path": "docs/finite-nozzle-transit.md",
-          "Hash": "e4eb6b24dd8261ca2e235439fc1b8758a31ed846a90a462304c42e8c7d322cef"
+          "Path": "docs/history/checkpoints/finite-nozzle-transit.md",
+          "Hash": "6689c62e8db0dd2f7b9246f970f0ad74ed211b17587c25286ab4cd62b9a38b21"
         },
         {
-          "Path": "docs/gas-chamber-rotation.md",
-          "Hash": "10ffffa019cf2ab3e68206c404e24c0707d0a72b1a9eb141fbb193450da0eeb4"
+          "Path": "docs/history/checkpoints/gas-chamber-rotation.md",
+          "Hash": "c1f7785156f8f5a442b725e20e812487e26d655df82a697872f96ff4e9ae21da"
         },
         {
-          "Path": "docs/gas-chamber-world.md",
-          "Hash": "34c00eabc8e2874d0fea610048c0a0a37f7a40a79dccf0c6e8d97cfd521e4494"
+          "Path": "docs/history/checkpoints/gas-chamber-world.md",
+          "Hash": "10efee88a30f01c1f12286e0757859ddd704e7168aa600d7fe2e832fc3f6c17b"
         },
         {
-          "Path": "docs/gas-endpoint-correction.md",
-          "Hash": "0dd022d44b285dbb262a2e48d0eeff8ed25679fb76afc93368cbc3752f730fcd"
+          "Path": "docs/history/checkpoints/gas-endpoint-correction.md",
+          "Hash": "baa03022fc6c18178eafbee86c81bea243d2887677720cc8d5d4514743794cc9"
         },
         {
-          "Path": "docs/gas-interval-work.md",
-          "Hash": "87b9c4278cb9a46c56ed81c122d55b0d1a33273b07ad54d56eae09f80bee6803"
+          "Path": "docs/history/checkpoints/gas-interval-work.md",
+          "Hash": "604f5de3fa420b5901dd4265f4aefaaeaf11153a0f3bdcda735ddba52853e4f8"
         },
         {
           "Path": "docs/general-physics-capability-audit.md",
           "Hash": "85750abef106406cda269e35583c70230795185899671ba11fa08e0888e72a23"
         },
         {
-          "Path": "docs/linear-airflow-cutover.md",
-          "Hash": "1686a2c8a4848d0daddde9ed48c6c01962b0a2a7fac77639c9b796653f2fa346"
+          "Path": "docs/history/checkpoints/linear-airflow-cutover.md",
+          "Hash": "1fa88092c003bfadcc1fc037bbc5a88f9f529f887b68b205983b28c309f2100f"
         },
         {
-          "Path": "docs/mechanical-port-curvature.md",
-          "Hash": "ca9f514c3d3e5ea99957d28cef4350cdd6ee6b43d8637abd7348e1676166c92b"
+          "Path": "docs/history/checkpoints/mechanical-port-curvature.md",
+          "Hash": "7e723fb08d9da65a27fdebe4047040358b6ee03573a64086d81eb022d0cf8846"
         },
         {
-          "Path": "docs/mechanical-port-speed-bounds.md",
-          "Hash": "d2e2e66dd33eddd73a990ed86465dd2f86867d0696317c19881b81951abfd256"
+          "Path": "docs/history/checkpoints/mechanical-port-speed-bounds.md",
+          "Hash": "f41214755d774d46a0af30b494b3794ee34774fa1878e65d2176acf532dfd9c9"
         },
         {
-          "Path": "docs/mechanical-source-ledger.md",
-          "Hash": "ded246a51e1f13579a8a9d3d92e683d5955fe7f7da818064c810e4490f75474e"
+          "Path": "docs/history/checkpoints/mechanical-source-ledger.md",
+          "Hash": "dfed48236d18182d309acca8d6c73406dd513f96a1a7ea0e8f55f05c3ad4b0d8"
         },
         {
-          "Path": "docs/mechanical-source-ownership.md",
-          "Hash": "f551daedc2f848943f2c7e707a8dde1945c72b588e64a7a789af6af5418acc31"
+          "Path": "docs/history/checkpoints/mechanical-source-ownership.md",
+          "Hash": "448a4bbd441ce7bd80c32a13b50b676817fd9924f6d9ac06a2d1fae3d6761c4b"
         },
         {
-          "Path": "docs/mechanical-source-path-power.md",
-          "Hash": "e3910b8222e7791103093537062ca65e6c5fdb437f29c7c67b95116d35127898"
+          "Path": "docs/history/checkpoints/mechanical-source-path-power.md",
+          "Hash": "4516cad3125f1b476a3a43b82a178b95a2f66e7c8af5c4267b21dfe0086945bd"
         },
         {
-          "Path": "docs/mechanical-source-rating.md",
-          "Hash": "19dded84c1410ba4dee05c3dbb0ccee331494abf2a2f7818cb58e6be443661c7"
+          "Path": "docs/history/checkpoints/mechanical-source-rating.md",
+          "Hash": "cf096c44c9e8880ccda8649174d6456e8cf1c7625b5d2151e3c45b4bf045ff87"
         },
         {
-          "Path": "docs/mechanical-transfer-ledger.md",
-          "Hash": "2df613be6417b4eee646d077f08ceac928c2f9b1c44df198749f47a0a53003a4"
+          "Path": "docs/history/checkpoints/mechanical-transfer-ledger.md",
+          "Hash": "44463b3acec0990ca78307dea08df5c50a1b88605ef1602b16afc76bd0fff564"
         },
         {
-          "Path": "docs/mechanical-transfer-work-results.md",
-          "Hash": "ed8a5e751ddb5a78720aec0808c99e3ee269996c1d75ec7d5307fa8f42ee2e8d"
+          "Path": "docs/history/checkpoints/mechanical-transfer-work-results.md",
+          "Hash": "0e96f5e987e1d4f98827971c99c11c29e7ef87bc11ad3f084d158c4abeb7b459"
         },
         {
-          "Path": "docs/mixed-mechanical-transfer.md",
-          "Hash": "9e0102912e7ffe2d1217f80d8a15dac47e6c08b0a5195345050ca93e2e573640"
+          "Path": "docs/history/checkpoints/mixed-mechanical-transfer.md",
+          "Hash": "43f7d091596d71e66a2018ab79226979d2c0d65a6ce218233957cfcc18279167"
         },
         {
-          "Path": "docs/motor-power-limits.md",
-          "Hash": "bda229d94d36f2b1ec74a3d70de24446ff570ef6bc5025027e354e5902d638a6"
+          "Path": "docs/history/checkpoints/motor-power-limits.md",
+          "Hash": "ec7067b1c450c7bb5819d0fc8fe9b57cbe5bcb90db55c3125cb6b3153eeed28f"
         },
         {
-          "Path": "docs/owned-hold-timers.md",
-          "Hash": "d8b03a86fd870603ba42134762cae1fcf0744c99361e081c08c04d38957bbddc"
+          "Path": "docs/history/checkpoints/owned-hold-timers.md",
+          "Hash": "9b92491046e947c7bc080f22c6bb666c04661b23e8469580434666f9708758b3"
         },
         {
-          "Path": "docs/predictor-bellows-supply.md",
-          "Hash": "a8705103cd9cee85b6c473dc523d7eb8667af6b2113c1b634a5165ce84832709"
+          "Path": "docs/history/checkpoints/predictor-bellows-supply.md",
+          "Hash": "5280a8dc6a6d90ad4e4d60e5bc921ac8fd9dd150ebf974db9bf79ec662fb4a1a"
         },
         {
-          "Path": "docs/rotor-airflow-contract.md",
-          "Hash": "5b4afd962eddf989413efd4cadd858fd2d46e7b9b9ca0943971eac00df21e955"
+          "Path": "docs/history/checkpoints/rotor-airflow-contract.md",
+          "Hash": "81f9ab1eee15c3994b72fdd6ecd02398a0f05ac9585f5e7eeb717ba8b26b64bf"
         },
         {
-          "Path": "docs/shutter-orientation-ui.md",
-          "Hash": "3640094df8579aa81e804b38eca235da91f8fe489e4dc1985745a92854279e5b"
+          "Path": "docs/history/checkpoints/shutter-orientation-ui.md",
+          "Hash": "43a67b7804dab449bf58afffdf561ff46f271ef027554d88119dc928eb013468"
         },
         {
           "Path": "docs/simulation-presentation-bridge.md",
           "Hash": "8108b3199fee87a0ea893318393423bd0a4da72c3f6f939ab9e155116cbdc708"
         },
         {
-          "Path": "docs/stored-flow-allocation.md",
-          "Hash": "c18d6b148db8b2eab2338d4c1fb8cb84193b9e75080ee8a985520f0103e6cf97"
+          "Path": "docs/history/checkpoints/stored-flow-allocation.md",
+          "Hash": "f2d7d15d22418cabca3607799dd6ab105144a08b7ec0fd391c21b09a7ee54578"
         },
         {
-          "Path": "docs/transfer-boundary-scheduling.md",
-          "Hash": "495db560646611ef03b9c0857a541755b422644f98687adf0732abc0d3bddaff"
+          "Path": "docs/history/checkpoints/transfer-boundary-scheduling.md",
+          "Hash": "b597f6b1bcbb28882b2fef6938c569e844eeae44eca998a78b88b0166f15ef51"
         },
         {
-          "Path": "docs/transfer-source-stall.md",
-          "Hash": "31afa4c8e19a1d28e832220581fd47d25f982d7411a7c3675b5a41ae363b1856"
+          "Path": "docs/history/checkpoints/transfer-source-stall.md",
+          "Hash": "c967bc77b2d2911227cf428a970bdfd62a1bc3acfb428bc4dc99dae46ba7a080"
         },
         {
-          "Path": "docs/world-gas-binding.md",
-          "Hash": "82e1944db725016164602b50b25d0c17ac68c791e83e57e0e833507a26d01457"
+          "Path": "docs/history/checkpoints/world-gas-binding.md",
+          "Hash": "91811c1602bbe3fc0f3f2ca2bf7c47369a839b39e1b9ad4ccdd962e7d791123a"
         },
         {
-          "Path": "docs/world-gas-ownership.md",
-          "Hash": "164e8d9a17201da819275905387b17d9493770c2c94a97823049dc649c946e69"
+          "Path": "docs/history/checkpoints/world-gas-ownership.md",
+          "Hash": "43a4f4dd74130d388364f385474c33ea7658c7e279fbb757ef2646b1876a249f"
         }
       ]
     },
@@ -295,8 +295,8 @@
       "ProofOwner": "S826",
       "Artifacts": [
         {
-          "Path": "docs/reference-baseline.md",
-          "Hash": "3b904e9eda1d88bd151340c78385118a8bcf9de36e935f04d130807d42d09f94"
+          "Path": "docs/history/checkpoints/reference-baseline.md",
+          "Hash": "eff5bbd00cd1ab40837ec8dc29df774dd739622f38fc28576c70d1c9418936fc"
         }
       ]
     },
@@ -328,20 +328,20 @@
       "ProofOwner": "S748",
       "Artifacts": [
         {
-          "Path": "docs/performance-audit.md",
-          "Hash": "12c52e792518f5b607abd19e74dd19e010c6232a8e70a5693c0ae35d70edb8ca"
+          "Path": "docs/history/checkpoints/performance-audit.md",
+          "Hash": "b4137a46b4ecce06a08767ddea9e3a86375b466f0eae9cabe55ec02e990f9521"
         },
         {
-          "Path": "docs/performance-run-identity.md",
-          "Hash": "3019e80ad44e51628475d5675ffe5b1e2e0b9e1a73043a2bf86e53ed447f348f"
+          "Path": "docs/history/checkpoints/performance-run-identity.md",
+          "Hash": "cd8a431078adace16cce8b3f6b40fdec07d3d7d601ff2141a6c63c58293a2d00"
         },
         {
-          "Path": "docs/prediction-constraint-work.md",
-          "Hash": "23c67ae2549dca991906c2604c75147552f78b59c4c11efac13a0a8b7b8f23d5"
+          "Path": "docs/history/checkpoints/prediction-constraint-work.md",
+          "Hash": "061928c6bb5646f47a5a2ed5bb89de2f28a578f5213c1acffe1f8cea6cdc2e52"
         },
         {
-          "Path": "docs/spatial-work.md",
-          "Hash": "b92d60abc6ef0465c5341018f55392e6043c3ec4b00c9caf2894f0580a0dcb94"
+          "Path": "docs/history/checkpoints/spatial-work.md",
+          "Hash": "7972cc2122d2c37f991b0c6f459ec7b34af4b3c820a2fc587e13cac65f807dc1"
         }
       ]
     },
@@ -8411,7 +8411,7 @@
         "Origin": "Task",
         "Id": "sequence-task-004"
       },
-      "SourceHash": "33dfce332a1d9d4bf4cd7409fe6f24f4a5bc52ec34d34208755b9d574665d161",
+      "SourceHash": "a1032c3f6ceb61ab7fbd6e25f484d91dc00af5fdce0ab5c26501dfc7e8611298",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -8431,7 +8431,7 @@
         "Origin": "Task",
         "Id": "sequence-task-005"
       },
-      "SourceHash": "47d904990d659aeab3fa1fb7595de5fc5d2372c37fde0a6ea40b2ae603abc7df",
+      "SourceHash": "6636d46aa4dc547bbded6e2d3b17f232684c7f631d9ad3e9835cf7e17ad24adc",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -8458,7 +8458,7 @@
         "Origin": "Task",
         "Id": "sequence-task-006"
       },
-      "SourceHash": "263b0d4a3c77c0f3a945e0b0211e8e3710c47ae9d013578885d9fa235ad1f172",
+      "SourceHash": "fd32b63be2e742d19ae8e2ee50858ac6ad09ca9d9af5e8de931b462375fb8885",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -11350,7 +11350,7 @@
         "Origin": "Task",
         "Id": "sequence-task-018"
       },
-      "SourceHash": "6f54eb07efd206c14a2e327df0a6bdf5038b4920fa62f613281f6351542c800a",
+      "SourceHash": "799fbb78b50d58f64b433dcd210270870d40f66838b8e05b44dac5691de81ecc",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -11410,7 +11410,7 @@
         "Origin": "Task",
         "Id": "sequence-task-020"
       },
-      "SourceHash": "3edb01fe42ce5f2506a64db007480a304e49f37aae8b987875eb478f95928a20",
+      "SourceHash": "be133712d7b5a755c0fe9819eb07486d1718c74229437ef791aa6bfd6c2ad100",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -14071,7 +14071,7 @@
         "Origin": "Task",
         "Id": "sequence-task-025"
       },
-      "SourceHash": "4da0a31061e65a7eb372d2f8e2b9e3c3739fe4f2b23d7460d2460599189c7504",
+      "SourceHash": "687ccd5540ffc3eda16b1c2d2b36ca83cfe51888c248419d127fada301770725",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -18759,4 +18759,3 @@
   ],
   "Modes": []
 }
-

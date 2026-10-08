@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+repo_root=$(git rev-parse --show-toplevel)
+dotnet run --file "$repo_root/tools/anvil/CheckStagedTests.cs"
+exec anvil hook pre-commit

@@ -1,12 +1,13 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System.Text.Json;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class WoundSpringTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
     private const string BatteryId = "supply", MotorId = "motor", SpringId = "launcher", PayloadId = "payload", UpperPayloadId = "upper_payload";
     private const string BatteryKind = "battery", MotorKind = "motor", BallKind = "ball";
@@ -27,6 +28,12 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
         Assert.True(world.Connect(motor, spring));
         return (spring, ball);
     }
+    private static Vector3 RuntimePosition(MachineWorld world, MachinePart part)
+    {
+        var body = world.PhysicsAssembly.Body(new(part, MachinePart.RootBody));
+        var position = body.Pose.TransformPoint(-SceneGeometryAdapter.CaptureVector(part.LocalCenterOfMass));
+        return new((float)position.X, (float)position.Y, (float)position.Z);
+    }
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -41,10 +48,10 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             for (var i = 0; i < 240; i++) world.Step();
             Assert.Equal(2, world.Bodies.Count);
             var stored = spring.StoredEnergy;
-            var start = ball.Position.Y;
+            var start = RuntimePosition(world, ball).Y;
             world.Activate(spring);
             var top = start;
-            for (var i = 0; i < 90; i++) { world.Step(); top = Mathf.Max(top, ball.Position.Y); }
+            for (var i = 0; i < 90; i++) { world.Step(); top = Mathf.Max(top, RuntimePosition(world, ball).Y); }
             if (supplied)
             {
                 Assert.InRange(stored, 50, 52);
@@ -78,25 +85,25 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             world.Pressure = 0;
             var (spring, ball) = Build(world, true, mass);
             world.Start(); for (var i = 0; i < 240; i++) world.Step();
-            world.FindPart(BatteryId)!.Properties[PartParameterName.Of(SupplyParameter.Enabled)] = 0;
+            world.QueueBinaryInput(new(world.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Disabled);
             for (var i = 0; i < 120; i++) world.Step();
             var stored = spring.StoredEnergy;
             var accepted = spring.AcceptedWork;
-            var initialBallY = ball.Position.Y;
-            var initialHeadY = spring.Plunger.Position.Y;
+            var initialBallY = RuntimePosition(world, ball).Y;
+            var initialHeadY = RuntimePosition(world, spring.Plunger).Y;
             Assert.InRange(stored, 50, 52);
             world.Activate(spring);
-            var peak = ball.Position.Y;
+            var peak = RuntimePosition(world, ball).Y;
             var maximumEnergy = 0d;
             for (var i = 0; i < 150; i++)
             {
-                world.Step(); peak = Mathf.Max(peak, ball.Position.Y);
-                var kinetic = .5 * ball.Mass * ball.Velocity.LengthSquared() +
-                    .5 * spring.Plunger.Mass * spring.Plunger.Velocity.LengthSquared();
-                var gravitational = world.Gravity * (ball.Mass * (ball.Position.Y - initialBallY) +
-                    spring.Plunger.Mass * (spring.Plunger.Position.Y - initialHeadY));
+                world.Step(); peak = Mathf.Max(peak, RuntimePosition(world, ball).Y);
+                var kinetic = .5 * ball.Mass * world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity.LengthSquared +
+                    .5 * spring.Plunger.Mass * world.PhysicsAssembly.Body(new(spring.Plunger,MachinePart.RootBody)).LinearVelocity.LengthSquared;
+                var gravitational = world.Gravity * (ball.Mass * (RuntimePosition(world, ball).Y - initialBallY) +
+                    spring.Plunger.Mass * (RuntimePosition(world, spring.Plunger).Y - initialHeadY));
                 maximumEnergy = Math.Max(maximumEnergy, kinetic + gravitational + spring.StoredEnergy);
-                var coordinate = (spring.Plunger.Position - spring.Position).Dot(spring.Basis.Y);
+                var coordinate = (RuntimePosition(world, spring.Plunger) - spring.Position).Dot(spring.Basis.Y);
                 Assert.InRange(coordinate, WoundSpringPart.RestHeadY - .8001f, WoundSpringPart.RestHeadY + .0001f);
                 Assert.InRange(Math.Abs(WoundSpringPart.RestHeadY - coordinate - spring.Compression), 0, .001);
             }
@@ -121,7 +128,7 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             world.RemovePart(ball);
             var head = spring.Plunger;
             world.Start(); for (var i = 0; i < 240; i++) world.Step();
-            world.FindPart(BatteryId)!.Properties[PartParameterName.Of(SupplyParameter.Enabled)] = 0;
+            world.QueueBinaryInput(new(world.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Disabled);
             world.Activate(spring);
             for (var i = 0; i < 120; i++) world.Step();
             Assert.Same(head, Assert.Single(world.Bodies));
@@ -129,7 +136,7 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             Assert.InRange(spring.ReleasedWork, 50, 52);
             Assert.Equal(1, spring.ReleaseCount);
             Assert.Equal(WoundSpringPhase.Idle, spring.Phase);
-            Assert.Equal(Vector3.Zero, head.Velocity);
+            Assert.Equal(default(CollisionVector),world.PhysicsAssembly.Body(new(head,MachinePart.RootBody)).LinearVelocity);
         }
         finally { world.Free(); }
     }
@@ -144,14 +151,14 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             var (spring, ball) = Build(world, true);
             world.RemovePart(ball);
             world.Start(); for (var i = 0; i < 240; i++) world.Step();
-            world.FindPart(BatteryId)!.Properties[PartParameterName.Of(SupplyParameter.Enabled)] = 0;
+            world.QueueBinaryInput(new(world.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Disabled);
             var wall = (WallPart)world.AddPart(new() { Id = WallId, Kind = WallKind,
-                Position = [0, 3.7f, 0], Rotation = [90, 0, 0] });
+                Position = [0, 3.7f, 0], Orientation = PartOrientation.FromEulerDegrees(90, 0, 0) });
             wall.SetDimensions(new(2, 2, .2f));
             world.Activate(spring);
             for (var i = 0; i < 120; i++) world.Step();
             Assert.Equal(WoundSpringPhase.Blocked, spring.Phase);
-            Assert.InRange(spring.Plunger.Position.Y, 3.09f, 3.281f);
+            Assert.InRange(RuntimePosition(world, spring.Plunger).Y, 3.09f, 3.281f);
             Assert.InRange(spring.StoredEnergy, 25, 51.3);
             var retained = spring.StoredEnergy;
             for (var i = 0; i < 120; i++) world.Step();
@@ -168,6 +175,88 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
     public void RotatedPartialChargeAndRepeatedCyclesRestoreExactly(float x, float y, float z)
     {
         var world = World();
+        var control = World();
+        try
+        {
+            world.Gravity = 0; control.Gravity = 0;
+            var (spring, ball) = Build(world, true);
+            world.RemovePart(ball);
+            spring.RotationDegrees = new(x, y, z);
+            var (controlSpring, controlBall) = Build(control, true);
+            control.RemovePart(controlBall);
+            controlSpring.RotationDegrees = new(x, y, z);
+            var saved = JsonSerializer.Serialize(world.Snapshot(), MachineJson.Default.MachineData);
+            world.Start(); control.Start();
+            void StepBoth() { world.Step(); control.Step(); }
+            for (var cycle = 0; cycle < 3; cycle++)
+            {
+                world.QueueBinaryInput(new(world.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Enabled);
+                control.QueueBinaryInput(new(control.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Enabled);
+                for (var i = 0; i < 30; i++) StepBoth();
+                var stored = spring.StoredEnergy;
+                Assert.InRange(stored, .01, 50);
+                world.QueueBinaryInput(new(world.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Disabled);
+                control.QueueBinaryInput(new(control.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Disabled);
+                var accepted = spring.AcceptedWork;
+                var initialKinetic = world.PhysicsAssembly.Bodies.ToArray().Sum(body => body.KineticEnergy);
+                var initialSupply = ((MotorPart)world.FindPart(MotorId)!).SuppliedWork;
+                output.WriteLine($"Zero-gravity release initial: cycle={cycle}, stored={stored:R}, kinetic={initialKinetic:R}, accepted={accepted:R}, supply={initialSupply:R}, bodies=[{string.Join("; ",world.PhysicsAssembly.Bodies.ToArray().Select(body=>$"{body.Id.Index}: {body.KineticEnergy:R}"))}]");
+                // The release fixture starts from retained potential energy, after
+                // the disconnected supply's physical shafts have finished coasting.
+                for (var i = 0; i < 120; i++) StepBoth();
+                var restTolerance = new PhysicsWorldSettings(default).VelocityTolerance;
+                foreach (var body in world.PhysicsAssembly.Bodies)
+                {
+                    Assert.InRange(body.LinearVelocity.Length, 0, restTolerance);
+                    Assert.InRange(body.AngularVelocity.Length, 0, restTolerance);
+                }
+                Assert.Equal(initialSupply, ((MotorPart)world.FindPart(MotorId)!).SuppliedWork);
+                stored = spring.StoredEnergy;
+                accepted = spring.AcceptedWork;
+                world.Activate(spring); control.Activate(controlSpring);
+                for (var i = 0; i < 90; i++)
+                {
+                    StepBoth();
+                    var offset = RuntimePosition(world, spring.Plunger) - spring.Position;
+                    var axis = spring.Basis.Y.Normalized();
+                    Assert.InRange((offset - axis * offset.Dot(axis)).Length(), 0, .0001f);
+                    Assert.InRange(offset.Dot(axis), WoundSpringPart.RestHeadY - .8001f,
+                        WoundSpringPart.RestHeadY + .0001f);
+                }
+                output.WriteLine($"Zero-gravity release final: cycle={cycle}, stored={spring.StoredEnergy:R}, kinetic={world.PhysicsAssembly.Bodies.ToArray().Sum(body=>body.KineticEnergy):R}, accepted={spring.AcceptedWork:R}, released={spring.ReleasedWork:R}, supplyDelta={((MotorPart)world.FindPart(MotorId)!).SuppliedWork-initialSupply:R}, bodies=[{string.Join("; ",world.PhysicsAssembly.Bodies.ToArray().Select(body=>$"{body.Id.Index}: {body.KineticEnergy:R}"))}]");
+                Assert.Equal(cycle + 1, spring.ReleaseCount);
+                var empty = world.Physics.Spring(world.PhysicsAssembly.JointId(new(spring, WoundSpringPart.PlungerGuide)));
+                Assert.False(empty.IsCharged);
+                Assert.InRange(spring.StoredEnergy, 0, .5 * empty.Declaration.Stiffness * empty.StopTolerance * empty.StopTolerance);
+                Assert.Equal(initialSupply, ((MotorPart)world.FindPart(MotorId)!).SuppliedWork);
+                Assert.Equal(controlSpring.AcceptedWork, spring.AcceptedWork);
+                Assert.InRange(world.PhysicsAssembly.Body(new(spring.Plunger,MachinePart.RootBody)).LinearVelocity.Length, 0, restTolerance);
+                Assert.Equal(WoundSpringPhase.Idle, spring.Phase);
+                world.Activate(spring); StepBoth(); StepBoth();
+                Assert.Equal(SpringTriggerResult.Empty, spring.LastTrigger);
+                Assert.Equal(control.Physics.Capture().BodyStates.ToArray(), world.Physics.Capture().BodyStates.ToArray());
+                Assert.Equal(controlSpring.StoredEnergy, spring.StoredEnergy);
+                Assert.Equal(controlSpring.AcceptedWork, spring.AcceptedWork);
+                Assert.Equal(controlSpring.ReleasedWork, spring.ReleasedWork);
+                Assert.Equal(controlSpring.ReleaseCount, spring.ReleaseCount);
+                Assert.Equal(cycle + 1, spring.ReleaseCount);
+                Assert.Equal(initialSupply, ((MotorPart)world.FindPart(MotorId)!).SuppliedWork);
+            }
+            world.Restore(); control.Restore();
+            Assert.Equal(saved, JsonSerializer.Serialize(world.Snapshot(), MachineJson.Default.MachineData));
+            Assert.Equal(saved, JsonSerializer.Serialize(control.Snapshot(), MachineJson.Default.MachineData));
+        }
+        finally { world.Free(); control.Free(); }
+    }
+
+
+    [Theory]
+    [InlineData(0, 0, 90)]
+    [InlineData(45, 30, 20)]
+    [InlineData(180, 0, 0)]
+    public void SameTickDisableAndReleaseRetainsOnlyPassivelyAvailableEnergy(float x, float y, float z)
+    {
+        var world = World();
         try
         {
             world.Gravity = 0;
@@ -176,85 +265,130 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             spring.RotationDegrees = new(x, y, z);
             var saved = JsonSerializer.Serialize(world.Snapshot(), MachineJson.Default.MachineData);
             world.Start();
-            for (var cycle = 0; cycle < 3; cycle++)
-            {
-                world.FindPart(BatteryId)!.Properties[PartParameterName.Of(SupplyParameter.Enabled)] = 1;
-                for (var i = 0; i < 30; i++) world.Step();
-                var stored = spring.StoredEnergy;
-                Assert.InRange(stored, .01, 50);
-                world.FindPart(BatteryId)!.Properties[PartParameterName.Of(SupplyParameter.Enabled)] = 0;
-                var accepted = spring.AcceptedWork;
-                world.Activate(spring);
-                for (var i = 0; i < 90; i++)
-                {
-                    world.Step();
-                    var offset = spring.Plunger.Position - spring.Position;
-                    var axis = spring.Basis.Y.Normalized();
-                    Assert.InRange((offset - axis * offset.Dot(axis)).Length(), 0, .0001f);
-                    Assert.InRange(offset.Dot(axis), WoundSpringPart.RestHeadY - .8001f,
-                        WoundSpringPart.RestHeadY + .0001f);
-                }
-                Assert.Equal(cycle + 1, spring.ReleaseCount);
-                Assert.Equal(0, spring.StoredEnergy);
-                Assert.Equal(accepted, spring.AcceptedWork);
-                Assert.Equal(Vector3.Zero, spring.Plunger.Velocity);
-                Assert.Equal(WoundSpringPhase.Idle, spring.Phase);
-            }
+            for (var i = 0; i < 30; i++) world.Step();
+            var stored = spring.StoredEnergy;
+            var kinetic = world.PhysicsAssembly.Bodies.ToArray().Sum(body => body.KineticEnergy);
+            var accepted = spring.AcceptedWork;
+            var supplied = ((MotorPart)world.FindPart(MotorId)!).SuppliedWork;
+            Assert.True(kinetic > 0);
+            world.QueueBinaryInput(new(world.FindPart(BatteryId)!, BatteryPart.EnableInput), Bridge.BinaryInputState.Disabled);
+            world.Activate(spring);
+            for (var i = 0; i < 90; i++) world.Step();
+            Assert.Equal(supplied, ((MotorPart)world.FindPart(MotorId)!).SuppliedWork);
+            Assert.Equal(1, spring.ReleaseCount);
+            Assert.True(spring.StoredEnergy > 0);
+            // Released potential cannot drive the disengaged winding transmission.
+            // Its subsequent recharge is bounded by the initial coasting reservoir.
+            Assert.InRange(spring.AcceptedWork - accepted, 0, kinetic);
+            Assert.InRange(spring.StoredEnergy, 0, kinetic);
+            Assert.InRange(spring.StoredEnergy + world.PhysicsAssembly.Bodies.ToArray().Sum(body => body.KineticEnergy), 0, stored + kinetic);
             world.Restore();
             Assert.Equal(saved, JsonSerializer.Serialize(world.Snapshot(), MachineJson.Default.MachineData));
         }
         finally { world.Free(); }
     }
 
-
+    public enum GravityScenario { Enabled, Disabled }
     [Theory]
-    [InlineData(0, 0, -15)]
-    [InlineData(0, 0, 15)]
-    [InlineData(15, 0, 0)]
-    [InlineData(15, 30, -15)]
-    public void RotatedLoadedReleaseUnderGravityUsesRetainedCharge(float x, float y, float z)
+    [InlineData(0, 0, -15,GravityScenario.Enabled)]
+    [InlineData(0, 0, 15,GravityScenario.Enabled)]
+    [InlineData(15, 0, 0,GravityScenario.Enabled)]
+    [InlineData(15, 30, -15,GravityScenario.Enabled)]
+    [InlineData(0, 0, -15,GravityScenario.Disabled)]
+    [InlineData(0, 0, 15,GravityScenario.Disabled)]
+    [InlineData(15, 0, 0,GravityScenario.Disabled)]
+    [InlineData(15, 30, -15,GravityScenario.Disabled)]
+    public void RotatedLoadedReleaseAccountsForAllMechanicalEnergy(float x,float y,float z,GravityScenario gravity)
     {
+        if(!Enum.IsDefined(gravity))throw new ArgumentOutOfRangeException(nameof(gravity));
         var world = World();
+        long measuredTicks=0,failedTicks=0,maximumTicks=0,predictionCalls=0,midpoints=0,newton=0,substeps=0;
+        var completedSteps=0;var failedSteps=0;var maximumCoordinates=0;
+        void StepMeasured()
+        {
+            var start=System.Diagnostics.Stopwatch.GetTimestamp();var completed=false;
+            try
+            {
+                world.Step();completed=true;completedSteps++;
+                var work=world.LastPhysicsStep;
+                predictionCalls+=work.PredictionCalls;midpoints+=work.PredictionMidpoints;
+                newton+=work.PredictionNewtonIterations;substeps+=work.Substeps;
+                maximumCoordinates=Math.Max(maximumCoordinates,work.MaximumPredictionCoordinates);
+            }
+            finally
+            {
+                var ticks=System.Diagnostics.Stopwatch.GetTimestamp()-start;
+                measuredTicks+=ticks;maximumTicks=Math.Max(maximumTicks,ticks);
+                if(!completed){failedSteps++;failedTicks+=ticks;}
+            }
+        }
         try
         {
+            world.Gravity=gravity==GravityScenario.Enabled?9.81f:0;
             var (spring, ball) = Build(world, true);
             spring.RotationDegrees = new(x, y, z);
             var axis = spring.Basis.Y.Normalized();
             ball.Position = spring.Position + axis * 1.57f;
             var saved = JsonSerializer.Serialize(world.Snapshot(), MachineJson.Default.MachineData);
             world.Start();
-            for (var i = 0; i < 240; i++) world.Step();
-            world.FindPart(BatteryId)!.Properties[PartParameterName.Of(SupplyParameter.Enabled)] = 0;
-            for (var i = 0; i < 120; i++) world.Step();
+            for (var i = 0; i < 240; i++) StepMeasured();
+            var motor=Assert.IsType<MotorPart>(world.FindPart(MotorId));
+            var supplied=motor.SuppliedWork;
+            world.QueueBinaryInput(new(world.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Disabled);
+            for (var i = 0; i < 120; i++) StepMeasured();
+            Assert.Equal(supplied,motor.SuppliedWork);
             var energy = spring.StoredEnergy;
             var accepted = spring.AcceptedWork;
-            var start = ball.Position;
+            var released = spring.ReleasedWork;
+            var dynamicBodies=world.PhysicsAssembly.Bodies.ToArray()
+                .Where(body=>body.MotionType==PhysicsMotionType.Dynamic).ToArray();
+            var initialHeights=dynamicBodies.ToDictionary(body=>body.Id,body=>body.Center.Y);
+            var initialKinetic=dynamicBodies.Sum(body=>body.KineticEnergy);
+            var initialMechanical=energy+initialKinetic;
+            // Same whole-system energy budget as ReleasedHeadLaunchesPayloadThroughSharedContacts.
+            const double mechanicalError=1e-6;
+            output.WriteLine($"Loaded release initial: gravity={gravity}, energy={energy:R}, kinetic={initialKinetic:R}, accepted={accepted:R}, supplied={supplied:R}, bodies=[{string.Join("; ",dynamicBodies.Select(body=>$"{body.Snapshot()}, inverseMass={body.InverseMass:R}, kinetic={body.KineticEnergy:R}"))}]");
+            var start = RuntimePosition(world, ball);
             Assert.InRange(energy, 51.19, 51.21);
-            Assert.InRange((start - spring.Position).Dot(axis), .65f, .85f);
+            if(gravity==GravityScenario.Enabled)
+                Assert.InRange((start - spring.Position).Dot(axis), .65f, .85f);
             var horizontal = new Vector3(axis.X, 0, axis.Z).Normalized();
             var peak = start.Y;
             var travel = 0f;
             world.Activate(spring);
             for (var i = 0; i < 150; i++)
             {
-                world.Step();
-                peak = Mathf.Max(peak, ball.Position.Y);
-                travel = Mathf.Max(travel, (ball.Position - start).Dot(horizontal));
-                var offset = spring.Plunger.Position - spring.Position;
+                StepMeasured();
+                var gravitationalWork=dynamicBodies.Sum(body=>world.Gravity*(initialHeights[body.Id]-body.Center.Y)/body.InverseMass);
+                var mechanical=spring.StoredEnergy+dynamicBodies.Sum(body=>body.KineticEnergy);
+                Assert.Equal(supplied,motor.SuppliedWork);
+                Assert.InRange(mechanical-initialMechanical-gravitationalWork,double.MinValue,mechanicalError);
+                Assert.InRange(Math.Abs(energy+(spring.AcceptedWork-accepted)-(spring.ReleasedWork-released)-spring.StoredEnergy),
+                    0,mechanicalError);
+                peak = Mathf.Max(peak, RuntimePosition(world, ball).Y);
+                travel = Mathf.Max(travel, (RuntimePosition(world, ball) - start).Dot(horizontal));
+                var offset = RuntimePosition(world, spring.Plunger) - spring.Position;
                 Assert.InRange((offset - axis * offset.Dot(axis)).Length(), 0, .0001f);
                 Assert.InRange(offset.Dot(axis), WoundSpringPart.RestHeadY - .8001f,
                     WoundSpringPart.RestHeadY + .0001f);
             }
-            Assert.True(peak > start.Y + .5f, $"rotation={spring.RotationDegrees}, rise={peak-start.Y}");
-            Assert.True(travel > .3f, $"rotation={spring.RotationDegrees}, aimed travel={travel}");
+            if(gravity==GravityScenario.Enabled)
+            {
+                Assert.True(peak > start.Y + .5f, $"rotation={spring.RotationDegrees}, rise={peak-start.Y}");
+                Assert.True(travel > .3f, $"rotation={spring.RotationDegrees}, aimed travel={travel}");
+            }
+            output.WriteLine($"Loaded release final: gravity={gravity}, stored={spring.StoredEnergy:R}, acceptedDelta={spring.AcceptedWork-accepted:R}, releasedDelta={spring.ReleasedWork-released:R}, bodies=[{string.Join("; ",dynamicBodies.Select(body=>$"{body.Snapshot()}, kinetic={body.KineticEnergy:R}"))}]");
             Assert.Equal(1, spring.ReleaseCount);
-            Assert.Equal(accepted, spring.AcceptedWork);
-            Assert.Equal(0, spring.StoredEnergy);
-            Assert.InRange(spring.ReleasedWork, energy - .00001, energy + .00001);
+            Assert.InRange(spring.ReleasedWork-released, energy - .00001, energy + .00001);
             world.Restore();
             Assert.Equal(saved, JsonSerializer.Serialize(world.Snapshot(), MachineJson.Default.MachineData));
         }
-        finally { world.Free(); }
+        finally
+        {
+            var millisecondsPerTick=1000.0/System.Diagnostics.Stopwatch.Frequency;
+            output.WriteLine($"Native scene work: completedSteps={completedSteps}, failedSteps={failedSteps}, stepMilliseconds={measuredTicks*millisecondsPerTick:R}, failedStepMilliseconds={failedTicks*millisecondsPerTick:R}, maximumStepMilliseconds={maximumTicks*millisecondsPerTick:R}, acceptedSubsteps={substeps}, acceptedPredictionCalls={predictionCalls}, acceptedMidpoints={midpoints}, acceptedNewtonIterations={newton}, maximumAcceptedCoordinates={maximumCoordinates}. Failed predictions are excluded from accepted work counters; diagnostic formatting is included in failed-step time. No rendering/browser qualification.");
+            world.Free();
+        }
     }
 
     [Fact]
@@ -278,7 +412,7 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
                 {
                     if (firstCharge == 0) firstCharge = spring.AcceptedWork;
                     firstReleased = spring.ReleasedWork;
-                    firstPeak = Mathf.Max(firstPeak, ball.Position.Y);
+                    firstPeak = Mathf.Max(firstPeak, RuntimePosition(world, ball).Y);
                 }
                 Assert.True(double.IsFinite(spring.StoredEnergy));
                 Assert.InRange(spring.Compression, 0, .80001f);
@@ -287,40 +421,6 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             Assert.InRange(firstReleased, firstCharge - .0001, firstCharge + .0001);
             Assert.InRange(firstPeak, 4.6f, 7);
             Assert.True(spring.ReleaseCount >= 1);
-        }
-        finally { world.Free(); }
-    }
-
-    [Theory]
-    [InlineData(false, 4f)]
-    [InlineData(true, 4f)]
-    [InlineData(false, float.Epsilon)]
-    [InlineData(true, float.Epsilon)]
-    public void RestingRatchetAbsorbsInwardContactInEitherBodyOrder(bool plungerFirst, float speed)
-    {
-        var world = World();
-        try
-        {
-            var (spring, ball) = Build(world, true);
-            world.Start();
-            for (var i = 0; i < 240; i++) world.Step();
-            world.Activate(spring);
-            world.Step(); // Trigger is queued for the following fixed tick.
-            world.Step();
-            var head = spring.Plunger;
-            Assert.True(head.FreeMotion);
-            head.Velocity = Vector3.Zero;
-            var headPosition = head.Position;
-            ball.Position = head.Position + Vector3.Up * (head.Radius + ball.Radius);
-            ball.Velocity = Vector3.Down * speed;
-            if (plungerFirst) BodyContact.Resolve(head, ball, Vector3.Down, 0, 0);
-            else BodyContact.Resolve(ball, head, Vector3.Up, 0, 0);
-            Assert.Equal(Vector3.Zero, head.Velocity);
-            Assert.Equal(Vector3.Zero, ball.Velocity);
-            Assert.Equal(headPosition, head.Position);
-            var sweep = MovingSphereSweep.Cast(head.Position, head.Radius, head.Velocity,
-                ball.Position, ball.Radius, ball.Velocity, MachineWorld.Tick);
-            Assert.Equal(SphereSweepStatus.Clear, sweep.Status);
         }
         finally { world.Free(); }
     }
@@ -335,12 +435,12 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             var (spring, ball) = Build(world, true);
             world.RemovePart(ball);
             var wall = (WallPart)world.AddPart(new() { Id = WallId, Kind = WallKind,
-                Position = [0, 3, 0], Rotation = [90, 0, 0] });
+                Position = [0, 3, 0], Orientation = PartOrientation.FromEulerDegrees(90, 0, 0) });
             wall.SetDimensions(new(3, 2, .25f));
             world.Start();
             for (var i = 0; i < 240; i++) world.Step();
             var expectedHeadY = wall.Position.Y + wall.Dimensions.Z * .5f + WoundSpringPart.PlungerRadius;
-            Assert.InRange(spring.Plunger.Position.Y, expectedHeadY - .0001f, expectedHeadY + .0001f);
+            Assert.InRange(RuntimePosition(world, spring.Plunger).Y, expectedHeadY - .0001f, expectedHeadY + .0001f);
             Assert.Equal(WoundSpringPhase.Blocked, spring.Phase);
             Assert.InRange(spring.Compression, .4549f, .4551f);
             Assert.InRange(spring.StoredEnergy, 16.55, 16.57);
@@ -365,7 +465,7 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             var (spring, ball) = Build(world, true);
             world.RemovePart(ball);
             var gate = (PoweredGatePart)world.AddPart(new() { Id = GateId, Kind = GateKind,
-                Position = [0, 3.6f, 0], Rotation = [0, 0, 90] });
+                Position = [0, 3.6f, 0], Orientation = PartOrientation.FromEulerDegrees(0, 0, 90) });
             var timer = world.AddPart(new() { Id = TimerId, Kind = TimerKind, Position = [-5, 6, 0] });
             Assert.True(world.Connect(world.FindPart(BatteryId)!, timer));
             Assert.True(world.Connect(timer, gate));
@@ -378,7 +478,7 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             for (var i = 0; i < 120; i++) world.Step();
             Assert.Equal(WoundSpringPhase.Blocked, spring.Phase);
             Assert.Equal(1, spring.ReleaseCount);
-            Assert.InRange(spring.Plunger.Position.Y, 3.219f, 3.221f);
+            Assert.InRange(RuntimePosition(world, spring.Plunger).Y, 3.219f, 3.221f);
             Assert.InRange(spring.StoredEnergy, 36.9, 37.1);
             var retained = spring.StoredEnergy;
             var accepted = spring.AcceptedWork;
@@ -386,7 +486,7 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             Assert.Equal(retained, spring.StoredEnergy);
             Assert.Equal(accepted, spring.AcceptedWork);
             Assert.Equal(1, spring.ReleaseCount);
-            world.FindPart(MotorId)!.Properties[PartParameterName.Of(MotorParameter.Speed)] = 0;
+            world.QueueScalarInput(new(world.FindPart(MotorId)!,MotorPart.SpeedInput),0);
             for (var i = 0; i < 120; i++) world.Step();
             world.Activate(timer);
             for (var i = 0; i < 120; i++) world.Step();
@@ -394,7 +494,7 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             Assert.Equal(accepted, spring.AcceptedWork);
             Assert.Equal(0, spring.StoredEnergy);
             Assert.InRange(spring.ReleasedWork, accepted - .00001, accepted + .00001);
-            Assert.Equal(Vector3.Zero, spring.Plunger.Velocity);
+            Assert.Equal(default(CollisionVector),world.PhysicsAssembly.Body(new(spring.Plunger,MachinePart.RootBody)).LinearVelocity);
             Assert.Equal(WoundSpringPhase.Idle, spring.Phase);
         }
         finally { world.Free(); }
@@ -412,24 +512,24 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             world.Activate(spring);
             world.Step(); world.Step();
             Assert.Equal(0, spring.LatchAngle);
-            var headPosition = spring.Plunger.Position;
-            var headVelocity = spring.Plunger.Velocity;
-            var payloadPosition = ball.Position;
+            var headPosition = RuntimePosition(world, spring.Plunger);
+            var headVelocity = world.PhysicsAssembly.Body(new(spring.Plunger,MachinePart.RootBody)).LinearVelocity;
+            var payloadPosition = RuntimePosition(world, ball);
             var stored = spring.StoredEnergy;
             var accepted = spring.AcceptedWork;
-            spring._Process(.01);
+            world.PresentFrame(.01, 1);
             Assert.InRange(spring.LatchAngle, -.081f, -.079f);
-            for (var i = 0; i < 20; i++) spring._Process(.01);
+            for (var i = 0; i < 20; i++) world.PresentFrame(.01, 1);
             Assert.InRange(spring.LatchAngle, -.65001f, -.64999f);
-            Assert.Equal(headPosition, spring.Plunger.Position);
-            Assert.Equal(headVelocity, spring.Plunger.Velocity);
-            Assert.Equal(payloadPosition, ball.Position);
+            Assert.Equal(headPosition, RuntimePosition(world, spring.Plunger));
+            Assert.Equal(headVelocity, world.PhysicsAssembly.Body(new(spring.Plunger,MachinePart.RootBody)).LinearVelocity);
+            Assert.Equal(payloadPosition, RuntimePosition(world, ball));
             Assert.Equal(stored, spring.StoredEnergy);
             Assert.Equal(accepted, spring.AcceptedWork);
             for (var i = 0; i < 120; i++) world.Step();
-            spring._Process(.01);
+            world.PresentFrame(.01, 1);
             Assert.InRange(spring.LatchAngle, -.571f, -.569f);
-            for (var i = 0; i < 20; i++) spring._Process(.01);
+            for (var i = 0; i < 20; i++) world.PresentFrame(.01, 1);
             Assert.Equal(0, spring.LatchAngle);
             world.Restore();
             Assert.Equal(0, ((WoundSpringPart)world.FindPart(SpringId)!).LatchAngle);
@@ -456,8 +556,8 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
             for (var i = 0; i < 360; i++)
             {
                 world.Step();
-                maximum = Math.Max(maximum, world.MaximumFlightIterationsThisStep);
-                total += world.MaximumFlightIterationsThisStep;
+                maximum = Math.Max(maximum, world.LastPhysicsStep.Events);
+                total += world.LastPhysicsStep.Events;
             }
             output.WriteLine($"stacked={stacked}, maximum={maximum}, total={total}, mean={total / 360.0}");
             // Performance regression budget, not a solver cutoff: every substep must still finish.
@@ -513,36 +613,36 @@ public class WoundSpringTests(HeadlessFixture godot, ITestOutputHelper output)
                 foreach (var body in bodies)
                 {
                     Assert.True(body.Position.IsFinite());
-                    Assert.True(body.Velocity.IsFinite());
+                    Assert.True(world.PhysicsAssembly.Body(new(body,MachinePart.RootBody)).LinearVelocity.IsFinite);
                 }
                 if (loading == LoadingCase.OversizedWeight)
                 {
-                    var local = guide.Pose.AffineInverse() * spring.ToLocal(ball.Position);
+                    var local = guide.Pose.AffineInverse() * spring.ToLocal(RuntimePosition(world, ball));
                     // Independent rim geometry: a sphere wider than the bore cannot enter it.
                     Assert.InRange(new Vector2(local.Y, local.Z).Length(), 0, guide.InnerRadius);
-                    Assert.True(local.X >= oversizedMinimumAxial - 2 * SphereSweep.ContactTolerance);
+                    Assert.True(local.X >= oversizedMinimumAxial - 2 * ConvexSweep.ContactDistance);
                 }
-                var offset = spring.Plunger.Position - spring.Position;
+                var offset = RuntimePosition(world, spring.Plunger) - spring.Position;
                 Assert.InRange(offset.Y, WoundSpringPart.RestHeadY - .8001f, WoundSpringPart.RestHeadY + .0001f);
                 Assert.InRange(new Vector2(offset.X, offset.Z).Length(), 0, .0001f);
             }
             world.Start();
             for (var i = 0; i < 240; i++) { world.Step(); CheckBodies(); }
-            world.FindPart(BatteryId)!.Properties[PartParameterName.Of(SupplyParameter.Enabled)] = 0;
+            world.QueueBinaryInput(new(world.FindPart(BatteryId)!,BatteryPart.EnableInput),Bridge.BinaryInputState.Disabled);
             for (var i = 0; i < 120; i++) { world.Step(); CheckBodies(); }
             var accepted = spring.AcceptedWork;
             var energy = spring.StoredEnergy;
             var initialHeight = bodies.ToDictionary(body => body, body => body.Position.Y);
-            var initialKinetic = bodies.Sum(body => .5 * body.Mass * body.Velocity.LengthSquared());
-            var start = ball.Position.Y;
+            var initialKinetic = bodies.Sum(body => .5 * body.Mass * world.PhysicsAssembly.Body(new(body,MachinePart.RootBody)).LinearVelocity.LengthSquared);
+            var start = RuntimePosition(world, ball).Y;
             var peak = start;
             world.Activate(spring);
             for (var i = 0; i < 180; i++)
             {
                 world.Step(); CheckBodies();
-                peak = Mathf.Max(peak, ball.Position.Y);
+                peak = Mathf.Max(peak, RuntimePosition(world, ball).Y);
                 var mechanicalEnergy = spring.StoredEnergy + bodies.Sum(body =>
-                    .5 * body.Mass * body.Velocity.LengthSquared() +
+                    .5 * body.Mass * world.PhysicsAssembly.Body(new(body,MachinePart.RootBody)).LinearVelocity.LengthSquared +
                     body.Mass * world.Gravity * (body.Position.Y - initialHeight[body]));
                 Assert.InRange(mechanicalEnergy, double.MinValue, (energy + initialKinetic) * 1.02 + .01);
             }

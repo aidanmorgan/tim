@@ -32,6 +32,15 @@ public sealed class PartRegistry
         if (wall is null || wall.Scene is null || wall.WorkshopKind != WorkshopPartKind.Wall || wall.Wall is null || wall.Parameters.Count != 0)
             throw new ArgumentException("Canonical Wall resource is invalid.");
         wall.Wall.Capture();
+        var delay = ResourceLoader.Load<PartDefinition>("res://parts/catalog/delay.tres");
+        if (delay is null || delay.Scene is null || delay.WorkshopKind != WorkshopPartKind.Delay || delay.Delay is null || delay.Parameters.Count != 0)
+            throw new ArgumentException("Canonical Delay resource is invalid.");
+        delay.Delay.Capture();
+        var bumper = ResourceLoader.Load<PartDefinition>("res://parts/catalog/bumper.tres");
+        if (bumper is null || bumper.Scene is null || bumper.WorkshopKind != WorkshopPartKind.PinballBumper ||
+            bumper.Bumper is null || bumper.Parameters.Count != 0)
+            throw new ArgumentException("Canonical Pinball bumper resource is invalid.");
+        bumper.Bumper.Capture();
         _definitions.Clear();
         _definitions.Add(WorkshopPartKind.Basketball, ball);
         _definitions.Add(WorkshopPartKind.Receiver, receiver);
@@ -39,10 +48,12 @@ public sealed class PartRegistry
         _definitions.Add(WorkshopPartKind.ImpactSwitch, impactSwitch);
         _definitions.Add(WorkshopPartKind.SignalLamp, lamp);
         _definitions.Add(WorkshopPartKind.Wall, wall);
+        _definitions.Add(WorkshopPartKind.Delay, delay);
+        _definitions.Add(WorkshopPartKind.PinballBumper, bumper);
     }
     public MachinePart Create(WorkshopPartKind kind)
     {
-        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall) || !_definitions.TryGetValue(kind, out var definition))
+        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper) || !_definitions.TryGetValue(kind, out var definition))
             throw new ArgumentException("This catalogue part is not supported by the current GPU Workshop.");
         var part = definition.Scene.Instantiate<MachinePart>();
         try { part.Configure(definition); return part; }

@@ -13,24 +13,33 @@ internal static class WorkshopPuzzleWire
         BinaryPrimitives.WriteUInt32LittleEndian(bytes, (uint)puzzle.Id);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[4..], (uint)puzzle.Placement);
         H(bytes, 8, puzzle.Precision.Value);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes[12..], puzzle.RampInventory);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes[10..], checked((ushort)puzzle.InventoryKind));
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes[12..], puzzle.InventoryCount);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[16..], (uint)puzzle.Goal.Kind);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[24..], puzzle.Goal.Body.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes[32..], puzzle.Goal.Target.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes[24..], puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.SourceNode.Value : puzzle.Goal.Body.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(bytes[32..], puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.TargetNode.Value : puzzle.Goal.Target.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes[40..], puzzle.Goal.EventSource.Value);
+        H(bytes, 20, puzzle.Goal.MinimumDelay.Value);
         Profile(bytes[48..114], puzzle.BallAssistance);
         Profile(bytes[114..180], puzzle.ReceiverAssistance);
         Profile(bytes[180..246], puzzle.RampAssistance);
     }
     public static WorkshopPuzzle Read(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != ByteLength || !Zero(bytes[10..12]) || !Zero(bytes[20..24]) || !Zero(bytes[246..]))
+        if (bytes.Length != ByteLength || !Zero(bytes[22..24]) || !Zero(bytes[246..]))
             throw new ArgumentException("Invalid puzzle width or padding.");
+        var kind = (WorkshopGoalKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[16..]);
+        var first = BinaryPrimitives.ReadUInt64LittleEndian(bytes[24..]);
+        var second = BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..]);
+        var sensor = new GpuSensorId(BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..]));
+        var goal = kind == WorkshopGoalKind.ActivatedAfter
+            ? new WorkshopGoal(kind, default, default, sensor, new(first), new(second), new(H(bytes, 20)))
+            : new WorkshopGoal(kind, new(first), new(second), sensor, MinimumDelay: new(H(bytes, 20)));
+        goal.Validate();
         return new((WorkshopPuzzleId)BinaryPrimitives.ReadUInt32LittleEndian(bytes),
             (WorkshopPlacementMode)BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]), new(H(bytes, 8)),
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..]),
-            new((WorkshopGoalKind)BinaryPrimitives.ReadUInt32LittleEndian(bytes[16..]),
-                new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[24..])), new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[32..])), new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[40..]))),
+            (WorkshopPartKind)BinaryPrimitives.ReadUInt16LittleEndian(bytes[10..]),
+            BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..]), goal,
             Profile(bytes[48..114]), Profile(bytes[114..180]), Profile(bytes[180..246]));
     }
     private static void Profile(Span<byte> bytes, AssistanceProfile profile)

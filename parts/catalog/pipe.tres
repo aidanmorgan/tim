@@ -1,7 +1,13 @@
-[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
 [ext_resource type="PackedScene" path="res://parts/scenes/pipe.tscn" id="2"]
+
+[ext_resource type="Script" path="res://engine/PipeDimensionsResource.cs" id="3"]
+
+[sub_resource type="Resource" id="PipeDimensions"]
+script = ExtResource("3")
+LengthBits = 17203
 
 [resource]
 script = ExtResource("1")
@@ -11,4 +17,4 @@ Category = "Motion"
 Description = "A hollow tube. Gravity carries balls through the open bore; tilt it downhill to guide them. The clear shell transmits light; cream collars are opaque."
 Scene = ExtResource("2")
 Color = Color(0.40, 0.72, 0.79, 1)
-Parameters = {"length": 3.6}
+Pipe = SubResource("PipeDimensions")

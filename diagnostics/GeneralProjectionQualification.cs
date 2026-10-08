@@ -15,8 +15,8 @@ internal static class GeneralProjectionQualification
     private static PhysicsBody Body(int id,CollisionVector center,PhysicsMotionType type)=>
         type==PhysicsMotionType.Dynamic?new(new(id),type,RigidPose.At(center),new(.1,.2,.3),new(.2,.3,.4),1,new(.1,.1,.1)):
             new(new(id),type,RigidPose.At(center),default,default);
-    private static readonly ConvexInstance Sphere=new(new ConvexSphere(.1),Transform3D.Identity);
-    private static readonly ConvexInstance Wall=new(new ConvexBox(new(.001,2,2)),Transform3D.Identity);
+    private static readonly ConvexInstance Sphere=new(new ConvexSphere(.1),AffineTransform.Identity);
+    private static readonly ConvexInstance Wall=new(new ConvexBox(new(.001,2,2)),AffineTransform.Identity);
     internal static GeneralProjectionReport Run(GeneralProjectionProbe probe)
     {
         if(!Enum.IsDefined(probe)) throw new ArgumentOutOfRangeException(nameof(probe));
@@ -28,10 +28,10 @@ internal static class GeneralProjectionQualification
             GeneralProjectionProbe.FullTurn=>new(1.5*Math.Cos(.4),1.5*Math.Sin(.4),0),
             _=>default
         },probe==GeneralProjectionProbe.Simultaneous?PhysicsMotionType.Dynamic:PhysicsMotionType.Static);
-        var shapeA=probe==GeneralProjectionProbe.FullTurn?new ConvexInstance(new ConvexBox(new(2,.02,.02)),Transform3D.Identity):Sphere;
+        var shapeA=probe==GeneralProjectionProbe.FullTurn?new ConvexInstance(new ConvexBox(new(2,.02,.02)),AffineTransform.Identity):Sphere;
         var shapeB=probe switch
         {
-            GeneralProjectionProbe.FullTurn=>new ConvexInstance(new ConvexSphere(.03),Transform3D.Identity),
+            GeneralProjectionProbe.FullTurn=>new ConvexInstance(new ConvexSphere(.03),AffineTransform.Identity),
             GeneralProjectionProbe.Simultaneous=>Sphere,
             _=>Wall
         };
@@ -60,13 +60,13 @@ internal static class GeneralProjectionQualification
         var a=Body(0,new(-1,0,0),PhysicsMotionType.Dynamic); var anchor=Body(1,new(1,0,0),PhysicsMotionType.Static);
         var wall=Body(2,new(0,probe==GeneralProjectionProbe.BlockedJoint?0:3,0),PhysicsMotionType.Static);
         var origin=new JointFrame(default,RigidRotation.Identity);
-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.BallSocket,a,origin,anchor,origin,ConnectedBodyCollision.Disabled,null);
+        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.BallSocket,a,origin,anchor,origin,ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
         PhysicsObject Object(PhysicsBody body,ConvexInstance shape)=>new(body,new([shape]),new(0,0,0));
-        var world=new PhysicsWorld([Object(a,Sphere),Object(anchor,Sphere),Object(wall,Wall)],[joint],new(default));
+        var world=new PhysicsWorld([],[Object(a,Sphere),Object(anchor,Sphere),Object(wall,Wall)],[joint],new(default));
         var before=world.Capture();
         GeneralProjectionOutcome Step()
         {
-            try { world.Step([],.01); return GeneralProjectionOutcome.Applied; }
+            try { world.Step([],[],.01); return GeneralProjectionOutcome.Applied; }
             catch(InvalidOperationException) { return GeneralProjectionOutcome.Rejected; }
         }
         var outcome=Step(); var after=world.Capture();

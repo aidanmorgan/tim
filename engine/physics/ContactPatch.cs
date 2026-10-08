@@ -110,7 +110,7 @@ public sealed class ContactPatch
             vertices.Add(new(point,vertex.Point,vertex.Point,vertex.Id));
         }
         if(maximum-minimum>tolerance)
-            throw new ArgumentException("Supporting feature exceeds its plane tolerance.",nameof(feature));
+            throw new ArgumentException($"Supporting feature plane span {maximum-minimum:R} exceeds tolerance {tolerance:R}; normal {normal}; vertices {string.Join("; ",feature.Vertices.ToArray())}.",nameof(feature));
         return Hull(vertices,tolerance);
     }
 

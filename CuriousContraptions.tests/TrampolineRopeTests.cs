@@ -1,12 +1,13 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System.Text.Json;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class TrampolineRopeTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class TrampolineRopeTests(NativeSceneFixture godot)
 {
     public enum TetherMode { TautAboveBed, SlackRebound, Unconnected }
     private enum Role { Bed, Anchor, Load }
@@ -51,7 +52,14 @@ public class TrampolineRopeTests(HeadlessFixture godot)
                 Assert.Equal(ConnectionDomain.Rope, link.Type);
                 Assert.Equal(SocketId.Tie, link.FromPort);
                 Assert.Equal(SocketId.Tie, link.ToPort);
-                if (mode == TetherMode.SlackRebound) link.RopeLength += 2.3f;
+                if (mode == TetherMode.SlackRebound)
+                {
+                    var construction=world.Snapshot();
+                    construction.Connections[0]=link with {RopeLength=link.RopeLength+2.3f};
+                    world.LoadMachine(construction);
+                    bed=(TrampolinePart)world.FindPart(Id(Role.Bed))!;
+                    load=world.FindPart(Id(Role.Load))!;
+                }
             }
             var saved = JsonSerializer.Serialize(world.Snapshot(), MachineJson.Default.MachineData);
             world.Start();
@@ -63,19 +71,19 @@ public class TrampolineRopeTests(HeadlessFixture godot)
             for (var tick = 0; tick < 1200; tick++)
             {
                 world.Step();
-                Assert.True(load.Visible && load.Position.IsFinite() && load.Velocity.IsFinite());
+                Assert.True(load.Visible && load.Position.IsFinite() && world.PhysicsAssembly.Body(new(load,MachinePart.RootBody)).LinearVelocity.IsFinite);
                 peakCompression = Math.Max(peakCompression, bed.Compression);
                 touched |= bed.ContactCount > 0;
-                rebounded |= touched && load.Velocity.Y > .1f;
+                rebounded |= touched && world.PhysicsAssembly.Body(new(load,MachinePart.RootBody)).LinearVelocity.Y > .1f;
                 var energy = load.Mass * world.Gravity * load.Position.Y
-                    + .5f * load.Mass * load.Velocity.LengthSquared() + bed.StoredElasticEnergy;
+                    + .5f * load.Mass * world.PhysicsAssembly.Body(new(load,MachinePart.RootBody)).LinearVelocity.LengthSquared + bed.StoredElasticEnergy;
                 Assert.InRange(energy, 0, initialEnergy * 1.01f);
                 Assert.InRange(bed.Compression, 0, TrampolinePart.MaximumStroke);
                 if (mode != TetherMode.Unconnected)
                 {
                     var rope = Assert.Single(world.Ropes);
-                    Assert.True(rope.CurrentLength <= rope.Length + .002f);
-                    taut |= rope.State == RopeState.Taut;
+                    Assert.True(rope.CurrentLength(world) <= rope.Length + .002f);
+                    taut |= rope.State(world) == RopeState.Taut;
                 }
             }
             if (mode == TetherMode.TautAboveBed)

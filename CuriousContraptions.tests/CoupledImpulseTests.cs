@@ -17,8 +17,8 @@ public class CoupledImpulseTests
     {
         var body=Body(0,new(2,-.1,0)); var wall=Body(1,type:PhysicsMotionType.Static);
         var direction=new CollisionVector(tilt,1,0); direction/=direction.Length;
-        var oblique=new ContactConstraint(body,wall,default,direction,0,0,0);
-        var support=new ContactConstraint(body,wall,default,new(0,1,0),0,0,0);
+        var oblique=new ContactConstraint(ContactKinematics.AtPoint(body,wall,default,direction),0,0,0);
+        var support=new ContactConstraint(ContactKinematics.AtPoint(body,wall,default,new(0,1,0)),0,0,0);
         oblique.WarmStart(new(.1,default));
         var result=ImpulseSolver.Solve([oblique,support],1);
         Assert.Equal(1,result.Iterations);

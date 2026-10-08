@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using CuriousContraptions.Presentation;
 using System.Collections.Generic;
 
 namespace CuriousContraptions;
@@ -7,6 +8,33 @@ namespace CuriousContraptions;
 /// <summary>Powered trigger-to-sound transducer. A tick-coalesced request expires without supply.</summary>
 public partial class SpeakerPart : MachinePart
 {
+    private RuntimeCheckpoint? _runtimeCheckpoint;
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState =>
+        [_runtimeCheckpoint ??= new(this)];
+    private sealed class RuntimeCheckpoint(SpeakerPart owner) : SimulationTransactionParticipant
+    {
+        private readonly List<AcousticPulse> _pulses = new();
+        private readonly List<int> _requests = new();
+        private int _savedPulseCount;
+        private int _savedLastPulseTick;
+        private int _savedsampledTick;
+        protected override void CaptureCheckpoint()
+        {
+            _pulses.Clear(); _pulses.AddRange(owner._pulses);
+            _requests.Clear(); _requests.AddRange(owner._requests);
+            _savedPulseCount=owner.PulseCount;
+            _savedLastPulseTick=owner.LastPulseTick;
+            _savedsampledTick=owner._sampledTick;
+        }
+        protected override void RestoreCheckpoint()
+        {
+            owner._pulses.Clear(); owner._pulses.AddRange(_pulses);
+            owner._requests.Clear(); foreach(var tick in _requests)owner._requests.Add(tick);
+            owner.PulseCount=_savedPulseCount;
+            owner.LastPulseTick=_savedLastPulseTick;
+            owner._sampledTick=_savedsampledTick;
+        }
+    }
     [Export] public ToneBand Tone { get; set; }=ToneBand.Mid;
     public const int MinimumIntervalTicks=24;
     public static readonly Vector3 Mouth=new(.72f,0,0);
@@ -16,17 +44,22 @@ public partial class SpeakerPart : MachinePart
     public int LastPulseTick { get; private set; }=-MinimumIntervalTicks;
     private readonly SortedSet<int> _requests=[];
     private int _sampledTick=-1;
-    private float _visualKick;
     private Node3D _cone=null!;
+    private static readonly AnimationOscillationDefinition Diaphragm=new(18,24*Math.PI,.07*24*Math.PI,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneAcousticMotion> AcousticMotions=>
+        [new(_cone,Diaphragm,SceneMotionProperty.Translation,SceneMotionAxis.X,AnimationDirection.Reverse)];
     private AudioStreamPlayer3D _audio=null!;
+    private Presentation.SceneAcousticBinding? _playback;
+    public override Presentation.SceneAcousticBinding? AcousticPlayback => _playback;
     private readonly List<MeshInstance3D> _rings=[];
+    public override SceneAcousticWavefronts? AcousticWavefronts=>new(_rings,AcousticPattern.Cone,0,.5f,.7f,.012f,.5f,SceneWavefrontOpacity.Uniform,64);
     public override bool CanReceiveActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
         new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.8f,0,0)),
         new(SocketId.ActivationIn,ConnectionDomain.Activation,PortDirection.Input,new(0,.85f,0))
     ];
-    public override void ValidateParameters()
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
         if(!Enum.IsDefined(Tone))throw new ArgumentOutOfRangeException(nameof(Tone));
     }
@@ -36,7 +69,7 @@ public partial class SpeakerPart : MachinePart
         _requests.Add(world.Ticks);
         return ActivationDisposition.Deferred;
     }
-    public override void BeforeStep(MachineWorld world,float delta)
+    public override void PreparePhysics(MachineWorld world,float delta)
     {
         if(_sampledTick==world.Ticks)return;
         _sampledTick=world.Ticks;
@@ -48,10 +81,9 @@ public partial class SpeakerPart : MachinePart
         }
         if(requested&&HasElectricalPower(SocketId.PowerIn)&&world.Ticks-LastPulseTick>=MinimumIntervalTicks)
         {
-            _pulses.Add(new(Transform*Mouth,Transform.Basis*Vector3.Right,Tone,world.Ticks,AcousticPattern.Cone,1));
+            var transform=WorldGeometry.CaptureSpatialState(world,new(this,RootBody)).Pose.ToScene();
+            _pulses.Add(new(transform*Mouth,transform.Basis*Vector3.Right,Tone,world.Ticks,AcousticPattern.Cone,1));
             PulseCount++;LastPulseTick=world.Ticks;
-            _visualKick=1;
-            _audio.Play(); // presentation only; no playback state is read by simulation
         }
         Active=world.Ticks-LastPulseTick<AcousticPulse.Duration/MachineWorld.Tick;
     }
@@ -82,23 +114,6 @@ public partial class SpeakerPart : MachinePart
         }
         _audio=new AudioStreamPlayer3D {Stream=AcousticAudio.Create(Tone,AcousticVoice.Speaker),VolumeDb=-15,MaxDistance=20,MaxPolyphony=2};
         AddChild(_audio);
-    }
-    public override void _Process(double delta)
-    {
-        _visualKick=Mathf.MoveToward(_visualKick,0,(float)delta*6);
-        _cone.Position=Mouth+Vector3.Right*(Mathf.Sin(_visualKick*Mathf.Tau*2)*_visualKick*.07f);
-        for(var i=0;i<_rings.Count;i++)
-        {
-            var ring=_rings[i];ring.Visible=false;
-            if(i>=_pulses.Count||GetParent() is not MachineWorld world)continue;
-            var distance=(world.Ticks-_pulses[i].EmissionTick)*MachineWorld.Tick*AcousticPulse.Speed;
-            if(distance<0||distance>AcousticPulse.Range)continue;
-            ring.Visible=true;
-            ring.Position=Mouth+Vector3.Right*distance;
-            var radius=.5f+distance*.7f;
-            var mesh=(TorusMesh)ring.Mesh;
-            mesh.InnerRadius=radius-.012f;mesh.OuterRadius=radius+.012f;
-            ((StandardMaterial3D)ring.MaterialOverride).AlbedoColor=new Color(1,.94f,.65f,.5f*(1-distance/AcousticPulse.Range));
-        }
+        _playback=new(_audio,new Dictionary<ToneBand,AudioStreamWav>{{Tone,(AudioStreamWav)_audio.Stream}});
     }
 }

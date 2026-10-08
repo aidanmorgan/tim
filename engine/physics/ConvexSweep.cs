@@ -13,7 +13,9 @@ public readonly struct ConvexMotion
     public ConvexInstance Instance { get; }
     public IRigidTrajectory Trajectory { get; }
     public CollisionVector CenterAtStart=>Trajectory.StartPose.Center;
-    public CollisionVector LinearVelocity=>Trajectory.LinearVelocity;
+    public double LinearAccelerationBound=>Trajectory.LinearAccelerationBound;
+    public double AngularAccelerationBound=>Trajectory.AngularAccelerationBound;
+    public CollisionVector LinearVelocityAt(double time)=>Trajectory.LinearVelocityAt(time);
     public double AngularSpeedBound=>Trajectory.AngularSpeedBound;
     public double Reach { get; }
     public double RotationalReach { get; }
@@ -22,42 +24,17 @@ public readonly struct ConvexMotion
         ArgumentNullException.ThrowIfNull(trajectory);
         if(localInstance.Geometry is null) throw new ArgumentException("Uninitialised collision instance.",nameof(localInstance));
         Instance=localInstance; Trajectory=trajectory;
-        Reach=CollisionVector.From(localInstance.Pose.Origin).Length+localInstance.RadiusBound;
-        RotationalReach=CollisionVector.From(localInstance.Pose.Origin).Length+localInstance.RotationRadiusBound;
+        Reach=localInstance.Pose.Origin.Length+localInstance.RadiusBound;
+        RotationalReach=localInstance.Pose.Origin.Length+localInstance.RotationRadiusBound;
         if(!double.IsFinite(Reach)||!double.IsFinite(AngularSpeedBound*RotationalReach))
             throw new ArgumentOutOfRangeException(nameof(localInstance));
     }
-    public AtTime At(double time)
+    public ConvexPose At(double time)
     {
         if(Trajectory is null) throw new InvalidOperationException("Uninitialised convex motion.");
         return new(Instance,Trajectory.At(time));
     }
-    public readonly struct AtTime : IConvexFeatureSupport
-    {
-        private readonly ConvexInstance _instance;
-        private readonly RigidPose _pose;
-        internal AtTime(ConvexInstance instance,RigidPose pose) { _instance=instance; _pose=pose; }
-        public double RoundingRadius=>_instance.RoundingRadius;
-        public InteriorBall InteriorBall=>new(_pose.TransformPoint(_instance.InteriorBall.Center),_instance.InteriorBall.Radius);
-        public SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
-        {
-            var feature=_instance.SupportingFeature(_pose.Rotation.Inverse().Apply(direction),planeTolerance);
-            var vertices=new SupportVertex[feature.Vertices.Length];
-            for(var i=0;i<vertices.Length;i++)
-            {
-                var vertex=feature.Vertices[i];
-                vertices[i]=new(vertex.Id,_pose.TransformPoint(vertex.Point));
-            }
-            return new(vertices);
-        }
-        public CollisionVector Support(CollisionVector direction)
-        {
-            var localDirection=_pose.Rotation.Inverse().Apply(direction);
-            var result=_pose.TransformPoint(_instance.Support(localDirection));
-            if(!result.IsFinite) throw new InvalidOperationException("Rigid support exceeds representable coordinates.");
-            return result;
-        }
-    }
+
 }
 
 /// <summary>Conservative rigid-motion sweep, shared by all convex shape pairs.
@@ -75,7 +52,8 @@ public static class ConvexSweep
         if(!double.IsFinite(duration)||duration<0) throw new ArgumentOutOfRangeException(nameof(duration));
         // Validate both captured horizons before reading motion bounds.
         a.At(duration); b.At(duration);
-        var relative=a.LinearVelocity-b.LinearVelocity;
+        var acceleration=a.LinearAccelerationBound+b.LinearAccelerationBound;
+        var relative=a.LinearVelocityAt(0)-b.LinearVelocityAt(0);
         var angular=a.AngularSpeedBound*a.RotationalReach+b.AngularSpeedBound*b.RotationalReach;
         if(!relative.IsFinite||!double.IsFinite(angular)) throw new ArgumentOutOfRangeException(nameof(a));
         // Reserve room in the event tolerance for both signed bounds and plane arithmetic.
@@ -93,7 +71,8 @@ public static class ConvexSweep
             if(!normal.IsFinite||Math.Abs(normal.Length-1)>1e-10)
                 throw new InvalidOperationException("Sweep requires a defined separating-plane normal.");
             var gap=CollisionVector.Dot(normal,a.At(time).Support(-normal)-b.At(time).Support(normal));
-            var closing=angular-CollisionVector.Dot(normal,relative);
+            var closing=angular-CollisionVector.Dot(normal,a.LinearVelocityAt(time)-b.LinearVelocityAt(time))+
+                acceleration*(duration-time);
             if(!double.IsFinite(gap)||!double.IsFinite(closing)||gap<=minimumSeparation)
                 throw new InvalidOperationException("Signed query cannot certify positive sweep progress.");
             // Tangential translation does not close this fixed plane. If its
@@ -133,21 +112,26 @@ public static class ConvexSweep
         var poseA0=a.Trajectory.At(start); var poseB0=b.Trajectory.At(start);
         var poseA1=a.Trajectory.At(end); var poseB1=b.Trajectory.At(end);
         var wa=a.AngularSpeedBound; var wb=b.AngularSpeedBound;
-        var relativeSpeed=(a.LinearVelocity-b.LinearVelocity).Length;
-        var distance=Math.Max((poseA0.Center-poseB0.Center).Length,(poseA1.Center-poseB1.Center).Length);
+        var aa=a.AngularAccelerationBound; var ab=b.AngularAccelerationBound;
+        var relativeAcceleration=a.LinearAccelerationBound+b.LinearAccelerationBound;
+        var relativeSpeed=Math.Max((a.LinearVelocityAt(start)-b.LinearVelocityAt(start)).Length,
+            (a.LinearVelocityAt(end)-b.LinearVelocityAt(end)).Length)+relativeAcceleration*(end-start)*.5;
+        var distance=Math.Max((poseA0.Center-poseB0.Center).Length,(poseA1.Center-poseB1.Center).Length)+
+            relativeAcceleration*(end-start)*(end-start)/8;
         CollisionVector endNormal; double curvature;
         switch(reference)
         {
             case PlaneReference.World:
-                endNormal=normal; curvature=wa*wa*a.Reach+wb*wb*b.Reach; break;
+                endNormal=normal; curvature=(aa+wa*wa)*a.Reach+(ab+wb*wb)*b.Reach; break;
             case PlaneReference.BodyA:
                 endNormal=(poseA1.Rotation*poseA0.Rotation.Inverse()).Apply(normal);
-                curvature=wa*wa*distance+2*wa*relativeSpeed+(wa+wb)*(wa+wb)*b.Reach; break;
+                curvature=(aa+wa*wa)*distance+2*wa*relativeSpeed+(aa+ab+(wa+wb)*(wa+wb))*b.Reach; break;
             case PlaneReference.BodyB:
                 endNormal=(poseB1.Rotation*poseB0.Rotation.Inverse()).Apply(normal);
-                curvature=wb*wb*distance+2*wb*relativeSpeed+(wa+wb)*(wa+wb)*a.Reach; break;
+                curvature=(ab+wb*wb)*distance+2*wb*relativeSpeed+(aa+ab+(wa+wb)*(wa+wb))*a.Reach; break;
             default: throw new ArgumentOutOfRangeException(nameof(reference));
         }
+        curvature+=relativeAcceleration;
         if(!double.IsFinite(curvature)) throw new InvalidOperationException("Sweep curvature exceeds numeric range.");
         var endGap=CollisionVector.Dot(endNormal,a.At(end).Support(-endNormal)-b.At(end).Support(endNormal));
         var horizon=end-start;

@@ -11,4 +11,4 @@ Category = "Motion"
 Description = "Heavy and reluctant to bounce. Useful for pushing and switches."
 Scene = ExtResource("2")
 Color = Color(0.27, 0.39, 0.61, 1)
-Parameters = {"mass": 4.0, "bounce": 0.14, "radius": 0.38}
+Parameters = {"mass": 4.0, "bounce": 0.14, "radius": 0.38, "buoyancy": 0.0, "drag": 0.04}

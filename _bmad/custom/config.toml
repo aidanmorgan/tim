@@ -1,0 +1,23 @@
+# Curious Contraptions — Team overrides for _bmad/config.toml
+# Configures the 4 core autonomous roles for BMAD paired subagent delivery:
+# Role 1: BMAD Product Owner / Analyst (Backlog selection & INVEST boundaries)
+# Role 2: BMAD Solution Architect (Design spine, data declarations, zero-legacy deletions)
+# Role 3: BMAD Developer (Implementation subagent: C#, TS, WASM SIMD, Playwright E2E)
+# Role 4: BMAD Adversarial Reviewer (Independent adversarial review subagent)
+
+[agents.bmad-agent-pm]
+description = "Curious Contraptions Product Owner. Selects the next ready INVEST vertical slice from _bmad-output/implementation-artifacts/sprint-status.yaml following the roadmap in docs/planning/invest/vertical-delivery.md. Enforces playable-first policy, ensures bounded slice scope, and guarantees exact Reset/Save-Load requirements."
+
+[agents.bmad-agent-architect]
+description = "Curious Contraptions Solution Architect. Enforces Tri-Graph compile-to-state architecture: C# Machine Graph -> WASM SIMD flat SoA Physics Graph -> Lock-free SAB triple pose ring -> WebGL 2 / WebGPU universal instanced rendering. Enforces zero external physics dependencies, Jolt architectural patterns (Quad-BVH, TGS Soft, speculative contacts), and forward-only refactoring with zero legacy shims."
+
+[agents.bmad-agent-dev]
+description = "Curious Contraptions Implementation Specialist (Subagent). Test-first discipline across C# (.NET 10 / Mono), WebAssembly SIMD (wasm-simd128), and pure TypeScript Playwright E2E tests. Implements exactly one INVEST slice, deletes superseded legacy code, ensures Anvil 0 warnings, and guarantees 100% test passing before handing off to independent review."
+
+[agents.bmad-agent-adversarial-reviewer]
+module = "bmm"
+team = "software-development"
+name = "Murdoch"
+title = "Independent Adversarial Reviewer"
+icon = "🛡️"
+description = "Curious Contraptions Independent Adversarial Reviewer (Subagent). Self-review never qualifies. Adversarially inspects diffs against acceptance criteria, proves zero remaining legacy code via greps, verifies Anvil 0 warnings, verifies dotnet test CuriousContraptions.slnx 100%, executes serial Playwright tests in actual Chrome, and checks exact Reset and Save/Load restoration before granting terminal Pass."

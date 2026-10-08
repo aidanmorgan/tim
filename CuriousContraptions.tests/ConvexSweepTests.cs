@@ -6,8 +6,8 @@ namespace CuriousContraptions.Tests;
 public class ConvexSweepTests
 {
     private static ConvexMotion Motion(ConvexGeometry geometry,RigidPose pose,CollisionVector velocity,
-        CollisionVector spin,double duration)=>new(new(geometry,Transform3D.Identity),
-            new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration));
+        CollisionVector spin,double duration)=>new(new(geometry,AffineTransform.Identity),
+            new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration,default));
 
     [Theory]
     [InlineData(1)]
@@ -90,8 +90,8 @@ public class ConvexSweepTests
     public void InvalidMotionCannotReturnClear()
     {
         var body=new PhysicsBody(new(0),PhysicsMotionType.Static,RigidPose.Identity,default,default);
-        Assert.Throws<ArgumentException>(()=>new ConvexMotion(default,body.CreateTrajectory(1)));
-        Assert.Throws<ArgumentNullException>(()=>new ConvexMotion(new(new ConvexSphere(1),Transform3D.Identity),null!));
+        Assert.Throws<ArgumentException>(()=>new ConvexMotion(default,body.CreateTrajectory(1,default)));
+        Assert.Throws<ArgumentNullException>(()=>new ConvexMotion(new(new ConvexSphere(1),AffineTransform.Identity),null!));
         var motion=Motion(new ConvexSphere(1),RigidPose.Identity,default,default,1);
         Assert.Throws<ArgumentOutOfRangeException>(()=>ConvexSweep.Cast(motion,motion,-1,ConvexSweep.ContactDistance));
         Assert.Throws<ArgumentOutOfRangeException>(()=>ConvexSweep.Cast(motion,motion,2,ConvexSweep.ContactDistance));

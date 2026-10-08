@@ -1,0 +1,6388 @@
+{
+  "Sources": [
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Simulation/WorkshopTrace.cs"
+      },
+      "Sha256": "4b995b7cf9107c4b1c470ef323421b7b6404acefb6a6ca065b64867ba40e78eb"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/BasketballResourceTests.cs"
+      },
+      "Sha256": "af9e9a170a0688fb2c875dd3ddfedbd9d25e4e2f3d6e94a7a76de302cfee6fd2"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/CuriousContraptions.tests.csproj"
+      },
+      "Sha256": "fc53da34c1472df18776fc68059e6a1ba40e316a261cf2b37c932eaca7a5b89a"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/WorkshopSimulationTests.cs"
+      },
+      "Sha256": "4c28b84bfcf128c5ea5f454885caf62f5825344b91256014ccdb55c777a4accf"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/WorkshopTraceTests.cs"
+      },
+      "Sha256": "b5dc12e8cd5bc9c71972193623c813a7a650196099bbab6e2476ce5eecd0a889"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/WorkshopWireTests.cs"
+      },
+      "Sha256": "b2b3431f1a1ed1b2b9c8a64914e199923c29a2d9d087f3494cee97907d2531ff"
+    },
+    {
+      "Path": {
+        "Value": "engine/MachineWorld.Gpu.cs"
+      },
+      "Sha256": "72f92735776158e24f32e4c173ec4f9e460dd254d21c37ec0c992b5d154e0add"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/BrowserWorkshopClient.cs"
+      },
+      "Sha256": "e3e469a31fec64d55ca8b2043f3f26ae92a01cd758263db4336caff1c7f17f60"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/IWorkshopClient.cs"
+      },
+      "Sha256": "e0c341e9ff89517b60bd34dcc3c628066fc57607b2b094dc9fa0b43972ac968d"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopClientCursor.cs"
+      },
+      "Sha256": "4a7d32c2b931178711cb6a467d0d9470a437b15e428e1213a6aa6605eb6d439b"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopClockMapping.cs"
+      },
+      "Sha256": "c70623feca3026a124c5582ce3ed5c99f39570bf6d2928c83ca7c89b962e6787"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopClockWire.cs"
+      },
+      "Sha256": "0c9b60d3cdc95e1179feefe4c5947c72494d339ce04da6170095bfe450aa4706"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopMemoryWire.cs"
+      },
+      "Sha256": "c4c879afa9c06be25a893b5d7cbf42c2d3efdb8a51b55d991572e58064c2aff1"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopNativeClock.cs"
+      },
+      "Sha256": "df0ec140ba577f4a15e54bd070dc079a7c0290b1440efc53a703d87a088b51db"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopPoseHistory.cs"
+      },
+      "Sha256": "4e228f178e3c8221207878e43be66e900382cba178f4dd7bab321bcf4eb274ae"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopPresentationWire.cs"
+      },
+      "Sha256": "7dde7a90d51858d2dbef9d92bb2ca0af9f14035f3f4cf9d68da526d777ffb642"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopSimulation.cs"
+      },
+      "Sha256": "693bcb0844a4c31162cc43844c94d882c81a521c4c780898a2358af39d8522cc"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopWire.cs"
+      },
+      "Sha256": "ea46abaa6b685175e696ae860e9cd929681ca345a93ac33cc74c11fcb7c1ccf2"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Simulation/WorkshopGpuDevice.cs"
+      },
+      "Sha256": "78d2303365e6fd9960b1b9fdc02aba2b0bd28b328239d202d348c3e65469edee"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/WorkshopGpuDeviceTests.cs"
+      },
+      "Sha256": "ff51ec0a0d370ad332d69baa376adaa94c3314dcfa99784bcd046e7cc351b1f0"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/CanonicalBody.cs"
+      },
+      "Sha256": "212cc62061b8f4aa469a5f9892de4e429604975f5e4f54c93ea71989e91540b7"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopConstruction.cs"
+      },
+      "Sha256": "57cc14051b47165193427d5fb237022d7ce5a72379e084c1f516130a71b77a0d"
+    },
+    {
+      "Path": {
+        "Value": ".godot/mono/temp/obj/CuriousContraptions.csproj.nuget.g.props"
+      },
+      "Sha256": "3da6667348bae623f1eb48cd15a3cefcb00bf454e6ee0e3918a4100070304248"
+    },
+    {
+      "Path": {
+        "Value": ".godot/mono/temp/obj/CuriousContraptions.csproj.nuget.g.targets"
+      },
+      "Sha256": "9621c81fabfba8b73787572da0de11463c320e03ce451da3041fc30174e80ba2"
+    },
+    {
+      "Path": {
+        "Value": ".godot/mono/temp/obj/project.assets.json"
+      },
+      "Sha256": "a0f96e93d4c6b45a53d443e5c723fcd93ff505004c58ad3096441d2c27cf1e80"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Animation/CuriousContraptions.Animation.csproj"
+      },
+      "Sha256": "f24a7ac3d8118d43041f9314696b9c25cfffd0d5c91475f29c52bb73a105a39a"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Animation/obj/CuriousContraptions.Animation.csproj.nuget.g.props"
+      },
+      "Sha256": "5d7676d6895c3594e8248161f0234e553fc2435658dd01b9f940f3e581e39569"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Animation/obj/CuriousContraptions.Animation.csproj.nuget.g.targets"
+      },
+      "Sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Animation/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs"
+      },
+      "Sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Animation/obj/Release/net10.0/CuriousContraptions.Animation.AssemblyInfo.cs"
+      },
+      "Sha256": "3576b7db673f047c466d10f75c195298a6e84698f0aca9255fd115e7985b75f2"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Animation/obj/project.assets.json"
+      },
+      "Sha256": "4d992c207115fb719e40d3731fe3011e5661e3d86d787d9f0987fb33fc7c5246"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/AffineTransform.cs"
+      },
+      "Sha256": "14f1c4fa128a31fab550aa59c35b7e43817c32c63bf010452a22307a2dc23f66"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/CollisionVector.cs"
+      },
+      "Sha256": "886491cabd7239555244cc494317308de2e10a7a1185e2d698fe5398c57362b0"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/CuriousContraptions.Geometry.csproj"
+      },
+      "Sha256": "73c3ff5125dd9ed5fc74af2ca49d49e215f8dbc49b94e55ac65fc32004124b4b"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/RigidPose.cs"
+      },
+      "Sha256": "49c91d02a0e0e263f8fff107155d0cbbe8d5a49a344d8146c3e83ab6bbcfd6d4"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/RigidRotation.cs"
+      },
+      "Sha256": "9526b571781c62697c5e62dc30c04edd8cea16f80887d3eb31d3db693319d3ef"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/obj/CuriousContraptions.Geometry.csproj.nuget.g.props"
+      },
+      "Sha256": "5d7676d6895c3594e8248161f0234e553fc2435658dd01b9f940f3e581e39569"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/obj/CuriousContraptions.Geometry.csproj.nuget.g.targets"
+      },
+      "Sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs"
+      },
+      "Sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/obj/Release/net10.0/CuriousContraptions.Geometry.AssemblyInfo.cs"
+      },
+      "Sha256": "2eba2426ae2a7c0b0e96c90bd9d95a0f6fc030f544fe7a4df9d0c66b81f9e13e"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.Geometry/obj/project.assets.json"
+      },
+      "Sha256": "c9f8de21ab35dbdba7c439b4d41641b7fac27355a9bebe36bcc89e3ef66bbd40"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/CanonicalBodyTests.cs"
+      },
+      "Sha256": "c6ae0696d462abeaddafbf2ca707c1dd01f86f00594a5ba806328279cee66fd7"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/PortableAnimationTests.cs"
+      },
+      "Sha256": "594e986aad41c748cdcffa4bef02559d18e122284bbab38dc022fa86d0c5f7e8"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/WorkshopHintTests.cs"
+      },
+      "Sha256": "7cdd919158ef9a0d15f4e66e80ee5fed2b645c10a937cf71263c42c7f02d8cb3"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/WorkshopReadTests.cs"
+      },
+      "Sha256": "60abd7f38cd3a0dcd0b06d32d1b2205522084be9a4cfe534d76da7ffeffcc2c4"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/obj/CuriousContraptions.tests.csproj.nuget.g.props"
+      },
+      "Sha256": "6163dd03547a26e684f9d61144a6bb4c97c3caccd61b193e675d2cde3742d609"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/obj/CuriousContraptions.tests.csproj.nuget.g.targets"
+      },
+      "Sha256": "6c585b1d15fee705984508baa160040db81ca2d258da52aa81aaafb364fabe42"
+    },
+    {
+      "Path": {
+        "Value": "CuriousContraptions.tests/obj/project.assets.json"
+      },
+      "Sha256": "44b4ce170ac0ede989c89b32408499cf7077594e5382789158a47a7a86f93601"
+    },
+    {
+      "Path": {
+        "Value": "engine/BasketballMaterialResource.cs"
+      },
+      "Sha256": "71fd8ea160ccde2d435f5f373ac4a4e254c7935e12749f91f1fe73859fdd454f"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/BrowserWorkshopClient.Schedule.cs"
+      },
+      "Sha256": "d76a19b9b4d6887e0c8b22a24c9780c6f823ae9eae574c18e65b433032fb426d"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/CaptureLatch.cs"
+      },
+      "Sha256": "865a72abccd3185cfd623d94cf887c18408cabe966be9767f0b83d01744abb65"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/PhysicsCaptureRead.cs"
+      },
+      "Sha256": "11a2934472b2ebd619205f63aa88c1cd779818b6a0634175c862649b5b0e6fd9"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/PhysicsDeclarations.cs"
+      },
+      "Sha256": "c5fa237ea0f2941a048b4cfb35d71d62d322e2c1c42c963b8fe4af101d7f85c3"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/PhysicsGpuAbi.cs"
+      },
+      "Sha256": "c61f1537f42817774a33dfa984aafe1a25891add730dc28dde15bd58941a040b"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/PhysicsMotionRead.cs"
+      },
+      "Sha256": "d92df076da1b719a980d3ac3ef0a5c6a6b16d325f9d5a0b57b6f60fb9e4873d8"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/PhysicsNumericalException.cs"
+      },
+      "Sha256": "1bd8cd0a85a0d530d135011d472c2728982eb39e8fb804af1ab3e4ad89af309c"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/ReceiverGeometry.cs"
+      },
+      "Sha256": "7595e6d07bd729eda91353e85639397d249862cba6a24d0d5614837828015ec0"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopCadence.cs"
+      },
+      "Sha256": "367d585e4be02b0723386b3742e99a0f2d17cfa0dfffaed101c9827258d8a451"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopCommandRouter.cs"
+      },
+      "Sha256": "9a8a3f97d1454d2a684f6242c0376ad63e598c198f8f4fd604959ccd6a165086"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopGpuProfile.cs"
+      },
+      "Sha256": "bd6344bb8c9e6f28dc46e103a0b8b0d164f9f2a06e779d0cf75744191caaeba7"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopHint.cs"
+      },
+      "Sha256": "1d0d3ff431c5be615eb5faa3c220ceca34768ad21cbf74337993c61399a610ed"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopPhysicsCompiler.cs"
+      },
+      "Sha256": "35fb3977692e82dbb3294efa18fbef37dde1beb5544e8c9c59e79e0b16c761df"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopRead.cs"
+      },
+      "Sha256": "00bb7b0fe6337786af0c0a8e8bf1b1f5748d44bfa23d0559ae75ec29f740de25"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopSchedule.cs"
+      },
+      "Sha256": "363c33f8a0522f40b270da6b3556f0fca61ff6a4df3180b45d7ff4714ecd7742"
+    },
+    {
+      "Path": {
+        "Value": "engine/gpu/WorkshopTraceRecord.cs"
+      },
+      "Sha256": "020157413bbdbe249dd1e1109812ff303f4326bc2d5a3a71ac25231349f5762b"
+    },
+    {
+      "Path": {
+        "Value": "engine/presentation/AnimationValues.cs"
+      },
+      "Sha256": "4bfe8ff67cebc2bcd867fd724b573533f6429d9dae4641736ff614137911c4c5"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BasketballMaterialResource_ScriptMethods.generated.cs"
+      },
+      "Sha256": "019cfe06e663aaa1a67f133ee00e3227e7c25144ba770456e57387637d6d21a8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BasketballMaterialResource_ScriptPath.generated.cs"
+      },
+      "Sha256": "dbb3110be15eedc8fe3b711384c07da61ebf866ceb767e8c33c3e1044fc2cbac"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BasketballMaterialResource_ScriptProperties.generated.cs"
+      },
+      "Sha256": "fde0f322ecbe2d8803616da849944b67538f591417c823916158ab368f3d4f9d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BasketballMaterialResource_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "e25dce8c7638ea60bcfeacdb249c38462a239c2f8c3098231d52cd0e270771ae"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BasketballMaterialResource_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "65d432995a1e1edff52159774eac60fab995f0c50c74969f80450b11dd3a6bab"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BasketballMaterialResource_ScriptSignals.generated.cs"
+      },
+      "Sha256": "efee9e113a4a51d02b2a304863ac79faab6bb153c2f412103cdfa311c36bfb7d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Microsoft.Interop.JavaScript.JSImportGenerator/Microsoft.Interop.JavaScript.JSImportGenerator/JSImports.g.cs"
+      },
+      "Sha256": "a0c35738737134f4a425ec2499b388bc4fc5479e2d2cd0ebeea95bcad8b75421"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BasketballMaterialResource_ScriptMethods.generated.cs"
+      },
+      "Sha256": "019cfe06e663aaa1a67f133ee00e3227e7c25144ba770456e57387637d6d21a8"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/CuriousContraptions.BasketballMaterialResource_ScriptPath.generated.cs"
+      },
+      "Sha256": "dbb3110be15eedc8fe3b711384c07da61ebf866ceb767e8c33c3e1044fc2cbac"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertiesGenerator/CuriousContraptions.BasketballMaterialResource_ScriptProperties.generated.cs"
+      },
+      "Sha256": "fde0f322ecbe2d8803616da849944b67538f591417c823916158ab368f3d4f9d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPropertyDefValGenerator/CuriousContraptions.BasketballMaterialResource_ScriptPropertyDefVal.generated.cs"
+      },
+      "Sha256": "e25dce8c7638ea60bcfeacdb249c38462a239c2f8c3098231d52cd0e270771ae"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.BasketballMaterialResource_ScriptSerialization.generated.cs"
+      },
+      "Sha256": "65d432995a1e1edff52159774eac60fab995f0c50c74969f80450b11dd3a6bab"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSignalsGenerator/CuriousContraptions.BasketballMaterialResource_ScriptSignals.generated.cs"
+      },
+      "Sha256": "efee9e113a4a51d02b2a304863ac79faab6bb153c2f412103cdfa311c36bfb7d"
+    },
+    {
+      "Path": {
+        "Value": "tools/Ownership/obj/binding/ProductionRelease/Microsoft.Interop.JavaScript.JSImportGenerator/Microsoft.Interop.JavaScript.JSImportGenerator/JSImports.g.cs"
+      },
+      "Sha256": "a0c35738737134f4a425ec2499b388bc4fc5479e2d2cd0ebeea95bcad8b75421"
+    },
+    {
+      "Path": {
+        "Value": "ui/WorkshopGpu.cs"
+      },
+      "Sha256": "667cb048d794319b02c4ab9341e965fcbdd7459424a265e8eb67dcba3d4ab48f"
+    }
+  ],
+  "Assignments": [
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Workshop._cancelPending"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "2c69f50a76151ab7b2912c5eaf3fab20f62f728ff79aab970ed532d17ab8d26e"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Workshop._displayedTransportState"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7e778dc8788c624d44894f88fa50cf8930a44039746f16cfad6777394d414bc8"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Workshop._displayedWorkshopPhase"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "83bc78f0afcc74665f1be82a55f5dfdc1fdde819094ed1384e5a0d81309ef2c3"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Workshop._gpuPending"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a85ec432ae946b6b7f07e8a01f89be5a0d94da3ae37356970f869bdbbed5395c"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Workshop._workshopUiRemoved"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "8185f5b3b3f6dcc0108a8d9074cc3182c59d63e2f96b8ff42b8f351c7f0e5751"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Workshop.CanEdit"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "aa77e5bbc45e68258961196b7779c0581339a6b5ff5e9b0673e2371501988e32"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._clock"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "06953440ca8d1f0d838dcaff85342a1a94b85449fce26ea53a08f23b0f211aec"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._construction"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "656b9c38ff1c7ca1ece4980c223adee6a7c9c20ca4850000e5d880b4de387ab0"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._cursor"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "03f6cc0de333aa47b09f6b4eb57281262d7f2d8c290b87abd0ed31c25c71bc92"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._disposed"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "394ccb35924456bdc477378d72604ee13797b87528360d00f500aceee7d623d6"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._history"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "909425cbb3e96a5d591d51715c6b5ed4e55316e34688c1deb915ae280e53ddc0"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._id"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "e6303031792b45118d2354d6b0de65539f32b691ef81ac8bdb44fc47ce7724b2"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._memoryRequest"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "57b1ae40d0cb47f73a679c70e3656cc20f2c325eba34c806869995ee0b6d0392"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._memorySequence"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d2873f0e472583eb4eaf3a923257272add531f86db77ed313f64edb46c9e8051"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._observedPublication"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "54b37211cdadc92a02ece822e511e1831acb2d8051f0b916dec8596cd2a84cc9"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._peer"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5f3aff1c36fcded2f4fbab748dab2d91ca28e08f5cd69c1af9e5df91c1b58a48"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._pending"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "06a60f21ad07253357d8afa17a2e35e62537ffb115e5b5c746116edaf9dfd3f5"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._sequence"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "1b07887dbe7a061fa2348b3ef5655fe1eea5dfa080fef36c812bee3f15fa220a"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClientCursor._publication"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "2bff5d028812505b859048fa3ed96a4387b22430c59bea70cf69d4d88e86bae2"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClientCursor._session"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "40a8d187fe06e8bf442a6c29666a700901ab58383a3cc3c71cbc3726b2ac6fd3"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClientCursor._tick"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "95701dbcc573b7d5ddf6386d6eef8efc065b0f0c3783413390baaa6e99cf9eb0"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClientCursor._version"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "97f795b61c88964c90b133b6261ea1cdf76e82dc6ab3b3e0b5d0cca5a681d96d"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._anchor"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "77c3b91b6ba99f2b77e2718bd01ea26a0e92625a2c3021d4a9c4a0b4705f83c7"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._count"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "07da07ff2ce8ce33e065ca4116d2e0f1d880c8df915575321a3c274047610058"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._flags"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "127e3ef1b51af098029d71c933e4d59db0235fad0c61954206873989f67e79ef"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._lastSent"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "bc72fb8057ca51280ee010aac4cfff40528753e87aa9927f2c698ca488cb3455"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._next"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d926dc26e5bd1b90e66493aa8a4094f688ec7e331efe0b2b0ec81c65dac40d80"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._peer"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "084bbc90180e5d499f554b2c45a6872deaa1c8662d2c1ee8e5834b5358c11493"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._sequence"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "e6a9adc64a2c50dba6f7e43ffa86c3977aad984df8398252436d45235ee50f84"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._slots"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "6f36c45161d9f45c368c57c6d732ccfa97df6bb81620c7075c1ece66252a3e65"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.ClockEpoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "47e5e6297b618db92db505058d0dd871d817586e8e44074eb705791269980cb3"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.Mapped"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "503d1808b02119b8628cc7754c9d34217a06edabce636c21a0c3a94d95601dd9"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "72e7b6a390faf876cbe46c650eff3bdfe25fedcacd04896e2a5415de99d729ea"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.ReplaceLatest"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5f190ebb0edb1a70a8d028bd7eda4970d6e7d005ef01897672a9612bdd9f0a93"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.Reseed"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "3ae5cc9702b081413ec016cddef83f0e2b233764c950bbe515220da6536bc36d"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.Response"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "f21f9e73394f585b89bff03f7a0eda8dc5ac0a043d439335e4b3165c05c52747"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.Terminal"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "3620d14926c29c116a078c87ace65147e61674d2dfbea6077e28d4745a764fc1"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.Version"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "44f8eca3f12c990f08774253accac3bd8871fba13053a01d110438aaa728f92e"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._clockEpoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "34057be06650c133243c7b2b596405be60e8a942416f2bc6805ddc3a880c6187"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._count"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "72f555f57e85490a4418ec647e16a174a1ac7742b143ebe290d066df69a7df46"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._dirty"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "eaba1a82848272f789f54c3aa3eb94212c1b14b465505a623a5bd05d4cb36774"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._displayEpoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "e733b580fd37a7be3b5a20faeb3648638b01bde02ccf80aee29a0807e2f067d1"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._displayTimingValid"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "083b96f8426b2892f0b3425871cae7dc5584f0d419d46e32fc47a4ac4d32499a"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._displayWall"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "2ef035f8932cb6ce4f63ee6363ab092f280cf5a1cfaf066581ae3e5267c180ac"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._entries"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "b50075b236eeeafd2d12293e30086d2aa6de6512bbe0834dc8afc47c9e7365ce"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._latest"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "b023e254a311396955e1a6f61b02bdcea166511339407dc6e7841502ba65d11e"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._next"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d0eb54653c3016565d25c19b1eb63ec3de5619708ba65970a40e20227eb35935"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._phase"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a8a0cbb40477cc17b9c8717b340ed12d65be9e7740743820050b56f533af2734"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._retired"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "075e27739f828cd1a79a0dd06280f03c55911f22bfcd3373251558c033d02e8b"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._simulationTime"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5a3736ae7474c3f2348516d32d96751d0d2d4451963b983dc514fdd80f17cb3c"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._terminal"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "583a27eb1235accc907a1843872ac259ce7f6eed4f1f42cc87fe353b10468e51"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._version"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "20e1161048df7befe7e23d8f78549b1cca8a3cebefe637424eb30d7406009562"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._cancelledOperation"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "0fc0c3208ca5a831cf9477e9c59b827b78743efcd19f07a700fae68853adaa12"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._clock"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "4a6030b673e879e5ff1917dab17507dfd6cdfb34eb0c13359814d7703db35549"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._device"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "3fb7395932888c52a3b18b1756c79e788025f237efb343987c33cbafc97c97e2"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._disposed"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "25c6e63335cf64ebcbdd575354b9502876044e93b4d4d507fbd53859e34a2918"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._epoch"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "58c8042d09be98810e90e31c36166ab3d322e37e91203b5a83eea3ced8af5cb8"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._operation"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "ab9b2bc5b0e9e0d431d6e353f8d6e16b0919bde48a10a21c38f79c550d92dda0"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._pending"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "22999e7f8837ab7dc977fc90efcb879d67c5be67f3f6a9de3e2e753aac1a3961"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._priorPhase"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "cc02d7230fd12864d5b360b3548a004c6d1f364b1221e488fe58cef7465d586a"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.MachineWorld._workshopClient"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "9fe4bf79c89bd2e9b596bfe4b643e993353e801ac395bf626164b0fdbc0cdb94"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.MachineWorld._workshopOperation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a70e11bf89e224ad103a69457996b1c9266c8508324b233d9be38a0b701918a7"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.MachineWorld._workshopPending"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "fabbefce3ad95b54b9c8254d8ea5eee1fc3e2912605a14588e2f1fe331590748"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.MachineWorld._workshopPositionWrites"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a297659ba432d4b6f8ad4b3e7fb362809e7c316b2aaf8e25460bdf1f252c3709"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.MachineWorld._workshopRemoved"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "dc1d5c69abd5f18d845165ef34cece9dd34fedcc04731a8e9983576df6298338"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.MachineWorld._workshopWriteFrame"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c58b072943d0073ac4555546a20c02c390cc3b6254f74ffea52d318a1c2f6b79"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Epoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "4f2662d9d2baffe4c9b3988d870bfabff571650102498389792043f2d40c5671"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Pending"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "48692b8a9a7ac28007ae04fed53305c1af19add9762d4903b71596cf8f87e727"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Revision"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "dcf87625fb31ee6d1777e64baac586b2e2775df8db8718c6ac76a93dd7512284"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.TransportState"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "f468b2fa73d812bf6974ed5b6ebe50e3a554d129f1b5f6cafe3f5b86908c0da5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockGeneration.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "faa75201b4176bdde24ebb88ac3edead20f36747174c486d1acefabca3d2a6f9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockInterval.Lower"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a7bd507bc38472ef0073d0ba7f21c4fe65ef1404da733b7ed2f57a57d5ae18e9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockInterval.Midpoint"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0cd9f3e36ab88406478d319e18b78d48c808baf76208172a2e015f6df9223216"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockInterval.Upper"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4807e11245869dee48a158bf4cd103919d1544f26fdb59e248723b2e3e22f578"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockInterval.Width"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f6d0d004c39dc3d6f77a542e4f859323986bfbc074c620b10a0326e5952ff799"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockObservation.Offset"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4fd72557dd01c229ca2b4aed7b2e7da3ce2ec95dfc0ae360726bc62923effd08"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockObservation.Outcome"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a1a42ef0417064261a2b3a81aafe2bfe3a67f123b7c0cfad260a97cede842d1b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockObservation.Reply"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5234a40b6c8c7040b8560515646db3a359e325574c154edda2b9a00570ecf500"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockProbe.Generation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a1d77f1012646e074d2c309452b7ead0dc97dfa25af22b574fa4aa150433afb9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockProbe.Sequence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bd7c581db06021dce2bdb96fea262a0fe899aa1eddc7162c6ae88a8251c9d99b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockProbe.Session"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3c6b451d56ee6927b479bf528aad3aadc57c69003bbf46bc6ee88f5123875d1b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockProbeSequence.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "65796db413d3aad3bacd3e07fb5f1496696c83bbad0886b641bce2b3e74f3ffb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockReply.Probe"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "304b27b061d8d28a623bc00e3a3a7db4df27e9a89ebb0c806d47f5c3d88723ce"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.IWorkshopCaptureClock.Generation"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "d3004faf953d4dbf30b3331f22d4a3d0d02a249d2bba47d908e81088f0acb00a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.IWorkshopClient.Epoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7f936224b7460d8208cb2fa44ad40e632bccab089f8f18ea3f57d3c22d49fd33"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.IWorkshopClient.Pending"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "70987659a6ee0e7d5dcc52e9cb59c33b478ea1e461bd2858de00639b4903db60"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.IWorkshopClient.Revision"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d424eccf3babf8bb697ae86730091ff6c78d3939d675da254b9fe0720c65a8a7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.IWorkshopClient.TransportState"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "b0bc8a81fbe722581c17aafb3b5122fa1ac1324994fa3302acda57e4b7574261"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MappedCapture.BrowserInterval"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "eb994d57acf34c972bd45fc9b8d587a5173dfd6392d222e5bced0f7aaab369d2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MappedCapture.Probe"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "58f2dc8c177e39f679637d65e7acec7dd2a44493c74a42a4f43177ffb3bcfb12"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MappedCapture.Receipt"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ec32a76f81da8ac998b025b072cb72ae2b425ad8fb3d3e3c4dbcf19385a984cb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MemoryObservationId.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a5ed2e1b956f40174c25e42c94f8da90bba7843080482cb9c02b2214251a7a11"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MonotonicNanoseconds.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "59054e5c3cc25706042a217ac9c746758fd1ff65b985637f943d0aea2c4510a0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationEndpoint.Capture"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "ab2fa2d41118d332e51fac3d07ef1925b890acd45b32caf67eafb8fd421198f7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationEndpoint.Mapped"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c12e96965a828e728ab981905dbd1f819d69eda386921830ad1b740f1e31bb7c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationEndpoint.Tick"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "82141a0c8c416b7dd36c5eede2c9a35a667e4b308cd37d398b129493cb53267c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.Frame"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "fc7a3507931cb9709b4aa5746af3ff11785605f04a81681c610ffb5bad64e63c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.PartCount"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "2f8b9bdbec05e4cf2f82393d43caec039901ed4404d689c97b2defb72b08532e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.PositionWrites"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d1be325d3243cdab21f8369995a6aa40836ee1f563392a7359279e037c7a3ea4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.Qw"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "59cb0100f2a2b75cbb89041df042eb7e1040ed579633cd6b699d6af181d87d87"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.Qx"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "537ced76f319829350b697950601179da3ab96267daa43d6383675ed85f0bacc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.Qy"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5a4788c13d59f5af45ed6e469363224dfec6293534f386d50d225ac71063586e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.Qz"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "37859032cc94ab33d5bd1e39ee8d3ef211639c08291f46f40b90571199b17ab5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.SimulationTime"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "b69505b94d13961f1f63df60e418eb0f5c8c793fa07067f5b55cf04619e8e4c3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.X"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "520876e09123bcde91921ecaf7ce9de645a543254e1310da058989c2d89900f9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.Y"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "ddc95237bf84dc7e1a9f6ac3db2c9e9b2654585b8ca1f274396e5382f0e1d530"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationScene.Z"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "be77d09e900e23996f82bed81ee77a86b4db38590ba3b62cfcdba0ca878cd7c3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentationSimulationTime.Seconds"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a126665c6d1892f8e5760fea442e1dfbeb7e61937c8120b3fef72eee615e4127"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentedBody.Cell"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7705ae50d5640173e1c0daf210e1417170ef832aa96bda3d1632422d5c94304e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentedBody.Id"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "21d3558ea3c99082e31bfe5c64cc8c259760887724942e8b12a861c361df38ff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentedBody.Local"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "2fea5fc941e23e3e84df66cfc7acafbda3d41683fe7a6ca4592fef25c277eaee"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PublicationSequence.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7b421a7e42ac41b31b9d174adedee9a52462c346e4b06760080fa1d43aaf8725"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RuntimeSessionId.High"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b9590419b8d704757ddb03a7e3f9f0100501b96cd4933c25676a6c989541e436"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RuntimeSessionId.Low"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c93ecb0740ecedbbc1fea2371d88035c540d1493f13392c058b57d40b88f0275"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.TimestampUncertainty.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "40e4c44bab6996b31ab079e0adb43d2f37c9cc963e7ad39d53b0123bcb127584"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Epoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "93477b7e9206926b2aac52fbe2e64bf72d88b394de17b9277fe86568f404ef7e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Phase"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "ee8ded6f19b080172335278302f63424fd85ae3d3df9fe1145250a95c9ed9d07"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Prepared.Applicable"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "df7a2fce27066e85f9d519c3e0883855e29de40ba7d78842e7ea8de14cc1e17f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Prepared.Owner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "805854571737a4c11211773eba9e4eef42226971db7d249071001b9ffd8412f6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Prepared.Publication"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "8979c04889682175f364af8ec443828b88f1bfbbbdddf25566cbda463e2f2656"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Prepared.ReadOrder"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "dd0e57f4ba5723664cd660e0ce268608d4f173eca15f4c5e7650a235798c254b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Prepared.Response"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5d7fd4421c10a3bcd4ac578387c007aaa91857faf42566b531babfb368eadb3c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Prepared.Version"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c4bbb00e15d00d4b0f50d89a7b1b8a3c467d8d4381ac4e8d32bd8be4c5879268"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.ReadOrder"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "b2eae069b2fc3f737f64c6766856b9047096b84dd7a1e2d94f63d1a3fb3204d0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientCursor.Revision"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "9a23d1e3f5241e63055f258a2c8400223ea505630e3354c210d7a3f66c21740c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClientId.Value"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "65ff7f95a5f17e46c15fe86accf7cbe8a000801233fb860beac91b0e7abbec3b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.ClockSlot.LowerDelta"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "e2533c6764d501d478d7cfa1927695ded1323c8c1b84dab9dab36dbd2e78291c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.ClockSlot.Receipt"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "26548b6114e4fe4380c755b8551219619aabf1874499661e345e850be31fb184"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.ClockSlot.Sequence"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "96adbdb97f101eaf595c2aca68589f5881cb5ff48fe77e2e9df34b4a1d4ebd79"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.ClockSlot.Width"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "f28ebe761576b78acecec78cd40b8386197299c142b00b2a74226b5459b30f01"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.DisplayEpoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5c7d9a04071bd1206b12dc84be77383b6e4c4ea3e4d879ec7ebd92fafcc19c3e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.EndpointUncertainty"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "801b3910639b528d73d248a1f0021f9e7b3349facc713013768e531d2c2695f1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.Generation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "97f8559180d1b0d52ccb5ef5394412749286ffd92bc4b980bf96ed349309a20d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.Pending"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a2ef055d326ba99f9ef1831737e1f3b0595dcf9f7d8adbd2e2a6d7b7dc34ac6d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.Session"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "404cd7790c7832afd69fc339d0a705a2139f585d524d46582e1977eb859dcd19"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.State"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "950c2ad810203fb210bdefe26f0365db620fe53112e3364d440fa48def54f60f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.ValidProbeCount"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c9f00145b55108e89d650cd2b8c47b4e5b7cd293bd48cf0db74725546eaa7a04"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockPeer.Generation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3172b3b7ab00cb8e70b17bb6878c90f5abd7be82cdcf54d8b71d5784f57c851e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockPeer.Session"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "d2fae5c0b94029dfa32fa970490ed8c23d0e178c1868f2c4d1de22b56d817684"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockPeer.Uncertainty"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "fb1d308628d69de9db33b0699ee6cb00b6dd803395de69a2dd3f8d0eca7ae9f7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockStamp.Domain"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0cc80386206393552d3433c1b016ce9cb063e2739079c50feaf345954b6a7209"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockStamp.Generation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "03e2d1387e729b675a8e9795b792d3e03fbd98fa2c87d183b83c6697c52a7829"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockStamp.Time"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2937a76a6a2436b7f55895ef65ae68bda1b59d19d8fd1334af8887e65eb6281f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockStamp.Uncertainty"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c7150087a297c95c16942f288bba79d964c4a7ec66761af9e95d4aca4835e54f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Construction"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "be0d5b49b945b9dbc9d6d57f51523ffad44c3af8d39ce30fa5b192e1431f543b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Epoch"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "01d545f10a7532724c124542abcf10e721c5eeeeb237bf9a92c974b916dbaf4e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Kind"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ff637791e39ec066c499d0c7bc801d58876e387347dea72fdabeb16f04c34d64"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Revision"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "abedae82af31c330e1349f75b958209e83b6183f1dc39405f7e75c04f2e86dfb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.RevisionKind"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "71f65c8395f3bbace2d932c7fb7c8b7e53ae22823a9bc0a7c7683f436dad54f2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Sequence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "6400e37db97af544334e5cb58103315b57f10c7ce1072de2ede4702960106451"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Session"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2660adc415b0689594be4aadc4a0505a6a73d5881f41cf8d153591565f025389"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Target"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "025a6a99625610b7092af6c49ab58fe231cd2295ca33e0f23f5576eaf6050808"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommandIdentity.Epoch"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "fd81c3006cc4350b845054b694eda26fa6513fc33bf392dfa59bca24165ff5e2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommandIdentity.Revision"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "51c75ed1f005dbc8817b559539493b07ee0a83f79537e63dc8e463746dca78ca"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommandIdentity.Sequence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "360823c1a85dc909b0eb61d62f261174d2c807394e974775a526b69146309f2d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommandResult.Outcome"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2480dce5b2bca94b1dd676d53a2dff363503a2ecd35145cbf4958938007f9b11"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommandResult.Reason"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a748df875fc9c5b5cfe29c26f3d2c2c3a0dbbe67a34c506ddc0adf0ba44ff78b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCompletion.Applicable"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7cacca9e7538eb01dbb983b8eb30190cc7fd7df7b6783e74eb0eb85ff3350220"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCompletion.Result"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "edbf1a35bc8b128c9b0f062c834f1a8b275318199d97c9c75bef50cd2bdb0d56"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopDelivery.Applicable"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "6f660b595073a90a04ea95383ff1b59ae3abd35ef39b6867b31dd650bde463a8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopDelivery.Response"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "08aa4245ac6fe393dca4783e50a0dcaf9b0d9cd54eb60cb9e2eaaa43fd3bd99a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopGpuCandidate.Read"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f2008766a9e51c1ca85494f2513be30867848e05a6be04005d6dc962aac2b679"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopGpuCandidate.Sequence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3a26481a93a49c51305a64887eb79e1c9861b641d51f5c3b7bf5dc0a85d0aadf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryRequest.Context"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "38464df607717402e68a0ec3b5e4f30ef6096677738946a9c2af077fa39b87c3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryRequest.Epoch"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "94ffe83d8113c88c7223e6065e217f479bf4f69e931ae36561d9164d5ada8ff7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryRequest.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0f37fd2a6655efcd517f201393408fa3af5769898f75eb58e23de8782895523c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryRequest.Kind"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c736bd307dd2647bdebb4e7815596ca109ccb9d9b5aa677b76c45b524bfd231a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryRequest.Publication"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "d0e1cc1ab971bd3f1b523a6497c5616dce4d94933fbe31309610c83c6a26e86a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryRequest.Revision"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1eea6818ef5e32b1e9a27bf9379d332d41ec4f28bfe8cbcb3bf7dc4ab0daf109"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryRequest.Session"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "921670dc015fbbcde4a41d858c502bd9cab8b2059690bb63ec6276068fc4de66"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.AllocatedAfter"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "8994d8d5ea70478378d63e59509abc3054ba8faca6f85c7db5bbd60313c95c11"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.AllocatedBefore"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "257679fc8f9b8ef52126b51ad1996139d03d92b101de8874890acb8f016637c5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.CollectionsAfter"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0c9056c0ad07d5013ab2109fc7242a1a47de817ed4e6eae621993910705d2535"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.CollectionsBefore"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "98f6e3a0abc546d889314e6af58d5411dbe39de494a94ae6c2c3db1ca10f691c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.DurationTicks"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "39da46ee8ea862837e43fef63365adade24b9b5e409abd7aeb43d0f9ffbc4995"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.Frequency"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0b1f4d33c4ab8c9b91df30fff0b7578589cc060a57d4495fc3752a0c0ab0026e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.Request"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3810a0e75280936debe8881edff0721e6cfb090c8a9fe55b12298657664d2bc3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.Status"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "aed078a5485a62a68ceea4d79732463035ac748a032316e6f2708fd1b967726e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.UsedAfter"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c65fef7119c039b222f4283d412761276a9f5dfc4cefcd73db792035881fcab8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopMemoryResult.UsedBefore"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "27e85319b2898ddd86ee80e5e249e02d290c898300c5a09e7b36155ae10251a7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPoseHistory.Count"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7f1836f892a0e806ca36fcc135467eed805e4ec1aaf199c50ce47d38ce0ca540"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPoseHistory.Entry.Mapped"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "0aac1379c77531a6f64125cf3090ad28477c473ff04b6681dab8b71bbf821d0a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPoseHistory.Entry.Response"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "757ea029c39d5ceb49d0eb18f3bdd7674c4db3bbee0e734c645c1b5f28eda646"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPoseHistory.Latest"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "ebea29b0358742668247ac795d2950a53ae074d98e3cab9d99c1e78d1d0789aa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPoseHistory.Quality"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "cbe13e146a0a76f9d9cfc897bfdc6117981292bf548a243703b7a24751e53d46"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationEvidence.After"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "afa9cf5a28f31dcd7b26203ae883977f8e02edc18b0c325b6469dc371e3e8df1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationEvidence.Before"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "bd97ccfa636d64a72d14a4275de67d456c128cc4ad07468422b44572194d58f0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationEvidence.ClockEpoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d1d26ada7e59aff37f6f58a53c09e8b56e0fb9099dfb1f7678688e024d889027"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationEvidence.DisplayEpoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5f72f13d150c774342aeeeceed4578dd6659ef0feb1e49fca188315b03d2a1dc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationEvidence.Latest"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "2cfea35884ad435ec69e25f1b46e3f5ca2ae4b4b818cd4fcc8dd9d2ea796836d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationEvidence.SelectedAt"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "14f9eb21b68b3a9bd7c43a86dea2400a0844603d78b14c7823f94b354d451b5e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationEvidence.WorldEpoch"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a3e9942ce4bd0bca455763428a35a0d9a5156d037ae7b47754aad21c883fdee5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationSample.Body"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "f1c5c31e72d3dd36222b6bde11af056324490fe1d9ca065e0508895de554b837"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationSample.DisplayWall"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "4d453db40ad5cc377dabd914eba2fc1453b40fde2141783bf3e17aceacac590b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationSample.Evidence"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "4701ac76ee8d50813d1acbce02641a75918afb782e9d9bf347dc6b2ebc6bd929"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationSample.Quality"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "3c151d01b64f6dbb32bfa384fc71c0e4169e0ce7d64ae31a51274fcd87a162f5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationSample.SimulationTime"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "2f0c75dc073f8dedd50bffa95f0e68396f3257a774c56602d026d488f557e826"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Ball"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "af0650ba2f25591d5977a4f6f29f0e8953d9462abd1c498e986a310228377eec"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Capture"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ee540fd7d1620a8a88896c139b837f9846af0cc0443b4ceeced9dc3b5e5faeb2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Epoch"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b5431c6e745cd3815885242c33c0ae8b5768262be1b9ca489a7fececcb414123"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Revision"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "79e13111379884ee73e663d45877ae28023e8790b7085f9c40f496033f1a3eb2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Tick"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "876c1d6f8dbd77619b2a647f3670cbb2a5e71816d77cf7498841ac1104fce176"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Kind"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "25b5ff6fc1496c97069c2a742d90cb983ddc174b051232d0caccbf2931cfd101"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Phase"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c0167d6e29d48ea270c903d588101bd84465e0fdeadbfbaed88d8e5339e45330"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Publication"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "8de734df41397acc93b53dbc62093a98c399860cbec3a6e3d08af12f8933c7d0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Read"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bc70acd82b546d5d149ae7ebf224dabe8cd753756907f434d42bba15ddf982ac"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Result"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "407f636137ea4054c90bba6a0e7efa8ce142388f77bb80477916e8c3ac7aca7a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Sequence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c6fa07ea0030e33404bc97125996d7055d81fb5cb5f1a2a135c742a55d6402f6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Session"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "cb5c3196ed55d16f547b56c3a8f1c77d5294e073fbc5d9c76fac45e62aa2e793"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSimulation.Committed"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "c0d7833c0c1b094e48c43f75299240dc2e4bd1fd06e1f8a601f30ae21eafdf66"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSimulation.Construction"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "fa9940dd9007d983a73ca1dc80dcf933b3e3babb2bdac77b06e9301ab776f981"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSimulation.Epoch"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "c692c33b4ab8b6add6011b0dc2b8396b1831c748a4b188a4cb2681d6fa10cf8c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSimulation.Fault"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "e42c225e2fbdc9aea837865f82c4d0d53043b1f11a84dc0aef1d2883999671a2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSimulation.HasPendingGpuOperation"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "92d0e92a4f5713cf753b3d8f5599f02a5ab39c6edd4a9d3c1bcdef8c85c4ac00"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSimulation.Phase"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "e7458742676fc86299016d03af2c555b6ce074ce5a838e2f0f760c812f4fbf27"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSimulation.Revision"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "8a9c766d0cac472e9fb840de5ec689bd902ddd90113760eaac0057431e370df1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopTransportException.Identity"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "29adf47ef9fd2113860f556f280290101fafc90f375f9ee98080b76ba740cbd1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopTransportException.State"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "fe74ba1c0ff7dbb7bec0458c75b8b285bd84774fac2f87ec1a72768a003c8628"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.MachineWorld.BasketballDefinition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "03c5ac5442ab47714e232c7991100fe3d7966c98fdf7ac4ebae85e11f4b8e4cb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.MachineWorld.Construction"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "fb90efc6078f356493f149031c15989844e154c549204d88b4161d6e5703ace7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.MachineWorld.HasPendingCommand"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c0b56898b61d00dc11e8cab3b0d8c447b9bdc0ced9efe0e97fa91468cf2a75d2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.MachineWorld.TransportState"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "f03623875a964c05f46f326c460591a3757d70f795d1343a270718a00c2ed291"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.MachineWorld.WorkshopFault"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "af5361ccd27235a149d0cf44cacd4bc0aa3546f99ae3d48d7bdfcd36586eaa03"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.MachineWorld.WorkshopPhase"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "95e33b40ab5e28b80ba57b1bb8bb0081fe4a788d95166a47353536a2359ef279"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.MachineWorld.WorkshopRead"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "6b098666fdb2a4a5ea4fad3069ae69ff4aa9905af69ab6078c15e49b789d33b9"
+    },
+    {
+      "Member": {
+        "Value": "T:CuriousContraptions.Gpu.WorkshopTransportException::cause"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "60db6ae7a23c0f4a4c6f53708b979a323b4b251af8be3746c7f2b000bacfaaff"
+    },
+    {
+      "Member": {
+        "Value": "T:CuriousContraptions.Gpu.WorkshopTransportException::identity"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7fff68ecdbc9c97fa80f9990fa1cadef041858c070f9b1cd776fd6b74f8e948f"
+    },
+    {
+      "Member": {
+        "Value": "T:CuriousContraptions.Gpu.WorkshopTransportException::state"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "3eeba4b716b8a9194e360aa2ee9a6a182cb7d583ee44939a6f995612356bd054"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._recoverySends"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "50a3d1e8b0dc064254085c3ad32eae12bc1225c3d3f385817327ab291551f86d"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._recoveryStarted"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "6eeb6f5d4b6229487173a3b165208b43f9e8fa6d86943eb17db827b057ed62dc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.Acceleration.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7f5a52af2124fec88bb51608b61cf755dd06a863cfc182982104208116f5ea34"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AuthorityRevision.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5f7c0b27d55c306fc506c398dd65a57636f6902070b79ebc5bc0704d223093a7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BasketballMaterial.Bounce"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1c8380136ede565aac3743a8f2ef26962ea2bd44c7c14c9fa1cf5c65d69136a9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BasketballMaterial.Default"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b8c15379a17609bee1e726aecb7f6967cb2b79af7ca4eb100ef81c887bdf1677"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BasketballMaterial.Drag"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "77fd577e9a2357ba05ddcdb2dcd246e0b1e222d297ddacc1b956d623d5d8f4b2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BasketballMaterial.Radius"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "536e7108c51ec8f82b57514a9f8901b20f304cf5e5372932673493059717b9b3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalBody.Cell"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "d7d3c4c66a7b436ae80e8e8b52322e3e0f4bc49b70d2cac113b898a52bcb8297"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalBody.Epoch"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "9d033a956cb46bd818ebe1a07afcaef697b6a6f061635ea759081094a74f0adf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalBody.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "489a15f0efeb21cebf0a165dcd34604833a6e167acecb7adeecdb8f387339ce3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalBody.Local"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "425d072641508993858e9b45d26caa409a99cf81b27d186ebf85b7bd604ecbd1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalBody.Tick"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c299897b714a11265f4d74e5e6c28e33ee98cbf20ddf1fd3599fa59a610040d9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalBody.Velocity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "775eae3b4409b911292c287489eb89b184d748755950776d9d43c91a7de2e0d8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CellOrigin.X"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "628c3591f5c5f8e35eca37768e3105509f667d2cd18b8f21853ad22369375855"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CellOrigin.Y"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c20390870a2f35420a267bd6739d3ca7cc0e0b7e059a6c3d7f24b26ed951176b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CellOrigin.Z"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ce111c2f1c47f8882a4cefe4b03910ac744cc7e0cce8ac4e6709cd2a525eff7f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CellVelocity.X"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c870804d25eaf525e92de035109a6e60bf705995ace1b045d91af9ba4d405328"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CellVelocity.Y"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b3a4bbe426fdc3cadbbbe6b25cb263b62747800de0f40187cf81db11d4adcce9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CellVelocity.Z"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "55af5ffcbfdc1ecf4ba97a711e5b64eacf50180054bfb13ccd8868b6f78ada23"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CommandSequence.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "31e26f04d39fbbb0f244ac47a5f15d656408359d2b37520ce566997764184c00"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ConstructionRevision.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "67dd9628759d958cc7ad5fba687608c02711788e419e5826e73733a2f7fe1640"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.GpuBodyId.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5c07024910a7fb2673af072a47215e354828642c5b053cbd64771361841bd7d5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.InverseSeconds.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "029ad685678828e3ea46cfec3ee3ec17493b057cc8528608604615931219c555"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.Kilograms.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "417b2bd3bbaeb793ac756c30320ff66e16e384932808b05ce2798c0824bbf046"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.LocalPosition.X"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "e7194733fcae1f2e47d7312e0beca770a89f2240a5a05571eedd9887adb059dc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.LocalPosition.Y"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b5e40510f72098a08f78eb7d4432727f80600a49b58f8bbbc1d61cb325cfd877"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.LocalPosition.Z"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "03f52fbec352cd829b0eeccab7a6d8a25b84be1143f59caf6337d1566403565f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.Metres.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "e18ee95da7caa595e679afa1ae97488bf49eb04479a93cf6b008bced893fb4be"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.Restitution.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1489f4ac7c4ceb9c37841488a5ea7cff657d0ef9d6200f7d8fb6f14713e10ce3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.SimulationEpoch.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1e1da13130666268eda32b59ac561a712a9d1086fa45777744dff42f02ef4a2f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.SimulationTick.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b6ba8ac156a68a0002ec8fcb100b20326e190fa13e1554969e4fbfbb15b977e4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopBall.Cell"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "784e7d46c4aede9ad4eb6fae38784a9a3642741986b077f440ffb94a48e9bee4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopBall.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0523dad9fdfd68c6a56722b988467de1859cb65c7a2360fb668f867069dc96bf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopBall.Local"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "59aa9bcc27b9665468714538a5f7941b0407a38ca883c29227a59d8ced83d15e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopBall.Rotation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "dafc73c2d25cedf8abbc50a85e1176c9bd2e01e43ec4cd708d46aaebe1747a25"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockMapping.IsQualified"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "415a521bb2d5c68a3875d9f2826240f2507c257e27aa04880d3adc0f50884e22"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopConstruction.Ball"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0651df89807bc36bf96b0281889e423029b11428b9468302f24909e1cea993bb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopConstruction.Gravity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "97cbe7e339d005484d731029ba7e78ada2f27f2575a86cc4b25b230673966a5a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopConstruction.Revision"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f96b8bcf96b6a3984229dc038a824f6670e0ab006cd21530e3885511fd64c12b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopConstruction.WorkbenchSurface"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "31291fde25305255072d51ebb65a95ea77a34b4a593d85bf947bab9cf157ca9d"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.BasketPart._halo"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "226f806418b62e4a50cfb70141cfb987cf0bf388c2e11375c7995ee4f1b26190"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient.CaptureTarget"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c734f1b7d9cb5ad029dcd3c08f6ece16180e180919e4f14917e61c191b94f7ac"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient.HintTarget"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c97a9faf0c29dcd15cab9320b10675aafbfe4637ce6604454cfa1f123611228d"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._admittedDisplay"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "8d3879f31324f6db605d85a539340c44371350ebb8f3948d7c79bab366a648f0"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._animationPending"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "2f38462d080bc6bc147e4a7810ed01c4da8f0baccf434a4064e09b6198e1f668"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._animationPendingCadence"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7c5b283691431f71523b5486586b3f8609bf0c66c6cb27171a634884a7a485be"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._awaitingPresented"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d546c05d0bd7c5c8de1e4a9d41e8b78831ccc13d272cc1a6e47320f3991fd615"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._captureRequested"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "4c7fc91644c3e08a082f5302201b89355eef12b0e7f128c059d50b88573e7000"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._captureSample"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "493dfb74a23d320993e96710621a3a89353becb40c16d26606531794d949e894"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._captureWorld"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "dbf736435a44017c6f483b0a55eff778c8094029b315289e5937f261ab4f928d"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._constructionOwner"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5e239a6d00a7a919149898c1ff2a250195f50920c65b7da358d27b5107597518"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._frameAdmitted"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "b1367e6f2e826b4f6f782284a12549605b1df1aa950e29d6868cb14386479bb8"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._frameCaptureTaken"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c7f2a9d2276672c9b7f2303779d8a5eb37bc52529a8b17d9b14b99de4ede3665"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._frameHintTaken"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "f0466c365e9c10eb60b9ff5939297ea9dbceac7abc7e24612a0497ec17692fb3"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._frameMaster"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "1fd32a7deddd714b9b7142e50556526af0bacae97879951b40d693d88cf99f92"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._frameObservedAt"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "22318f19deee7c0eaea831ad696b73144e189d6947a428a1ad1dd23fc2b5eddc"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._framePoseTaken"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "3b3d1add6c459fa6f79f334b39f40c833b954084df002e725db4fd2d1512dd5e"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._hasPresentationFrame"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "c18e136cd2aa6a8e20fadef7363a99d37ea43bdf446a4df6ac4975a5c2e4c133"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._hintAcknowledged"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "6b7aedf3fbef03b3fe96d476426c61281b9b789b417363c5448c5f5d5ce91f85"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._hintCadence"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "add29082468b7371d77c02e24080100ec70b1e07a199181f0359583348989461"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._hintGeneration"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7d4df7f98108df24385be4dbb8008e8621c75bccdc42dc0df78daf24ef1a1792"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._hintSample"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "359c54b92567c29569dd62c1cf9d5326016699b30bb9a71bd12ec2128c62e641"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._hintSequence"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a1903dc8089b45a1a2e26b1c53d5ac2096f2b09315f929db05d87994c539633d"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._lastCaptureOrdinal"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "6afab565eea2c6c5dc9a20eb101cce2eedc10fb63826db43a2d8530d3d25b5ac"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._lastHintOrdinal"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d2ef454f7ad88b7e9258690a284f4cf36ebea73e900eefb612b2dd5a66f59c6b"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._lastPresentation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "792eb1341eaacaeda3aca86911d79e46c52c6ac52590af1761d1ca1de2ec1335"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._lastPresentationApplied"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "5450457f48b3679dad5f880663f5128424aef1f7fc1fa75eb5f6f36bc6adca7b"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._preparation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d8e91b18ea4674a1130160ecf97000c9c119468321035ce325a89db0dda548f7"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._presentationFrame"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "7cd273822dbdd477db0a68f839ab5edd32e9aa94cfd4be8f72d68919763b2dbe"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._proposedConstruction"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "460b7bc4a84c135c1d0ef495831b45f4db2fc30c0d6ec4992d6e5df2bf6ec1de"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.BrowserWorkshopClient._schedule"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "f44ace68cae692e40f5a1e35d996e7a745700229832b5bb4717911bdf8d5df3a"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.CaptureLatchStorage._first"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b557b2ae845d9a7ab00321cfc93fe47a7ee4aaccae2614d600a137e9ab00cb84"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.PhysicsCaptureRead._values"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "41740df5d25ff9dad9a3d0e4c2f78c8e0157b5411b0a8e52c6990e7c2579da3c"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.PhysicsMotionRead._bytes"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "e31a038f463442d6604877d945f36ece011f306b24c056fb09d7bbbc8d63c6d8"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.PhysicsSceneDeclaration._bodies"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "e5797dbdda710223312042eb5ff5d7cfcd2b84309d820981e7e289a9e635b6b5"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.PhysicsSceneDeclaration._colliders"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "8972f1306465564a77f161728043d2df7f9cb45f31f0949b8e6d8276d3bc51cc"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.PhysicsSceneDeclaration._materials"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "29b2303247389c8e13261c89d33c385e6f13e67815625c4073721ad519373f9d"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.PhysicsSceneDeclaration._sensors"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "866891757db08a6e3d3dd3e65b7926ca21d78ad25a00ac752d1b4cef1958b706"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.ReceiverGeometry.Boxes"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f15c4fc81560fbbdc94b2c879fdc5e348b8f5acd2bfa3811de18f83cd051efde"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopClockMapping._lastRequester"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "30eb9774c2f42e96f996d5cb3016320348ec65529f031b9cb742b130f2072376"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopCommandRouter._lastSequence"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "64f08bba30572ac9941854c4bb0be5673a7a8151cadf75cb9fc89a856294c3ac"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopCommandRouter._retained"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "ceaaa8132b7cb7680cdb1e4a2bd501a425d267a978d3a85bb10d2a89a0969f63"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory.Prepared.Installing"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d1256bd2bdb4b510f3da4a2094bcbdd255ac7f738faee46f834634a1e38b615b"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopPoseHistory._schedule"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "43bc25d3cb49b02bf5169321b26b17172aebf3bccaabff5cc6e9a55dabd33d3a"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.WorkshopSimulation._installation"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "e584358e4f46110996aa54e128e235ac080abd62fa89c1218fa78f7c6ac9c938"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.MachinePart._built"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "d6d42ac72f225581646d108ffef49afbf2fb32822d822140de57de99abbdc9b9"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.MachineWorld._workshopPresentation"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "4bc014afc29861a87679f165512c7d70e5c88556ff3864bfb36897488f6d304f"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.PartDefinition._id"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "024f3b2d5d3ee27824e04fc94ff6b22da667a1a139e98bb1c6685abf94f41fc0"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.PartRegistry._definitions"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "ac811c8897d3ff8d598c5cb866311eac3d57ef0c5793be2c5ea95a7995be0eae"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Workshop._cameraFocusWindow"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a7058d3a114d717e7f8c3d569016800460506624aa6cd7341633f2fbd1e14072"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.BasketballMaterialResource.BounceBits"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "8aa76b03e65749809a4d35a035a3eef2a34e71652a693a477cf7d29f1f10b23c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.BasketballMaterialResource.BuoyancyBits"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "1fab23f8e7f4705d8bba1c9223c3c7235cd6dd3d4a6ba26a477324ea3d4a2ca1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.BasketballMaterialResource.DragBits"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "b2a3868a4e4292165fd98aeb58f3d46f5ce4b892034b8c957319b66088d94ee7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.BasketballMaterialResource.MassBits"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "758fdb1b3ecb940f4b703bb5e55a3a8ed8dd3746707275e1f80a955baea15361"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.BasketballMaterialResource.RadiusBits"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "ddfbf89fde063f78f45e69325e7331593e12a0c7e9283fc00082d6acd5b5dcdd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AccelerationVector.X"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "dbbfcaaf21069dd54d17a0dff6d0525f990d9292247c95297cf40b6ce9d7256b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AccelerationVector.Y"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4f0d4388285a428905897cafcb8c9558aa077bfb06b6ca28834561b5e450b8cf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AccelerationVector.Z"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bde08f89262c768d0ad96c50c38054b66bdedf75877f691d9b860ba2e79de5d4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AngularVelocity.X"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "9c766439fb8ad309281f7291fbe34ff2c20aff5716a2d4f63219722cf60c0e02"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AngularVelocity.Y"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5ebf29f0d999eb43f191b86a85bc8e17a494976904e29948286e14b3f009b8ab"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AngularVelocity.Z"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c8b51f2a9ec944fcd9dbee330a7a0955201236972b08cdda113ba5818cb7fa41"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AuthoredBox.Centre"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4905d74c243a22be85315c9e03d55b6e3cc7ea87d0beaa308668df0e5f444e62"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.AuthoredBox.HalfExtents"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "9f9d7f8bbda258b08e10b7903c8ec9614f726ab68ab51b1d2fe9747df4a942d5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BasketballMaterial.Buoyancy"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "53921e09acefcce1613cf3ea3ced925ba8045255b8ca8692283fabe099e3c88f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BasketballMaterial.Mass"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b3b6851ed7570b6ea87bc5a721ab20d06d0b0df4edd8718a9e14b9910c04f43a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Clock"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "4652f0922758bf50f2436b83037e5df2128a67eaf25015488e5dc2ef6a338692"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Peer"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "3ebcc5617f3e63c46582cd0f4a8a42e7f365755e24e887947ce29cbd6894a939"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Preparation.Endpoint"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "a0eaa5b726be51b4d55c1ea9a6a96dfc6919af85d1c7b10f55f6411b875fd467"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Preparation.Header"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "679beeb443ec807a7c04cb2316e94bd789334fb65244be4a97ac16918b808fbf"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Preparation.Settings"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "e179ce5d478a21d4d2160d4f2f83b1eebd0b8720391dcb90a116b11d26894d67"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Preparation.Transition"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "aedc83a099338008f54dfd0372b9b090ba89b80647fb8dec26aa68320d6de22e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.BrowserWorkshopClient.Settings"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "500a44f2b98b4c080433a80ecb6492995b66fda4f50f9583a28b23337e568d89"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CadenceRevision.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "719cc72006dcb47fd33b2b0f79be1213e6739c4a548ccc4f0a1463305768f4c4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalRotation.Identity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "308311d792b133dcf507858e049f09927ad852979e2fc1ce231c7cffe67f5f62"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalRotation.W"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "72cad4296a9f8452dbb1b09a7069fee8ae26394cd81172a46094b9c547dfba71"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalRotation.X"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c22d9ef1146ece86cfd1c24142601f02dbe75d62922cbb1418c51828c96e4af1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalRotation.Y"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "9a30d74310bcb7593bd6123b269ca98eb7a04cb84e6d39cd7009acf64b8aefd4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CanonicalRotation.Z"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "888d2f1ade047e2fc1421d0ea20c433c41719852a1302f6364d658fbb593c2d5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CaptureLatch.EventOrdinal"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "d4f2fc5c2d9e1be8fbe834ed6e9a456c293c7523f0c5c132bd1b270de4d8349c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CaptureLatch.EventPhase"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a637cfba1b36e833abd933ef532ca74c679b703564f7fd4c077723021c297057"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CaptureLatch.Phase"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "57b3c480dd5be82da3406dd3eeb2e0bd049aae7c8158b2274cd4b78dbac63d6f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.CaptureLatch.Sensor"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "dc6d152607343bcdebc436f3a1699eab29972e1b721413e015dca859a1147e31"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockProbe.RequesterGeneration"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c92af665d853c92c5cda7f6e798afbc2543576879d6cfb9c0c693fea55ceb135"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockProbe.RequesterRole"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b713e7ccdc2c6595e40576fd723f9536e557f886d7d7cbf73b30be023d7840af"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockProbe.RequesterSent"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "82c18f9f5a949801e1ea48dd55f222f9100c3b854ba6d7f55db764517664f9bb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockReply.MasterReceived"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a60548995677ce1ad6021b8127d942130dd609b2fafdb1bd15e1b8dcb841aed2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockReply.MasterSent"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "d829b6641c6254e84b8b72d78bddcdcb9f2ff82939005137b7fef4d7f25f5394"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ClockReply.RequesterReceived"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4a750b8532880ccb2d14fdd3fda8ddd33dd4a56018248860a8d3759e3e6f6f57"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ColliderDeclaration.Body"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5447728e68ad2e0cb7e7e098857c3fe88f4a514ed4ec40de777d54df82554bff"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ColliderDeclaration.HalfExtents"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "990fe48b168b92a1b95c93556a6b783d9dbc209cf9167afbb4230da464ae456b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ColliderDeclaration.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "acdfcd4ef1ea2747c69e7bab97232edfb4a5476095e048c1c5ab6f485455107c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ColliderDeclaration.Material"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ba7d8bf5b558f3723c9d38091e3096528a7df9a8e765dafb4dd66b3e288341d9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ColliderDeclaration.Pose"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "125845cd1b066cb3047556a68cc526f4423ecd8eced717bfa0d7a42f5c946e56"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ColliderDeclaration.Radius"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b91b381e1aad10a6c849233a0092ba5db03c7d41c9f344b57ee4863edad0bf7c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ColliderDeclaration.Shape"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "50f18a289ac4436df78f1ceaccb1380dc0d32666e79a6afb588f2b082e96b6e3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ContactMaterialDeclaration.BounceThreshold"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a730299cc2651fecaebb2d6c29c6003decb4245898cff5f7992f3e08c916d2ed"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ContactMaterialDeclaration.Friction"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f4d9ead6b1d1ac03aea1604c87567e3b53b98b6ae020633e3d23a6633127ca22"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ContactMaterialDeclaration.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a0ca33ec83fec2d999e184c5f21d3163ba5faa62ca514a049a8c3218e11047f5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ContactMaterialDeclaration.Restitution"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "39251cfe78888c6fa68998fc113d4faf6855ddd41b31507a3e339d644a83e147"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.DurationSeconds.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2fed7326e9467ca76dff9a0a2052c45c118067031234b809c9a072598d62455a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.FrictionCoefficient.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a7c207d2de3acb3ad2a3f8bb1e9eafa995b9314f4610dc9b5564831d524fd821"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.GpuColliderId.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "6d7c4b1e5151f9d50fae177b104d835221c8b49193343ce8cd6671496da85528"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.GpuMaterialId.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "e4d75255c6ae0fbbcebe61fe23a670d34424b85374a116b8cacb5ed42d11024d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.GpuSensorId.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2861f970cfa96486e3548fc87597c8fb196535772c498cc09603042929a15538"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.IWorkshopClient.Settings"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1f70441f89e546cfac207899421b9a62300d161eda5a2e33ca8341066d965a85"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.LinearSpeed.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a4db733fe3efae4e4f35634aa64a3e3ddf78edd283270712e2ce328118e68696"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MasterTimeNanoseconds.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ecbd6068a4336aeeb6115b239afcfd29ab03d1f4893d06b8b899671357998a1b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MetreVector.X"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "786b95a2d03c4c563d3ba2dd9e66bccda169eea1ec33b893b8e26fc16e19205e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MetreVector.Y"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "831990ae913c70c58fd016849fb1d056dc165a05b89a632ba8f24ddb470624c1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.MetreVector.Z"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "9ad2825f935083a40b736d25ce2246bc6a742d18ba0f5e5fb5fb23f38d8ef3ba"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsBodyRead.AngularVelocity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5890dffbc0933fe9d671e15c10e144c00d7d3d139593fc9046f5a7db6f763b6e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsBodyRead.Body"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3695c4785ebb4ba97bdbe666880c4f9bdbaf6c04285baf9e3359c0e8733d9753"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsBodyRead.Rotation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "09e283b3762efe3527632628ce67747387b9f8ead82d2f05cf2cbb6bd2531ab5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsCaptureRead.Count"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a78a2675de8083ab46e3023ca0667981172370080144d71b64a19aab9e2d7160"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsCaptureRead.Item(System.Int32)"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "11df418f069a08e5ad6af3a88116947c0b12b587bf9360f8ea16e1c03ed47647"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsDocumentId.High"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "53225b2de30f4755c323083be29fce12f8cbe3efb93e4af666f8ef6a8aa9f0fb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsDocumentId.Low"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "67111f6dd778fda9a51baea47b68d6ee4927cb2098d5e27d39574a79201fd7ec"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsMotionRead.Bytes"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "23bd85e633ed76eda9f0defe4bc1035d079898a833f866bb00c52b4def16052c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsMotionRead.Count"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f58c98b325ab2cc8328d9039683d8701f381e0b108630262d23e879ad704752a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsMotionRead.FirstOrdinal"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "77f6cf77bfc2cf3c4ce317574c6b789999e8341ed53e41d3214e84a40349bfbb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsMotionRead.LastOrdinal"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "818e93b0a2f8eff9b7078b4e090f0470770c2555762dcd9566baf56fc964e6b9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsMotionRead.Substeps"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "cf7e29cf6142d2d6224f9f6c5fab630ae732fc130a2b1ed3504415bc7b54ab5c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsNumericalException.Failure"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b89e50918c485b1ca724a89ac8e125982be62ba9d1066798f630d97ab351bd82"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsSceneDeclaration.Bodies"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7b73803482ac51291888dbb0df9b3d7b608ce2f37fcefef33fa486a1fff185f6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsSceneDeclaration.Colliders"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0572792ff27800e6aef2f6af7a6e8e147895987fbffb3d5fff7ba15a45018597"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsSceneDeclaration.Document"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "255229607948b541689740291b9701905676b68270f1206b7ecd042ae551dcc1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsSceneDeclaration.Materials"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3c392b0ee9316007ec05c614cc8cc681c5285c38c0e1733b8dae54c774aaa10d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsSceneDeclaration.NextIdentity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "156fdb7db2f3cd49d81340d6cb4d14f539d129b0ecd96722add5d4c0e5f7c06a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PhysicsSceneDeclaration.Sensors"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3637a762d191b176c31e8ac41eac5ac737f93c1963c1e1d6fa37ebeaa40a7b44"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PresentedBody.Rotation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bc39268240bb651094054fd992f1f549aada6e37e3953e527149e3b03bee2183"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ProjectionEpoch.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "edb6647c779cf8cc95f7e050f0c8fa2be5580dc22bc4a2baeae820bfe63c3551"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PulseOrdinal.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "293e3b339ff4c29d450b272f8e14ca7fba40f88bc28b8a9766077b2299f2c6ec"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PulseRate.Denominator"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "833e3e6b0124fb9f5ed478665272f457082ab8a8725c0fc5d88cf8847add31c0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.PulseRate.Numerator"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "62302a91bc35cf7e74dd4fa76414517e329a43e5d79ca899f36b0b9814ca553e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ReceiverCaptureSettings.Dwell"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "fe0af425e682a2ce3e9b9e8db6a9668dade20ec4463a76a4e8979f3443f6c205"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ReceiverCaptureSettings.Free"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3066ce92eaef01b87de029ef34d0329c7053df26c9044ad1f862933c23bb2751"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ReceiverCaptureSettings.Margin"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5c5d95f210ea391e7da8a37a7ae7a409a360772fd91c23fb5a583e85370fa73c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ReceiverCaptureSettings.Participation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c05898578d329bd61f4a1b37381fa6dc9125e3354921da4d15a43e34d0d400cd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ReceiverCaptureSettings.SpeedLimit"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ff3984c352510bf7eb202a2c02ba1ddde074d0911ca6e0686a44626bcc6be039"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ReceiverGeometry.Walls"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b95bcea3100e94ed37fa8eeaf492f802ad5013d8f9d88417125b422bce597a6c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceRead.EventOrdinal"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "63236042826360d3e852dcab997deff8b2e5b3dda17c36b391a2d26216e8185c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceRead.EventPhase"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7f39c091e067c7e787e39c39ec6c251081c01f9cf5a6dfaf2122bc1ec1f51355"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceRead.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f6dc25cfba848ee18fa9a8c594fc3d38c287489443cb5cd6f9834fd61f20d43e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceRead.OccurrenceCount"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7453709f84f62dfc4b180980b74b3e7487f75a471b1eb4b6eca81f82185491f9"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceRead.Phase"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b3df48117eeb0a4be03a1059f84c9c731c1098b132ef857524b3de0db666abe5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceRead.StartOrdinal"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ba65d78d6efff4fcb3f370238167116d9b7d45637793e0c3cd61a6dd9efe5f72"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceRead.StartPhase"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b600d7869cab3d1a105dd09cdd703c6a6ecb3cb6b886018adae3feaf994c083b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.Dwell"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "dc56b2728f9210869d0dce2c1aca805d13ed7a7d268b1a69e5d3bfe503a67ba3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.Frame"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ae0ce04eebd0864898b7d99701ba46758b6a95961110b31b01b0433a77850842"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4d24fba85b6d59472b751860cd2ad9699a3a135727598f66088921ef1ad8de2f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.Maximum"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "21013dd349149a4a3944d69ec47f24d2f0acc2e7c868534b26bd725c3d993b91"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.Minimum"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "144e1e2c1da90509353db6b61cde4f3a8791711f5dcb3afe2b4cb3bd0c6d8992"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.Participation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7c2958bbb47885bbe0fb7842fe30fda4bb93aa7f4abe0054040b26ada047647f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.Pose"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c059e04265efbbea8d653460232ce5a15823be37966cf471b8b8420caf517a00"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.SpeedLimit"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4b5820144b122194fe8b528630bc716f71da6f2f46478afc2a2cf4240f625f19"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ResidenceSensorDeclaration.Target"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f9877ccc47fc1e2db79a8a73d899f998d7acc94eafba739abfb894b795ea4efa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.AngularVelocity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "66d69ead528d02346c1ec83987f7e07882db389e37a852c448634aa9ad96ae40"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.Cell"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "034ca6c85a8c27deaa77a06f38a5afc622846b150efecc0ff7776dc69f03ec53"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.Gravity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2916a80625388763dcaf01d89c976fea01a4331059b9f7e9c23f2922a7b5ad77"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a11bbf99bf42b505fefc51b2a0022213b9cc3a5703412aeff246dc4b4fe2bb61"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.LinearDrag"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7a5b3709203015f40ae332a339225c12b481e76a1e35791c4d4b4d161eab2c55"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.Local"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7578e18cfd54fea81b1755d6531f8daa4397c07bdbb64874f264235044a16511"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.Mass"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2785e39b40b3376e6aed2f130e16e49f2c1ea12b00a6ce50cf5c36aaa41b13e6"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.Motion"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "215a43b23e474f547bbe930270c109bcef0f6aa748ba8e4e34b7520f50336969"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.Rotation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "27daa300fd53a8487961f9f6bcfc94909d1c1533231f8439a28818bbe5aa1282"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidBodyDeclaration.Velocity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7a82c133728385f1325ab6448ed90913e0ecb7a985f572eb51c390a01acd11a4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidLocalPose.Identity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "eaa1dce30a31cbea77c0e07e2f3a50859eddfc601844f16a6b99b38eab0cdfa2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidLocalPose.Rotation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a0460b38286e1be86f4ae501801499654c1b7570905e5e1df0224721a61a78e4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.RigidLocalPose.Translation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "ad5e4f0612f1a9cf53bac7d7c288c393be68b0bc92324d7e66728c5d37eeb2e5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ScheduleControlHeader.Kind"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "273629ffb87370c3ebe439b0e31830ebb7acd3baa67ad88ccab863f8be136ee3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ScheduleControlHeader.MasterGeneration"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "6518b07224e4cfcbad238c725455b4a7e14f2811b56d35b51c0037a0a0660555"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ScheduleControlHeader.Projection"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "32eaa6bb98e512b834f936d9bf25d978e943fb32b65104705175244909e771ba"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ScheduleControlHeader.Recipient"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5f1db82a7166b310252144e2b5eb243943babeef87e85d482e085adf79c167a3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ScheduleControlHeader.Revision"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "e80e2253b517f81e0e9ce5e1f6b72da891f54c9bdffde33dca83701fb824f0fe"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ScheduleControlHeader.Sender"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "6ad4f89acfb55c55392a560842c6c90c74bccc9bdb983cf02f4dc1c9d9d2fd38"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.ScheduleControlHeader.Session"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "6934cf43f963ef9d602a8fcbdb8ad0c23904a5da9cb392e5484427e2c4f26157"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopBall.Material"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "81d2077e6c02886cb8f6696982fa4971559bece817b61f2c5cfbd56b093f60d0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.Animation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f0292b38e44959607ad00eb31927d47c54b46aea9546e75115bd3653dc2eac08"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.AnimationRate"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "368e8f73f7aa96a13dad7a7a219d9336f826a3d41aab4e6542005d0750f07676"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.Physical"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3958ce326d4abc74b130513c69483ab67817261f780af47cd9c5e6490f7acd1a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.PhysicalStepsPerCommit"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "37efa6c61d2d36440fa552484b0469d94049fd501208cdf06b1a5e24b350c506"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.Presentation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b3fd2d1b95a7a23aeb992ccd22e4f0be6073f65da2c4559ca4e4b6ade3524b1d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.PresentationRate"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4ff6f6488b6642b7241d3192dd9c0a85cc75c6e1bc029c00a6773e6e34370ced"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.RunTickLimit"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "918df83180052b7b93fc6af64bc72a9a9915f0ce0c850442e8fb25482464267b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.Simulation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "d29febd0f890d8aeb7a0997ec25691bad0dbe9a5f13df0ee33a342d259d0443e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCadenceSettings.SimulationRate"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2e5ad963e426fbc1e2ec9873814cdb6f8b8bbbeb9241aea58010ada2b32d33aa"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockPeer.MasterOrigin"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "e1d71829c548df55ea83b1106eee4c47169b0beba3b6853c7d5871d6de199e0f"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockPeer.RequesterGeneration"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1219a7e5ffc95dd92492b5ff969a449521005a2b9abb10956f0ead5d5ee98ca8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopClockPeer.RequesterRole"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bb23226bd16aa4431fc496d07985afd5453e2517d2a39860b0a7b6b23ff43d46"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Cadence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7b0d6764ea2a650e1dee2dfac26806ae805d8ac07f01d2d2249826416a0049a3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Projection"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a8c41fc30d162a7666965f97171134640e5b66583e77ca16bc0bf830fd7d6ce8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommand.Settings"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4e16ba69f522fca651bc2c4dff56a0cef874102688f72fc4136fd17ca2175f4b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommandIdentity.Cadence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "71e066084830fe2e2aa06ba56e816ef82b0f86b1444ff793d8828c06d347b0d8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopCommandIdentity.Projection"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "39bc99f115d368bd23101a3f90ded79c3db47de57640acf27a220cbd82776e06"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopConstruction.Receiver"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "95c37d08526ac043015a4d2878413a0d0f0efd5fcac76c213f9522930c8deef1"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopConstruction.Settings"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b8284a10c823db1a36ade05e0687bef9ebdd48fcaa47d4be1bea86b7684cb187"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopGpuProfile.Cadence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1d3f7224be4f1a67143cee4825d4a6c5aabd5e6994063a80cd1e44cb2e40c135"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopGpuProfile.Physical"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "b1270c31c2eff1a380c99a53c0d25f3b3120ce39508e909e07ad0e4a6fcb6081"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopGpuProfile.Revision"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "acccf6648291f6e23909c15f2ca8c94ccbd06b77fa3a56d8e60c9e1e2c60c6d5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopGpuProfile.RunTickLimit"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "d82aaf0ff4fde2f85976d3aeff4f2ccfa110c7af402ab6c85cda4b28c180c301"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopGpuProfile.Substeps"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "aedb7f0ee0d0c3ae6026d1abc058e56756e94c88ce232943b4df06571ca5899b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopHintSample.AppliedAt"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a9816abb8a8d3f917a9268595ca820efdc9f104e1f7f79b2414aaec6471106ae"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopHintSample.Generation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a84fe9e845313cdd7873690c3bd661236f65e2a168f014b7e04414117a657058"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopHintSample.Opacity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "8e777395d10b12e4bdca24a2c159efc87ba0dc3d53107e488a1c7db61de98475"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopHintSample.Pulse"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "80fd1d08dc1234b2c3dcda6eedf3ebf1e56658fce069602cd299100d9482b89d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.Curve"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "fb87798cd0f84a7043c4438d8849f247d2aaad98af0dbf137042ee74498ff3fc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.Duration"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "41574502c3b9c7669bcd3eb2cf7b3b6943408556f20a76b3d1112f4b48024ca3"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.EventOrdinal"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7ec59afcd84ace962553b04f1f1691e71703c8af58c87bd5f31a3ad4b47be092"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.EventPhase"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "66ec4b5495cf9695143959e61272672fc5f8c19dc2b3ff7aface700ea707d3f8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.From"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "6250daf1777f754f179f1196926a2bb9bed75812f069675b1c4f30ef58af27d7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.Generation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "8fb29da3756beeaa774bac8e885ab56b1cb3c807cdbceb5acd47b94abe2c8cbd"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.Kind"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "695dc3563f27440111897980524df4f045866ef115a62549487c0eb0da80e975"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.Sequence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bcf4630ccf928088f64392980e79652b5c810e458d7d1e19989222cba79d1ede"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.Target"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "abcd6d53cde35502a8d5b0c120a6be4ce0caa0fbc92e988b43ee7dc7e56f3e87"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.To"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "0704a578a93fbc13f5f714f4b63cf2f3877501bfef02658f51f391aab661a034"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.Visible"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2a364672deb9bf5c5e571521f396d426d44eead7c47ceb1919f910c31f10c982"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacityControl.World"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "72bda19327551b552024d222b30ddc95792ae63458b457930bb19dee3e628c45"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacitySample.AppliedAt"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "232842596b2be4e197b7cfa3322f0027c20a414cb01f22b5d9113b0fd4d64470"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacitySample.EventOrdinal"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "8b4b2b55e0d114e4a96cc7a307bf3d69cd1e4c63bbf39c74e7666079be78907d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacitySample.EventPhase"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "e47152f2f893a3c404702feefed3a7cc7699e1c68e8de53561c21469426e2a5a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacitySample.Generation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "5712e279eac402f59ff9a070f159c0767625944cf18e12305100a4a648cced02"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacitySample.Opacity"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "a4123294970db3107ccc2f9a24084188ad41feb901e59abec615c982569c1384"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacitySample.Pulse"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "528db525c54325d725e280928ba46c7dbfbaa12123e040d0acd6779c964c3dd8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacitySample.Target"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "6c3fc359b52d4e69b7edd2445ed33c6f09c05099ac469e3597ffdb91a2a3c422"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopOpacitySample.World"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bb371e6ce47591cf6eb037c05ffef26100acf088fc44586c43124b527841539d"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPoseHistory.Schedule"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "06f0d640f45fd96b19ed0fa3759c2cc28b6bf1fbd8233c282fc1d880f9aa67c4"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPoseHistory.SimulationFrequency"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "6a044083b9febac8e6864fbf0c8e4d4966d0c4530200d0c6ba8c85f95cc4e499"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationSample.Captures"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "4ff41674401977ed4e178bab6a5eca8a505b9ee2fcf6a5d01eff5ae769888bee"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopPresentationSample.FeedbackCapture"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3055ddf7e02b54a024adf83a8c652c19caacc08d5d8a1a64f9592822969c44fc"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Angular"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "722b222825bf2ddfc73e1019e61269200c07d059a99f331f70d313c8a5780da5"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Captures"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "41645ffed26b02ec21711e15b0369453f2f34bda00731cc6dc9fe2d526aff328"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Motion"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "39277752648f242a9c96aef50e95cf70b15f169d6a2174eeb6d18b1ab9fb09df"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopRead.Rotation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "77782b9103217937d3c91e978dcec499fd92fa99ea9b583177c32fa6a72a0d33"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopReceiver.Capture"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "9cf856afe92b960ac32947531b4d12fa433279644b10eb299fc2a7d9d0be81ef"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopReceiver.Cell"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "215d54e1daa8d43946dc14be875e805751d4a34f9e08b5bf9a6e70f823320136"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopReceiver.Id"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f387475125c239eb2a84813230fd065bab6e56545968aafa1ff33b92d6bc4175"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopReceiver.Local"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1006507212b022ea190f6e045aa85bb789db574b23aedc4bcd83e528c2a9548e"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopReceiver.Rotation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "d5b8eb0d5b9afe76b9c3ae3c04f9aa6693c4189d7f31ace59fe63191fca8a278"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Cadence"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3bb07f2543ad4281ac91d9c440883b33662382797c8925cad3f78246559390b0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.MasterGeneration"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "89ef3fcb999cdcc450dea97f61d0fd6f77f37dab065188ba2f2c39ed71af7fc7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.Projection"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "1fe2d876edf8cf7d6ca34af787755a652e07830ab3d76de675588b4ca0dc0bd2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopResponse.SourcePulse"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "2ebaa6093bd8d8cc76ac8faba8f429509be80127e01fbadf7dfd66eff38bd04a"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.FirstAnimation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "93d6e73ee8944f347808ee0886dabbc27783dc5bfbca4f71e7e42fe8bf625b52"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.FirstPresentation"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "8e1f4a5d6ab7faa3ef258087aec37c7d72f69345834fb350215bdf68a2901a16"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.InstalledAt"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "869e77498ed311e8dac9baf33ad4dff427428da46c0a59fbf912d7520da4b1e8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.MasterGeneration"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3024c43c7b4c4a2b1a6a1ce572dcda903732a35baafa392ec7a75b344cb3e447"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.MasterNativeOrigin"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "298e2a2aebc6c1a453db0f490dc346197f227151327071d08c61479487c0502c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.PriorAnimationApplied"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3508022d6d12cf5b97eeef6417775ddc08956b594d43d4f6ef30313ef5284f49"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.PriorPresentationApplied"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "7f33c28982cfbd1be5eb012350394c7b2da6f3a9c962ae38ca42501b24ecf229"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.Revision"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "735cfc31efc0ec8ba18c6f6a35a283ab8a68a6d2b819d9ffa8b9da2482518aeb"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.Settings"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f778ed16c57983554c07d20c3556ed6917b1665083b526a0466283609897a1d0"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSchedule.World"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bf2e4840cc39b2b88820c944b02f496715101155b5982e2fcba6fa682b46e197"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopSimulation.Profile"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "19caf9b2db6bed9b7c011dd8417b9e5241668de4f1e24dece96eb64afdae6446"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopWorldProjection.AnchorMaster"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "f6b2f60ca2b8b9cafd17afa60c1424c56438f77bbf6f8bacd28d2f006f8835e2"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopWorldProjection.AnchorTick"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "672f735ca8b3f73b0f65786ea39d5e070f52f73f2cff7d6020b790563004c43c"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopWorldProjection.Epoch"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "bd8c1f2fa906a9e39afbdabeffc76ea5ab9e8580bc5cd46850f32b9ad858a354"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopWorldProjection.Playback"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "580e48ac36d7515f0b233e64510ac68c0782ef0f214157a0775ef1e0441a2a7b"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Gpu.WorkshopWorldProjection.WorldGeneration"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "c8474a213f949eca8ccf52cefc48cbc54cb5987b79c4b32df3b2b2da20dd88b7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.PartDefinition.Basketball"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "09c8f2c27d17b64587c649a4e305836afb44a52c10726710392e338bcf521714"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.PartDefinition.WorkshopKind"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 3,
+      "MemberSha256": "19a0055a116226d9d54ac8b3c20b4ee8616a5810645d4b31214420a363a606a7"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.AnimationDurationSeconds.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "060b5b0bcac6e423289c3e64af3acb872a72c4ce6760bdb1d062b2b4268dcbc8"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Presentation.AnimationTargetId.Value"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "732bf0b39ec65c30dcde9ccf7026ea4293d6612f140722028e10d9dbaca55fab"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Workbench.RenderBox.At"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "aaf38a7b71f2a7ec7d6beef876f2cfee28840ce6397c77792b11832392293135"
+    },
+    {
+      "Member": {
+        "Value": "P:CuriousContraptions.Workbench.RenderBox.Half"
+      },
+      "Owner": 7,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 2,
+      "MemberSha256": "87a23a69f9969d6ad957454c6b9765e35a03a7cae6e0c552cd8aa5fbe8adc2be"
+    },
+    {
+      "Member": {
+        "Value": "T:CuriousContraptions.Gpu.WorkshopCommandRouter::execute"
+      },
+      "Owner": 4,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 7,
+      "MemberSha256": "bf7c7d716a1e269da5a0c09878eb595fd8581e37e82f13ef269a5eb18131f678"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.PhysicsMotionRead._tick"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "388297f0a36a8488cfc170f7aff136005765becdda84c0fdeb2a6dfc90be5d94"
+    },
+    {
+      "Member": {
+        "Value": "F:CuriousContraptions.Gpu.PhysicsMotionRead._bodyId"
+      },
+      "Owner": 3,
+      "Migration": {
+        "Value": "P0-025"
+      },
+      "Rule": 4,
+      "MemberSha256": "3b708b1953b34d7cacc2add5f7320e28de398e22f18a628bbf5c931e681561a5"
+    }
+  ]
+}

@@ -11,9 +11,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
-    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs" Link="Gpu/%(Filename)%(Extension)" />
+    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs;../engine/gpu/WorkshopPipe.cs;../engine/gpu/AnnularProfile.cs" Link="Gpu/%(Filename)%(Extension)" />
     <WasmExtraFilesToDeploy Include="wwwroot/**" />
-    <WasmExtraFilesToDeploy Include="../engine/gpu/physics.wgsl" Link="physics.wgsl" />
   </ItemGroup>
   <!-- Return this project's actual normal build bundle, never an assumed sibling output directory. -->
   <Target Name="GetWorkshopWorkerBundle" DependsOnTargets="Build" Returns="@(_WorkshopWorkerBundleFiles)">

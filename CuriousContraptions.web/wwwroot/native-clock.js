@@ -1,4 +1,4 @@
-// External native boundary for the independently reviewed Chromium154.0.8037.93 Mac profile.
+// External native boundary for the independently reviewed Chromium154.0.8037.98 Mac profile.
 // Fixed rounded context origin is part of the unknown offset. Conservative error84.1255us;
 // declaration stays100us. Neither the UA-CH identity nor a small increment alone qualifies.
 export const nativeProfile = 2;
@@ -42,7 +42,7 @@ export async function admitNativeClock() {
         if (identity.platform !== 'macOS' || identity.bitness !== '64' ||
             (identity.architecture !== 'arm' && identity.architecture !== 'x86') ||
             !identity.fullVersionList?.some(value =>
-                (value.brand === 'Google Chrome' || value.brand === 'Chromium') && value.version === '154.0.8037.93'))
+                (value.brand === 'Google Chrome' || value.brand === 'Chromium') && value.version === '154.0.8037.98'))
             reject('this browser/native source profile is not yet proven.');
         qualify(read());
         phase = Phase.ready;

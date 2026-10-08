@@ -88,7 +88,7 @@
       "Path": {
         "Value": "engine/Workbench.cs"
       },
-      "Sha256": "c4f36c69e54dcc96bf8c629a819a321d0f095f34c654ccf981513b2f99a566eb"
+      "Sha256": "ebfc4d8625e86f07e99ddfad9bc8ca5694b28308f16bea97ee0089971e2dad4f"
     },
     {
       "Path": {
@@ -521,7 +521,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "b4364e0e13e21449d56def32296baff04cb152efc4e5a5d15efe3258a797ea8a"
+      "MemberSha256": "2ecc0f9060f4850b776178a81ef99ef0998dc392e3f215fc3fd876697180b101"
     },
     {
       "Member": {
@@ -532,7 +532,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "ef829ebfb0f819bc44880981549ea43fe6a5a12db597e4b5bfade60fc99fa322"
+      "MemberSha256": "6a768f994ceefb16de8d0e20fdda725214b0c3c648c0a5fcdcba4a31279fb789"
     },
     {
       "Member": {
@@ -543,7 +543,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "baddab6c173c4a8490d2693592c0594a4db8a69ceb785002e7463731cc2e07ab"
+      "MemberSha256": "75e676e3b8740997a7245107f17c450a5fe8dff15a724ba3b409aed647171452"
     },
     {
       "Member": {
@@ -554,18 +554,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "c2ff8f83d0f19213349a829a9bd2d0d47038f84f6b0850c064a6292e5395346a"
-    },
-    {
-      "Member": {
-        "Value": "F:CuriousContraptions.Workshop._hintAnimation"
-      },
-      "Owner": 7,
-      "Migration": {
-        "Value": "P0-026"
-      },
-      "Rule": 2,
-      "MemberSha256": "7d685a97d4224bde5ddeba319881aa74854c716dd8b21bf3dbac42d56b2ba649"
+      "MemberSha256": "45a2d045f72e391a3b58ea375e3f138e696eb8c347c8766bee231aac682f977f"
     },
     {
       "Member": {
@@ -576,7 +565,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "cf4958d451cc72246a49308d9340408884b8df580bf4829f3da825e7da074462"
+      "MemberSha256": "65c44fd1e37d31bc5edadf9734e2c9681bd965b28a13c808c9aa49156e014f4e"
     },
     {
       "Member": {
@@ -587,7 +576,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "883cc1a977507959062c9e30f5ccc637a954084c60c6b0c6d29a92cd8149f6d6"
+      "MemberSha256": "a2aad9d21d4d714fb39659b60e09fbc4ae44096186686a941229fd4447e4f2bd"
     },
     {
       "Member": {
@@ -609,7 +598,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "3aa644729e5cb68e44bc21806d02a0e76e8583589d8be7c39213ff3c6291f1ed"
+      "MemberSha256": "112239477338618ddc84d12efda421fa0c1ca3261d936a18f520cc27adb074be"
     },
     {
       "Member": {
@@ -620,7 +609,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "f8f76d3b0f384ed6209fd739988cc10418cc2f6af5dad6310158b488e4384d83"
+      "MemberSha256": "b4c2455609a63124fcba4b7492a46a4391fdd468c627e0ad5323dcdc37bfd092"
     },
     {
       "Member": {
@@ -653,7 +642,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "3e50d33fbaa58656ae959aa6cf360a1ae8ea738371028c9c75257504cbfc44b5"
+      "MemberSha256": "fb8866c2a71e608297a5e376aabf2636196b78c4a79ac9c9cc8f3a2634c2a8f7"
     },
     {
       "Member": {
@@ -664,7 +653,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "b10a0aa0a545fd3180eee5a8d6d71e02b78d835f6c5bf63d516e87d939093596"
+      "MemberSha256": "97709e2f4f11db61940b5164251147fd9ce19ab355651a218b3a1072e478f879"
     },
     {
       "Member": {
@@ -675,7 +664,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "356315940423c8ff096519e42d9ce07b73490e79a9a7e0ce53e9257a9a4a1b43"
+      "MemberSha256": "da258e9478873088ca2584c337eaca60d7c94c237955a612e22a746958471949"
     },
     {
       "Member": {
@@ -686,7 +675,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "9e95e1cf93fa7da4af2b3d3e447fba2bec188155e213c377b396187d308d570f"
+      "MemberSha256": "2cb70942996472a18be1f93746900d35a705804757128e69028f7791b9e2595a"
     },
     {
       "Member": {
@@ -697,7 +686,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "90e209456be9f6c3e13ea48ffea9b0c44c2f954cf3cfc3d425d642c4c84b88f2"
+      "MemberSha256": "839dada3e4168137dd889a4bad0c1d178dbe62c70fa02f7bd069f7dc35c00a77"
     },
     {
       "Member": {
@@ -708,7 +697,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "93c740d6b86569bf1bceb4e11d8fb7df3368ad4e5dc08c546577de7ee1406309"
+      "MemberSha256": "0c7a0a427989b72ef565736781925ce94b59fe95c48eadc19368ed8d107aca2a"
     },
     {
       "Member": {
@@ -741,7 +730,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "487d3548b3fa9445fc8df0e4dac640480f26043812d1ad187ac44e316d981963"
+      "MemberSha256": "09c26c3fdabd1cc0d5c48ea7f605303a8f874c20574c8d40103070a88bf7d7ec"
     },
     {
       "Member": {
@@ -752,7 +741,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "799d88e4e02f62829d1f43909ae2f067d2b1b4e2072e6a6418bcb1fd129c3485"
+      "MemberSha256": "de293f678bc2f6d861970de0ee6a451dba2be4302275c59bf575dfaee0143dd3"
     },
     {
       "Member": {
@@ -763,7 +752,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "be1051f29fffdda05f0481ab0ccd6093c3143c74f0350b991a90ab18b7805dd2"
+      "MemberSha256": "d40888189d618ac7f9bacdba8d07095ebca96611e4c27d471999c006c63b2d66"
     },
     {
       "Member": {
@@ -774,7 +763,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "5b13c1ab7194419253ac447962825b2d38bf591d976f1e96364769bd8475464f"
+      "MemberSha256": "9903afecffba886e6b78601d6d3514b5b27e018fcbcad6a1dc7338e82757b2b7"
     },
     {
       "Member": {
@@ -785,7 +774,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "e4084dbcdfa204ac93e823ca2caf517428e01f94b7d5a9d1704286139c4c72e7"
+      "MemberSha256": "2b036aadb5fdf7f06f7f3f27e697cf5c1a4ca1b96d2bfd4c6780812e3cc842d6"
     },
     {
       "Member": {
@@ -796,7 +785,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "6946616a8f9757b69de23cccaa7c5a3de92d5b6412cfdb114c72e27305087b22"
+      "MemberSha256": "8735720be12ae5f66c980ba0140125044c19138327ebf1578c61dba02c1a61f0"
     },
     {
       "Member": {
@@ -807,7 +796,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "86781f555d8a96fc9c986142590a05698fc891dccfdcb7474bb373074dfbbc2d"
+      "MemberSha256": "6ccafb61d2d1933233f69c68db67a9c630ed9f5b456106be765ce3fbce3c0bc5"
     },
     {
       "Member": {
@@ -818,7 +807,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "a6020d11a7f4ffc6fe09bd1532348085c9fd6fc4ad9afb1650005a12d4e862c1"
+      "MemberSha256": "d66cc6b076df1a5304e286fc96b60dbc2aa51bc76b01f4a8f61c9946dd5b7264"
     },
     {
       "Member": {
@@ -829,7 +818,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "f9bcd97dc91d6669473d33f21dd929bb639937211d5280153df3e56eb13664f8"
+      "MemberSha256": "830b319ba38545900b05293e326a0d4c0e5f52df731246d3a4162a1237cbdbf0"
     },
     {
       "Member": {
@@ -840,7 +829,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "9754748b997a5fa6eb19b27f7546f7b4ee80ede56e7d082bec8acbbf1acaeb62"
+      "MemberSha256": "917f05adebfd525fa9a920c96d1286f24747386895e326a1c408f3c4c73ade40"
     },
     {
       "Member": {
@@ -851,7 +840,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "301a8150573b92c8613177209355f52e82624704c105d1a46d57577cdf194776"
+      "MemberSha256": "1c502acae77b6fca576ccd73ee703bec655cc3932357dfe14685e90daf6676bb"
     },
     {
       "Member": {
@@ -862,7 +851,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "0982be90118cefc4656d9717fc4273660b3b65e308d70d9095b53599582f098c"
+      "MemberSha256": "6cf1b63ced5f0e586a2e415631331c463642f1b48b91665c448fad13568f7ea6"
     },
     {
       "Member": {
@@ -873,7 +862,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "f3c9b9f5ad443598f62ce0c507600839def78e327ef860055753127b3a802813"
+      "MemberSha256": "4687c034e43da61a408da9370a3ad4c85387c2e6667df112f004e7d35391a964"
     },
     {
       "Member": {
@@ -884,7 +873,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "cff5dee6aebba24d5469cc80458e1f11ab060bbe1dd432abc960c53cae5610f5"
+      "MemberSha256": "faba48cad622747d02c73d806df428ad3c7222fe01ce74cd3628d583b47a550c"
     },
     {
       "Member": {
@@ -895,7 +884,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "ae3a819d549b41693eddf2f3d449e94f2e2dfa22afcdedf2f4b953677ba865d6"
+      "MemberSha256": "381ca54019982becea85fa8c9ba96823a24b1866b4169d9da82cdee1b5a0e7e0"
     },
     {
       "Member": {
@@ -906,7 +895,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "4bf8cf71582c15ee1e6e5e04ec8fc90e0b6ed314147f98bd4ceafa4a1fa9d576"
+      "MemberSha256": "0952e92ef4b8de2eb7e8b5e6871896598c6e66e7ee059dd2575d616a36e57651"
     },
     {
       "Member": {
@@ -917,7 +906,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "110fa228eca4ff9c6551270859dd54cb2efc5577a24f2befeec5bcb580a88646"
+      "MemberSha256": "98075c72c69e7a6f920dfb830e4692e849b935a2c239db44422ceacdab92c936"
     },
     {
       "Member": {
@@ -928,7 +917,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "217aa781455d4ac858bba68a5615bd73ec8900dcdf824abf482c5aa772174ceb"
+      "MemberSha256": "f1b95227df70c124e076b59c8fb0082e031bf7dc0df3dd623903e440aeede60c"
     },
     {
       "Member": {
@@ -939,7 +928,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "8a808d75ac6d1e6f8ad7eb552561f7acfaa05f6d550c5fe3f09660a326e7d380"
+      "MemberSha256": "e95504cc8181a7c45f2ff94ffa918cdd466f052555b44190ceae34149d733317"
     },
     {
       "Member": {
@@ -961,7 +950,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "7996bdc174f5c587b5734e6ca7d9e18e7f9aff08cc2384ac062935f626235695"
+      "MemberSha256": "dde060a54cd0857a5a8fc485c5ae4be7dd9136f692e1f192523632c2c9be1b33"
     },
     {
       "Member": {
@@ -972,7 +961,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "cf1097cc23328d512364374eb93af14a31f98f596a80a120f97300a66493dbf8"
+      "MemberSha256": "91b989947f92498faf9ead02595dc872ce58c937687e59aba9a92222f46a3241"
     },
     {
       "Member": {
@@ -983,7 +972,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "8b86f62595db47b1c9d90059d0080a98422c5aa09de352fbf05720b6ce6a3e96"
+      "MemberSha256": "990b443bd768bf97a3a12997f397ca7b3786919735a54ba91e7c9f2117fef20b"
     },
     {
       "Member": {
@@ -994,7 +983,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "3d3e2c2f00397255c87ad931d7e5b0ee4cc8397c45b20321e24b03c54a693c1c"
+      "MemberSha256": "8abe0471cebdfe55b9963a65b8269e978541cfb2a841451852c8b79fa88d16dc"
     },
     {
       "Member": {
@@ -1005,7 +994,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "33921d1cd7749e2471b4a196b9f27f52a88a84c18cf30a8d6f9c92e9fcd6e941"
+      "MemberSha256": "a6b909b0742d90ceb67659adccdfceaf76a2f3610f7ed3f0d20372057f594613"
     },
     {
       "Member": {
@@ -1027,7 +1016,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "a61a9014a6d3c81df97e0f6cc553c8cec053d5ffca0760a977c3b93313331f98"
+      "MemberSha256": "3b30fbad6a5b073ba7e91e54212fc19ca140bea92df9d613f4c340c32a388693"
     },
     {
       "Member": {
@@ -1038,7 +1027,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "fd457838fd06622e155f351f4af9c5fc67dd9fee58875a0466b9b6b5677763cd"
+      "MemberSha256": "485b18d86e31c950baaa170a34b677a523ea531889b3239c44ba791a486621ef"
     },
     {
       "Member": {
@@ -1049,7 +1038,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "3404f52be5cfbc24692f94f4d831d5355e3240f21f037d820780ebb537490723"
+      "MemberSha256": "1336f4970b8c254ec21bfc9056709d90d9e7d49dcafa098f2a6e376103bcd48d"
     },
     {
       "Member": {
@@ -1060,7 +1049,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "cacf46f52673d2743b937855eefdff41143ad6fbced6e2b668b825d659fac886"
+      "MemberSha256": "c3668c06f17705eae3691f0d162488c19e009b946b98aafb2e71dbbd52091424"
     },
     {
       "Member": {
@@ -1071,7 +1060,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "2564a3bbb176579b9cc56c9dd8313c3bd474130e3d8248f7733cfb0b1fd1c663"
+      "MemberSha256": "f24fbec9fcb985a24d23fcd2c4f7f8fefbc4c731dc40fee7d973ca004c9f9219"
     },
     {
       "Member": {
@@ -1082,7 +1071,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "1f590e40d8c533ccdf6ed5a77bc6b63269173cb362049f9f13aefb03d9902184"
+      "MemberSha256": "d00d12e2aa90939ed7255fa3c2af1f9bfd99b6fdc3b629f9e4483eba32acc405"
     },
     {
       "Member": {
@@ -1093,7 +1082,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "04ce8d0920ddd3d3fa7da25095e811061481ac1c10d0df6cd34612cfe55f1454"
+      "MemberSha256": "d08a8b080d8a6e2d5584d6ed01d6f8c32de8b15ee3437ee59e583ba0e81f1c5b"
     },
     {
       "Member": {
@@ -1137,7 +1126,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "bfff562881e0cf66ecaddf4ac5265e09ae1293975a003cc72d36a098ae5561cc"
+      "MemberSha256": "4febfbb31cdaa28f846c286f4420d506550c8cf65fc676ea28944550819b7465"
     },
     {
       "Member": {
@@ -1148,7 +1137,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "276b1a2d37c4cc4be9719aab1515d15d433d0e1035184d4f0d484aabfa703c88"
+      "MemberSha256": "65ccdcf3d2e66f1ad69b1fe5a43b22052eed936aef768bafac5b2c457b5270a0"
     },
     {
       "Member": {
@@ -1159,7 +1148,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "fbb9377c328eb330dafa32dd8428d0d25561d6281fb761c860539d3689f58cd3"
+      "MemberSha256": "3dad1ff885d6d441bd383939bbdd13c70fb6aaf09d0392bb7952db79b3662577"
     },
     {
       "Member": {
@@ -1170,7 +1159,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "fc9834f91f2d31d4f3265a45b866ff4e4b9467af319e23ee1ca4d0866d35f144"
+      "MemberSha256": "5319926cddea850105dc726e9c488730d6b1fe79433621ee3964397a891b7225"
     },
     {
       "Member": {
@@ -1181,18 +1170,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "8857a546b88276b0cfe31f996b13e5907d7a42895a4eb5f439d01b796906bfd4"
-    },
-    {
-      "Member": {
-        "Value": "F:CuriousContraptions.Workshop.HintReveal"
-      },
-      "Owner": 7,
-      "Migration": {
-        "Value": "P0-026"
-      },
-      "Rule": 2,
-      "MemberSha256": "12a9243b74c59f1f3f987a4a62ffdd3f6408768d06d064552bd664a646beee68"
+      "MemberSha256": "2b14b3337e74a32d89a325d34b1f9b96dd5182efbe88ea99abb821304df48b46"
     },
     {
       "Member": {
@@ -1203,7 +1181,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "c0e39f8f8d910f9a3663d4abd9b6c4fdbdb395330e22eb1470d42d2333a6a957"
+      "MemberSha256": "ecfca7f32b40ecca9888c7c2926761af46bea15397f7e0003a2f1610d6ea3c79"
     },
     {
       "Member": {
@@ -1214,7 +1192,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "9182974b4782aea514453f44769b348fbc8da6977e9f70794591d7fbc9c8ee90"
+      "MemberSha256": "114e40ccdf27f6a2858af1cee40e98c0910cbb1fdacb29dbc4342eccfe5c2de1"
     },
     {
       "Member": {
@@ -1225,7 +1203,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "148dd6210fafe14d56b0478b92eeaa3f839f5856b4ec8bd1254ac6cf53e96108"
+      "MemberSha256": "b0c54a938959ad30a3ce1227a422ac694866ed92668b1b4503a76201713edd98"
     },
     {
       "Member": {
@@ -1236,7 +1214,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "c69fe4c5ffb4695049d681c594e41bf3a5d1f659cb2cd303ffadf9206ef55db4"
+      "MemberSha256": "ba727a861aa01a77a8a10cd0d151adb07349e6f31f095c10564ef9b74e0df456"
     },
     {
       "Member": {

@@ -14,6 +14,14 @@ public static class PartParameterName
         return Names<TParameter>.Values.TryGetValue(parameter, out var name)
             ? name : throw new ArgumentOutOfRangeException(nameof(parameter));
     }
+    public static void RequireExact<TParameter>(IEnumerable<string> keys) where TParameter:struct,Enum
+    {
+        ArgumentNullException.ThrowIfNull(keys);
+        var supplied=keys.ToArray();
+        var expected=Names<TParameter>.Values.Values.ToHashSet(StringComparer.Ordinal);
+        if(supplied.Length!=expected.Count||!expected.SetEquals(supplied))
+            throw new ArgumentException("Parameter fields must exactly match the supported schema.",nameof(keys));
+    }
     // Resource names are computed once, not allocated on every physics substep.
     private static class Names<TParameter> where TParameter : struct, Enum
     {

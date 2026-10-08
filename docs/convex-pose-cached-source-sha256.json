@@ -1,0 +1,21 @@
+{
+  "head": "0c3cf53428d2b0eb7b4b9b5e8764bab512be3d7b",
+  "dirty": true,
+  "files": {
+    "engine/physics/ConvexPose.cs": "bfde04064bc6fd3533a7cd8aaef8ca4f5c4c4b7a0572638c0454b67979c352af",
+    "engine/physics/ConvexSweep.cs": "4fe173c448c0cb5b5d52ece2045b3a2f886026eca34a2b9404b9ad09abb5293f",
+    "engine/physics/ContactGap.cs": "1ae617e14397286f73b4dc934f5593da77bce1c3bf482b69c4ad8e8ad268aef3",
+    "engine/physics/PersistentContactPair.cs": "9add5e819cae8be974a9966fe740670348a093f341879eaa8a8086281db8e6b2",
+    "engine/physics/PositionConstraints.cs": "dffd656df5793a472386a66e1156bd3107414c155b4cf217eeba29cffe255317",
+    "engine/physics/PhysicsWorld.cs": "df93627c8113ed12715593a4300fd539b14ecd33937d19af511a6807c0a643c1",
+    "engine/physics/AirJetGeometry.cs": "a37967096999a3b0589aeea74d768fdc018d1d6253a7062c5bc8fe539c8df286",
+    "CuriousContraptions.tests/ConvexPoseTests.cs": "2e64157dd088aa8fc6c7f346a2b39f4daec29a124f682668996def4b7f6ea934",
+    "CuriousContraptions.tests/CannonWorkloadTests.cs": "a2ac86c8eefdf4528054eff9bc91b362714861f96c1d9030b84dacb25bcc0ba9",
+    "CuriousContraptions.tests/ContactPatchTests.cs": "74389fbf3d1ac93918d52b6bef4b2747264acf792a37be1fe1610a4c3db31d76",
+    "CuriousContraptions.tests/RoundedSeparationTests.cs": "396a17b307341c2637edf707d7b273c56d4a929bf6ad6018e823d43cea8279a9",
+    "CuriousContraptions.tests/CoreSupportTests.cs": "897a7f2ef571ce8de14eae2959327e15686244583b801d5137c3fc4995292bf4",
+    "CuriousContraptions.tests/ConvexPenetrationTests.cs": "e9255b8ebca43c6a448db220804f48e4496166d28fa4bd87db9ce94f28bc118f",
+    "CuriousContraptions.tests/ContactGapTests.cs": "1a2c36c95e49f7e466cce01b6a3ca00fd098327a27f11333aaa86b3b976e3589"
+  }
+}
+

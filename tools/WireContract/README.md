@@ -1,5 +1,7 @@
 # P0-005 design fixtures
 
+Read the [current engine contract](../../docs/engine-contracts.md) before using these frozen fixtures. Historical F64 layouts and byte sizes are not the current production ABI; P0-016 owns canonical half-bit codecs and actual C#/WGSL/JS boundaries. Original fixtures remain evidence of their design revision, not GPU qualification.
+
 Standalone .NET10 executable; the game excludes tools/**/*.cs and never references this project.
 It validates the frozen design's envelope schema subset, enum routes, exact integer byte goldens,
 length arithmetic, stable-ID versus local-slot maps and timed application ordering.

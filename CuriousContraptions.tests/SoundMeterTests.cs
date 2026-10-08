@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class SoundMeterTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class SoundMeterTests(NativeSceneFixture godot)
 {
     private MachineWorld World()
     {
@@ -22,7 +22,7 @@ public class SoundMeterTests(HeadlessFixture godot)
         var world=World();
         try
         {
-            var speaker=(SpeakerPart)world.AddPart(new(){Id=reverse?"z-speaker":"a-speaker",Kind="speaker",Position=[-3,6,0],Rotation=[0,backwards?180:0,0]});
+            var speaker=(SpeakerPart)world.AddPart(new(){Id=reverse?"z-speaker":"a-speaker",Kind="speaker",Position=[-3,6,0],Orientation = PartOrientation.FromEulerDegrees(0,backwards?180:0,0)});
             var meter=(SoundMeterPart)world.AddPart(new(){Id=reverse?"a-meter":"z-meter",Kind="sound_meter",Position=[1,6,0]});
             var battery=world.AddPart(new(){Id="battery",Kind="battery",Position=[-4,2,3]});
             var load=world.AddPart(new(){Id="load",Kind="powered_gate",Position=[4,2,-3]});
@@ -65,7 +65,7 @@ public class SoundMeterTests(HeadlessFixture godot)
             meter.ReceiveAcousticLevel(.24f);Assert.False(meter.AboveThreshold);
             Assert.Throws<ArgumentException>(()=>meter.ReceiveAcousticLevel(float.NaN));
             Assert.Throws<ArgumentException>(()=>meter.ReceiveAcousticLevel(1.1f));
-            Assert.Throws<ArgumentException>(()=>world.AddPart(new(){Id="invalid",Kind="sound_meter",Properties=new(){[ReceiverParameters.Threshold]=0}}));
+            Assert.Throws<ArgumentException>(()=>world.AddPart(new(){Id="invalid",Kind="sound_meter",Properties=new(){[PartParameterName.Of(ReceiverParameter.Threshold)]=0}}));
         }
         finally{world.Free();}
     }
@@ -74,22 +74,23 @@ public class SoundMeterTests(HeadlessFixture godot)
         public override IReadOnlyList<AcousticPulse> AcousticPulses =>
             [new(Vector3.Up,Vector3.Right,ToneBand.Mid,0,AcousticPattern.Cone,1)];
     }
-    [Fact]
-    public void SimultaneousSourcesUseStrongestNotAdditiveLevelAndHiddenMetersClear()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SimultaneousSourcesUseStrongestNotAdditiveLevelAndHiddenMetersClear(bool reverse)
     {
         var world=World();
         var a=new Source();var b=new Source();
         try
         {
             var meter=(SoundMeterPart)world.AddPart(new(){Id="meter",Kind="sound_meter"});
-            world.Parts.AddRange([a,b]);
+            FixtureParts.Attach(world,a,reverse?FixturePartId.Second:FixturePartId.First);
+            FixtureParts.Attach(world,b,reverse?FixturePartId.First:FixturePartId.Second);
             AcousticNetwork.Solve(world);
-            Assert.Equal(1,meter.Level);
-            world.Parts.Reverse();AcousticNetwork.Solve(world);
             Assert.Equal(1,meter.Level);
             meter.Visible=false;AcousticNetwork.Solve(world);
             Assert.Equal(0,meter.Level);
         }
-        finally{world.Parts.Remove(a);world.Parts.Remove(b);a.Free();b.Free();world.Free();}
+        finally{world.Free();}
     }
 }

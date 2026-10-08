@@ -3,12 +3,21 @@ using System.Collections.Generic;
 
 namespace CuriousContraptions;
 
+public enum BatteryParameter { Enabled }
+
 public partial class BatteryPart : MachinePart
 {
+    protected override PartParameterValues BindParameters(System.Collections.Generic.IReadOnlyDictionary<string,float> fields) =>
+        PartParameterValues.Bind<BatteryParameter>(fields);
+    public static readonly BinaryInputSlot EnableInput=new();
+    public override IReadOnlyList<SceneBinaryInputDeclaration> BinaryInputs=>
+        [new(new(this,EnableInput),ReadParameter(BatteryParameter.Enabled)>.5f
+            ?Bridge.BinaryInputState.Enabled:Bridge.BinaryInputState.Disabled)];
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
         [new(SocketId.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(0, .62f, 0))];
-    public override bool SuppliesElectricity(SocketId outputPort) =>
-        outputPort == SocketId.Supply && Parameter("enabled", 1) > .5f;
+    public override IEnumerable<ElectricalSourceDeclaration> ElectricalSources=>
+        [new(SocketId.Supply,ElectricalSourceSignal.BinaryInput(new(this,EnableInput)))];
+    protected override void ValidateParameters(PartParameterValues parameters)=>RequireParameters<BatteryParameter>(parameters);
     protected override void Build()
     {
         PickRadius = .8f;

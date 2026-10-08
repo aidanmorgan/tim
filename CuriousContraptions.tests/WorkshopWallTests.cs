@@ -37,18 +37,19 @@ public sealed class WorkshopWallTests
     }
 
     [Fact]
-    public void GenericBoxRangeExtendsToFourWhileLargerExtentsAndUnchangedSphereRangeReject()
+    public void GenericShapeEnvelopeAcceptsSixteenAndRejectsTheNextHalfValue()
     {
         var scene = WorkshopPhysicsCompiler.Compile(Saved(WallDimensions.Maximum).Construction, new(1, 2));
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Shape == ColliderShapeKind.Box);
         box.Validate();
-        var above = BitConverter.UInt16BitsToHalf((ushort)(BitConverter.HalfToUInt16Bits((Half)4) + 1));
+        (box with { HalfExtents = new((Half)16, (Half)16, (Half)16) }).Validate();
+        var above = BitConverter.UInt16BitsToHalf((ushort)(BitConverter.HalfToUInt16Bits((Half)16) + 1));
         foreach (var extents in new[] { new MetreVector(above, (Half)1, (Half)1),
             new MetreVector((Half)1, above, (Half)1), new MetreVector((Half)1, (Half)1, above) })
             Assert.Throws<ArgumentException>(() => (box with { HalfExtents = extents }).Validate());
-        var sphere = box with { Shape = ColliderShapeKind.Sphere, HalfExtents = default, Radius = new((Half)2) };
+        var sphere = box with { Shape = ColliderShapeKind.Sphere, HalfExtents = default, Radius = new((Half)16) };
         sphere.Validate();
-        Assert.Throws<ArgumentException>(() => (sphere with { Radius = new((Half)3) }).Validate());
+        Assert.Throws<ArgumentException>(() => (sphere with { Radius = new(above) }).Validate());
     }
 
     [Fact]
@@ -129,9 +130,9 @@ public sealed class WorkshopWallTests
         Assert.Equal(8, scene.Bodies.Length);
         Assert.Equal(13, scene.Colliders.Length);
         Assert.Equal(8, scene.Materials.Length);
-        Assert.Equal(16, PhysicsSceneDeclaration.BodyCapacity);
-        Assert.Equal(32, PhysicsSceneDeclaration.ColliderCapacity);
-        Assert.Equal(16, PhysicsSceneDeclaration.MaterialCapacity);
+        Assert.Equal(33, PhysicsSceneDeclaration.BodyCapacity);
+        Assert.Equal(64, PhysicsSceneDeclaration.ColliderCapacity);
+        Assert.Equal(33, PhysicsSceneDeclaration.MaterialCapacity);
     }
 }
 

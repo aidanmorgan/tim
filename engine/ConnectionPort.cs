@@ -18,11 +18,24 @@ public readonly record struct ConnectionPort(
 
 public readonly record struct ElectricalGate(LogicGateKind Operation, SocketId First, SocketId Second, SocketId Supply, SocketId Output);
 
-public readonly record struct ElectricalRoute(SocketId Input, SocketId Output, bool Closed);
+public readonly record struct ElectricalRoute(SocketId Input, SocketId Output, ElectricalContactSignal Signal);
 
-/// <summary>Signed shaft ratio; negative ratios reverse the local shaft direction.</summary>
-public readonly record struct MechanicalRoute(SocketId Input, SocketId Output, float Ratio, bool Enabled);
-public readonly record struct MechanicalSource(SocketId Output, float RadiansPerSecond, float TorqueLimit);
+/// <summary>Socket radians map to an owned axial coordinate. Ratios/signs are
+/// declared once; the runtime never propagates speeds or work allowances.</summary>
+public sealed record MechanicalBinding
+{
+    public SocketId Port { get; }
+    public JointSlot Joint { get; }
+    public double CoordinatePerRadian { get; }
+    public MechanicalBinding(SocketId port,JointSlot joint,double coordinatePerRadian)
+    {
+        if(!Enum.IsDefined(port)) throw new ArgumentOutOfRangeException(nameof(port));
+        ArgumentNullException.ThrowIfNull(joint);
+        if(!double.IsFinite(coordinatePerRadian)||coordinatePerRadian==0)
+            throw new ArgumentOutOfRangeException(nameof(coordinatePerRadian));
+        Port=port;Joint=joint;CoordinatePerRadian=coordinatePerRadian;
+    }
+}
 
 public static class ConnectionRules
 {
@@ -30,6 +43,7 @@ public static class ConnectionRules
         IEnumerable<ConnectionPort> targets, out ConnectionPort source, out ConnectionPort target)
     {
         source = target = default;
+        if(!Enum.IsDefined(link.Type) || link.Type==ConnectionDomain.Unknown) return false;
         if (link.Type == ConnectionDomain.Rope)
         {
             if (link.RopeLength is not { } length || !float.IsFinite(length) || length < .05f || length > 200)

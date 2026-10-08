@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using CuriousContraptions.Presentation;
 using System.Collections.Generic;
 
 namespace CuriousContraptions;
@@ -7,42 +8,63 @@ namespace CuriousContraptions;
 /// <summary>Physical impact to omnidirectional sound. No electrical supply or scripted trigger.</summary>
 public partial class BellPart : MachinePart
 {
+    private RuntimeCheckpoint? _runtimeCheckpoint;
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState =>
+        [_runtimeCheckpoint ??= new(this)];
+    private sealed class RuntimeCheckpoint(BellPart owner) : SimulationTransactionParticipant
+    {
+        private readonly List<AcousticPulse> _pulses = new();
+        private int _savedPulseCount;
+        private int _savedLastPulseTick;
+        protected override void CaptureCheckpoint()
+        {
+            _pulses.Clear(); _pulses.AddRange(owner._pulses);
+            _savedPulseCount=owner.PulseCount;
+            _savedLastPulseTick=owner.LastPulseTick;
+        }
+        protected override void RestoreCheckpoint()
+        {
+            owner._pulses.Clear(); owner._pulses.AddRange(_pulses);
+            owner.PulseCount=_savedPulseCount;
+            owner.LastPulseTick=_savedLastPulseTick;
+        }
+    }
     public const float CollisionRadius=.75f;
     public const float MinimumImpactSpeed=.8f;
     public const int MinimumIntervalTicks=24;
     [Export] public ToneBand Tone { get; set; }=ToneBand.Mid;
     public int PulseCount { get; private set; }
     public int LastPulseTick { get; private set; }=-MinimumIntervalTicks;
-    private readonly HashSet<string> _touching=[];
     private readonly List<AcousticPulse> _pulses=[];
     public override IReadOnlyList<AcousticPulse> AcousticPulses=>_pulses;
     private readonly List<MeshInstance3D> _rings=[];
+    public override SceneAcousticWavefronts? AcousticWavefronts=>new(_rings,AcousticPattern.Omnidirectional,CollisionRadius,0,1,.009f,.35f,SceneWavefrontOpacity.Strength,64);
     private Node3D _bell=null!;
     private AudioStreamPlayer3D _audio=null!;
-    private float _angle;
-    private float _angularVelocity;
+    private Presentation.SceneAcousticBinding? _playback;
+    public override Presentation.SceneAcousticBinding? AcousticPlayback => _playback;
+    private static readonly AnimationOscillationDefinition Wobble=new(7,48,5,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneAcousticMotion> AcousticMotions=>
+        [new(_bell,Wobble,SceneMotionProperty.Rotation,SceneMotionAxis.Z,AnimationDirection.Forward)];
 
-    public override void ValidateParameters()
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
         if(!Enum.IsDefined(Tone))throw new ArgumentOutOfRangeException(nameof(Tone));
     }
-    public override void BeforeStep(MachineWorld world,float delta)
+    public override void BeforeNetworks(MachineWorld world)
     {
-        // Check each physics substep, so recontact requires actual geometric separation.
-        _touching.RemoveWhere(id=>
-        {
-            var body=world.FindPart(id);
-            return body==null||!body.Visible||body.Position.DistanceTo(Position)>CollisionRadius+body.Radius+.04f;
-        });
         _pulses.RemoveAll(p=>world.Ticks>=p.ExpiresTick);
-        Active=world.Ticks-LastPulseTick<AcousticPulse.Duration/MachineWorld.Tick;
+        Active=_pulses.Count>0&&world.Ticks-LastPulseTick<AcousticPulse.Duration/MachineWorld.Tick;
     }
-    public override void OnContact(MachinePart body,float speed,MachineWorld world)
+    public override void ObserveContact(SceneContact contact,MachineWorld world)
     {
-        if(!body.Dynamic||!body.Visible||!float.IsFinite(speed)||speed<0)return;
-        if(!_touching.Add(body.Uid)||speed<MinimumImpactSpeed)return;
+        var speed=(float)contact.ApproachSpeed;
+        if(contact.OtherMass<=0||!float.IsFinite(speed)||speed<0)return;
+        // The shared engine reports actual impacts, not proximity/overlap guesses.
+        // Resting support is silent; pulse cooldown below bounds real repeated strikes.
+        if(speed<MinimumImpactSpeed)return;
         // Impact momentum sets loudness; hard hits saturate rather than extending range.
-        var strength=Mathf.Clamp(body.Mass*speed/6,.05f,1);
+        var strength=Mathf.Clamp((float)contact.OtherMass*speed/6,.05f,1);
         var previous=0f;
         if(world.Ticks==LastPulseTick)
         {
@@ -56,17 +78,15 @@ public partial class BellPart : MachinePart
             if(world.Ticks-LastPulseTick<MinimumIntervalTicks)return;
             PulseCount++;LastPulseTick=world.Ticks;
         }
-        _pulses.Add(new(Position,Transform.Basis*Vector3.Up,Tone,world.Ticks,AcousticPattern.Omnidirectional,strength));
+        var transform=WorldGeometry.CaptureSpatialState(world,new(this,RootBody)).Pose.ToScene();
+        _pulses.Add(new(transform.Origin,transform.Basis*Vector3.Up,Tone,world.Ticks,AcousticPattern.Omnidirectional,strength));
         Active=true;
-        _angularVelocity+=5*(strength-previous); // continuous pose across repeated strikes
-        _audio.VolumeDb=-15+20*Mathf.Log(strength)/Mathf.Log(10);
-        if(previous==0)_audio.Play();
         // Never add velocity: the ordinary collision solver alone supplies rebound.
     }
     protected override void Build()
     {
         PickRadius=.85f;
-        Spheres.Add(new(Vector3.Zero,CollisionRadius));
+        Spheres.Add(new(Vector3.Zero,CollisionRadius,MachinePart.RootBody));
         _bell=new Node3D {Name="BellBody"};Visual.AddChild(_bell);
         var shell=new CylinderMesh {TopRadius=.25f,BottomRadius=.59f,Height=.7f,RadialSegments=32};
         PartArt.Mesh(_bell,shell,new("#e8b764"),new(0,.025f,0));
@@ -89,26 +109,6 @@ public partial class BellPart : MachinePart
         }
         _audio=new AudioStreamPlayer3D {Stream=AcousticAudio.Create(Tone,AcousticVoice.Bell),VolumeDb=-15,MaxDistance=20,MaxPolyphony=2};
         AddChild(_audio);
-    }
-    public override void _Process(double delta)
-    {
-        // Exact damped oscillator step: smooth and independent of render frame rate.
-        var time=(float)delta;var decay=Mathf.Exp(-7*time);
-        var cosine=Mathf.Cos(48*time);var sine=Mathf.Sin(48*time);
-        var a=_angle;var b=(_angularVelocity+7*a)/48;
-        _angle=decay*(a*cosine+b*sine);
-        _angularVelocity=decay*((48*b-7*a)*cosine+(-48*a-7*b)*sine);
-        _bell.Rotation=new(0,0,_angle);
-        for(var i=0;i<_rings.Count;i++)
-        {
-            var ring=_rings[i];ring.Visible=false;
-            if(i/3>=_pulses.Count||GetParent() is not MachineWorld world)continue;
-            var pulse=_pulses[i/3];
-            var distance=(world.Ticks-pulse.EmissionTick)*MachineWorld.Tick*AcousticPulse.Speed;
-            if(distance<CollisionRadius||distance>AcousticPulse.Range)continue;
-            ring.Visible=true;
-            var mesh=(TorusMesh)ring.Mesh;mesh.InnerRadius=distance-.009f;mesh.OuterRadius=distance+.009f;
-            ((StandardMaterial3D)ring.MaterialOverride).AlbedoColor=new Color(1,.94f,.65f,.35f*pulse.Strength*(1-distance/AcousticPulse.Range));
-        }
+        _playback=new(_audio,new Dictionary<ToneBand,AudioStreamWav>{{Tone,(AudioStreamWav)_audio.Stream}});
     }
 }

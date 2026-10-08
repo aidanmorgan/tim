@@ -1,0 +1,48 @@
+using System;
+
+namespace CuriousContraptions.Physics;
+
+/// <summary>Immutable convex support at one captured rigid pose. Current geometry reads
+/// and evaluated swept paths share this value; no velocity integration is needed to query a pose.</summary>
+public readonly struct ConvexPose : IConvexFeatureSupport
+{
+    private readonly ConvexInstance _instance;
+    private readonly RigidPose _pose;
+    public ConvexPose(ConvexInstance instance,RigidPose pose)
+    {
+        if(instance.Geometry is null)throw new ArgumentException("Uninitialised collision instance.",nameof(instance));
+        if(!pose.Center.IsFinite||!pose.Rotation.IsValid)throw new ArgumentException("Convex pose requires a finite rigid pose.",nameof(pose));
+        _instance=instance;_pose=pose;
+    }
+    private void RequireInitialized()
+    {
+        if(_instance.Geometry is null)throw new InvalidOperationException("Uninitialised convex pose.");
+    }
+    public double RoundingRadius {get{RequireInitialized();return _instance.RoundingRadius;}}
+    public CollisionVector CoreSupport(CollisionVector direction)
+    {
+        RequireInitialized();
+        return _pose.TransformPoint(_instance.CoreSupport(_pose.Rotation.Inverse().Apply(direction)));
+    }
+    public InteriorBall InteriorBall {get{RequireInitialized();return new(_pose.TransformPoint(_instance.InteriorBall.Center),_instance.InteriorBall.Radius);}}
+    public SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
+    {
+        RequireInitialized();
+        var feature=_instance.SupportingFeature(_pose.Rotation.Inverse().Apply(direction),planeTolerance);
+        var vertices=new SupportVertex[feature.Vertices.Length];
+        for(var i=0;i<vertices.Length;i++)
+        {
+            var vertex=feature.Vertices[i];
+            vertices[i]=new(vertex.Id,_pose.TransformPoint(vertex.Point));
+        }
+        return new(vertices);
+    }
+    public CollisionVector Support(CollisionVector direction)
+    {
+        RequireInitialized();
+        var localDirection=_pose.Rotation.Inverse().Apply(direction);
+        var result=_pose.TransformPoint(_instance.Support(localDirection));
+        if(!result.IsFinite) throw new InvalidOperationException("Rigid support exceeds representable coordinates.");
+        return result;
+    }
+}

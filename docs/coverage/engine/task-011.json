@@ -209,7 +209,7 @@
       "Symbols": [
         {
           "Path": "ui/Workshop.cs",
-          "FileHash": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+          "FileHash": "ce9a80b1d3ca267eec45be71ed9477903c72ee871ee44c65ac5153f4e7a73a5a",
           "Symbol": "Workshop"
         }
       ],
@@ -235,7 +235,7 @@
       "Symbols": [
         {
           "Path": "ui/Workshop.cs",
-          "FileHash": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+          "FileHash": "ce9a80b1d3ca267eec45be71ed9477903c72ee871ee44c65ac5153f4e7a73a5a",
           "Symbol": "Workshop"
         }
       ],
@@ -261,7 +261,7 @@
       "Symbols": [
         {
           "Path": "ui/Workshop.cs",
-          "FileHash": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+          "FileHash": "ce9a80b1d3ca267eec45be71ed9477903c72ee871ee44c65ac5153f4e7a73a5a",
           "Symbol": "Workshop"
         }
       ],
@@ -287,7 +287,7 @@
       "Symbols": [
         {
           "Path": "ui/Workshop.cs",
-          "FileHash": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+          "FileHash": "ce9a80b1d3ca267eec45be71ed9477903c72ee871ee44c65ac5153f4e7a73a5a",
           "Symbol": "Workshop"
         }
       ],
@@ -313,7 +313,7 @@
       "Symbols": [
         {
           "Path": "ui/Workshop.cs",
-          "FileHash": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+          "FileHash": "ce9a80b1d3ca267eec45be71ed9477903c72ee871ee44c65ac5153f4e7a73a5a",
           "Symbol": "Workshop"
         }
       ],
@@ -339,7 +339,7 @@
       "Symbols": [
         {
           "Path": "ui/Workshop.cs",
-          "FileHash": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+          "FileHash": "ce9a80b1d3ca267eec45be71ed9477903c72ee871ee44c65ac5153f4e7a73a5a",
           "Symbol": "Workshop"
         }
       ],
@@ -365,7 +365,7 @@
       "Symbols": [
         {
           "Path": "ui/Workshop.cs",
-          "FileHash": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+          "FileHash": "ce9a80b1d3ca267eec45be71ed9477903c72ee871ee44c65ac5153f4e7a73a5a",
           "Symbol": "Workshop"
         }
       ],
@@ -26347,4 +26347,3 @@
   ],
   "Modes": []
 }
-

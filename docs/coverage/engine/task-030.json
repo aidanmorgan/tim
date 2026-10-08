@@ -474,8 +474,8 @@
       "ProofOwner": "S300",
       "Artifacts": [
         {
-          "Path": "docs/springboard-precharged-verification.md",
-          "Hash": "3a228b493b1cd85ea05294852c273dbd25b8fe71fd6a3dc62ea6644ce301363d"
+          "Path": "docs/history/checkpoints/springboard-precharged-verification.md",
+          "Hash": "9c5da30384adfeb1b892c9bfa776358393e6547548fdbf37dfdf21959311790d"
         }
       ]
     },
@@ -1227,7 +1227,7 @@
         "Origin": "Task",
         "Id": "sequence-task-747"
       },
-      "SourceHash": "d8c79d62f204297f0fe5f1ab0b889b9e6ffd5ae58a8320964f35ed3c12f0220b",
+      "SourceHash": "704274dcf97970e6aeb14a5df58acfb201e2321dec6aa4bfbace7e6f93e34354",
       "Kind": "FutureProduct",
       "Capabilities": [
         "ContactImpulse",
@@ -1354,4 +1354,3 @@
   ],
   "Modes": []
 }
-

@@ -14,11 +14,7 @@ public static class ConvexSeparation
     private readonly struct Core<T>(T shape) : IConvexSupport where T:IConvexFeatureSupport
     {
         public InteriorBall InteriorBall=>new(shape.InteriorBall.Center,shape.InteriorBall.Radius-shape.RoundingRadius);
-        public CollisionVector Support(CollisionVector direction)
-        {
-            var normal=SupportFeature.UnitDirection(direction,0);
-            return shape.Support(direction)-normal*shape.RoundingRadius;
-        }
+        public CollisionVector Support(CollisionVector direction)=>shape.CoreSupport(direction);
     }
 
     public static ConvexSeparationResult Query<TA,TB>(TA a,TB b,double tolerance=ConvexDistance.DefaultTolerance)

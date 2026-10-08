@@ -18,7 +18,16 @@ public partial class Workshop
 
     private async void SelectModeFromPicker(int index)
     {
-        if (!CanEdit) { _picker.Select(World.Construction.Puzzle.Id == WorkshopPuzzleId.Free ? FreeWorkshopIndex : 0); return; }
+        if (!CanEdit)
+        {
+            _picker.Select(World.Construction.Puzzle.Id switch
+            {
+                WorkshopPuzzleId.FirstPrinciples => 0,
+                WorkshopPuzzleId.DelayedSignal => DelayedSignalIndex,
+                _ => FreeWorkshopIndex
+            });
+            return;
+        }
         try
         {
             WorkshopConstruction candidate;
@@ -31,9 +40,16 @@ public partial class Workshop
                 candidate = FirstPrinciples.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
+            else if (index == DelayedSignalIndex)
+            {
+                if (first.Value >= ulong.MaxValue - 2) throw new ArgumentException("Part identity is exhausted.");
+                candidate = DelayedSignal.Create(World.Construction.Revision, World.Construction.Settings,
+                    first, new(first.Value + 1), new(first.Value + 2), new((Half)(_precision.Value / 100)));
+            }
             else throw new ArgumentException("Unsupported Workshop puzzle.");
             if (!await SubmitConstruction(candidate)) { PresentMode(); return; }
             if (index == 0) _nextId = new(first.Value + 2);
+            else if (index == DelayedSignalIndex) _nextId = new(first.Value + 3);
             Select(null); _tool = null; ClearPreview(); _undo.Clear();
             ResetUiAnimations(); PresentMode();
         }
@@ -42,18 +58,22 @@ public partial class Workshop
     private void PresentMode()
     {
         var first = World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples;
-        _picker.Select(first ? 0 : FreeWorkshopIndex);
-        _inventory = first ? new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Ramp] = checked((int)World.Construction.Puzzle.RampInventory) }
-            : new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Basketball] = 1, [WorkshopPartKind.Receiver] = 1, [WorkshopPartKind.ImpactSwitch] = 1, [WorkshopPartKind.SignalLamp] = 1, [WorkshopPartKind.Wall] = 1 };
-        _title.Text = first ? "First principles" : "Free workshop";
+        var delayed = World.Construction.Puzzle.Id == WorkshopPuzzleId.DelayedSignal;
+        var authored = first || delayed;
+        _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : FreeWorkshopIndex);
+        _inventory = authored ? new Dictionary<WorkshopPartKind, int> { [World.Construction.Puzzle.InventoryKind] = checked((int)World.Construction.Puzzle.InventoryCount) }
+            : new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Basketball] = 16, [WorkshopPartKind.Receiver] = 1, [WorkshopPartKind.ImpactSwitch] = 2, [WorkshopPartKind.SignalLamp] = 1, [WorkshopPartKind.Wall] = 1, [WorkshopPartKind.Delay] = 1, [WorkshopPartKind.PinballBumper] = 1 };
+        _title.Text = first ? "First principles" : delayed ? "Wait for it" : "Free workshop";
         _task.Text = first ? "Guide the orange ball into the green receiver. Place the two ramps to build a path through the air."
+            : delayed ? "Light the lamp only after the delay box finishes its countdown."
             : "Place parts and connect activation sockets. Run tries the machine; Reset restores its starting arrangement.";
-        _hint.Visible = false; _task.Visible = _hintButton.Visible = first;
-        _optionsPanel.Visible = false; _objectivePanel.Visible = first;
-        if (first) _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100);
+        _hint.Visible = false; _task.Visible = _hintButton.Visible = authored;
+        _optionsPanel.Visible = false; _objectivePanel.Visible = authored;
+        if (authored) _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100);
         _precisionText.Text = _precision.Value < 33 ? "Forgiving" : _precision.Value > 66 ? "Precise" : "Balanced";
         SetBuildUi(); RefreshPalette(); RefreshLayers();
-        _placementHeight = new((Half)3); SetBuildView(first);
+        _placementHeight = new((Half)3); SetBuildView(authored);
+        if (delayed) _status.Text = "Place the Delay and connect its activation sockets. Run tests the signal; Reset lets you retry.";
         if (first) _status.Text = "Place and rotate both ramps. Manual placement; physical nudging is not yet supported.";
     }
     private async void ChangePrecision(double value)
@@ -67,10 +87,17 @@ public partial class Workshop
         try
         {
             var precision = new PuzzlePrecision((Half)(value / 100));
-            var candidate = FirstPrinciples.WithPrecision(World.Construction, precision);
+            var candidate = World.Construction.Puzzle.Id switch
+            {
+                WorkshopPuzzleId.FirstPrinciples => FirstPrinciples.WithPrecision(World.Construction, precision),
+                WorkshopPuzzleId.DelayedSignal => DelayedSignal.WithPrecision(World.Construction, precision),
+                _ => throw new ArgumentException("Unsupported authored assistance.")
+            };
             if (!await SubmitConstruction(candidate)) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); return; }
             _precisionText.Text = value < 33 ? "Forgiving" : value > 66 ? "Precise" : "Balanced";
-            _status.Text = "Receiver assistance updated. Ramp placement remains manual.";
+            _status.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.DelayedSignal
+                ? "Switch sensitivity updated. Delay placement remains manual."
+                : "Receiver assistance updated. Ramp placement remains manual.";
         }
         catch (Exception error) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); _status.Text = error.Message; }
     }

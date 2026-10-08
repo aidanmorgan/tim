@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../engine/presentation/AnimationValues.cs" Link="AnimationValues.cs" />
+    <Compile Include="../engine/presentation/AnimationBatch.cs" Link="AnimationBatch.cs" />
+    <Compile Include="../engine/presentation/AnimationFollowDefinition.cs" Link="AnimationFollowDefinition.cs" />
+    <Compile Include="../engine/presentation/AnimationImpulseDefinition.cs" Link="AnimationImpulseDefinition.cs" />
+    <Compile Include="../engine/presentation/AnimationOscillationDefinition.cs" Link="AnimationOscillationDefinition.cs" />
+  </ItemGroup>
+</Project>

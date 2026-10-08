@@ -1,0 +1,12 @@
+{
+  "engine/PerformanceContracts.cs": "107c69ab04081f33f9527d9a4f2ffb8783f9863187f45ab3457dcc84846d4604",
+  "engine/PerformanceRecorder.cs": "a6b743e5181fbbf7420fc5b97061ddb301559103ea768814890a7a95a54452f1",
+  "engine/MachineWorld.cs": "97914c0289e9c79784c2158281df033f277b209e063cfd1925c158dcb29af8a6",
+  "engine/ScenePhysicsAssembly.cs": "f1a163a3e962931e8c119e5b7e260c278536112655807550250147d74ae77783",
+  "engine/presentation/SceneAnimationAdapter.cs": "32ae6f5f992fefb7c3bbba14d0bed796995624fbb4dac0390c373e03ba9e942b",
+  "engine/presentation/SceneAnimationRun.cs": "d1d299dd1f0daaf95749fdae62daad206f5b5850d1a46871e66bfec95a078835",
+  "tools/Performance/PerformanceAudit.cs": "30737c2f6ffe687be959a8f1b7b18ff1fa9c7931880616b764b7cf1f0a8b5de7",
+  "CuriousContraptions.tests/PerformanceRecorderTests.cs": "42327423687b7a332fb47cb6737a0485a26f514a4bae93a6fe502a09bdcc8bc5",
+  "CuriousContraptions.tests/PerformanceAuditTests.cs": "46a4575dae61041c6cb46ea532fef2dc4ac0f250a521b58a28d21b06e135d459",
+  "CuriousContraptions.tests/DisplayClockIntegrationTests.cs": "64a59f7c4d42bbffef2d752cbe21d1908783e064383e4b7e985eaaae0e34f526"
+}

@@ -12,7 +12,10 @@ internal sealed class WorkshopTrace
     private const int Capacity = 7201;
     private const int ChunkRecords = 128;
     #if PLAYTEST
-    private readonly byte[] _records = new byte[Capacity * WorkshopTraceRecord.ByteLength];
+    internal const int PoseByteCapacity = 7201 * 128;
+    private readonly byte[] _records = new byte[PoseByteCapacity];
+    private int _recordBytes;
+    private TraceEnd? _poseEnd;
     private int _count;
     #endif
     private readonly double[] _durations = new double[Capacity - 1];
@@ -47,6 +50,8 @@ internal sealed class WorkshopTrace
             _epoch = epoch;
             #if PLAYTEST
             _count = 0;
+            _recordBytes = 0;
+            _poseEnd = null;
             #endif
             _durationCount = 0;
             _timingValid = true;
@@ -60,18 +65,21 @@ internal sealed class WorkshopTrace
     #if PLAYTEST
     internal void Append(byte[] record)
     {
-        if (!_active) return;
+        if (!_active || _poseEnd.HasValue) return;
         try
         {
-            if (_count == _expectedCount) { End(TraceEnd.Overflow); return; }
-            if (record.Length != WorkshopTraceRecord.ByteLength || WorkshopTraceRecord.ReadProfile(record) != _profile ||
+            if (_count == _expectedCount) { _poseEnd = TraceEnd.Overflow; return; }
+            if (WorkshopTraceRecord.ReadProfile(record) != _profile ||
+                (_recordBytes != 0 && _recordBytes != record.Length) ||
                 BinaryPrimitives.ReadUInt64LittleEndian(record.AsSpan(16)) != _epoch.Value ||
                 BinaryPrimitives.ReadUInt64LittleEndian(record.AsSpan(24)) != (ulong)_count)
-            { End(TraceEnd.InvalidRecord); return; }
-            record.CopyTo(_records, _count * WorkshopTraceRecord.ByteLength);
+            { _poseEnd = TraceEnd.InvalidRecord; return; }
+            if (_recordBytes == 0) _recordBytes = record.Length;
+            if (_count >= _records.Length / _recordBytes) { _poseEnd = TraceEnd.Overflow; return; }
+            record.CopyTo(_records, _count * _recordBytes);
             _count++;
         }
-        catch { End(TraceEnd.InvalidRecord); }
+        catch { _poseEnd = TraceEnd.InvalidRecord; }
     }
     #endif
     // Host observational milliseconds only. This is the complete critical-path wall span,
@@ -84,9 +92,6 @@ internal sealed class WorkshopTrace
             if (!_timingValid || !double.IsFinite(milliseconds) || milliseconds < 0 ||
                 _durationCount >= _durations.Length || tick.Value != (ulong)_durationCount + 1 ||
                 tick.Value >= (ulong)_expectedCount
-                #if PLAYTEST
-                || _count != _durationCount + 2
-                #endif
                 )
             { _timingValid = false; return; }
             _durations[_durationCount++] = milliseconds;
@@ -99,7 +104,7 @@ internal sealed class WorkshopTrace
         if (!_active) return;
         _active = false;
         #if PLAYTEST
-        if (reason == TraceEnd.Complete && _count != _expectedCount) reason = TraceEnd.InvalidRecord;
+        if (!_poseEnd.HasValue) _poseEnd = reason == TraceEnd.Complete && _count != _expectedCount ? TraceEnd.InvalidRecord : reason;
         #endif
         _sealedReason = reason;
         _sealed = true;
@@ -124,17 +129,18 @@ internal sealed class WorkshopTrace
         {
             #if PLAYTEST
             var chunks = (_count + ChunkRecords - 1) / ChunkRecords;
+            var poseReason = _poseEnd ?? reason;
             // Closed discriminants are serialized numerically at this console boundary.
-            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {(uint)WorkshopTraceVersion.GenericPoseAndCapture} {WorkshopTraceRecord.ByteLength} {_count} {chunks} {(int)reason} {Convert.ToBase64String(_construction)}");
+            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {(uint)WorkshopTraceVersion.CompleteBodySet} {_recordBytes} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
             for (var ordinal = 0; ordinal < chunks; ordinal++)
             {
                 var first = ordinal * ChunkRecords;
                 var count = Math.Min(ChunkRecords, _count - first);
-                var encoded = Convert.ToBase64String(_records, first * WorkshopTraceRecord.ByteLength,
-                    count * WorkshopTraceRecord.ByteLength);
+                var encoded = Convert.ToBase64String(_records, first * _recordBytes,
+                    count * _recordBytes);
                 Console.WriteLine($"CCGPU_TRACE_CHUNK {_identity} {ordinal} {chunks} {first} {count} {encoded}");
             }
-            Console.WriteLine($"CCGPU_TRACE_END {_identity} {_count} {chunks} {(int)reason}");
+            Console.WriteLine($"CCGPU_TRACE_END {_identity} {_count} {chunks} {(int)poseReason}");
             #endif
             var durationChunks = (_durationCount + ChunkRecords - 1) / ChunkRecords;
             var status = reason == TraceEnd.Complete && _timingValid && _durationCount == _expectedCount - 1

@@ -1,8 +1,0 @@
-Unexpected-input investigation, 1 October 2026
-
-The user confirmed they were not using the game tab. The first control run logged an unrequested Reset at raw console line14166, then a depth edit from2 to0.117672324, Run at14247 and Reset at14301. The active recipe recorded no corresponding actions and failed with Unexpected reset event during running. Its control prefix and all subsequent lifecycle records are retained in committed-compliant-control-interrupted.json. The altered second run is not accepted evidence.
-
-Inspection found one live agent in this thread. All14 attached console listeners were inspected; they collect diagnostics, with no input calls. The active driver waits for an outcome and only requests Reset after that outcome; no outcome was logged before the unexpected Reset. Workshop.ToggleRun is reached from the Run button or Space key; ResetRun is also bound to the menu Reset button. No autonomous Reset timer was found in that code. Two isolated Playwright MCP/Chrome process pairs exist:10104/22520 and41353/71747; the newer console log records the published GitHub Pages site, not this localhost run. This does not identify either process as the input source. No unrelated process was terminated.
-
-Root cause remains unproven. The clean depth-only retry completed3600 ticks with exact Reset and no unexpected lifecycle. Before the final production Reset, a read-only DOM pointer/key listener was attached to correlate future input events with requested actions. It cannot retroactively attribute the incident, and trusted browser events alone do not distinguish CDP from physical input. Preserve failures and require single requested Run/Reset identities in subsequent proofs; do not treat absent recurrence as a fix.
-

@@ -1,0 +1,92 @@
+[
+  {
+    "Label": "ordinary xUnit",
+    "Source": "CSharp",
+    "Content": "[Fact] public void Works() { Assert.True(true); }",
+    "Expected": "Allow"
+  },
+  {
+    "Label": "xUnit skip",
+    "Source": "CSharp",
+    "Content": "[Fact(Skip = \"disabled\")] public void Test() {}",
+    "Expected": "Block"
+  },
+  {
+    "Label": "multiline theory",
+    "Source": "CSharp",
+    "Content": "[Theory(\n Skip = Reason)] public void Test() {}",
+    "Expected": "Block"
+  },
+  {
+    "Label": "conditional skip",
+    "Source": "CSharp",
+    "Content": "[Fact(SkipUnless = Condition)] public void Test() {}",
+    "Expected": "Block"
+  },
+  {
+    "Label": "skip when",
+    "Source": "CSharp",
+    "Content": "[Fact(SkipWhen = Condition)] public void Test() {}",
+    "Expected": "Block"
+  },
+  {
+    "Label": "exception skip",
+    "Source": "CSharp",
+    "Content": "[Fact(SkipExceptions = [typeof(Exception)])] public void Test() {}",
+    "Expected": "Block"
+  },
+  {
+    "Label": "empty data skip",
+    "Source": "CSharp",
+    "Content": "[Theory(SkipTestWithoutData = true)] public void Test() {}",
+    "Expected": "Block"
+  },
+  {
+    "Label": "explicit test",
+    "Source": "CSharp",
+    "Content": "[Fact(Explicit = true)] public void Test() {}",
+    "Expected": "Block"
+  },
+  {
+    "Label": "runtime skip",
+    "Source": "CSharp",
+    "Content": "Assert.Skip(\"disabled\");",
+    "Expected": "Block"
+  },
+  {
+    "Label": "skip exception",
+    "Source": "CSharp",
+    "Content": "throw new SkipException(\"disabled\");",
+    "Expected": "Block"
+  },
+  {
+    "Label": "ordinary Playwright",
+    "Source": "TypeScript",
+    "Content": "test(\"works\", async () => {});",
+    "Expected": "Allow"
+  },
+  {
+    "Label": "Playwright skip",
+    "Source": "TypeScript",
+    "Content": "test.skip(\"disabled\", async () => {});",
+    "Expected": "Block"
+  },
+  {
+    "Label": "Playwright fixme",
+    "Source": "TypeScript",
+    "Content": "test.fixme(true, \"disabled\");",
+    "Expected": "Block"
+  },
+  {
+    "Label": "focused suite",
+    "Source": "TypeScript",
+    "Content": "test.describe.only(\"focus\", () => {});",
+    "Expected": "Block"
+  },
+  {
+    "Label": "suppression cannot bypass",
+    "Source": "CSharp",
+    "Content": "// @anvil-ignore TEST-001: bypass\n[Fact(Skip = \"disabled\")]",
+    "Expected": "Block"
+  }
+]

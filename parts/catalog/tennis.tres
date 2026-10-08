@@ -11,4 +11,4 @@ Category = "Motion"
 Description = "Light, small and bouncy. Responds strongly to moving air."
 Scene = ExtResource("2")
 Color = Color(0.72, 0.86, 0.35, 1)
-Parameters = {"mass": 0.35, "bounce": 0.78, "radius": 0.25}
+Parameters = {"mass": 0.35, "bounce": 0.78, "radius": 0.25, "buoyancy": 0.0, "drag": 0.04}

@@ -4,19 +4,19 @@ namespace CuriousContraptions.Physics;
 
 public readonly record struct PoweredImpulseResult(double Impulse,double SuppliedWork,double DissipatedWork);
 
-/// <summary>Finite-energy actuation along a shared mass/inertia Jacobian.
+/// <summary>Finite-energy actuation along an arbitrary-body mass/inertia gradient.
 /// Positive work is integrated separately from braking along the actual rounded
 /// velocity update. Dissipated energy is never available for reverse acceleration.</summary>
 public static class PoweredImpulse
 {
-    private readonly record struct Candidate(BodyVelocityUpdate A,BodyVelocityUpdate B,
+    private readonly record struct Candidate(BodyVelocityUpdate[] Updates,
         double Impulse,double Supplied,double Dissipated,double Speed);
-    public static PoweredImpulseResult Apply(PhysicsBody a,PhysicsBody b,ConstraintJacobian jacobian,
+    internal static PoweredImpulseResult Apply(ConstraintGradient gradient,
         double targetSpeed,double maximumImpulse,double availableWork)
     {
         if(!double.IsFinite(maximumImpulse)||maximumImpulse<0||!double.IsFinite(availableWork)||availableWork<0)
             throw new ArgumentException("Actuator budgets must be finite and nonnegative.");
-        var row=new ImpulseConstraint(jacobian.Bind(a,b),targetSpeed,-maximumImpulse,maximumImpulse);
+        var row=new ImpulseConstraint(gradient,targetSpeed,-maximumImpulse,maximumImpulse);
         var k=row.InverseEffectiveMass; var initialSpeed=row.Speed;
         if(k<=0||!double.IsFinite(initialSpeed)) throw new ArgumentException("Actuator needs a finite dynamic response.");
         var difference=targetSpeed-initialSpeed;
@@ -24,12 +24,14 @@ public static class PoweredImpulse
         if(difference==0||maximumImpulse==0) return default;
         var direction=Math.Sign(difference);
         var requested=Math.Min(maximumImpulse,Math.Abs(difference)/k);
+        var terms=gradient.Terms.ToArray();
 
         Candidate Evaluate(double magnitude)
         {
             var impulse=direction*magnitude;
-            var va=a.AfterImpulse(jacobian.LinearA*impulse,jacobian.AngularA*impulse);
-            var vb=b.AfterImpulse(jacobian.LinearB*impulse,jacobian.AngularB*impulse);
+            var updates=new BodyVelocityUpdate[terms.Length];
+            for(var i=0;i<terms.Length;i++)
+                updates[i]=terms[i].Body.AfterImpulse(terms[i].Linear*impulse,terms[i].Angular*impulse);
             double linear=0,quadratic=0;
             void Work(PhysicsBody body,BodyVelocityUpdate next,CollisionVector jl,CollisionVector ja)
             {
@@ -44,7 +46,8 @@ public static class PoweredImpulse
                 linear+=CollisionVector.Dot(body.LinearVelocity,dv)/body.InverseMass+CollisionVector.Dot(body.AngularVelocity,dl);
                 quadratic+=.5*(dv.LengthSquared/body.InverseMass+CollisionVector.Dot(dl,body.InverseInertia(dl)));
             }
-            Work(a,va,jacobian.LinearA,jacobian.AngularA); Work(b,vb,jacobian.LinearB,jacobian.AngularB);
+            for(var i=0;i<terms.Length;i++)
+                Work(terms[i].Body,updates[i],terms[i].Linear,terms[i].Angular);
             if(!double.IsFinite(linear)||!double.IsFinite(quadratic)||quadratic<0)
                 throw new InvalidOperationException("Actuator work is not representable.");
             double supplied,dissipated;
@@ -58,11 +61,13 @@ public static class PoweredImpulse
             }
             CollisionVector Spin(PhysicsBody body,BodyVelocityUpdate next)=>body.MotionType==PhysicsMotionType.Dynamic?
                 body.InverseInertia(next.AngularMomentum):body.AngularVelocity;
-            var speed=CollisionVector.Dot(jacobian.LinearA,va.Linear)+CollisionVector.Dot(jacobian.AngularA,Spin(a,va))+
-                CollisionVector.Dot(jacobian.LinearB,vb.Linear)+CollisionVector.Dot(jacobian.AngularB,Spin(b,vb));
+            double speed=0;
+            for(var i=0;i<terms.Length;i++)
+                speed+=CollisionVector.Dot(terms[i].Linear,updates[i].Linear)+
+                    CollisionVector.Dot(terms[i].Angular,Spin(terms[i].Body,updates[i]));
             if(!double.IsFinite(supplied)||!double.IsFinite(dissipated)||!double.IsFinite(speed))
                 throw new InvalidOperationException("Actuator result is not finite.");
-            return new(va,vb,impulse,supplied,dissipated,speed);
+            return new(updates,impulse,supplied,dissipated,speed);
         }
         bool Fits(Candidate value)=>value.Supplied<=availableWork&&direction*(value.Speed-targetSpeed)<=0;
         var candidate=Evaluate(requested);
@@ -81,7 +86,15 @@ public static class PoweredImpulse
                 else upper=middle;
             }
         }
-        a.CommitVelocity(candidate.A); b.CommitVelocity(candidate.B);
+        // A representable impulse may still round to no physical velocity
+        // change. Do not report an actuation that never reached any body.
+        var changed=false;
+        for(var i=0;i<terms.Length;i++)
+            changed|=candidate.Updates[i].Linear!=terms[i].Body.LinearVelocity||
+                candidate.Updates[i].AngularMomentum!=terms[i].Body.AngularMomentum;
+        if(!changed) return default;
+        // All participants were validated before any body is committed.
+        for(var i=0;i<terms.Length;i++) terms[i].Body.CommitVelocity(candidate.Updates[i]);
         return new(candidate.Impulse,candidate.Supplied,candidate.Dissipated);
     }
 }

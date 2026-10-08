@@ -1,3 +1,4 @@
+using CuriousContraptions.Physics;
 using System.Text.Json;
 
 namespace CuriousContraptions.Tests;

@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions;
 
@@ -10,7 +11,7 @@ public enum LogicInputState { Neither, FirstOnly, SecondOnly, Both }
 public partial class ElectricalLogicPart : MachinePart
 {
     [Export] public LogicGateKind Operation { get; set; }
-    public override void ValidateParameters()
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
         if(!Enum.IsDefined(Operation))throw new ArgumentOutOfRangeException(nameof(Operation));
     }
@@ -18,8 +19,12 @@ public partial class ElectricalLogicPart : MachinePart
     public LogicInputState State=>HasElectricalPower(SocketId.FirstIn)
         ?HasElectricalPower(SocketId.SecondIn)?LogicInputState.Both:LogicInputState.FirstOnly
         :HasElectricalPower(SocketId.SecondIn)?LogicInputState.SecondOnly:LogicInputState.Neither;
-    private readonly List<StandardMaterial3D> _indicators=new();
-    private readonly float[] _levels=new float[3];
+    private enum Indicator { FirstInput, SecondInput, Output }
+    private readonly List<SceneColourAnimation> _indicators=new();
+    private static readonly Color InactiveColour=new("#556573"),ActiveColour=new("#f7cb52");
+    private static readonly AnimationDefinition IndicatorTransition=new(0,1,.1,
+        AnimationCurve.SmoothStep,AnimationRepeat.Once,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneColourAnimation> ColourAnimations=>_indicators;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
         new(SocketId.FirstIn,ConnectionDomain.Electrical,PortDirection.Input,new(-.94f,.35f,0)),
@@ -29,7 +34,7 @@ public partial class ElectricalLogicPart : MachinePart
     ];
     public override IEnumerable<ElectricalGate> ElectricalGates=>
         [new(Operation,SocketId.FirstIn,SocketId.SecondIn,SocketId.PowerIn,SocketId.Supply)];
-    public override void BeforeStep(MachineWorld world,float delta)
+    public override void PreparePhysics(MachineWorld world,float delta)
     {
         Active=Truth && HasElectricalPower(SocketId.PowerIn);
         if(Active)world.Events.TryAdd(new(MachineEventKind.Powered,Uid),world.Ticks);
@@ -64,24 +69,28 @@ public partial class ElectricalLogicPart : MachinePart
                 if(LogicGate.Evaluate(Operation,(row&2)!=0,(row&1)!=0))
                     PartArt.Sphere(Visual,.035f,new("#e8b764"),new(-.21f+row*.14f,-.4f,.42f));
         }
-        for(var i=0;i<3;i++)
+        foreach(var indicator in Enum.GetValues<Indicator>())
         {
-            var at=i<2?new Vector3(-.48f,i==0?.3f:-.3f,.42f):new Vector3(.48f,0,.42f);
-            _indicators.Add((StandardMaterial3D)PartArt.Sphere(Visual,.09f,new("#556573"),at).MaterialOverride);
+            var at=indicator switch
+            {
+                Indicator.FirstInput=>new Vector3(-.48f,.3f,.42f),
+                Indicator.SecondInput=>new Vector3(-.48f,-.3f,.42f),
+                Indicator.Output=>new Vector3(.48f,0,.42f),
+                _=>throw new InvalidOperationException("Unexpected logic indicator.")
+            };
+            var lamp=PartArt.Sphere(Visual,.09f,InactiveColour,at);
+            var signal=indicator switch
+            {
+                Indicator.FirstInput=>SceneAnimationSignal.InputAvailable(SocketId.FirstIn),
+                Indicator.SecondInput=>SceneAnimationSignal.InputAvailable(SocketId.SecondIn),
+                Indicator.Output=>SceneAnimationSignal.OwnerActive,
+                _=>throw new InvalidOperationException("Unexpected logic indicator.")
+            };
+            _indicators.Add(new(lamp,IndicatorTransition,InactiveColour,ActiveColour,signal,SceneAnimationDrive.Endpoint));
         }
         foreach(var x in new[]{-.58f,-.42f})
             PartArt.Box(Visual,new(.025f,.08f,.025f),new("#293954"),new(x,-.47f,.4f));
         PartArt.Box(Visual,new(.025f,.08f,.025f),new("#293954"),new(-.48f,.47f,.4f));
         foreach(var port in ConnectionPorts)PartArt.Sphere(Visual,.075f,new("#f7cb52"),port.LocalPosition);
-    }
-    public override void _Process(double delta)
-    {
-        for(var i=0;i<3;i++)
-        {
-            var on=i==0?HasElectricalPower(SocketId.FirstIn):i==1?HasElectricalPower(SocketId.SecondIn):Active;
-            _levels[i]=Mathf.MoveToward(_levels[i],on?1:0,(float)delta*10);
-            var level=_levels[i];
-            _indicators[i].AlbedoColor=new Color("#556573").Lerp(new("#f7cb52"),level*level*(3-2*level));
-        }
     }
 }

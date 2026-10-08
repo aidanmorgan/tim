@@ -1,87 +1,129 @@
-# Thermal component research — source research (current adoption is in requirements)
+# Heat capability family
 
-Research and planning date: 28 September 2026. Three sub-agents researched physical principles, generic architecture and grouped-element coverage. This document records the basis for the [37 individual thermal elements](planning/requirements.md#thermal-elements), [43 generic interaction processes](planning/requirements.md#generic-interaction-register), [14 interaction scenarios](planning/requirements.md#thermal-interaction-scenarios) and [campaign allocation](planning/requirements.md#thermal-campaign-allocation). All are design work, not implementation or playtest evidence.
+Heat is one capability family inside the generic WASM SIMD128 f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory), [general data-driven engines](engine-contracts.md#general-data-driven-engines)). It is added as generic records in the slice that first needs it; every one of the [37 thermal elements](planning/requirements.md#thermal-elements) (TH-01–TH-37) is declaration data over those records, the [43 generic interaction processes](planning/requirements.md#generic-interaction-register) are its laws, and the [14 interaction scenarios](planning/requirements.md#thermal-interaction-scenarios) and [campaign allocation](planning/requirements.md#thermal-campaign-allocation) are its teaching content. No source/target catalogue pair owns a physics rule: fire heating water, freezing water, focused-light ignition, steam driving a piston, a fan changing heat exchange and a bimetal strip closing a contact are all compositions of the same records.
 
-## Design conclusions
+## Capability family
 
-Heating and cooling should emerge from generic energy, material and transport capabilities. Every element is an assembly/configuration of those capabilities; no source/target catalogue pair owns a physics rule. Physical sources below inform original game proposals rather than defining exact game constants or proving a particular simulation implementation.
+### State variables (canonical IEEE-754 f32, SI units)
 
-The user's examples map to independently testable chains:
+| Record | State | Derived (no independent setter) |
+| --- | --- | --- |
+| Thermal node (lumped) | Internal energy U (J), mass m (kg), material (specific heat c, latent heats, melting/boiling points, absorptance, emissivity), phase fraction f ∈ [0,1] per transition | Temperature T from U, m, c and the active phase segment |
+| Thermal link | Conductance G (W/K) between two nodes, or convective coefficient scaled by the airflow exposure weight, or radiative pair factor | Heat flow q = G·(T₁ − T₂) per substep, clamped to the available enthalpy difference |
+| Heat source/sink | Finite fuel or electrical supply (J), power rating (W), ignition state, declared environment reservoir temperature | Power delivered this substep ≤ min(rating·dt, remaining fuel) |
+| Reaction state | Ignition threshold temperature, burn rate, oxidiser availability flag, suppression input | Ignited/burning/extinguished transitions sampled at substep endpoints |
+| Expansion coupling | Thermal expansion coefficient, constrained length, bimetal differential | Strain feeds a joint/contact row as stiffness-scaled displacement, never a direct transform write |
+| Thermal sensor | On/Off threshold temperatures (separate), dwell in ticks | Boolean output at substep endpoints |
 
-- Fire heating water: finite chemical reaction, heat transport, sensible/latent enthalpy, pressure-dependent boiling and gas transport.
-- Freezing water: heat extraction to a declared sink, latent-energy removal and solid-fraction/topology evolution.
-- Focused-light ignition: finite-width optical transport, surface absorption, temperature evolution and a generic material reaction model.
+### Laws at puzzle scale
 
-Likewise, steam drives a pressure actuator through fluid work; a fan changes heat exchange through airflow; a bimetal strip changes electrical contact through differential expansion. None requires an exception for a kettle, fan, water, lens or thermostat catalogue ID.
-
-## Source register
+Each law is a shared process over declared records; the numbered sources below are evidence for the principle, not game constants. Values are clamp-or-continue under the [game-grade envelope](gpu-f16-physics.md#game-grade-envelope): a rounding residual in heat flow or phase fraction never faults a tick and never creates energy.
 
 <a id="th-s01"></a>
 
-### TH-S01 — heat transfer and finite thermal stores
-
-[OpenStax: Mechanisms of Heat Transfer](https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer) distinguishes conduction, convection and thermal radiation. It supports heat-routing, insulation and passive rejection concepts. Proposed part geometry, controls and thresholds are our design choices. A named environmental reservoir must account for external energy exchange.
+**TH-S01 — Heat transfer and finite thermal stores.** Conduction, convection and radiation are three link kinds between lumped nodes ([OpenStax: Mechanisms of Heat Transfer](https://openstax.org/books/university-physics-volume-2/pages/1-6-mechanisms-of-heat-transfer)). Insulation is low conductance; a heat sink is high conductance to the environment node; routing heat is placing links. A named environment reservoir accounts for every external exchange.
 
 <a id="th-s02"></a>
 
-### TH-S02 — phase change
-
-[OpenStax: Phase Changes](https://openstax.org/books/university-physics-volume-2/pages/1-5-phase-changes) supports latent-energy accounting and pressure-dependent transitions. Melting/boiling need energy; freezing/condensation reject it. A phase fraction must not change simply because a decorative animation or timer ended. Solid water, liquid water and vapor remain conserved material through the supported representation.
+**TH-S02 — Phase change.** Melting and boiling consume latent energy; freezing and condensation reject it; the transition pressure follows the sealed-gas pressure where one is declared ([OpenStax: Phase Changes](https://openstax.org/books/university-physics-volume-2/pages/1-5-phase-changes)). A phase fraction changes only through accounted energy, never because an animation or timer ended. Ice, liquid water and vapour remain one conserved material.
 
 <a id="th-s03"></a>
 
-### TH-S03 — combustion and suppression
-
-[NIST: Fire Dynamics](https://www.nist.gov/el/fire-research-division-73300/firegov-fire-service/fire-dynamics) describes coupled fuel, oxidizer, energy and transport conditions. [NIST: Fire Fighting Properties](https://www.nist.gov/publications/fire-fighting-properties-nistir-6191) motivates physical suppression mechanisms rather than an unconditional water-touch event. The game needs bounded material/reaction models, not detailed practical fire-making recipes or full flame chemistry. Striker/match assemblies deposit finite modeled energy and use the same ignition state as other heating sources.
+**TH-S03 — Combustion and suppression.** A reaction state couples fuel, oxidiser, energy and transport ([NIST: Fire Dynamics](https://www.nist.gov/el/fire-research-division-73300/firegov-fire-service/fire-dynamics)); suppression removes heat or oxidiser rather than acting as an unconditional water-touch event ([NIST: Fire Fighting Properties](https://www.nist.gov/publications/fire-fighting-properties-nistir-6191)). Strikers, matches and tinder deposit finite energy into the same ignition state as every other heating source.
 
 <a id="th-s04"></a>
 
-### TH-S04 — optical heating
-
-[DOE: Concentrating Solar-Thermal Power Basics](https://www.energy.gov/cmei/systems/concentrating-solar-thermal-power-basics) explains concentrating radiant input for useful heat; [NASA's archived sunlight lesson](https://cdaweb.gsfc.nasa.gov/pub/documents/archived_websites/pwg.gsfc.nasa.gov/stargaze/Lsun1lit.htm) provides a focusing/heating educational reference. Optical concentration changes local irradiance, not total source power. The receiving material's absorptance, heat capacity and losses govern its resulting temperature.
+**TH-S04 — Optical heating.** A converging lens raises local irradiance, not total source power ([DOE: Concentrating Solar-Thermal Power Basics](https://www.energy.gov/cmei/systems/concentrating-solar-thermal-power-basics), [NASA sunlight lesson](https://cdaweb.gsfc.nasa.gov/pub/documents/archived_websites/pwg.gsfc.nasa.gov/stargaze/Lsun1lit.htm)). The receiving node's absorptance, heat capacity and link losses set its temperature.
 
 <a id="th-s05"></a>
 
-### TH-S05 — active cooling
-
-[DOE: Heat Pump Systems](https://www.energy.gov/energysaver/heat-pump-systems) describes supplied work moving heat between surroundings. Our two-port heat-pump proposal must reject removed heat plus input work. Its operating-range/efficiency model must be explicit; disconnecting electricity cannot leave an unlimited cold surface. A finite cold pack is a different store, not a pump.
+**TH-S05 — Active cooling.** A heat pump moves heat between two ports using supplied work and rejects removed heat plus input work ([DOE: Heat Pump Systems](https://www.energy.gov/energysaver/heat-pump-systems)); its coefficient and operating range are declared, and losing supply ends pumping. A cold pack is a finite store, not a pump.
 
 <a id="th-s06"></a>
 
-### TH-S06 — thermal expansion
-
-[OpenStax: Thermal Expansion](https://openstax.org/books/university-physics-volume-2/pages/1-3-thermal-expansion) supports temperature-dependent dimensions, density and differential expansion. Rods, bimetal strips, heated gas containers and hot-air lift are separate game assemblies using shared material/constraint/pressure/buoyancy processes. Constrained strain must feed real mechanical stress instead of overriding transforms.
+**TH-S06 — Thermal expansion.** Temperature-dependent length, density and differential expansion feed constraint rows ([OpenStax: Thermal Expansion](https://openstax.org/books/university-physics-volume-2/pages/1-3-thermal-expansion)). Rods, bimetal strips, heated gas containers and hot-air lift share the material, constraint, sealed-gas and buoyancy records.
 
 <a id="th-s07"></a>
 
-### TH-S07 — heat to mechanical work
-
-[OpenStax: Heat Engines](https://openstax.org/books/university-physics-volume-2/pages/4-2-heat-engines) provides the heat-flow/work/rejection basis. Steam machinery proposals must account for pressure/enthalpy drop, load, exhaust and returned condensate. A closed fluid loop is not an independent energy source.
+**TH-S07 — Heat to mechanical work.** Steam machinery accounts pressure/enthalpy drop, load, exhaust and returned condensate ([OpenStax: Heat Engines](https://openstax.org/books/university-physics-volume-2/pages/4-2-heat-engines)); the chamber and nozzle records of the [gas family](finite-gas-foundation.md) do the work. A closed loop is not an energy source.
 
 <a id="th-s08"></a>
 
-### TH-S08 — evaporative cooling
-
-[DOE: Cooling Tower Management](https://www.energy.gov/cmei/femp/best-management-practice-10-cooling-tower-management) describes heat rejection that consumes water through evaporation. Our pad is a small original puzzle implementation of that principle: finite wetting, capillary transport, ambient humidity and latent transfer. It does not require a full industrial cooling tower model.
+**TH-S08 — Evaporative cooling.** A wet pad rejects heat by consuming water through latent transfer, bounded by wetting and ambient humidity ([DOE: Cooling Tower Management](https://www.energy.gov/cmei/femp/best-management-practice-10-cooling-tower-management)).
 
 <a id="th-s09"></a>
 
-### TH-S09 — thermoelectric conversion
+**TH-S09 — Thermoelectric conversion.** A maintained temperature difference across hot/cold ports yields finite electrical power ([DOE: Generating Light from Darkness](https://www.energy.gov/science/bes/articles/generating-light-darkness)); the converter accepts any compatible hot/cold nodes, so a radioisotope generator is decay heat plus this same record.
 
-[DOE: Generating Light from Darkness](https://www.energy.gov/science/bes/articles/generating-light-darkness) discusses electrical generation from a maintained temperature difference. The generic converter must accept compatible hot/cold thermal ports independent of heat-source identity; an RTG combines decay heat with this same conversion capability.
+### Parameters, sensors, sources, stores and network nodes
 
-## Generic architecture and performance
+| Parameter | Unit | f32 range / scale | Notes |
+| --- | --- | --- | --- |
+| Temperature | K | 128–2048 (scale 2³) | Environment node typically 288 |
+| Specific heat c | J/(kg·K) | 1/8–8 (scale 2⁹) | Material table |
+| Latent heat | J/kg | 1/16–16 (scale 2¹⁷) | Per transition |
+| Conductance G | W/K | 2⁻¹⁰–2⁸ | Per link |
+| Source power | W | 1/16–256 (scale 2³) | Candle, plate, bowl |
+| Fuel / supply | J | finite (scale 2¹⁰) | Depletes to zero |
+| Ignition threshold | K | 400–1200 | Material table |
+| Expansion coefficient | 1/K | 2⁻¹⁰–2⁻⁴ (scale 2⁻¹⁰) | Rod, bimetal |
+| Sensor thresholds | K | On > Off by ≥ 2 | Hysteresis, dwell in ticks |
 
-The [mandatory TODO contract](planning/requirements.md#generic-interaction-contract) requires typed capabilities, enthalpy/material state, conserved transfer proposals and deterministic coupling. [NIST's phase-field model formulation guide](https://pages.nist.gov/pf-recommended-practices/bp-guide-gh/ch1-model-formulation.html) is a reference for conservation in coupled material models, not a requirement to implement full phase-field numerics.
+Sources: Candle, Fire bowl, Electrical heating plate, Friction brake, Flint striker, Spring-mounted match, Solar absorber plate with Converging lens. Stores: Thermal storage block, Phase-change cartridge, Cold pack, Ice block, Kettle contents. Network nodes: Heat-conducting bar, Insulating panel, Finned heat sink, Heat exchanger, Reversible heat pump, Evaporative pad. Sensors: Temperature sensor, Bimetal thermostat, Fusible link, Heat-sensitive target.
 
-A practical first model may use lumped thermal nodes, finite fluid/gas parcels and bounded constitutive laws. Declare limitations and reject unsupported conditions explicitly. Numerical approximation is acceptable; changing the physics based on catalogue names, level identity or a hard-coded pair is not.
+## Per-element declarations
 
-Subsystem pruning requires conservative transitive closure over placed elements, available inventory, material models, goals, environment, profile and every reachable reaction/phase/spawn product. Category labels cannot prove isolation. Ice may introduce liquid, optical energy may initiate combustion, and mechanical loss may require heat accounting. Prove equivalence to fully enabled execution and record performance savings. Authoring simplification and pruning are distinct decisions.
+Every row cites the laws it composes; each element still needs its own [named-elements](planning/invest/named-elements.md) proof.
 
-## Individuality and teaching
+| Element | Capabilities instantiated | Parameters (f32) | Player-observable behaviour | Animation binding |
+| --- | --- | --- | --- | --- |
+| TH-01 Candle | Finite fuel source + reaction state + convective link (S01, S03) | power, fuel, ignition T | Burns down while lit, heats what is above it, goes out when fuel ends or is suppressed | Flame scale ← committed power; wax height ← fuel |
+| TH-02 Fire bowl | Larger fuel source + reaction state (S03) | power, fuel, oxidiser | Hotter, wider heat; smothering a lid puts it out | Flame ← power |
+| TH-03 Combustible block | Node with ignition threshold + fuel (S03) | ignition T, burn rate | Ignites from a hot neighbour, burns and loses mass | Char fraction ← burnt fraction |
+| TH-04 Electrical heating plate | Electrical node + source (S01) | watt rating | Warms contacts only while supplied | Glow ← committed power |
+| TH-05 Friction brake | Contact friction work → heat source (S01) | friction, mass | Rubbing a shaft warms the pad | Pad glow ← power |
+| TH-06 Converging lens | Optical refraction + irradiance concentration (S04) | focal length | Focused beam heats a target at its focus; off-focus does not | None (static) |
+| TH-07 Solar absorber plate | Node with absorptance + optical receiver (S04) | absorptance, mass | Warms under a Flashlight/laser or lens spot | Plate tint ← T |
+| TH-08 Heat-conducting bar | Conduction link (S01) | conductance | Carries heat between touching nodes | None |
+| TH-09 Insulating panel | Low-conductance link (S01) | conductance | Slows heat loss; protects cargo | None |
+| TH-10 Finned heat sink | High-conductance link to environment + airflow scaling (S01) | conductance, exposure | Cools faster under a Fan | None |
+| TH-11 Heat exchanger | Two-stream link (S01) | conductance | Moves heat between two fluid paths | Flow arrows ← q |
+| TH-12 Reversible heat pump | Electrical node + two-port pump (S05) | coefficient, range | Cools one side, warms the other while supplied | Compressor spin ← power |
+| TH-13 Freezing mold | Node + phase transition (S02) | volume | Water freezes into a solid cargo when cooled | Ice fraction ← f |
+| TH-14 Ice block | Solid-phase node + body (S02) | mass | Melts into accounted water, shrinks | Scale ← solid fraction |
+| TH-15 Ice plug | Ice block as a gate (S02) | mass | Releases a path when melted | Scale ← f |
+| TH-16 Fusible link | Thermal sensor + constraint breaking (S02) | melt T | Breaks a held load above its melt point | Link snap ← state |
+| TH-17 Kettle | Node + sealed gas store + nozzle (S02, S07) | capacity | Boils to steam pressure that can drive a piston or whistle | Lid rattle ← pressure |
+| TH-18 Condenser | Cold link + phase transition (S02) | conductance | Turns steam back into accounted water | Drip rate ← q |
+| TH-19 Steam piston | Chamber + slider body (S07) | stroke, load | Extends under steam pressure against load | Rod ← slider |
+| TH-20 Steam turbine | Nozzle + rotary capture (S07) | pitch, inertia | Spins a shaft from steam flow | Rotor ← hinge angle |
+| TH-21 Temperature sensor | Thermal sensor + electrical output (S01) | On/Off T | Switches a supplied load above threshold | Needle ← T |
+| TH-22 Bimetal thermostat | Differential expansion → contact (S06) | bend coefficient | Opens/closes a contact as it warms; no battery needed to move | Strip bend ← strain |
+| TH-23 Expansion rod | Expansion → slider constraint (S06) | coefficient, length | Pushes a lever as it warms | Rod length ← strain |
+| TH-24 Gas expansion bladder | Sealed gas store + node (S06) | material | Inflates when heated, pushes cargo | Skin ← volume |
+| TH-25 Hot-air balloon | Sealed gas store + buoyancy region (S06) | volume | Lifts when its air is heated | Envelope ← volume |
+| TH-26 Thermal storage block | High-capacity node (S01) | mass, c | Stays warm after the source stops | Tint ← T |
+| TH-27 Phase-change storage cartridge | Node + latent store (S02) | latent heat | Holds temperature during a transition | Tint ← T |
+| TH-28 Evaporative cooling pad | Wet node + water store (S08) | wetting | Cools airflow while wet | Damp fraction ← water |
+| TH-29 Cold pack | Finite cold store (S05) | capacity | Absorbs heat until spent | Frost ← remaining |
+| TH-30 Thermoelectric generator | Two thermal ports → electrical source (S09) | coefficient | Powers a load while a temperature difference exists | Meter ← power |
+| TH-31 Flint striker | Impact trigger → finite ignition energy (S03) | energy per strike | Lights tinder when struck | Spark ← occurrence |
+| TH-32 Tinder pad | Low-threshold combustible (S03) | ignition T | Catches from a striker or lens, lights the next fuel | Ember ← state |
+| TH-33 Spring-mounted match | Spring + friction strike + ignition (S03) | stiffness | Releases, strikes, lights | Match pose ← hinge |
+| TH-34 Timed toaster ejector | Heating plate + timer + spring eject (S01) | watt rating, time | Warms cargo then pops it out | Lever ← state |
+| TH-35 Coffee-pot steam vessel | Node + sealed gas + nozzle (S02, S07) | capacity | Perks and vents steam to a receiver | Lid ← pressure |
+| TH-36 Lamp-trigger apparatus | Heat sensor ↔ lamp activation (S01) | On/Off T | Lights a lamp when warm | Lamp ← output |
+| TH-37 Heat-sensitive target | Goal node with threshold (S01) | target T, dwell | Solved when held above temperature for the dwell | Tint ← T |
 
-The [nonthermal individual register](planning/requirements.md#individual-element-register) expands 216 existing element obligations without replacing historical evidence. Single-element specifications elsewhere in TODO remain valid; family tables are indexes only. Unnamed parameter ranges still require typed supported-mode definitions and individual proof before closure.
+Thermal first use is distributed across electricity, optics, fluids, gas and storage lessons rather than one late chapter; each TH record keeps its introduction, practice and reuse slots in the campaign plan. Gauges, contained phase boundaries and actual moving mechanisms show state; a white plume is never evidence of gaseous water. Preserve the [DESIGN.md](../DESIGN.md) palette and forms.
 
-Thermal first use is distributed across electricity, optics, fluids, gas and storage lessons, rather than placing every new concept in levels81–90. Each TH record supplies exact introduction, practice and reuse slots. All 150 levels, GAP obligations and radiation reservations remain accounted for; the enlarged staged lessons still require real-player pacing validation.
+## Chrome-observable acceptance for the first heat slice
 
-Follow the existing palette and Monument Valley-inspired forms in DESIGN.md. Use gauges, shape, contained phase boundaries and actual moving mechanisms. A white plume is not evidence of gaseous water; observation must inspect conserved state/flow as well as visible art. Human playtesting must establish that the concepts are readable and enjoyable.
+The first slice introducing this family (an ELEMENT-n slice in [roadmap order](planning/invest/vertical-delivery.md#rolling-playable-roadmap)) composes TH-04 Electrical heating plate, TH-21 Temperature sensor and the existing Signal lamp. Through actual palette, gizmo and socket controls in Chrome/Playwright:
+
+1. Battery → Switch → Heating plate under a Temperature sensor → Signal lamp: after Run the sensor needle rises and the lamp lights once the On threshold holds for its dwell.
+2. Controls: unsupplied plate (needle stays at ambient, lamp dark); an Insulating panel between plate and sensor delays or prevents the rise; the lamp goes dark again only after the needle falls below the separate Off threshold.
+3. No free energy: a plate that is switched off cools toward the environment node and never re-lights the lamp.
+4. Reset restores every node to its authored temperature, phase fraction and fuel; Save/Load where supported restores identical canonical bits.
+
+Lifecycle, production build and ordinary resource ownership apply per slice; detailed performance remains at its named release gate.

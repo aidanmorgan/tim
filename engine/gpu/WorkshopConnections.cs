@@ -19,7 +19,8 @@ public static class WorkshopPorts
     {
         WorkshopPartKind.ImpactSwitch => SwitchPorts,
         WorkshopPartKind.SignalLamp => LampPorts,
-        WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall => [],
+        WorkshopPartKind.Delay => DelayPorts,
+        WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall or WorkshopPartKind.PinballBumper => [],
         _ => throw new ArgumentException("Unsupported port owner.")
     };
     private static readonly WorkshopPort[] SwitchPorts =
@@ -31,10 +32,18 @@ public static class WorkshopPorts
         new(WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input)
     ];
 
-    public static MetreVector LocalPosition(WorkshopSocket socket) => socket switch
+    private static readonly WorkshopPort[] DelayPorts =
+    [
+        new(WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input),
+        new(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output)
+    ];
+
+    public static MetreVector LocalPosition(WorkshopPartKind kind, WorkshopSocket socket) => (kind, socket) switch
     {
-        WorkshopSocket.ActivationOut => new((Half).45, (Half)0, (Half).4),
-        WorkshopSocket.ActivationIn => default,
+        (WorkshopPartKind.ImpactSwitch, WorkshopSocket.ActivationOut) => new((Half).45, (Half)0, (Half).4),
+        (WorkshopPartKind.SignalLamp, WorkshopSocket.ActivationIn) => default,
+        (WorkshopPartKind.Delay, WorkshopSocket.ActivationIn) => new((Half)(-.72),(Half)0,(Half)0),
+        (WorkshopPartKind.Delay, WorkshopSocket.ActivationOut) => new((Half).72,(Half)0,(Half)0),
         _ => throw new ArgumentException("This socket is not admitted for placement.")
     };
     public static bool Has(WorkshopPartKind kind, WorkshopSocket socket, WorkshopConnectionDomain domain, WorkshopPortDirection direction)

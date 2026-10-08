@@ -1,20 +1,50 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using CuriousContraptions.Bridge;
+using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions;
 
 public partial class SoundMeterPart : MachinePart
 {
-    public float Threshold=>Properties[ReceiverParameters.Threshold];
-    public float Level { get; private set; }
-    public bool AboveThreshold { get; private set; }
+    protected override PartParameterValues BindParameters(System.Collections.Generic.IReadOnlyDictionary<string,float> fields) =>
+        PartParameterValues.Bind<ReceiverParameter>(fields);
+    private RuntimeCheckpoint? _runtimeCheckpoint;
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState =>
+        [_level,_thresholdState,_runtimeCheckpoint ??= new(this)];
+    private sealed class RuntimeCheckpoint(SoundMeterPart owner) : SimulationTransactionParticipant
+    {
+        private bool _pending;
+        private int _triggerCount, _sampledTick;
+        protected override void CaptureCheckpoint()
+        {
+            _pending=owner._pending; _triggerCount=owner.TriggerCount; _sampledTick=owner._sampledTick;
+        }
+        protected override void RestoreCheckpoint()
+        {
+            owner._pending=_pending; owner.TriggerCount=_triggerCount; owner._sampledTick=_sampledTick;
+        }
+    }
+    public float Threshold=>ReadParameter(ReceiverParameter.Threshold);
+    private readonly SimulationState<float> _level=new(0);
+    public float Level=>_level.Value;
+    public static readonly ScalarObservationSlot LevelOutput=new(0);
+    public override IReadOnlyList<SceneScalarObservation> ScalarObservations=>
+        [new(LevelOutput,ScalarUnit.Dimensionless,new(_level))];
+    private readonly SimulationState<bool> _thresholdState=new(false);
+    public bool AboveThreshold=>_thresholdState.Value;
     public int TriggerCount { get; private set; }
     private bool _pending;
     private int _sampledTick=-1;
     private Node3D _needle=null!;
-    private StandardMaterial3D _lamp=null!;
-    private float _displayLevel;
+    private MeshInstance3D _lamp=null!;
+    private static readonly AnimationFollowDefinition NeedleResponse=new(0,-2,0,18,AnimationClock.Presentation);
+    private static readonly AnimationDefinition LampTransition=new(0,1,.1,AnimationCurve.SmoothStep,AnimationRepeat.Once,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneScalarRotationAnimation> ScalarRotationAnimations=>
+        [new(_needle,new(this,LevelOutput),ScalarUnit.Dimensionless,0,1,NeedleResponse,AnimationRotationAxis.Z,ScalarAnimationMapping.Linear)];
+    public override IReadOnlyList<SceneColourAnimation> ColourAnimations=>
+        [new(_lamp,LampTransition,new("#556573"),new("#f7cb52"),SceneAnimationSignal.OwnerActive,SceneAnimationDrive.Endpoint)];
     public override Vector3? AcousticTarget=>Vector3.Zero;
     public override bool CanSendActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
@@ -24,21 +54,22 @@ public partial class SoundMeterPart : MachinePart
         new(SocketId.ActivationOut,ConnectionDomain.Activation,PortDirection.Output,new(.92f,.45f,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        [new(SocketId.PowerIn,SocketId.Supply,AboveThreshold)];
-    public override void ValidateParameters()
+        [new(SocketId.PowerIn,SocketId.Supply,ElectricalContactSignal.BooleanState(_thresholdState))];
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
+        var Threshold=parameters.Read(ReceiverParameter.Threshold);
         if(!float.IsFinite(Threshold)||Threshold<.05f||Threshold>1)
             throw new ArgumentException("Sound meter threshold must be finite and between 0.05 and 1.");
     }
     public override void ReceiveAcousticLevel(float level)
     {
         if(!float.IsFinite(level)||level<0||level>1)throw new ArgumentException("Sound level must be between zero and one.");
-        Level=level;
+        _level.Value=level;
         var above=AboveThreshold?level>Threshold*.9f:level>=Threshold;
         _pending=above&&!AboveThreshold;
-        AboveThreshold=above;
+        _thresholdState.Value=above;
     }
-    public override void BeforeStep(MachineWorld world,float delta)
+    public override void PreparePhysics(MachineWorld world,float delta)
     {
         if(_sampledTick==world.Ticks)return;
         _sampledTick=world.Ticks;
@@ -61,16 +92,10 @@ public partial class SoundMeterPart : MachinePart
             var angle=Mathf.Lerp(-1,1,i/6f);
             PartArt.Sphere(Visual,.025f,new("#293954"),new(Mathf.Sin(angle)*.5f,Mathf.Cos(angle)*.5f-.2f,.4f));
         }
-        _needle=new Node3D {Position=new(0,-.2f,.42f)};Visual.AddChild(_needle);
+        _needle=new Node3D {Position=new(0,-.2f,.42f),Rotation=new(0,0,1)};Visual.AddChild(_needle);
         PartArt.Box(_needle,new(.035f,.44f,.035f),new("#e8b764"),new(0,.22f,0));
         PartArt.Sphere(Visual,.065f,new("#293954"),new(0,-.2f,.46f));
-        _lamp=(StandardMaterial3D)PartArt.Sphere(Visual,.065f,new("#556573"),new(0,-.43f,.41f)).MaterialOverride;
+        _lamp=PartArt.Sphere(Visual,.065f,new("#556573"),new(0,-.43f,.41f));
         foreach(var port in ConnectionPorts)PartArt.Sphere(Visual,.075f,new("#f7cb52"),port.LocalPosition);
-    }
-    public override void _Process(double delta)
-    {
-        _displayLevel=Mathf.Lerp(_displayLevel,Level,1-Mathf.Exp(-(float)delta*18));
-        _needle.Rotation=new(0,0,Mathf.Lerp(1,-1,_displayLevel));
-        _lamp.AlbedoColor=_lamp.AlbedoColor.Lerp(Active?new("#f7cb52"):new("#556573"),1-Mathf.Exp(-(float)delta*16));
     }
 }

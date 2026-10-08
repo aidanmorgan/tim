@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class OpticalLogicTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class OpticalLogicTests(NativeSceneFixture godot)
 {
     private partial class Source : MachinePart
     {
@@ -37,7 +37,9 @@ public class OpticalLogicTests(HeadlessFixture godot)
         try
         {
             var gate=(OpticalLogicPart)world.AddPart(new(){Id="gate",Kind=Catalog(kind),Position=[0,6,0]});
-            world.Parts.AddRange([a,b,c]);
+            FixtureParts.Attach(world,a,FixturePartId.First);
+            FixtureParts.Attach(world,b,FixturePartId.Second);
+            FixtureParts.Attach(world,c,FixturePartId.Third);
             var initial=gate.IsOpen;
             OpticalNetwork.Solve(world);
             Assert.Equal(first,gate.First);
@@ -49,7 +51,7 @@ public class OpticalLogicTests(HeadlessFixture godot)
             Assert.Equal(expected&&carrier,gate.Active);
             Assert.Equal(expected&&carrier?Vector3.One*.9f:Vector3.Zero,gate.OutputPower);
             // Controls are absorbed; only the carrier can leave the gate.
-            Assert.All(world.OpticalPaths.Where(s=>s.OriginPart==gate.Uid),s=>Assert.Equal(Vector3.One*.9f,s.Power));
+            Assert.All(world.OpticalPaths.Where(s=>s.OriginPart==gate.OpticalIdentity),s=>Assert.Equal(Vector3.One*.9f,s.Power));
             c.Power=Vector3.Zero;
             OpticalNetwork.Solve(world);
             Assert.False(gate.Active);
@@ -62,7 +64,6 @@ public class OpticalLogicTests(HeadlessFixture godot)
         }
         finally
         {
-            foreach(var source in new[]{a,b,c}){world.Parts.Remove(source);source.Free();}
             world.Free();
         }
     }

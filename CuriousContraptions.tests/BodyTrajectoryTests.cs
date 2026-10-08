@@ -13,8 +13,8 @@ public class BodyTrajectoryTests
     [Fact]
     public void SweepPoseAndCommittedPrefixAreExactlyTheSameCapturedTrajectory()
     {
-        var body=Body(); var path=body.CreateTrajectory(.4);
-        var local=new ConvexInstance(new ConvexBox(new(2,.05,.05)),new(Basis.Identity,new(.3f,.2f,-.1f)));
+        var body=Body(); var path=body.CreateTrajectory(.4,default);
+        var local=new ConvexInstance(new ConvexBox(new(2,.05,.05)),new(AffineBasis.Identity,new(.3f,.2f,-.1f)));
         var motion=new ConvexMotion(local,path);
         Assert.True(path.SegmentCount>1);
         var expected=path.At(.173);
@@ -28,7 +28,7 @@ public class BodyTrajectoryTests
     [Fact]
     public void CurvatureIntervalsEndAtEveryConstantSpinBoundary()
     {
-        var path=Body().CreateTrajectory(.4);
+        var path=Body().CreateTrajectory(.4,default);
         double time=0; var count=0;
         while(time<path.Duration)
         {
@@ -47,13 +47,13 @@ public class BodyTrajectoryTests
         Assert.Equal(path.Duration,path.SegmentEndAfter(path.Duration));
         Assert.Throws<ArgumentOutOfRangeException>(()=>path.SegmentEndAfter(-1));
         Assert.Throws<ArgumentOutOfRangeException>(()=>path.SegmentEndAfter(double.NaN));
-        Assert.Equal(0,Body().CreateTrajectory(0).SegmentEndAfter(0));
+        Assert.Equal(0,Body().CreateTrajectory(0,default).SegmentEndAfter(0));
     }
 
     [Fact]
     public void ChangingVelocityInvalidatesPreviouslySweptMotion()
     {
-        var body=Body(); var path=body.CreateTrajectory(.1);
+        var body=Body(); var path=body.CreateTrajectory(.1,default);
         body.ApplyImpulse(X,body.Center);
         var before=body.Snapshot();
         Assert.Throws<InvalidOperationException>(()=>body.Advance(path,.1));
@@ -65,9 +65,9 @@ public class BodyTrajectoryTests
     [Fact]
     public void AngularBoundCoversEverySegmentIncludingBoundaries()
     {
-        var body=Body(); var path=body.CreateTrajectory(.4);
+        var body=Body(); var path=body.CreateTrajectory(.4,default);
         var point=new CollisionVector(1.5,.2,.1);
-        var bound=path.LinearVelocity.Length+path.AngularSpeedBound*point.Length;
+        var bound=Math.Max(path.LinearVelocityAt(0).Length,path.LinearVelocityAt(path.Duration).Length)+path.AngularSpeedBound*point.Length;
         const int samples=2000; const double step=.4/samples;
         for(var i=0;i<samples;i++)
         {
@@ -80,11 +80,11 @@ public class BodyTrajectoryTests
     [Fact]
     public void AnisotropicIntermediateCollisionIsDetectedAndAdvancedToTheReportedContact()
     {
-        var body=Body(); var path=body.CreateTrajectory(.24);
-        var beam=new ConvexMotion(new(new ConvexBox(new(2,.05,.05)),Transform3D.Identity),path);
+        var body=Body(); var path=body.CreateTrajectory(.24,default);
+        var beam=new ConvexMotion(new(new ConvexBox(new(2,.05,.05)),AffineTransform.Identity),path);
         var target=path.At(.12).TransformPoint(X*1.5);
         var fixedBody=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.At(target),default,default);
-        var obstacle=new ConvexMotion(new(new ConvexSphere(.03),Transform3D.Identity),fixedBody.CreateTrajectory(.24));
+        var obstacle=new ConvexMotion(new(new ConvexSphere(.03),AffineTransform.Identity),fixedBody.CreateTrajectory(.24,default));
         Assert.True(ConvexDistance.Query(beam.At(0),obstacle.At(0)).LowerBound>.01);
         Assert.True(ConvexDistance.Query(beam.At(.24),obstacle.At(.24)).LowerBound>.01);
         var hit=ConvexSweep.Cast(beam,obstacle,.24,ConvexSweep.ContactDistance);
@@ -101,14 +101,14 @@ public class BodyTrajectoryTests
     [Fact]
     public void CompoundChildrenUseTheSameBodyPathAndKeepStableChildIdentity()
     {
-        var body=Body(); var path=body.CreateTrajectory(.24);
+        var body=Body(); var path=body.CreateTrajectory(.24,default);
         var geometry=new CompoundGeometry([
-            new(new ConvexBox(new(.1,.1,.1)),new(Basis.Identity,new(0,0,5))),
-            new(new ConvexBox(new(2,.05,.05)),Transform3D.Identity)]);
+            new(new ConvexBox(new(.1,.1,.1)),new(AffineBasis.Identity,new(0,0,5))),
+            new(new ConvexBox(new(2,.05,.05)),AffineTransform.Identity)]);
         var moving=new CompoundMotion(geometry,path);
         var target=path.At(.12).TransformPoint(X*1.5);
         var fixedBody=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.At(target),default,default);
-        var obstacle=new CompoundMotion(new([new(new ConvexSphere(.03),Transform3D.Identity)]),fixedBody.CreateTrajectory(.24));
+        var obstacle=new CompoundMotion(new([new(new ConvexSphere(.03),AffineTransform.Identity)]),fixedBody.CreateTrajectory(.24,default));
         var hit=CompoundCollision.Cast(moving,obstacle,.24,ConvexSweep.ContactDistance);
         Assert.Equal(ConvexSweepStatus.Contact,hit.Status);
         Assert.Equal(new ColliderChildId(1),hit.ChildA);
@@ -119,7 +119,7 @@ public class BodyTrajectoryTests
     public void KinematicMultiTurnMotionIsNotReducedToEndpointOrientation()
     {
         var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,RigidPose.Identity,default,Z*(8*Math.PI));
-        var path=body.CreateTrajectory(1);
+        var path=body.CreateTrajectory(1,default);
         Near(-X,path.At(.125).TransformPoint(X));
         Near(X,path.At(1).TransformPoint(X));
         Assert.InRange(path.AngularSpeedBound,8*Math.PI-1e-12,8*Math.PI+1e-12);
@@ -128,10 +128,49 @@ public class BodyTrajectoryTests
     [Fact]
     public void InvalidHorizonAndOutOfRangeTimeFailWithoutChangingState()
     {
-        var body=Body(); var before=body.Snapshot(); var path=body.CreateTrajectory(.1);
+        var body=Body(); var before=body.Snapshot(); var path=body.CreateTrajectory(.1,default);
         Assert.Throws<ArgumentOutOfRangeException>(()=>path.At(.2));
         Assert.Throws<ArgumentOutOfRangeException>(()=>body.Advance(path,.2));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>body.CreateTrajectory(double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>body.CreateTrajectory(double.NaN,default));
         Assert.Equal(before,body.Snapshot());
+    }
+
+    [Fact]
+    public void DirectionRateBoundsCoverAnisotropicAndPrescribedSegments()
+    {
+        var motion=new PrescribedBodyMotion(new QuinticRigidTrajectory(RigidPose.Identity,X,Z*2,.8),
+            new(default,RigidRotation.FromRotationVector(Y*.3)),0);
+        var driver=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,motion.At(0),
+            motion.LinearVelocityAt(0),motion.AngularVelocityAt(0),prescribedMotion:motion);
+        var paths=new[]{Body().CreateTrajectory(.4,new(default,new(.3,-.2,.1))),driver.CreateTrajectory(1,default)};
+        foreach(var path in paths)
+            for(double start=0;start<path.Duration;)
+            {
+                var end=path.SegmentEndAfter(start);
+                foreach(var direction in new[]{X,Y,Z,new(.2,-.3,1.5),default})
+                {
+                    var bound=path.DirectionSpeedBound(direction,start,end);
+                    for(var index=0;index<32;index++)
+                    {
+                        var time=start+(end-start)*index/32;
+                        var actual=CollisionVector.Cross(path.AngularVelocityAt(time),
+                            path.At(time).Rotation.Apply(direction)).Length;
+                        Assert.InRange(actual,0,bound+1e-12);
+                    }
+                    var delta=(path.At(end).Rotation.Apply(direction)-path.At(start).Rotation.Apply(direction)).Length;
+                    Assert.InRange(delta,0,bound*(end-start)+1e-12);
+                }
+                start=end;
+            }
+    }
+
+    [Fact]
+    public void DirectionBoundsRejectCrossSegmentAndNonfiniteRequests()
+    {
+        var path=Body().CreateTrajectory(.4,default);
+        Assert.Throws<ArgumentOutOfRangeException>(()=>path.DirectionSpeedBound(X,0,.4));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>path.DirectionSpeedBound(new(double.NaN,0,0),0,0));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>path.DirectionSpeedBound(X,.1,0));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>path.DirectionSpeedBound(X,0,double.NaN));
     }
 }

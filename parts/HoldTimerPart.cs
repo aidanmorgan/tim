@@ -1,21 +1,38 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using CuriousContraptions.Presentation;
+using CuriousContraptions.Bridge;
 
 namespace CuriousContraptions;
-
-public enum HoldTimerState { Ready, Holding }
 
 /// <summary>A self-timed electrical contact, not a power source. Busy triggers are ignored.</summary>
 public partial class HoldTimerPart : MachinePart
 {
-    public HoldTimerState State { get; private set; }
-    public int StartedTick { get; private set; } = -1;
-    public int DueTick { get; private set; } = -1;
-    public float Duration => Properties[HoldTimerParameters.Seconds];
-    public float Remaining { get; private set; }
+    protected override PartParameterValues BindParameters(System.Collections.Generic.IReadOnlyDictionary<string,float> fields) =>
+        PartParameterValues.Bind<HoldTimerParameter>(fields);
+    public static readonly TimerSlot ContactWindow=new();
+    private SimulationTimerState ReadState=>GetParent() is MachineWorld {HasPhysicsState:true} world
+        ?world.ReadTimer(new(this,ContactWindow)):new(default,SimulationTimerPhase.Ready,-1,-1);
+    public SimulationTimerPhase State=>ReadState.Phase;
+    public int StartedTick=>ReadState.StartedTick;
+    public int DueTick=>ReadState.DueTick;
+    public float Duration=>ReadParameter(HoldTimerParameter.HoldSeconds);
+    public float Remaining=>State==SimulationTimerPhase.Counting&&GetParent() is MachineWorld world
+        ?(float)(1-world.TimerProgress(new(this,ContactWindow))):0;
+    public override IReadOnlyList<SceneTimerDeclaration> SimulationTimers=>
+        [new(new(this,ContactWindow),Duration,TimerCompletionPolicy.Rearm,TimerBoundary.BeforeNetworks,TimerElapsedSignal.None)];
+    public static readonly Bridge.ScalarObservationSlot RemainingOutput=new(0);
+    public override IReadOnlyList<SceneTimerObservation> TimerObservations=>
+        [new(RemainingOutput,new(this,ContactWindow),SimulationTimerQuantity.RemainingFraction)];
     private MeshInstance3D _bar = null!;
-    private StandardMaterial3D _indicator = null!;
+    private MeshInstance3D _indicator = null!;
+    private static readonly ScalarExtentDefinition BarExtent=new(ScalarExtentAxis.X,-.5,.001,1);
+    public override IReadOnlyList<SceneScalarExtent> ScalarExtents=>
+        [new(_bar,new(this,RemainingOutput),ScalarUnit.Dimensionless,0,1,BarExtent,ScalarExtentVisibility.OwnerActive)];
+    public override IReadOnlyList<SceneColourAnimation> ColourAnimations=>
+        [new(_indicator,new(0,1,.1,AnimationCurve.SmoothStep,AnimationRepeat.Once,AnimationClock.Presentation),
+            new("#556573"),new("#f7cb52"),SceneAnimationSignal.OwnerActive,SceneAnimationDrive.Endpoint)];
     public override bool CanReceiveActivation => true;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
@@ -24,31 +41,20 @@ public partial class HoldTimerPart : MachinePart
         new(SocketId.Supply, ConnectionDomain.Electrical, PortDirection.Output, new(.78f,0,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes =>
-        [new(SocketId.PowerIn, SocketId.Supply, State == HoldTimerState.Holding)];
-    public override void ValidateParameters()
+        [new(SocketId.PowerIn, SocketId.Supply, ElectricalContactSignal.TimerCounting(new(this,ContactWindow)))];
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
+        var Duration=parameters.Read(HoldTimerParameter.HoldSeconds);
         if (!float.IsFinite(Duration) || Duration < .1f || Duration > 12)
             throw new ArgumentException("Hold duration must be finite and between 0.1 and 12 seconds.");
     }
     public override ActivationDisposition HandleActivation(MachineWorld world, ActivationCommand command)
     {
         if (command != ActivationCommand.Trigger) throw new ArgumentException("Unsupported activation command.");
-        if (State == HoldTimerState.Holding) return ActivationDisposition.Deferred;
-        State = HoldTimerState.Holding;
-        StartedTick = world.Ticks;
-        DueTick = StartedTick + (int)Math.Ceiling(Duration / MachineWorld.Tick);
-        Remaining = 1;
-        return ActivationDisposition.Immediate;
+        return world.TriggerTimer(new(this,ContactWindow))
+            ?ActivationDisposition.Immediate:ActivationDisposition.Deferred;
     }
-    public override void BeforeNetworks(MachineWorld world)
-    {
-        if (State == HoldTimerState.Holding && world.Ticks >= DueTick)
-        {
-            State = HoldTimerState.Ready;
-            Active = false;
-            Remaining = 0;
-        }
-    }
+    public override void BeforeNetworks(MachineWorld world)=>Active=State==SimulationTimerPhase.Counting;
     protected override void Build()
     {
         PickRadius = .95f;
@@ -62,15 +68,6 @@ public partial class HoldTimerPart : MachinePart
         foreach (var x in new[] { -.78f,.78f })
             PartArt.Sphere(Visual,.08f,new("#e8b764"),new(x,0,0));
         PartArt.Sphere(Visual,.08f,new("#e8b764"),new(0,.65f,.2f));
-        _indicator = (StandardMaterial3D)PartArt.Sphere(Visual,.07f,new("#556573"),new(0,-.22f,.40f)).MaterialOverride;
-    }
-    public override void BeforeStep(MachineWorld world, float delta)
-    {
-        if (State == HoldTimerState.Holding)
-            Remaining = Mathf.Clamp((float)(DueTick - world.Ticks) / (DueTick - StartedTick),0,1);
-        _bar.Visible = State == HoldTimerState.Holding;
-        _bar.Scale = new(Mathf.Max(.001f,Remaining),1,1);
-        _bar.Position = new((Remaining-1)*.5f,.1f,.415f);
-        _indicator.AlbedoColor = State == HoldTimerState.Holding ? new("#f7cb52") : new("#556573");
+        _indicator = PartArt.Sphere(Visual,.07f,new("#556573"),new(0,-.22f,.40f));
     }
 }

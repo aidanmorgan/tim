@@ -1,25 +1,6 @@
-using Godot;
 using System;
 
 namespace CuriousContraptions.Physics;
-
-/// <summary>Double-precision geometry arithmetic inside collision queries.
-/// Godot scene transforms remain explicit float boundaries.</summary>
-public readonly record struct CollisionVector(double X,double Y,double Z)
-{
-    public double LengthSquared=>Dot(this,this);
-    public double Length=>Math.Sqrt(LengthSquared);
-    public bool IsFinite=>double.IsFinite(X)&&double.IsFinite(Y)&&double.IsFinite(Z);
-    public static CollisionVector From(Vector3 v)=>new(v.X,v.Y,v.Z);
-    public static CollisionVector Cross(CollisionVector a,CollisionVector b)=>
-        new(a.Y*b.Z-a.Z*b.Y,a.Z*b.X-a.X*b.Z,a.X*b.Y-a.Y*b.X);
-    public static double Dot(CollisionVector a,CollisionVector b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
-    public static CollisionVector operator +(CollisionVector a,CollisionVector b)=>new(a.X+b.X,a.Y+b.Y,a.Z+b.Z);
-    public static CollisionVector operator -(CollisionVector a,CollisionVector b)=>new(a.X-b.X,a.Y-b.Y,a.Z-b.Z);
-    public static CollisionVector operator -(CollisionVector a)=>new(-a.X,-a.Y,-a.Z);
-    public static CollisionVector operator *(CollisionVector a,double b)=>new(a.X*b,a.Y*b,a.Z*b);
-    public static CollisionVector operator /(CollisionVector a,double b)=>new(a.X/b,a.Y/b,a.Z/b);
-}
 
 /// <summary>A convex shape is defined by its farthest point in a direction.
 /// The collision algorithm does not inspect the concrete shape type.</summary>
@@ -37,6 +18,7 @@ public readonly record struct InteriorBall
 public abstract class ConvexGeometry
 {
     public abstract CollisionVector Support(CollisionVector direction);
+    public abstract CollisionVector CoreSupport(CollisionVector direction);
     public abstract SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance);
     public abstract double BoundingRadius { get; }
     /// <summary>Radius of an exact Minkowski-summed ball. The remaining core
@@ -48,6 +30,7 @@ public abstract class ConvexGeometry
 public sealed class ConvexSphere : ConvexGeometry
 {
     public double Radius { get; }
+    public override CollisionVector CoreSupport(CollisionVector direction)=>default;
     public ConvexSphere(double radius)
     {
         if(!double.IsFinite(radius)||radius<=0) throw new ArgumentOutOfRangeException(nameof(radius));
@@ -68,6 +51,7 @@ public sealed class ConvexSphere : ConvexGeometry
 public sealed class ConvexBox : ConvexGeometry
 {
     public CollisionVector Half { get; }
+    public override CollisionVector CoreSupport(CollisionVector direction)=>Support(direction);
     public ConvexBox(CollisionVector half)
     {
         if(!half.IsFinite||half.X<=0||half.Y<=0||half.Z<=0) throw new ArgumentOutOfRangeException(nameof(half));
@@ -91,6 +75,7 @@ public sealed class ConvexBox : ConvexGeometry
 public sealed class ConvexHull : ConvexGeometry
 {
     private readonly CollisionVector[] _points;
+    public override CollisionVector CoreSupport(CollisionVector direction)=>Support(direction);
     public override double BoundingRadius { get; }
     public override double RoundingRadius=>0;
     public override InteriorBall InteriorBall { get; }
@@ -131,25 +116,21 @@ public interface IConvexSupport
 public readonly struct ConvexInstance : IConvexFeatureSupport
 {
     public ConvexGeometry Geometry { get; }
-    public Transform3D Pose { get; }
+    public AffineTransform Pose { get; }
     public double RadiusBound { get; }
     public double RotationRadiusBound { get; }
     public double RoundingRadius { get; }
     public InteriorBall InteriorBall { get; }
-    public ConvexInstance(ConvexGeometry geometry,Transform3D pose)
+    public ConvexInstance(ConvexGeometry geometry,AffineTransform pose)
     {
         ArgumentNullException.ThrowIfNull(geometry);
         var b=pose.Basis;
-        if(!pose.Origin.IsFinite()||!b.X.IsFinite()||!b.Y.IsFinite()||!b.Z.IsFinite()||
-            Math.Abs(b.X.LengthSquared()-1)>.00001||Math.Abs(b.Y.LengthSquared()-1)>.00001||
-            Math.Abs(b.Z.LengthSquared()-1)>.00001||Math.Abs(b.X.Dot(b.Y))>.00001||
-            Math.Abs(b.X.Dot(b.Z))>.00001||Math.Abs(b.Y.Dot(b.Z))>.00001||
-            Math.Abs(b.Determinant()-1)>.0001)
+        if(!pose.Origin.IsFinite||!b.IsApproximatelyRigid)
             throw new ArgumentException("Collision instances require proper rigid transforms.",nameof(pose));
         if(!double.IsFinite(geometry.BoundingRadius)||geometry.BoundingRadius<0||
             !double.IsFinite(geometry.RoundingRadius)||geometry.RoundingRadius<0||geometry.RoundingRadius>geometry.BoundingRadius)
             throw new ArgumentOutOfRangeException(nameof(geometry));
-        var x=CollisionVector.From(b.X); var y=CollisionVector.From(b.Y); var z=CollisionVector.From(b.Z);
+        var x=b.X; var y=b.Y; var z=b.Z;
         var xy=Math.Abs(CollisionVector.Dot(x,y)); var xz=Math.Abs(CollisionVector.Dot(x,z)); var yz=Math.Abs(CollisionVector.Dot(y,z));
         // The maximum absolute row sum of B-transpose*B bounds its largest
         // eigenvalue, including float transform roundoff.
@@ -163,7 +144,7 @@ public readonly struct ConvexInstance : IConvexFeatureSupport
         // is bounded below by r*sigmaMin^2/sigmaMax. Subtracting this ball
         // leaves a convex support function, including float-basis anisotropy.
         RoundingRadius=geometry.RoundingRadius*minimum/Math.Sqrt(maximum);
-        InteriorBall=new(CollisionVector.From(pose.Origin)+x*ball.Center.X+y*ball.Center.Y+z*ball.Center.Z,
+        InteriorBall=new(pose.Origin+x*ball.Center.X+y*ball.Center.Y+z*ball.Center.Z,
             ball.Radius*Math.Sqrt(minimum));
         // For the rounded term h(n)=r*sqrt(n^T B B^T n), the derivative under
         // unit angular travel is bounded by r*(lambdaMax-lambdaMin)/sqrt(lambdaMin).
@@ -177,24 +158,44 @@ public readonly struct ConvexInstance : IConvexFeatureSupport
     {
         if(Geometry is null) throw new InvalidOperationException("Uninitialised convex instance.");
         var normal=SupportFeature.UnitDirection(direction,planeTolerance);
-        var x=CollisionVector.From(Pose.Basis.X); var y=CollisionVector.From(Pose.Basis.Y); var z=CollisionVector.From(Pose.Basis.Z);
+        var x=Pose.Basis.X; var y=Pose.Basis.Y; var z=Pose.Basis.Z;
         var localDirection=new CollisionVector(CollisionVector.Dot(x,normal),CollisionVector.Dot(y,normal),CollisionVector.Dot(z,normal));
         var local=Geometry.SupportingFeature(localDirection,planeTolerance/localDirection.Length);
         var vertices=new SupportVertex[local.Vertices.Length];
         for(var i=0;i<vertices.Length;i++)
         {
             var v=local.Vertices[i]; var p=v.Point;
-            vertices[i]=new(v.Id,CollisionVector.From(Pose.Origin)+x*p.X+y*p.Y+z*p.Z);
+            vertices[i]=new(v.Id,Pose.Origin+x*p.X+y*p.Y+z*p.Z);
         }
         return new(vertices);
+    }
+    public CollisionVector CoreSupport(CollisionVector direction)
+    {
+        if(Geometry is null) throw new InvalidOperationException("Uninitialised convex instance.");
+        var normal=SupportFeature.UnitDirection(direction,0);
+        var x=Pose.Basis.X; var y=Pose.Basis.Y; var z=Pose.Basis.Z;
+        var localDirection=new CollisionVector(CollisionVector.Dot(x,normal),CollisionVector.Dot(y,normal),CollisionVector.Dot(z,normal));
+        var core=Geometry.CoreSupport(localDirection);
+        // Remove the contained ball before adding the translation. The residual
+        // ellipsoid support remains explicit for float-basis anisotropy.
+        var delta=new CollisionVector(
+            (x.X*x.X+y.X*y.X+z.X*z.X-1)*normal.X+(x.X*x.Y+y.X*y.Y+z.X*z.Y)*normal.Y+(x.X*x.Z+y.X*y.Z+z.X*z.Z)*normal.Z,
+            (x.Y*x.X+y.Y*y.X+z.Y*z.X)*normal.X+(x.Y*x.Y+y.Y*y.Y+z.Y*z.Y-1)*normal.Y+(x.Y*x.Z+y.Y*y.Z+z.Y*z.Z)*normal.Z,
+            (x.Z*x.X+y.Z*y.X+z.Z*z.X)*normal.X+(x.Z*x.Y+y.Z*y.Y+z.Z*z.Y)*normal.Y+(x.Z*x.Z+y.Z*y.Z+z.Z*z.Z-1)*normal.Z);
+        var distortion=CollisionVector.Dot(normal,delta)/normal.LengthSquared;
+        var stretch=Math.Sqrt(1+distortion);
+        var inverseStretchMinusOne=-distortion/(stretch*(stretch+1));
+        var remainder=delta*(Geometry.RoundingRadius/stretch)+
+            normal*((Geometry.RoundingRadius-RoundingRadius)+Geometry.RoundingRadius*inverseStretchMinusOne);
+        return Pose.Origin+x*core.X+y*core.Y+z*core.Z+remainder;
     }
     public CollisionVector Support(CollisionVector direction)
     {
         if(Geometry is null) throw new InvalidOperationException("Uninitialised convex instance.");
         if(!direction.IsFinite) throw new ArgumentOutOfRangeException(nameof(direction));
-        var x=CollisionVector.From(Pose.Basis.X); var y=CollisionVector.From(Pose.Basis.Y); var z=CollisionVector.From(Pose.Basis.Z);
+        var x=Pose.Basis.X; var y=Pose.Basis.Y; var z=Pose.Basis.Z;
         var local=Geometry.Support(new(CollisionVector.Dot(x,direction),CollisionVector.Dot(y,direction),CollisionVector.Dot(z,direction)));
-        var point=CollisionVector.From(Pose.Origin)+x*local.X+y*local.Y+z*local.Z;
+        var point=Pose.Origin+x*local.X+y*local.Y+z*local.Z;
         if(!point.IsFinite) throw new InvalidOperationException("Support point exceeds representable coordinates.");
         return point;
     }

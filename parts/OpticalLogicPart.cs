@@ -1,4 +1,6 @@
 using Godot;
+using CuriousContraptions.Presentation;
+using CuriousContraptions.Bridge;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,14 +12,42 @@ public partial class OpticalLogicPart : MachinePart
     [Export] public LogicGateKind Operation { get; set; }
     public const float Retention = .9f;
     public static readonly Vector3 Exit = new(.76f,0,0);
-    private OpticalLogicControl _control = null!;
-    public bool First => _control.First;
-    public bool Second => _control.Second;
-    public bool IsOpen => _control.IsOpen;
-    public Vector3 OutputPower { get; private set; }
-    private readonly List<StandardMaterial3D> _lamps = [];
-    public override void ValidateParameters() => _control = new(Operation);
-    public override void BeforeNetworks(MachineWorld world) => _control.Advance();
+    private OpticalLogicControl Control=>ReadParameterState<OpticalLogicControl>();
+    public bool First => Control.First;
+    public bool Second => Control.Second;
+    public bool IsOpen => Control.IsOpen;
+    private readonly SimulationState<Vector3> _outputPower = new(Vector3.Zero);
+    public Vector3 OutputPower => _outputPower.Value;
+    public static readonly ScalarObservationSlot RedOutput=new(0),GreenOutput=new(1),BlueOutput=new(2);
+    public override IReadOnlyList<SceneScalarObservation> ScalarObservations=>
+    [
+        new(RedOutput,ScalarUnit.GameOpticalPower,new(_outputPower,ScalarVectorComponent.X)),
+        new(GreenOutput,ScalarUnit.GameOpticalPower,new(_outputPower,ScalarVectorComponent.Y)),
+        new(BlueOutput,ScalarUnit.GameOpticalPower,new(_outputPower,ScalarVectorComponent.Z))
+    ];
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState => [Control, _outputPower];
+    public static readonly BooleanObservationSlot FirstOutput=new(0),SecondOutput=new(1),OpenOutput=new(2);
+    public override IReadOnlyList<SceneBooleanObservation> BooleanObservations=>
+    [
+        new(FirstOutput,new(Control,OpticalControlQuantity.First)),
+        new(SecondOutput,new(Control,OpticalControlQuantity.Second)),
+        new(OpenOutput,new(Control,OpticalControlQuantity.IsOpen))
+    ];
+    private readonly Dictionary<OpticalPortId,MeshInstance3D> _controlLamps=[];
+    private MeshInstance3D _outputLamp=null!;
+    private static readonly AnimationFollowDefinition ControlResponse=new(0,1,0,12,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneColourFollow> FollowingColours=>
+    [
+        new(_controlLamps[OpticalPortId.First],ControlResponse,new("#556573"),new("#f7cb52"),SceneColourFollowSignal.Boolean(new(this,FirstOutput))),
+        new(_controlLamps[OpticalPortId.Second],ControlResponse,new("#556573"),new("#f7cb52"),SceneColourFollowSignal.Boolean(new(this,SecondOutput)))
+    ];
+    protected override void ValidateParameters(PartParameterValues parameters)
+    {
+        if(!System.Enum.IsDefined(Operation))throw new System.ArgumentOutOfRangeException(nameof(Operation));
+    }
+    protected override PartParameterState PrepareParameterState(PartParameterValues parameters) =>
+        PartParameterState.Create(new OpticalLogicControl(Operation));
+    public override void BeforeNetworks(MachineWorld world) => Control.Advance();
     public override OpticalOutlet? OpticalOutput => new(Exit,Vector3.Right);
     public override IReadOnlyList<OpticalSurface> OpticalSurfaces =>
     [
@@ -27,15 +57,18 @@ public partial class OpticalLogicPart : MachinePart
             IsOpen ? OpticalInteraction.Route : OpticalInteraction.Absorb,Vector3.One*Retention)
     ];
     public override void ReceiveOpticalPower(IReadOnlyDictionary<OpticalPortId,Vector3> power) =>
-        _control.Sample(OpticalColours.Strength(power[OpticalPortId.First],OpticalColour.Broadband),
+        Control.Sample(OpticalColours.Strength(power[OpticalPortId.First],OpticalColour.Broadband),
             OpticalColours.Strength(power[OpticalPortId.Second],OpticalColour.Broadband));
-    public override void ReceiveOpticalPath(IReadOnlyList<OpticalSegment> path)
+    public override void ReceiveOpticalOutputPower(Vector3 power)
     {
-        var exit = Transform*Exit;
-        OutputPower = path.Where(s=>s.From.DistanceSquaredTo(exit)<1e-6f)
-            .Aggregate(Vector3.Zero,(sum,s)=>sum+s.Power);
+        _outputPower.Value = power;
         Active = OutputPower.LengthSquared()>1e-8f;
     }
+    public override IReadOnlyList<SceneSpectralColour> SpectralColours=>
+    [
+        new(_outputLamp,new(this,RedOutput),new(this,GreenOutput),new(this,BlueOutput),
+            new("#556573"),12,AnimationClock.Presentation)
+    ];
     protected override void Build()
     {
         PickRadius=1.3f;
@@ -51,7 +84,7 @@ public partial class OpticalLogicPart : MachinePart
             lens.Quaternion=new Quaternion(Vector3.Up,t.Normal);
             if(!carrier)
             {
-                _lamps.Add((StandardMaterial3D)lens.MaterialOverride);
+                _controlLamps.Add(surface.Id,lens);
                 var marks=new Node3D {Position=t.At+t.Normal*.03f,Quaternion=new Quaternion(Vector3.Left,t.Normal)};
                 Visual.AddChild(marks);
                 var count=surface.Id==OpticalPortId.First?1:2;
@@ -61,7 +94,7 @@ public partial class OpticalLogicPart : MachinePart
         }
         var output=PartArt.Cylinder(Visual,.34f,.04f,new("#556573"),Exit);
         output.RotationDegrees=new(0,0,90);
-        _lamps.Add((StandardMaterial3D)output.MaterialOverride);
+        _outputLamp=output;
         var rim=PartArt.Ring(Visual,.4f,.045f,new("#e8b764"),Exit);
         rim.RotationDegrees=new(0,0,90);
         // A tiny truth-table relief identifies operation without relying on colour:
@@ -75,15 +108,6 @@ public partial class OpticalLogicPart : MachinePart
                     at+new Vector3((bit-.5f)*.07f,.08f,.025f));
             if(LogicGate.Evaluate(Operation,(row&2)!=0,(row&1)!=0))
                 PartArt.Sphere(Visual,.045f,new("#e8b764"),at+new Vector3(0,-.07f,.045f));
-        }
-    }
-    public override void _Process(double delta)
-    {
-        for(var i=0;i<_lamps.Count;i++)
-        {
-            var ink=i==2 ? Active?OpticalColours.BeamInk(OutputPower):new Color("#556573")
-                : (i==0?First:Second)?new Color("#f7cb52"):new Color("#556573");
-            _lamps[i].AlbedoColor=_lamps[i].AlbedoColor.Lerp(ink,1-Mathf.Exp(-(float)delta*12));
         }
     }
 }

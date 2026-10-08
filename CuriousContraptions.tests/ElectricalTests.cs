@@ -4,19 +4,51 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class ElectricalTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class ElectricalTests(NativeSceneFixture godot)
 {
-    [Theory]
-    [InlineData("battery_motor", 0f)]
-    [InlineData("battery_motor", .45f)]
-    [InlineData("battery_motor", 1f)]
-    [InlineData("switched_motor", 0f)]
-    [InlineData("switched_motor", .45f)]
-    [InlineData("switched_motor", 1f)]
-    public void PowerLessonsRequireTheirWiresAndReplayAfterReset(string id, float precision)
+    public enum Lesson { BatteryMotor, SwitchedMotor }
+    private enum Fixture { Battery, Motor, FirstSwitch, SecondSwitch }
+    private enum SupplyParameter { Enabled }
+    private const string PuzzleResource="res://content/puzzles.json";
+    private static string LessonId(Lesson lesson)=>lesson switch
     {
-        var puzzle = MachineCodec.ReadPuzzles(Godot.FileAccess.GetFileAsString("res://content/puzzles.json")).Single(p => p.Id == id);
+        Lesson.BatteryMotor=>"battery_motor",Lesson.SwitchedMotor=>"switched_motor",
+        _=>throw new ArgumentOutOfRangeException(nameof(lesson))
+    };
+    private static string Id(Fixture fixture)=>fixture switch
+    {
+        Fixture.Battery=>"battery",Fixture.Motor=>"motor",
+        Fixture.FirstSwitch=>"switch_1",Fixture.SecondSwitch=>"switch_2",
+        _=>throw new ArgumentOutOfRangeException(nameof(fixture))
+    };
+    private static string Kind(Fixture fixture)=>fixture switch
+    {
+        Fixture.Battery=>"battery",Fixture.Motor=>"motor",
+        Fixture.FirstSwitch or Fixture.SecondSwitch=>"switch",
+        _=>throw new ArgumentOutOfRangeException(nameof(fixture))
+    };
+    private static MachinePart Add(MachineWorld world,Fixture fixture,Vector3 position,bool reverseIds=false)
+    {
+        var id=reverseIds?fixture switch
+        {
+            Fixture.Battery=>"z_supply",Fixture.Motor=>"a_motor",
+            Fixture.FirstSwitch or Fixture.SecondSwitch=>Id(fixture),
+            _=>throw new ArgumentOutOfRangeException(nameof(fixture))
+        }:Id(fixture);
+        return world.AddPart(new(){Id=id,Kind=Kind(fixture),Position=[position.X,position.Y,position.Z]});
+    }
+
+    [Theory]
+    [InlineData(Lesson.BatteryMotor, 0f)]
+    [InlineData(Lesson.BatteryMotor, .45f)]
+    [InlineData(Lesson.BatteryMotor, 1f)]
+    [InlineData(Lesson.SwitchedMotor, 0f)]
+    [InlineData(Lesson.SwitchedMotor, .45f)]
+    [InlineData(Lesson.SwitchedMotor, 1f)]
+    public void PowerLessonsRequireTheirWiresAndReplayAfterReset(Lesson lesson, float precision)
+    {
+        var puzzle = MachineCodec.ReadPuzzles(Godot.FileAccess.GetFileAsString(PuzzleResource)).Single(p => p.Id == LessonId(lesson));
         var data = MachineCodec.Clone(puzzle.CreateMachine());
         data.Parts.AddRange(puzzle.Solution);
         data.Connections = puzzle.SolutionConnections;
@@ -30,21 +62,21 @@ public class ElectricalTests(HeadlessFixture godot)
             Assert.True(world.Won);
             var ticks = world.Ticks;
             world.Restore();
-            Assert.Equal(0, ((MotorPart)world.FindPart("motor")!).ShaftTravel);
+            Assert.Equal(0, ((MotorPart)world.FindPart(Id(Fixture.Motor))!).ShaftTravel);
             world.Start();
             for (var i = 0; i < 600 && world.Running; i++) world.Step();
             Assert.True(world.Won);
             Assert.Equal(ticks, world.Ticks);
-            if (id == "switched_motor")
+            if (lesson == Lesson.SwitchedMotor)
             {
                 var bypass = MachineCodec.Clone(data);
-                bypass.Connections = [new() { From = "battery", To = "motor", Type = ConnectionDomain.Electrical,
+                bypass.Connections = [new() { From = Id(Fixture.Battery), To = Id(Fixture.Motor), Type = ConnectionDomain.Electrical,
                     FromPort = SocketId.Supply, ToPort = SocketId.PowerIn }];
                 world.LoadMachine(bypass);
                 world.Start();
                 for (var i = 0; i < 600; i++) world.Step();
-                Assert.True(world.Events.ContainsKey(new MachineEvent(MachineEventKind.Turned, "motor")));
-                Assert.True(world.Events.ContainsKey(new MachineEvent(MachineEventKind.Activated, "switch_1")));
+                Assert.True(world.Events.ContainsKey(new MachineEvent(MachineEventKind.Turned, Id(Fixture.Motor))));
+                Assert.True(world.Events.ContainsKey(new MachineEvent(MachineEventKind.Activated, Id(Fixture.FirstSwitch))));
                 Assert.False(world.Won); // Activation and turning alone do not prove correct sequencing.
             }
             for (var omitted = 0; omitted < data.Connections.Count; omitted++)
@@ -55,7 +87,7 @@ public class ElectricalTests(HeadlessFixture godot)
                 world.Start();
                 for (var i = 0; i < 600 && world.Running; i++) world.Step();
                 Assert.False(world.Won);
-                Assert.False(world.FindPart("motor")!.HasElectricalPower(SocketId.PowerIn));
+                Assert.False(world.FindPart(Id(Fixture.Motor))!.HasElectricalPower(SocketId.PowerIn));
             }
         }
         finally { world.Free(); }
@@ -72,9 +104,9 @@ public class ElectricalTests(HeadlessFixture godot)
         godot.Tree.Root.AddChild(world);
         try
         {
-            var battery = world.AddPart(new() { Id = "battery", Kind = "battery",
-                Properties = new() { ["enabled"] = enabled ? 1 : 0 } });
-            var motor = (MotorPart)world.AddPart(new() { Id = "motor", Kind = "motor", Position = [3, 1, 0] });
+            var battery=Add(world,Fixture.Battery,new(0,3,0));
+            FixtureParts.ConfigureParameter(battery,SupplyParameter.Enabled,enabled?1:0);
+            var motor=(MotorPart)Add(world,Fixture.Motor,new(3,3,0));
             if (connected)
             {
                 Assert.True(world.Connect(battery, motor));
@@ -90,9 +122,9 @@ public class ElectricalTests(HeadlessFixture godot)
             Assert.Equal(connected && enabled, motor.Active);
             Assert.Equal(connected && enabled, motor.HasElectricalPower(SocketId.PowerIn));
             Assert.Equal(connected && enabled, motor.ShaftSpeed > 0);
-            Assert.Equal(connected && enabled, world.Events.ContainsKey(new MachineEvent(MachineEventKind.Powered, "motor")));
+            Assert.Equal(connected && enabled, world.Events.ContainsKey(new MachineEvent(MachineEventKind.Powered, Id(Fixture.Motor))));
             world.Restore();
-            motor = (MotorPart)world.FindPart("motor")!;
+            motor = (MotorPart)world.FindPart(Id(Fixture.Motor))!;
             Assert.False(motor.Active);
             Assert.False(motor.HasElectricalPower(SocketId.PowerIn));
             Assert.Equal(0, motor.ShaftAngle);
@@ -111,17 +143,16 @@ public class ElectricalTests(HeadlessFixture godot)
         godot.Tree.Root.AddChild(world);
         try
         {
-            var battery = world.AddPart(new() { Id = reverseIds ? "z" : "a", Kind = "battery" });
-            var first = world.AddPart(new() { Id = "c", Kind = "switch" });
-            var second = world.AddPart(new() { Id = "d", Kind = "switch" });
-            var motor = (MotorPart)world.AddPart(new() { Id = reverseIds ? "a" : "z", Kind = "motor" });
-            Assert.True(world.Connect(battery, first));
-            Assert.True(world.Connect(first, second));
-            Assert.True(world.Connect(second, first)); // A cycle must terminate without generating supply.
-            Assert.True(world.Connect(second, motor));
-            if (reverseIds) world.Connections.Reverse();
+            var battery=Add(world,Fixture.Battery,new(-6,3,0),reverseIds);
+            var first=Add(world,Fixture.FirstSwitch,new(-3,3,0),reverseIds);
+            var second=Add(world,Fixture.SecondSwitch,new(0,3,0),reverseIds);
+            var motor=(MotorPart)Add(world,Fixture.Motor,new(3,3,0),reverseIds);
+            var supply=new SupplyControl(world,battery);
+            (MachinePart Source,MachinePart Target)[] links=[(supply.Output,first),(first,second),(second,first),(second,motor)];
+            foreach(var link in reverseIds?links.Reverse():links)
+                Assert.True(world.Connect(link.Source,link.Target));
             world.Start();
-            world.Step();
+            supply.SetAndSettle(SimulationLatchPhase.On);
             Assert.True(first.HasElectricalPower(SocketId.PowerIn));
             Assert.False(motor.Active);
             world.Activate(first);
@@ -131,13 +162,11 @@ public class ElectricalTests(HeadlessFixture godot)
             world.Activate(second);
             world.Step();
             Assert.True(motor.Active);
-            battery.Properties["enabled"] = 0;
-            world.Step();
+            supply.SetAndSettle(SimulationLatchPhase.Off);
             Assert.False(motor.Active);
             Assert.False(first.HasElectricalPower(SocketId.PowerIn));
             Assert.False(second.HasElectricalPower(SocketId.PowerIn));
-            battery.Properties["enabled"] = 1;
-            world.Step();
+            supply.SetAndSettle(SimulationLatchPhase.On);
             Assert.True(motor.Active);
             second.Active = false;
             world.Step();
@@ -152,32 +181,33 @@ public class ElectricalTests(HeadlessFixture godot)
     }
 
     [Fact]
-    public void SupplyLossClearsPowerAndShaftCoastsToRest()
+    public void SupplyLossClearsPowerWithoutDeletingShaftMomentum()
     {
         var world = new MachineWorld();
         godot.Tree.Root.AddChild(world);
         try
         {
-            var battery = world.AddPart(new() { Id = "battery", Kind = "battery" });
-            var motor = (MotorPart)world.AddPart(new() { Id = "motor", Kind = "motor" });
-            var trigger = world.AddPart(new() { Id = "switch", Kind = "switch" });
+            var battery=Add(world,Fixture.Battery,new(-3,3,0));
+            var motor=(MotorPart)Add(world,Fixture.Motor,new(3,3,0));
+            var trigger=Add(world,Fixture.FirstSwitch,new(0,3,0));
             Assert.True(world.Connect(trigger, motor)); // Closed contact still needs upstream supply.
-            Assert.True(world.Connect(battery, motor));
+            var supply=new SupplyControl(world,battery);
+            Assert.True(world.Connect(supply.Output,motor));
             world.Start();
+            supply.SetAndSettle(SimulationLatchPhase.On);
             for (var i = 0; i < 120; i++) world.Step();
             var speed = motor.ShaftSpeed;
-            battery.Properties["enabled"] = 0; // Native source-loss fixture, not a browser driver.
-            world.Step();
+            var work=motor.SuppliedWork;
+            supply.SetAndSettle(SimulationLatchPhase.Off);
             Assert.False(motor.Active);
-            Assert.InRange(motor.ShaftSpeed, .01f, speed);
+            Assert.InRange(Math.Abs(motor.ShaftSpeed-speed),0,1e-6);
             for (var i = 0; i < 120; i++) world.Step();
-            Assert.Equal(0, motor.ShaftSpeed);
-            battery.Properties["enabled"] = 1;
-            world.Step();
+            Assert.InRange(Math.Abs(motor.ShaftSpeed-speed),0,1e-6);
+            Assert.Equal(work,motor.SuppliedWork);
+            supply.SetAndSettle(SimulationLatchPhase.On);
             Assert.True(motor.Active);
             Assert.True(motor.ShaftSpeed > 0);
-            world.Connections.Clear();
-            world.Step();
+            supply.SetAndSettle(SimulationLatchPhase.Off);
             Assert.False(motor.HasElectricalPower(SocketId.PowerIn));
             Assert.False(motor.Active);
         }

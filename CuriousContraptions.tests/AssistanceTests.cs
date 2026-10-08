@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class AssistanceTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class AssistanceTests(NativeSceneFixture godot)
 {
     private MachineWorld World(float precision = 0)
     {
@@ -16,7 +16,7 @@ public class AssistanceTests(HeadlessFixture godot)
 
     private static MachineData Layout(float x = .2f, float angle = 4, float correction = .25f) => new()
     {
-        Parts = [new() { Id = "placed", Kind = "ramp", Position = [x, 2, 0], Rotation = [0, 0, angle] }],
+        Parts = [new() { Id = "placed", Kind = "ramp", Position = [x, 2, 0], Orientation = PartOrientation.FromEulerDegrees(0, 0, angle) }],
         PlacementTargets =
         [
             new()
@@ -122,7 +122,7 @@ public class AssistanceTests(HeadlessFixture godot)
         try
         {
             var data = Layout(x: 0, angle: 179);
-            data.PlacementTargets[0].Rotation = [0, 0, -179];
+            data.PlacementTargets[0].Orientation = PartOrientation.FromEulerDegrees(0, 0, -179);
             world.LoadMachine(data);
             var part = world.FindPart("placed")!;
             var before = part.Quaternion;
@@ -153,7 +153,8 @@ public class AssistanceTests(HeadlessFixture godot)
                 data.Parts.AddRange(MachineCodec.Clone(new() { Parts = puzzle.Solution }).Parts);
                 // Identical strict capture physics in both runs isolates placement assistance.
                 data.Parts.Single(p => p.Kind == "basket").Difficulty.Clear();
-                data.Parts.Single(p => p.Kind == "spring").Rotation[2] += angle;
+                var spring = data.Parts.Single(p => p.Kind == "spring");
+                spring.Orientation = PartOrientation.FromEulerDegrees(0,0,angle)*spring.Orientation;
                 world.Precision = precision;
                 world.LoadMachine(data);
                 world.Start();

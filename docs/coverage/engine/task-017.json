@@ -304,7 +304,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/WorldGeometry.cs",
@@ -400,7 +400,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/WorldGeometry.cs",
@@ -2197,4 +2197,3 @@
   ],
   "Modes": []
 }
-

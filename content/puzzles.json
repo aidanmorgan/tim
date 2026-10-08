@@ -333,10 +333,16 @@
           6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -390,10 +396,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -456,10 +468,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -535,10 +553,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -592,10 +616,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -658,10 +688,16 @@
           3.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -672,8 +708,8 @@
     "id": "spring_forward",
     "title": "Spring forward",
     "subtitle": "04 / Stored energy",
-    "description": "Get the ball into the elevated receiver. Tilt a springboard to turn a downward fall into an upward journey.",
-    "hint": "The spring launches along its top surface normal. Tilt it clockwise to send the ball right.",
+    "description": "Catch the falling ball's energy in a springboard and return it toward the basket.",
+    "hint": "Place the springboard below the ball and tilt it clockwise. Compression stores some of the fall's energy; release sends the ball toward the lower basket.",
     "inventory": {
       "spring": 1
     },
@@ -728,10 +764,16 @@
           3.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -781,14 +823,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -851,10 +899,16 @@
           0.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       }
@@ -921,10 +975,16 @@
           5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -978,10 +1038,16 @@
           0.9,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -1044,10 +1110,16 @@
           3.8,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -1059,7 +1131,7 @@
     "title": "The domino effect",
     "subtitle": "06 / Chain reactions",
     "description": "Make the fixed end domino fall. Fill the gap with four dominoes.",
-    "hint": "Start under the bowling ball. Neighbours must be less than a metre apart.",
+    "hint": "Stand the tiles on a surface and leave gaps short enough for each falling tile to hit the next.",
     "inventory": {
       "domino": 4
     },
@@ -1114,10 +1186,16 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -1171,10 +1249,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -1237,10 +1321,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -1294,10 +1384,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -1351,10 +1447,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -1408,10 +1510,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -1422,7 +1530,7 @@
     "id": "spring_signal",
     "title": "Spring-loaded signal",
     "subtitle": "07 / Motion into power",
-    "description": "Launch the ball onto the elevated switch and light the lamp.",
+    "description": "Return the falling ball toward the lower switch and light the lamp.",
     "hint": "Tilt the spring clockwise. Remember the wire from switch to lamp.",
     "inventory": {
       "spring": 1
@@ -1478,10 +1586,16 @@
           3.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -1531,14 +1645,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -1592,10 +1712,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -1658,10 +1784,16 @@
           0.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       }
@@ -1736,10 +1868,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -1793,10 +1931,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -1850,10 +1994,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -1916,10 +2066,16 @@
           3.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -1994,10 +2150,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -2051,10 +2213,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -2108,10 +2276,16 @@
           3.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "powered": 0
@@ -2167,10 +2341,16 @@
           2.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -2238,10 +2418,16 @@
           1.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -2316,10 +2502,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -2373,10 +2565,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -2439,10 +2637,16 @@
           1.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -2509,10 +2713,16 @@
           5,
           3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -2566,10 +2776,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -2632,10 +2848,16 @@
           1.5,
           3.2
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -2702,10 +2924,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -2759,10 +2987,16 @@
           1.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -2816,10 +3050,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -2882,10 +3122,16 @@
           4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "width": 0.4,
@@ -2957,10 +3203,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -3014,10 +3266,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -3080,10 +3338,16 @@
           1.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -3137,10 +3401,16 @@
           4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "width": 0.4,
@@ -3211,10 +3481,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -3277,10 +3553,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -3355,10 +3637,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -3412,10 +3700,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -3469,10 +3763,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -3540,10 +3840,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -3625,10 +3931,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -3682,10 +3994,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -3739,10 +4057,16 @@
           0.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -3796,10 +4120,16 @@
           0.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -3862,10 +4192,16 @@
           2.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -3947,10 +4283,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4004,10 +4346,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4061,10 +4409,16 @@
           0.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4118,10 +4472,16 @@
           0.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4175,10 +4535,16 @@
           4.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -4241,10 +4607,16 @@
           2.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -4334,10 +4706,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4391,10 +4769,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4448,10 +4832,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4505,10 +4895,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -4571,10 +4967,16 @@
           2.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4628,10 +5030,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -4720,10 +5128,16 @@
           1,
           0.12
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "mass": 1
@@ -4779,10 +5193,16 @@
           6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4836,10 +5256,16 @@
           6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4893,10 +5319,16 @@
           3.2,
           0.12
         ],
-        "rotation": [
+        "orientation": [
+          -1,
+          -8.742277657347586e-8,
+          0,
+          8.742277657347586e-8,
+          -1,
           0,
           0,
-          180
+          0,
+          1
         ],
         "properties": {}
       },
@@ -4950,10 +5382,16 @@
           1,
           0.12
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -5016,10 +5454,16 @@
           5,
           0.12
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "mass": 4
@@ -5121,10 +5565,16 @@
           1,
           0.12
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "mass": 1
@@ -5180,10 +5630,16 @@
           6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -5237,10 +5693,16 @@
           3.2,
           0.12
         ],
-        "rotation": [
+        "orientation": [
+          -1,
+          -8.742277657347586e-8,
+          0,
+          8.742277657347586e-8,
+          -1,
           0,
           0,
-          180
+          0,
+          1
         ],
         "properties": {}
       },
@@ -5294,10 +5756,16 @@
           1,
           0.12
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -5360,10 +5828,16 @@
           5,
           2.12
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "mass": 4
@@ -5419,10 +5893,16 @@
           6,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -5521,10 +6001,16 @@
           3,
           -0
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -5578,10 +6064,16 @@
           5,
           -0
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -5635,10 +6127,16 @@
           1,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       }
@@ -5701,10 +6199,16 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       }
@@ -5779,10 +6283,16 @@
           3,
           -0
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -5836,10 +6346,16 @@
           5,
           -0
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -5893,10 +6409,16 @@
           1,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -5950,10 +6472,16 @@
           3,
           -0
         ],
-        "rotation": [
+        "orientation": [
+          1.3113415775478643e-7,
           0,
-          270,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          1.3113415775478643e-7
         ],
         "properties": {
           "width": 3,
@@ -6020,10 +6548,16 @@
           3,
           -0
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       }
@@ -6098,10 +6632,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -6155,10 +6695,16 @@
           4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -6212,10 +6758,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -6279,10 +6831,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -6365,10 +6923,16 @@
           3,
           -0
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -6422,10 +6986,16 @@
           5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -6479,10 +7049,16 @@
           1,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -6536,10 +7112,16 @@
           3,
           2
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       }
@@ -6608,10 +7190,16 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          -1,
           0,
-          180,
-          0
+          8.742277657347586e-8,
+          0,
+          1,
+          0,
+          -8.742277657347586e-8,
+          0,
+          -1
         ],
         "properties": {}
       },
@@ -6665,10 +7253,16 @@
           1,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
-          360,
-          0
+          -1.7484555314695172e-7,
+          0,
+          1,
+          0,
+          1.7484555314695172e-7,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -6757,10 +7351,16 @@
           6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -6814,10 +7414,16 @@
           0.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -6880,10 +7486,16 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.7071067690849304,
+          -0.7071067690849304,
+          0,
+          0.7071067690849304,
+          0.7071067690849304,
           0,
           0,
-          -45
+          0,
+          1
         ],
         "properties": {
           "length": 3.6
@@ -6952,10 +7564,16 @@
           6.6084404,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7009,10 +7627,16 @@
           0.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -7075,10 +7699,16 @@
           4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
+          -1,
+          0,
+          1,
+          -4.371138828673793e-8,
           0,
           0,
-          -90
+          0,
+          1
         ],
         "properties": {}
       }
@@ -7145,10 +7775,16 @@
           7.3870564,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7202,10 +7838,16 @@
           0.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -7268,10 +7910,16 @@
           4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
+          -1,
+          0,
+          1,
+          -4.371138828673793e-8,
           0,
           0,
-          -90
+          0,
+          1
         ],
         "properties": {}
       }
@@ -7338,10 +7986,16 @@
           8.402188,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7395,10 +8049,16 @@
           3.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.7071067690849304,
+          -0.7071067690849304,
+          0,
+          0.7071067690849304,
+          0.7071067690849304,
           0,
           0,
-          -45
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7452,10 +8112,16 @@
           0.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -7518,10 +8184,16 @@
           6.031442,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.7071067690849304,
+          -0.7071067690849304,
+          0,
+          0.7071067690849304,
+          0.7071067690849304,
           0,
           0,
-          -45
+          0,
+          1
         ],
         "properties": {
           "length": 2
@@ -7591,10 +8263,16 @@
           6.5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7648,10 +8326,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7705,10 +8389,16 @@
           5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7762,10 +8452,16 @@
           0.9,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -7833,10 +8529,16 @@
           4.3,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7890,10 +8592,16 @@
           2.7,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -7947,10 +8655,16 @@
           3.8,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -8018,10 +8732,16 @@
           6.5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8075,10 +8795,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8132,10 +8858,16 @@
           3.6,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8185,14 +8917,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -8260,10 +8998,16 @@
           4.3,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8317,10 +9061,16 @@
           2.7,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8374,10 +9124,16 @@
           0.8,
           2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       }
@@ -8445,10 +9201,16 @@
           5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8502,10 +9264,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8559,10 +9327,16 @@
           5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8616,10 +9390,16 @@
           0.9,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8673,10 +9453,16 @@
           0.4,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8730,10 +9516,16 @@
           0.4,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -8801,10 +9593,16 @@
           3.8,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -8858,10 +9656,16 @@
           2.5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -8944,10 +9748,16 @@
           6.5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9001,10 +9811,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9058,10 +9874,16 @@
           6,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9115,10 +9937,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -9186,10 +10014,16 @@
           4.3,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9243,10 +10077,16 @@
           2.7,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9300,10 +10140,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -9379,10 +10225,16 @@
           5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9436,10 +10288,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9493,10 +10351,16 @@
           3,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9550,10 +10414,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -9621,10 +10491,16 @@
           3.8,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9678,10 +10554,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9735,10 +10617,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9792,10 +10680,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9849,10 +10743,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -9920,10 +10820,16 @@
           5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -9977,10 +10883,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10034,10 +10946,16 @@
           3.8,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "powered": 0
@@ -10093,10 +11011,16 @@
           2.4,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10150,10 +11074,16 @@
           6.5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10207,10 +11137,16 @@
           0.9,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -10283,10 +11219,16 @@
           1.6,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10340,10 +11282,16 @@
           4.3,
           2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10397,10 +11345,16 @@
           2.7,
           2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       }
@@ -10476,10 +11430,16 @@
           3.6,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10529,14 +11489,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10590,10 +11556,16 @@
           3,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10647,10 +11619,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -10718,10 +11696,16 @@
           0.8,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10775,10 +11759,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10832,10 +11822,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10889,10 +11885,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -10946,10 +11948,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -11017,10 +12025,16 @@
           6.5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11074,10 +12088,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11131,10 +12151,16 @@
           1,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11188,10 +12214,16 @@
           3.6,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11241,14 +12273,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11302,10 +12340,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -11373,10 +12417,16 @@
           4.3,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11430,10 +12480,16 @@
           2.7,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11487,10 +12543,16 @@
           0.8,
           2
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       }
@@ -11573,10 +12635,16 @@
           5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11630,10 +12698,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11687,10 +12761,16 @@
           0.4,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11744,10 +12824,16 @@
           0.4,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11801,10 +12887,16 @@
           5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11858,10 +12950,16 @@
           0.9,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -11915,10 +13013,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -11986,10 +13090,16 @@
           2.5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12043,10 +13153,16 @@
           3.8,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -12080,7 +13196,7 @@
     "title": "Start and topple",
     "subtitle": "38 / Dependencies",
     "description": "Power the cold fan, catch its ball, and finish the domino chain.",
-    "hint": "The fan needs a wire; the dominoes propagate through proximity, without wires.",
+    "hint": "The fan needs a wire; the domino chain needs physical contact between falling tiles, not wires.",
     "inventory": {
       "switch": 1,
       "domino": 4
@@ -12136,10 +13252,16 @@
           5,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12193,10 +13315,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12250,10 +13378,16 @@
           3.8,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "powered": 0
@@ -12309,10 +13443,16 @@
           2.4,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12366,10 +13506,16 @@
           3,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12423,10 +13569,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -12499,10 +13651,16 @@
           1.6,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12556,10 +13714,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12613,10 +13777,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12670,10 +13840,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -12727,10 +13903,16 @@
           1,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -12805,10 +13987,16 @@
           6.5,
           4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -12862,10 +14050,16 @@
           0.9,
           -2.5
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -12919,10 +14113,16 @@
           6.5,
           -4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -12976,10 +14176,16 @@
           0.9,
           2.5
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -13047,10 +14253,16 @@
           4.3,
           3.4
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13104,10 +14316,16 @@
           2.7,
           0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13161,10 +14379,16 @@
           4.3,
           -3.4
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          0.3420201241970062,
+          -1,
           0,
-          -90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13218,10 +14442,16 @@
           2.7,
           -0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          0.3420201241970062,
+          -1,
           0,
-          -90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -13288,10 +14518,16 @@
           5,
           3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13345,10 +14581,16 @@
           0.9,
           -1.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13402,10 +14644,16 @@
           5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13459,10 +14707,16 @@
           0.9,
           1.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -13530,10 +14784,16 @@
           3.8,
           4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13587,10 +14847,16 @@
           3.8,
           -4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -13657,10 +14923,16 @@
           3.6,
           3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13711,13 +14983,19 @@
         "locked": true,
         "position": [
           -2,
-          3.8,
-          -0.3
+          0.55,
+          0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13771,10 +15049,16 @@
           3.6,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13825,13 +15109,19 @@
         "locked": true,
         "position": [
           2,
-          3.8,
-          0.3
+          0.55,
+          -0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -13899,10 +15189,16 @@
           0.8,
           3
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -13956,10 +15252,16 @@
           0.8,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          0.3420201241970062,
+          -1,
           0,
-          -90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -14027,10 +15329,16 @@
           6.5,
           4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -14084,10 +15392,16 @@
           0.9,
           -3.2
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -14141,10 +15455,16 @@
           1,
           -4.5
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -14198,10 +15518,16 @@
           5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -14255,10 +15581,16 @@
           0.9,
           1.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -14312,10 +15644,16 @@
           1,
           4.5
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -14383,10 +15721,16 @@
           4.3,
           3.4
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -14440,10 +15784,16 @@
           2.7,
           0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -14497,10 +15847,16 @@
           3.8,
           -4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -14584,10 +15940,16 @@
           6.5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -14641,10 +16003,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -14698,10 +16066,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -14755,10 +16129,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -14812,10 +16192,16 @@
           3.6,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -14865,14 +16251,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -14945,10 +16337,16 @@
           4.3,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15002,10 +16400,16 @@
           2.7,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15059,10 +16463,16 @@
           3.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15116,10 +16526,16 @@
           0.8,
           3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       }
@@ -15188,10 +16604,16 @@
           6.5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15245,10 +16667,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15302,10 +16730,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15359,10 +16793,16 @@
           3.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15412,14 +16852,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15473,10 +16919,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15530,10 +16982,16 @@
           5,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15587,10 +17045,16 @@
           0.9,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15644,10 +17108,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -15720,10 +17190,16 @@
           4.3,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15777,10 +17253,16 @@
           2.7,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15834,10 +17316,16 @@
           0.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -15891,10 +17379,16 @@
           3.8,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -15985,10 +17479,16 @@
           5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16042,10 +17542,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16099,10 +17605,16 @@
           3.8,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "powered": 0
@@ -16158,10 +17670,16 @@
           2.4,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16215,10 +17733,16 @@
           6.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16272,10 +17796,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16329,10 +17859,16 @@
           3.6,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16382,14 +17918,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -16467,10 +18009,16 @@
           1.6,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16524,10 +18072,16 @@
           4.3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16581,10 +18135,16 @@
           2.7,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16638,10 +18198,16 @@
           0.8,
           3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       }
@@ -16718,10 +18284,16 @@
           5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16775,10 +18347,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16832,10 +18410,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16889,10 +18473,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -16946,10 +18536,16 @@
           0.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17003,10 +18599,16 @@
           0.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17060,10 +18662,16 @@
           3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17117,10 +18725,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -17193,10 +18807,16 @@
           3.8,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17250,10 +18870,16 @@
           2.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17307,10 +18933,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17364,10 +18996,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17421,10 +19059,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17478,10 +19122,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -17565,10 +19215,16 @@
           3.6,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17618,14 +19274,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17679,10 +19341,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17736,10 +19404,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17793,10 +19467,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17850,10 +19530,16 @@
           3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -17907,10 +19593,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -17983,10 +19675,16 @@
           0.8,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18040,10 +19738,16 @@
           3.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18097,10 +19801,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18154,10 +19864,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18211,10 +19927,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18268,10 +19990,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -18348,10 +20076,16 @@
           5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18405,10 +20139,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18462,10 +20202,16 @@
           3.8,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "powered": 0
@@ -18521,10 +20267,16 @@
           2.4,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18578,10 +20330,16 @@
           6.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18635,10 +20393,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18692,10 +20456,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18749,10 +20519,16 @@
           3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18806,10 +20582,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -18887,10 +20669,16 @@
           1.6,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -18944,10 +20732,16 @@
           4.3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19001,10 +20795,16 @@
           2.7,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19058,10 +20858,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19115,10 +20921,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19172,10 +20984,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19229,10 +21047,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -19315,10 +21139,16 @@
           5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19372,10 +21202,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19429,10 +21265,16 @@
           0.4,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19486,10 +21328,16 @@
           0.4,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19543,10 +21391,16 @@
           2.5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19600,10 +21454,16 @@
           2.4,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19657,10 +21517,16 @@
           3.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19710,14 +21576,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19771,10 +21643,16 @@
           5,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19828,10 +21706,16 @@
           0.9,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -19885,10 +21769,16 @@
           3.8,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "powered": 0
@@ -19944,10 +21834,16 @@
           2.4,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -20030,10 +21926,16 @@
           1.6,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20087,10 +21989,16 @@
           0.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20144,10 +22052,16 @@
           1.6,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -20188,7 +22102,7 @@
     "title": "Triple chain",
     "subtitle": "50 / Master workshop",
     "description": "Finish three separate domino chains with twelve movable dominoes.",
-    "hint": "Keep every gap below one metre and keep the three chains in their own depth planes.",
+    "hint": "Arrange three contact-driven chains on supporting surfaces, keeping each chain in its own depth plane.",
     "inventory": {
       "domino": 12
     },
@@ -20243,10 +22157,16 @@
           3,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20300,10 +22220,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20357,10 +22283,16 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20414,10 +22346,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20471,10 +22409,16 @@
           3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20528,10 +22472,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -20604,10 +22554,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20661,10 +22617,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20718,10 +22680,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20775,10 +22743,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20832,10 +22806,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20889,10 +22869,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -20946,10 +22932,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21003,10 +22995,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21060,10 +23058,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21117,10 +23121,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21174,10 +23184,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21231,10 +23247,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -21303,10 +23325,16 @@
           6.5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21360,10 +23388,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21417,10 +23451,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21474,10 +23514,16 @@
           3.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21527,14 +23573,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21588,10 +23640,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21645,10 +23703,16 @@
           3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21702,10 +23766,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -21778,10 +23848,16 @@
           4.3,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21835,10 +23911,16 @@
           2.7,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21892,10 +23974,16 @@
           0.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -21949,10 +24037,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22006,10 +24100,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22063,10 +24163,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22120,10 +24226,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -22207,10 +24319,16 @@
           5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22264,10 +24382,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22321,10 +24445,16 @@
           3.8,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "powered": 0
@@ -22380,10 +24510,16 @@
           2.4,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22437,10 +24573,16 @@
           3.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22490,14 +24632,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22551,10 +24699,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22608,10 +24762,16 @@
           6.5,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22665,10 +24825,16 @@
           0.9,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22722,10 +24888,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -22803,10 +24975,16 @@
           1.6,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22860,10 +25038,16 @@
           0.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22917,10 +25101,16 @@
           4.3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -22974,10 +25164,16 @@
           2.7,
           3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       }
@@ -23068,10 +25264,16 @@
           6.5,
           4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23125,10 +25327,16 @@
           0.9,
           -2.5
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23182,10 +25390,16 @@
           5,
           3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23239,10 +25453,16 @@
           0.9,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23296,10 +25516,16 @@
           0.4,
           3.4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23353,10 +25579,16 @@
           0.4,
           2
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23410,10 +25642,16 @@
           3.6,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23464,13 +25702,19 @@
         "locked": true,
         "position": [
           3,
-          3.8,
-          0.3
+          0.55,
+          -0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -23543,10 +25787,16 @@
           4.3,
           3.4
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23600,10 +25850,16 @@
           2.7,
           0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23657,10 +25913,16 @@
           2.5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23714,10 +25976,16 @@
           0.8,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          0.3420201241970062,
+          -1,
           0,
-          -90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -23801,10 +26069,16 @@
           6.5,
           4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23858,10 +26132,16 @@
           0.9,
           -3.2
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23915,10 +26195,16 @@
           1,
           -4.5
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -23972,10 +26258,16 @@
           3.6,
           3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -24026,13 +26318,19 @@
         "locked": true,
         "position": [
           -0,
-          3.8,
-          -0.3
+          0.55,
+          0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -24086,10 +26384,16 @@
           1,
           -4.5
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          90,
-          0
+          -1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -24143,10 +26447,16 @@
           5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -24200,10 +26510,16 @@
           0.9,
           1.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -24257,10 +26573,16 @@
           1,
           4.5
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -24333,10 +26655,16 @@
           4.3,
           3.4
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -24390,10 +26718,16 @@
           2.7,
           0.7
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -24447,10 +26781,16 @@
           0.8,
           3
         ],
-        "rotation": [
+        "orientation": [
+          -4.10752676316406e-8,
+          -0.3420201241970062,
+          -0.9396926164627075,
+          -1.4950174431760388e-8,
+          0.9396926164627075,
+          -0.3420201241970062,
+          1,
           0,
-          90,
-          -20
+          -4.371138828673793e-8
         ],
         "properties": {}
       },
@@ -24504,10 +26844,16 @@
           3.8,
           -4
         ],
-        "rotation": [
+        "orientation": [
+          -4.371138828673793e-8,
           0,
-          -90,
-          0
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0,
+          -4.371138828673793e-8
         ],
         "properties": {}
       }
@@ -24597,10 +26943,16 @@
           3,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -24654,10 +27006,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -24711,10 +27069,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -24768,10 +27132,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -24825,10 +27195,16 @@
           0.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -24882,10 +27258,16 @@
           0.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -24939,10 +27321,16 @@
           3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -24996,10 +27384,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -25072,10 +27466,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25129,10 +27529,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25186,10 +27592,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25243,10 +27655,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25300,10 +27718,16 @@
           2.5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25357,10 +27781,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25414,10 +27844,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25471,10 +27907,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25528,10 +27970,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -25614,10 +28062,16 @@
           3,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25671,10 +28125,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25728,10 +28188,16 @@
           3.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25781,14 +28247,20 @@
         ],
         "locked": true,
         "position": [
-          0.3,
-          3.8,
+          -0.7,
+          0.55,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25842,10 +28314,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25899,10 +28377,16 @@
           3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -25956,10 +28440,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -26032,10 +28522,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26089,10 +28585,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26146,10 +28648,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26203,10 +28711,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26260,10 +28774,16 @@
           0.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26317,10 +28837,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26374,10 +28900,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26431,10 +28963,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26488,10 +29026,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -26567,10 +29111,16 @@
           3,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26624,10 +29174,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26681,10 +29237,16 @@
           5,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26738,10 +29300,16 @@
           0.9,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26795,10 +29363,16 @@
           3.8,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "powered": 0
@@ -26854,10 +29428,16 @@
           2.4,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26911,10 +29491,16 @@
           3,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -26968,10 +29554,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -27049,10 +29641,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27106,10 +29704,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27163,10 +29767,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27220,10 +29830,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27277,10 +29893,16 @@
           1.6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27334,10 +29956,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27391,10 +30019,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27448,10 +30082,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27505,10 +30145,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -27585,10 +30231,16 @@
           6.5,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27642,10 +30294,16 @@
           0.9,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27699,10 +30357,16 @@
           1,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27756,10 +30420,16 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27813,10 +30483,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27870,10 +30546,16 @@
           5,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27927,10 +30609,16 @@
           0.9,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -27984,10 +30672,16 @@
           0.4,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28041,10 +30735,16 @@
           0.4,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28098,10 +30798,16 @@
           1,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -28174,10 +30880,16 @@
           4.3,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28231,10 +30943,16 @@
           2.7,
           -3
         ],
-        "rotation": [
+        "orientation": [
+          0.9396926164627075,
+          -0.3420201241970062,
+          0,
+          0.3420201241970062,
+          0.9396926164627075,
           0,
           0,
-          -20
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28288,10 +31006,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28345,10 +31069,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28402,10 +31132,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28459,10 +31195,16 @@
           1,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28516,10 +31258,16 @@
           2.5,
           3
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -28615,10 +31363,16 @@
           4.5165033,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28672,10 +31426,16 @@
           3,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28729,10 +31489,16 @@
           5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28786,10 +31552,16 @@
           2,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28843,10 +31615,16 @@
           7,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28900,10 +31678,16 @@
           6,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -28957,10 +31741,16 @@
           1.2,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -29023,10 +31813,16 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9659258127212524,
+          -0.258819043636322,
+          0,
+          0.258819043636322,
+          0.9659258127212524,
           0,
           0,
-          -15
+          0,
+          1
         ],
         "properties": {}
       }
@@ -29122,10 +31918,16 @@
           4.5165033,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29179,10 +31981,16 @@
           3,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29236,10 +32044,16 @@
           5,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29293,10 +32107,16 @@
           2,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29350,10 +32170,16 @@
           7,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29407,10 +32233,16 @@
           6,
           -2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29464,10 +32296,16 @@
           1.2,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29521,10 +32359,16 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.9659258127212524,
+          -0.258819043636322,
+          0,
+          0.258819043636322,
+          0.9659258127212524,
           0,
           0,
-          -15
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29578,10 +32422,16 @@
           6,
           2
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {
           "delay_seconds": 3
@@ -29646,10 +32496,16 @@
           6,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -29766,10 +32622,16 @@
           7,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       },
@@ -29823,10 +32685,16 @@
           1.2,
           0
         ],
-        "rotation": [
+        "orientation": [
+          1,
           0,
           0,
-          0
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
         ],
         "properties": {}
       }
@@ -29889,11 +32757,248 @@
           3,
           0
         ],
-        "rotation": [
+        "orientation": [
+          0.8660253882408142,
+          -0.5,
+          0,
+          0.5,
+          0.8660253882408142,
           0,
           0,
-          -30
+          0,
+          1
         ],
+        "properties": {}
+      }
+    ],
+    "solution_connections": []
+  },
+  {
+    "id": "ready_to_rebound",
+    "title": "Ready to rebound",
+    "subtitle": "62 / Energy already stored",
+    "description": "This springboard is already compressed. Place a basket to catch the ball when its stored energy is released.",
+    "hint": "Watch the ball's short upward arc, then put the basket beneath its descent. The spring releases on Run; it needs no wire and does not recharge itself.",
+    "inventory": {
+      "basket": 1
+    },
+    "parts": [
+      {
+        "id": "spring_1",
+        "kind": "spring",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 0.2,
+            "rotation_window": 5,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 0.45,
+            "position_window": 0.1,
+            "rotation_window": 2,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": true,
+        "position": [
+          0,
+          2.5,
+          0
+        ],
+        "orientation": [
+          0.8660254,
+          -0.5,
+          0,
+          0.5,
+          0.8660254,
+          0,
+          0,
+          0,
+          1
+        ],
+        "initial_velocity": [
+          0,
+          0,
+          0
+        ],
+        "internal_bodies": [],
+        "properties": {
+          "initial_compression": 0.2
+        }
+      },
+      {
+        "id": "ball",
+        "kind": "ball",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 0.2,
+            "rotation_window": 5,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 0.45,
+            "position_window": 0.1,
+            "rotation_window": 2,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": true,
+        "position": [
+          0.1785,
+          2.809171,
+          0
+        ],
+        "orientation": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "initial_velocity": [
+          0,
+          0,
+          0
+        ],
+        "internal_bodies": [],
+        "properties": {}
+      }
+    ],
+    "goals": [
+      {
+        "type": "captured",
+        "target": "basket_1",
+        "body": "ball"
+      }
+    ],
+    "solution": [
+      {
+        "id": "basket_1",
+        "kind": "basket",
+        "difficulty": [
+          {
+            "precision": 0,
+            "position_window": 0.2,
+            "rotation_window": 5,
+            "max_position_correction": 0.2,
+            "max_rotation_correction": 5,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.3,
+            "capture_speed": 3,
+            "capture_dwell": 0.15,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 0.45,
+            "position_window": 0.1,
+            "rotation_window": 2,
+            "max_position_correction": 0.1,
+            "max_rotation_correction": 2,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.174,
+            "capture_speed": 2.325,
+            "capture_dwell": 0.24,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          },
+          {
+            "precision": 1,
+            "position_window": 0,
+            "rotation_window": 0,
+            "max_position_correction": 0,
+            "max_rotation_correction": 0,
+            "blend_seconds": 0.4,
+            "capture_margin": 0.02,
+            "capture_speed": 1.5,
+            "capture_dwell": 0.35,
+            "guide_acceleration": 0,
+            "trigger_threshold": 0.8
+          }
+        ],
+        "locked": false,
+        "position": [
+          1.8,
+          1.3,
+          0
+        ],
+        "orientation": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "initial_velocity": [
+          0,
+          0,
+          0
+        ],
+        "internal_bodies": [],
         "properties": {}
       }
     ],

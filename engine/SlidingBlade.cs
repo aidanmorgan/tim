@@ -1,41 +1,54 @@
 using Godot;
+using System;
+using CuriousContraptions.Physics;
 
 namespace CuriousContraptions;
 
 public enum GateState { Closed, Opening, Open, Closing, Blocked }
 
-/// <summary>Shared accelerated local-Y blade motion. Closing stops before intersecting a visible body.</summary>
+/// <summary>Slider declaration and powered controller, never a motion integrator.
+/// A finite return spring closes the unpowered blade. Shared constraints alone
+/// enforce travel and resolve obstruction; rendering observes the actual body.</summary>
 public sealed class SlidingBlade(Vector3 half,float stroke)
 {
-    public Vector3 Half { get; }=half;
+    public const double Mass=1;
+    public const double MaximumSpeed=2.8;
+    private const double Acceleration=14;
+    private const double SpringStiffness=14;
+    private const double Damping=4;
+    private const double MotorEffort=60;
+    private const double MotorPower=120;
+    private const double EndpointTolerance=1e-5;
     public float Stroke { get; }=stroke;
-    public float Opening { get; private set; }
-    public float Speed { get; private set; }
-    public GateState State { get; private set; }
-    public Vector3 Position=>Vector3.Up*Opening;
-    public void Step(MachineWorld world,MachinePart owner,bool powered,float delta)
+    public BodyDynamics InitialDynamics=>new(PhysicsMotionType.Dynamic,Mass,
+        new(Mass*(half.Y*half.Y+half.Z*half.Z)/3,
+            Mass*(half.X*half.X+half.Z*half.Z)/3,
+            Mass*(half.X*half.X+half.Y*half.Y)/3),default,default);
+
+    public SceneFrameJoint Declare(MachinePart owner,BodySlot blade,JointSlot guide)
     {
-        var target=powered?Stroke:0;
-        var distance=target-Opening;
-        var targetSpeed=Mathf.Sign(distance)*Mathf.Min(2.8f,Mathf.Sqrt(2*14*Mathf.Abs(distance)));
-        Speed=Mathf.MoveToward(Speed,targetSpeed,14*delta);
-        var next=Mathf.Clamp(Opening+Speed*delta,0,Stroke);
-        var blocked=next<Opening&&Obstructed(world,owner,next);
-        if(blocked){next=Opening;Speed=0;}
-        Opening=next;
-        if(Mathf.Abs(target-Opening)<.0001f){Opening=target;Speed=0;}
-        State=blocked?GateState.Blocked:Opening==0?GateState.Closed:
-            Opening==Stroke?GateState.Open:powered?GateState.Opening:GateState.Closing;
+        var frame=new JointFrame(default,RigidRotation.FromRotationVector(new(-Math.PI/2,0,0)));
+        return new(new(owner,guide),FrameJointKind.Slider,new(owner,blade),frame,
+            new(owner,MachinePart.RootBody),frame,ConnectedBodyCollision.Disabled,
+            new(0,Stroke),JointTravelDirection.Both);
     }
-    private bool Obstructed(MachineWorld world,MachinePart owner,float opening)
+
+    public void Prepare(MachineWorld world,MachinePart owner,JointSlot guide,bool powered,float delta)
     {
-        var inverse=owner.Transform.AffineInverse();
-        foreach(var body in world.Bodies)
-        {
-            if(!body.Visible)continue;
-            var local=inverse*body.Position-Vector3.Up*opening;
-            if(local.DistanceSquaredTo(local.Clamp(-Half,Half))<=body.Radius*body.Radius)return true;
-        }
-        return false;
+        var joint=(PhysicsFrameJoint)world.CurrentJoint(new(owner,guide));
+        var travel=joint.Travel;
+        var position=travel.Error;
+        world.AddElasticLoad(new(owner,guide),new(SpringStiffness,0));
+        world.AddDampingLoad(new(owner,guide),Damping,Damping);
+        if(!powered) return;
+        var distance=Stroke-position;
+        var target=Math.Sign(distance)*Math.Min(MaximumSpeed,Math.Sqrt(2*Acceleration*Math.Abs(distance)));
+        world.DriveMotor(new(owner,guide),target,MotorEffort,MotorPower*delta,MotorPower);
     }
+
+    public GateState Classify(PhysicsAxialMotion motion,bool powered)=>
+        motion.Coordinate<=EndpointTolerance?GateState.Closed:
+        Stroke-motion.Coordinate<=EndpointTolerance?GateState.Open:
+        Math.Abs(motion.Speed)<1e-5?GateState.Blocked:
+        powered?GateState.Opening:GateState.Closing;
 }

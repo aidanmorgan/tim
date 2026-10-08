@@ -4,24 +4,27 @@ using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions;
 
-public enum WorkshopVisualProperty { LocalY, AlbedoRed, AlbedoGreen, AlbedoBlue, EmissionRed, EmissionGreen, EmissionBlue }
+public enum WorkshopVisualProperty { LocalY, LocalRotationZ, UniformScale, AlbedoRed, AlbedoGreen, AlbedoBlue, EmissionRed, EmissionGreen, EmissionBlue }
 
 /// <summary>Render boundary for immutable property bindings evaluated by shared Animation.</summary>
 public sealed class WorkshopVisualBinding
 {
-    private readonly MeshInstance3D _target;
+    private readonly Node3D _target;
     private readonly WorkshopVisualProperty _property;
     private readonly AnimationValue _neutral, _active;
-    public WorkshopVisualBinding(MeshInstance3D target, WorkshopVisualProperty property, Half neutral, Half active)
+    public WorkshopVisualBinding(Node3D target, WorkshopVisualProperty property, Half neutral, Half active)
     {
         if (!Enum.IsDefined(property)) throw new ArgumentException("Unknown visual binding property.");
         _target = target; _property = property;
         _neutral = Value(property, neutral); _active = Value(property, active);
-        if (property != WorkshopVisualProperty.LocalY && target.MaterialOverride is not StandardMaterial3D)
+        if (property is not (WorkshopVisualProperty.LocalY or WorkshopVisualProperty.LocalRotationZ or WorkshopVisualProperty.UniformScale) &&
+            (target is not MeshInstance3D mesh || mesh.MaterialOverride is not StandardMaterial3D))
             throw new ArgumentException("Colour binding requires its owned material.");
     }
     private static AnimationValue Value(WorkshopVisualProperty property, Half value) => property switch
     {
+        WorkshopVisualProperty.LocalRotationZ => new(new AnimationRadians(value)),
+        WorkshopVisualProperty.UniformScale => new(new AnimationScale(value)),
         WorkshopVisualProperty.LocalY => new(new AnimationMetres(value)),
         WorkshopVisualProperty.AlbedoRed or WorkshopVisualProperty.EmissionRed => AnimationValue.Channel(AnimationProperty.ColourRed, new(value)),
         WorkshopVisualProperty.AlbedoGreen or WorkshopVisualProperty.EmissionGreen => AnimationValue.Channel(AnimationProperty.ColourGreen, new(value)),
@@ -35,7 +38,10 @@ public sealed class WorkshopVisualBinding
         {
             var position = _target.Position; position.Y = value; _target.Position = position; return;
         }
-        var material = (StandardMaterial3D)_target.MaterialOverride;
+        if (_property == WorkshopVisualProperty.LocalRotationZ)
+        { var rotation = _target.Rotation; rotation.Z = value; _target.Rotation = rotation; return; }
+        if (_property == WorkshopVisualProperty.UniformScale) { _target.Scale = Vector3.One * value; return; }
+        var material = (StandardMaterial3D)((MeshInstance3D)_target).MaterialOverride;
         var emission = _property is WorkshopVisualProperty.EmissionRed or WorkshopVisualProperty.EmissionGreen or WorkshopVisualProperty.EmissionBlue;
         var colour = emission ? material.Emission : material.AlbedoColor;
         switch (_property)

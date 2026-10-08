@@ -4,7 +4,7 @@
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptSerializationGenerator/CuriousContraptions.Workshop_ScriptSerialization.generated.cs"
       },
-      "Sha256": "cad0232126ce5b6daff51db4fa5adbea7be9970636f2277ecdd66d709a09a57b"
+      "Sha256": "9296a072a0537a73847e4ce7c92d8cb6609349ebe8abb44f9c80ed23d0fac859"
     },
     {
       "Path": {
@@ -1940,7 +1940,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "7cdc865d16645373b63f549c7c6b38e252e30125c0a9da50aec61206c9b1de21"
+      "MemberSha256": "f5d59badc5e1e4518109a5247a95140487bd09cab1e788e45ecc959bb398ebc3"
     },
     {
       "Member": {
@@ -1951,7 +1951,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "599990317909365041c038c1ea10d5188d3b2302ce6cb81f05dc0790554f720a"
+      "MemberSha256": "cc21b450a15ea53924ae0f7df9b3279e37da8ea9ebd927f13877f5bc7570c77c"
     },
     {
       "Member": {
@@ -1962,7 +1962,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "ec72774a519db99ef73d5a19d4071ffdbd6dfdf764ba6bafba8b76670819ad69"
+      "MemberSha256": "08b705c44becd21a4fa359083ef7444a482e2e6d75497e51c0dd3c4978360621"
     },
     {
       "Member": {
@@ -1973,7 +1973,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "a6fdb90f519641b1a52a020664a05050c941e2f8d4fe87d9cc9f80bcc1c49f07"
+      "MemberSha256": "0f60f2788cf8644d4cc24ffc6665997022c9b1f28d2421c8ca59cd594544acbe"
     },
     {
       "Member": {

@@ -1,12 +1,13 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System.Text.Json;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class ImpactLeverTests(HeadlessFixture godot, ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class ImpactLeverTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
     public enum Route { Transfer, MissedDepth, PivotHit }
     private enum Role { Lever, Driver, Payload, LeftLoad, RightLoad }
@@ -24,7 +25,7 @@ public class ImpactLeverTests(HeadlessFixture godot, ITestOutputHelper output)
             Role.Payload or Role.LeftLoad or Role.RightLoad => "ball",
             _ => throw new ArgumentOutOfRangeException(nameof(role))
         },
-        Position = [position.X, position.Y, position.Z], Rotation = [rotation.X, rotation.Y, rotation.Z]
+        Position = [position.X, position.Y, position.Z], Orientation = PartOrientation.FromEulerDegrees(rotation.X, rotation.Y, rotation.Z)
     };
 
     [Fact]
@@ -49,12 +50,12 @@ public class ImpactLeverTests(HeadlessFixture godot, ITestOutputHelper output)
             for (var tick=0;tick<1200;tick++)
             {
                 world.Step();
-                Assert.InRange(Math.Abs(lever.Beam.Joint.Angle),0,.01);
+                Assert.InRange(Math.Abs(LeverFixture.Angle(world,lever)),0,.01);
                 Assert.InRange(Math.Abs(left.Position.Y-right.Position.Y),0,.01f);
                 Assert.InRange(left.Position.Y,3.45f,3.47f);
                 Assert.InRange(right.Position.Y,3.45f,3.47f);
             }
-            Assert.InRange(Math.Abs(lever.Beam.Joint.AngularVelocity),0,.02);
+            Assert.InRange(Math.Abs(LeverFixture.Speed(world,lever)),0,.02);
         }
         finally { world.Free(); }
     }
@@ -72,15 +73,15 @@ public class ImpactLeverTests(HeadlessFixture godot, ITestOutputHelper output)
         {
             var lever = (ImpactLeverPart)world.AddPart(Spec(Role.Lever,new(0,5,0),new(x,y,z)));
             var ball = world.AddPart(Spec(Role.Driver,lever.Transform * new Vector3(-1.2f,1.3f,0)));
+            ball.InitialVelocity = lever.Basis * Vector3.Down * 5;
             world.Start();
-            ball.Velocity = lever.Basis * Vector3.Down * 5;
-            var initialEnergy = .5 * ball.Mass * ball.Velocity.LengthSquared();
+            var initialEnergy = .5 * ball.Mass * world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity.LengthSquared;
             var greatestAngle = 0d;
             for (var tick=0;tick<240;tick++)
             {
                 world.Step();
-                greatestAngle = Math.Max(greatestAngle,Math.Abs(lever.Beam.Joint.Angle));
-                Assert.True(.5 * ball.Mass * ball.Velocity.LengthSquared() + lever.Beam.Joint.Energy <= initialEnergy * 1.01);
+                greatestAngle = Math.Max(greatestAngle,Math.Abs(LeverFixture.Angle(world,lever)));
+                Assert.True(.5 * ball.Mass * world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity.LengthSquared + LeverFixture.Energy(world,lever) <= initialEnergy * 1.01);
             }
             Assert.True(greatestAngle > .05);
             Assert.True(lever.ImpactCount > 0);
@@ -103,22 +104,22 @@ public class ImpactLeverTests(HeadlessFixture godot, ITestOutputHelper output)
             var payload = world.AddPart(Spec(Role.Payload,new(1.2f,3.46f,0)));
             var saved = JsonSerializer.Serialize(world.Snapshot(), MachineJson.Default.MachineData);
             world.Start();
-            double Energy() => lever.Beam.Joint.Energy + world.Bodies.Sum(b =>
-                b.Mass * (double)world.Gravity * b.Position.Y + .5 * b.Mass * b.Velocity.LengthSquared());
+            double Energy() => LeverFixture.Energy(world,lever) + world.Bodies.Sum(b =>
+                b.Mass * (double)world.Gravity * b.Position.Y + .5 * b.Mass * world.PhysicsAssembly.Body(new(b,MachinePart.RootBody)).LinearVelocity.LengthSquared);
             var initialEnergy = Energy();
             var peakHeight = payload.Position.Y;
-            var peakUp = 0f;
+            var peakUp = 0d;
             var maximumAngle = 0d;
             for (var tick = 0; tick < 480; tick++)
             {
                 world.Step();
                 Assert.True(driver.Position.IsFinite() && payload.Position.IsFinite());
-                Assert.True(driver.Velocity.IsFinite() && payload.Velocity.IsFinite());
-                Assert.InRange(lever.Beam.Joint.Angle, -ImpactLeverPart.LimitAngle, ImpactLeverPart.LimitAngle);
+                Assert.True(world.PhysicsAssembly.Body(new(driver,MachinePart.RootBody)).LinearVelocity.IsFinite && world.PhysicsAssembly.Body(new(payload,MachinePart.RootBody)).LinearVelocity.IsFinite);
+                Assert.InRange(LeverFixture.Angle(world,lever), -ImpactLeverPart.LimitAngle, ImpactLeverPart.LimitAngle);
                 Assert.True(Energy() <= initialEnergy * 1.01, $"Energy={Energy()}, initial={initialEnergy}, tick={tick}");
                 peakHeight = Math.Max(peakHeight,payload.Position.Y);
-                if (payload.Position.Y > 3.5f) peakUp = Math.Max(peakUp,payload.Velocity.Y);
-                maximumAngle = Math.Max(maximumAngle,Math.Abs(lever.Beam.Joint.Angle));
+                if (payload.Position.Y > 3.5f) peakUp = Math.Max(peakUp,world.PhysicsAssembly.Body(new(payload,MachinePart.RootBody)).LinearVelocity.Y);
+                maximumAngle = Math.Max(maximumAngle,Math.Abs(LeverFixture.Angle(world,lever)));
             }
             output.WriteLine($"route={route}, peakHeight={peakHeight}, peakUp={peakUp}, maximumAngle={maximumAngle}, driver={driver.Position}, payload={payload.Position}");
             if (route == Route.Transfer) { Assert.True(peakHeight > 4); Assert.True(peakUp > 2); }
@@ -127,8 +128,7 @@ public class ImpactLeverTests(HeadlessFixture godot, ITestOutputHelper output)
             world.Restore();
             Assert.Equal(saved,JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData));
             var restored = Assert.Single(world.Parts.OfType<ImpactLeverPart>());
-            Assert.Equal(0,restored.Beam.Joint.Angle);
-            Assert.Equal(0,restored.Beam.Joint.AngularVelocity);
+            Assert.Equal(restored.Transform,restored.BeamTransform);
             world.Start();
             for (var tick=0;tick<480;tick++) world.Step();
             Assert.Equal(signature,world.StateSignature());

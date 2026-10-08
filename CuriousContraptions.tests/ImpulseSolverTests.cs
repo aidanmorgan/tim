@@ -13,6 +13,44 @@ public class ImpulseSolverTests
     private static void Near(CollisionVector expected,CollisionVector actual,double tolerance=1e-8)=>Near(0,(expected-actual).Length,tolerance);
 
     [Theory]
+    [InlineData(0d,false,-1d)]
+    [InlineData(10d,false,-1d)]
+    [InlineData(100d,false,-1d)]
+    [InlineData(0d,true,-1d)]
+    [InlineData(10d,true,-1d)]
+    [InlineData(100d,true,-1d)]
+    [InlineData(10d,false,1d)]
+    [InlineData(100d,false,1d)]
+    [InlineData(10d,true,1d)]
+    [InlineData(100d,true,1d)]
+    public void RotationLockedContactUsesConstrainedMassRegardlessOfLeverArm(double offset,bool reverse,double speed)
+    {
+        var body=Dynamic(0,default,X*.4+Y*speed);
+        var ground=Fixed(1);
+        var initial=body.Snapshot();
+        void Run()
+        {
+            var locks=new[]{X,Y,Z}.Select(axis=>new ImpulseConstraint(
+                new ConstraintGradient([new(body,default,axis)]),
+                0,double.NegativeInfinity,double.PositiveInfinity)).ToArray();
+            var joint=new BilateralConstraintBlock(locks);
+            var contact=new ContactConstraint(ContactKinematics.AtPoint(body,ground,X*offset,Y),0,0,0);
+            IImpulseConstraint[] constraints=reverse?[contact,joint]:[joint,contact];
+            var result=ImpulseSolver.Solve(constraints);
+            Assert.InRange(result.MaximumResidual,0,1e-8);
+            Near(X*.4+Y*Math.Max(speed,0),body.LinearVelocity);
+            Near(default(CollisionVector),body.AngularVelocity);
+            Near(Math.Max(-speed,0),contact.Impulse.Normal);
+            Assert.Equal(initial.Pose,body.Pose);
+        }
+        Run();
+        var solved=body.Snapshot();
+        body.Restore(initial);
+        Run();
+        Assert.Equal(solved,body.Snapshot());
+    }
+
+    [Theory]
     [InlineData(0)]
     [InlineData(.5)]
     [InlineData(1)]

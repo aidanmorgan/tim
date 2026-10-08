@@ -8,21 +8,26 @@ namespace CuriousContraptions;
 /// Locked means fixed during editing, not immovable during simulation.</summary>
 public partial class WeightPart : MachinePart
 {
+    protected override PartParameterValues BindParameters(System.Collections.Generic.IReadOnlyDictionary<string,float> fields) =>
+        PartParameterValues.Bind<WeightParameter>(fields);
+    public override BodyEnvelope CollisionEnvelope=>BodyEnvelope.Sphere;
+    public override BodyDynamics InitialBodyDynamics=>BodyDynamics.SolidSphere(Mass,Radius,
+        SceneGeometryAdapter.CaptureVector(InitialVelocity),default);
     public override RopeAttachmentKind RopeAttachment => RopeAttachmentKind.Load;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
         new(SocketId.Tie, ConnectionDomain.Rope, PortDirection.Bidirectional,
-            new(0, RopeGeometry.WeightTieHeight(Properties[WeightParameters.Mass]), 0))
+            new(0, RopeGeometry.WeightTieHeight(ReadParameter(WeightParameter.Mass)), 0))
     ];
-    public override void ValidateParameters()
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
-        var mass = Properties[WeightParameters.Mass];
+        var mass = parameters.Read(WeightParameter.Mass);
         if (!float.IsFinite(mass) || mass < .25f || mass > 8)
             throw new ArgumentException("Weight mass must be between 0.25 and 8.");
     }
     protected override void Build()
     {
-        Mass = Properties[WeightParameters.Mass];
+        Mass = ReadParameter(WeightParameter.Mass);
         Dynamic = true;
         Radius = RopeGeometry.WeightRadius(Mass);
         Bounce = .08f;

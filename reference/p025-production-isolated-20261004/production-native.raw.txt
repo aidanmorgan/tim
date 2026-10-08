@@ -1,0 +1,47 @@
+COMMAND=["/opt/homebrew/bin/dotnet", "restore", "CuriousContraptions.Simulation", "--nologo"]
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj (in 94 ms).
+  1 of 2 projects are up-to-date for restore.
+
+EXIT_CODE=0 ELAPSED_SECONDS=0.521453041001223
+COMMAND=["/opt/homebrew/bin/dotnet", "restore", "CuriousContraptions.Animation.Worker", "--nologo"]
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj (in 95 ms).
+  1 of 2 projects are up-to-date for restore.
+
+EXIT_CODE=0 ELAPSED_SECONDS=0.5226900830020895
+COMMAND=["/opt/homebrew/bin/dotnet", "test", "CuriousContraptions.tests", "-c", "Release", "--nologo", "-p:PlaytestDiagnostics=false", "--filter", "FullyQualifiedName~WorkshopTraceTests", "--logger", "console;verbosity=normal"]
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.csproj (in 88 ms).
+  Restored /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/CuriousContraptions.tests.csproj (in 1.25 sec).
+  1 of 3 projects are up-to-date for restore.
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.68]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.87]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.99]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: NonFinite) [22 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Duplicate) [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Missing) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Overflow) [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Negative) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Disposed) [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: DeviceLost) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Fault) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Reset) [< 1 ms]
+[xUnit.net 00:00:01.14]   Finished:    CuriousContraptions.tests (ID = '534df7f9c7ec3602800dd86b6322e8023c5b0acc987055256c0f1f5ab47f23e2')
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz240) [16 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz120) [14 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz60) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingOutputFailureCannotEscapeOrContaminateNextRun [< 1 ms]
+
+Test Run Successful.
+Total tests: 13
+     Passed: 13
+ Total time: 1.3645 Seconds
+
+EXIT_CODE=0 ELAPSED_SECONDS=5.706388875005359

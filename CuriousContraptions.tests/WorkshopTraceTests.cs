@@ -13,12 +13,24 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     private static readonly WorkshopGpuProfile Profile = new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
     private static readonly WorkshopConstruction Construction = new(new(7), Settings, new(WorkshopInput.Basketball(new(3), 0, 8.875, 0, 0, 0, 0, 1)));
 
+    [Fact]
+    public void RoundedCommittedRotationPreservesTraceBits()
+    {
+        var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction, new(101, 207)), new(9), Profile);
+        var physical = PhysicsGpuAbi.ReadDynamicBodies(state)[0];
+        var rotation = new CanonicalRotation((Half)0, (Half)0, (Half)(-.301513671875), (Half).9541015625);
+        var record = WorkshopTraceRecord.Encode(new(new(9), new(0), new([physical with { Rotation = rotation }])), Profile);
+        var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
+        for (var index = 0; index < values.Length; index++)
+            Assert.Equal(BitConverter.HalfToUInt16Bits(values[index]),
+                BinaryPrimitives.ReadUInt16LittleEndian(record.AsSpan(80 + index * 2)));
+    }
+
     private static byte[] Record(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile)
     {
         var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(101,207)), epoch, profile);
-        var physical = PhysicsGpuAbi.ReadDynamicBody(state);
-        return WorkshopTraceRecord.Encode(new(epoch, new(0), physical?.Body,
-            Rotation: physical?.Rotation, Angular: physical?.AngularVelocity ?? default), profile);
+        var physical = PhysicsGpuAbi.ReadDynamicBodies(state);
+        return WorkshopTraceRecord.Encode(new(epoch, new(0), physical), profile);
     }
 
     private static void Begin(WorkshopTrace trace, RuntimeSessionId session, WorkshopConstruction construction,
@@ -48,13 +60,13 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var profile = Profile with { Cadence = cadence };
         var record = Record(configured, new(9), profile);
         var count = checked((int)ticks + 1);
-        var expected = new byte[count * WorkshopTraceRecord.ByteLength];
+        var expected = new byte[count * record.Length];
         Begin(trace, Session, configured, new(9), new(3), record);
         record.CopyTo(expected, 0);
         for (ulong tick = 1; tick <= ticks; tick++)
         {
             BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
-            record.CopyTo(expected, checked((int)tick * WorkshopTraceRecord.ByteLength));
+            record.CopyTo(expected, checked((int)tick * record.Length));
             Append(trace, record);
         }
         var finalRecord = (byte[])record.Clone();
@@ -88,7 +100,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             var chunkCount = Math.Min(128, count - ordinal * 128);
             Assert.Equal((ulong)chunkCount, Number(fields[5]));
             var bytes = Convert.FromBase64String(fields[6]);
-            Assert.Equal(chunkCount * WorkshopTraceRecord.ByteLength, bytes.Length);
+            Assert.Equal(chunkCount * record.Length, bytes.Length);
             observed.AddRange(bytes);
         }
         Assert.Equal(expected, observed.ToArray());
@@ -192,6 +204,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             Append(trace, record);
             trace.Flush(phase);
             Assert.Empty(output.TraceLines);
+            trace.End(TraceEnd.Fault);
             trace.Flush(WorkshopSimulationPhase.Faulted);
             Assert.Equal(reason == TraceEnd.Overflow ? 31 : 3, output.TraceLines.Length);
             Assert.Equal(reason, Reason(output.TraceLines[0].Split(' ')[7]));
@@ -245,6 +258,45 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         trace.Flush(WorkshopSimulationPhase.Building);
         Assert.Equal(3, output.TraceLines.Length);
         Assert.Equal(10UL, Number(output.TraceLines[0].Split(' ')[2]));
+    }
+
+
+    [Fact]
+    public void PoseCapacityExhaustionPreservesCompleteScalarTiming()
+    {
+        using var output = new CapturedConsole();
+        var trace = new WorkshopTrace();
+        var bodies = new PhysicsBodyReadSet(Enumerable.Range(1, 16).Select(id =>
+            new PhysicsBodyRead(new(new((ulong)id), 9, 0, default, default, default),
+                CanonicalRotation.Identity, default, default)).ToArray());
+        var record = WorkshopTraceRecord.Encode(new(new(9), new(0), bodies), Profile);
+        Begin(trace, Session, Construction, new(9), new(3), record);
+        for (ulong tick = 1; tick <= Profile.RunTickLimit; tick++)
+        {
+            BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
+            Append(trace, record);
+            trace.RecordTickDuration(new(tick), .75);
+        }
+        trace.End(TraceEnd.Complete);
+        trace.Flush(WorkshopSimulationPhase.Completed);
+        var pose = output.TraceLines[0].Split(' ');
+        Assert.Equal(TraceEnd.Overflow, Reason(pose[7]));
+        Assert.Equal((ulong)(WorkshopTrace.PoseByteCapacity / record.Length), Number(pose[5]));
+        var timing = output.TimingLines[0].Split(' ');
+        Assert.Equal(Profile.RunTickLimit, Number(timing[9]));
+        Assert.Equal(0UL, Number(timing[11]));
+        ulong nextTick = 1;
+        foreach (var line in output.TimingLines.Skip(1).SkipLast(1))
+        {
+            var fields = line.Split(' ');
+            Assert.Equal(nextTick, Number(fields[4]));
+            var values = Convert.FromBase64String(fields[6]);
+            Assert.Equal(Number(fields[5]) * 8, (ulong)values.Length);
+            for (var offset = 0; offset < values.Length; offset += 8)
+                Assert.Equal(.75, BinaryPrimitives.ReadDoubleLittleEndian(values.AsSpan(offset)));
+            nextTick += Number(fields[5]);
+        }
+        Assert.Equal(Profile.RunTickLimit + 1, nextTick);
     }
 
 #endif

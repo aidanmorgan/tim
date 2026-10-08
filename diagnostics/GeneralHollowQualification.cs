@@ -15,7 +15,7 @@ internal sealed record GeneralHollowReport(GeneralHollowProbe Probe,int Children
 internal static class GeneralHollowQualification
 {
     private static BodyTrajectory Path(RigidPose pose,CollisionVector velocity=default,CollisionVector spin=default,double duration=1)=>
-        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration);
+        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration,default);
     internal static GeneralHollowReport Run(GeneralHollowProbe probe)
     {
         if(!Enum.IsDefined(probe)) throw new ArgumentOutOfRangeException(nameof(probe));
@@ -32,8 +32,8 @@ internal static class GeneralHollowQualification
         {
             duration=wall?.002:1;
             var center=new CollisionVector(2.4*Math.Sin(sweep*.5),2.4*Math.Cos(sweep*.5),0);
-            moving=wall?new(new([new(new ConvexSphere(.05),Transform3D.Identity)]),Path(RigidPose.At(center),new(0,0,1000),duration:duration)):
-                new(new([new(new ConvexSphere(.25),new(Basis.Identity,new(0,2.4f,0)))]),Path(RigidPose.Identity,spin:new(0,0,-sweep)));
+            moving=wall?new(new([new(new ConvexSphere(.05),AffineTransform.Identity)]),Path(RigidPose.At(center),new(0,0,1000),duration:duration)):
+                new(new([new(new ConvexSphere(.25),new(AffineBasis.Identity,new(0,2.4f,0)))]),Path(RigidPose.Identity,spin:new(0,0,-sweep)));
             shell=new(shape.Geometry,Path(RigidPose.Identity));
         }
         else
@@ -41,7 +41,7 @@ internal static class GeneralHollowQualification
             duration=.008;
             var rotation=RigidRotation.FromRotationVector(new(.2,.7,-.4)); var center=new CollisionVector(2,3,-1);
             var height=wall?(funnel?1.325:.675):0;
-            moving=new(new([new(new ConvexSphere(.05),Transform3D.Identity)]),
+            moving=new(new([new(new ConvexSphere(.05),AffineTransform.Identity)]),
                 Path(new(center+rotation.Apply(new(-4,height,0)),rotation),rotation.Apply(new(1000,0,0)),duration:duration));
             shell=new(shape.Geometry,Path(new(center,rotation),duration:duration));
         }
@@ -57,17 +57,17 @@ internal static class GeneralHollowQualification
         for(var i=0;i<tube.Geometry.Count;i++)
         {
             var child=tube.Geometry[new(i)];
-            children.Add(new(child.Geometry,new(Basis.Identity,child.Pose.Origin+new Vector3(section*2,0,0))));
+            children.Add(new(child.Geometry,new(AffineBasis.Identity,child.Pose.Origin+new CollisionVector(section*2,0,0))));
         }
         var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(new(-.5,-.44,0)),new(2,0,0),default,1,new(.016,.016,.016));
         var wall=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
-        var world=new PhysicsWorld([new(body,new([new(new ConvexSphere(.2),Transform3D.Identity)]),new(0,0,0)),
+        var world=new PhysicsWorld([],[new(body,new([new(new ConvexSphere(.2),AffineTransform.Identity)]),new(0,0,0)),
             new(wall,new(children.ToArray()),new(0,0,0))],[],new(new(0,-9.8,0)));
         var before=world.Capture();
         int Run()
         {
             var events=0;
-            for(var i=0;i<120;i++) events+=world.Step([],1.0/120).Events;
+            for(var i=0;i<120;i++) events+=world.Step([],[],1.0/120).Events;
             return events;
         }
         var events=Run(); var after=world.Capture(); var impacts=world.Impacts.ToArray();

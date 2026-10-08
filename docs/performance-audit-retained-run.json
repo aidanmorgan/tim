@@ -1,0 +1,419 @@
+{
+  "declaredScenario": "sparse_catalogue",
+  "expectedTicks": 3600,
+  "overwrittenSamples": 0,
+  "overwrittenCounters": 0,
+  "runs": [
+    {
+      "run": 1,
+      "coverage": "partial",
+      "observedTicks": 189,
+      "firstTick": 0,
+      "lastTick": 188,
+      "stages": [
+        {
+          "stage": "gameplay_tick",
+          "milliseconds": {
+            "count": 189,
+            "p50": 6.2,
+            "p95": 7.5,
+            "p99": 12.2,
+            "maximum": 16.5,
+            "mean": 6.328042328042324
+          },
+          "allocatedBytes": {
+            "count": 189,
+            "p50": 569176,
+            "p95": 573432,
+            "p99": 704920,
+            "maximum": 1137824,
+            "mean": 576074.0317460329
+          }
+        },
+        {
+          "stage": "networks",
+          "milliseconds": {
+            "count": 189,
+            "p50": 0.1,
+            "p95": 0.2,
+            "p99": 0.6,
+            "maximum": 4.1,
+            "mean": 0.11164021164021184
+          },
+          "allocatedBytes": {
+            "count": 189,
+            "p50": 4128,
+            "p95": 4128,
+            "p99": 4312,
+            "maximum": 10080,
+            "mean": 4160.4656084656135
+          }
+        },
+        {
+          "stage": "physics",
+          "milliseconds": {
+            "count": 189,
+            "p50": 5.6,
+            "p95": 6.5,
+            "p99": 7.9,
+            "maximum": 11.7,
+            "mean": 5.684656084656077
+          },
+          "allocatedBytes": {
+            "count": 189,
+            "p50": 549568,
+            "p95": 554208,
+            "p99": 685696,
+            "maximum": 1117848,
+            "mean": 556474.5396825398
+          }
+        },
+        {
+          "stage": "presentation",
+          "milliseconds": {
+            "count": 189,
+            "p50": 0,
+            "p95": 0.1,
+            "p99": 0.2,
+            "maximum": 0.2,
+            "mean": 0.02698412698412696
+          },
+          "allocatedBytes": {
+            "count": 189,
+            "p50": 0,
+            "p95": 0,
+            "p99": 0,
+            "maximum": 176,
+            "mean": 0.9312169312169312
+          }
+        }
+      ],
+      "counters": [
+        {
+          "metric": "physics_steps",
+          "reduction": "sum",
+          "value": 756
+        },
+        {
+          "metric": "physics_substeps",
+          "reduction": "sum",
+          "value": 756
+        },
+        {
+          "metric": "physics_events",
+          "reduction": "sum",
+          "value": 5
+        },
+        {
+          "metric": "sweep_iterations",
+          "reduction": "sum",
+          "value": 6
+        },
+        {
+          "metric": "velocity_iterations",
+          "reduction": "sum",
+          "value": 1518
+        },
+        {
+          "metric": "position_iterations",
+          "reduction": "sum",
+          "value": 0
+        },
+        {
+          "metric": "prediction_calls",
+          "reduction": "sum",
+          "value": 762
+        },
+        {
+          "metric": "prediction_midpoints",
+          "reduction": "sum",
+          "value": 12192
+        },
+        {
+          "metric": "prediction_newton_iterations",
+          "reduction": "sum",
+          "value": 762
+        },
+        {
+          "metric": "maximum_prediction_coordinates",
+          "reduction": "maximum",
+          "value": 6
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "coverage": "complete",
+      "observedTicks": 3600,
+      "firstTick": 0,
+      "lastTick": 3599,
+      "stages": [
+        {
+          "stage": "gameplay_tick",
+          "milliseconds": {
+            "count": 3600,
+            "p50": 7,
+            "p95": 7.6,
+            "p99": 8.3,
+            "maximum": 13.7,
+            "mean": 6.998222222222165
+          },
+          "allocatedBytes": {
+            "count": 3600,
+            "p50": 809056,
+            "p95": 809080,
+            "p99": 809080,
+            "maximum": 1137112,
+            "mean": 780359.2022222475
+          }
+        },
+        {
+          "stage": "networks",
+          "milliseconds": {
+            "count": 3600,
+            "p50": 0.1,
+            "p95": 0.2,
+            "p99": 0.3,
+            "maximum": 3.3,
+            "mean": 0.07480555555555843
+          },
+          "allocatedBytes": {
+            "count": 3600,
+            "p50": 4128,
+            "p95": 4128,
+            "p99": 4128,
+            "maximum": 5040,
+            "mean": 4128.457777777609
+          }
+        },
+        {
+          "stage": "physics",
+          "milliseconds": {
+            "count": 3600,
+            "p50": 6.7,
+            "p95": 7.2,
+            "p99": 7.6,
+            "maximum": 13.4,
+            "mean": 6.590333333333429
+          },
+          "allocatedBytes": {
+            "count": 3600,
+            "p50": 789856,
+            "p95": 789856,
+            "p99": 789856,
+            "maximum": 1117728,
+            "mean": 761152.5333333752
+          }
+        },
+        {
+          "stage": "presentation",
+          "milliseconds": {
+            "count": 3600,
+            "p50": 0,
+            "p95": 0.1,
+            "p99": 0.2,
+            "maximum": 0.4,
+            "mean": 0.018916666666666596
+          },
+          "allocatedBytes": {
+            "count": 3600,
+            "p50": 0,
+            "p95": 0,
+            "p99": 0,
+            "maximum": 88,
+            "mean": 0.031111111111111114
+          }
+        }
+      ],
+      "counters": [
+        {
+          "metric": "physics_steps",
+          "reduction": "sum",
+          "value": 14400
+        },
+        {
+          "metric": "physics_substeps",
+          "reduction": "sum",
+          "value": 14400
+        },
+        {
+          "metric": "physics_events",
+          "reduction": "sum",
+          "value": 32
+        },
+        {
+          "metric": "sweep_iterations",
+          "reduction": "sum",
+          "value": 60
+        },
+        {
+          "metric": "velocity_iterations",
+          "reduction": "sum",
+          "value": 28841
+        },
+        {
+          "metric": "position_iterations",
+          "reduction": "sum",
+          "value": 0
+        },
+        {
+          "metric": "prediction_calls",
+          "reduction": "sum",
+          "value": 14441
+        },
+        {
+          "metric": "prediction_midpoints",
+          "reduction": "sum",
+          "value": 43031
+        },
+        {
+          "metric": "prediction_newton_iterations",
+          "reduction": "sum",
+          "value": 1906
+        },
+        {
+          "metric": "maximum_prediction_coordinates",
+          "reduction": "maximum",
+          "value": 6
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "coverage": "partial",
+      "observedTicks": 312,
+      "firstTick": 0,
+      "lastTick": 311,
+      "stages": [
+        {
+          "stage": "gameplay_tick",
+          "milliseconds": {
+            "count": 312,
+            "p50": 5.4,
+            "p95": 6.4,
+            "p99": 7.8,
+            "maximum": 12.7,
+            "mean": 5.542948717948722
+          },
+          "allocatedBytes": {
+            "count": 312,
+            "p50": 573344,
+            "p95": 573344,
+            "p99": 706792,
+            "maximum": 1137088,
+            "mean": 578086.6153846123
+          }
+        },
+        {
+          "stage": "networks",
+          "milliseconds": {
+            "count": 312,
+            "p50": 0.1,
+            "p95": 0.2,
+            "p99": 0.2,
+            "maximum": 0.7,
+            "mean": 0.07692307692307673
+          },
+          "allocatedBytes": {
+            "count": 312,
+            "p50": 4128,
+            "p95": 4128,
+            "p99": 4128,
+            "maximum": 4128,
+            "mean": 4127.999999999979
+          }
+        },
+        {
+          "stage": "physics",
+          "milliseconds": {
+            "count": 312,
+            "p50": 5,
+            "p95": 5.9,
+            "p99": 7.4,
+            "maximum": 12.2,
+            "mean": 5.166025641025645
+          },
+          "allocatedBytes": {
+            "count": 312,
+            "p50": 554144,
+            "p95": 554144,
+            "p99": 687592,
+            "maximum": 1117728,
+            "mean": 558885.5897435901
+          }
+        },
+        {
+          "stage": "presentation",
+          "milliseconds": {
+            "count": 312,
+            "p50": 0,
+            "p95": 0.1,
+            "p99": 0.1,
+            "maximum": 0.2,
+            "mean": 0.01666666666666668
+          },
+          "allocatedBytes": {
+            "count": 312,
+            "p50": 0,
+            "p95": 0,
+            "p99": 0,
+            "maximum": 0,
+            "mean": 0
+          }
+        }
+      ],
+      "counters": [
+        {
+          "metric": "physics_steps",
+          "reduction": "sum",
+          "value": 1248
+        },
+        {
+          "metric": "physics_substeps",
+          "reduction": "sum",
+          "value": 1248
+        },
+        {
+          "metric": "physics_events",
+          "reduction": "sum",
+          "value": 11
+        },
+        {
+          "metric": "sweep_iterations",
+          "reduction": "sum",
+          "value": 12
+        },
+        {
+          "metric": "velocity_iterations",
+          "reduction": "sum",
+          "value": 2509
+        },
+        {
+          "metric": "position_iterations",
+          "reduction": "sum",
+          "value": 0
+        },
+        {
+          "metric": "prediction_calls",
+          "reduction": "sum",
+          "value": 1261
+        },
+        {
+          "metric": "prediction_midpoints",
+          "reduction": "sum",
+          "value": 20161
+        },
+        {
+          "metric": "prediction_newton_iterations",
+          "reduction": "sum",
+          "value": 1260
+        },
+        {
+          "metric": "maximum_prediction_coordinates",
+          "reduction": "maximum",
+          "value": 6
+        }
+      ]
+    }
+  ]
+}

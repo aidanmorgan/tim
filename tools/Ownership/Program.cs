@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Ownership;
 
+const string WorkRegisterPath = "docs/planning/work-register.md";
+
 try
 {
 // CLI and JSON are external boundaries; selector strings never enter domain logic.
@@ -40,7 +42,7 @@ switch (operation)
     case Operation.Audit:
         if (args.Length != 3) throw new ArgumentException("Supply the ownership contract path.");
         var contract = OwnershipAudit.Read(root, args[2]);
-        var tasks = Regex.Matches(File.ReadAllText(Path.Combine(root, "TODO.md")), "id=\"work-([a-z0-9-]+)\"")
+        var tasks = Regex.Matches(File.ReadAllText(Path.Combine(root, WorkRegisterPath)), "id=\"work-([a-z0-9-]+)\"")
             .Select(match => new WorkId(match.Groups[1].Value.ToUpperInvariant())).ToHashSet();
         OwnershipAudit.Validate(current, contract, tasks);
         Console.WriteLine(JsonSerializer.Serialize(new

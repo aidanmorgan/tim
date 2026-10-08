@@ -117,7 +117,7 @@ public static class OwnershipOracles
             if (!rejected) throw new InvalidOperationException($"Ownership oracle accepted attack {attack}.");
             results.Add(new { Attack = attack, Rejected = rejected });
         }
-        return new { Positive = true, NegativeCount = results.Count, Results = results, SemanticFlows = CheckReferenceFlows(), PolicyPlacements = CheckPolicyPlacements() };
+        return new { Positive = true, NegativeCount = results.Count, Results = results, SemanticFlows = CheckReferenceFlows(), PolicyPlacements = CheckPolicyPlacements(), PortableAssembly = CheckPortableAssembly() };
     }
 
 
@@ -225,5 +225,173 @@ public static class OwnershipOracles
             results.Add(new { Flow = flow, Authorization = authorization, Access = access, Accepted = accepted });
         }
         return results.ToArray();
+    }
+
+    private enum AssemblyAttack
+    {
+        MissingContext, DuplicateContext, UnknownContext, MissingReference, DuplicateReference,
+        MissingSource, DuplicateSource, BindingError, MissingMember, DuplicateMember,
+        StaleSource, StaleConsumer, WrongOwner, StaleConfiguration
+    }
+
+    private static object CheckPortableAssembly()
+    {
+        // These are two separate compiler-fixture assemblies using the production capture path.
+        // No game source reconstruction or alternative build route is used.
+        var directory = Directory.CreateTempSubdirectory("ownership-animation-");
+        try
+        {
+            var root = directory.FullName;
+            File.WriteAllText(Path.Combine(root, "animation.cs"), """
+                namespace CuriousContraptions.Presentation;
+                public sealed class AnimationBatch
+                {
+                    private readonly double[] _slots = new double[1];
+                    public double Value => _slots[0];
+                    public void Advance() { _slots[0] += 1; }
+                }
+                """);
+            File.WriteAllText(Path.Combine(root, "game.cs"), """
+                using CuriousContraptions.Presentation;
+                public static class Hint
+                {
+                    public static double Read(AnimationBatch batch) => batch.Value;
+                    public static void Step(AnimationBatch batch) => batch.Advance();
+                #if PLAYTEST
+                    public static double DiagnosticRead(AnimationBatch batch) => batch.Value;
+                #endif
+                }
+                """);
+            File.WriteAllText(Path.Combine(root, "tests.cs"), """
+                using CuriousContraptions.Presentation;
+                public static class ConsumerTest
+                {
+                    public static double Read(AnimationBatch batch) => Hint.Read(batch);
+                }
+                """);
+            File.WriteAllText(Path.Combine(root, "geometry.cs"), "public sealed class GeometryMarker { }");
+            File.WriteAllText(Path.Combine(root, "capture.props"), "<Project />");
+            var core = typeof(object).Assembly.Location;
+            SourceInventory.ProjectInputs Inputs(string path, string assembly, string[] references, string[] symbols) =>
+                new([path], [], references, symbols, [], assembly, LanguageVersion.CSharp14,
+                    NullableContextOptions.Enable, false, OutputKind.DynamicallyLinkedLibrary, false, ["capture.props"]);
+            var animationInput = Inputs("animation.cs", "CuriousContraptions.Animation", [core], []);
+            var animation = SourceInventory.Compile(root, animationInput);
+            void Emit(CSharpCompilation compilation, string path)
+            {
+                using var stream = File.Create(Path.Combine(root, path));
+                if (!compilation.Emit(stream).Success) throw new InvalidOperationException("Assembly fixture failed compilation.");
+            }
+            Emit(animation, "CuriousContraptions.Animation.dll");
+            var geometryInput = Inputs("geometry.cs", "GeometryFixture", [core], []);
+            var geometry = SourceInventory.Compile(root, geometryInput);
+            var mainInput = Inputs("game.cs", "GameFixture", [core, "CuriousContraptions.Animation.dll"], ["PLAYTEST"]);
+            var releaseInput = mainInput with { Symbols = [] };
+            var main = SourceInventory.Compile(root, mainInput, animation);
+            var release = SourceInventory.Compile(root, releaseInput, animation);
+            Emit(main, "GameFixture.dll");
+            var testInput = Inputs("tests.cs", "TestFixture", [core, "CuriousContraptions.Animation.dll", "GameFixture.dll"], ["PLAYTEST"]);
+            var releaseTestInput = testInput with { Symbols = [] };
+            var tests = SourceInventory.Compile(root, testInput, animation, main);
+            var releaseTests = SourceInventory.Compile(root, releaseTestInput, animation, release);
+            (InspectionContext Kind, CSharpCompilation Compilation, SourceInventory.ProjectInputs Inputs)[] contexts =
+            [
+                (InspectionContext.AnimationRelease, animation, animationInput),
+                (InspectionContext.GeometryRelease, geometry, geometryInput),
+                (InspectionContext.ProductionDiagnostic, main, mainInput),
+                (InspectionContext.ProductionRelease, release, releaseInput),
+                (InspectionContext.TestDiagnostic, tests, testInput),
+                (InspectionContext.TestRelease, releaseTests, releaseTestInput)
+            ];
+            var snapshot = SourceInventory.Inspect(root, contexts, []);
+            if (snapshot.Diagnostics.Length != 0) throw new InvalidOperationException("Portable assembly fixture has binding errors.");
+            var animationContext = snapshot.Symbols.Single(context => context.Kind == InspectionContext.AnimationRelease);
+            var configHash = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(
+                File.ReadAllBytes(Path.Combine(root, "capture.props"))));
+            if (snapshot.Sources.Count(source => source.Path == new SourcePath("animation.cs")) != 1 ||
+                snapshot.Sources.Single(source => source.Path == new SourcePath("capture.props")).Sha256 != configHash ||
+                animationContext.Assembly != new AssemblyId("CuriousContraptions.Animation") ||
+                !animationContext.CompilePaths.SequenceEqual(new[] { new SourcePath("animation.cs") }))
+                throw new InvalidOperationException("Animation source or configuration input identity differs.");
+            var slotsId = new MemberId("F:CuriousContraptions.Presentation.AnimationBatch._slots");
+            var valueId = new MemberId("P:CuriousContraptions.Presentation.AnimationBatch.Value");
+            var slots = snapshot.Members.Single(member => member.Id == slotsId);
+            var value = snapshot.Members.Single(member => member.Id == valueId);
+            if (slots.Path != new SourcePath("animation.cs") || slots.Mutability != StorageMutability.ReferencedStorage ||
+                !slots.Uses.Any(use => use.Caller == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.Advance")) ||
+                !value.Uses.Any(use => use.Caller == new CallerId("M:Hint.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double")))
+                throw new InvalidOperationException("Source-backed member or consumer identity was lost: " + JsonSerializer.Serialize(new { Slots = slots, Value = value }, OwnershipAudit.Json));
+            if (!snapshot.Calls.Any(call => call.Caller == new CallerId("M:Hint.Step(CuriousContraptions.Presentation.AnimationBatch)") &&
+                    call.Target == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.Advance") && call.Scope == DispatchScope.NamedTarget) ||
+                !snapshot.Calls.Any(call => call.Caller == new CallerId("M:ConsumerTest.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double") &&
+                    call.Target == new CallerId("M:Hint.Read(CuriousContraptions.Presentation.AnimationBatch)~System.Double") && call.Scope == DispatchScope.NamedTarget) ||
+                !snapshot.Calls.Any(call => call.Context == InspectionContext.ProductionDiagnostic &&
+                    call.Caller == new CallerId("M:Hint.DiagnosticRead(CuriousContraptions.Presentation.AnimationBatch)~System.Double") &&
+                    call.Target == new CallerId("M:CuriousContraptions.Presentation.AnimationBatch.get_Value~System.Double") &&
+                    call.Scope == DispatchScope.NamedTarget) ||
+                snapshot.Calls.Any(call => call.Context == InspectionContext.ProductionRelease &&
+                    call.Caller == new CallerId("M:Hint.DiagnosticRead(CuriousContraptions.Presentation.AnimationBatch)~System.Double")))
+                throw new InvalidOperationException("Cross-assembly caller or configuration identity differs.");
+            var assignments = snapshot.Members.Select(member => new OwnershipAssignment(member.Id,
+                AssemblyOwner.AnimationKernel, Task, OwnershipRule.AnimationAuthority, OwnershipAudit.Fingerprint(member))).ToArray();
+            var contract = new OwnershipContract(snapshot.Sources, assignments);
+            var tasks = new HashSet<WorkId> { Task };
+            OwnershipAudit.Validate(snapshot, contract, tasks);
+            var results = new List<object>();
+            foreach (var attack in Enum.GetValues<AssemblyAttack>())
+            {
+                var rejected = false;
+                try
+                {
+                    var observed = snapshot;
+                    var candidate = contract;
+                    switch (attack)
+                    {
+                        case AssemblyAttack.MissingContext:
+                            _ = SourceInventory.Inspect(root, contexts.Where(context => context.Kind != InspectionContext.AnimationRelease).ToArray(), []); break;
+                        case AssemblyAttack.DuplicateContext:
+                            _ = SourceInventory.Inspect(root, [.. contexts, contexts[0]], []); break;
+                        case AssemblyAttack.UnknownContext:
+                            var unknown = contexts.ToArray(); unknown[0].Kind = (InspectionContext)999;
+                            _ = SourceInventory.Inspect(root, unknown, []); break;
+                        case AssemblyAttack.MissingReference:
+                            _ = SourceInventory.Compile(root, mainInput with { References = [core] }, animation); break;
+                        case AssemblyAttack.DuplicateReference:
+                            _ = SourceInventory.Compile(root, mainInput with { References = [.. mainInput.References, "CuriousContraptions.Animation.dll"] }, animation); break;
+                        case AssemblyAttack.MissingSource:
+                            _ = SourceInventory.Compile(root, animationInput with { Paths = [] }); break;
+                        case AssemblyAttack.DuplicateSource:
+                            _ = SourceInventory.Compile(root, animationInput with { Paths = ["animation.cs", "animation.cs"] }); break;
+                        case AssemblyAttack.BindingError:
+                            var broken = contexts.ToArray();
+                            broken[2].Compilation = main.AddSyntaxTrees(CSharpSyntaxTree.ParseText("public class Broken { Undefined value; }", new CSharpParseOptions(LanguageVersion.CSharp14), path: "broken.cs"));
+                            observed = SourceInventory.Inspect(root, broken, []); break;
+                        case AssemblyAttack.MissingMember:
+                            candidate = contract with { Assignments = assignments.Where(item => item.Member != slotsId).ToArray() }; break;
+                        case AssemblyAttack.DuplicateMember:
+                            candidate = contract with { Assignments = [.. assignments, assignments[0]] }; break;
+                        case AssemblyAttack.StaleSource:
+                            candidate = contract with { Sources = snapshot.Sources.Select(source => source.Path == new SourcePath("animation.cs")
+                                ? source with { Sha256 = new string('b', 64) } : source).ToArray() }; break;
+                        case AssemblyAttack.StaleConfiguration:
+                            candidate = contract with { Sources = snapshot.Sources.Select(source => source.Path == new SourcePath("capture.props")
+                                ? source with { Sha256 = new string('b', 64) } : source).ToArray() }; break;
+                        case AssemblyAttack.StaleConsumer:
+                            observed = snapshot with { Members = snapshot.Members.Select(member => member.Id == valueId
+                                ? member with { Uses = [.. member.Uses, new(new("game.cs"), 99, new("M:Hint.Unreviewed"), StateAccess.Read)] } : member).ToArray() }; break;
+                        case AssemblyAttack.WrongOwner:
+                            candidate = contract with { Assignments = assignments.Select(item => item.Member == slotsId
+                                ? item with { Owner = AssemblyOwner.SimulationCore, Rule = OwnershipRule.SimulationAuthority } : item).ToArray() }; break;
+                        default: throw new InvalidOperationException("Unknown assembly oracle.");
+                    }
+                    OwnershipAudit.Validate(observed, candidate, tasks);
+                }
+                catch (InvalidDataException) { rejected = true; }
+                if (!rejected) throw new InvalidOperationException("Portable assembly oracle accepted an invalid context or ownership record.");
+                results.Add(new { Attack = attack, Rejected = rejected });
+            }
+            return new { Positive = true, Slots = slots.Id, Value = value.Id, Results = results };
+        }
+        finally { directory.Delete(recursive: true); }
     }
 }

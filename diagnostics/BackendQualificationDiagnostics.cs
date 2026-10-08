@@ -14,6 +14,8 @@ public partial class Workshop
     private void StartBackendQualification()
     {
 #if PLAYTEST
+        foreach(var probe in Enum.GetValues<GeneralImpactEffectProbe>())
+            GD.Print(BackendQualificationProtocol.ImpactEffectPrefix+JsonSerializer.Serialize(GeneralImpactEffectQualification.Run(probe),BackendQualificationJson.Default.GeneralImpactEffectReport));
         foreach(var probe in Enum.GetValues<GeneralSpatialProbe>())
             GD.Print(BackendQualificationProtocol.SpatialPrefix+JsonSerializer.Serialize(GeneralSpatialQualification.Run(probe),BackendQualificationJson.Default.GeneralSpatialReport));
         foreach(var probe in Enum.GetValues<GeneralHollowProbe>())
@@ -76,6 +78,7 @@ public partial class Workshop
 internal static class BackendQualificationProtocol
 {
     // External diagnostic wire identifiers, never domain behaviour selectors.
+    internal const string ImpactEffectPrefix="CCGENERALIMPACTEFFECT ";
     internal const string SpatialPrefix="CCGENERALSPATIAL ";
     internal const string HollowPrefix="CCGENERALHOLLOW ";
     internal const string RoutedRopePrefix="CCGENERALROUTEDROPE ";
@@ -103,6 +106,7 @@ internal sealed record BackendQueryReport(PhysicsBackendQualification.Probe Prob
 internal sealed record BackendMotionReport(PhysicsBackendMotionProbe.Experiment Experiment,
     PhysicsBackendMotionProbe.Frame[] Frames);
 [JsonSourceGenerationOptions(UseStringEnumConverter=true)]
+[JsonSerializable(typeof(GeneralImpactEffectReport))]
 [JsonSerializable(typeof(GeneralSpatialReport))]
 [JsonSerializable(typeof(GeneralHollowReport))]
 [JsonSerializable(typeof(GeneralRoutedRopeReport))]

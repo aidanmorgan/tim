@@ -3,8 +3,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class BothGateTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class BothGateTests(NativeSceneFixture godot)
 {
     [Theory]
     [InlineData(false,false,false)]
@@ -21,7 +21,9 @@ public class BothGateTests(HeadlessFixture godot)
         godot.Tree.Root.AddChild(world);
         try
         {
-            var source=world.AddPart(new(){Id="battery",Kind="battery",Position=[-8,4,0]});
+            var battery=world.AddPart(new(){Id="battery",Kind="battery",Position=[-8,4,0]});
+            var power=new SupplyControl(world,battery);
+            var source=power.Output;
             var gate=(ElectricalLogicPart)world.AddPart(new(){Id=reverse?"z-first":"a-first",Kind="both_gate",Position=[-4,4,0]});
             var next=(ElectricalLogicPart)world.AddPart(new(){Id=reverse?"a-next":"z-next",Kind="both_gate",Position=[0,4,0]});
             var load=world.AddPart(new(){Id="load",Kind="powered_gate",Position=[4,4,0]});
@@ -34,17 +36,15 @@ public class BothGateTests(HeadlessFixture godot)
             Assert.True(world.Connect(gate,SocketId.Supply,next,SocketId.FirstIn,ConnectionDomain.Electrical));
             Assert.True(world.Connect(source,SocketId.Supply,next,SocketId.SecondIn,ConnectionDomain.Electrical));
             Assert.True(world.Connect(next,load));
-            world.Start();world.Step();
+            world.Start();power.SetAndSettle(SimulationLatchPhase.On);
             var expected=first?second?LogicInputState.Both:LogicInputState.FirstOnly:second?LogicInputState.SecondOnly:LogicInputState.Neither;
             Assert.Equal(expected,gate.State);
             Assert.Equal(first&&second,gate.Active);
             Assert.Equal(first&&second,load.HasElectricalPower(SocketId.PowerIn));
-            var wires=world.Connections.Where(c=>c.From==source.Uid).ToArray();
-            foreach(var wire in wires)world.Connections.Remove(wire);
-            world.Step();
+            power.SetAndSettle(SimulationLatchPhase.Off);
             Assert.Equal(LogicInputState.Neither,gate.State);
             Assert.False(load.HasElectricalPower(SocketId.PowerIn));
-            world.Connections.AddRange(wires);world.Step();
+            power.SetAndSettle(SimulationLatchPhase.On);
             Assert.Equal(first&&second,load.HasElectricalPower(SocketId.PowerIn));
             world.Restore();
             gate=(ElectricalLogicPart)world.FindPart(gate.Uid)!;
@@ -62,18 +62,18 @@ public class BothGateTests(HeadlessFixture godot)
         try
         {
             var battery=world.AddPart(new(){Id="battery",Kind="battery"});
+            var power=new SupplyControl(world,battery);
             var a=world.AddPart(new(){Id="a",Kind="both_gate",Position=[4,4,0]});
             var b=world.AddPart(new(){Id="b",Kind="both_gate",Position=[8,4,0]});
             foreach(var input in new[]{SocketId.FirstIn,SocketId.SecondIn,SocketId.PowerIn})
             {
-                Assert.True(world.Connect(battery,SocketId.Supply,a,input,ConnectionDomain.Electrical));
+                Assert.True(world.Connect(power.Output,SocketId.Supply,a,input,ConnectionDomain.Electrical));
                 Assert.True(world.Connect(a,SocketId.Supply,b,input,ConnectionDomain.Electrical));
                 Assert.True(world.Connect(b,SocketId.Supply,a,input,ConnectionDomain.Electrical));
             }
-            world.Start();world.Step();
+            world.Start();power.SetAndSettle(SimulationLatchPhase.On);
             Assert.True(a.Active);Assert.True(b.Active);
-            world.Connections.RemoveAll(c=>c.From==battery.Uid);
-            world.Step();
+            power.SetAndSettle(SimulationLatchPhase.Off);
             Assert.False(a.Active);Assert.False(b.Active);
             for(var i=0;i<10;i++)world.Step();
             Assert.False(a.Active);Assert.False(b.Active);

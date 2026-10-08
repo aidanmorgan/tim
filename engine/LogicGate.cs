@@ -2,6 +2,7 @@ using System;
 
 namespace CuriousContraptions;
 
+public enum OpticalControlQuantity { First, Second, IsOpen }
 public enum LogicGateKind { And, Or, Xor, Nor, Nand }
 
 /// <summary>Two conditions only. Truth never implies a source of power or light.</summary>
@@ -22,8 +23,17 @@ public static class LogicGate
 /// Control snapshot for a carrier gate. Sample after tracing; advance once before the
 /// next optical solve. Carrier energy is routed separately, never generated here.
 /// </summary>
-public sealed class OpticalLogicControl
+public sealed class OpticalLogicControl : SimulationTransactionParticipant
 {
+    private readonly record struct Memory(bool First, bool Second, bool IsOpen);
+    private Memory _checkpoint;
+    protected override void CaptureCheckpoint() => _checkpoint = new(First, Second, IsOpen);
+    protected override void RestoreCheckpoint()
+    {
+        First = _checkpoint.First;
+        Second = _checkpoint.Second;
+        IsOpen = _checkpoint.IsOpen;
+    }
     public LogicGateKind Kind { get; }
     public float OnThreshold { get; }
     public float OffThreshold { get; }
@@ -42,6 +52,12 @@ public sealed class OpticalLogicControl
         OffThreshold = offThreshold;
         Reset();
     }
+
+    public bool Read(OpticalControlQuantity quantity)=>quantity switch
+    {
+        OpticalControlQuantity.First=>First,OpticalControlQuantity.Second=>Second,OpticalControlQuantity.IsOpen=>IsOpen,
+        _=>throw new ArgumentOutOfRangeException(nameof(quantity))
+    };
 
     public void Sample(float first, float second)
     {

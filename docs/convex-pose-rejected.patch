@@ -1,0 +1,304 @@
+--- a/engine/physics/ConvexSweep.cs
++++ b/engine/physics/ConvexSweep.cs
+@@ -29,39 +29,12 @@
+         if(!double.IsFinite(Reach)||!double.IsFinite(AngularSpeedBound*RotationalReach))
+             throw new ArgumentOutOfRangeException(nameof(localInstance));
+     }
+-    public AtTime At(double time)
++    public ConvexPose At(double time)
+     {
+         if(Trajectory is null) throw new InvalidOperationException("Uninitialised convex motion.");
+         return new(Instance,Trajectory.At(time));
+     }
+-    public readonly struct AtTime : IConvexFeatureSupport
+-    {
+-        private readonly ConvexInstance _instance;
+-        private readonly RigidPose _pose;
+-        internal AtTime(ConvexInstance instance,RigidPose pose) { _instance=instance; _pose=pose; }
+-        public double RoundingRadius=>_instance.RoundingRadius;
+-        public CollisionVector CoreSupport(CollisionVector direction)=>
+-            _pose.TransformPoint(_instance.CoreSupport(_pose.Rotation.Inverse().Apply(direction)));
+-        public InteriorBall InteriorBall=>new(_pose.TransformPoint(_instance.InteriorBall.Center),_instance.InteriorBall.Radius);
+-        public SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
+-        {
+-            var feature=_instance.SupportingFeature(_pose.Rotation.Inverse().Apply(direction),planeTolerance);
+-            var vertices=new SupportVertex[feature.Vertices.Length];
+-            for(var i=0;i<vertices.Length;i++)
+-            {
+-                var vertex=feature.Vertices[i];
+-                vertices[i]=new(vertex.Id,_pose.TransformPoint(vertex.Point));
+-            }
+-            return new(vertices);
+-        }
+-        public CollisionVector Support(CollisionVector direction)
+-        {
+-            var localDirection=_pose.Rotation.Inverse().Apply(direction);
+-            var result=_pose.TransformPoint(_instance.Support(localDirection));
+-            if(!result.IsFinite) throw new InvalidOperationException("Rigid support exceeds representable coordinates.");
+-            return result;
+-        }
+-    }
++
+ }
+ 
+ /// <summary>Conservative rigid-motion sweep, shared by all convex shape pairs.
+
+--- a/engine/physics/ContactGap.cs
++++ b/engine/physics/ContactGap.cs
+@@ -186,8 +186,8 @@
+     {
+         ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
+         if(a==b||a.Id==b.Id) throw new ArgumentException("Contact gap requires distinct bodies.");
+-        var sa=new ConvexMotion(shapeA,a.CreateTrajectory(0,default)).At(0);
+-        var sb=new ConvexMotion(shapeB,b.CreateTrajectory(0,default)).At(0);
++        var sa=new ConvexPose(shapeA,a.Pose);
++        var sb=new ConvexPose(shapeB,b.Pose);
+         var manifold=ContactManifold.Query(sa,sb,contactDistance,tolerance);
+         if(manifold.Status==ContactManifoldStatus.Clear) return [];
+         var normal=manifold.Normal;
+
+--- a/engine/physics/PersistentContactPair.cs
++++ b/engine/physics/PersistentContactPair.cs
+@@ -127,8 +127,8 @@
+     {
+         Require(ContactPairPhase.Idle);
+         if(!double.IsFinite(duration)||duration<=0) throw new ArgumentOutOfRangeException(nameof(duration));
+-        var manifold=ContactManifold.Query(new ConvexMotion(_shapeA,A.CreateTrajectory(0,default)).At(0),
+-            new ConvexMotion(_shapeB,B.CreateTrajectory(0,default)).At(0));
++        var manifold=ContactManifold.Query(new ConvexPose(_shapeA,A.Pose),
++            new ConvexPose(_shapeB,B.Pose));
+         var points=manifold.Points;
+         var prepared=new PreparedContactPoint[points.Length]; var seeds=new ContactImpulse[points.Length];
+         var used=new bool[_contacts.Length];
+
+--- a/engine/physics/PhysicsWorld.cs
++++ b/engine/physics/PhysicsWorld.cs
+@@ -982,8 +982,8 @@
+             if(pair.Contact.Contacts.Length!=0||pair.Contact.PreparedContacts.Length==0||
+                 !_effects.Any(e=>e.Body==pair.Key.A||e.Body==pair.Key.B)) continue;
+             var a=_objects[pair.A].Body; var b=_objects[pair.B].Body;
+-            var separation=ConvexSeparation.Query(new ConvexMotion(pair.ShapeA,a.CreateTrajectory(0,default)).At(0),
+-                new ConvexMotion(pair.ShapeB,b.CreateTrajectory(0,default)).At(0));
++            var separation=ConvexSeparation.Query(new ConvexPose(pair.ShapeA,a.Pose),
++                new ConvexPose(pair.ShapeB,b.Pose));
+             var relative=a.PointVelocity(separation.PointA)-b.PointVelocity(separation.PointB);
+             var approach=-CollisionVector.Dot(relative,separation.Normal);
+             if(approach<=0) continue;
+
+--- a/engine/physics/PositionConstraints.cs
++++ b/engine/physics/PositionConstraints.cs
+@@ -29,8 +29,8 @@
+     }
+     internal ConvexMotion MotionA(IRigidTrajectory path)=>new(_shapeA,path);
+     internal ConvexMotion MotionB(IRigidTrajectory path)=>new(_shapeB,path);
+-    private ConvexMotion.AtTime ShapeA()=>MotionA(A.CreateTrajectory(0,default)).At(0);
+-    private ConvexMotion.AtTime ShapeB()=>MotionB(B.CreateTrajectory(0,default)).At(0);
++    private ConvexPose ShapeA()=>new(_shapeA,A.Pose);
++    private ConvexPose ShapeB()=>new(_shapeB,B.Pose);
+     public double Error(double queryTolerance)=>Math.Max(0,-ConvexSeparation.Query(ShapeA(),ShapeB(),queryTolerance).LowerBound);
+ 
+     void IPositionConstraint.Project(double tolerance,PositionProjector projector)=>Project(tolerance,projector);
+
+--- a/engine/physics/AirJetGeometry.cs
++++ b/engine/physics/AirJetGeometry.cs
+@@ -120,7 +120,7 @@
+             if(_excluded.Contains(id)||collider.Participation==CollisionParticipation.Disabled)continue;
+             for(var child=0;child<collider.Geometry.Count;child++)
+             {
+-                var shape=new ConvexMotion.AtTime(collider.Geometry[new(child)],bodies[id].Pose);
++                var shape=new ConvexPose(collider.Geometry[new(child)],bodies[id].Pose);
+                 var separation=ConvexSeparation.Query(sample.Segment,shape,ConvexDistance.DefaultTolerance/64);
+                 if(separation.LowerBound<=0)return false;
+             }
+
+--- a/CuriousContraptions.tests/ContactPatchTests.cs
++++ b/CuriousContraptions.tests/ContactPatchTests.cs
+@@ -12,9 +12,8 @@
+         Feature(new(-half,height,-half),new(half,height,-half),new(half,height,half),new(-half,height,half));
+     private static void Near(CollisionVector a,CollisionVector b,double tolerance=1e-8)=>
+         Assert.InRange((a-b).Length,0,tolerance);
+-    private static ConvexMotion.AtTime At(ConvexGeometry geometry,RigidPose pose)=>
+-        new ConvexMotion(new(geometry,Transform3D.Identity),
+-            new PhysicsBody(new(0),PhysicsMotionType.Static,pose,default,default).CreateTrajectory(0,default)).At(0);
++    private static ConvexPose At(ConvexGeometry geometry,RigidPose pose)=>
++        new(new(geometry,Transform3D.Identity),pose);
+     private static SupportFeature Transform(SupportFeature feature,RigidPose pose)=>
+         new(feature.Vertices.ToArray().Select(v=>new SupportVertex(v.Id,pose.TransformPoint(v.Point))).ToArray());
+ 
+
+--- a/CuriousContraptions.tests/RoundedSeparationTests.cs
++++ b/CuriousContraptions.tests/RoundedSeparationTests.cs
+@@ -5,9 +5,8 @@
+ 
+ public class RoundedSeparationTests
+ {
+-    private static ConvexMotion.AtTime At(ConvexGeometry geometry,RigidPose pose)=>
+-        new ConvexMotion(new(geometry,Transform3D.Identity),
+-            new PhysicsBody(new(0),PhysicsMotionType.Static,pose,default,default).CreateTrajectory(0,default)).At(0);
++    private static ConvexPose At(ConvexGeometry geometry,RigidPose pose)=>
++        new(new(geometry,Transform3D.Identity),pose);
+     private static void Near(CollisionVector expected,CollisionVector actual,double tolerance=1e-8)=>
+         Assert.InRange((expected-actual).Length,0,tolerance);
+ 
+
+--- a/CuriousContraptions.tests/CoreSupportTests.cs
++++ b/CuriousContraptions.tests/CoreSupportTests.cs
+@@ -11,7 +11,7 @@
+         var pose=new RigidPose(new(10000000.25,4.896184427805594,-.10381557219440532),
+             RigidRotation.FromRotationVector(new(.3,.7,-.2)));
+         var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,default,default);
+-        var shape=new ConvexMotion(new(new ConvexSphere(.34),Transform3D.Identity),body.CreateTrajectory(0,default)).At(0);
++        var shape=new ConvexPose(new(new ConvexSphere(.34),Transform3D.Identity),body.Pose);
+         var random=new Random(163);
+         for(var i=0;i<100;i++)
+         {
+
+--- a/CuriousContraptions.tests/ConvexPenetrationTests.cs
++++ b/CuriousContraptions.tests/ConvexPenetrationTests.cs
+@@ -111,8 +111,8 @@
+             var position=new CollisionVector(Between(-2,2),Between(-2,2),Between(-2,2));
+             var bodyA=new PhysicsBody(new(0),PhysicsMotionType.Static,new(default,qa),default,default);
+             var bodyB=new PhysicsBody(new(1),PhysicsMotionType.Static,new(position,qb),default,default);
+-            var a=new ConvexMotion(new(new ConvexBox(halfA),Transform3D.Identity),bodyA.CreateTrajectory(0,default)).At(0);
+-            var b=new ConvexMotion(new(new ConvexBox(halfB),Transform3D.Identity),bodyB.CreateTrajectory(0,default)).At(0);
++            var a=new ConvexPose(new(new ConvexBox(halfA),Transform3D.Identity),bodyA.Pose);
++            var b=new ConvexPose(new(new ConvexBox(halfB),Transform3D.Identity),bodyB.Pose);
+             var aa=axes.Select(qa.Apply).ToArray(); var bb=axes.Select(qb.Apply).ToArray();
+             double expected=double.PositiveInfinity;
+             foreach(var axis in aa.Concat(bb).Concat(aa.SelectMany(x=>bb.Select(y=>CollisionVector.Cross(x,y)))))
+
+--- a/CuriousContraptions.tests/ContactGapTests.cs
++++ b/CuriousContraptions.tests/ContactGapTests.cs
+@@ -57,8 +57,8 @@
+                 new(body.Center+body.LinearVelocity*time,RigidRotation.FromRotationVector(body.AngularVelocity*time)*body.Pose.Rotation),
+                 body.LinearVelocity,body.AngularVelocity);
+             var aa=Moved(a); var bb=Moved(b);
+-            var ma=new ConvexMotion(sa,aa.CreateTrajectory(0,default)).At(0);
+-            var mb=new ConvexMotion(sb,bb.CreateTrajectory(0,default)).At(0);
++            var ma=new ConvexPose(sa,aa.Pose);
++            var mb=new ConvexPose(sb,bb.Pose);
+             return ConvexSeparation.Query(ma,mb,1e-12).UpperBound;
+         }
+         var gaps=ContactGap.Query(a,sa,b,sb,.001,1e-9);
+
+--- /dev/null
++++ b/engine/physics/ConvexPose.cs
+@@ -0,0 +1,45 @@
++using System;
++
++namespace CuriousContraptions.Physics;
++
++/// <summary>Immutable convex support at one captured rigid pose. Current geometry reads
++/// and evaluated swept paths share this value; no velocity integration is needed to query a pose.</summary>
++public readonly struct ConvexPose : IConvexFeatureSupport
++{
++    private readonly ConvexInstance _instance;
++    private readonly RigidPose _pose;
++    private readonly RigidRotation _inverse;
++    public ConvexPose(ConvexInstance instance,RigidPose pose)
++    {
++        if(instance.Geometry is null)throw new ArgumentException("Uninitialised collision instance.",nameof(instance));
++        if(!pose.Center.IsFinite||!pose.Rotation.IsValid)throw new ArgumentException("Convex pose requires a finite rigid pose.",nameof(pose));
++        _instance=instance;_pose=pose;_inverse=pose.Rotation.Inverse();
++    }
++    public double RoundingRadius {get{if(_instance.Geometry is null)throw new InvalidOperationException("Uninitialised convex pose.");return _instance.RoundingRadius;}}
++    public CollisionVector CoreSupport(CollisionVector direction)
++    {
++        if(_instance.Geometry is null)throw new InvalidOperationException("Uninitialised convex pose.");
++        return _pose.TransformPoint(_instance.CoreSupport(_inverse.Apply(direction)));
++    }
++    public InteriorBall InteriorBall {get{if(_instance.Geometry is null)throw new InvalidOperationException("Uninitialised convex pose.");return new(_pose.TransformPoint(_instance.InteriorBall.Center),_instance.InteriorBall.Radius);}}
++    public SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance)
++    {
++        if(_instance.Geometry is null)throw new InvalidOperationException("Uninitialised convex pose.");
++        var feature=_instance.SupportingFeature(_inverse.Apply(direction),planeTolerance);
++        var vertices=new SupportVertex[feature.Vertices.Length];
++        for(var i=0;i<vertices.Length;i++)
++        {
++            var vertex=feature.Vertices[i];
++            vertices[i]=new(vertex.Id,_pose.TransformPoint(vertex.Point));
++        }
++        return new(vertices);
++    }
++    public CollisionVector Support(CollisionVector direction)
++    {
++        if(_instance.Geometry is null)throw new InvalidOperationException("Uninitialised convex pose.");
++        var localDirection=_inverse.Apply(direction);
++        var result=_pose.TransformPoint(_instance.Support(localDirection));
++        if(!result.IsFinite) throw new InvalidOperationException("Rigid support exceeds representable coordinates.");
++        return result;
++    }
++}
+
+--- /dev/null
++++ b/CuriousContraptions.tests/ConvexPoseTests.cs
+@@ -0,0 +1,68 @@
++using Godot;
++using CuriousContraptions.Physics;
++
++namespace CuriousContraptions.Tests;
++
++public class ConvexPoseTests
++{
++    private static readonly CollisionVector Direction=new(1,2,-3);
++    private static ConvexInstance Shape()=>new(new ConvexBox(new(.4,.7,.2)),
++        new(Basis.FromEuler(new(.2f,-.1f,.3f)),new(.3f,.1f,-.4f)));
++
++    [Theory]
++    [InlineData(PhysicsMotionType.Static)]
++    [InlineData(PhysicsMotionType.Kinematic)]
++    [InlineData(PhysicsMotionType.Dynamic)]
++    public void CurrentAndSweptQueriesShareExactSupportWithoutDependingOnVelocity(PhysicsMotionType mode)
++    {
++        var pose=new RigidPose(new(2,-3,1),RigidRotation.FromRotationVector(new(.2,-.4,.3)));
++        var body=new PhysicsBody(new(0),mode,pose,mode==PhysicsMotionType.Static?default:new(2,3,4),
++            mode==PhysicsMotionType.Static?default:new(.4,.3,.2),
++            mode==PhysicsMotionType.Dynamic?1:0,
++            mode==PhysicsMotionType.Dynamic?new InertiaTensor(1,1,1):default);
++        var shape=Shape();
++        var current=new ConvexPose(shape,body.Pose);
++        var moving=new ConvexMotion(shape,body.CreateTrajectory(.01,default));
++        Assert.Equal(pose.TransformPoint(shape.Support(pose.Rotation.Inverse().Apply(Direction))),current.Support(Direction));
++        Assert.Equal(current.Support(Direction),moving.At(0).Support(Direction));
++        Assert.Equal(current.CoreSupport(Direction),moving.At(0).CoreSupport(Direction));
++        Assert.Equal(current.InteriorBall,moving.At(0).InteriorBall);
++        Assert.Equal(current.RoundingRadius,moving.At(0).RoundingRadius);
++        Assert.Equal(current.SupportingFeature(Direction,1e-7).Vertices.ToArray(),
++            moving.At(0).SupportingFeature(Direction,1e-7).Vertices.ToArray());
++    }
++
++    [Fact]
++    public void CapturedPoseDoesNotFollowLaterBodyChanges()
++    {
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,1,new InertiaTensor(1,1,1));
++        var shape=Shape();var captured=new ConvexPose(shape,body.Pose);var before=captured.Support(Direction);
++        body.CorrectPose(new(2,0,0),new(0,.2,0));
++        Assert.Equal(before,captured.Support(Direction));
++        Assert.NotEqual(before,new ConvexPose(shape,body.Pose).Support(Direction));
++    }
++
++    [Fact]
++    public void InvalidDeclarationsAndUninitializedValuesReject()
++    {
++        Assert.Throws<ArgumentException>(()=>new ConvexPose(default,RigidPose.Identity));
++        Assert.Throws<ArgumentException>(()=>new ConvexPose(Shape(),default));
++        var uninitialized=default(ConvexPose);
++        Assert.Throws<InvalidOperationException>(()=>uninitialized.Support(Direction));
++        Assert.Throws<InvalidOperationException>(()=>uninitialized.CoreSupport(Direction));
++        Assert.Throws<InvalidOperationException>(()=>uninitialized.SupportingFeature(Direction,1e-7));
++        Assert.Throws<InvalidOperationException>(()=>uninitialized.InteriorBall);
++        Assert.Throws<InvalidOperationException>(()=>uninitialized.RoundingRadius);
++    }
++
++    [Fact]
++    public void RepeatedInstantaneousSupportDoesNotAllocate()
++    {
++        var shape=Shape();var pose=RigidPose.Identity;var result=default(CollisionVector);
++        for(var i=0;i<100;i++)result=new ConvexPose(shape,pose).Support(Direction);
++        var before=GC.GetAllocatedBytesForCurrentThread();
++        for(var i=0;i<1000;i++)result=new ConvexPose(shape,pose).Support(Direction);
++        Assert.Equal(0,GC.GetAllocatedBytesForCurrentThread()-before);
++        Assert.True(result.IsFinite);
++    }
++}
+

@@ -1,6 +1,8 @@
 # Performance evidence analysis
 
-This C# tool reads current diagnostic browser logs. It cannot command or modify a game.
+**Historical runtime reader; not current GPU input.** The fixed Basketball cutover excludes the old diagnostic implementation and linked game test consumers. Commands and formats below retain their original reference scope, not current browser metrics or build qualification. See [current applicability and owner](../../docs/verification/CAT-001-I/tool-applicability.md).
+
+This C# tool reads the historical diagnostic browser log format described below. It cannot command or modify a game.
 
 Build and analyze:
 
@@ -23,11 +25,11 @@ Coverage "complete" means **3600 ordered gameplay tick records with all current 
 
 No old-format fallback or migration is provided. Keep the source revision, device/bundle metadata, real-UI recipe, Reset/save proof, failures and captures alongside each report. PERF-02 still needs additional counters, typed entity/revision metadata, all required actual scenarios and current per-part/browser evidence.
 
-Tests are compiled through CuriousContraptions.tests, including missing-field removal, duplicates, missing work, invalid identities, failed outcomes, scenario boundaries and aggregation. See [current spatial-counter checkpoint](../../docs/spatial-work.md) for results and remaining limitations.
+Tests are compiled through CuriousContraptions.tests, including missing-field removal, duplicates, missing work, invalid identities, failed outcomes, scenario boundaries and aggregation. See [current spatial-counter checkpoint](../../docs/planning/requirements.md#sequence-task-006) for results and remaining limitations.
 
 ## Current P0-003 arithmetic contract
 
-The current [P0-003 measurement freeze](../../docs/work-orders/P0-003/contract.md) defines full fresh Runs, prior complete warm-up attempts, distinct presentation slots and continuous thermal timelines. PerformanceAudit.AnalyzeAttempt, WarmupBeforeFreshRun and AnalyzeThermal are arithmetic rehearsal helpers, not a replacement for CHECK-AGGREGATE's future authenticated evidence gate. Coverage, arithmetic pacing, actual browser pacing and simulated/wall rate are separate typed results. Synthetic and RAF evidence never return BrowserPacing Pass. Thermal continuity/duty alone does not prove its referenced attempts passed.
+The current [P0-003 measurement freeze](../../docs/planning/requirements.md#measurement-contract) defines full fresh Runs, prior complete warm-up attempts, distinct presentation slots and continuous thermal timelines. PerformanceAudit.AnalyzeAttempt, WarmupBeforeFreshRun and AnalyzeThermal are arithmetic rehearsal helpers, not a replacement for CHECK-AGGREGATE's future authenticated evidence gate. Coverage, arithmetic pacing, actual browser pacing and simulated/wall rate are separate typed results. Synthetic and RAF evidence never return BrowserPacing Pass. Thermal continuity/duty alone does not prove its referenced attempts passed.
 
 MeasurementEvidence is a strict current JSON boundary: closed enums use canonical validated wire values; attempt and presentation identities retain distinct types. Unknown/missing/undefined/null records reject. Decimal millisecond timestamps make the arithmetic examples reproducible. No Run controller, game setter, hidden long-run mode or compatibility reader is added.
 

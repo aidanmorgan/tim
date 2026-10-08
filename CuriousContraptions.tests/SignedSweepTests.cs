@@ -8,8 +8,8 @@ public class SignedSweepTests
     private const double MinimumSeparation=-1e-6;
     private static ConvexMotion Motion(ConvexGeometry shape,RigidPose pose,CollisionVector velocity=default,
         CollisionVector spin=default,double duration=1,CollisionVector localOffset=default)=>
-        new(new(shape,new(Basis.Identity,new((float)localOffset.X,(float)localOffset.Y,(float)localOffset.Z))),
-            new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration));
+        new(new(shape,new(AffineBasis.Identity,new((float)localOffset.X,(float)localOffset.Y,(float)localOffset.Z))),
+            new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration,default));
 
     [Theory]
     [InlineData(3,1,ConvexSeparationStatus.Separated)]
@@ -119,9 +119,9 @@ public class SignedSweepTests
         foreach(var shape in shapes)
         {
             var basis=Basis.FromEuler(new(.3f,.6f,.1f));
-            var instance=new ConvexInstance(shape,new(basis,new(.2f,.1f,.3f)));
+            var instance=new ConvexInstance(shape,new(SceneGeometryAdapter.CaptureBasis(basis),new(.2f,.1f,.3f)));
             var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,RigidPose.Identity,default,new(.2,.7,-.3));
-            var path=body.CreateTrajectory(1); var motion=new ConvexMotion(instance,path);
+            var path=body.CreateTrajectory(1,default); var motion=new ConvexMotion(instance,path);
             var bound=motion.AngularSpeedBound*motion.RotationalReach;
             for(var i=0;i<200;i++)
             {
@@ -133,7 +133,7 @@ public class SignedSweepTests
             }
         }
         var slightlyScaled=new Basis(new Vector3(1.000001f,0,0),Vector3.Up,Vector3.Back);
-        var ellipsoid=new ConvexInstance(new ConvexSphere(1),new(slightlyScaled,Vector3.Zero));
+        var ellipsoid=new ConvexInstance(new ConvexSphere(1),new(SceneGeometryAdapter.CaptureBasis(slightlyScaled),SceneGeometryAdapter.CaptureVector(Vector3.Zero)));
         Assert.True(ellipsoid.RotationRadiusBound>0);
         Assert.InRange(ellipsoid.RotationRadiusBound,0,1e-5);
     }
@@ -142,11 +142,11 @@ public class SignedSweepTests
     public void CompoundSignedSweepKeepsChildIdentityAcrossAnExistingContact()
     {
         var duration=2*Math.PI;
-        var geometry=new CompoundGeometry([new(new ConvexSphere(.2),new(Basis.Identity,new(1,0,0)))]);
+        var geometry=new CompoundGeometry([new(new ConvexSphere(.2),new(AffineBasis.Identity,new(1,0,0)))]);
         var rotating=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,RigidPose.Identity,default,new(0,0,1));
         var fixedBody=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.At(new(1,-.4,0)),default,default);
-        var hit=CompoundCollision.Cast(new(geometry,rotating.CreateTrajectory(duration)),
-            new(new([new(new ConvexSphere(.2),Transform3D.Identity)]),fixedBody.CreateTrajectory(duration)),duration,MinimumSeparation);
+        var hit=CompoundCollision.Cast(new(geometry,rotating.CreateTrajectory(duration,default)),
+            new(new([new(new ConvexSphere(.2),AffineTransform.Identity)]),fixedBody.CreateTrajectory(duration,default)),duration,MinimumSeparation);
         Assert.Equal(ConvexSweepStatus.Contact,hit.Status);
         Assert.Equal(new ColliderChildId(0),hit.ChildA); Assert.Equal(new ColliderChildId(0),hit.ChildB);
         Assert.InRange(hit.Time,5.5,5.6);
@@ -175,6 +175,7 @@ public class SignedSweepTests
 
     private sealed class InvalidRounding : ConvexGeometry
     {
+        public override CollisionVector CoreSupport(CollisionVector direction)=>default;
         public override double BoundingRadius=>1;
         public override double RoundingRadius=>2;
         public override InteriorBall InteriorBall=>new(default,1);
@@ -184,7 +185,7 @@ public class SignedSweepTests
     [Fact]
     public void InconsistentRoundedGeometryIsRejectedAtTheDeclarationBoundary()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(()=>new ConvexInstance(new InvalidRounding(),Transform3D.Identity));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>new ConvexInstance(new InvalidRounding(),AffineTransform.Identity));
     }
 
     [Fact]

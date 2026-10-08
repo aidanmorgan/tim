@@ -32,8 +32,8 @@ public class ConvexPenetrationTests
     [InlineData(Shape.Hull,Shape.Hull)]
     public void OnePenetrationAlgorithmHandlesEveryShapePair(Shape first,Shape second)
     {
-        var a=new ConvexInstance(Geometry(first),Transform3D.Identity);
-        var b=new ConvexInstance(Geometry(second),new(Basis.FromEuler(new(.1f,.2f,.3f)),new(.4f,.2f,.1f)));
+        var a=new ConvexInstance(Geometry(first),AffineTransform.Identity);
+        var b=new ConvexInstance(Geometry(second),new(SceneGeometryAdapter.CaptureBasis(Basis.FromEuler(new(.1f,.2f,.3f))),new(.4f,.2f,.1f)));
         var result=ConvexPenetration.Query(a,b);
         Assert.Equal(ConvexPenetrationStatus.Penetrating,result.Status);
         Assert.InRange(result.UpperDepth-result.LowerDepth,0,ConvexDistance.DefaultTolerance+1e-12);
@@ -54,8 +54,8 @@ public class ConvexPenetrationTests
         for(var i=0;i<100;i++)
         {
             var center=i==0?default:new CollisionVector(random.NextDouble()-.5,random.NextDouble()-.5,random.NextDouble()-.5);
-            var a=new ConvexInstance(new ConvexSphere(.6),Transform3D.Identity);
-            var b=new Offset(new ConvexInstance(new ConvexSphere(.7),Transform3D.Identity),center);
+            var a=new ConvexInstance(new ConvexSphere(.6),AffineTransform.Identity);
+            var b=new Offset(new ConvexInstance(new ConvexSphere(.7),AffineTransform.Identity),center);
             var expected=1.3-center.Length;
             var result=ConvexPenetration.Query(a,b);
             Assert.Equal(ConvexPenetrationStatus.Penetrating,result.Status);
@@ -74,10 +74,10 @@ public class ConvexPenetrationTests
         var halfA=new Vector3(1,2,3); var halfB=new Vector3(.5f,.7f,.8f);
         var poseA=Transform3D.Identity;
         var poseB=new Transform3D(Basis.FromEuler(new(angle,.17f,-.12f)),new(.8f,.2f,.3f));
-        var a=new ConvexInstance(new ConvexBox(CollisionVector.From(halfA)),poseA);
-        var b=new ConvexInstance(new ConvexBox(CollisionVector.From(halfB)),poseB);
-        var axesA=new[]{Vector3.Right,Vector3.Up,Vector3.Back}.Select(CollisionVector.From).ToArray();
-        var axesB=new[]{poseB.Basis.X,poseB.Basis.Y,poseB.Basis.Z}.Select(CollisionVector.From).ToArray();
+        var a=new ConvexInstance(new ConvexBox(SceneGeometryAdapter.CaptureVector(halfA)),SceneGeometryAdapter.CaptureAffine(poseA));
+        var b=new ConvexInstance(new ConvexBox(SceneGeometryAdapter.CaptureVector(halfB)),SceneGeometryAdapter.CaptureAffine(poseB));
+        var axesA=new[]{Vector3.Right,Vector3.Up,Vector3.Back}.Select(SceneGeometryAdapter.CaptureVector).ToArray();
+        var axesB=new[]{poseB.Basis.X,poseB.Basis.Y,poseB.Basis.Z}.Select(SceneGeometryAdapter.CaptureVector).ToArray();
         var axes=axesA.Concat(axesB).Concat(axesA.SelectMany(x=>axesB.Select(y=>CollisionVector.Cross(x,y))));
         double expected=double.PositiveInfinity;
         foreach(var axis in axes)
@@ -86,7 +86,7 @@ public class ConvexPenetrationTests
             var n=axis/axis.Length;
             var ra=Math.Abs(CollisionVector.Dot(n,axesA[0]))*halfA.X+Math.Abs(CollisionVector.Dot(n,axesA[1]))*halfA.Y+Math.Abs(CollisionVector.Dot(n,axesA[2]))*halfA.Z;
             var rb=Math.Abs(CollisionVector.Dot(n,axesB[0]))*halfB.X+Math.Abs(CollisionVector.Dot(n,axesB[1]))*halfB.Y+Math.Abs(CollisionVector.Dot(n,axesB[2]))*halfB.Z;
-            expected=Math.Min(expected,ra+rb-Math.Abs(CollisionVector.Dot(CollisionVector.From(poseB.Origin),n)));
+            expected=Math.Min(expected,ra+rb-Math.Abs(CollisionVector.Dot(SceneGeometryAdapter.CaptureVector(poseB.Origin),n)));
         }
         var result=ConvexPenetration.Query(a,b);
         Assert.Equal(ConvexPenetrationStatus.Penetrating,result.Status);
@@ -111,8 +111,8 @@ public class ConvexPenetrationTests
             var position=new CollisionVector(Between(-2,2),Between(-2,2),Between(-2,2));
             var bodyA=new PhysicsBody(new(0),PhysicsMotionType.Static,new(default,qa),default,default);
             var bodyB=new PhysicsBody(new(1),PhysicsMotionType.Static,new(position,qb),default,default);
-            var a=new ConvexMotion(new(new ConvexBox(halfA),Transform3D.Identity),bodyA.CreateTrajectory(0)).At(0);
-            var b=new ConvexMotion(new(new ConvexBox(halfB),Transform3D.Identity),bodyB.CreateTrajectory(0)).At(0);
+            var a=new ConvexPose(new(new ConvexBox(halfA),AffineTransform.Identity),bodyA.Pose);
+            var b=new ConvexPose(new(new ConvexBox(halfB),AffineTransform.Identity),bodyB.Pose);
             var aa=axes.Select(qa.Apply).ToArray(); var bb=axes.Select(qb.Apply).ToArray();
             double expected=double.PositiveInfinity;
             foreach(var axis in aa.Concat(bb).Concat(aa.SelectMany(x=>bb.Select(y=>CollisionVector.Cross(x,y)))))
@@ -140,7 +140,7 @@ public class ConvexPenetrationTests
     [Fact]
     public void SeparatedAndTouchingCasesDoNotInventPenetration()
     {
-        var a=new ConvexInstance(new ConvexBox(new(1,1,1)),Transform3D.Identity);
+        var a=new ConvexInstance(new ConvexBox(new(1,1,1)),AffineTransform.Identity);
         var separated=new Offset(a,new(3,0,0));
         var touch=new Offset(a,new(2,0,0));
         Assert.Equal(ConvexPenetrationStatus.Separated,ConvexPenetration.Query(a,separated).Status);
@@ -162,19 +162,19 @@ public class ConvexPenetrationTests
         Assert.Throws<ArgumentException>(()=>new InteriorBall(default,-1));
         Assert.Throws<ArgumentException>(()=>new InteriorBall(new(double.NaN,0,0),1));
         Assert.Throws<InvalidOperationException>(()=>ConvexPenetration.Query(new InvalidInteriorBound(),new InvalidInteriorBound()));
-        var shape=new ConvexInstance(new ConvexSphere(1),Transform3D.Identity);
+        var shape=new ConvexInstance(new ConvexSphere(1),AffineTransform.Identity);
         Assert.Throws<ArgumentOutOfRangeException>(()=>ConvexPenetration.Query(shape,shape,0));
     }
 
     [Fact]
     public void LowerDimensionalHullHasZeroPenetrationRatherThanArtificialThickness()
     {
-        var plane=new ConvexInstance(new ConvexHull([new(-1,-1,0),new(1,-1,0),new(1,1,0),new(-1,1,0)]),Transform3D.Identity);
+        var plane=new ConvexInstance(new ConvexHull([new(-1,-1,0),new(1,-1,0),new(1,1,0),new(-1,1,0)]),AffineTransform.Identity);
         var result=ConvexPenetration.Query(plane,plane);
         Assert.Equal(ConvexPenetrationStatus.WithinTolerance,result.Status);
         Assert.Equal(0,result.UpperDepth);
         Assert.InRange(Math.Abs(result.Normal.Z),.999999,1);
-        var point=new ConvexInstance(new ConvexHull([default]),Transform3D.Identity);
+        var point=new ConvexInstance(new ConvexHull([default]),AffineTransform.Identity);
         var coincident=ConvexPenetration.Query(point,point);
         Assert.Equal(0,coincident.UpperDepth);
         Assert.Equal(new CollisionVector(-1,0,0),coincident.Normal); // Deterministic member of the non-unique supporting normals.

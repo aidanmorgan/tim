@@ -13,6 +13,7 @@ public readonly record struct WorkshopSwitch(GpuBodyId Id, CellOrigin Cell, Loca
     CanonicalRotation Rotation, ContactTriggerSettings Trigger, bool Locked = false) : IWorkshopInstance
 {
     public WorkshopPartKind Kind => WorkshopPartKind.ImpactSwitch;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.ImpactSwitch;
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
@@ -24,6 +25,7 @@ public readonly record struct WorkshopLamp(GpuBodyId Id, CellOrigin Cell, LocalP
     CanonicalRotation Rotation, bool Locked = false) : IWorkshopInstance
 {
     public WorkshopPartKind Kind => WorkshopPartKind.SignalLamp;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.SignalLamp;
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

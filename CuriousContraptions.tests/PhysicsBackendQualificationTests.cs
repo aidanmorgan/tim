@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class PhysicsBackendQualificationTests(HeadlessFixture godot,ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class PhysicsBackendQualificationTests(NativeSceneFixture godot,ITestOutputHelper output)
 {
     [Theory]
     [InlineData(PhysicsBackendMotionProbe.Experiment.FastTranslation)]

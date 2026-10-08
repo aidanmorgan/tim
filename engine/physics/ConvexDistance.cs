@@ -53,7 +53,7 @@ public static class ConvexDistance
                     throw new InvalidOperationException("Convex distance stalled before its error bound was met.");
             simplex[count++]=next;
         }
-        throw new InvalidOperationException($"Convex distance did not converge (lower={lastLower:R}, upper={lastUpper:R}); separation was not inferred.");
+        throw new InvalidOperationException($"Convex distance did not converge (lower={lastLower:R}, upper={lastUpper:R}); separation was not inferred. Simplex={string.Join(";",simplex[..count].ToArray())}");
     }
 
     internal static Vertex Support<TA,TB>(TA a,TB b,CollisionVector direction)
@@ -71,6 +71,7 @@ public static class ConvexDistance
         Span<CollisionVector> edges=stackalloc CollisionVector[3];
         Span<double> rhs=stackalloc double[3];
         var best=double.PositiveInfinity;
+        var bestDimensions=-1; var bestMask=0;
         CollisionVector closest=default;
         for(var mask=1;mask<(1<<count);mask++)
         {
@@ -90,12 +91,20 @@ public static class ConvexDistance
             }
             if(!feasible||first<0) continue;
             weights[indices[0]]=first;
-            CollisionVector point=default;
-            for(var i=0;i<count;i++) point+=simplex[i].Difference*weights[i];
-            var squared=point.LengthSquared;
-            if(squared>=best) continue;
-            best=squared; weights.CopyTo(bestWeights);
-            closest=AffineClosest(edges,origin,dimensions);
+            // Compare geometric affine distances, not reconstructed witness
+            // sums. On a face diagonal the latter can favour the edge solely
+            // through cancellation, giving a noisy search direction forever.
+            // Equal-distance feasible features prefer the larger affine span.
+            var candidate=AffineClosest(edges,origin,dimensions);
+            var squared=candidate.LengthSquared;
+            // A feasible projection onto a containing feature cannot be
+            // farther than its boundary. Enforce that exact inclusion order:
+            // roundoff in squared distances must not demote a face to its
+            // diagonal and reintroduce a spurious tangential search component.
+            var containsBest=bestMask!=0&&(mask&bestMask)==bestMask;
+            if(!containsBest&&(squared>best||(squared==best&&dimensions<=bestDimensions))) continue;
+            best=squared; bestDimensions=dimensions; bestMask=mask; weights.CopyTo(bestWeights);
+            closest=candidate;
         }
         if(!double.IsFinite(best)) throw new InvalidOperationException("Convex simplex has no finite closest feature.");
         CollisionVector pointA=default,pointB=default;

@@ -1,4 +1,0 @@
-dotnet build tools/Ownership/Ownership.csproj -c Release --nologo
-Exit 1
-SourceInventory.cs(101,70): CS0136: local or parameter named 'parameter' duplicates an enclosing pattern variable. Zero warnings, one error. Exploratory primary-constructor capture support did not compile. No runtime source changed.
-

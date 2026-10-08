@@ -45,7 +45,7 @@
     },
     {
       "Capability": "ContactImpulse",
-      "ModelBoundary": "Shared geometry/material collision exchanges momentum; separated bodies receive no contact impulse.",
+      "ModelBoundary": "Shared geometry/material collision exchanges momentum; separated bodies receive no contact impulse. Current Workshop subset: generic sphere/static-shape normal and angular impulse response with material combination and bounded correction; other contact pairs remain unsupported.",
       "Units": [
         "Kilogram",
         "Metre",
@@ -57,9 +57,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/physics/ContactConstraint.cs",
-          "Symbol": "ContactConstraint",
-          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+          "Path": "engine/gpu/physics.wgsl",
+          "Symbol": "SurfacePair",
+          "FileHash": "ded4c11995382931423761056837f8d8c9320eaea8446a4c3f59215f76414eb7"
+        },
+        {
+          "Path": "engine/gpu/physics.wgsl",
+          "Symbol": "VelocityResult",
+          "FileHash": "ded4c11995382931423761056837f8d8c9320eaea8446a4c3f59215f76414eb7"
         }
       ],
       "IndependentOracle": "Two finite masses: conservation of linear/angular momentum; separating control has zero impulse.",
@@ -2823,7 +2828,7 @@
     },
     {
       "Capability": "SlidingFriction",
-      "ModelBoundary": "Oppose relative tangential slip and debit mechanical work to declared heat/loss stores; a motionless unloaded contact supplies none.",
+      "ModelBoundary": "Oppose relative tangential slip and debit mechanical work to declared heat/loss stores; a motionless unloaded contact supplies none. Current Workshop subset: shared Coulomb contact/support impulses and angular transfer; broader material and contact populations remain open.",
       "Units": [
         "Newton",
         "Metre",
@@ -2835,9 +2840,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/physics/ContactConstraint.cs",
-          "Symbol": "ContactConstraint",
-          "FileHash": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2"
+          "Path": "engine/gpu/physics.wgsl",
+          "Symbol": "ContactSlot",
+          "FileHash": "ded4c11995382931423761056837f8d8c9320eaea8446a4c3f59215f76414eb7"
+        },
+        {
+          "Path": "engine/gpu/physics.wgsl",
+          "Symbol": "MotionCurve",
+          "FileHash": "ded4c11995382931423761056837f8d8c9320eaea8446a4c3f59215f76414eb7"
         }
       ],
       "IndependentOracle": "Tangential work is nonpositive; zero normal load gives zero Coulomb traction; heat equals lost mechanical energy.",

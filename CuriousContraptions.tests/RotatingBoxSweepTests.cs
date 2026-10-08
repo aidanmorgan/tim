@@ -1,4 +1,5 @@
 using Godot;
+using CuriousContraptions.Physics;
 
 namespace CuriousContraptions.Tests;
 
@@ -6,10 +7,23 @@ public class RotatingBoxSweepTests
 {
     private static readonly Vector3 Half = new(2, .1f, .4f);
     private const float Radius = .2f;
-    private static RotatingBoxHit Cast(Vector3 position, Vector3 velocity, double speed, double duration,
-        Transform3D? pose = null, Vector3? pivot = null, Vector3? axis = null, Vector3? half = null) =>
-        RotatingBoxSweep.Cast(position, Radius, velocity, pivot ?? Vector3.Zero, axis ?? Vector3.Back,
-            pose ?? Transform3D.Identity, half ?? Half, speed, duration);
+    private static ConvexSweepResult Cast(Vector3 position,Vector3 velocity,double speed,double duration,
+        Transform3D? pose=null,Vector3? pivot=null,Vector3? axis=null,Vector3? half=null,
+        double minimumSeparation=ConvexSweep.ContactDistance)
+    {
+        var scenePose=pose??Transform3D.Identity;
+        var rigid=SceneGeometryAdapter.CaptureRigidPose(scenePose);
+        var origin=pivot??Vector3.Zero;
+        var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,
+            new(SceneGeometryAdapter.CaptureVector(origin),rigid.Rotation),default,SceneGeometryAdapter.CaptureVector(axis??Vector3.Back)*speed);
+        var offset=scenePose.Basis.Inverse()*(scenePose.Origin-origin);
+        var beam=new ConvexMotion(new(new ConvexBox(SceneGeometryAdapter.CaptureVector(half??Half)),
+            SceneGeometryAdapter.CaptureAffine(new Transform3D(Basis.Identity,offset))),body.CreateTrajectory(duration,default));
+        var ball=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,RigidPose.At(SceneGeometryAdapter.CaptureVector(position)),
+            SceneGeometryAdapter.CaptureVector(velocity),default);
+        var sphere=new ConvexMotion(new(new ConvexSphere(Radius),AffineTransform.Identity),ball.CreateTrajectory(duration,default));
+        return ConvexSweep.Cast(sphere,beam,duration,minimumSeparation);
+    }
 
     [Theory]
     [InlineData(1)]
@@ -21,11 +35,11 @@ public class RotatingBoxSweepTests
         var position = new Vector3(Math.Sign(speed), 1, 0);
         var expected = (Math.Acos(.3 / Math.Sqrt(2)) - Math.PI / 4) / Math.Abs(speed);
         var hit = Cast(position, Vector3.Zero, speed, expected * 1.2);
-        Assert.Equal(SphereSweepStatus.Contact, hit.Status);
+        Assert.Equal(ConvexSweepStatus.Contact, hit.Status);
         Assert.InRange(hit.Time, expected - .00015 / Math.Abs(speed), expected + .000002 / Math.Abs(speed));
-        Assert.InRange(hit.Penetration, 0, .00001f);
-        Assert.InRange(Math.Abs(hit.Normal.Length() - 1), 0, .000001f);
-        Assert.InRange(position.DistanceTo(hit.Point), Radius - .00001f, Radius + .00011f);
+        Assert.InRange(Math.Max(0,-hit.Separation.LowerBound), 0, .00001f);
+        Assert.InRange(Math.Abs(hit.Separation.Normal.Length - 1), 0, .000001f);
+        Assert.InRange((SceneGeometryAdapter.CaptureVector(position)-hit.Separation.PointB).Length, Radius - .00001f, Radius + .00011f);
         Assert.InRange(hit.Iterations, 1, 200);
     }
 
@@ -36,66 +50,66 @@ public class RotatingBoxSweepTests
         Assert.True(Gap(position, Transform3D.Identity, Half) > 0);
         Assert.True(Gap(position, new(new Basis(Vector3.Back, Mathf.Pi), Vector3.Zero), Half) > 0);
         var hit = Cast(position, Vector3.Zero, 1, Math.PI);
-        Assert.Equal(SphereSweepStatus.Contact, hit.Status);
+        Assert.Equal(ConvexSweepStatus.Contact, hit.Status);
         Assert.InRange(hit.Time, .57, .58);
     }
 
     [Theory]
     [InlineData(1f)]
     [InlineData(1000f)]
-    public void StationaryBoxMatchesLinearSphereSweep(float speed)
+    public void StationaryBoxMatchesAnalyticTranslation(float speed)
     {
         var origin = new Vector3(.8f, 3, .2f);
         var velocity = Vector3.Down * speed;
         var duration = 4 / speed;
-        var linear = SphereSweep.Cast(origin, Radius, velocity * duration, p => SphereSweep.BoxSurface(p, Half));
+        var expectedTime=(origin.Y-Half.Y-Radius)/speed;
         var rotating = Cast(origin, velocity, 0, duration);
-        Assert.Equal(linear.Status, rotating.Status);
-        Assert.InRange(Math.Abs(linear.Distance / speed - rotating.Time), 0, .00001);
-        Assert.InRange((linear.Normal - rotating.Normal).Length(), 0, .000001f);
+        Assert.Equal(ConvexSweepStatus.Contact, rotating.Status);
+        Assert.InRange(Math.Abs(expectedTime-rotating.Time),0,.00011/speed);
+        Assert.InRange((new CollisionVector(0,1,0)-rotating.Separation.Normal).Length,0,.000001f);
     }
 
     [Fact]
     public void SeparatingTouchDoesNotGenerateAZeroTimeImpact()
     {
-        var hit = Cast(new(1, .3f, 0), Vector3.Zero, -1, .1);
-        Assert.Equal(SphereSweepStatus.Clear, hit.Status);
+        var hit = Cast(new(1, .3f, 0), Vector3.Zero, -1, .1,minimumSeparation:-1e-6);
+        Assert.Equal(ConvexSweepStatus.Clear, hit.Status);
         Assert.Equal(.1, hit.Time);
     }
 
     [Fact]
     public void AxialTangentRemainsClearWithoutTinyTimeStepping()
     {
-        var hit = Cast(new(0, 0, .6f), Vector3.Zero, 20, 10);
-        Assert.Equal(SphereSweepStatus.Clear, hit.Status);
+        var hit = Cast(new(0, 0, .6f), Vector3.Zero, 20, 10,minimumSeparation:-1e-6);
+        Assert.Equal(ConvexSweepStatus.Clear, hit.Status);
         Assert.InRange(hit.Iterations, 1, 2);
     }
 
     [Fact]
     public void InitiallySeparatingRotationCanHitLater()
     {
-        var hit = Cast(new(1, .3f, 0), Vector3.Zero, -1, Math.PI);
-        Assert.Equal(SphereSweepStatus.Contact, hit.Status);
+        var hit = Cast(new(1, .3f, 0), Vector3.Zero, -1, Math.PI,minimumSeparation:-1e-6);
+        Assert.Equal(ConvexSweepStatus.Contact, hit.Status);
         Assert.True(hit.Time > 1);
     }
 
     [Fact]
-    public void InitialOverlapAndApproachingTouchHaveDistinctStatuses()
+    public void InitialContactRetainsSignedDepthForOverlapAndTouch()
     {
         var overlap = Cast(new(1, .2f, 0), Vector3.Zero, 0, 0);
-        Assert.Equal(SphereSweepStatus.Overlapping, overlap.Status);
-        Assert.InRange(overlap.Penetration, .09999f, .10001f);
+        Assert.Equal(ConvexSweepStatus.InitialContact, overlap.Status);
+        Assert.InRange(-overlap.Separation.UpperBound, .09999f, .10001f);
         Assert.Equal(0, overlap.Time);
         var touching = Cast(new(1, .3f, 0), Vector3.Down, 0, .1);
-        Assert.Equal(SphereSweepStatus.Contact, touching.Status);
+        Assert.Equal(ConvexSweepStatus.InitialContact, touching.Status);
         Assert.Equal(0, touching.Time);
     }
 
     [Fact]
     public void DepthMissAndOuterRadiusMissStayClearThroughFullTurn()
     {
-        Assert.Equal(SphereSweepStatus.Clear, Cast(new(1, 1, 1), Vector3.Zero, 1, Math.Tau).Status);
-        Assert.Equal(SphereSweepStatus.Clear, Cast(new(3, 3, 0), Vector3.Zero, 1, Math.Tau).Status);
+        Assert.Equal(ConvexSweepStatus.Clear, Cast(new(1, 1, 1), Vector3.Zero, 1, Math.Tau).Status);
+        Assert.Equal(ConvexSweepStatus.Clear, Cast(new(3, 3, 0), Vector3.Zero, 1, Math.Tau).Status);
     }
 
     [Fact]
@@ -109,8 +123,8 @@ public class RotatingBoxSweepTests
             new(rotation, pivot), pivot, rotation * Vector3.Back);
         Assert.Equal(initial.Status, moved.Status);
         Assert.InRange(Math.Abs(initial.Time - moved.Time), 0, .000003);
-        Assert.InRange((rotation * initial.Normal - moved.Normal).Length(), 0, .000003f);
-        Assert.InRange((pivot + rotation * initial.Point - moved.Point).Length(), 0, .000003f);
+        Assert.InRange((SceneGeometryAdapter.CaptureRigidPose(new(rotation,Vector3.Zero)).Rotation.Apply(initial.Separation.Normal)-moved.Separation.Normal).Length, 0, .000003f);
+        Assert.InRange((SceneGeometryAdapter.CaptureVector(pivot)+SceneGeometryAdapter.CaptureRigidPose(new(rotation,Vector3.Zero)).Rotation.Apply(initial.Separation.PointB)-moved.Separation.PointB).Length, 0, .000003f);
     }
 
     [Fact]
@@ -119,7 +133,7 @@ public class RotatingBoxSweepTests
         var pose = new Transform3D(Basis.Identity, new Vector3(2, 0, 0));
         var half = new Vector3(.1f, .1f, .1f);
         var hit = Cast(new(0, 2, 0), Vector3.Zero, 1, Math.PI, pose, half: half);
-        Assert.Equal(SphereSweepStatus.Contact, hit.Status);
+        Assert.Equal(ConvexSweepStatus.Contact, hit.Status);
         Assert.InRange(hit.Time, 1.4, 1.5);
     }
 
@@ -153,10 +167,10 @@ public class RotatingBoxSweepTests
             if (firstDeepOverlap is { } reference)
             {
                 contacts++;
-                Assert.NotEqual(SphereSweepStatus.Clear, hit.Status);
+                Assert.NotEqual(ConvexSweepStatus.Clear, hit.Status);
                 Assert.True(hit.Time <= reference, $"seed={seed}, trial={trial}, hit={hit.Time}, sampled={reference}");
             }
-            if (hit.Status == SphereSweepStatus.Contact)
+            if (hit.Status == ConvexSweepStatus.Contact)
             {
                 var pose = new Transform3D(new Basis(Vector3.Back, (float)(speed * hit.Time)), Vector3.Zero);
                 var gap = Gap(origin + velocity * (float)hit.Time, pose, Half);
@@ -170,10 +184,10 @@ public class RotatingBoxSweepTests
     [Fact]
     public void InvalidGeometryAndNonfiniteMotionAreRejected()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => Cast(new(1, 1, 0), Vector3.Zero, 1e-200, 1e200));
-        Assert.Throws<ArgumentOutOfRangeException>(() => Cast(Vector3.Zero, Vector3.Zero, double.NaN, 1));
+        Assert.Throws<ArgumentException>(() => Cast(new(1, 1, 0), Vector3.Zero, 1e-200, 1e200));
+        Assert.ThrowsAny<ArgumentException>(() => Cast(Vector3.Zero, Vector3.Zero, double.NaN, 1));
         Assert.Throws<ArgumentOutOfRangeException>(() => Cast(Vector3.Zero, Vector3.Zero, 1, -1));
-        Assert.Throws<ArgumentException>(() => Cast(Vector3.Zero, Vector3.Zero, 1, 1, axis: Vector3.Back * 2));
+        Assert.Throws<ArgumentException>(() => Cast(Vector3.Zero, Vector3.Zero, 1, 1, axis: new(float.PositiveInfinity,0,0)));
         Assert.Throws<ArgumentOutOfRangeException>(() => Cast(Vector3.Zero, Vector3.Zero, 1, 1, half: new(1, 0, 1)));
         Assert.Throws<ArgumentException>(() => Cast(Vector3.Zero, Vector3.Zero, 1, 1,
             pose: new(Basis.Identity.Scaled(new(2, 1, 1)), Vector3.Zero)));

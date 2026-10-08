@@ -2,7 +2,7 @@
   "Capabilities": [
     {
       "Capability": "EnvironmentState",
-      "ModelBoundary": "Authored gravity, bounded gravity-field volumes and pressure/density atmosphere parameters remain explicit environmental state; effect support and shape are typed, fixed for a Run and included in replay/Reset.",
+      "ModelBoundary": "Authored gravity, bounded gravity-field volumes and pressure/density atmosphere parameters remain explicit environmental state; effect support and shape are typed, fixed for a Run and included in replay/Reset. Current Workshop subset: declaration-owned constant gravity and linear drag; broader environment processes remain open.",
       "Units": [
         "Metre",
         "Second",
@@ -14,9 +14,9 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/physics/PhysicsWorld.cs",
-          "Symbol": "PhysicsWorld",
-          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+          "Path": "engine/gpu/PhysicsDeclarations.cs",
+          "Symbol": "PhysicsSceneDeclaration",
+          "FileHash": "c5fa237ea0f2941a048b4cfb35d71d62d322e2c1c42c963b8fe4af101d7f85c3"
         }
       ],
       "IndependentOracle": "Same body in two gravity environments follows analytic trajectories; supported atmosphere changes only declared density/pressure/temperature effects.",
@@ -4201,7 +4201,7 @@
     },
     {
       "Capability": "ConstructionCompiler",
-      "ModelBoundary": "Validated immutable current declarations compile deterministic typed handles, models and owned storage.",
+      "ModelBoundary": "Validated immutable current declarations compile deterministic typed handles, models and owned storage. Current Workshop subset: Ball/Receiver parts emit typed generic geometry/material/sensor data; other catalogue declarations remain open.",
       "Units": [
         "Dimensionless",
         "Metre",
@@ -4212,9 +4212,9 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/ScenePhysicsAssembly.cs",
-          "Symbol": "ScenePhysicsAssembly",
-          "FileHash": "8bbddc61c760ca73ad3abc344eb22ca9e637996aa5c7d881899bbaf9505bd738"
+          "Path": "engine/gpu/WorkshopPhysicsCompiler.cs",
+          "Symbol": "WorkshopPhysicsCompiler",
+          "FileHash": "35fb3977692e82dbb3294efa18fbef37dde1beb5544e8c9c59e79e0b16c761df"
         }
       ],
       "IndependentOracle": "Reordered declarations preserve logical topology; unknown model/reference rejects atomically.",
@@ -6501,7 +6501,7 @@
     },
     {
       "Capability": "StateTransaction",
-      "ModelBoundary": "Whole-domain proposed transfers commit atomically with rollback, generation barriers and exact construction restore.",
+      "ModelBoundary": "Whole-domain proposed transfers commit atomically with rollback, generation barriers and exact construction restore. Current Workshop subset: validated GPU state and capture latches commit together under the owned command; broader capability state remains open.",
       "Units": [
         "Dimensionless",
         "Second"
@@ -6511,9 +6511,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/SimulationTransaction.cs",
-          "Symbol": "SimulationTransaction",
-          "FileHash": "337ddd2c8876b565b9fd12877d61b8349b8213863c6ff119c4ba06830a2c5fc9"
+          "Path": "CuriousContraptions.Simulation/WorkshopGpuDevice.cs",
+          "Symbol": "WorkshopGpuDevice",
+          "FileHash": "78d2303365e6fd9960b1b9fdc02aba2b0bd28b328239d202d348c3e65469edee"
+        },
+        {
+          "Path": "engine/gpu/WorkshopSimulation.cs",
+          "Symbol": "WorkshopSimulation",
+          "FileHash": "693bcb0844a4c31162cc43844c94d882c81a521c4c780898a2358af39d8522cc"
         }
       ],
       "IndependentOracle": "Injected failure at every commit boundary restores state/events/leases exactly; old generation has no effect.",
@@ -17097,7 +17102,7 @@
     },
     {
       "Capability": "TimedCommand",
-      "ModelBoundary": "Admit separately from deterministic applied tick/phase/order; full-width typed identities and explicit rejection.",
+      "ModelBoundary": "Admit separately from deterministic applied tick/phase/order; full-width typed identities and explicit rejection. Current Workshop subset: ordered, owned lifecycle and schedule installation commands; general authored timers remain open.",
       "Units": [
         "Dimensionless",
         "Second"
@@ -17107,14 +17112,9 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/bridge/SimulationCommandInbox.cs",
-          "Symbol": "SimulationCommandInbox",
-          "FileHash": "b222a46a88369ed540970e9e817b620f0fbcc378d59eeca730e3e9e8c634e421"
-        },
-        {
-          "Path": "engine/SimulationTimers.cs",
-          "Symbol": "SimulationTimers",
-          "FileHash": "5a2eeb403b921c21d73463f33edf01d00f3a71a170ff8bd180b736e714763f56"
+          "Path": "CuriousContraptions.Simulation/Program.cs",
+          "Symbol": "Program",
+          "FileHash": "ba01f36854e0ed59db0e59a2108ee2b4a2528ff7f755c37ea2f627baf63ffd8d"
         }
       ],
       "IndependentOracle": "Boundary IDs, delayed/reordered/duplicate commands and replay reproduce exactly once application.",
@@ -17402,7 +17402,7 @@
     },
     {
       "Capability": "ReliablePublication",
-      "ModelBoundary": "Coherent immutable committed poses, topology, telemetry and reliable occurrences with reserved capacity.",
+      "ModelBoundary": "Coherent immutable committed poses, topology, telemetry and reliable occurrences with reserved capacity. Current Workshop subset: bounded current-identity command receipts, schedule installation and committed reads; broader publication workloads remain open.",
       "Units": [
         "Dimensionless",
         "Byte",
@@ -17413,9 +17413,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/bridge/CommittedPoseBuffer.cs",
-          "Symbol": "CommittedPoseBuffer",
-          "FileHash": "eee96e783fadc86370e3cd4f03bbee1dfd49d3995a2e90d38159a5aa2f6456a4"
+          "Path": "CuriousContraptions.Simulation/Program.cs",
+          "Symbol": "Program",
+          "FileHash": "ba01f36854e0ed59db0e59a2108ee2b4a2528ff7f755c37ea2f627baf63ffd8d"
+        },
+        {
+          "Path": "engine/gpu/BrowserWorkshopClient.cs",
+          "Symbol": "BrowserWorkshopClient",
+          "FileHash": "e3e469a31fec64d55ca8b2043f3f26ae92a01cd758263db4336caff1c7f17f60"
         }
       ],
       "IndependentOracle": "Failed tick publishes nothing; delayed readers cannot mutate owned histories or lose occurrences.",
@@ -19917,7 +19922,7 @@
     },
     {
       "Capability": "SimulationClock",
-      "ModelBoundary": "Monotonic dedicated 120 Hz physics scheduler, initially four outer substeps, bounded debt and explicit overload.",
+      "ModelBoundary": "Monotonic dedicated 120 Hz physics scheduler, initially four outer substeps, bounded debt and explicit overload. Current Workshop subset: S-owned master and typed internally configurable cadence with active S120/A60/P60; deferred precision/workload qualification is not claimed.",
       "Units": [
         "Hertz",
         "Second"
@@ -19927,9 +19932,19 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/MachineWorld.cs",
-          "Symbol": "MachineWorld",
-          "FileHash": "b30ac2da81c120a17b9ccf13a6e8bf03ac1f2f5f39da1af31103be6b30a0dfcf"
+          "Path": "CuriousContraptions.Simulation/Program.cs",
+          "Symbol": "Program",
+          "FileHash": "ba01f36854e0ed59db0e59a2108ee2b4a2528ff7f755c37ea2f627baf63ffd8d"
+        },
+        {
+          "Path": "engine/gpu/WorkshopCadence.cs",
+          "Symbol": "WorkshopCadenceSettings",
+          "FileHash": "367d585e4be02b0723386b3742e99a0f2d17cfa0dfffaed101c9827258d8a451"
+        },
+        {
+          "Path": "engine/gpu/WorkshopClockMapping.cs",
+          "Symbol": "WorkshopClockMapping",
+          "FileHash": "c70623feca3026a124c5582ce3ed5c99f39570bf6d2928c83ca7c89b962e6787"
         }
       ],
       "IndependentOracle": "Equal applied-tick replay agrees across independent render/animation rates and stalls; wall-time debt remains visible.",
@@ -20072,7 +20087,7 @@
     },
     {
       "Capability": "AnimationEvaluation",
-      "ModelBoundary": "Portable batched clips, easing and procedural loops on independent worker clock, initially 60 Hz.",
+      "ModelBoundary": "Portable batched clips, easing and procedural loops on independent worker clock, initially 60 Hz. Current Workshop subset: shared typed C# batch evaluation for current tracks and opacity endpoints; broader animation workloads remain open.",
       "Units": [
         "Hertz",
         "Second",
@@ -20085,7 +20100,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         }
       ],
       "IndependentOracle": "Independent numeric samples at 30/60/90/120 Hz; disabled animation leaves physical replay identical.",

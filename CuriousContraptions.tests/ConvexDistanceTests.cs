@@ -28,8 +28,8 @@ public class ConvexDistanceTests
     [InlineData(Shape.Hull,Shape.Hull)]
     public void SameQueryHandlesEveryShapePairAndProvidesDistanceBounds(Shape first,Shape second)
     {
-        var a=new ConvexInstance(Geometry(first),Transform3D.Identity);
-        var b=new ConvexInstance(Geometry(second),new(Basis.Identity,new(3,0,0)));
+        var a=new ConvexInstance(Geometry(first),AffineTransform.Identity);
+        var b=new ConvexInstance(Geometry(second),new(AffineBasis.Identity,new(3,0,0)));
         var result=ConvexDistance.Query<ConvexInstance,ConvexInstance>(a,b);
         Assert.Equal(ConvexDistanceStatus.Separated,result.Status);
         Assert.InRange(result.LowerBound,2-1e-7,2+1e-12);
@@ -45,8 +45,8 @@ public class ConvexDistanceTests
     [InlineData(1)]
     public void TouchingAndPenetrationAreReportedOnlyAsWithinTolerance(double offset)
     {
-        var a=new ConvexInstance(new ConvexSphere(.5),Transform3D.Identity);
-        var b=new ConvexInstance(new ConvexSphere(.5),new(Basis.Identity,new((float)offset,0,0)));
+        var a=new ConvexInstance(new ConvexSphere(.5),AffineTransform.Identity);
+        var b=new ConvexInstance(new ConvexSphere(.5),new(AffineBasis.Identity,new((float)offset,0,0)));
         var result=ConvexDistance.Query<ConvexInstance,ConvexInstance>(a,b);
         Assert.Equal(ConvexDistanceStatus.WithinTolerance,result.Status);
         Assert.InRange(result.UpperBound,0,ConvexDistance.DefaultTolerance);
@@ -65,9 +65,9 @@ public class ConvexDistanceTests
             var p=new Vector3(Between(-3,3),Between(-3,3),Between(-3,3));
             var q=new Vector3(Between(-3,3),Between(-3,3),Between(-3,3));
             var ra=Between(.1f,1); var rb=Between(.1f,1);
-            var a=new ConvexInstance(new ConvexSphere(ra),new(Basis.Identity,p));
-            var b=new ConvexInstance(new ConvexSphere(rb),new(Basis.Identity,q));
-            var expected=Math.Max(0,(CollisionVector.From(p)-CollisionVector.From(q)).Length-ra-rb);
+            var a=new ConvexInstance(new ConvexSphere(ra),new(AffineBasis.Identity,SceneGeometryAdapter.CaptureVector(p)));
+            var b=new ConvexInstance(new ConvexSphere(rb),new(AffineBasis.Identity,SceneGeometryAdapter.CaptureVector(q)));
+            var expected=Math.Max(0,(SceneGeometryAdapter.CaptureVector(p)-SceneGeometryAdapter.CaptureVector(q)).Length-ra-rb);
             var result=ConvexDistance.Query<ConvexInstance,ConvexInstance>(a,b);
             Assert.True(result.LowerBound<=expected+1e-10,$"lower bound seed={seed}, index={i}");
             Assert.True(result.UpperBound>=expected-1e-10,$"upper bound seed={seed}, index={i}");
@@ -86,13 +86,13 @@ public class ConvexDistanceTests
         {
             var points=Enumerable.Range(0,12).Select(_=>new CollisionVector(Between(-1,1),Between(-1,1),Between(-1,1))).ToArray();
             var shape=new ConvexHull(points);
-            var a=new ConvexInstance(shape,new(Basis.FromEuler(new(.2f,.4f,.1f)),new(0,0,0)));
-            var b=new ConvexInstance(new ConvexBox(new(.4,.7,.2)),new(Basis.FromEuler(new(-.3f,.2f,.6f)),new(Between(2,4),Between(-2,2),Between(-2,2))));
+            var a=new ConvexInstance(shape,new(SceneGeometryAdapter.CaptureBasis(Basis.FromEuler(new(.2f,.4f,.1f))),new(0,0,0)));
+            var b=new ConvexInstance(new ConvexBox(new(.4,.7,.2)),new(SceneGeometryAdapter.CaptureBasis(Basis.FromEuler(new(-.3f,.2f,.6f))),new(Between(2,4),Between(-2,2),Between(-2,2))));
             var ab=ConvexDistance.Query<ConvexInstance,ConvexInstance>(a,b);
             var ba=ConvexDistance.Query<ConvexInstance,ConvexInstance>(b,a);
             Assert.InRange(Math.Abs(ab.UpperBound-ba.UpperBound),0,2e-7);
             var moved=new Transform3D(Basis.FromEuler(new(.31f,-.67f,.28f)),new(3,4,-2));
-            var transformed=ConvexDistance.Query<ConvexInstance,ConvexInstance>(new(shape,moved*a.Pose),new(b.Geometry,moved*b.Pose));
+            var transformed=ConvexDistance.Query<ConvexInstance,ConvexInstance>(new(shape,SceneGeometryAdapter.CaptureAffine(moved*a.Pose.ToScene())),new(b.Geometry,SceneGeometryAdapter.CaptureAffine(moved*b.Pose.ToScene())));
             Assert.InRange(Math.Abs(ab.UpperBound-transformed.UpperBound),0,.000002);
             Assert.InRange(ab.Iterations,1,256);
         }
@@ -104,8 +104,8 @@ public class ConvexDistanceTests
         CollisionVector[] points=[new(0,0,0),new(1,0,0),new(2,0,0),new(2,0,0)];
         var hull=new ConvexHull(points);
         points[0]=new(100,0,0);
-        var result=ConvexDistance.Query<ConvexInstance,ConvexInstance>(new(hull,Transform3D.Identity),
-            new(new ConvexHull([new(0,0,0)]),new(Basis.Identity,new(1,3,0))));
+        var result=ConvexDistance.Query<ConvexInstance,ConvexInstance>(new(hull,AffineTransform.Identity),
+            new(new ConvexHull([new(0,0,0)]),new(AffineBasis.Identity,new(1,3,0))));
         Assert.InRange(result.LowerBound,3-1e-7,3);
         Assert.InRange(result.UpperBound,3,3+1e-7);
     }
@@ -117,9 +117,49 @@ public class ConvexDistanceTests
         Assert.Throws<ArgumentOutOfRangeException>(()=>new ConvexBox(new(1,0,1)));
         Assert.Throws<ArgumentException>(()=>new ConvexHull([]));
         Assert.Throws<ArgumentOutOfRangeException>(()=>new ConvexHull([new(double.NaN,0,0)]));
-        Assert.Throws<ArgumentException>(()=>new ConvexInstance(new ConvexSphere(1),new(Basis.Identity.Scaled(new(2,1,1)),Vector3.Zero)));
-        Assert.Throws<InvalidOperationException>(()=>ConvexDistance.Query<ConvexInstance,ConvexInstance>(default,new(new ConvexSphere(1),Transform3D.Identity)));
+        Assert.Throws<ArgumentException>(()=>new ConvexInstance(new ConvexSphere(1),new(SceneGeometryAdapter.CaptureBasis(Basis.Identity.Scaled(new(2,1,1))),SceneGeometryAdapter.CaptureVector(Vector3.Zero))));
+        Assert.Throws<InvalidOperationException>(()=>ConvexDistance.Query<ConvexInstance,ConvexInstance>(default,new(new ConvexSphere(1),AffineTransform.Identity)));
         Assert.Throws<ArgumentOutOfRangeException>(()=>ConvexDistance.Query<ConvexInstance,ConvexInstance>(
-            new(new ConvexSphere(1),Transform3D.Identity),new(new ConvexSphere(1),Transform3D.Identity),0));
+            new(new ConvexSphere(1),AffineTransform.Identity),new(new ConvexSphere(1),AffineTransform.Identity),0));
     }
+    public enum FaceRegression { Light, Wall }
+    [Theory]
+    [InlineData(FaceRegression.Light)]
+    [InlineData(FaceRegression.Wall)]
+    public void NearDiagonalFaceProjectionConvergesWithoutDemotingToItsEdge(FaceRegression fixture)
+    {
+        var point=fixture switch
+        {
+            FaceRegression.Light=>new CollisionVector(2.899999948509883,4.896184427805594,-.10381557219440532),
+            FaceRegression.Wall=>new CollisionVector(.6953250882215798,4,.6953250882215798),
+            _=>throw new ArgumentOutOfRangeException(nameof(fixture))
+        };
+        CollisionVector[] vertices=fixture switch
+        {
+            FaceRegression.Light=>[
+                new(2.8999999985098834,7,1.9999999999999996),
+                new(2.8999999985098843,3,-1.9999999999999996),
+                new(2.8999999985098834,3,1.9999999999999996)],
+            FaceRegression.Wall=>[
+                new(1.555634895752624,2.5,-1.2727922345413707),
+                new(-1.2727921735155152,5.5,1.5556349456828693),
+                new(-1.2727921735155152,2.5,1.5556349456828693)],
+            _=>throw new ArgumentOutOfRangeException(nameof(fixture))
+        };
+        var normal=CollisionVector.Cross(vertices[1]-vertices[0],vertices[2]-vertices[0]);
+        normal/=normal.Length;
+        var analytic=Math.Abs(CollisionVector.Dot(point-vertices[0],normal));
+        var a=new ConvexInstance(new ConvexHull([point]),AffineTransform.Identity);
+        foreach(var reverse in new[]{false,true})
+        {
+            if(reverse) Array.Reverse(vertices);
+            var b=new ConvexInstance(new ConvexHull(vertices),AffineTransform.Identity);
+            var result=ConvexDistance.Query(a,b,2.5e-8);
+            Assert.Equal(ConvexDistanceStatus.Separated,result.Status);
+            Assert.InRange(analytic,result.LowerBound-1e-12,result.UpperBound+1e-12);
+            Assert.InRange(result.UpperBound-result.LowerBound,0,2.5e-8);
+            Assert.InRange(result.Iterations,1,16);
+        }
+    }
+
 }

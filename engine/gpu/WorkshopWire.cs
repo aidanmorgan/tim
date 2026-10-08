@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 11 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 16 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null);
@@ -20,11 +20,21 @@ public static class WorkshopWire
 {
     public const int CommandHeaderBytes = 72;
     public const int ConstructionHeaderBytes = 320;
-    public const int InstanceBytes = 128;
+    public const int InstanceBytes = 160;
     public const int ConnectionsOffset = ConstructionHeaderBytes + WorkshopInstances.Capacity * InstanceBytes;
     public const int ConnectionBytes = 32;
     public const int ConstructionBytes = ConnectionsOffset + WorkshopConnections.Capacity * ConnectionBytes;
-    public const int ReadMotionOffset = 512 + WorkshopActivationWire.ByteLength;
+    public const int ResponseHeaderBytes = 128;
+    public const int ResponseSessionOffset = 40;
+    public const int ResponsePublicationOffset = 56;
+    public static int[] ResponseAbi() => [ResponseBytes, ResponseSessionOffset, ResponsePublicationOffset];
+    public const int ReadBodiesOffset = ResponseHeaderBytes;
+    public const int ReadCapturesOffset = ReadBodiesOffset + PhysicsBodyReadSet.Capacity * PhysicsBodyWire.ByteLength;
+    public const int CaptureBytes = 24;
+    public const int ReadActivationsOffset = ReadCapturesOffset + PhysicsSceneDeclaration.SensorCapacity * CaptureBytes;
+    public const int ReadTimersOffset = ReadActivationsOffset + WorkshopActivationWire.ByteLength;
+    public const int ReadContactWorkOffset = ReadTimersOffset + WorkshopTimerWire.ByteLength;
+    public const int ReadMotionOffset = ReadContactWorkOffset + WorkshopContactWorkWire.ByteLength;
     public const int ResponseBytes = ReadMotionOffset + PhysicsMotionRead.ByteLength;
     public static bool Matches(WorkshopCommand command, SimulationEpoch epoch, AuthorityRevision revision,
         RuntimeSessionId session, CadenceRevision cadence, ProjectionEpoch projection) =>
@@ -125,144 +135,114 @@ public static class WorkshopWire
         response.Session.Validate();
         if ((response.Kind == WorkshopResponseKind.Read) != (response.Publication.Value != 0))
             throw new ArgumentException("Invalid physical publication identity.");
-        ValidateCapture(response.Read);
-        ValidateScheduleIdentity(response);
-        if (response.Read.Ball is { } validatedBody)
-        {
-            validatedBody.Validate();
-            if (validatedBody.Epoch != response.Read.Epoch.Value || validatedBody.Tick != response.Read.Tick.Value)
-                throw new ArgumentException("Read body does not match its envelope.");
-        }
-        ValidatePhysicalRead(response.Read);
+        ValidateCapture(response.Read); ValidateScheduleIdentity(response); ValidatePhysicalRead(response.Read);
         data.Clear();
-        BinaryPrimitives.WriteUInt64LittleEndian(data, response.Sequence.Value);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[8..], (uint)response.Kind);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[12..], (uint)response.Result.Outcome);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[16..], (uint)response.Result.Reason);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[20..], (uint)response.Phase);
-        BinaryPrimitives.WriteUInt64LittleEndian(data[24..], response.Read.Epoch.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(data[32..], response.Read.Tick.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(data[40..], response.Read.Revision.Value);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[48..], response.Read.Ball is null ? 0u : 1u);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[52..], (uint)WorkshopWireVersion.GenericMechanical);
-        WriteSession(data[64..80], response.Session);
-        BinaryPrimitives.WriteUInt64LittleEndian(data[104..], response.Publication.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(data,response.Sequence.Value);
+        data[8]=checked((byte)response.Kind); data[9]=checked((byte)response.Result.Outcome);
+        data[10]=checked((byte)response.Result.Reason); data[11]=checked((byte)response.Phase);
+        BinaryPrimitives.WriteUInt32LittleEndian(data[12..],(uint)WorkshopWireVersion.GenericMechanical);
+        BinaryPrimitives.WriteUInt64LittleEndian(data[16..],response.Read.Epoch.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(data[24..],response.Read.Tick.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(data[32..],response.Read.Revision.Value);
+        WriteSession(data[40..56],response.Session);
+        BinaryPrimitives.WriteUInt64LittleEndian(data[56..],response.Publication.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(data[64..],response.MasterGeneration.Value);
         if (response.Read.Capture is { } capture)
         {
-            data[56] = (byte)capture.Domain; data[57] = 1;
-            BinaryPrimitives.WriteUInt64LittleEndian(data[80..], capture.Generation.Value);
-            BinaryPrimitives.WriteInt64LittleEndian(data[88..], capture.Time.Value);
-            BinaryPrimitives.WriteUInt64LittleEndian(data[96..], capture.Uncertainty.Value);
+            BinaryPrimitives.WriteInt64LittleEndian(data[72..],capture.Time.Value);
+            BinaryPrimitives.WriteUInt64LittleEndian(data[80..],capture.Uncertainty.Value);
+            data[110]=checked((byte)capture.Domain); data[111]=1;
         }
-        if (response.Read.Ball is { } body) body.Write(data[112..192]);
-        BinaryPrimitives.WriteUInt64LittleEndian(data[192..], response.Cadence.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(data[200..], response.MasterGeneration.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(data[208..], response.Projection.Value);
-        BinaryPrimitives.WriteUInt64LittleEndian(data[216..], response.SourcePulse.Value);
-        if (response.Read.Rotation is { } rotation)
+        BinaryPrimitives.WriteUInt64LittleEndian(data[88..],response.Cadence.Value);
+        BinaryPrimitives.WriteUInt64LittleEndian(data[96..],response.Projection.Value);
+        data[104]=response.Read.Bodies.Count; data[105]=response.Read.Captures.Count;
+        data[106]=response.Read.Activations.Count; data[107]=response.Read.Timers.Count;
+        data[108]=response.Read.ContactWorks.Count; data[109]=response.Read.ContactWorks.OccurrenceCount;
+        for (var i=0; i<response.Read.Bodies.Count; i++)
+            PhysicsBodyWire.Write(response.Read.Bodies[i],data.Slice(ReadBodiesOffset+i*PhysicsBodyWire.ByteLength,PhysicsBodyWire.ByteLength));
+        for (var i=0; i<response.Read.Captures.Count; i++)
         {
-            Write(data[224..], rotation.X); Write(data[226..], rotation.Y);
-            Write(data[228..], rotation.Z); Write(data[230..], rotation.W);
-            Write(data[232..], response.Read.Angular.X); Write(data[234..], response.Read.Angular.Y); Write(data[236..], response.Read.Angular.Z);
+            var latch=response.Read.Captures[i]; var slot=data.Slice(ReadCapturesOffset+i*CaptureBytes,CaptureBytes);
+            BinaryPrimitives.WriteUInt64LittleEndian(slot,latch.Sensor.Value);
+            BinaryPrimitives.WriteUInt32LittleEndian(slot[8..],(uint)latch.Phase);
+            BinaryPrimitives.WriteUInt32LittleEndian(slot[12..],latch.EventOrdinal);
+            Write(slot[16..],latch.EventPhase);
         }
+        WorkshopActivationWire.Write(response.Read.Activations,data[ReadActivationsOffset..ReadTimersOffset]);
+        WorkshopTimerWire.Write(response.Read.Timers,data[ReadTimersOffset..ReadContactWorkOffset]);
+        WorkshopContactWorkWire.Write(response.Read.ContactWorks,data[ReadContactWorkOffset..ReadMotionOffset]);
         if (response.Read.Motion is { } motion) motion.Bytes.CopyTo(data[ReadMotionOffset..]);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[244..], response.Read.Activations.Count);
-        WorkshopActivationWire.Write(response.Read.Activations, data[512..ReadMotionOffset]);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[240..], response.Read.Captures.Count);
-        for (var i = 0; i < response.Read.Captures.Count; i++)
-        {
-            var latch = response.Read.Captures[i]; var output = data.Slice(256 + i * 32, 32);
-            BinaryPrimitives.WriteUInt64LittleEndian(output, latch.Sensor.Value);
-            BinaryPrimitives.WriteUInt32LittleEndian(output[8..], (uint)latch.Phase);
-            BinaryPrimitives.WriteUInt32LittleEndian(output[12..], latch.EventOrdinal);
-            Write(output[16..], latch.EventPhase);
-        }
     }
 
     public static WorkshopResponse DecodeResponse(ReadOnlySpan<byte> data)
     {
-        if (data.Length != ResponseBytes || !Zero(data.Slice(58, 6)) || BinaryPrimitives.ReadUInt32LittleEndian(data[52..]) != (uint)WorkshopWireVersion.GenericMechanical)
+        if (data.Length != ResponseBytes || !Zero(data[112..128]) ||
+            BinaryPrimitives.ReadUInt32LittleEndian(data[12..]) != (uint)WorkshopWireVersion.GenericMechanical)
             throw new ArgumentException("Unsupported Workshop response shape.");
-        var sequence = new CommandSequence(BinaryPrimitives.ReadUInt64LittleEndian(data));
-        var kind = (WorkshopResponseKind)BinaryPrimitives.ReadUInt32LittleEndian(data[8..]);
-        var outcome = (WorkshopCommandOutcome)BinaryPrimitives.ReadUInt32LittleEndian(data[12..]);
-        var reason = (WorkshopRejection)BinaryPrimitives.ReadUInt32LittleEndian(data[16..]);
-        var phase = (WorkshopSimulationPhase)BinaryPrimitives.ReadUInt32LittleEndian(data[20..]);
-        var count = BinaryPrimitives.ReadUInt32LittleEndian(data[48..]);
-        var session = ReadSession(data[64..80]);
-        var publication = new PublicationSequence(BinaryPrimitives.ReadUInt64LittleEndian(data[104..]));
-        if ((kind == WorkshopResponseKind.Read) != (publication.Value != 0) || data[57] > 1)
-            throw new ArgumentException("Invalid capture/publication tag.");
-        WorkshopClockStamp? capture = data[57] == 0 ? null :
-            new((WorkshopClockDomain)data[56], new(BinaryPrimitives.ReadUInt64LittleEndian(data[80..])),
-                new(BinaryPrimitives.ReadInt64LittleEndian(data[88..])), new(BinaryPrimitives.ReadUInt64LittleEndian(data[96..])));
-        if (capture is null && (data[56] != 0 || !Zero(data.Slice(80, 24))))
+        var sequence=new CommandSequence(BinaryPrimitives.ReadUInt64LittleEndian(data));
+        var kind=(WorkshopResponseKind)data[8]; var outcome=(WorkshopCommandOutcome)data[9];
+        var reason=(WorkshopRejection)data[10]; var phase=(WorkshopSimulationPhase)data[11];
+        var session=ReadSession(data[40..56]);
+        var publication=new PublicationSequence(BinaryPrimitives.ReadUInt64LittleEndian(data[56..]));
+        var master=new ClockGeneration(BinaryPrimitives.ReadUInt64LittleEndian(data[64..]));
+        if (!Enum.IsDefined(kind) || !Enum.IsDefined(outcome) || !Enum.IsDefined(reason) || !Enum.IsDefined(phase) ||
+            (kind == WorkshopResponseKind.Acknowledgement) != (sequence.Value != 0) ||
+            (kind == WorkshopResponseKind.Read) != (publication.Value != 0) || data[111]>1)
+            throw new ArgumentException("Invalid response discriminant or publication.");
+        WorkshopClockStamp? capture=data[111]==0 ? null :
+            new((WorkshopClockDomain)data[110],master,new(BinaryPrimitives.ReadInt64LittleEndian(data[72..])),
+                new(BinaryPrimitives.ReadUInt64LittleEndian(data[80..])));
+        if (capture is null && (data[110]!=0 || !Zero(data[64..88])))
             throw new ArgumentException("Absent capture has a nonzero payload.");
-        if (!Enum.IsDefined(kind) || !Enum.IsDefined(outcome) || !Enum.IsDefined(reason) ||
-            !Enum.IsDefined(phase) || count > 1 ||
-            (kind == WorkshopResponseKind.Acknowledgement) != (sequence.Value != 0))
-            throw new ArgumentException("Unsupported Workshop response discriminant.");
-        var read = new WorkshopRead(new(BinaryPrimitives.ReadUInt64LittleEndian(data[24..])),
-            new(BinaryPrimitives.ReadUInt64LittleEndian(data[32..])),
-            count == 0 ? null : CanonicalBody.Decode(data[112..192]), new(BinaryPrimitives.ReadUInt64LittleEndian(data[40..])), capture);
-        if (count == 0 && !Zero(data[112..192])) throw new ArgumentException("Empty read has nonzero payload.");
-        if (read.Ball is { } body && (body.Epoch != read.Epoch.Value || body.Tick != read.Tick.Value))
-            throw new ArgumentException("Read body does not match its envelope.");
-        if (!Zero(data[238..240]) || !Zero(data[248..256])) throw new ArgumentException("Nonzero physical read padding.");
-        var captureCount = BinaryPrimitives.ReadUInt32LittleEndian(data[240..]);
-        if (captureCount > PhysicsSceneDeclaration.SensorCapacity ||
-            !Zero(data[(256 + checked((int)captureCount) * 32)..512])) throw new ArgumentException("Invalid capture read capacity.");
-        Span<CaptureLatch> latches = stackalloc CaptureLatch[PhysicsSceneDeclaration.SensorCapacity];
-        for (var i = 0; i < captureCount; i++)
+        var epoch=new SimulationEpoch(BinaryPrimitives.ReadUInt64LittleEndian(data[16..]));
+        var tick=new SimulationTick(BinaryPrimitives.ReadUInt64LittleEndian(data[24..]));
+        var bodyCount=data[104]; var captureCount=data[105];
+        if (bodyCount>PhysicsBodyReadSet.Capacity || captureCount>PhysicsSceneDeclaration.SensorCapacity ||
+            !Zero(data[(ReadBodiesOffset+bodyCount*PhysicsBodyWire.ByteLength)..ReadCapturesOffset]) ||
+            !Zero(data[(ReadCapturesOffset+captureCount*CaptureBytes)..ReadActivationsOffset]))
+            throw new ArgumentException("Invalid body or capture population/padding.");
+        Span<PhysicsBodyRead> bodyValues=stackalloc PhysicsBodyRead[PhysicsBodyReadSet.Capacity];
+        for (var i=0; i<bodyCount; i++)
+            bodyValues[i]=PhysicsBodyWire.Read(data.Slice(ReadBodiesOffset+i*PhysicsBodyWire.ByteLength,PhysicsBodyWire.ByteLength),epoch,tick);
+        var bodies=new PhysicsBodyReadSet(bodyValues[..bodyCount]);
+        Span<CaptureLatch> latches=stackalloc CaptureLatch[PhysicsSceneDeclaration.SensorCapacity];
+        for (var i=0; i<captureCount; i++)
         {
-            var input = data.Slice(256 + i * 32, 32);
-            var latch = new CaptureLatch(new(BinaryPrimitives.ReadUInt64LittleEndian(input)),
-                (CaptureLatchPhase)BinaryPrimitives.ReadUInt32LittleEndian(input[8..]),
-                BinaryPrimitives.ReadUInt32LittleEndian(input[12..]), Read(input[16..]));
-            latch.Validate();
-            if (!Zero(input[18..])) throw new ArgumentException("Nonzero capture padding.");
-            latches[i] = latch;
+            var slot=data.Slice(ReadCapturesOffset+i*CaptureBytes,CaptureBytes);
+            if (!Zero(slot[18..])) throw new ArgumentException("Nonzero capture padding.");
+            latches[i]=new(new(BinaryPrimitives.ReadUInt64LittleEndian(slot)),
+                (CaptureLatchPhase)BinaryPrimitives.ReadUInt32LittleEndian(slot[8..]),
+                BinaryPrimitives.ReadUInt32LittleEndian(slot[12..]),Read(slot[16..]));
         }
-        read = read with
-        {
-            Rotation = count == 0 ? null : new CanonicalRotation(Read(data[224..]), Read(data[226..]), Read(data[228..]), Read(data[230..])),
-            Angular = new(Read(data[232..]), Read(data[234..]), Read(data[236..])),
-            Captures = new(latches[..checked((int)captureCount)]),
-            Activations = WorkshopActivationWire.Read(data[512..ReadMotionOffset], BinaryPrimitives.ReadUInt32LittleEndian(data[244..])),
-            Motion = PhysicsMotionRead.Decode(data[ReadMotionOffset..], read.Ball, read.Tick)
-        };
-        if (count == 0 && !Zero(data[224..240])) throw new ArgumentException("Absent body has orientation data.");
-        ValidatePhysicalRead(read);
-        ValidateCapture(read);
-        var response = new WorkshopResponse(sequence, kind, new(outcome, reason), phase, read, session, publication,
-            new(BinaryPrimitives.ReadUInt64LittleEndian(data[192..])),
-            new(BinaryPrimitives.ReadUInt64LittleEndian(data[200..])),
-            new(BinaryPrimitives.ReadUInt64LittleEndian(data[208..])),
-            new(BinaryPrimitives.ReadUInt64LittleEndian(data[216..])));
-        ValidateScheduleIdentity(response);
-        return response;
+        var read=new WorkshopRead(epoch,tick,bodies,new(BinaryPrimitives.ReadUInt64LittleEndian(data[32..])),capture,
+            new(latches[..captureCount]),PhysicsMotionRead.Decode(data[ReadMotionOffset..],bodies,tick),
+            WorkshopActivationWire.Read(data[ReadActivationsOffset..ReadTimersOffset],data[106]),
+            WorkshopTimerWire.Read(data[ReadTimersOffset..ReadContactWorkOffset],data[107]),
+            WorkshopContactWorkWire.Read(data[ReadContactWorkOffset..ReadMotionOffset],data[108],data[109]));
+        ValidatePhysicalRead(read); ValidateCapture(read);
+        var response=new WorkshopResponse(sequence,kind,new(outcome,reason),phase,read,session,publication,
+            new(BinaryPrimitives.ReadUInt64LittleEndian(data[88..])),master,
+            new(BinaryPrimitives.ReadUInt64LittleEndian(data[96..])),new(tick.Value));
+        ValidateScheduleIdentity(response); return response;
     }
 
     private static void ValidatePhysicalRead(WorkshopRead read)
     {
-        if (read.Motion is { } motion) motion.ValidateBinding(read.Ball, read.Tick);
+        read.Bodies.ValidateTime(read.Epoch,read.Tick);
+        for (var i=0; i<read.Bodies.Count; i++) read.Bodies[i].Validate();
+        if (read.Motion is { } motion) motion.ValidateBinding(read.Bodies,read.Tick);
         else if (read.Tick.Value != 0) throw new ArgumentException("Committed motion description is required.");
-        if (read.Ball.HasValue != read.Rotation.HasValue) throw new ArgumentException("Body orientation is required.");
-        read.Rotation?.Validate();
-        PhysicsDeclarationBounds.Vector(read.Angular.X, read.Angular.Y, read.Angular.Z, (Half)64);
-        if (!read.Ball.HasValue && !PhysicsDeclarationBounds.Zero(read.Angular.X, read.Angular.Y, read.Angular.Z))
-            throw new ArgumentException("Absent body has angular motion.");
-        for (var i = 0; i < read.Activations.Count; i++)
+        for (var i=0; i<read.Activations.Count; i++)
         {
-            var value = read.Activations[i]; value.Validate();
-            if (value.Phase == ActivationPhase.Latched && (read.Ball is not { } ball || value.ContactBody != ball.Id ||
-                value.EventOrdinal > read.Tick.Value * 8 || (read.Tick.Value == 0)))
+            var value=read.Activations[i]; value.Validate();
+            if (value.Phase == ActivationPhase.Latched && (!read.Bodies.TryGet(value.ContactBody,out _) ||
+                value.EventOrdinal>read.Tick.Value*8 || read.Tick.Value==0))
                 throw new ArgumentException("Activation event does not belong to a running physical world.");
         }
-        for (var i = 0; i < read.Captures.Count; i++)
+        for (var i=0; i<read.Captures.Count; i++)
         {
-            var latch = read.Captures[i]; latch.Validate();
-            if (latch.EventOrdinal > WorkshopCadenceSettings.PhysicalOrdinalLimit)
+            var value=read.Captures[i]; value.Validate();
+            if (value.EventOrdinal>WorkshopCadenceSettings.PhysicalOrdinalLimit)
                 throw new ArgumentException("Capture time exceeds the world duration.");
         }
     }
@@ -287,7 +267,7 @@ public static class WorkshopWire
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Ball is not null)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 
@@ -331,7 +311,12 @@ public static class WorkshopWire
                 case WorkshopReceiver receiver:
                     Write(slot[104..], receiver.Capture.Margin.Value); Write(slot[106..], receiver.Capture.SpeedLimit.Value);
                     Write(slot[108..], receiver.Capture.Dwell.Value);
-                    BinaryPrimitives.WriteUInt32LittleEndian(slot[112..], (uint)receiver.Capture.Participation); break;
+                    BinaryPrimitives.WriteUInt32LittleEndian(slot[112..], (uint)receiver.Capture.Participation);
+                    Write(slot[116..], receiver.ForceRegion.Minimum.X); Write(slot[118..], receiver.ForceRegion.Minimum.Y);
+                    Write(slot[120..], receiver.ForceRegion.Minimum.Z); Write(slot[122..], receiver.ForceRegion.Maximum.X);
+                    Write(slot[124..], receiver.ForceRegion.Maximum.Y); Write(slot[126..], receiver.ForceRegion.Maximum.Z);
+                    Write(slot[128..], receiver.ForceRegion.SupportHeight.Value); Write(slot[130..], receiver.ForceRegion.SupportMargin.Value);
+                    Write(slot[132..], receiver.ForceRegion.MaximumAcceleration.Value); break;
                 case WorkshopRamp ramp:
                     Write(slot[104..], ramp.Dimensions.Length.Value); Write(slot[106..], ramp.Dimensions.Width.Value); break;
                 case WorkshopWall wall:
@@ -339,6 +324,11 @@ public static class WorkshopWire
                     Write(slot[108..], wall.Dimensions.Thickness.Value); break;
                 case WorkshopSwitch trigger:
                     Write(slot[104..], trigger.Trigger.Threshold.Value); break;
+                case WorkshopDelay delay:
+                    Write(slot[104..], delay.Duration.Seconds.Value); break;
+                case WorkshopBumper bumper:
+                    Write(slot[104..], bumper.Work.Strength.Value); Write(slot[106..], bumper.Work.ReferenceMass.Value);
+                    Write(slot[108..], bumper.Work.Preload.Value); break;
                 case WorkshopLamp: break;
                 default: throw new ArgumentException("Unsupported instance declaration.");
             }
@@ -378,15 +368,22 @@ public static class WorkshopWire
             {
                 WorkshopPartKind.Basketball when Zero(slot[114..]) => new WorkshopBall(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])), new(Read(slot[110..])), new(Read(slot[112..]))), locked == 1),
-                WorkshopPartKind.Receiver when Zero(slot[110..112]) && Zero(slot[116..]) => new WorkshopReceiver(body.Id, body.Cell, body.Local, rotation,
+                WorkshopPartKind.Receiver when Zero(slot[110..112]) && Zero(slot[134..]) => new WorkshopReceiver(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])),
-                        (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[112..])), locked == 1),
+                        (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[112..])), locked == 1)
+                    { ForceRegion = new(new(Read(slot[116..]), Read(slot[118..]), Read(slot[120..])),
+                        new(Read(slot[122..]), Read(slot[124..]), Read(slot[126..])), new(Read(slot[128..])),
+                        new(Read(slot[130..])), new(Read(slot[132..]))) },
                 WorkshopPartKind.Ramp when Zero(slot[108..]) => new WorkshopRamp(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..]))), locked == 1),
                 WorkshopPartKind.Wall when Zero(slot[110..]) => new WorkshopWall(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..]))), locked == 1),
                 WorkshopPartKind.ImpactSwitch when Zero(slot[106..]) => new WorkshopSwitch(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..]))), locked == 1),
+                WorkshopPartKind.Delay when Zero(slot[106..]) => new WorkshopDelay(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[104..]))), locked == 1),
+                WorkshopPartKind.PinballBumper when Zero(slot[110..]) => new WorkshopBumper(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..]))), locked == 1),
                 WorkshopPartKind.SignalLamp when Zero(slot[104..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),
                 _ => throw new ArgumentException("Unsupported instance kind or parameters.")
             };

@@ -16,7 +16,7 @@ public class HollowGeometryTests
         _=>throw new ArgumentOutOfRangeException(nameof(kind))
     };
     private static BodyTrajectory Path(RigidPose pose,CollisionVector velocity=default,CollisionVector spin=default,double duration=1)=>
-        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration);
+        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration,default);
     private readonly record struct Point(CollisionVector Position):IConvexSupport
     {
         public InteriorBall InteriorBall=>new(Position,0);
@@ -136,7 +136,7 @@ public class HollowGeometryTests
         var center=new CollisionVector(2,3,-1);
         var y=wall?(kind==HollowFixture.Tube?.675:1.325):0;
         var start=center+rotation.Apply(new(-4,y,0));
-        var ball=new CompoundMotion(new([new(new ConvexSphere(.05),Transform3D.Identity)]),
+        var ball=new CompoundMotion(new([new(new ConvexSphere(.05),AffineTransform.Identity)]),
             Path(new(start,rotation),rotation.Apply(new(1000,0,0)),duration:.008));
         var shell=new CompoundMotion(shape.Geometry,Path(new(center,rotation),duration:.008));
         var result=CompoundCollision.Cast(ball,shell,.008,ConvexSweep.ContactDistance);
@@ -156,7 +156,7 @@ public class HollowGeometryTests
     {
         var shape=Build(kind,.01);
         var sweep=kind==HollowFixture.Bend45?Math.PI/4:Math.PI/2;
-        var ball=new CompoundMotion(new([new(new ConvexSphere(.25),new(Basis.Identity,new(0,2.4f,0)))]),
+        var ball=new CompoundMotion(new([new(new ConvexSphere(.25),new(AffineBasis.Identity,new(0,2.4f,0)))]),
             Path(RigidPose.Identity,spin:new(0,0,-sweep)));
         var shell=new CompoundMotion(shape.Geometry,Path(RigidPose.Identity));
         var result=CompoundCollision.Cast(ball,shell,1,ConvexSweep.ContactDistance);
@@ -189,7 +189,7 @@ public class HollowGeometryTests
         for(var sample=0;sample<100;sample++)
         {
             var child=new ConvexInstance(new ConvexBox(new(.2,.4,.6)),
-                new(Basis.Identity,new((float)(3*random.NextDouble()),1,-2)));
+                new(AffineBasis.Identity,new((float)(3*random.NextDouble()),1,-2)));
             var path=Path(new(Vector(),RigidRotation.FromRotationVector(Vector())),Vector()*10,Vector()*40,.1);
             var motion=new ConvexMotion(child,path); var bounds=CollisionBounds.Swept(motion,.1);
             for(var point=0;point<=100;point++)
@@ -199,7 +199,7 @@ public class HollowGeometryTests
                 Assert.True(actual.Maximum.X<=bounds.Maximum.X+1e-12&&actual.Maximum.Y<=bounds.Maximum.Y+1e-12&&actual.Maximum.Z<=bounds.Maximum.Z+1e-12);
             }
         }
-        var stationary=new ConvexMotion(new(new ConvexSphere(.2),new(Basis.Identity,new(10,0,0))),Path(RigidPose.Identity));
+        var stationary=new ConvexMotion(new(new ConvexSphere(.2),new(AffineBasis.Identity,new(10,0,0))),Path(RigidPose.Identity));
         Assert.Equal(CollisionBounds.Of(stationary.At(0)),CollisionBounds.Swept(stationary,1));
     }
     [Theory]
@@ -211,7 +211,7 @@ public class HollowGeometryTests
         var shape=HollowGeometry.Tube(halfLength,.65,outer,new(.0025));
         Assert.InRange(shape.MaximumSurfaceError,0,.0025);
         Assert.True(shape.MinimumBoreRadius>=.6475);
-        var ball=new CompoundMotion(new([new(new ConvexSphere(.3),Transform3D.Identity)]),
+        var ball=new CompoundMotion(new([new(new ConvexSphere(.3),AffineTransform.Identity)]),
             Path(RigidPose.At(new(-halfLength-1,0,0)),new(2*halfLength+2,0,0)));
         Assert.Equal(ConvexSweepStatus.Clear,CompoundCollision.Cast(ball,
             new(shape.Geometry,Path(RigidPose.Identity)),1,ConvexSweep.ContactDistance).Status);
@@ -224,7 +224,7 @@ public class HollowGeometryTests
     {
         var shape=Build(kind,.005); var sweep=kind==HollowFixture.Bend45?Math.PI/4:Math.PI/2;
         var center=OnBend(sweep*.5,0,0);
-        var ball=new CompoundMotion(new([new(new ConvexSphere(.05),Transform3D.Identity)]),
+        var ball=new CompoundMotion(new([new(new ConvexSphere(.05),AffineTransform.Identity)]),
             Path(RigidPose.At(center),new(0,0,1000),duration:.002));
         var result=CompoundCollision.Cast(ball,new(shape.Geometry,Path(RigidPose.Identity)),.002,ConvexSweep.ContactDistance);
         Assert.Equal(ConvexSweepStatus.Contact,result.Status); Assert.NotNull(result.ChildB);
@@ -240,14 +240,14 @@ public class HollowGeometryTests
         for(var i=0;i<tube.Geometry.Count;i++)
         {
             var child=tube.Geometry[new(i)];
-            children.Add(new(child.Geometry,new(Basis.Identity,child.Pose.Origin+new Vector3(section*2,0,0))));
+            children.Add(new(child.Geometry,new(AffineBasis.Identity,child.Pose.Origin+new CollisionVector(section*2,0,0))));
         }
         var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(new(-.5,-.44,0)),new(2,0,0),default,1,new(.016,.016,.016));
         var wall=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
-        var world=new PhysicsWorld([new(body,new([new(new ConvexSphere(.2),Transform3D.Identity)]),new(0,0,0)),
+        var world=new PhysicsWorld([],[new(body,new([new(new ConvexSphere(.2),AffineTransform.Identity)]),new(0,0,0)),
             new(wall,new(children.ToArray()),new(0,0,0))],[],new(new(0,-9.8,0)));
         var before=world.Capture();
-        for(var i=0;i<120;i++) world.Step([],1.0/120);
+        for(var i=0;i<120;i++) world.Step([],[],1.0/120);
         // Compare drift against the world's configured spatial accuracy.
         Assert.InRange(Math.Abs(body.Center.X-1.5),0,1e-6);
         Assert.InRange(Math.Abs(body.LinearVelocity.X-2),0,1e-6);
@@ -255,7 +255,7 @@ public class HollowGeometryTests
         Assert.InRange(body.Center.Y,-.451,-.44);
         var after=world.Capture(); var impacts=world.Impacts.ToArray();
         world.Restore(before); Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
-        for(var i=0;i<120;i++) world.Step([],1.0/120);
+        for(var i=0;i<120;i++) world.Step([],[],1.0/120);
         Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
         Assert.Equal(impacts,world.Impacts.ToArray()); Assert.Equal(after.Time,world.Time);
     }

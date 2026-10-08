@@ -21,7 +21,7 @@ internal static class GeneralConstraintQualification
         {
             case GeneralConstraintProbe.SlidingFriction:
                 body=new(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,new(2.4,-2,3.2),default,1,inertia);
-                var contact=new ContactConstraint(body,ground,default,y,0,0,.5);
+                var contact=new ContactConstraint(ContactKinematics.AtPoint(body,ground,default,y),0,0,.5);
                 result=ImpulseSolver.Solve([contact]); friction=contact.TangentImpulse;
                 break;
             case GeneralConstraintProbe.MovingSlider:

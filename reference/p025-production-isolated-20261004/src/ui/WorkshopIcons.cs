@@ -1,0 +1,175 @@
+using Godot;
+using System.Collections.Generic;
+
+namespace CuriousContraptions;
+
+public static class WorkshopIcons
+{
+    private static readonly Dictionary<string, Texture2D> Cache = new();
+    public static Texture2D Load(string name)
+    {
+        if (!Cache.TryGetValue(name, out var texture))
+        {
+            // Resource loading follows SVG import remaps in exported Godot packs.
+            texture = GD.Load<Texture2D>("res://assets/icons/" + name + ".svg");
+            if (texture == null) throw new System.InvalidOperationException("Cannot load icon: " + name);
+            Cache.Add(name, texture);
+        }
+        return texture;
+    }
+
+    // Small original vector pictograms share the toolbar's stroke and palette.
+    public static Texture2D Pictogram(string kind)
+    {
+        var key = "pictogram:" + kind;
+        if (Cache.TryGetValue(key, out var cached)) return cached;
+        var drawing = kind switch
+        {
+            "extend_input" => "<path d='M3 8h7v8H3zM10 12h11m-4-4 4 4-4 4'/>",
+            "retract_input" => "<path d='M3 8h7v8H3zM21 12H11m4-4-4 4 4 4'/>",
+            "extended_output" => "<path d='M2 7h7v10H2zM9 12h11M20 7v10M14 3h7m-3-2 3 2-3 2'/>",
+            "retracted_output" => "<path d='M2 7h7v10H2zM9 12h3M12 7v10M21 3h-7m3-2-3 2 3 2'/>",
+            "clutch" => "<path d='M2 12h5M17 12h5M7 5v14m10-14v14M10 7v10m4-10v10M12 2v3m-2 16h4'/><circle cx='12' cy='3' r='1'/>",
+            "bellows" => "<path d='M3 5h14v3H3zM3 8l2 3-2 3 2 3-2 3h14l-2-3 2-3-2-3 2-3M17 14h5v3h-5M7 2h6'/>",
+            "windmill" => "<circle cx='12' cy='9' r='2'/><path d='M10 7 4 3l-2 3 8 3m4-2 4-6 3 2-7 6m0 2 6 4 2-3-8-3m-4 2-4 6-3-2 7-6M10 12l-2 10h8l-2-10'/>",
+            "wind_chimes" => "<path d='M3 4h18M6 4v14M10 4v10M18 4v12M14 4v15m0 0-2 2 2 2 2-2z'/>",
+            "bell" => "<path d='M5 17h14l-2-4V9a5 5 0 0 0-10 0v4zM10 20q2 2 4 0M12 2v2M3 8l-1 4M21 8l1 4'/>",
+            "sound_meter" => "<path d='M3 17a9 9 0 1 1 18 0H3zM12 14l5-6M6 10l1 1M12 5v2'/><circle cx='12' cy='14' r='1.5'/>",
+            "speaker" => "<path d='M3 9h4l5-5v16l-5-5H3zM16 8q5 4 0 8M19 4q8 8 0 16'/>",
+            "ball" => "<circle cx='12' cy='12' r='9'/><path d='M5 6q12 2 13 12'/>",
+            "tennis" => "<circle cx='12' cy='12' r='9'/><path d='M5 5q12 7 0 14M19 5q-12 7 0 14'/>",
+            "bowling" => "<circle cx='12' cy='12' r='9'/><circle cx='10' cy='7' r='1'/><circle cx='15' cy='9' r='1'/><circle cx='10' cy='12' r='1'/>",
+            "balloon" => "<ellipse cx='12' cy='9' rx='7' ry='8'/><path d='m10 18 2-2 2 2m-2 0q-4 3 0 5'/>",
+            "ramp" => "<path d='M3 19 21 6v13Z'/>",
+            "wall" => "<rect x='3' y='4' width='18' height='16' rx='1'/><path d='M3 12h18M9 4v8m6 0v8'/>",
+            "resize" => "<path d='M4 9V4h5M15 20h5v-5M4 4l6 6m4 4 6 6'/><rect x='9' y='9' width='6' height='6'/>",
+            "basket" => "<path d='m3 7 3 13h12l3-13M2 7h20M8 7l2 13M16 7l-2 13M5 13h14'/>",
+            "battery" => "<rect x='5' y='4' width='14' height='17' rx='2'/><path d='M9 4V2h6v2M8 12h8m-4-4v8'/>",
+            "motor" => "<rect x='3' y='6' width='14' height='13' rx='3'/><path d='M17 11h4v4h-4M6 19v2m8-2v2'/><circle cx='10' cy='12' r='3'/>",
+            "bumper" => "<circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='3'/><path d='M12 1v2M12 21v2M1 12h2M21 12h2M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2'/>",
+            "spring" => "<path d='M4 3h16M12 3v2L5 8l14 4-14 4 7 3v2M4 21h16'/>",
+            "fan" => "<circle cx='12' cy='12' r='2'/><path d='M10 10C1 2 16 0 14 10M14 12c12-3 5 12-2 2M10 14c-3 11-13-1 0-2'/>",
+            "switch" => "<rect x='3' y='15' width='18' height='6' rx='2'/><path d='m12 15 5-10'/><circle cx='18' cy='4' r='2'/>",
+            "domino" => "<rect x='5' y='2' width='14' height='20' rx='2'/><path d='M5 12h14M9 6h1m4 2h1M9 16h1m4 2h1'/>",
+            "lamp" => "<path d='M8 16a7 7 0 1 1 8 0v3H8ZM9 22h6'/>",
+            "set_input" => "<circle cx='12' cy='12' r='9'/><path d='M12 7v10'/>",
+            "reset_input" => "<circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='4'/>",
+            "latch" => "<rect x='3' y='4' width='18' height='16' rx='2'/><path d='M7 7v4M8 16l8-3'/><circle cx='17' cy='9' r='2'/>",
+            "clock" => "<rect x='4' y='2' width='16' height='20' rx='2'/><path d='M12 6l-3 9'/><circle cx='8' cy='17' r='2'/><circle cx='12' cy='6' r='1'/>",
+            "first_input" => "<circle cx='12' cy='12' r='9'/><path d='M12 7v10'/>",
+            "second_input" => "<circle cx='12' cy='12' r='9'/><path d='M9 7v10M15 7v10'/>",
+            "both_gate" => "<rect x='2' y='3' width='20' height='18' rx='2'/><path d='M7 7l9 5-9 5'/><circle cx='7' cy='7' r='1.5'/><circle cx='7' cy='17' r='1.5'/><circle cx='17' cy='12' r='1.5'/>",
+            "laser" => "<rect x='2' y='8' width='9' height='8' rx='2'/><path d='M11 12h11M17 5v3M17 16v3M4 18h6'/>",
+            "light_receiver" => "<circle cx='12' cy='10' r='7'/><circle cx='12' cy='10' r='3'/><path d='M12 17v4M7 21h10'/>",
+            "red_filter" => "<rect x='8' y='3' width='8' height='18' rx='1'/><path d='M2 12h20M12 5v3'/>",
+            "green_filter" => "<rect x='8' y='3' width='8' height='18' rx='1'/><path d='M2 12h20M10 5v3m4-3v3'/>",
+            "blue_filter" => "<rect x='8' y='3' width='8' height='18' rx='1'/><path d='M2 12h20M10 5v3m2-3v3m2-3v3'/>",
+            "yellow_receiver" => "<circle cx='12' cy='10' r='8'/><path d='M8 7v6M13 7v6m3-6v6M12 18v3M7 21h10'/>",
+            "cyan_receiver" => "<circle cx='12' cy='10' r='8'/><path d='M7 7v3m3-3v3m3 1v3m3-3v3m3-3v3M12 18v3M7 21h10'/>",
+            "magenta_receiver" => "<circle cx='12' cy='10' r='8'/><path d='M7 7v6M12 7v6m3-6v6m3-6v6M12 18v3M7 21h10'/>",
+            "white_receiver" => "<circle cx='12' cy='10' r='8'/><path d='M12 4v3M10 8v3m4-3v3M8 12v3m4-3v3m4-3v3M12 18v3M7 21h10'/>",
+            "red_receiver" => "<circle cx='12' cy='11' r='7'/><path d='M12 8v6M12 18v3M7 21h10'/>",
+            "green_receiver" => "<circle cx='12' cy='11' r='7'/><path d='M10 8v6m4-6v6M12 18v3M7 21h10'/>",
+            "blue_receiver" => "<circle cx='12' cy='11' r='7'/><path d='M8 8v6m4-6v6m4-6v6M12 18v3M7 21h10'/>",
+            "mirror" => "<ellipse cx='12' cy='10' rx='7' ry='8'/><path d='M9 8l3-3M11 13l4-5M12 18v3M7 21h10'/>",
+            "optical_and" => "<path d='M2 7h5M2 17h5M7 4h5a8 8 0 0 1 0 16H7zM20 12h3'/>",
+            "optical_or" or "electrical_or" => "<path d='M2 7h5M2 17h5M6 4q11 0 15 8-4 8-15 8 6-8 0-16zM21 12h2'/>",
+            "optical_xor" or "electrical_xor" => "<path d='M2 4q6 8 0 16M6 4q11 0 15 8-4 8-15 8 6-8 0-16zM21 12h2'/>",
+            "optical_nor" or "electrical_nor" => "<path d='M2 7h4M2 17h4M5 4q9 0 12 8-3 8-12 8 6-8 0-16zM21 12h2'/><circle cx='19' cy='12' r='2'/>",
+            "optical_nand" or "electrical_nand" => "<path d='M2 7h4M2 17h4M6 4h4a8 8 0 0 1 0 16H6zM22 12h2'/><circle cx='20' cy='12' r='2'/>",
+            "beam_combiner" => "<path d='M2 5l8 7-8 7M2 12h20M18 8l4 4-4 4'/><rect x='10' y='8' width='5' height='8' rx='1'/>",
+            "beam_splitter" => "<path d='M3 12h18M12 12V3M7 17L17 7M18 9l3 3-3 3M9 6l3-3 3 3'/>",
+            "beam_shutter" => "<path d='M5 3h14v18H5zM3 12h6M15 12h6M9 4h6v11H9zM10 7h4'/>",
+            "counter" => "<rect x='3' y='4' width='18' height='16' rx='2'/><circle cx='7' cy='12' r='1.5'/><circle cx='12' cy='12' r='1.5'/><circle cx='17' cy='12' r='1.5'/>",
+            "pressure_plate" => "<path d='M3 15h18v5H3ZM12 2v9m-4-4 4 4 4-4M6 17h12'/>",
+            "funnel" => "<path d='M3 4h18l-6 11v5l-6 2v-7Z'/>",
+            "ball_detector" => "<ellipse cx='10' cy='12' rx='5' ry='9'/><path d='M3 12h17m-4-4 4 4-4 4'/>",
+            "hold_timer" => "<rect x='3' y='5' width='18' height='14' rx='2'/><path d='M6 10h12M7 14h3m4 0h3M12 2v3M1 12h2m18 0h2'/>",
+            "powered_gate" => "<path d='M3 7h18v14H3ZM8 7V3h8v4M7 11h10m-10 4h10m-5-9v13'/><path d='m10 4 2-2 2 2'/>",
+            "pipe_bend_45" => "<path d='M3 15h5q5 0 8-5l3-4m-16 3h5q2 0 4-3l2-3M3 8v8m10-14 7 5'/>",
+            "pipe_bend_90" => "<path d='M3 20h4V11a4 4 0 0 1 4-4h9V3h-9a8 8 0 0 0-8 8zm-1 0h6M20 2v6'/>",
+            "pipe" => "<ellipse cx=\'5\' cy=\'12\' rx=\'3\' ry=\'7\'/><path d=\'M5 5h14c4 0 4 14 0 14H5m2-12h12m-12 10h12\'/>",
+            "delay" => "<circle cx='12' cy='13' r='8'/><path d='M12 8v5l3 2M9 2h6m-3 0v3M3 7 1 5m20 2 2-2'/>",
+            "flashlight" => "<path d='M3 9h11l4-3v12l-4-3H3ZM20 8l2-2m-2 6h3m-3 4 2 2M7 6h4v3'/>",
+            "solar_panel" => "<path d='M4 6h16l2 12H2ZM9 6 7 18m8-12 2 12M3 12h18m-9 6v4m-4 0h8'/><circle cx='19' cy='3' r='2'/>",
+            "weight" => "<path d='M7 9h10l3 12H4L7 9Z'/><circle cx='12' cy='6' r='3'/><path d='M8 15h8m-9 3h10'/>",
+            "pulley" => "<circle cx='12' cy='10' r='6'/><circle cx='12' cy='10' r='2'/><path d='M6 10v11m12-11v7M9 2h6'/>",
+            "rope_anchor" => "<rect x='3' y='3' width='18' height='18' rx='3'/><circle cx='12' cy='12' r='5'/><path d='M12 17v5'/>",
+            "reverse_transmission" => "<circle cx='7' cy='12' r='4'/><circle cx='17' cy='12' r='4'/><path d='M3 5h7L8 3m2 2L8 7m13 12h-7l2-2m-2 2 2 2'/>",
+            "conveyor" => "<rect x='2' y='9' width='20' height='10' rx='5'/><circle cx='7' cy='14' r='2'/><circle cx='17' cy='14' r='2'/><path d='M7 4h10m-3-2 3 2-3 2'/>",
+            "move" => "<path d='M12 2v20M2 12h20M9 5l3-3 3 3M9 19l3 3 3-3M5 9l-3 3 3 3M19 9l3 3-3 3'/>",
+            "front" => "<rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 16h18'/>",
+            "cube" => "<path d='m12 2 9 5v10l-9 5-9-5V7Zm0 10L3 7m9 5 9-5m-9 5v10'/>",
+            _ => "<path d='M4 12h16m-6-6 6 6-6 6'/>"
+        };
+        using var image = new Image();
+        var error = image.LoadSvgFromString("<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#293954' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>" + drawing + "</svg>", 2);
+        if (error != Error.Ok) throw new System.InvalidOperationException("Invalid pictogram: " + kind);
+        var texture = ImageTexture.CreateFromImage(image);
+        Cache.Add(key, texture);
+        return texture;
+    }
+
+
+
+    public static void Apply(Button button, string action)
+    {
+        var (label, icon) = action switch
+        {
+            "▶  Run machine" => ("Run machine", "play"),
+            "■  Back to building" => ("Back to building", "square"),
+            "↶  Build again" => ("Build again", "rotate-ccw"),
+            "↶ Reset" => ("Reset", "rotate-ccw"),
+            "↺ Undo" => ("Undo", "undo-2"),
+            "↶ View" => ("View left", "rotate-ccw"),
+            "View ↷" => ("View right", "rotate-cw"),
+            "↶ Tilt" => ("Tilt left", "rotate-ccw"),
+            "Tilt ↷" => ("Tilt right", "rotate-cw"),
+            "Turn 90°" => ("Quarter turn", "rotate-cw"),
+            "↕ Lift" => ("Lift", "move-vertical"),
+            "↑" => ("", "arrow-up"),
+            "↓" => ("", "arrow-down"),
+            "Zoom +" => ("Zoom in", "zoom-in"),
+            "Zoom −" => ("Zoom out", "zoom-out"),
+            "Remove" => ("Remove", "trash"),
+            "Connect" => ("Connect", "link"),
+            "Save" => ("Save", "save"),
+            "Load" => ("Load", "folder-open"),
+            "Show hint" => ("Hint", "lightbulb"),
+            "Cancel / deselect" => ("Deselect", "x"),
+            "More…" => ("More", "sliders-horizontal"),
+            "Menu" => ("Menu", "sliders-horizontal"),
+            "Goal" => ("Goal", "lightbulb"),
+            "Reset camera" => ("Reset camera", "rotate-ccw"),
+            "Move mode" => ("Move", "custom:move"),
+            "Rotate mode" => ("Rotate", "rotate-cw"),
+            "Resize mode" => ("Resize", "custom:resize"),
+            "Front view" => ("Front view", "custom:front"),
+            "3D view" => ("3D view", "custom:cube"),
+            "Move selected here" => ("Move to layer", "custom:move"),
+            "Fine rotate" => ("Fine rotate", "sliders-horizontal"),
+            _ when action.EndsWith(" −") => (action[..^2], "minus"),
+            _ when action.EndsWith(" +") => (action[..^2], "plus"),
+            _ => (action, "")
+        };
+        button.SetMeta("action_label", action);
+        button.Text = "";
+        button.Icon = icon.StartsWith("custom:") ? Pictogram(icon[7..]) : icon.Length > 0 ? Load(icon) : Pictogram("move");
+        button.ExpandIcon = false;
+        button.TooltipText = "";
+        button.AddThemeConstantOverride("icon_max_width", 20);
+    }
+}
+
+// Compact, wrapped tooltips; long explanations belong in the side panel.
+public partial class WorkshopButton : Button
+{
+    public override GodotObject _MakeCustomTooltip(string forText)
+    {
+        return new Label
+        {
+            Text = forText, CustomMinimumSize = new(180, 0),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart
+        };
+    }
+}

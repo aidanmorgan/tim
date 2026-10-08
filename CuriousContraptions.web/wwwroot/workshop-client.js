@@ -76,7 +76,7 @@ async function admitDisplayRate() {
     });
 }
 export function displayRate(id) { return owner(id).displayRate; }
-export async function create(states, bootstrapBytes, clockAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service, beginMemory, receiveMemory, releaseMemory) {
+export async function create(states, bootstrapBytes, clockAbi, responseAbi, captureMode, admitDisplay, clockReply, physicalRead, scheduleControl, animationOutput, service, beginMemory, receiveMemory, releaseMemory) {
     if (clients.size !== 0 || retiredSession || creating) throw new Error('RecoveryBlocked: reload the page before creating another worker.');
     creating = true;
     let id;
@@ -88,18 +88,26 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
         if (typeof admitDisplay !== 'boolean') throw new Error('Invalid display admission selection.');
         const displayRate = admitDisplay ? await admitDisplayRate() : undefined;
         const session = new Uint8Array(bootstrapBytes);
-        if (session.length !== 16 || !session.some(value => value !== 0) || clockAbi.length !== 8)
+        if (session.length !== 16 || !session.some(value => value !== 0) || clockAbi.length !== 8 || responseAbi.length !== 3 ||
+            !responseAbi.every(Number.isInteger) || responseAbi[0] < 128 ||
+            responseAbi[1] < 0 || responseAbi[1] + 16 > responseAbi[0] ||
+            responseAbi[2] < 0 || responseAbi[2] + 8 > responseAbi[0])
             throw new Error('Unsupported session bootstrap.');
         const [clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole] = clockAbi;
         if (clockProfile !== nativeProfile) throw new Error('Unsupported native clock profile.');
         const [ready, backpressure, timedOut, indeterminate, recoveryBlocked] = states;
         id = nextClient++;
+        const poseRing = typeof SharedArrayBuffer !== 'undefined' ? new SharedArrayBuffer(2352) : undefined;
+        const poseSeqView = poseRing ? new BigInt64Array(poseRing) : undefined;
+        const poseDataView = poseRing ? new DataView(poseRing) : undefined;
+        const poseFloatView = poseRing ? new Float32Array(poseRing) : undefined;
         const client = { displayRate, worker: undefined, pending: new Map(), acknowledgements: new Map(),
             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
             serviceCallback: service, service: undefined,
             state: ready, lastReply: now(), stalled: false, candidateTimedOut: false,
             identity: undefined, clockAbi: { clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
             memory: undefined,
+            poseRing, poseSeqView, poseDataView, poseFloatView,
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
             presentations: captureMode === 2 ? new Uint8Array(32 * 352) : undefined, presentationSequence: 0n };
         const worker = new Worker(new URL('./simulation/worker.js', document.baseURI), { type: 'module' });
@@ -118,7 +126,9 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                 // Download/runtime loading precedes qualification; the same bounded handshake starts once both can participate.
                 client.startup = setTimeout(() => fail(client, new Error('StartupFailed: usable GPU and clock qualification exceeded five seconds.')), 5000);
                 const bootstrap = new Uint8Array(bootstrapBytes);
-                worker.postMessage({ bootstrap, captureMode }, [bootstrap.buffer]);
+                const postData = { bootstrap, captureMode };
+                if (client.poseRing) postData.poseRing = client.poseRing;
+                worker.postMessage(postData, [bootstrap.buffer]);
             }
             animation.onerror = error => fail(client, new Error(error.message || 'Animation worker failed.'));
             animation.onmessage = incoming => {
@@ -140,10 +150,33 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         client.animationQualified = true;
                     } else if (item.animationOutput instanceof Uint8Array) {
                         if (!animationBootstrapped || !client.animationReady) throw new Error('Animation output precedes admission.');
-                        if (item.animationOutput.length !== 96) throw new Error('Wrong Animation output length.');
+                        if (item.animationOutput.length !== 144) throw new Error('Wrong Animation output length.');
                         deliver(client, item.animationOutput, now(), animationOutput);
-                        const kind = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 96).getUint32(60, true);
+                        const kind = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getUint32(60, true);
                         if (kind === client.hintKinds[1]) {
+                            client.animationSampleCount = (client.animationSampleCount || 0) + 1;
+                            const target = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getBigUint64(64, true);
+                            const ordinal = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getBigUint64(40, true);
+                            const property = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getUint16(58, true);
+                            const valBits = new DataView(item.animationOutput.buffer, item.animationOutput.byteOffset, 144).getUint16(56, true);
+                            const sampleObj = {
+                                target: target.toString(),
+                                kind,
+                                ordinal: ordinal.toString(),
+                                property,
+                                valBits,
+                                value: decodeFloat16(valBits),
+                                timestamp: now()
+                            };
+                            if (!client.lastAnimationSamples) client.lastAnimationSamples = new Map();
+                            client.lastAnimationSamples.set(target.toString(), sampleObj);
+                            if (!client.animationSamplesByTarget) client.animationSamplesByTarget = new Map();
+                            let targetHistory = client.animationSamplesByTarget.get(target.toString());
+                            if (!targetHistory) {
+                                targetHistory = [];
+                                client.animationSamplesByTarget.set(target.toString(), targetHistory);
+                            }
+                            targetHistory.push(sampleObj);
                             const animationAcknowledged = item.animationOutput.slice();
                             animation.postMessage({ animationAcknowledged }, [animationAcknowledged.buffer]);
                         } else if (kind === client.hintKinds[0] || kind === client.hintKinds[2]) {
@@ -216,8 +249,8 @@ export async function create(states, bootstrapBytes, clockAbi, captureMode, admi
                         // Complete C# validation/admission precedes return; JS retains no pose history.
                         deliver(client, message.read, received, physicalRead);
                         const receipt = new Uint8Array(24);
-                        receipt.set(message.read.subarray(64, 80));
-                        receipt.set(message.read.subarray(104, 112), 16);
+                        receipt.set(message.read.subarray(responseAbi[1], responseAbi[1] + 16));
+                        receipt.set(message.read.subarray(responseAbi[2], responseAbi[2] + 8), 16);
                         worker.postMessage({ readAcknowledged: receipt }, [receipt.buffer]);
                     } else if (message.failure || message.rejected) {
                         throw new Error(message.detail ?? 'Worker rejected its transport envelope.');
@@ -252,7 +285,7 @@ export function animationControl(id, bytes) {
     if (client.failure) throw client.failure;
     if (!client.animationQualified || client.hintPending) throw new Error('Animation control is unavailable or pending.');
     const animationControl = new Uint8Array(bytes);
-    if (animationControl.length !== 96) throw new Error('Invalid animation command.');
+    if (animationControl.length !== 144) throw new Error('Invalid animation command.');
     client.hintPending = true;
     client.animation.postMessage({ animationControl }, [animationControl.buffer]);
 }
@@ -525,4 +558,123 @@ export async function loadConstruction(expectedBytes) {
             };
         });
     } finally { database.close(); }
+}
+
+export function readPoseSlot(id, slotIndex) {
+    const client = clients.get(id);
+    if (!client || !client.poseRing || !client.poseSeqView || !client.poseDataView || !client.poseFloatView) return null;
+    const s = slotIndex % 3;
+    const seqIndex = s * 98;
+    const seq1 = Atomics.load(client.poseSeqView, seqIndex);
+    if ((seq1 & 1n) !== 0n) return null;
+    const slotByteOffset = s * 784;
+    const timestamp = client.poseDataView.getBigInt64(slotByteOffset + 8, true);
+    const bodyFloatOffset = (slotByteOffset + 16) / 4;
+    const bodies = [];
+    for (let i = 0; i < 16; i++) {
+        const b = bodyFloatOffset + i * 12;
+        const bodyId = client.poseDataView.getUint32((b + 3) * 4, true);
+        const flags = client.poseDataView.getUint32((b + 11) * 4, true);
+        if (bodyId === 0 || (flags & 1) === 0) continue;
+        bodies.push({
+            id: bodyId,
+            px: client.poseFloatView[b + 0],
+            py: client.poseFloatView[b + 1],
+            pz: client.poseFloatView[b + 2],
+            qx: client.poseFloatView[b + 4],
+            qy: client.poseFloatView[b + 5],
+            qz: client.poseFloatView[b + 6],
+            qw: client.poseFloatView[b + 7],
+            vx: client.poseFloatView[b + 8],
+            vy: client.poseFloatView[b + 9],
+            vz: client.poseFloatView[b + 10],
+            flags
+        });
+    }
+    const seq2 = Atomics.load(client.poseSeqView, seqIndex);
+    if (seq1 !== seq2) return null;
+    return { sequence: seq2, timestamp, bodies };
+}
+
+export function readLatestPoseSlot(id) {
+    const client = clients.get(id);
+    if (!client || !client.poseRing || !client.poseSeqView) return null;
+    let bestSlot = -1;
+    let bestSeq = -1n;
+    for (let s = 0; s < 3; s++) {
+        const seq = Atomics.load(client.poseSeqView, s * 98);
+        if ((seq & 1n) === 0n && seq > bestSeq) {
+            bestSeq = seq;
+            bestSlot = s;
+        }
+    }
+    if (bestSlot < 0) return null;
+    const sample = readPoseSlot(id, bestSlot);
+    if (sample) return sample;
+    let altSlot = -1;
+    let altSeq = -1n;
+    for (let s = 0; s < 3; s++) {
+        if (s === bestSlot) continue;
+        const seq = Atomics.load(client.poseSeqView, s * 98);
+        if ((seq & 1n) === 0n && seq > altSeq) {
+            altSeq = seq;
+            altSlot = s;
+        }
+    }
+    if (altSlot < 0) return null;
+    return readPoseSlot(id, altSlot);
+}
+
+export function hasPoseRing(id) {
+    const client = clients.get(id);
+    return Boolean(client && client.poseRing);
+}
+
+export function isAnimationQualified(id = 1) {
+    const client = clients.get(id);
+    return Boolean(client && client.animationQualified);
+}
+
+export function readAnimationSampleCount(id = 1) {
+    const client = clients.get(id);
+    return client ? (client.animationSampleCount || 0) : 0;
+}
+
+export function readLastAnimationSample(id = 1, targetId = 2) {
+    const client = clients.get(id);
+    if (!client || !client.lastAnimationSamples) return null;
+    return client.lastAnimationSamples.get(targetId.toString()) || null;
+}
+
+export function readAllAnimationSamples(id = 1) {
+    const client = clients.get(id);
+    if (!client || !client.lastAnimationSamples) return [];
+    return Array.from(client.lastAnimationSamples.values());
+}
+
+function decodeFloat16(binary) {
+    const exponent = (binary & 0x7C00) >> 10;
+    const fraction = binary & 0x03FF;
+    const sign = (binary & 0x8000) !== 0 ? -1 : 1;
+    if (exponent === 0) return sign * Math.pow(2, -14) * (fraction / 1024);
+    if (exponent === 0x1F) return fraction ? NaN : sign * Infinity;
+    return sign * Math.pow(2, exponent - 15) * (1 + fraction / 1024);
+}
+
+export function readAnimationSamplesForTarget(id = 1, targetId = 2) {
+    const client = clients.get(id);
+    if (!client || !client.animationSamplesByTarget) return [];
+    return client.animationSamplesByTarget.get(targetId.toString()) || [];
+}
+
+if (typeof globalThis !== 'undefined') {
+    globalThis.WorkshopPoseRing = { readPoseSlot, readLatestPoseSlot, hasPoseRing };
+    globalThis.WorkshopAnimation = {
+        isAnimationQualified,
+        readAnimationSampleCount,
+        readLastAnimationSample,
+        readAllAnimationSamples,
+        readAnimationSamplesForTarget,
+        decodeFloat16
+    };
 }

@@ -6,12 +6,12 @@ namespace CuriousContraptions.Tests;
 public class PersistentContactTests
 {
     private static readonly CollisionVector Up=new(0,1,0);
-    private static readonly ConvexInstance Box=new(new ConvexBox(new(1,1,1)),Transform3D.Identity);
+    private static readonly ConvexInstance Box=new(new ConvexBox(new(1,1,1)),AffineTransform.Identity);
     private static PhysicsBody Body(CollisionVector velocity=default)=>
         new(new(0),PhysicsMotionType.Dynamic,RigidPose.At(Up),velocity,default,1,new InertiaTensor(2.0/3,2.0/3,2.0/3));
     private static PhysicsBody Ground()=>new(new(1),PhysicsMotionType.Static,RigidPose.At(-Up),default,default);
     private static PersistentContactPair Pair(PhysicsBody a,PhysicsBody b,double restitution=0)=>
-        new(a,Box,b,Box,new(restitution,.5,.5),.01,.2);
+        new(a,Box,b,Box,new(restitution,.5,.5),.01,.2,[]);
     private static ImpulseSolveResult Solve(PersistentContactPair pair,double duration)
     {
         pair.Prepare(duration); pair.WarmStart();
@@ -20,7 +20,7 @@ public class PersistentContactTests
     }
     private static void Near(CollisionVector a,CollisionVector b,double tolerance=1e-8)=>
         Assert.InRange((a-b).Length,0,tolerance);
-    private static void Advance(PhysicsBody body,double duration)=>body.Advance(body.CreateTrajectory(duration),duration);
+    private static void Advance(PhysicsBody body,double duration)=>body.Advance(body.CreateTrajectory(duration,default),duration);
 
     [Fact]
     public void NewSweptImpactClearsTheEpisodeButNeverReusesContactIdentities()
@@ -48,7 +48,7 @@ public class PersistentContactTests
     public void WarmStartProjectsIntoTheCurrentFrictionDiskAndCanBeRetracted()
     {
         var body=Body(); var floor=Ground();
-        var constraint=new ContactConstraint(body,floor,body.Center,Up,0,0,.5);
+        var constraint=new ContactConstraint(ContactKinematics.AtPoint(body,floor,body.Center,Up),0,0,.5);
         constraint.WarmStart(new(2,new(4,5,0)));
         Near(new(1,2,0),body.LinearVelocity);
         Assert.Equal(2,constraint.Impulse.Normal); Near(new(1,0,0),constraint.Impulse.Tangent);
@@ -61,15 +61,15 @@ public class PersistentContactTests
     public void WarmStartRejectsDuplicateSolvedAndStaleRowsBeforeMutatingBodies()
     {
         var body=Body(); var floor=Ground();
-        var constraint=new ContactConstraint(body,floor,default,Up,0,0,.5);
+        var constraint=new ContactConstraint(ContactKinematics.AtPoint(body,floor,default,Up),0,0,.5);
         constraint.WarmStart(default);
         var before=body.Snapshot();
         Assert.Throws<InvalidOperationException>(()=>constraint.WarmStart(new(1,default)));
         Assert.Equal(before,body.Snapshot());
-        var solved=new ContactConstraint(body,floor,default,Up,0,0,.5);
+        var solved=new ContactConstraint(ContactKinematics.AtPoint(body,floor,default,Up),0,0,.5);
         ImpulseSolver.Solve([solved]);
         Assert.Throws<InvalidOperationException>(()=>solved.WarmStart(new(1,default)));
-        var stale=new ContactConstraint(body,floor,default,Up,0,0,.5);
+        var stale=new ContactConstraint(ContactKinematics.AtPoint(body,floor,default,Up),0,0,.5);
         Advance(body,.1);
         Assert.Throws<InvalidOperationException>(()=>stale.WarmStart(new(1,default)));
         Assert.Equal(before,body.Snapshot());
@@ -202,7 +202,7 @@ public class PersistentContactTests
     public void RestitutionIsAppliedOncePerContactEpisode()
     {
         var body=Body(-Up); var floor=Ground();
-        var pair=new PersistentContactPair(body,Box,floor,Box,new(.8,0,0),.01,.2);
+        var pair=new PersistentContactPair(body,Box,floor,Box,new(.8,0,0),.01,.2,[]);
         Solve(pair,.01);
         Near(Up*.8,body.LinearVelocity);
         body.ApplyImpulse(-Up,body.Center);
@@ -280,9 +280,9 @@ public class PersistentContactTests
         Assert.Throws<ArgumentException>(()=>new ContactMaterial(0,-1,0));
         Assert.Throws<ArgumentException>(()=>new ContactMaterial(0,0,double.NaN));
         var body=Body(); var floor=Ground();
-        Assert.Throws<ArgumentException>(()=>new PersistentContactPair(body,Box,body,Box,default,.01,.2));
-        Assert.Throws<ArgumentException>(()=>new PersistentContactPair(body,default,floor,Box,default,.01,.2));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>new PersistentContactPair(body,Box,floor,Box,default,0,.2));
-        Assert.Throws<ArgumentOutOfRangeException>(()=>new PersistentContactPair(body,Box,floor,Box,default,.01,Math.PI/2));
+        Assert.Throws<ArgumentException>(()=>new PersistentContactPair(body,Box,body,Box,default,.01,.2,[]));
+        Assert.Throws<ArgumentException>(()=>new PersistentContactPair(body,default,floor,Box,default,.01,.2,[]));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>new PersistentContactPair(body,Box,floor,Box,default,0,.2,[]));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>new PersistentContactPair(body,Box,floor,Box,default,.01,Math.PI/2,[]));
     }
 }

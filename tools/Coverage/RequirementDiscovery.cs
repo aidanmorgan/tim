@@ -9,7 +9,7 @@ namespace CuriousContraptions.Coverage;
 /// never infers canonical element equivalence or proof from a title or file's existence.</summary>
 public static class RequirementDiscovery
 {
-    private const string TodoPath="TODO.md";
+    public static readonly SourcePath RequirementsPath=new("docs/planning/requirements.md");
     private const string CataloguePath="parts/catalog";
     private const string CampaignPath="content/puzzles.json";
     private const string DocumentationPath="docs";
@@ -20,7 +20,7 @@ public static class RequirementDiscovery
     public static IReadOnlyList<SourceRequirement> Discover(DirectoryInfo root)
     {
         var records=new List<SourceRequirement>();
-        var todo=File.ReadAllText(Path.Combine(root.FullName,TodoPath));
+        var todo=File.ReadAllText(Path.Combine(root.FullName,RequirementsPath.Value));
         records.AddRange(Todo(todo));
         foreach(var path in Directory.EnumerateFiles(Path.Combine(root.FullName,CataloguePath),"*.tres").Order(StringComparer.Ordinal))
         {
@@ -77,7 +77,7 @@ public static class RequirementDiscovery
             var block=text[start..end].Trim();
             if(block.Length==0)throw new InvalidDataException("Empty requirement block.");
             var title=block.Split('\n').First(line=>!string.IsNullOrWhiteSpace(line));
-            result.Add(new(new(origin,new(anchor)),TodoPath+"#"+anchor,title,Hash(block)));
+            result.Add(new(new(origin,new(anchor)),RequirementsPath.Value+"#"+anchor,title,Hash(block)));
         }
         RequireUnique(result);return result;
     }

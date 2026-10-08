@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class HoldTimerTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class HoldTimerTests(NativeSceneFixture godot)
 {
     private MachineWorld World(float seconds = 2, bool reverse = false)
     {
@@ -15,7 +15,7 @@ public class HoldTimerTests(HeadlessFixture godot)
         {
             new() { Id = "battery", Kind = "battery", Position = [-4,4,0] },
             new() { Id = "timer", Kind = "hold_timer", Position = [0,4,0],
-                Properties = new() { [HoldTimerParameters.Seconds] = seconds } },
+                Properties = new() { [PartParameterName.Of(HoldTimerParameter.HoldSeconds)] = seconds } },
             new() { Id = "gate", Kind = "powered_gate", Position = [4,4,0] }
         };
         if (reverse) parts.Reverse();
@@ -25,6 +25,30 @@ public class HoldTimerTests(HeadlessFixture godot)
         return world;
     }
 
+
+    [Fact]
+    public void OwnedWindowReadingsRestoreAndParameterBoundaryRejectsUnsupportedValues()
+    {
+        Assert.Equal("hold_seconds",PartParameterName.Of(HoldTimerParameter.HoldSeconds));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>PartParameterName.Of((HoldTimerParameter)99));
+        Assert.Throws<ArgumentException>(()=>PartParameterName.RequireExact<HoldTimerParameter>([]));
+        var world=World(.1f);
+        try
+        {
+            var timer=(HoldTimerPart)world.FindPart("timer")!;
+            world.Start();var ready=world.Timers.Capture();
+            world.Activate(timer);var holding=world.Timers.Capture();var due=timer.DueTick;
+            while(world.Ticks<=due)world.Step();
+            Assert.Equal(SimulationTimerPhase.Ready,timer.State);Assert.Equal(0,timer.Remaining);
+            world.Timers.Restore(holding);
+            Assert.Equal(SimulationTimerPhase.Counting,timer.State);Assert.Equal(due,timer.DueTick);
+            Assert.Equal(1,timer.Remaining);
+            world.Timers.Restore(ready);
+            Assert.Equal(SimulationTimerPhase.Ready,timer.State);Assert.Equal(-1,timer.DueTick);
+            Assert.Equal(0,timer.Remaining);
+        }
+        finally {world.Free();}
+    }
     [Theory]
     [InlineData(.1f, false)]
     [InlineData(.1f, true)]
@@ -43,7 +67,7 @@ public class HoldTimerTests(HeadlessFixture godot)
             world.Step();
             Assert.False(gate.Active);
             world.Activate(timer);
-            Assert.Equal(HoldTimerState.Holding, timer.State);
+            Assert.Equal(SimulationTimerPhase.Counting, timer.State);
             var due = timer.DueTick;
             var remaining = timer.Remaining;
             while (world.Ticks < due)
@@ -58,14 +82,14 @@ public class HoldTimerTests(HeadlessFixture godot)
             world.Step();
             Assert.False(gate.HasElectricalPower(SocketId.PowerIn));
             Assert.False(timer.Active);
-            Assert.Equal(HoldTimerState.Ready, timer.State);
+            Assert.Equal(SimulationTimerPhase.Ready, timer.State);
             world.Activate(timer);
             Assert.True(timer.DueTick > due);
             world.Step();
             Assert.True(gate.Active);
             world.Restore();
             timer = (HoldTimerPart)world.FindPart("timer")!;
-            Assert.Equal(HoldTimerState.Ready, timer.State);
+            Assert.Equal(SimulationTimerPhase.Ready, timer.State);
             Assert.Equal(-1, timer.DueTick);
             Assert.Equal(-1, timer.StartedTick);
             Assert.Equal(0, timer.Remaining);
@@ -86,24 +110,23 @@ public class HoldTimerTests(HeadlessFixture godot)
             var gate = (PoweredGatePart)world.FindPart("gate")!;
             var battery = world.FindPart("battery")!;
             var sourceWire = world.Connections.Single(c => c.From == battery.Uid);
-            world.Connections.Remove(sourceWire);
+            Assert.True(world.Disconnect(sourceWire));
+            var supply=new SupplyControl(world,battery);
+            Assert.True(world.Connect(supply.Output,timer));
             world.Start();
             world.Activate(timer);
             var due = timer.DueTick;
             for (var i = 0; i < 30; i++) world.Step();
             Assert.False(gate.Active);
-            Assert.Equal(HoldTimerState.Holding, timer.State);
-            world.Connections.Add(sourceWire); // Native supply-restoration fixture; editor wiring remains locked during Run.
-            world.Step();
+            Assert.Equal(SimulationTimerPhase.Counting, timer.State);
+            supply.SetAndSettle(SimulationLatchPhase.On);
             Assert.True(gate.Active);
             Assert.Equal(due,timer.DueTick);
-            world.Connections.RemoveAll(c => c.From == battery.Uid);
-            world.Step();
+            supply.SetAndSettle(SimulationLatchPhase.Off);
             Assert.False(gate.Active);
             while (world.Ticks <= due) world.Step();
-            Assert.Equal(HoldTimerState.Ready,timer.State);
-            world.Connections.Add(sourceWire); // Native supply-restoration fixture; editor wiring remains locked during Run.
-            world.Step();
+            Assert.Equal(SimulationTimerPhase.Ready,timer.State);
+            supply.SetAndSettle(SimulationLatchPhase.On);
             Assert.False(gate.Active); // Restoring power does not replay a spent trigger.
         }
         finally { world.Free(); }
@@ -117,16 +140,16 @@ public class HoldTimerTests(HeadlessFixture godot)
         {
             var timer = (HoldTimerPart)world.FindPart("timer")!;
             var delay = world.AddPart(new() { Id="delay", Kind="delay", Position=[-4,8,0],
-                Properties=new() { [DelayParameters.Seconds]=.1f } });
+                Properties=new() { [PartParameterName.Of(DelayParameter.DelaySeconds)]=.1f } });
             Assert.True(world.Connect(delay,timer));
             Assert.Equal(ConnectionDomain.Activation,world.Connections.Last().Type);
             Assert.False(world.Connect(timer,delay));
             world.Start();
             world.Activate(delay);
             for (var i=0;i<12;i++) world.Step();
-            Assert.Equal(HoldTimerState.Ready,timer.State);
+            Assert.Equal(SimulationTimerPhase.Ready,timer.State);
             world.Step();
-            Assert.Equal(HoldTimerState.Holding,timer.State);
+            Assert.Equal(SimulationTimerPhase.Counting,timer.State);
             var gate = (PoweredGatePart)world.FindPart("gate")!;
             for (var i=0;i<50;i++) world.Step();
             Assert.True(gate.Opening>0);
@@ -172,7 +195,7 @@ public class HoldTimerTests(HeadlessFixture godot)
         try
         {
             Assert.Throws<ArgumentException>(() => world.AddPart(new() { Id="timer",Kind="hold_timer",
-                Properties=new() { [HoldTimerParameters.Seconds]=seconds } }));
+                Properties=new() { [PartParameterName.Of(HoldTimerParameter.HoldSeconds)]=seconds } }));
             Assert.Empty(world.Parts);
         }
         finally { world.Free(); }

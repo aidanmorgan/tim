@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class AcousticTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class AcousticTests(NativeSceneFixture godot)
 {
     [Theory]
     [InlineData(ToneBand.Low)]
@@ -72,14 +72,16 @@ public class AcousticTests(HeadlessFixture godot)
         var world=World();
         try
         {
-            var speaker=(SpeakerPart)world.AddPart(new(){Id="speaker",Kind="speaker"});
-            var battery=world.AddPart(new(){Id="battery",Kind="battery"});
+            var speaker=(SpeakerPart)world.AddPart(new(){Id="speaker",Kind="speaker",Position=[0,4,0]});
+            var battery=world.AddPart(new(){Id="battery",Kind="battery",Position=[-4,4,0]});
+            var supply=new SupplyControl(world,battery);
+            Assert.True(world.Connect(supply.Output,speaker));
             world.Start();
             world.Activate(speaker);
             world.Step();world.Step();
             Assert.Equal(0,speaker.PulseCount);
-            world.Connections.Add(new(){From=battery.Uid,To=speaker.Uid,Type=ConnectionDomain.Electrical,FromPort=SocketId.Supply,ToPort=SocketId.PowerIn});
-            world.Step();Assert.Equal(0,speaker.PulseCount);
+            supply.SetAndSettle(SimulationLatchPhase.On);
+            Assert.Equal(0,speaker.PulseCount);
             for(var tick=0;tick<240;tick++)
             {
                 for(var duplicate=0;duplicate<4;duplicate++)world.Activate(speaker);
@@ -87,7 +89,7 @@ public class AcousticTests(HeadlessFixture godot)
                 Assert.InRange(speaker.AcousticPulses.Count,0,5);
             }
             Assert.InRange(speaker.PulseCount,9,10);
-            world.Connections.Clear();
+            supply.SetAndSettle(SimulationLatchPhase.Off);
             for(var tick=0;tick<120;tick++)world.Step();
             Assert.Empty(speaker.AcousticPulses);Assert.False(speaker.Active);
             Assert.Throws<ArgumentException>(()=>speaker.HandleActivation(world,ActivationCommand.Set));

@@ -6,14 +6,14 @@ namespace CuriousContraptions.Tests;
 public class CompoundCollisionTests
 {
     private static BodyTrajectory Path(RigidPose pose,CollisionVector velocity=default,CollisionVector spin=default,double duration=1)=>
-        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration);
+        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration,default);
     private static CompoundGeometry Passage()
     {
         List<ConvexInstance> children=[];
         foreach(var side in new[]{-1,1})
         {
-            children.Add(new(new ConvexBox(new(1,.1,1.2)),new(Basis.Identity,new(3,side*1.1f,0))));
-            children.Add(new(new ConvexBox(new(1,1,.1)),new(Basis.Identity,new(3,0,side*1.1f))));
+            children.Add(new(new ConvexBox(new(1,.1,1.2)),new(AffineBasis.Identity,new(3,side*1.1f,0))));
+            children.Add(new(new ConvexBox(new(1,1,.1)),new(AffineBasis.Identity,new(3,0,side*1.1f))));
         }
         return new(children.ToArray());
     }
@@ -24,7 +24,7 @@ public class CompoundCollisionTests
     [InlineData(3,false)]
     public void HollowCompoundHasARealOpenPassageAndSolidWalls(float height,bool expected)
     {
-        var moving=new CompoundMotion(new([new(new ConvexSphere(.25),Transform3D.Identity)]),
+        var moving=new CompoundMotion(new([new(new ConvexSphere(.25),AffineTransform.Identity)]),
             Path(RigidPose.At(new(0,height,0)),new(6,0,0)));
         var passage=new CompoundMotion(Passage(),Path(RigidPose.Identity));
         var result=CompoundCollision.Cast(moving,passage,1,ConvexSweep.ContactDistance);
@@ -48,7 +48,7 @@ public class CompoundCollisionTests
         // Only this shape's support function is new: sphere/capsule/compound
         // collision uses the exact same production distance and sweep code.
         var capsule=new Capsule(.2,.5);
-        var moving=new CompoundMotion(new([new(capsule,Transform3D.Identity)]),
+        var moving=new CompoundMotion(new([new(capsule,AffineTransform.Identity)]),
             Path(RigidPose.Identity,new(6,0,0),new(.1,.2,.3)));
         var passage=new CompoundMotion(Passage(),Path(RigidPose.Identity));
         Assert.Equal(ConvexSweepStatus.Clear,CompoundCollision.Cast(moving,passage,1,ConvexSweep.ContactDistance).Status);
@@ -57,13 +57,13 @@ public class CompoundCollisionTests
     [Fact]
     public void BroadPhaseSkipsDistantPairsAndCannotHideRotation()
     {
-        var shape=new CompoundGeometry([new(new ConvexBox(new(2,.05,.05)),Transform3D.Identity)]);
+        var shape=new CompoundGeometry([new(new ConvexBox(new(2,.05,.05)),AffineTransform.Identity)]);
         var moving=new CompoundMotion(shape,Path(RigidPose.Identity,spin:new(0,0,120),duration:.01));
         var far=new CompoundMotion(shape,Path(RigidPose.At(new(100,100,100))));
         var miss=CompoundCollision.Cast(moving,far,.01,ConvexSweep.ContactDistance);
         Assert.Equal(ConvexSweepStatus.Clear,miss.Status);
         Assert.Equal(0,miss.NarrowPhaseCalls);
-        var near=new CompoundMotion(new([new(new ConvexBox(new(.05,.05,.05)),Transform3D.Identity)]),
+        var near=new CompoundMotion(new([new(new ConvexBox(new(.05,.05,.05)),AffineTransform.Identity)]),
             Path(RigidPose.At(new(1.5f*Mathf.Cos(.4f),1.5f*Mathf.Sin(.4f),0))));
         var hit=CompoundCollision.Cast(moving,near,.01,ConvexSweep.ContactDistance);
         Assert.Equal(ConvexSweepStatus.Contact,hit.Status);
@@ -88,6 +88,7 @@ public class CompoundCollisionTests
             return SupportFeature.FromPoints([radial+new CollisionVector(0,-halfLength,0),
                 radial+new CollisionVector(0,halfLength,0)],normal,planeTolerance);
         }
+        public override CollisionVector CoreSupport(CollisionVector direction)=>new(0,direction.Y<0?-halfLength:halfLength,0);
         public override double BoundingRadius=>radius+halfLength;
         public override double RoundingRadius=>radius;
         public override InteriorBall InteriorBall=>new(default,radius);

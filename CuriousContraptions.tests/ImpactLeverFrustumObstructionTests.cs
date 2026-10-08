@@ -5,8 +5,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class ImpactLeverFrustumObstructionTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class ImpactLeverFrustumObstructionTests(NativeSceneFixture godot)
 {
     public enum Route { Shell, DepthMiss, Bore }
     private enum Role { Lever, Funnel, Driver }
@@ -35,16 +35,16 @@ public class ImpactLeverFrustumObstructionTests(HeadlessFixture godot)
             // missing frustum implementation look like successful blocking.
             funnel.Tubes.Clear();
             world.Start();
-            lever.Beam.Joint.ApplyAngularImpulse(lever.Beam.Joint.Inertia*3);
+            LeverFixture.Push(world,lever,3);
             world.Step();
-            Assert.True(lever.Beam.Joint.Angle>0);
-            Assert.True(lever.Beam.Joint.AngularVelocity>0);
+            Assert.True(LeverFixture.Angle(world,lever)>0);
+            Assert.True(LeverFixture.Speed(world,lever)>0);
             for(var tick=0;tick<120;tick++) world.Step();
-            if(route==Route.DepthMiss) Assert.Equal(ImpactLeverPart.LimitAngle,lever.Beam.Joint.Angle);
+            if(route==Route.DepthMiss) Assert.InRange(Math.Abs(LeverFixture.Angle(world,lever)-(ImpactLeverPart.LimitAngle)),0,1e-7);
             else
             {
-                Assert.InRange(lever.Beam.Joint.Angle,.15,.45);
-                Assert.Equal(0,lever.Beam.Joint.AngularVelocity);
+                Assert.InRange(LeverFixture.Angle(world,lever),.15,.45);
+                Assert.InRange(Math.Abs(LeverFixture.Speed(world,lever)),0,1e-7);
             }
         }
         finally { world.Free(); }
@@ -61,7 +61,7 @@ public class ImpactLeverFrustumObstructionTests(HeadlessFixture godot)
             var funnel=(FunnelPart)world.AddPart(Spec(Role.Funnel,new(1.5f,3.8f,0)));
             funnel.Tubes.Clear();
             var before=JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData);
-            Assert.Throws<HingeFixtureOverlapException>(world.Start);
+            Assert.Throws<ScenePhysicsOverlapException>(world.Start);
             Assert.False(world.Running);
             Assert.Equal(before,JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData));
         }
@@ -88,11 +88,15 @@ public class ImpactLeverFrustumObstructionTests(HeadlessFixture godot)
             for(var tick=0;tick<600;tick++)
             {
                 world.Step();
-                maximum=Math.Max(maximum,lever.Beam.Joint.Angle);
-                Assert.InRange(world.MaximumFlightIterationsThisStep,1,100);
+                maximum=Math.Max(maximum,LeverFixture.Angle(world,lever));
+                // Free flight may have zero contact events; every shared substep
+                // must still consume its full duration.
+                Assert.InRange(world.LastPhysicsStep.Events,0,100);
+                Assert.Equal((ulong)((tick+1)*MachineWorld.Substeps),world.Physics.StepIndex);
+                Assert.InRange(Math.Abs(world.Physics.Time-(tick+1)*(double)MachineWorld.Tick),0,1e-9);
             }
             Assert.InRange(maximum,.15,.45);
-            Assert.Equal(0,lever.Beam.Joint.AngularVelocity);
+            Assert.InRange(Math.Abs(LeverFixture.Speed(world,lever)),0,1e-7);
             world.Restore();
             Assert.Equal(before,JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData));
         }

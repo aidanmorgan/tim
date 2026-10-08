@@ -26,6 +26,50 @@ public class CannonDiagnosticTests
         Assert.Equal(new float[]{0,5,0},body.Position);Assert.Equal(new float[]{0,9,0},body.Velocity);
     }
 
+    [Theory]
+    [InlineData(CannonShotResult.None,"none")]
+    [InlineData(CannonShotResult.Fired,"fired")]
+    [InlineData(CannonShotResult.Empty,"empty")]
+    [InlineData(CannonShotResult.Uncharged,"uncharged")]
+    [InlineData(CannonShotResult.Unseated,"unseated")]
+    [InlineData(CannonShotResult.Obstructed,"obstructed")]
+    [InlineData(CannonShotResult.Ambiguous,"ambiguous")]
+    [InlineData(CannonShotResult.Busy,"busy")]
+    [InlineData(CannonShotResult.SpeedLimited,"speed_limited")]
+    [InlineData(CannonShotResult.NoResponse,"no_response")]
+    public void ShotBoundaryIsExact(CannonShotResult result,string wire)
+    {
+        var options=new JsonSerializerOptions();
+        options.Converters.Add(new PlaytestCannonShotConverter());
+        var json=JsonSerializer.Serialize(wire);
+        Assert.Equal(json,JsonSerializer.Serialize(result,options));
+        Assert.Equal(result,JsonSerializer.Deserialize<CannonShotResult>(json,options));
+        Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<CannonShotResult>(
+            JsonSerializer.Serialize(wire.ToUpperInvariant()),options));
+        Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<CannonShotResult>(
+            JsonSerializer.Serialize(" "+wire),options));
+        Assert.Throws<JsonException>(()=>JsonSerializer.Serialize((CannonShotResult)999,options));
+    }
+
+    [Theory]
+    [InlineData(CannonPhase.Empty,"empty")]
+    [InlineData(CannonPhase.Loading,"loading")]
+    [InlineData(CannonPhase.Charging,"charging")]
+    [InlineData(CannonPhase.Ready,"ready")]
+    [InlineData(CannonPhase.Firing,"firing")]
+    [InlineData(CannonPhase.Jammed,"jammed")]
+    public void PhaseBoundaryIsExact(CannonPhase phase,string wire)
+    {
+        var options=new JsonSerializerOptions();
+        options.Converters.Add(new PlaytestCannonPhaseConverter());
+        var json=JsonSerializer.Serialize(wire);
+        Assert.Equal(json,JsonSerializer.Serialize(phase,options));
+        Assert.Equal(phase,JsonSerializer.Deserialize<CannonPhase>(json,options));
+        Assert.Throws<JsonException>(()=>JsonSerializer.Deserialize<CannonPhase>(
+            JsonSerializer.Serialize(wire.ToUpperInvariant()),options));
+        Assert.Throws<JsonException>(()=>JsonSerializer.Serialize((CannonPhase)999,options));
+    }
+
     [Fact]
     public void DiagnosticEnumBoundariesRejectNumbersAndUnknownValues()
     {

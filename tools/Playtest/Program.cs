@@ -1,3 +1,4 @@
+using CuriousContraptions;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -23,12 +24,16 @@ foreach (var variant in new[] { "reference", "near-positive", "near-negative", "
 {
     var parts = new JsonArray();
     foreach (var solution in puzzle["solution"]!.AsArray())
+    {
+        var orientation=solution!["orientation"]!.Deserialize<PartOrientation>()
+            ?? throw new JsonException("Missing authored orientation.");
+        var angles=orientation.ToEulerDegrees();
         parts.Add(new JsonObject
         {
             ["slot"] = solution!["id"]!.GetValue<string>(),
             ["kind"] = solution["kind"]!.GetValue<string>(),
             ["position"] = solution["position"]!.DeepClone(),
-            ["rotation"] = solution["rotation"]!.DeepClone(),
+            ["rotation"] = new JsonArray(JsonValue.Create(angles.X),JsonValue.Create(angles.Y),JsonValue.Create(angles.Z)),
             ["dimensions"] = solution["kind"]!.GetValue<string>() == "wall"
                 ? new JsonArray(JsonValue.Create(solution["properties"]?["width"]?.GetValue<float>() ?? 3),
                     JsonValue.Create(solution["properties"]?["height"]?.GetValue<float>() ?? 2),
@@ -37,6 +42,7 @@ foreach (var variant in new[] { "reference", "near-positive", "near-negative", "
                     ? new JsonArray(JsonValue.Create(solution["properties"]!["length"]!.GetValue<float>()), JsonValue.Create(1.3f), JsonValue.Create(1.3f))
                     : null
         });
+    }
     var chosen = parts[0]!.AsObject();
     if (variant is "near-positive" or "near-negative")
     {

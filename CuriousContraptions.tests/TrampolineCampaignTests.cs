@@ -6,8 +6,8 @@ using FileAccess = Godot.FileAccess;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class TrampolineCampaignTests(HeadlessFixture godot, ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class TrampolineCampaignTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
     public enum Placement { Aimed, Flat, MissedDepth, Missing }
     private const string CampaignPath = "res://content/puzzles.json";
@@ -31,7 +31,7 @@ public class TrampolineCampaignTests(HeadlessFixture godot, ITestOutputHelper ou
             switch (placement)
             {
                 case Placement.Aimed: break;
-                case Placement.Flat: bed.Rotation = [0, 0, 0]; break;
+                case Placement.Flat: bed.Orientation = PartOrientation.FromEulerDegrees(0, 0, 0); break;
                 case Placement.MissedDepth: bed.Position[2] = 2; break;
                 default: throw new ArgumentOutOfRangeException(nameof(placement));
             }

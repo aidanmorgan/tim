@@ -8,6 +8,7 @@ public sealed class ConvexRounded : ConvexGeometry
 {
     public ConvexGeometry Core { get; }
     public double Radius { get; }
+    public override CollisionVector CoreSupport(CollisionVector direction)=>Core.CoreSupport(direction);
     public override double BoundingRadius=>Core.BoundingRadius+Radius;
     public override double RoundingRadius=>Core.RoundingRadius+Radius;
     public override InteriorBall InteriorBall=>new(Core.InteriorBall.Center,Core.InteriorBall.Radius+Radius);

@@ -55,7 +55,7 @@ public sealed class PositionProjector
             throw new ArgumentException("Correction refers to a foreign body state.");
         if(body.PoseRevision!=_revisions[body.Id]) throw new InvalidOperationException("Projection geometry changed outside its correction transaction.");
     }
-    public double Apply(ReadOnlySpan<BodyCorrection> corrections)
+    internal double Apply(ReadOnlySpan<BodyCorrection> corrections)
     {
         foreach(var body in _bodies.Values) ValidateBody(body);
         var paths=new Dictionary<PhysicsBodyId,ConfigurationTrajectory>();
@@ -103,7 +103,7 @@ public sealed class PositionProjector
         {
             for(var i=0;i<corrections.Length;i++)
             {
-                corrections[i].Body.Restore(states[i]);
+                corrections[i].Body.RestoreState(states[i]);
                 _revisions[corrections[i].Body.Id]=corrections[i].Body.PoseRevision;
             }
             throw;

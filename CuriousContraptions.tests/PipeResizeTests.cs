@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class PipeResizeTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class PipeResizeTests(NativeSceneFixture godot)
 {
     [Theory]
     [InlineData(1f)]
@@ -23,7 +23,7 @@ public class PipeResizeTests(HeadlessFixture godot)
             Assert.All(pipe.Tubes, tube => Assert.Equal(PipePart.BoreRadius, tube.InnerRadius));
             Assert.Equal(-length * .5f, pipe.Tubes[1].Pose.Origin.X);
             Assert.Equal(length * .5f, pipe.Tubes[2].Pose.Origin.X);
-            Assert.Equal(length, pipe.Serialize().Properties[PipeParameters.Length]);
+            Assert.Equal(length, pipe.Serialize().Properties[PartParameterName.Of(PipeParameter.Length)]);
             Assert.InRange(PlacementShadows.ArtworkBounds(pipe).Size.X, length + .179f, length + .181f);
             var emitter = world.AddPart(new() { Id = "light", Kind = "flashlight", Position = [-6, 4, 0] });
             Assert.InRange(WorldGeometry.Trace(TraceMedium.Light,world, new(-6, 4.7f, 0), Vector3.Right, 12, emitter),
@@ -50,7 +50,7 @@ public class PipeResizeTests(HeadlessFixture godot)
         try
         {
             Assert.Throws<ArgumentException>(() => world.AddPart(new() { Id = "pipe", Kind = "pipe",
-                Properties = new() { [PipeParameters.Length] = length } }));
+                Properties = new() { [PartParameterName.Of(PipeParameter.Length)] = length } }));
             Assert.Empty(world.Parts);
         }
         finally { world.Free(); }
@@ -68,7 +68,7 @@ public class PipeResizeTests(HeadlessFixture godot)
         camera.LookAt(new(0, 4, 0));
         try
         {
-            var pipe = (PipePart)world.AddPart(new() { Id = "pipe", Kind = "pipe", Position = [0, 4, 0], Rotation = [20, 35, 10] });
+            var pipe = (PipePart)world.AddPart(new() { Id = "pipe", Kind = "pipe", Position = [0, 4, 0], Orientation = PartOrientation.FromEulerDegrees(20, 35, 10) });
             gizmo.SetResizeMode();
             gizmo.Follow(pipe, true, camera);
             Assert.True(gizmo.AxisEnabled(0));

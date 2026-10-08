@@ -2,7 +2,7 @@
   "Capabilities": [
     {
       "Capability": "GeometryQuery",
-      "ModelBoundary": "Portable double rigid geometry, conservative broad phase and ordered domain-specific material intervals.",
+      "ModelBoundary": "Shared WGSL f16 geometry queries use canonical admitted shapes, conservative broad phase and ordered domain-specific material intervals; CPU previews are not physical query authority. Current Workshop subset: generic GPU sphere versus rigid plane/box distance/features and bounded continuous search; other queries and shape pairs remain unsupported.",
       "Units": [
         "Metre",
         "Radian"
@@ -12,9 +12,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/WorldGeometry.cs",
-          "Symbol": "WorldGeometry",
-          "FileHash": "794a20122b0369027b8d386dfe75fec3977d50e5a0aa6ccbc61a3dd31ab8b74c"
+          "Path": "engine/gpu/physics.wgsl",
+          "Symbol": "ShapeQuery",
+          "FileHash": "ded4c11995382931423761056837f8d8c9320eaea8446a4c3f59215f76414eb7"
+        },
+        {
+          "Path": "engine/gpu/PhysicsDeclarations.cs",
+          "Symbol": "ColliderDeclaration",
+          "FileHash": "c5fa237ea0f2941a048b4cfb35d71d62d322e2c1c42c963b8fe4af101d7f85c3"
         }
       ],
       "IndependentOracle": "Exhaustive narrow-phase comparison and transformed hollow/rotating goldens; no false negative pruning.",

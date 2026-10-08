@@ -305,7 +305,7 @@
         "Origin": "Research",
         "Id": "docs/component-research.md"
       },
-      "SourceHash": "82e11cc0f666149208643eded033517a1ff241fbca47296e5f763c3c64824902",
+      "SourceHash": "4c57fb866383b9e23ad2096a073d1282a801bd51a26330ddcb236a2c2a09fed7",
       "Kind": "ResearchContainer",
       "Capabilities": [
         "AcousticPropagation",
@@ -1043,7 +1043,7 @@
         "Origin": "Research",
         "Id": "docs/physics-puzzle-gap-audit.md"
       },
-      "SourceHash": "b50e04e11d7e8c1454084daaf8f244cda14d19174ec3716e2daf2f8dff41b00c",
+      "SourceHash": "02bfa0860421fea4573d32f02e408069660440e919b2ebeba8bfbb0846213efa",
       "Kind": "ResearchContainer",
       "Capabilities": [
         "AerodynamicDrag",
@@ -1737,7 +1737,7 @@
         "Origin": "Research",
         "Id": "docs/radiation-component-research.md"
       },
-      "SourceHash": "435252ba4152d3fff5d80cc886d9a423a4c0af655826f60ff313521fef96017d",
+      "SourceHash": "31a71ebb9b36fd4140526ca804e059e518f7d84c7cfb747a838a59e579999bd8",
       "Kind": "ResearchContainer",
       "Capabilities": [
         "ElectricalPower",
@@ -1981,7 +1981,7 @@
         "Origin": "Research",
         "Id": "docs/research.md"
       },
-      "SourceHash": "5a57c152579839308e6fc9017740b60c22b860cd76a27ba484a91be02d4f91ac",
+      "SourceHash": "89932b69cbbde72126a99898969fe3834d23f9a266b9db61cf05b718e060a2db",
       "Kind": "ResearchContainer",
       "Capabilities": [
         "AcousticPropagation",
@@ -3058,7 +3058,7 @@
         "Origin": "Research",
         "Id": "docs/thermal-component-research.md"
       },
-      "SourceHash": "c7b4b133fe311abb3e13828e8f3b59a85b8a8178af43a60e5876b97baaf1e8f5",
+      "SourceHash": "43cd4a6fdf8a30a341161b7d8056b79afb90c0c7bdc192f26fc356c64c2685d1",
       "Kind": "ResearchContainer",
       "Capabilities": [
         "AcousticPropagation",
@@ -3787,4 +3787,3 @@
   ],
   "Modes": []
 }
-

@@ -1,6 +1,6 @@
 # Visual design contract
 
-**Current architecture:** [Canonical Half game values and WGSL f16 physics](docs/gpu-f16-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](TODO.md).
+**Current architecture:** [Canonical IEEE-754 f32 game values and WASM SIMD physics](docs/gpu-f16-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](TODO.md).
 
 This is the intended **Curious Contraptions** visual and interaction contract, including the owner's **Monument Valley-inspired art direction**. Preserve the approved palette, readable mechanisms and contextual construction controls. The art direction takes precedence over older implementation form, while source-specific behavior and physical truth remain mandatory.
 
@@ -10,24 +10,24 @@ Use the [focused engineering rules](docs/delivery-workflow.md#focused-agentic-en
 
 ## Presentation and performance architecture — required target
 
-This is the required design, not a claim that the current implementation or browser performance is qualified. Complete the engine, renderer and independent workers through **P0-035** in the [authoritative TODO register](docs/delivery-workflow.md#pipeline-priority) before product, catalogue or campaign expansion. The [simulation–presentation bridge](docs/simulation-presentation-bridge.md) defines ownership and transport; the [performance plan](docs/browser-physics-performance.md) defines measured release gates. The mechanism requirements below describe intended presentation. Each admitted part requires current qualification.
+This is the required design, not a claim that the current implementation or browser performance is qualified. Three systems execute concurrently: the physics worker, the animation worker and the main-thread renderer, as fixed by the [compilation model](docs/gpu-f16-physics.md#compilation-model) and delivered in the [ordered roadmap](docs/planning/invest/vertical-delivery.md#rolling-playable-roadmap). The [simulation–presentation bridge](docs/simulation-presentation-bridge.md) defines ownership and transport; the [performance checklist](docs/browser-physics-performance.md) defines the release-checklist budgets. The mechanism requirements below describe intended presentation. Each admitted part requires current qualification.
 
 | Execution context | Exclusive responsibility | Clock |
 | --- | --- | --- |
-| Dedicated simulation Web Worker: C# host + WebGPU/WGSL f16 | GPU continuous laws/query state; typed Half construction/read values; C# integer/discrete events and atomic transactions | Fixed 120 Hz, initially four outer substeps per tick |
-| Separate C# animation Web Worker | Cosmetic tracks, motor spin, recoil, indicator/UI easing and effect clocks; no Godot scene objects | Independent monotonic clock, initially 60 Hz |
-| Browser main thread with Godot/WebGL | Input, construction previews, scene/resource ownership, timestamp interpolation, final property application and rendering | Independent display clock; 60 FPS baseline and 90 FPS on qualified displays/devices |
+| Dedicated physics Web Worker: C# WebAssembly host + generic WASM SIMD128 f32 solver | Continuous physical state, spatial queries, and sensor predicates over the compiled initial state; typed f32 construction/read values; C# integer/discrete events and atomic transactions | Fixed 120 Hz tick, 480 Hz substeps |
+| Separate C# animation Web Worker | Its own compiled animation model: cosmetic tracks, motor spin, recoil, indicator/UI easing and effect clocks, fed one way by committed physics; no retained UI/DOM objects | Independent clock, currently 60 Hz |
+| Browser main thread with Universal WebGL 2 / WebGPU instanced renderer | Input, construction previews, scene/resource ownership; reads committed physics poses from the SharedArrayBuffer triple ring and latest animation samples, interpolates, and issues instanced draw batches | Independent display clock; 30–60 FPS (release checklist) |
 
-The contexts must execute concurrently. Browser rendering remaining on the main thread is the selected design; a fourth render worker is not required. Separate methods, tasks or asynchronous APIs on one thread do not satisfy the worker requirement. Independent .NET worker runtimes exchange bounded typed messages and owned transferable buffers; no shared-memory threaded Godot host or implicit synchronous fallback is required.
+The contexts must execute concurrently with rates ordered physics > animation ≥ renderer; rendering never influences either worker. Browser rendering remaining on the main thread is the selected design; a fourth render worker is not required. Separate methods, tasks or asynchronous APIs on one thread do not satisfy the worker requirement. Independent .NET worker runtimes exchange bounded typed messages and owned transferable buffers; zero-copy atomic pose sharing via `SharedArrayBuffer` provides direct presentation updates without thread stalls.
 
 - Input and construction emit typed intent commands. Show previews and pending state until authoritative acknowledgement; validation errors use existing contextual feedback.
 - Present one coherent generation/revision at a selected display time. Use bounded timestamp histories, explicit buffer acquisition/release and backpressure; do not assume two mutable buffers suffice for delayed independent consumers. Failed or intermediate simulation work never becomes a successful motion/event.
-- Preserve reliable impacts, pulses, removals and results when replaceable pose samples coalesce. Interpolate from worker timestamps and explicit clock-origin mapping; no Godot physics interpolation fraction drives the worker timeline.
+- Preserve reliable impacts, pulses, removals and results when replaceable pose samples coalesce. Interpolate from worker timestamps and explicit clock-origin mapping; no external engine interpolation fraction drives the worker timeline.
 - Separate render geometry from contact and domain-interaction geometry. Shared dimensions/local frames keep them aligned; visibility, LOD and cosmetic motion never change physical behavior.
 - Use dirty property updates, immutable asset reuse, appropriate instancing and rigid-detail merging. Qualify silhouettes, passages, sockets and touch targets at their actual projected size.
 - Qualify transparency, shadows and pixel cost while preserving the approved palette and composition. Idle rendering may stop only when input, camera, UI, animation, resource, resize and visibility dependencies are settled.
 - Require nonblocking Run/pause/step/success/Reset/Load/save/disposal barriers, generation rejection and truthful pending/error states. Cosmetic/UI animation continues with physics paused. Hidden-tab policy pauses/rebases at acknowledged boundaries rather than dropping unsolved physical time.
-- Verify complete production workloads against the [numeric budgets](docs/planning/requirements.md#worker-performance-budgets), including sustained physical-device measurements, frame tails, freshness, input response, memory and transport. Screenshots, native timings and one small smooth scene cannot establish 60/90 FPS qualification.
+- Verify complete production workloads against the [release checklist](docs/browser-physics-performance.md) at its P0-034 gate and P0-035 engine closure, including sustained physical-device measurements, frame tails, freshness, input response, memory and transport. Screenshots, native timings and one small smooth scene cannot establish 30–60 FPS qualification.
 
 ## Independent animation ownership
 
@@ -198,7 +198,7 @@ Lighting is warm and directional: ambient `#fff5dd` at 0.65 energy; main light `
 
 ## Typography and interface surfaces
 
-No custom font asset or font-family override is currently supplied; the UI uses Godot's default/fallback font. Preserve its plain, readable sans-serif character rather than introducing decorative or technical drafting lettering.
+No custom font asset or font-family override is currently supplied; the UI uses the clean system sans-serif font stack (`system-ui, -apple-system, sans-serif`). Preserve its plain, readable sans-serif character rather than introducing decorative or technical drafting lettering.
 
 At the 1440 × 900 reference layout:
 
@@ -213,7 +213,7 @@ The canvas scales uniformly by min(viewport width/1440, viewport height/900), wi
 
 ## Icons
 
-Use actual vector-derived textures, never Unicode symbols or an icon font as the visible control artwork. Toolbar SVGs live in `assets/icons/` and are loaded through Godot resource imports with `GD.Load<Texture2D>`, so exported packs resolve them correctly. Buttons carry action metadata, but their displayed text is empty.
+Use actual vector-derived textures, never Unicode symbols or an icon font as the visible control artwork. Toolbar SVGs live in `assets/icons/` and are resolved directly through the web presentation asset pipeline. Buttons carry action metadata, but their displayed text is empty.
 
 The toolbar uses **Lucide**, with bundled ISC licensing and Feather-derived icons covered by MIT; retain [the complete icon licence](assets/icons/LICENSE.txt). These are the “equivalent” icon source, not Noun Project assets.
 
@@ -265,7 +265,7 @@ Motion explains what the contraption does. Preserve fluid mechanical readability
 
 Required mechanism presentation:
 
-Physical algorithms and model coverage come from the named [source requirements](docs/planning/requirements.md) under [WGSL f16 authority](docs/gpu-f16-physics.md).
+Physical algorithms and model coverage come from the named [source requirements](docs/planning/requirements.md) under [canonical IEEE-754 f32 and WASM SIMD authority](docs/gpu-f16-physics.md).
 
 | Element | Required behaviour |
 | --- | --- |
@@ -302,7 +302,7 @@ Physical algorithms and model coverage come from the named [source requirements]
 
 Difficulty assistance is **not a player-exposed “nudge” tool**. At Run, eligible placement correction uses quintic easing `6t⁵−15t⁴+10t³`, position interpolation and quaternion Slerp, moving artwork and collision transform together. Current authored assisted fan corrections take 0.15 s; other authored corrections commonly take 0.4 s, with a 0.1 s runtime minimum. Values belong to level/part definitions, not a global visual snap. Precise placement correction is zero. Preserve bounded continuous motion; do not teleport parts or expose solution-alignment controls.
 
-Simulation is fixed at 120 Hz with four initial substeps; its cadence does not establish rendered frame performance. Success stops authoritative simulation at an acknowledged boundary while independent cosmetic feedback finishes gracefully. Run changes to Build Again and a short positive bottom message appears. Reset restores the pre-run arrangement and cancels stale effects. Keep menu, selection and button responses immediate; any easing belongs to the animation owner.
+Simulation is fixed at 120 Hz with 480 Hz substeps; its cadence does not establish rendered frame performance. Success stops authoritative simulation at an acknowledged boundary while independent cosmetic feedback finishes gracefully. Run changes to Build Again and a short positive bottom message appears. Reset restores the pre-run arrangement and cancels stale effects. Keep menu, selection and button responses immediate; any easing belongs to the animation owner.
 
 ## Known limitations, not approved permanent constraints
 
@@ -335,7 +335,7 @@ Before accepting a visual change:
 
 The standalone optical shutter uses a navy header/foot, two cream rails and a thin gold blade with cream witness stripes on both faces. A gold electrical socket and slate/gold indicator show supply; ochre indicates obstructed closing. It retains the established palette and an original outline icon. Unlike the tube gate it has no tube mouth or snap connection.
 
-The blade accelerates along local Y and retracts into the header. Its rendered pose and physical/optical OBB are identical; partial clearance really admits the beam. Supply loss closes it, stopping before a visible ball rather than crushing it. Prove this non-crushing obstruction stop through the declared finite-work/contact model; the visible blade cannot pass through an obstruction or claim a stopped physical pose that has not committed. Tube and optical shutters share generic WGSL physical capabilities. Verify open/closed behavior, continuous animation and performance.
+The blade accelerates along local Y and retracts into the header. Its rendered pose and physical/optical OBB are identical; partial clearance really admits the beam. Supply loss closes it, stopping before a visible ball rather than crushing it. Prove this non-crushing obstruction stop through the declared finite-work/contact model; the visible blade cannot pass through an obstruction or claim a stopped physical pose that has not committed. Tube and optical shutters share generic WASM SIMD physical capabilities. Verify open/closed behavior, continuous animation and performance.
 
 <a id="colour-optics-addition--27-september-2026"></a>
 ## Colour optics

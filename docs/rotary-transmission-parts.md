@@ -1,15 +1,26 @@
-# Rotary transmission and source-shaft contracts
+# Rotary transmission and source shafts
 
-All numerical physics executes in WGSL f16 under the [canonical game-value contract](gpu-f16-physics.md). Authoring/admission uses typed Half quantities and explicit integer identities/scales; C# owns discrete transactions. These are required models and controls, not implementation or qualification claims. Apply the [delivery stages](delivery-workflow.md#stage-gates) and each named part's source acceptance.
+Shafts, gearboxes, clutches, belts, motors and windmills are declaration data over the rigid-body, hinge-constraint and drive capabilities of the generic WASM SIMD128 f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory)). The ratio and engagement rows are solved in the shared Box2D v3 TGS Soft constraint pass; no part owns a solver. Delivered as ELEMENT-n roadmap slices (Reverse transmission CAT-057, Clutch CAT-018, Motor CAT-042, Conveyor CAT-019, Windmill CAT-070, Wound spring CAT-071; register S184).
 
-A reverse gearbox declares two finite-inertia shaft bodies, hinge guides and a -1 phase-free transmission. A clutch declares two finite-inertia shafts and a +1 phase-free transmission with explicit enum-typed Open/Engaged state. Open contributes no velocity or acceleration coupling; guides and registered identities remain. Closing engages only at full coil closure. Supply loss opens physical coupling immediately while cosmetic plates finish their motion independently.
+## Declaration data
 
-Shafts use declared local-Z frames, physical hulls and hinge references, with clockwise-positive observed speed/angle. Wheel poses follow committed bodies. Engagement/rebinding requires actual current registered guide identities; undefined engagement, missing/foreign/duplicate ownership and invalid parameter mappings reject atomically. CloseSeconds stays enum-typed until its validated resource boundary. No inferred engagement, copied downstream speed or independent angle integration supplies behavior.
+- **Shaft:** finite-inertia body with a local-Z frame, physical hull and anchored hinge; clockwise-positive observed speed/angle. Wheel art follows the committed body.
+- **Reverse gearbox:** two shafts and a −1 phase-free ratio row.
+- **Clutch:** two shafts, a +1 phase-free ratio row and an enum-typed Open/Engaged state; CloseSeconds is an enum-typed parameter choice. Open contributes no velocity or acceleration coupling while hinges and identities remain; closing engages only at full coil closure; supply loss opens the coupling immediately while the plate animation finishes on its own.
+- **Belt/chain:** a socket-to-hinge ratio row with its authored signed ratio, preserved under whole-part rotation. Wound-spring winding and conveyor consumers use the same transfer; no downstream adapter duplicates source work.
+- **Motor:** finite rotor mass/inertia, collision hull, anchored hinge and a [bounded drive](bounded-acceleration-drives.md) bound to its supply.
+- **Windmill:** finite-inertia rotor on an X-axis hinge, authored hub/blade collision and output connections; signed response and calm-air loss come from [conserved rotary airflow](finite-gas-foundation.md#rotary-capture). The mass model is authored, not inferred from meshes; overlapping construction is corrected, not exempted from collision.
 
-Mechanical belts/chains connect actual socket-to-owned-guide declarations and shared constraints. Wound-spring winding and conveyor consumers use that same physical transfer; no downstream drive adapter duplicates source work. Preserve authored signed ratios under whole-part rotation. Clutch closure cannot create energy; opening preserves existing output momentum, and a later input impulse cannot affect an uncoupled output.
+Admission rejects undefined engagement, missing/foreign/duplicate ownership and invalid parameter mappings atomically at compile.
 
-A motor declares finite rotor mass/inertia, collision hull and anchored hinge. Powered operation supplies bounded effort/work. Reported shaft speed, travel events and artwork derive from committed physical motion. Supply loss adds no effort/work and does not erase momentum of an ideal unpowered hinge. Physical shaft stops, loads and damping must be declared physical laws, not cosmetic coast-down.
+## Behaviour for the player
 
-A windmill's finite-inertia rotor has an X-axis hinge; its hub/blade collision declarations and output connections participate in the shared world. The mass model is authored, not inferred from render meshes. [Conserved rotary airflow](rotor-airflow-contract.md) determines signed response and passive calm-air loss. Correct overlapping construction rather than exempting source rotors from collision.
+- Coupled shafts share motion through the ratio row; a clutch closure cannot create energy (equal-inertia closure shares speed without gain); opening preserves existing output momentum, and a later input impulse cannot affect an uncoupled output.
+- A motor supplies bounded effort and work; supply loss adds none and keeps an ideal hinge's momentum. Reported speed, travel events and artwork derive from committed physical motion, never from inferred engagement, copied downstream speed or independent angle integration.
+- Low torque against inertia accelerates slowly; energy never exceeds supplied work ([envelope](gpu-f16-physics.md#game-grade-envelope)).
 
-Acceptance covers reverse/open/engaged modes in axis-aligned and rotated constructions; guide identity and invalid engagement; impulse transfer versus disconnected controls; equal-inertia closure sharing speed without energy gain; opening/momentum preservation; solved pose/speed versus presentation; low-torque inertia-bounded acceleration; energy bounded by supplied work; source-loss controls; signed wind and calm-air dissipation; exact canonical rotated Run/Reset/save/load and same-environment replay. Prove current real-UI connected mechanisms, positive/control/integration, production build, lifecycle/resources and affected performance for every named part/mode.
+## Chrome-observable acceptance
+
+- Reverse, open and engaged modes in axis-aligned and rotated constructions; impulse transfer versus a disconnected control; source-loss control; signed wind and calm-air dissipation for the windmill.
+- Solved pose/speed match the presentation; exact Reset and Save/Load of rotated constructions after every Run; same construction and inputs give the same outcome.
+- Reviewer grep for `clutch`, `gearbox`, or `windmill` in the physics solver finds nothing element-keyed.

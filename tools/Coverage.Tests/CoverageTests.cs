@@ -18,6 +18,7 @@ public class InventoryTests
         Assert.Equal(2,rows.Count);
         Assert.NotEqual(rows[0].Key,rows[1].Key);
         Assert.All(rows,row=>Assert.Equal(RequirementOrigin.Element,row.Key.Origin));
+        Assert.All(rows,row=>Assert.StartsWith(RequirementDiscovery.RequirementsPath.Value+"#",row.Location));
     }
     [Fact]
     public void DuplicateAndEmptyAnchorsReject()

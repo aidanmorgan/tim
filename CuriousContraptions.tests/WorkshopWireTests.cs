@@ -8,7 +8,7 @@ public sealed class WorkshopWireTests
     [Fact]
     public void PresentationDiagnosticBindsCadenceAndPulseWithinItsFixedRingBudget()
     {
-        var sample = new WorkshopPresentationSample(null, null, new(0), PresentationQuality.AwaitingHistory,
+        var sample = new WorkshopPresentationSample(default, null, new(0), PresentationQuality.AwaitingHistory,
             new(new(100), 1, 1, new(2), null, null, null));
         var scene = new PresentationScene(3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
         var bytes = WorkshopPresentationWire.Encode(sample, false, scene, new(101), new(7), new(17));
@@ -279,35 +279,47 @@ public sealed class WorkshopWireTests
     private static WorkshopRead Described(WorkshopRead read)
     {
         var bytes = new byte[PhysicsMotionRead.ByteLength];
-        var rotation = read.Ball.HasValue ? read.Rotation ?? CanonicalRotation.Identity : (CanonicalRotation?)null;
         if (read.Tick.Value != 0)
         {
             var last = checked((uint)(read.Tick.Value * Profile.Substeps)); var first = last - Profile.Substeps;
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes, checked((uint)read.Bodies.Count * Profile.Substeps));
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), Profile.Substeps);
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), first);
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(12), last);
-            if (read.Ball is { } body)
+            for (var bodyIndex = 0; bodyIndex < read.Bodies.Count; bodyIndex++)
+            for (uint step = 0; step < Profile.Substeps; step++)
             {
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes, 1);
-                var piece = bytes.AsSpan(PhysicsMotionRead.HeaderBytes, PhysicsMotionRead.PieceBytes);
+                var value = read.Bodies[bodyIndex]; var body = value.Body;
+                var pieceIndex = checked(bodyIndex * (int)Profile.Substeps + (int)step);
+                var piece = bytes.AsSpan(PhysicsMotionRead.HeaderBytes + pieceIndex * PhysicsMotionRead.PieceBytes, PhysicsMotionRead.PieceBytes);
                 BinaryPrimitives.WriteUInt32LittleEndian(piece, (uint)PhysicsMotionKind.FreePolynomial);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[4..], first);
-                BinaryPrimitives.WriteUInt32LittleEndian(piece[8..], last);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[4..], first + step);
+                BinaryPrimitives.WriteUInt32LittleEndian(piece[8..], first + step + 1);
                 BinaryPrimitives.WriteUInt32LittleEndian(piece[12..], first);
                 BinaryPrimitives.WriteUInt64LittleEndian(piece[24..], body.Id.Value);
                 BinaryPrimitives.WriteInt32LittleEndian(piece[32..], body.Cell.X);
                 BinaryPrimitives.WriteInt32LittleEndian(piece[36..], body.Cell.Y);
                 BinaryPrimitives.WriteInt32LittleEndian(piece[40..], body.Cell.Z);
-                static void H(Span<byte> target, int offset, Half value) =>
-                    BinaryPrimitives.WriteUInt16LittleEndian(target[offset..], BitConverter.HalfToUInt16Bits(value));
+                static void H(Span<byte> target, int offset, Half number) =>
+                    BinaryPrimitives.WriteUInt16LittleEndian(target[offset..], BitConverter.HalfToUInt16Bits(number));
                 H(piece,22,(Half)WorkshopCadenceSettings.PhysicalFrequency); H(piece,48,body.Local.X); H(piece,50,body.Local.Y); H(piece,52,body.Local.Z);
-                var q = rotation!.Value;
+                var q = value.Rotation;
                 H(piece,56,q.X); H(piece,58,q.Y); H(piece,60,q.Z); H(piece,62,q.W);
                 H(piece,64,body.Velocity.X); H(piece,66,body.Velocity.Y); H(piece,68,body.Velocity.Z);
-                H(piece,72,read.Angular.X); H(piece,74,read.Angular.Y); H(piece,76,read.Angular.Z);
+                H(piece,72,value.AngularVelocity.X); H(piece,74,value.AngularVelocity.Y); H(piece,76,value.AngularVelocity.Z);
             }
         }
-        return read with { Rotation = rotation, Motion = PhysicsMotionRead.Decode(bytes, read.Ball, read.Tick) };
+        return read with { Motion = PhysicsMotionRead.Decode(bytes, read.Bodies, read.Tick) };
+    }
+
+    private static PhysicsBodyReadSet Bodies(CanonicalBody body) =>
+        new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default) });
+    private static WorkshopBall OnlyBasketball(WorkshopConstruction construction) =>
+        construction.Instances.OfType<WorkshopBall>().Single();
+    private static PhysicsBodyRead NamedBody(byte[] bytes, GpuBodyId id)
+    {
+        Assert.True(PhysicsGpuAbi.ReadDynamicBodies(bytes).TryGet(id, out var body));
+        return body;
     }
 
     private static WorkshopRead Stamped(WorkshopRead read) => Described(read with { Capture = new(WorkshopClockDomain.SimulationMonotonic,
@@ -366,7 +378,7 @@ public sealed class WorkshopWireTests
             Assert.True(clock.TryMap(capture, new(browserTime), out var mapped));
             var response = new WorkshopResponse(new(0), WorkshopResponseKind.Read,
                 new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running,
-                Described(new(new(1), new(tick), new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default),
+                Described(new(new(1), new(tick), Bodies(new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default)),
                     new(tick + 1), capture)), peer.Session, new(tick + 1), new(1), new(1), new(1));
             if (boundary == PresentationBoundary.Run)
             {
@@ -413,7 +425,7 @@ public sealed class WorkshopWireTests
             long captured, WorkshopSimulationPhase phase, ulong publication = 0) =>
             new(new(sequence), kind, new(phase == WorkshopSimulationPhase.Faulted ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
                 phase == WorkshopSimulationPhase.Faulted ? WorkshopRejection.DeviceLost : WorkshopRejection.None), phase,
-                Described(new(new(1), new(tick), new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default),
+                Described(new(new(1), new(tick), Bodies(new CanonicalBody(new(1), 1, tick, new(0, 10 - (int)tick, 0), default, default)),
                     new(revision), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(captured), new(0)))),
                 peer.Session, new(publication), new(1), new(1), new(phase == WorkshopSimulationPhase.Building ? 1UL : 2UL));
         void Admit(WorkshopResponse response, PresentationBoundary boundary)
@@ -471,7 +483,7 @@ public sealed class WorkshopWireTests
         if (faultBeforeTick)
         {
             Assert.Equal(PresentationQuality.Faulted, held.Quality);
-            Assert.Null(held.Body); Assert.Null(held.Evidence.Before); Assert.Null(held.Evidence.After);
+            Assert.Equal(0, held.Bodies.Count); Assert.Null(held.Evidence.Before); Assert.Null(held.Evidence.After);
             Assert.Equal(100_000_000, held.Evidence.Latest!.Value.Capture.Time.Value);
             return;
         }
@@ -487,17 +499,15 @@ public sealed class WorkshopWireTests
     public void RejectedConstructionReadValidatesAgainstCurrentAdmittedPose()
     {
         // This is an admitted-world check; the shared codec fixture deliberately uses a wider ID domain.
-        var current = Construction with { Instances = new(Construction.Ball!.Value with { Id = new(1) }) };
-        var ball = current.Ball!.Value;
-        var read = Stamped(new(new(1), new(0), new CanonicalBody(ball.Id, 1, 0, ball.Cell, ball.Local, default)));
-        var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
-            new(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction),
-            WorkshopSimulationPhase.Building, read, Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+        var current = Construction with { Instances = new(OnlyBasketball(Construction) with { Id = new(1) }) };
+        var ball = OnlyBasketball(current);
+        var read = Stamped(new(new(1), new(0), Bodies(new CanonicalBody(ball.Id, 1, 0, ball.Cell, ball.Local, default))));
         var proposed = current.WithInstance(ball with { Cell = new(32, 64, 0) }) with { Revision = new(3) };
-        BrowserWorkshopClient.ValidateCommandRead(response, proposed, current);
-        Assert.Throws<ArgumentException>(() => BrowserWorkshopClient.ValidateCommandRead(
-            response with { Result = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None) }, proposed, current));
-        Assert.Equal(ball.Cell, response.Read.Ball!.Value.Cell);
+        var currentScene = WorkshopPhysicsCompiler.Compile(current, new(Session.Low, Session.High));
+        var proposedScene = WorkshopPhysicsCompiler.Compile(proposed, new(Session.Low, Session.High));
+        read.Bodies.ValidateScene(currentScene, read.Epoch, read.Tick);
+        Assert.Throws<ArgumentException>(() => read.Bodies.ValidateScene(proposedScene, read.Epoch, read.Tick));
+        Assert.Equal(ball.Cell, read.Bodies[0].Body.Cell);
     }
 
     [Theory]
@@ -509,12 +519,12 @@ public sealed class WorkshopWireTests
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Run, new(1), default, null, Session: Session, Cadence: new(1), Projection: new(1));
         var dispatched = cursor.ReadOrder;
         var ack = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(0), null, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(0), default, new(1))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
         var original = WorkshopWire.Encode(ack);
         var later = new WorkshopResponse(default, WorkshopResponseKind.Read,
             new(sameRevisionFault ? WorkshopCommandOutcome.Faulted : WorkshopCommandOutcome.Applied,
                 sameRevisionFault ? WorkshopRejection.DeviceLost : WorkshopRejection.None),
-            sameRevisionFault ? WorkshopSimulationPhase.Faulted : WorkshopSimulationPhase.Running, Stamped(new(new(1), new(sameRevisionFault ? 0UL : 1UL), null, new(sameRevisionFault ? 1UL : 2UL))), Session, new(1), new(1), new(1), new(1));
+            sameRevisionFault ? WorkshopSimulationPhase.Faulted : WorkshopSimulationPhase.Running, Stamped(new(new(1), new(sameRevisionFault ? 0UL : 1UL), default, new(sameRevisionFault ? 1UL : 2UL))), Session, new(1), new(1), new(1), new(1));
         Assert.True(AdmitRead(cursor, later));
         var delivery = AdmitAcknowledgement(cursor, command, ack, dispatched, false);
         Assert.False(delivery.Applicable);
@@ -527,7 +537,7 @@ public sealed class WorkshopWireTests
     {
         var cursor = new WorkshopClientCursor(Session);
         var future = new WorkshopResponse(default, WorkshopResponseKind.Read,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(2), default, null, new(1))), Session, new(1), new(1), new(1), new(1));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(2), default, default, new(1))), Session, new(1), new(1), new(1), new(1));
         Assert.Throws<ArgumentException>(() => AdmitRead(cursor, future));
         Assert.Equal(new SimulationEpoch(1), cursor.Epoch);
         Assert.Equal(default, cursor.Revision);
@@ -553,7 +563,7 @@ public sealed class WorkshopWireTests
     {
         var cursor = new WorkshopClientCursor(Session);
         var read = new WorkshopResponse(default, WorkshopResponseKind.Read,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(7), null, new(8))), Session, new(1), new(1), new(1), new(1));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(1), new(7), default, new(8))), Session, new(1), new(1), new(1), new(1));
         Assert.True(AdmitRead(cursor, read));
         var command = new WorkshopCommand(new(2), WorkshopCommandKind.Run, new(1), new(8), null, Session: Session, Cadence: new(1), Projection: new(1));
         var ack = read with { Sequence = new(2), Kind = WorkshopResponseKind.Acknowledgement, Publication = default,
@@ -576,11 +586,11 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => WorkshopWire.Encode(reset with { Revision = new(1) }));
         Assert.Throws<ArgumentException>(() => WorkshopWire.Encode(exact with { Revision = default, RevisionKind = ExpectedRevisionKind.Any }));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(3), new(0), null, new(ulong.MaxValue))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(3), new(0), default, new(ulong.MaxValue))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(response);
-        Assert.Equal(10256, bytes.Length);
+        Assert.Equal(23952, bytes.Length);
         Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
-        bytes[58] = 1;
+        bytes[112] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
     }
 
@@ -603,19 +613,19 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => new CanonicalRotation((Half).001, (Half)0, (Half)0, (Half)0).Validate());
         var bytes = GenericAdmission();
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(DynamicOffset(bytes) + 16), 2048);
-        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBody(bytes));
+        Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(bytes));
     }
 
     [Fact]
     public void CanonicalConstructionWireRetainsEveryBitAndWideIdentity()
     {
-        var ball = Construction.Ball!.Value with
+        var ball = OnlyBasketball(Construction) with
         {
             Local = new(BitConverter.UInt16BitsToHalf(0x8000), (Half)0.25, (Half)0),
             Rotation = new(BitConverter.UInt16BitsToHalf(0x8000), (Half)0, (Half)0, (Half)1)
         };
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
-            new(0x30000000000001), new(1), Construction.WithoutInstance(Construction.Ball!.Value.Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
+            new(0x30000000000001), new(1), Construction.WithoutInstance(OnlyBasketball(Construction).Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(command);
         Assert.Equal(bytes, WorkshopWire.Encode(WorkshopWire.DecodeCommand(bytes)));
     }
@@ -627,27 +637,35 @@ public sealed class WorkshopWireTests
     {
         var body = withBall ? new CanonicalBody(new(1), 3, 8, default, default, default) : (CanonicalBody?)null;
         var response = new WorkshopResponse(new(0), WorkshopResponseKind.Read,
-            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(3), new(8), body)), Session, new(1), new(1), new(1), new(1), new(8));
+            new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, Stamped(new(new(3), new(8), body.HasValue ? Bodies(body.Value) : default)), Session, new(1), new(1), new(1), new(1), new(8));
         var bytes = WorkshopWire.Encode(response);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(52), 17);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(12), 15);
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
     }
 
 
     private static PhysicsSceneDeclaration GenericScene => WorkshopPhysicsCompiler.Compile(
-        Construction.WithoutInstance(Construction.Ball!.Value.Id).WithInstance(Construction.Ball!.Value with { Id = new(1) }), new(101, 206));
+        Construction.WithoutInstance(OnlyBasketball(Construction).Id).WithInstance(OnlyBasketball(Construction) with { Id = new(1) }), new(101, 206));
     [Fact]
     public void AuthoredCompilerRejectsWideBodyIdentityWithoutChangingWireIdentityDomain()
     {
         Assert.Throws<ArgumentException>(() => WorkshopPhysicsCompiler.Compile(Construction, new(101, 206)));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Construction, Session: Session, Cadence: new(1), Projection: new(1));
-        Assert.Equal(Construction.Ball!.Value.Id, WorkshopWire.DecodeCommand(WorkshopWire.Encode(command)).Construction!.Value.Ball!.Value.Id);
+        Assert.Equal(OnlyBasketball(Construction).Id, OnlyBasketball(WorkshopWire.DecodeCommand(WorkshopWire.Encode(command)).Construction!.Value).Id);
     }
 
     private static byte[] GenericAdmission() => PhysicsGpuAbi.Admission(GenericScene, new(2), Profile);
-    private static int DynamicOffset(byte[] bytes) => PhysicsGpuAbi.BodiesOffset +
-        checked((int)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(28))) * PhysicsGpuAbi.BodyBytes;
+    private static int DynamicOffset(byte[] bytes)
+    {
+        var count = BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(12));
+        for (var i = 0; i < count; i++)
+        {
+            var offset = PhysicsGpuAbi.BodiesOffset + checked((int)i) * PhysicsGpuAbi.BodyBytes;
+            if (BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(offset)) == 1) return offset;
+        }
+        throw new InvalidOperationException("Fixture dynamic body identity is missing.");
+    }
     private static void WriteHalf(byte[] bytes, int offset, Half value) =>
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), BitConverter.HalfToUInt16Bits(value));
 
@@ -656,17 +674,17 @@ public sealed class WorkshopWireTests
     {
         var bytes = GenericAdmission();
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
-        var body = PhysicsGpuAbi.ReadDynamicBody(bytes)!.Value;
-        Assert.Equal(Construction.Ball!.Value.Cell, body.Body.Cell);
-        Assert.Equal(Construction.Ball.Value.Rotation, body.Rotation);
+        var body = NamedBody(bytes, new(1));
+        Assert.Equal(OnlyBasketball(Construction).Cell, body.Body.Cell);
+        Assert.Equal(OnlyBasketball(Construction).Rotation, body.Rotation);
         Assert.Equal(Profile, PhysicsGpuAbi.ReadProfile(bytes));
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(bytes));
-        Assert.Equal(0, PhysicsMotionRead.Decode(bytes.AsSpan(PhysicsGpuAbi.MotionOffset), body.Body, new(0)).Count);
+        Assert.Equal(0, PhysicsMotionRead.Decode(bytes.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength), new(new[] { body }), new(0)).Count);
         foreach (var length in new[] { 80, 128, 144, 8832, PhysicsGpuAbi.ByteLength - 1, PhysicsGpuAbi.ByteLength + 1 })
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBody(new byte[length]));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(new byte[length]));
         var reset = PhysicsGpuAbi.Admission(GenericScene, new(3), Profile);
-        Assert.Equal(3UL, PhysicsGpuAbi.ReadDynamicBody(reset)!.Value.Body.Epoch);
-        Assert.Equal(body.Rotation, PhysicsGpuAbi.ReadDynamicBody(reset)!.Value.Rotation);
+        Assert.Equal(3UL, NamedBody(reset, new(1)).Body.Epoch);
+        Assert.Equal(body.Rotation, NamedBody(reset, new(1)).Rotation);
     }
 
     [Theory]
@@ -714,11 +732,15 @@ public sealed class WorkshopWireTests
         Assert.Equal(guide, copied.Guides[0]);
         Assert.Empty(GenericScene.Guides.ToArray());
         var bytes = PhysicsGpuAbi.Admission(scene, new(2), Profile);
-        foreach (var (offset, value) in new[] { (0, 3u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, 1u) })
+        foreach (var (offset, value) in new[] { (0, 3u), (0, 6u), (96, (uint)PhysicsSceneDeclaration.GuideCapacity + 1), (100, (uint)PhysicsSceneDeclaration.TriggerCapacity + 1), (104, (uint)PhysicsSceneDeclaration.ContactWorkCapacity + 1), (108, (uint)PhysicsContactWorkRead.OccurrenceCapacity + 1), (116, 1u) })
         {
             var changed = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(changed.AsSpan(offset), value);
-            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBody(changed));
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(changed));
         }
+        var unownedEvent = (byte[])bytes.Clone();
+        BinaryPrimitives.WriteUInt32LittleEndian(unownedEvent.AsSpan(108), 1);
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadContactWorks(unownedEvent));
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(unownedEvent, bytes, new(0)));
     }
 
     [Theory]
@@ -738,6 +760,27 @@ public sealed class WorkshopWireTests
         BinaryPrimitives.WriteUInt32LittleEndian(candidate.AsSpan(offset), value);
         Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(candidate, source, new(0)));
         PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
+    }
+
+    [Fact]
+    public void GenericCacheRejectsEveryChangedInactiveOrImmutableByte()
+    {
+        var source = GenericAdmission();
+        Assert.True(BinaryPrimitives.ReadUInt32LittleEndian(source.AsSpan(112)) > 0);
+        PhysicsGpuAbi.ValidateCandidate(source, source, new(0));
+        for (var offset = 0; offset < PhysicsGpuAbi.CacheBytes; offset++)
+        {
+            if (offset == 24) continue; // The enabled selector has its separate active-record domain.
+            foreach (var bit in new byte[] { 1, 0x80 })
+            {
+                var changed = (byte[])source.Clone();
+                changed[PhysicsGpuAbi.CacheOffset + offset] ^= bit;
+                Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0)));
+            }
+        }
+        var invalidEnabled = (byte[])source.Clone();
+        invalidEnabled[PhysicsGpuAbi.CacheOffset + 24] = 2;
+        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(invalidEnabled, source, new(0)));
     }
 
     [Fact]
@@ -765,24 +808,28 @@ public sealed class WorkshopWireTests
         var bytes = GenericAdmission(); var offset = DynamicOffset(bytes);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(40), tick);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(88), checked((uint)(tick * Profile.Substeps)));
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 92), origin);
-        WriteHalf(bytes, offset + 102, phase);
-        var body = PhysicsGpuAbi.ReadDynamicBody(bytes)!.Value;
-        var read = Described(new(new(2), new(tick), body.Body, Rotation: body.Rotation, Angular: body.AngularVelocity));
+        var body = NamedBody(bytes, new(1));
+        var read = Described(new(new(2), new(tick), new(new[] { body })));
         read.Motion!.Bytes.CopyTo(bytes.AsSpan(PhysicsGpuAbi.MotionOffset));
+        for (var i = 0; i < Profile.Substeps; i++)
+        {
+            var piece = PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes;
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(piece + 12), origin);
+            WriteHalf(bytes, piece + 20, phase);
+        }
         return bytes;
     }
 
     [Theory]
-    [InlineData(2UL, 8u, -2048, true)]
-    [InlineData(2UL, 8u, 2048, false)]
-    [InlineData(2UL, 8u, 0, true)]
-    [InlineData(2UL, 8u, 1, false)]
+    [InlineData(2UL, 4u, -2048, true)]
+    [InlineData(2UL, 4u, 2048, false)]
+    [InlineData(2UL, 4u, 0, true)]
+    [InlineData(2UL, 4u, 1, false)]
     [InlineData(16UL, 4u, -1, false)]
     [InlineData(16UL, 4u, 0, true)]
     [InlineData(16UL, 4u, 1, true)]
     [InlineData(16UL, 3u, 0, false)]
-    public void GenericSegmentKeepsCanonicalPhaseAndBoundedAge(ulong tick, uint origin, int phase, bool accepted)
+    public void GenericMotionAnchorKeepsCanonicalPhaseAndBoundedAge(ulong tick, uint origin, int phase, bool accepted)
     {
         var source = GenericAdmission(); var candidate = GenericEndpoint(tick, origin, (Half)phase);
         if (accepted) PhysicsGpuAbi.ValidateCandidate(candidate, source, new(tick));
@@ -804,7 +851,7 @@ public sealed class WorkshopWireTests
         foreach (var offset in new[] { motion + PhysicsMotionRead.HeaderBytes + 4, // missing beginning
             motion + PhysicsMotionRead.HeaderBytes + 24, // wrong body
             motion + PhysicsMotionRead.HeaderBytes + 102, // padding
-            motion + PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.PieceBytes }) // unused tail
+            motion + PhysicsMotionRead.HeaderBytes + checked((int)Profile.Substeps) * PhysicsMotionRead.PieceBytes }) // unused tail
         {
             var changed = (byte[])candidate.Clone(); changed[offset] ^= 1;
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(1)));
@@ -812,11 +859,11 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public void ForceDrivenMotionSamplesItsDeclaredQuadraticAndValidatesLocalCertificate()
+    public void ForceDrivenMotionSamplesQuadraticAndAcceptsGameGradeResiduals()
     {
         var state = GenericEndpoint(1, 0, (Half)0);
-        var body = PhysicsGpuAbi.ReadDynamicBody(state)!.Value.Body;
-        var bytes = state.AsSpan(PhysicsGpuAbi.MotionOffset).ToArray();
+        var body = NamedBody(state, new(1)).Body;
+        var bytes = state.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength).ToArray();
         var seed = bytes.AsSpan(PhysicsMotionRead.HeaderBytes, PhysicsMotionRead.PieceBytes).ToArray();
         BinaryPrimitives.WriteUInt32LittleEndian(bytes, 4);
         for (var index = 0; index < 4; index++)
@@ -832,19 +879,27 @@ public sealed class WorkshopWireTests
             WriteHalf(bytes, offset + 106, (Half).002);
             WriteHalf(bytes, offset + 108, (Half).00006103515625);
         }
-        var motion = PhysicsMotionRead.Decode(bytes, body, new(1));
-        Assert.True(motion.TrySample(.5, out var pose));
+        var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
+        Assert.True(motion.TrySample(body.Id, .5, out var pose));
         Assert.Equal(0, pose.Cell.X);
         Assert.Equal((Half)(16 * .5 * 32 * Math.Pow(.5 / 480, 2)), pose.Local.X);
-        foreach (var offset in new[] { 104, 106, 108 })
-        {
-            var changed = (byte[])bytes.Clone(); WriteHalf(changed, PhysicsMotionRead.HeaderBytes + offset, Half.NaN);
-            Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(changed, body, new(1)));
-        }
-        var missing = (byte[])bytes.Clone(); WriteHalf(missing, PhysicsMotionRead.HeaderBytes + 106, (Half)0);
-        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(missing, body, new(1)));
         var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(unknown.AsSpan(PhysicsMotionRead.HeaderBytes), 4);
-        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(unknown, body, new(1)));
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(unknown, Bodies(body), new(1)));
+    }
+
+    [Fact]
+    public void RoundedGpuQuaternionDoesNotTripAuthoredInputNormGate()
+    {
+        var rotation = new CanonicalRotation((Half).57861328125, (Half)(-.57275390625),
+            (Half).55712890625, (Half).1676025390625);
+        rotation.ValidateCommitted();
+        Assert.Throws<ArgumentException>(() => rotation.Validate());
+        var state = GenericEndpoint(1, 0, (Half)0);
+        var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
+        for (var i = 0; i < 4; i++) WriteHalf(state, DynamicOffset(state) + 40 + i * 2, values[i]);
+        Assert.Equal(rotation, NamedBody(state, new(1)).Rotation);
+        Assert.Throws<ArgumentException>(() => (rotation with { X = Half.NaN }).ValidateCommitted());
+        Assert.Throws<ArgumentException>(() => default(CanonicalRotation).ValidateCommitted());
     }
 
     public enum CanonicalPaddingRegion { UnusedBodies, UnusedSensors, UnusedMotion, BodyPadding, MotionPadding }
@@ -868,10 +923,10 @@ public sealed class WorkshopWireTests
         var (start, length) = region switch
         {
             CanonicalPaddingRegion.UnusedBodies => (bodyTail, PhysicsGpuAbi.CollidersOffset - bodyTail),
-            CanonicalPaddingRegion.UnusedSensors => (sensorTail, PhysicsGpuAbi.MotionOffset - sensorTail),
-            CanonicalPaddingRegion.UnusedMotion => (motionTail, PhysicsGpuAbi.ByteLength - motionTail),
-            CanonicalPaddingRegion.BodyPadding => (DynamicOffset(candidate) + 110, 2),
-            CanonicalPaddingRegion.MotionPadding => (PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + 102, 26),
+            CanonicalPaddingRegion.UnusedSensors => (sensorTail, PhysicsGpuAbi.GuidesOffset - sensorTail),
+            CanonicalPaddingRegion.UnusedMotion => (motionTail, PhysicsGpuAbi.CacheOffset - motionTail),
+            CanonicalPaddingRegion.BodyPadding => (DynamicOffset(candidate) + 124, 4),
+            CanonicalPaddingRegion.MotionPadding => (PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + 124, 4),
             _ => throw new ArgumentOutOfRangeException(nameof(region))
         };
         Assert.True(length > 0);
@@ -883,7 +938,7 @@ public sealed class WorkshopWireTests
             changed[offset] = value; // 0x80 also exercises a Half negative-zero sign bit in raw-zero storage.
             Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(1)));
         }
-        Assert.True(originalMotion.Bytes.SequenceEqual(PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1)).Bytes));
+        Assert.True(originalMotion.Motion.Bytes.SequenceEqual(PhysicsGpuAbi.ValidateCandidate(candidate, source, new(1)).Motion.Bytes));
     }
 
     [Theory]
@@ -891,12 +946,12 @@ public sealed class WorkshopWireTests
     [InlineData(0x101u)]
     public void UnknownFullWidthCaptureDiscriminantRejects(uint phase)
     {
-        var read = Stamped(new(new(2), new(0), null, Captures: new([CaptureLatch.Clear(new(9))])));
+        var read = Stamped(new(new(2), new(0), default, Captures: new([CaptureLatch.Clear(new(9))])));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             read, Session, default, new(1), new(1), new(1));
         var bytes = WorkshopWire.Encode(response);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(264), phase);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(WorkshopWire.ReadCapturesOffset + 8), phase);
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
     }
 
@@ -904,12 +959,12 @@ public sealed class WorkshopWireTests
     public void ResponseWriterRejectsInvalidBodyWithoutChangingReservedOutput()
     {
         var body = new CanonicalBody(new(1), 2, 0, default, default, default);
-        var read = Stamped(new(new(2), new(0), body));
+        var read = Stamped(new(new(2), new(0), Bodies(body)));
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building,
             read, Session, default, new(1), new(1), new(1));
         var bytes = WorkshopWire.Encode(response); var before = (byte[])bytes.Clone();
-        Assert.Throws<ArgumentException>(() => WorkshopWire.Write(response with { Read = read with { Ball = body with { Epoch = 3 } } }, bytes));
+        Assert.Throws<ArgumentException>(() => WorkshopWire.Write(response with { Read = read with { Bodies = Bodies(body with { Epoch = 3 }) } }, bytes));
         Assert.Equal(before, bytes);
     }
 
@@ -926,7 +981,7 @@ public sealed class WorkshopWireTests
         Assert.Same(first, duplicate);
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(command with { Kind = WorkshopCommandKind.Run, Construction = null })));
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(command with { Epoch = new(2) })));
-        var different = command with { Construction = Construction.WithoutInstance(Construction.Ball!.Value.Id) };
+        var different = command with { Construction = Construction.WithoutInstance(OnlyBasketball(Construction).Id) };
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(different)));
         bytes[16] ^= 1; // caller cannot change the retained identity after admission.
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(bytes));

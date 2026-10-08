@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class LatchTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class LatchTests(NativeSceneFixture godot)
 {
     [Theory]
     [InlineData(false,false)]
@@ -32,39 +32,39 @@ public class LatchTests(HeadlessFixture godot)
             Assert.Null(world.SuggestedConnection(set,latch));
             Assert.True(world.Connect(set,SocketId.ActivationOut,latch,SocketId.SetIn,ConnectionDomain.Activation));
             Assert.True(world.Connect(reset,SocketId.ActivationOut,latch,SocketId.ResetIn,ConnectionDomain.Activation));
-            Assert.True(world.Connect(world.FindPart("battery")!,latch));
+            var power=new SupplyControl(world,world.FindPart("battery")!);
+            Assert.True(world.Connect(power.Output,latch));
             Assert.True(world.Connect(latch,gate));
-            var wire=world.Connections.Single(c=>c.From=="battery");
-            if(!supply)world.Connections.Remove(wire);
             world.Start();
+            if(supply)power.SetAndSettle(SimulationLatchPhase.On);
             world.Activate(set);
-            Assert.Equal(LatchState.Off,latch.State);
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
             world.Step(); // Current-tick requests cannot settle before all senders have delivered.
-            Assert.Equal(LatchState.Off,latch.State);
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
             world.Step();
-            Assert.Equal(LatchState.On,latch.State);
+            Assert.Equal(SimulationLatchPhase.On,latch.State);
             Assert.Equal(supply,gate.HasElectricalPower(SocketId.PowerIn));
             for(var tick=0;tick<20;tick++)world.Step();
-            Assert.Equal(LatchState.On,latch.State);
-            // Memory survives source removal/restoration; only a real source powers the output.
-            world.Connections.Remove(wire);world.Step();
+            Assert.Equal(SimulationLatchPhase.On,latch.State);
+            // Memory survives an upstream contact opening; wiring stays fixed.
+            power.SetAndSettle(SimulationLatchPhase.Off);
             Assert.False(gate.HasElectricalPower(SocketId.PowerIn));
-            world.Connections.Add(wire);world.Step();
+            power.SetAndSettle(SimulationLatchPhase.On);
             Assert.True(gate.HasElectricalPower(SocketId.PowerIn));
             if(reverse){world.Activate(reset);world.Activate(set);}
             else{world.Activate(set);world.Activate(reset);}
             world.Step();world.Step();
-            Assert.Equal(LatchState.Off,latch.State);
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
             Assert.False(gate.HasElectricalPower(SocketId.PowerIn));
             world.Activate(set);world.Step();world.Step();
-            Assert.Equal(LatchState.On,latch.State);
+            Assert.Equal(SimulationLatchPhase.On,latch.State);
             world.Activate(reset);world.Step();world.Step();
-            Assert.Equal(LatchState.Off,latch.State);
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
             world.Activate(set); // Pending requests are also discarded by workshop Reset.
             world.Restore();
             latch=(LatchPart)world.FindPart("latch")!;
             world.Start();world.Step();world.Step();
-            Assert.Equal(LatchState.Off,latch.State);
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
             Assert.Throws<ArgumentException>(()=>world.Activate(latch));
         }
         finally{world.Free();}
@@ -82,7 +82,39 @@ public class LatchTests(HeadlessFixture godot)
             Assert.True(world.Connect(source,SocketId.ActivationOut,latch,SocketId.SetIn,ConnectionDomain.Activation));
             Assert.True(world.Connect(source,SocketId.ActivationOut,latch,SocketId.ResetIn,ConnectionDomain.Activation));
             world.Start();world.Activate(source);world.Step();world.Step();
-            Assert.Equal(LatchState.Off,latch.State);
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
+        }
+        finally{world.Free();}
+    }
+
+    [Fact]
+    public void OwnedSnapshotsRestorePendingCommandsAndSceneReadings()
+    {
+        var world=new MachineWorld {Gravity=0,Pressure=0};
+        godot.Tree.Root.AddChild(world);
+        try
+        {
+            var latch=(LatchPart)world.AddPart(new(){Id=FixtureParts.Id(FixturePartId.First),Kind="latch"});
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
+            Assert.Throws<InvalidOperationException>(()=>latch.HandleActivation(world,ActivationCommand.Set));
+            world.Start();
+            var empty=world.Latches.Capture();
+            latch.HandleActivation(world,ActivationCommand.Set);
+            var pending=world.Latches.Capture();
+            world.Step();world.Step();
+            Assert.Equal(SimulationLatchPhase.On,latch.State);
+            world.Latches.Restore(empty);
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
+            world.Latches.Restore(pending);
+            var key=new SceneLatchKey(latch,LatchPart.Memory);
+            Assert.Equal(SimulationLatchRequests.Set,world.ReadLatch(key).NextRequests);
+            // Exercise the owned boundaries directly; the scene reads the same authority.
+            world.Latches.Advance(0);world.Latches.Advance(1);
+            Assert.Equal(SimulationLatchPhase.On,latch.State);
+            Assert.Throws<ArgumentException>(()=>latch.HandleActivation(world,ActivationCommand.Trigger));
+            world.Restore();
+            latch=(LatchPart)Assert.Single(world.Parts);
+            Assert.Equal(SimulationLatchPhase.Off,latch.State);
         }
         finally{world.Free();}
     }

@@ -10,21 +10,25 @@ namespace Ownership;
 
 public static class SourceInventory
 {
+    private const string GeometryProject = "CuriousContraptions.Geometry/CuriousContraptions.Geometry.csproj";
+    private const string AnimationProject = "CuriousContraptions.Animation/CuriousContraptions.Animation.csproj";
     private const string MainProject = "CuriousContraptions.csproj";
     private const string WebProject = "CuriousContraptions.web/CuriousContraptions.web.csproj";
     private const string TestProject = "CuriousContraptions.tests/CuriousContraptions.tests.csproj";
     private const string DiagnosticSymbol = "PLAYTEST";
     private const string WebSymbol = "TWODOG_WEB_BOOT";
 
-    private sealed record ProjectInputs(string[] Paths, string[] BindingPaths, string[] References, string[] Symbols,
+    internal sealed record ProjectInputs(string[] Paths, string[] BindingPaths, string[] References, string[] Symbols,
         string[] Usings, string AssemblyName, LanguageVersion Language, NullableContextOptions Nullable,
-        bool Unsafe, OutputKind Output, bool Checked);
+        bool Unsafe, OutputKind Output, bool Checked, string[] ConfigPaths);
 
     private static ProjectInputs Resolve(string root, string project, InspectionContext context)
     {
         var diagnostics = context is InspectionContext.ProductionDiagnostic or InspectionContext.TestDiagnostic;
         var generatedDirectory = Path.Combine(root, "tools/Ownership/obj/binding", context switch
         {
+            InspectionContext.GeometryRelease => "GeometryRelease",
+            InspectionContext.AnimationRelease => "AnimationRelease",
             InspectionContext.ProductionDiagnostic => "ProductionDiagnostic",
             InspectionContext.ProductionRelease => "ProductionRelease",
             InspectionContext.TestDiagnostic => "TestDiagnostic",
@@ -39,7 +43,7 @@ public static class SourceInventory
         foreach (var argument in new[] { "msbuild", project, "-p:Configuration=Release",
             "-target:Rebuild", "-p:BuildProjectReferences=false", "-p:EmitCompilerGeneratedFiles=true",
             "-p:CompilerGeneratedFilesOutputPath=" + generatedDirectory, "-getItem:Compile,ReferencePath,Using",
-            "-getProperty:DefineConstants,AssemblyName,LangVersion,Nullable,AllowUnsafeBlocks,OutputType,CheckForOverflowUnderflow", "-p:PlaytestDiagnostics=" + (diagnostics ? "true" : "false"), "-nologo" })
+            "-getProperty:DefineConstants,AssemblyName,LangVersion,Nullable,AllowUnsafeBlocks,OutputType,CheckForOverflowUnderflow,MSBuildAllProjects,MSBuildProjectFullPath,ProjectAssetsFile,MSBuildProjectExtensionsPath", "-p:PlaytestDiagnostics=" + (diagnostics ? "true" : "false"), "-nologo" })
             start.ArgumentList.Add(argument);
         using var process = Process.Start(start) ?? throw new InvalidOperationException("Cannot resolve compilation inputs.");
         var output = process.StandardOutput.ReadToEndAsync();
@@ -69,12 +73,21 @@ public static class SourceInventory
             "WinExe" => OutputKind.WindowsApplication,
             _ => throw new InvalidDataException("Unsupported output kind.")
         };
-        return new(ItemPaths("Compile"), Directory.EnumerateFiles(generatedDirectory, "*.cs", SearchOption.AllDirectories)
+        var config = Property("MSBuildAllProjects").Split(';', StringSplitOptions.RemoveEmptyEntries)
+            .Concat([Property("MSBuildProjectFullPath"), Property("ProjectAssetsFile"),
+                Path.Combine(Property("MSBuildProjectExtensionsPath"), Path.GetFileName(project) + ".nuget.g.props"),
+                Path.Combine(Property("MSBuildProjectExtensionsPath"), Path.GetFileName(project) + ".nuget.g.targets"),
+                Path.Combine(root, "Directory.Build.props"), Path.Combine(root, "Directory.Build.targets"),
+                Path.Combine(root, "global.json")])
+            .Select(path => Path.GetRelativePath(root, Path.GetFullPath(path, root)))
+            .Distinct().Order(StringComparer.Ordinal).ToArray();
+        return new(ItemPaths("Compile"), (Directory.Exists(generatedDirectory)
+                ? Directory.EnumerateFiles(generatedDirectory, "*.cs", SearchOption.AllDirectories) : [])
                 .Select(path => Path.GetRelativePath(root, path)).Order(StringComparer.Ordinal).ToArray(), ItemPaths("ReferencePath"),
             properties.GetProperty("DefineConstants").GetString()!.Split(';', StringSplitOptions.RemoveEmptyEntries),
             items.GetProperty("Using").EnumerateArray().Select(item => item.GetProperty("Identity").GetString()!).ToArray(),
             properties.GetProperty("AssemblyName").GetString()!, language, nullable,
-            bool.Parse(Property("AllowUnsafeBlocks")), outputKind, bool.Parse(Property("CheckForOverflowUnderflow")));
+            bool.Parse(Property("AllowUnsafeBlocks")), outputKind, bool.Parse(Property("CheckForOverflowUnderflow")), config);
     }
 
     private static SourcePath[] WebLifecycleInputs(string root)
@@ -105,7 +118,7 @@ public static class SourceInventory
             new("CuriousContraptions.web/obj/project.assets.json"),
             new("CuriousContraptions.web/obj/CuriousContraptions.web.csproj.nuget.g.props"),
             new("CuriousContraptions.web/obj/CuriousContraptions.web.csproj.nuget.g.targets"),
-            new(MainProject), new("Directory.Build.props"), new("Directory.Build.targets"), new("global.json")
+            new(MainProject), new(GeometryProject), new("Directory.Build.props"), new("Directory.Build.targets"), new("global.json")
         ];
         return explicitInputs.Concat(compile.Concat(imports).Select(path => new SourcePath(path)))
             .Distinct().OrderBy(path => path.Value, StringComparer.Ordinal).ToArray();
@@ -113,47 +126,103 @@ public static class SourceInventory
 
     public static OwnershipSnapshot Capture(string root)
     {
+        var geometry = Resolve(root, GeometryProject, InspectionContext.GeometryRelease);
+        var animation = Resolve(root, AnimationProject, InspectionContext.AnimationRelease);
         var main = Resolve(root, MainProject, InspectionContext.ProductionDiagnostic);
         var tests = Resolve(root, TestProject, InspectionContext.TestDiagnostic);
         var releaseMain = Resolve(root, MainProject, InspectionContext.ProductionRelease);
         var releaseTests = Resolve(root, TestProject, InspectionContext.TestRelease);
-        static CSharpCompilation Compile(string rootPath, ProjectInputs inputs, CSharpCompilation? production)
-        {
-            var options = new CSharpParseOptions(inputs.Language, preprocessorSymbols: inputs.Symbols);
-            var source = inputs.Paths.Concat(inputs.BindingPaths).Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(rootPath, path)), options, path));
-            var imports = CSharpSyntaxTree.ParseText(string.Join("\n", inputs.Usings.Select(value => "global using " + value + ";")), options);
-            IEnumerable<MetadataReference> refs = inputs.References
-                .Where(path => production is null || Path.GetFileNameWithoutExtension(path) != production.AssemblyName)
-                .Select(path => MetadataReference.CreateFromFile(Path.Combine(rootPath, path)));
-            if (production is not null) refs = refs.Append(production.ToMetadataReference());
-            return CSharpCompilation.Create(inputs.AssemblyName, source.Append(imports), refs,
-                new CSharpCompilationOptions(inputs.Output, allowUnsafe: inputs.Unsafe,
-                    nullableContextOptions: inputs.Nullable, checkOverflow: inputs.Checked));
-        }
-        var compilation = Compile(root, main, null);
-        var testCompilation = Compile(root, tests, compilation);
-        var releaseCompilation = Compile(root, releaseMain, null);
-        var releaseTestCompilation = Compile(root, releaseTests, releaseCompilation);
+        var geometryCompilation = Compile(root, geometry);
+        var animationCompilation = Compile(root, animation);
+        if (animation.AssemblyName != "CuriousContraptions.Animation")
+            throw new InvalidDataException("Animation project assembly identity differs.");
+        foreach (var consumer in new[] { main, tests, releaseMain, releaseTests })
+            RequireReference(consumer, animationCompilation);
+        CSharpCompilation[] Dependencies(ProjectInputs consumer, params CSharpCompilation[] required) =>
+            HasReference(consumer, geometryCompilation) ? [.. required, geometryCompilation] : required;
+        var compilation = Compile(root, main, Dependencies(main, animationCompilation));
+        var testCompilation = Compile(root, tests, Dependencies(tests, animationCompilation, compilation));
+        var releaseCompilation = Compile(root, releaseMain, Dependencies(releaseMain, animationCompilation));
+        var releaseTestCompilation = Compile(root, releaseTests, Dependencies(releaseTests, animationCompilation, releaseCompilation));
         var contexts = new[] {
+            (Kind: InspectionContext.GeometryRelease, Compilation: geometryCompilation, Inputs: geometry),
+            (Kind: InspectionContext.AnimationRelease, Compilation: animationCompilation, Inputs: animation),
             (Kind: InspectionContext.ProductionDiagnostic, Compilation: compilation, Inputs: main),
             (Kind: InspectionContext.TestDiagnostic, Compilation: testCompilation, Inputs: tests),
             (Kind: InspectionContext.ProductionRelease, Compilation: releaseCompilation, Inputs: releaseMain),
             (Kind: InspectionContext.TestRelease, Compilation: releaseTestCompilation, Inputs: releaseTests)
         };
+        return Inspect(root, contexts, WebLifecycleInputs(root));
+    }
+
+    internal static bool HasReference(ProjectInputs inputs, CSharpCompilation dependency) =>
+        inputs.References.Any(path => Path.GetFileNameWithoutExtension(path) == dependency.AssemblyName);
+
+    internal static void RequireReference(ProjectInputs inputs, CSharpCompilation dependency)
+    {
+        if (inputs.References.Count(path => Path.GetFileNameWithoutExtension(path) == dependency.AssemblyName) != 1)
+            throw new InvalidDataException("Required source-backed assembly reference is missing or duplicated.");
+    }
+
+    internal static CSharpCompilation Compile(string root, ProjectInputs inputs, params CSharpCompilation[] dependencies)
+    {
+        if (inputs.Paths.Length == 0 || inputs.Paths.Distinct(StringComparer.Ordinal).Count() != inputs.Paths.Length)
+            throw new InvalidDataException("Compile inputs must be present and unique.");
+        foreach (var dependency in dependencies) RequireReference(inputs, dependency);
+        if (dependencies.Select(item => item.AssemblyName).Distinct(StringComparer.Ordinal).Count() != dependencies.Length)
+            throw new InvalidDataException("Duplicate source-backed dependency.");
+        var options = new CSharpParseOptions(inputs.Language, preprocessorSymbols: inputs.Symbols);
+        var source = inputs.Paths.Concat(inputs.BindingPaths).Distinct(StringComparer.Ordinal)
+            .Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, path)), options, path));
+        var imports = CSharpSyntaxTree.ParseText(string.Join("\n", inputs.Usings.Select(value => "global using " + value + ";")), options);
+        IEnumerable<MetadataReference> references = inputs.References
+            .Where(path => !dependencies.Any(dependency => Path.GetFileNameWithoutExtension(path) == dependency.AssemblyName))
+            .Select(path => MetadataReference.CreateFromFile(Path.Combine(root, path)));
+        references = references.Concat(dependencies.Select(dependency => dependency.ToMetadataReference()));
+        return CSharpCompilation.Create(inputs.AssemblyName, source.Append(imports), references,
+            new CSharpCompilationOptions(inputs.Output, allowUnsafe: inputs.Unsafe,
+                nullableContextOptions: inputs.Nullable, checkOverflow: inputs.Checked));
+    }
+
+    internal static OwnershipSnapshot Inspect(string root,
+        (InspectionContext Kind, CSharpCompilation Compilation, ProjectInputs Inputs)[] contexts,
+        SourcePath[] supplementalInputs)
+    {
+        if (contexts.Any(context => !Enum.IsDefined(context.Kind)) ||
+            contexts.Select(context => context.Kind).Distinct().Count() != contexts.Length ||
+            !Enum.GetValues<InspectionContext>().Order().SequenceEqual(contexts.Select(context => context.Kind).Order()))
+            throw new InvalidDataException("Missing, duplicate or unknown compilation context.");
+        var animation = contexts.Single(context => context.Kind == InspectionContext.AnimationRelease);
+        if (animation.Compilation.AssemblyName != "CuriousContraptions.Animation")
+            throw new InvalidDataException("Animation source context has the wrong assembly identity.");
+        foreach (var context in contexts.Where(context => context.Kind is
+            InspectionContext.ProductionRelease or InspectionContext.ProductionDiagnostic or
+            InspectionContext.TestRelease or InspectionContext.TestDiagnostic))
+        {
+            RequireReference(context.Inputs, animation.Compilation);
+            if (!context.Compilation.References.OfType<CompilationReference>()
+                .Any(reference => ReferenceEquals(reference.Compilation, animation.Compilation)))
+                throw new InvalidDataException("Animation dependency is not source-backed.");
+        }
         var diagnostics = contexts.SelectMany(context => context.Compilation.GetDiagnostics()
             .Where(item => item.Severity == DiagnosticSeverity.Error)
             .Select(item => new BindingDiagnostic(context.Kind, new(item.Id),
                 new(item.Location.SourceTree?.FilePath ?? string.Empty),
                 item.Location.IsInSource ? item.Location.GetLineSpan().StartLinePosition.Line + 1 : 0,
                 item.GetMessage()))).ToArray();
-        var authoredPaths = main.Paths.ToHashSet(StringComparer.Ordinal);
-        var trees = compilation.SyntaxTrees.Where(tree => authoredPaths.Contains(tree.FilePath)).ToArray();
+        // Animation currently has no conditional source branches. Revisit this Release-only union
+        // when its authored conditionals/configurations change; do not infer future coverage.
+        var declarations = contexts.Where(context => context.Kind is InspectionContext.ProductionDiagnostic
+            or InspectionContext.GeometryRelease or InspectionContext.AnimationRelease);
+        var trees = declarations.SelectMany(context => context.Compilation.SyntaxTrees
+            .Where(tree => context.Inputs.Paths.Contains(tree.FilePath, StringComparer.Ordinal))
+            .Select(tree => (Tree: tree, Compilation: context.Compilation))).ToArray();
         var allTrees = contexts.SelectMany(context => context.Compilation.SyntaxTrees
             .Where(tree => tree.FilePath.Length != 0).Select(tree => (tree, context.Compilation, context.Kind))).ToArray();
-        var paths = main.Paths.Concat(releaseMain.Paths).Concat(main.BindingPaths).Concat(releaseMain.BindingPaths).Distinct().ToArray();
-        var testPaths = tests.Paths.Concat(releaseTests.Paths).Concat(tests.BindingPaths).Concat(releaseTests.BindingPaths).Distinct().ToArray();
-        var referencePaths = main.References.Concat(tests.References).Concat(releaseMain.References)
-            .Concat(releaseTests.References).Distinct().Order(StringComparer.Ordinal).ToArray();
+        var paths = contexts.SelectMany(context => context.Inputs.Paths.Concat(context.Inputs.BindingPaths)
+            .Concat(context.Inputs.ConfigPaths)).Distinct().ToArray();
+        var referencePaths = contexts.SelectMany(context => context.Inputs.References)
+            .Distinct().Order(StringComparer.Ordinal).ToArray();
         var symbols = contexts.Select(context => new CompilationContext(context.Kind,
             context.Compilation.SyntaxTrees.First().Options is CSharpParseOptions parse ? parse.PreprocessorSymbolNames.ToArray() : [],
             new(context.Compilation.AssemblyName!), ((CSharpParseOptions)context.Compilation.SyntaxTrees.First().Options).LanguageVersion,
@@ -164,9 +233,9 @@ public static class SourceInventory
             context.Inputs.References.Select(path => new SourcePath(path)).ToArray()))
             .ToArray();
         var declared = new Dictionary<ISymbol, (SyntaxNode Node, StorageForm Form)>(SymbolEqualityComparer.Default);
-        foreach (var tree in trees)
+        foreach (var (tree, ownerCompilation) in trees)
         {
-            var model = compilation.GetSemanticModel(tree);
+            var model = ownerCompilation.GetSemanticModel(tree);
             foreach (var node in tree.GetRoot().DescendantNodes())
             {
                 ISymbol? symbol = null;
@@ -285,7 +354,7 @@ public static class SourceInventory
                 form, storage ? StorageMutability.ReferencedStorage : mutable ? StorageMutability.MutableValue : StorageMutability.ConstructionValue,
                 symbol.IsStatic, uses[symbol].Distinct().OrderBy(site => site.Path.Value, StringComparer.Ordinal).ThenBy(site => site.Line).ToArray());
         }).OrderBy(member => member.Id.Value, StringComparer.Ordinal).ToArray();
-        return new(paths.Concat(testPaths).Concat(WebLifecycleInputs(root).Select(path => path.Value))
+        return new(paths.Concat(supplementalInputs.Select(path => path.Value))
             .Distinct().Order(StringComparer.Ordinal).Select(path => new SourceInput(new(path),
             Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(root, path)))))).ToArray(), members)
         {

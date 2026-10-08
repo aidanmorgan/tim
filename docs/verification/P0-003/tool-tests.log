@@ -1,7 +1,0 @@
-xUnit.net v3 In-Process Runner v3.2.2+728c1dce01 (64-bit .NET 10.0.12)
-  Discovering: Performance.Tests
-  Discovered:  Performance.Tests
-  Starting:    Performance.Tests
-  Finished:    Performance.Tests (ID = 'ee152943586a37ad8d25736701cc752c3fab2589d90baf017f37766ea8176eb6')
-=== TEST EXECUTION SUMMARY ===
-   Performance.Tests  Total: 30, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.179s

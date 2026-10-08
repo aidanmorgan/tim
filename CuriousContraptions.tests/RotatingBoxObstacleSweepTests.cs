@@ -1,4 +1,5 @@
 using Godot;
+using CuriousContraptions.Physics;
 
 namespace CuriousContraptions.Tests;
 
@@ -6,12 +7,24 @@ public class RotatingBoxObstacleSweepTests
 {
     private static readonly Vector3 Half = new(1.8f, .12f, .55f);
     private static readonly Vector3 WallHalf = new(.3f, .2f, .7f);
-    private static RotatingObstacleHit Cast(Vector3 center, double speed = 1, double duration = 1,
-        Vector3? obstacleHalf = null, Transform3D? pose = null, Vector3? pivot = null,
-        Vector3? axis = null, Basis? obstacleBasis = null) =>
-        RotatingBoxObstacleSweep.Cast(pivot ?? Vector3.Zero, axis ?? Vector3.Back,
-            pose ?? Transform3D.Identity, Half, speed,
-            new(obstacleBasis ?? Basis.Identity, center), obstacleHalf ?? WallHalf, duration);
+    private static ConvexSweepResult Cast(Vector3 center,double speed=1,double duration=1,
+        Vector3? obstacleHalf=null,Transform3D? pose=null,Vector3? pivot=null,
+        Vector3? axis=null,Basis? obstacleBasis=null,double minimumSeparation=ConvexSweep.ContactDistance)
+    {
+        var scenePose=pose??Transform3D.Identity;
+        var rigid=SceneGeometryAdapter.CaptureRigidPose(scenePose);
+        var origin=pivot??Vector3.Zero;
+        var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,
+            new(SceneGeometryAdapter.CaptureVector(origin),rigid.Rotation),default,SceneGeometryAdapter.CaptureVector(axis??Vector3.Back)*speed);
+        var offset=scenePose.Basis.Inverse()*(scenePose.Origin-origin);
+        var beam=new ConvexMotion(new(new ConvexBox(SceneGeometryAdapter.CaptureVector(Half)),
+            SceneGeometryAdapter.CaptureAffine(new Transform3D(Basis.Identity,offset))),body.CreateTrajectory(duration,default));
+        var wall=new PhysicsBody(new(1),PhysicsMotionType.Static,
+            SceneGeometryAdapter.CaptureRigidPose(new(obstacleBasis??Basis.Identity,center)),default,default);
+        var obstacle=new ConvexMotion(new(new ConvexBox(SceneGeometryAdapter.CaptureVector(obstacleHalf??WallHalf)),AffineTransform.Identity),
+            wall.CreateTrajectory(duration,default));
+        return ConvexSweep.Cast(beam,obstacle,duration,minimumSeparation);
+    }
 
     [Theory]
     [InlineData(1)]
@@ -22,9 +35,9 @@ public class RotatingBoxObstacleSweepTests
     {
         var angle = Math.Asin(.4 / Math.Sqrt(1.8 * 1.8 + .12 * .12)) - Math.Atan(.12 / 1.8);
         var hit = Cast(new(1.5f * Math.Sign(speed), .6f, 0), speed, 1 / Math.Abs(speed));
-        Assert.Equal(SphereSweepStatus.Contact, hit.Status);
+        Assert.Equal(ConvexSweepStatus.Contact, hit.Status);
         Assert.InRange(hit.Time, (angle - .0001) / Math.Abs(speed), (angle + .00001) / Math.Abs(speed));
-        Assert.InRange(hit.Gap, -.00011, .00011);
+        Assert.InRange(hit.Separation.UpperBound, -.00011, .00011);
         Assert.InRange(hit.Iterations, 1, 500);
     }
 
@@ -33,7 +46,7 @@ public class RotatingBoxObstacleSweepTests
     {
         var half = new Vector3(.001f, .001f, .3f);
         var hit = Cast(new(1, 1, 0), 10000, Math.PI / 10000, half);
-        Assert.Equal(SphereSweepStatus.Contact, hit.Status);
+        Assert.Equal(ConvexSweepStatus.Contact, hit.Status);
         Assert.InRange(hit.Time * 10000, .69, .71);
     }
 
@@ -41,12 +54,12 @@ public class RotatingBoxObstacleSweepTests
     public void TouchingOneEndCanRotateAwayThenCollideLater()
     {
         var wall = new Vector3(1.5f, .32f, 0);
-        var clear = Cast(wall, -1, .1);
-        Assert.Equal(SphereSweepStatus.Clear, clear.Status);
-        var later = Cast(wall, -1, Math.PI);
-        Assert.Equal(SphereSweepStatus.Contact, later.Status);
+        var clear = Cast(wall, -1, .1,minimumSeparation:-1e-6);
+        Assert.Equal(ConvexSweepStatus.Clear, clear.Status);
+        var later = Cast(wall, -1, Math.PI,minimumSeparation:-1e-6);
+        Assert.Equal(ConvexSweepStatus.Contact, later.Status);
         Assert.True(later.Time > 1);
-        Assert.Equal(SphereSweepStatus.Contact, Cast(wall, 1, .1).Status);
+        Assert.Equal(ConvexSweepStatus.InitialContact, Cast(wall, 1, .1).Status);
     }
 
     [Fact]
@@ -54,20 +67,20 @@ public class RotatingBoxObstacleSweepTests
     {
         foreach (var depth in new[] { 1.25f, 2f })
         {
-            var hit = Cast(new(1, 1, depth), 20, 10);
-            Assert.Equal(SphereSweepStatus.Clear, hit.Status);
+            var hit = Cast(new(1, 1, depth), 20, 10,minimumSeparation:-1e-6);
+            Assert.Equal(ConvexSweepStatus.Clear, hit.Status);
             Assert.InRange(hit.Iterations, 1, 2);
         }
     }
 
     [Fact]
-    public void StationaryTouchIsClearButDeepOverlapIsDistinct()
+    public void StationaryTouchAndDeepOverlapRetainSignedGeometry()
     {
-        Assert.Equal(SphereSweepStatus.Clear, Cast(new(1.5f, .32f, 0), 0).Status);
+        Assert.Equal(ConvexSweepStatus.InitialContact, Cast(new(1.5f, .32f, 0), 0).Status);
         var overlap = Cast(new(1.5f, .2f, 0), 0);
-        Assert.Equal(SphereSweepStatus.Overlapping, overlap.Status);
+        Assert.Equal(ConvexSweepStatus.InitialContact, overlap.Status);
         Assert.Equal(0, overlap.Time);
-        Assert.InRange(overlap.Gap, -.120001, -.119999);
+        Assert.InRange(overlap.Separation.UpperBound, -.120001, -.119999);
     }
 
     [Fact]
@@ -80,7 +93,7 @@ public class RotatingBoxObstacleSweepTests
             pose: new(basis, pivot), pivot: pivot, axis: basis.Z, obstacleBasis: basis);
         Assert.Equal(original.Status, rotated.Status);
         Assert.InRange(Math.Abs(original.Time - rotated.Time), 0, .00001);
-        Assert.InRange((basis * original.Normal - rotated.Normal).Length(), 0, .00001f);
+        Assert.InRange((SceneGeometryAdapter.CaptureRigidPose(new(basis,Vector3.Zero)).Rotation.Apply(original.Separation.Normal)-rotated.Separation.Normal).Length, 0, .00001f);
     }
 
     [Theory]
@@ -114,10 +127,10 @@ public class RotatingBoxObstacleSweepTests
             if (firstOverlap is { } reference)
             {
                 contacts++;
-                Assert.NotEqual(SphereSweepStatus.Clear, hit.Status);
+                Assert.NotEqual(ConvexSweepStatus.Clear, hit.Status);
                 Assert.True(hit.Time <= reference, $"seed={seed}, trial={trial}, hit={hit.Time}, sampled={reference}");
             }
-            if (hit.Status == SphereSweepStatus.Contact)
+            if (hit.Status == ConvexSweepStatus.Contact)
             {
                 var moving = new Transform3D(new Basis(Vector3.Back, (float)(speed * hit.Time)), Vector3.Zero);
                 Assert.InRange(CornerGap(moving, obstacle), -.00015, .00015);
@@ -151,11 +164,11 @@ public class RotatingBoxObstacleSweepTests
     [Fact]
     public void InvalidInputsAreRejected()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => Cast(Vector3.Zero, double.NaN));
-        Assert.Throws<ArgumentOutOfRangeException>(() => Cast(Vector3.Zero, 1e-200, 1e200));
+        Assert.ThrowsAny<ArgumentException>(() => Cast(Vector3.Zero, double.NaN));
+        Assert.Throws<ArgumentException>(() => Cast(Vector3.Zero, 1e-200, 1e200));
         Assert.Throws<ArgumentOutOfRangeException>(() => Cast(Vector3.Zero, duration: -1));
         Assert.Throws<ArgumentOutOfRangeException>(() => Cast(Vector3.Zero, obstacleHalf: new(1, 0, 1)));
-        Assert.Throws<ArgumentException>(() => Cast(Vector3.Zero, axis: Vector3.Back * 2));
+        Assert.Throws<ArgumentException>(() => Cast(Vector3.Zero, axis: new(float.PositiveInfinity,0,0)));
         Assert.Throws<ArgumentException>(() => Cast(Vector3.Zero, obstacleBasis: Basis.Identity.Scaled(new(2, 1, 1))));
     }
 }

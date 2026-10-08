@@ -1,0 +1,1029 @@
+--- a/engine/physics/WrenchPathWork.cs
++++ b/engine/physics/WrenchPathWork.cs
+@@ -1,106 +1,98 @@
+-using System;
+-using System.Collections.Generic;
+-using System.Linq;
+-
+-namespace CuriousContraptions.Physics;
+-
+-public readonly record struct WrenchPathTerm(PhysicsBody Body,BodyTrajectory Path,BodyWrench Wrench);
+-public readonly record struct WrenchPathWorkResult(double Supplied,double Dissipated,double SuppliedErrorBound,double DissipatedErrorBound);
+-
+-/// <summary>Positive and negative work of held world-space wrenches on the exact
+-/// geometric paths consumed by collision detection and trajectory commitment.</summary>
+-public static class WrenchPathWork
+-{
+-    private const int MaximumIntervals=262144;
+-    public static WrenchPathWorkResult Measure(IReadOnlyList<WrenchPathTerm> participants,
+-        double duration,double workTolerance)
+-    {
+-        ArgumentNullException.ThrowIfNull(participants);
+-        if(!double.IsFinite(duration)||duration<0)throw new ArgumentOutOfRangeException(nameof(duration));
+-        if(!double.IsFinite(workTolerance)||workTolerance<=0)throw new ArgumentOutOfRangeException(nameof(workTolerance));
+-        var terms=participants.ToArray();
+-        var identities=new HashSet<PhysicsBodyId>();
+-        foreach(var term in terms)
+-        {
+-            ArgumentNullException.ThrowIfNull(term.Body);ArgumentNullException.ThrowIfNull(term.Path);
+-            if(!identities.Add(term.Body.Id))throw new ArgumentException("Duplicate work participant.");
+-            term.Path.ValidateSource(term.Body);
+-            if(duration>term.Path.Duration)throw new ArgumentOutOfRangeException(nameof(duration));
+-        }
+-        if(duration==0||terms.Length==0)return default;
+-        var intervals=0;
+-        double Power(double time,double segmentMiddle)
+-        {
+-            double power=0;
+-            foreach(var term in terms)
+-            {
+-                // Geometric spin jumps at segment boundaries. Select the spin
+-                // from inside this interval, except for smooth prescribed paths.
+-                var spin=term.Path.PrescribedMotionAt(segmentMiddle) is null?
+-                    term.Path.AngularVelocityAt(segmentMiddle):term.Path.AngularVelocityAt(time);
+-                power+=CollisionVector.Dot(term.Wrench.Force,term.Path.LinearVelocityAt(time))+
+-                    CollisionVector.Dot(term.Wrench.Torque,spin);
+-            }
+-            if(!double.IsFinite(power))throw new InvalidOperationException("Path power exceeds numeric range.");
+-            return power;
+-        }
+-        static double PositiveChord(double first,double last,double width)
+-        {
+-            if(first<=0&&last<=0)return 0;
+-            if(first>=0&&last>=0)return (first*.5+last*.5)*width;
+-            var positive=Math.Max(first,last);var negative=-Math.Min(first,last);
+-            // Ratio avoids overflow in positive + negative.
+-            var fraction=positive>=negative?1/(1+negative/positive):
+-                (positive/negative)/(1+positive/negative);
+-            return positive*.5*(width*fraction);
+-        }
+-        WrenchPathWorkResult Interval(double start,double end)
+-        {
+-            if(++intervals>MaximumIntervals)throw new InvalidOperationException("Path work exceeded its interval budget.");
+-            var width=end-start;var middle=start+width*.5;
+-            if(middle<=start||middle>=end)throw new InvalidOperationException("Path work reached numeric resolution.");
+-            double curvature=0;
+-            foreach(var term in terms)
+-            {
+-                var motion=term.Path.PrescribedMotionAt(middle);
+-                if(motion is not null)
+-                    curvature+=term.Wrench.Force.Length*motion.LinearJerkBound+
+-                        term.Wrench.Torque.Length*motion.AngularJerkBound;
+-            }
+-            var error=curvature*width*width*width/12;
+-            if(!double.IsFinite(error))throw new InvalidOperationException("Path work bound exceeds numeric range.");
+-            if(error>workTolerance*(width/duration))
+-            {
+-                var left=Interval(start,middle);var right=Interval(middle,end);
+-                return Sum(left,right);
+-            }
+-            var first=Power(start,middle);var last=Power(end,middle);
+-            // The pointwise chord envelope is +/- M*t*(h-t)/2.
+-            // Its extreme is at an endpoint when the chord slope dominates;
+-            // otherwise the maximum departure beyond the endpoint range is dip.
+-            var bend=curvature*width*width;var difference=Math.Abs(last-first);
+-            var fraction=bend==0||difference>=bend*.5?0:1-2*difference/bend;
+-            var dip=bend*.125*fraction*fraction;
+-            var suppliedError=Math.Max(first,last)+dip<=0?0:error;
+-            var dissipatedError=Math.Min(first,last)-dip>=0?0:error;
+-            return new(PositiveChord(first,last,width),PositiveChord(-first,-last,width),suppliedError,dissipatedError);
+-        }
+-        var result=default(WrenchPathWorkResult);double time=0;
+-        while(time<duration)
+-        {
+-            var end=duration;
+-            foreach(var term in terms)end=Math.Min(end,term.Path.SegmentEndAfter(time));
+-            if(end<=time)throw new InvalidOperationException("Path work segment must advance.");
+-            result=Sum(result,Interval(time,end));time=end;
+-        }
+-        if(result.SuppliedErrorBound>workTolerance||result.DissipatedErrorBound>workTolerance)throw new InvalidOperationException("Path work tolerance was not met.");
+-        return result;
+-    }
+-    private static WrenchPathWorkResult Sum(WrenchPathWorkResult a,WrenchPathWorkResult b)
+-    {
+-        var result=new WrenchPathWorkResult(a.Supplied+b.Supplied,a.Dissipated+b.Dissipated,a.SuppliedErrorBound+b.SuppliedErrorBound,a.DissipatedErrorBound+b.DissipatedErrorBound);
+-        if(!double.IsFinite(result.Supplied)||!double.IsFinite(result.Dissipated)||!double.IsFinite(result.SuppliedErrorBound)||!double.IsFinite(result.DissipatedErrorBound))
+-            throw new InvalidOperationException("Path work exceeds numeric range.");
+-        return result;
+-    }
+-}
++using System;
++using System.Collections.Generic;
++using System.Linq;
++
++namespace CuriousContraptions.Physics;
++
++public readonly record struct WrenchPathTerm(PhysicsBody Body,BodyTrajectory Path,BodyWrench Wrench);
++public readonly record struct WrenchPathWorkResult(double Supplied,double Dissipated,double ErrorBound);
++
++/// <summary>Positive and negative work of held world-space wrenches on the exact
++/// geometric paths consumed by collision detection and trajectory commitment.</summary>
++public static class WrenchPathWork
++{
++    private const int MaximumIntervals=262144;
++    public static WrenchPathWorkResult Measure(IReadOnlyList<WrenchPathTerm> participants,
++        double duration,double workTolerance)
++    {
++        ArgumentNullException.ThrowIfNull(participants);
++        if(!double.IsFinite(duration)||duration<0)throw new ArgumentOutOfRangeException(nameof(duration));
++        if(!double.IsFinite(workTolerance)||workTolerance<=0)throw new ArgumentOutOfRangeException(nameof(workTolerance));
++        var terms=participants.ToArray();
++        var identities=new HashSet<PhysicsBodyId>();
++        foreach(var term in terms)
++        {
++            ArgumentNullException.ThrowIfNull(term.Body);ArgumentNullException.ThrowIfNull(term.Path);
++            if(!identities.Add(term.Body.Id))throw new ArgumentException("Duplicate work participant.");
++            term.Path.ValidateSource(term.Body);
++            if(duration>term.Path.Duration)throw new ArgumentOutOfRangeException(nameof(duration));
++        }
++        if(duration==0||terms.Length==0)return default;
++        var intervals=0;
++        double Power(double time,double segmentMiddle)
++        {
++            double power=0;
++            foreach(var term in terms)
++            {
++                // Geometric spin jumps at segment boundaries. Select the spin
++                // from inside this interval, except for smooth prescribed paths.
++                var spin=term.Path.PrescribedMotionAt(segmentMiddle) is null?
++                    term.Path.AngularVelocityAt(segmentMiddle):term.Path.AngularVelocityAt(time);
++                power+=CollisionVector.Dot(term.Wrench.Force,term.Path.LinearVelocityAt(time))+
++                    CollisionVector.Dot(term.Wrench.Torque,spin);
++            }
++            if(!double.IsFinite(power))throw new InvalidOperationException("Path power exceeds numeric range.");
++            return power;
++        }
++        static double PositiveChord(double first,double last,double width)
++        {
++            if(first<=0&&last<=0)return 0;
++            if(first>=0&&last>=0)return (first*.5+last*.5)*width;
++            var positive=Math.Max(first,last);var negative=-Math.Min(first,last);
++            // Ratio avoids overflow in positive + negative.
++            var fraction=positive>=negative?1/(1+negative/positive):
++                (positive/negative)/(1+positive/negative);
++            return positive*.5*(width*fraction);
++        }
++        WrenchPathWorkResult Interval(double start,double end)
++        {
++            if(++intervals>MaximumIntervals)throw new InvalidOperationException("Path work exceeded its interval budget.");
++            var width=end-start;var middle=start+width*.5;
++            if(middle<=start||middle>=end)throw new InvalidOperationException("Path work reached numeric resolution.");
++            double curvature=0;
++            foreach(var term in terms)
++            {
++                var motion=term.Path.PrescribedMotionAt(middle);
++                if(motion is not null)
++                    curvature+=term.Wrench.Force.Length*motion.LinearJerkBound+
++                        term.Wrench.Torque.Length*motion.AngularJerkBound;
++            }
++            var error=curvature*width*width*width/12;
++            if(!double.IsFinite(error))throw new InvalidOperationException("Path work bound exceeds numeric range.");
++            if(error>workTolerance*(width/duration))
++            {
++                var left=Interval(start,middle);var right=Interval(middle,end);
++                return Sum(left,right);
++            }
++            var first=Power(start,middle);var last=Power(end,middle);
++            return new(PositiveChord(first,last,width),PositiveChord(-first,-last,width),error);
++        }
++        var result=default(WrenchPathWorkResult);double time=0;
++        while(time<duration)
++        {
++            var end=duration;
++            foreach(var term in terms)end=Math.Min(end,term.Path.SegmentEndAfter(time));
++            if(end<=time)throw new InvalidOperationException("Path work segment must advance.");
++            result=Sum(result,Interval(time,end));time=end;
++        }
++        if(result.ErrorBound>workTolerance)throw new InvalidOperationException("Path work tolerance was not met.");
++        return result;
++    }
++    private static WrenchPathWorkResult Sum(WrenchPathWorkResult a,WrenchPathWorkResult b)
++    {
++        var result=new WrenchPathWorkResult(a.Supplied+b.Supplied,a.Dissipated+b.Dissipated,a.ErrorBound+b.ErrorBound);
++        if(!double.IsFinite(result.Supplied)||!double.IsFinite(result.Dissipated)||!double.IsFinite(result.ErrorBound))
++            throw new InvalidOperationException("Path work exceeds numeric range.");
++        return result;
++    }
++}
+--- a/engine/physics/MotorPredictionSupply.cs
++++ b/engine/physics/MotorPredictionSupply.cs
+@@ -1,83 +1,82 @@
+-using System;
+-using System.Collections.Generic;
+-using System.Linq;
+-
+-namespace CuriousContraptions.Physics;
+-
+-/// <summary>One pure prediction's remaining motor allowance; never an owned source.</summary>
+-public sealed record MotorPredictionSupply
+-{
+-    public PhysicsMotorCommand Command { get; }
+-    public double MaximumImpulse { get; }
+-    public double WorkTolerance { get; }
+-    public MotorPredictionSupply(PhysicsMotorCommand command,double maximumImpulse,double workTolerance)
+-    {
+-        if(!double.IsFinite(maximumImpulse)||maximumImpulse<0||
+-            !double.IsFinite(workTolerance)||workTolerance<=0)throw new ArgumentException("Invalid prediction motor allowance.");
+-        Command=command;MaximumImpulse=maximumImpulse;WorkTolerance=workTolerance;
+-    }
+-}
+-public readonly record struct PredictedMotorUse(PhysicsJointId Joint,double Effort,double AbsoluteImpulse,
+-    WrenchPathWorkResult Work);
+-
+-internal sealed class MotorPredictionDrive
+-{
+-    internal MotorPredictionSupply Supply { get; }
+-    private readonly PhysicsFrameJoint _joint;
+-    private readonly double _startSpeed;
+-    internal PhysicsDriveId Id=>new(_joint.Id.Index);
+-    internal MotorPredictionDrive(MotorPredictionSupply supply,IReadOnlyList<PhysicsJoint> joints)
+-    {
+-        Supply=supply;
+-        var matches=joints.Where(joint=>joint.Id==supply.Command.Joint).ToArray();
+-        if(matches.Length!=1||matches[0] is not PhysicsFrameJoint joint||
+-            joint.Kind is not (FrameJointKind.Slider or FrameJointKind.Hinge))
+-            throw new ArgumentException("Motor prediction requires one owned axial joint.");
+-        _joint=joint;_startSpeed=joint.Motion.Speed;
+-    }
+-    private WrenchPathWorkResult Work(ConstraintGradient gradient,IReadOnlyDictionary<PhysicsBodyId,BodyTrajectory> paths,
+-        double duration,double effort)
+-    {
+-        var participants=new List<WrenchPathTerm>();
+-        foreach(var term in gradient.Terms)
+-        {
+-            var body=term.Body.Id==_joint.A.Id?_joint.A:term.Body.Id==_joint.B.Id?_joint.B:
+-                throw new ArgumentException("Foreign motor work participant.");
+-            participants.Add(new(body,paths[body.Id],new(term.Linear*effort,term.Angular*effort)));
+-        }
+-        return WrenchPathWork.Measure(participants,duration,Supply.WorkTolerance/Math.Max(1,Supply.Command.MaximumEffort));
+-    }
+-    internal AccelerationDrive Prepare(IReadOnlyDictionary<PhysicsBodyId,PhysicsBody> sample,
+-        IReadOnlyDictionary<PhysicsBodyId,BodyTrajectory> paths,double duration)
+-    {
+-        var stage=(PhysicsFrameJoint)_joint.Rebind(sample);var travel=stage.Travel;
+-        var gradient=travel.Jacobian.Bind(stage.A,stage.B);
+-        var unit=Work(gradient,paths,duration,1);
+-        var maximum=Math.Min(Supply.Command.MaximumEffort,Supply.MaximumImpulse/duration);
+-        double Bound(double supplied,double dissipated,double error)
+-        {
+-            var upper=supplied+error;
+-            if(!double.IsFinite(upper))throw new InvalidOperationException("Motor work bound exceeds numeric range.");
+-            if(upper==0)
+-                return Supply.Command.AvailableWork>0||dissipated>0||Supply.Command.TargetSpeed==_startSpeed?maximum:0;
+-            var affordable=Supply.Command.AvailableWork/upper;
+-            return Math.Min(maximum,affordable>0?Math.Max(0,Math.BitDecrement(affordable)):0);
+-        }
+-        return new(Id,gradient,travel.ConvectiveAcceleration,(Supply.Command.TargetSpeed-_startSpeed)/duration,
+-            -Bound(unit.Dissipated,unit.Supplied,unit.DissipatedErrorBound),Bound(unit.Supplied,unit.Dissipated,unit.SuppliedErrorBound));
+-    }
+-    internal PredictedMotorUse Report(AccelerationDrive row,AccelerationDriveResult result,
+-        IReadOnlyDictionary<PhysicsBodyId,BodyTrajectory> paths,double duration)
+-    {
+-        if(row.Id!=Id||result.Id!=Id)throw new ArgumentException("Motor prediction identity mismatch.");
+-        var unit=Work(row.Gradient,paths,duration,1);var magnitude=Math.Abs(result.Effort);
+-        var work=new WrenchPathWorkResult(
+-            (result.Effort>=0?unit.Supplied:unit.Dissipated)*magnitude,
+-            (result.Effort>=0?unit.Dissipated:unit.Supplied)*magnitude,(result.Effort>=0?unit.SuppliedErrorBound:unit.DissipatedErrorBound)*magnitude,
+-            (result.Effort>=0?unit.DissipatedErrorBound:unit.SuppliedErrorBound)*magnitude);
+-        var impulse=Math.Abs(result.Effort)*duration;
+-        if(impulse>Supply.MaximumImpulse||work.Supplied+work.SuppliedErrorBound>Supply.Command.AvailableWork)
+-            throw new InvalidOperationException("Converged motor prediction exceeded its source allowance.");
+-        return new(_joint.Id,result.Effort,impulse,work);
+-    }
+-}
++using System;
++using System.Collections.Generic;
++using System.Linq;
++
++namespace CuriousContraptions.Physics;
++
++/// <summary>One pure prediction's remaining motor allowance; never an owned source.</summary>
++public sealed record MotorPredictionSupply
++{
++    public PhysicsMotorCommand Command { get; }
++    public double MaximumImpulse { get; }
++    public double WorkTolerance { get; }
++    public MotorPredictionSupply(PhysicsMotorCommand command,double maximumImpulse,double workTolerance)
++    {
++        if(!double.IsFinite(maximumImpulse)||maximumImpulse<0||
++            !double.IsFinite(workTolerance)||workTolerance<=0)throw new ArgumentException("Invalid prediction motor allowance.");
++        Command=command;MaximumImpulse=maximumImpulse;WorkTolerance=workTolerance;
++    }
++}
++public readonly record struct PredictedMotorUse(PhysicsJointId Joint,double Effort,double AbsoluteImpulse,
++    WrenchPathWorkResult Work);
++
++internal sealed class MotorPredictionDrive
++{
++    internal MotorPredictionSupply Supply { get; }
++    private readonly PhysicsFrameJoint _joint;
++    private readonly double _startSpeed;
++    internal PhysicsDriveId Id=>new(_joint.Id.Index);
++    internal MotorPredictionDrive(MotorPredictionSupply supply,IReadOnlyList<PhysicsJoint> joints)
++    {
++        Supply=supply;
++        var matches=joints.Where(joint=>joint.Id==supply.Command.Joint).ToArray();
++        if(matches.Length!=1||matches[0] is not PhysicsFrameJoint joint||
++            joint.Kind is not (FrameJointKind.Slider or FrameJointKind.Hinge))
++            throw new ArgumentException("Motor prediction requires one owned axial joint.");
++        _joint=joint;_startSpeed=joint.Motion.Speed;
++    }
++    private WrenchPathWorkResult Work(ConstraintGradient gradient,IReadOnlyDictionary<PhysicsBodyId,BodyTrajectory> paths,
++        double duration,double effort)
++    {
++        var participants=new List<WrenchPathTerm>();
++        foreach(var term in gradient.Terms)
++        {
++            var body=term.Body.Id==_joint.A.Id?_joint.A:term.Body.Id==_joint.B.Id?_joint.B:
++                throw new ArgumentException("Foreign motor work participant.");
++            participants.Add(new(body,paths[body.Id],new(term.Linear*effort,term.Angular*effort)));
++        }
++        return WrenchPathWork.Measure(participants,duration,Supply.WorkTolerance/Math.Max(1,Supply.Command.MaximumEffort));
++    }
++    internal AccelerationDrive Prepare(IReadOnlyDictionary<PhysicsBodyId,PhysicsBody> sample,
++        IReadOnlyDictionary<PhysicsBodyId,BodyTrajectory> paths,double duration)
++    {
++        var stage=(PhysicsFrameJoint)_joint.Rebind(sample);var travel=stage.Travel;
++        var gradient=travel.Jacobian.Bind(stage.A,stage.B);
++        var unit=Work(gradient,paths,duration,1);
++        var maximum=Math.Min(Supply.Command.MaximumEffort,Supply.MaximumImpulse/duration);
++        double Bound(double supplied,double dissipated)
++        {
++            var upper=supplied+unit.ErrorBound;
++            if(!double.IsFinite(upper))throw new InvalidOperationException("Motor work bound exceeds numeric range.");
++            if(upper==0)
++                return Supply.Command.AvailableWork>0||dissipated>0||Supply.Command.TargetSpeed==_startSpeed?maximum:0;
++            var affordable=Supply.Command.AvailableWork/upper;
++            return Math.Min(maximum,affordable>0?Math.Max(0,Math.BitDecrement(affordable)):0);
++        }
++        return new(Id,gradient,travel.ConvectiveAcceleration,(Supply.Command.TargetSpeed-_startSpeed)/duration,
++            -Bound(unit.Dissipated,unit.Supplied),Bound(unit.Supplied,unit.Dissipated));
++    }
++    internal PredictedMotorUse Report(AccelerationDrive row,AccelerationDriveResult result,
++        IReadOnlyDictionary<PhysicsBodyId,BodyTrajectory> paths,double duration)
++    {
++        if(row.Id!=Id||result.Id!=Id)throw new ArgumentException("Motor prediction identity mismatch.");
++        var unit=Work(row.Gradient,paths,duration,1);var magnitude=Math.Abs(result.Effort);
++        var work=new WrenchPathWorkResult(
++            (result.Effort>=0?unit.Supplied:unit.Dissipated)*magnitude,
++            (result.Effort>=0?unit.Dissipated:unit.Supplied)*magnitude,unit.ErrorBound*magnitude);
++        var impulse=Math.Abs(result.Effort)*duration;
++        if(impulse>Supply.MaximumImpulse||work.Supplied+work.ErrorBound>Supply.Command.AvailableWork)
++            throw new InvalidOperationException("Converged motor prediction exceeded its source allowance.");
++        return new(_joint.Id,result.Effort,impulse,work);
++    }
++}
+--- a/CuriousContraptions.tests/WrenchPathWorkTests.cs
++++ b/CuriousContraptions.tests/WrenchPathWorkTests.cs
+@@ -1,135 +1,135 @@
+-using CuriousContraptions.Physics;
+-
+-namespace CuriousContraptions.Tests;
+-
+-public class WrenchPathWorkTests
+-{
+-    private static readonly CollisionVector X=new(1,0,0),Z=new(0,0,1);
+-    private static PhysicsBody Body(int id,CollisionVector velocity=default,CollisionVector spin=default)=>
+-        new(new(id),PhysicsMotionType.Dynamic,RigidPose.Identity,velocity,spin,1,new(1,1,1));
+-    private static void Near(double expected,double actual,double tolerance=1e-9)=>
+-        Assert.InRange(Math.Abs(expected-actual),0,tolerance);
+-
+-    [Theory]
+-    [InlineData(1,4,0)]
+-    [InlineData(-1,0,4)]
+-    public void ConstantForceWorkUsesCapturedDisplacement(int sign,double supplied,double dissipated)
+-    {
+-        var body=Body(0,X*2);var path=body.CreateTrajectory(1,default);
+-        var before=body.Snapshot();
+-        var terms=new[]{new WrenchPathTerm(body,path,new(X*(2*sign),default))};
+-        var work=WrenchPathWork.Measure(terms,1,1e-10);
+-        Near(supplied,work.Supplied);Near(dissipated,work.Dissipated);Assert.Equal(0,work.SuppliedErrorBound);Assert.Equal(0,work.DissipatedErrorBound);
+-        Assert.Equal(work,WrenchPathWork.Measure(terms,1,1e-10));Assert.Equal(before,body.Snapshot());
+-        Near(CollisionVector.Dot(terms[0].Wrench.Force,path.At(1).Center-path.At(0).Center),work.Supplied-work.Dissipated);
+-    }
+-
+-    [Fact]
+-    public void ReversalRetainsBrakingAndSupplyDespiteZeroNetWork()
+-    {
+-        var body=Body(0,X*2);var wrench=new BodyWrench(-X*4,default);
+-        var path=body.CreateTrajectory(1,wrench);
+-        var terms=new[]{new WrenchPathTerm(body,path,wrench)};
+-        var result=WrenchPathWork.Measure(terms,1,1e-10);
+-        Near(2,result.Supplied);Near(2,result.Dissipated);Assert.Equal(0,result.SuppliedErrorBound);Assert.Equal(0,result.DissipatedErrorBound);
+-        var prefix=WrenchPathWork.Measure(terms,.5,1e-10);
+-        Near(0,prefix.Supplied);Near(2,prefix.Dissipated);
+-    }
+-
+-    [Fact]
+-    public void ParticipantPowerIsSummedBeforeSeparatingSupplyAndLoss()
+-    {
+-        var a=Body(0,X*3);var b=Body(1,X*3);
+-        var terms=new[]{new WrenchPathTerm(a,a.CreateTrajectory(1,default),new(X*10,default)),
+-            new WrenchPathTerm(b,b.CreateTrajectory(1,default),new(-X*10,default))};
+-        Assert.Equal(default,WrenchPathWork.Measure(terms,1,1e-10));
+-    }
+-
+-    [Fact]
+-    public void TorqueWorkRetainsFullTurns()
+-    {
+-        var body=Body(0,spin:Z*(4*Math.Tau));var path=body.CreateTrajectory(1,default);
+-        var work=WrenchPathWork.Measure([new(body,path,new(default,Z*3))],1,1e-10);
+-        Near(12*Math.Tau,work.Supplied);Near(0,work.Dissipated);Assert.Equal(0,work.SuppliedErrorBound);
+-        Assert.True(path.SegmentCount>1);
+-    }
+-
+-    [Fact]
+-    public void TorqueReversalAccountsForBothSidesOfEachGeometricSegment()
+-    {
+-        var body=Body(0,spin:Z*4);var wrench=new BodyWrench(default,-Z*8);
+-        var path=body.CreateTrajectory(1,wrench);
+-        var work=WrenchPathWork.Measure([new(body,path,wrench)],1,1e-10);
+-        // Isotropic inertia makes midpoint rotation segments equally sized and
+-        // the zero of spin occurs on a segment boundary: each half transfers 8 J.
+-        Near(8,work.Supplied);Near(8,work.Dissipated);Assert.Equal(0,work.SuppliedErrorBound);
+-        var end=path.PhysicalAngularVelocityAt(1).Z;
+-        Near(.5*(end*end-16),work.Supplied-work.Dissipated);
+-    }
+-
+-    [Theory]
+-    [InlineData(.5,.5)]
+-    [InlineData(1,1)]
+-    [InlineData(1.5,1)]
+-    public void PrescribedEaseIncludesTranslationRotationAndEndpointHold(double duration,double fraction)
+-    {
+-        var ease=new QuinticRigidTrajectory(RigidPose.Identity,X*2,Z*(2*Math.Tau),1);
+-        var motion=new PrescribedBodyMotion(ease,RigidPose.Identity,0);
+-        var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
+-        var path=body.CreateTrajectory(1.5,default);
+-        var work=WrenchPathWork.Measure([new(body,path,new(X*3,Z*2))],duration,1e-6);
+-        Near((6+4*Math.Tau)*fraction,work.Supplied,work.SuppliedErrorBound+1e-9);
+-        Assert.InRange(work.SuppliedErrorBound,0,1e-6);Assert.InRange(work.DissipatedErrorBound,0,1e-6);Near(0,work.Dissipated);
+-    }
+-
+-    [Theory]
+-    [InlineData(1,2,0)]
+-    [InlineData(2,2,2)]
+-    [InlineData(4,4,4)]
+-    public void RotatingOffsetUsesActualCenterMotionAndInternalReversals(int halfTurns,double supplied,double dissipated)
+-    {
+-        var ease=new QuinticRigidTrajectory(RigidPose.Identity,default,Z*(halfTurns*Math.PI),1);
+-        var motion=new PrescribedBodyMotion(ease,RigidPose.At(X),0);
+-        var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
+-        var work=WrenchPathWork.Measure([new(body,body.CreateTrajectory(1,default),new(-X,default))],1,1e-6);
+-        Near(supplied,work.Supplied,work.SuppliedErrorBound+1e-9);Near(dissipated,work.Dissipated,work.DissipatedErrorBound+1e-9);
+-    }
+-
+-
+-    [Fact]
+-    public void UnrepresentablePowerAndUnattainableAccuracyFailWithoutMutation()
+-    {
+-        var body=Body(0,X*2);var before=body.Snapshot();
+-        Assert.Throws<InvalidOperationException>(()=>WrenchPathWork.Measure(
+-            [new(body,body.CreateTrajectory(1,default),new(X*double.MaxValue,default))],1,1e-6));
+-        Assert.Equal(before,body.Snapshot());
+-        var ease=new QuinticRigidTrajectory(RigidPose.Identity,X,default,1);
+-        var motion=new PrescribedBodyMotion(ease,RigidPose.Identity,0);
+-        var prescribed=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
+-        var initial=prescribed.Snapshot();
+-        Assert.Throws<InvalidOperationException>(()=>WrenchPathWork.Measure(
+-            [new(prescribed,prescribed.CreateTrajectory(1,default),new(X,default))],1,1e-20));
+-        Assert.Equal(initial,prescribed.Snapshot());
+-    }
+-
+-    [Fact]
+-    public void InvalidForeignAndStaleSourcesReject()
+-    {
+-        var body=Body(0);var path=body.CreateTrajectory(1,default);
+-        var term=new WrenchPathTerm(body,path,default);
+-        Assert.Throws<ArgumentNullException>(()=>WrenchPathWork.Measure(null!,1,1e-6));
+-        Assert.Throws<ArgumentNullException>(()=>WrenchPathWork.Measure([default],1,1e-6));
+-        Assert.Throws<ArgumentException>(()=>WrenchPathWork.Measure([term,term],1,1e-6));
+-        Assert.Throws<InvalidOperationException>(()=>WrenchPathWork.Measure([new(Body(0),path,default)],1,1e-6));
+-        foreach(var value in new[]{-1,double.NaN,double.PositiveInfinity})
+-        {
+-            Assert.Throws<ArgumentOutOfRangeException>(()=>WrenchPathWork.Measure([term],value,1e-6));
+-            Assert.Throws<ArgumentOutOfRangeException>(()=>WrenchPathWork.Measure([term],1,value));
+-        }
+-        Assert.Throws<ArgumentOutOfRangeException>(()=>WrenchPathWork.Measure([term],2,1e-6));
+-        Assert.Throws<ArgumentOutOfRangeException>(()=>WrenchPathWork.Measure([term],1,0));
+-        Assert.Equal(default,WrenchPathWork.Measure([term],0,1e-6));
+-        body.ApplyImpulse(X,default);
+-        Assert.Throws<InvalidOperationException>(()=>WrenchPathWork.Measure([term],1,1e-6));
+-    }
+-}
++using CuriousContraptions.Physics;
++
++namespace CuriousContraptions.Tests;
++
++public class WrenchPathWorkTests
++{
++    private static readonly CollisionVector X=new(1,0,0),Z=new(0,0,1);
++    private static PhysicsBody Body(int id,CollisionVector velocity=default,CollisionVector spin=default)=>
++        new(new(id),PhysicsMotionType.Dynamic,RigidPose.Identity,velocity,spin,1,new(1,1,1));
++    private static void Near(double expected,double actual,double tolerance=1e-9)=>
++        Assert.InRange(Math.Abs(expected-actual),0,tolerance);
++
++    [Theory]
++    [InlineData(1,4,0)]
++    [InlineData(-1,0,4)]
++    public void ConstantForceWorkUsesCapturedDisplacement(int sign,double supplied,double dissipated)
++    {
++        var body=Body(0,X*2);var path=body.CreateTrajectory(1,default);
++        var before=body.Snapshot();
++        var terms=new[]{new WrenchPathTerm(body,path,new(X*(2*sign),default))};
++        var work=WrenchPathWork.Measure(terms,1,1e-10);
++        Near(supplied,work.Supplied);Near(dissipated,work.Dissipated);Assert.Equal(0,work.ErrorBound);
++        Assert.Equal(work,WrenchPathWork.Measure(terms,1,1e-10));Assert.Equal(before,body.Snapshot());
++        Near(CollisionVector.Dot(terms[0].Wrench.Force,path.At(1).Center-path.At(0).Center),work.Supplied-work.Dissipated);
++    }
++
++    [Fact]
++    public void ReversalRetainsBrakingAndSupplyDespiteZeroNetWork()
++    {
++        var body=Body(0,X*2);var wrench=new BodyWrench(-X*4,default);
++        var path=body.CreateTrajectory(1,wrench);
++        var terms=new[]{new WrenchPathTerm(body,path,wrench)};
++        var result=WrenchPathWork.Measure(terms,1,1e-10);
++        Near(2,result.Supplied);Near(2,result.Dissipated);Assert.Equal(0,result.ErrorBound);
++        var prefix=WrenchPathWork.Measure(terms,.5,1e-10);
++        Near(0,prefix.Supplied);Near(2,prefix.Dissipated);
++    }
++
++    [Fact]
++    public void ParticipantPowerIsSummedBeforeSeparatingSupplyAndLoss()
++    {
++        var a=Body(0,X*3);var b=Body(1,X*3);
++        var terms=new[]{new WrenchPathTerm(a,a.CreateTrajectory(1,default),new(X*10,default)),
++            new WrenchPathTerm(b,b.CreateTrajectory(1,default),new(-X*10,default))};
++        Assert.Equal(default,WrenchPathWork.Measure(terms,1,1e-10));
++    }
++
++    [Fact]
++    public void TorqueWorkRetainsFullTurns()
++    {
++        var body=Body(0,spin:Z*(4*Math.Tau));var path=body.CreateTrajectory(1,default);
++        var work=WrenchPathWork.Measure([new(body,path,new(default,Z*3))],1,1e-10);
++        Near(12*Math.Tau,work.Supplied);Near(0,work.Dissipated);Assert.Equal(0,work.ErrorBound);
++        Assert.True(path.SegmentCount>1);
++    }
++
++    [Fact]
++    public void TorqueReversalAccountsForBothSidesOfEachGeometricSegment()
++    {
++        var body=Body(0,spin:Z*4);var wrench=new BodyWrench(default,-Z*8);
++        var path=body.CreateTrajectory(1,wrench);
++        var work=WrenchPathWork.Measure([new(body,path,wrench)],1,1e-10);
++        // Isotropic inertia makes midpoint rotation segments equally sized and
++        // the zero of spin occurs on a segment boundary: each half transfers 8 J.
++        Near(8,work.Supplied);Near(8,work.Dissipated);Assert.Equal(0,work.ErrorBound);
++        var end=path.PhysicalAngularVelocityAt(1).Z;
++        Near(.5*(end*end-16),work.Supplied-work.Dissipated);
++    }
++
++    [Theory]
++    [InlineData(.5,.5)]
++    [InlineData(1,1)]
++    [InlineData(1.5,1)]
++    public void PrescribedEaseIncludesTranslationRotationAndEndpointHold(double duration,double fraction)
++    {
++        var ease=new QuinticRigidTrajectory(RigidPose.Identity,X*2,Z*(2*Math.Tau),1);
++        var motion=new PrescribedBodyMotion(ease,RigidPose.Identity,0);
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
++        var path=body.CreateTrajectory(1.5,default);
++        var work=WrenchPathWork.Measure([new(body,path,new(X*3,Z*2))],duration,1e-6);
++        Near((6+4*Math.Tau)*fraction,work.Supplied,work.ErrorBound+1e-9);
++        Assert.InRange(work.ErrorBound,0,1e-6);Near(0,work.Dissipated);
++    }
++
++    [Theory]
++    [InlineData(1,2,0)]
++    [InlineData(2,2,2)]
++    [InlineData(4,4,4)]
++    public void RotatingOffsetUsesActualCenterMotionAndInternalReversals(int halfTurns,double supplied,double dissipated)
++    {
++        var ease=new QuinticRigidTrajectory(RigidPose.Identity,default,Z*(halfTurns*Math.PI),1);
++        var motion=new PrescribedBodyMotion(ease,RigidPose.At(X),0);
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
++        var work=WrenchPathWork.Measure([new(body,body.CreateTrajectory(1,default),new(-X,default))],1,1e-6);
++        Near(supplied,work.Supplied,work.ErrorBound+1e-9);Near(dissipated,work.Dissipated,work.ErrorBound+1e-9);
++    }
++
++
++    [Fact]
++    public void UnrepresentablePowerAndUnattainableAccuracyFailWithoutMutation()
++    {
++        var body=Body(0,X*2);var before=body.Snapshot();
++        Assert.Throws<InvalidOperationException>(()=>WrenchPathWork.Measure(
++            [new(body,body.CreateTrajectory(1,default),new(X*double.MaxValue,default))],1,1e-6));
++        Assert.Equal(before,body.Snapshot());
++        var ease=new QuinticRigidTrajectory(RigidPose.Identity,X,default,1);
++        var motion=new PrescribedBodyMotion(ease,RigidPose.Identity,0);
++        var prescribed=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
++        var initial=prescribed.Snapshot();
++        Assert.Throws<InvalidOperationException>(()=>WrenchPathWork.Measure(
++            [new(prescribed,prescribed.CreateTrajectory(1,default),new(X,default))],1,1e-20));
++        Assert.Equal(initial,prescribed.Snapshot());
++    }
++
++    [Fact]
++    public void InvalidForeignAndStaleSourcesReject()
++    {
++        var body=Body(0);var path=body.CreateTrajectory(1,default);
++        var term=new WrenchPathTerm(body,path,default);
++        Assert.Throws<ArgumentNullException>(()=>WrenchPathWork.Measure(null!,1,1e-6));
++        Assert.Throws<ArgumentNullException>(()=>WrenchPathWork.Measure([default],1,1e-6));
++        Assert.Throws<ArgumentException>(()=>WrenchPathWork.Measure([term,term],1,1e-6));
++        Assert.Throws<InvalidOperationException>(()=>WrenchPathWork.Measure([new(Body(0),path,default)],1,1e-6));
++        foreach(var value in new[]{-1,double.NaN,double.PositiveInfinity})
++        {
++            Assert.Throws<ArgumentOutOfRangeException>(()=>WrenchPathWork.Measure([term],value,1e-6));
++            Assert.Throws<ArgumentOutOfRangeException>(()=>WrenchPathWork.Measure([term],1,value));
++        }
++        Assert.Throws<ArgumentOutOfRangeException>(()=>WrenchPathWork.Measure([term],2,1e-6));
++        Assert.Throws<ArgumentOutOfRangeException>(()=>WrenchPathWork.Measure([term],1,0));
++        Assert.Equal(default,WrenchPathWork.Measure([term],0,1e-6));
++        body.ApplyImpulse(X,default);
++        Assert.Throws<InvalidOperationException>(()=>WrenchPathWork.Measure([term],1,1e-6));
++    }
++}
+--- a/CuriousContraptions.tests/MotorPredictionTests.cs
++++ b/CuriousContraptions.tests/MotorPredictionTests.cs
+@@ -1,189 +1,189 @@
+-using CuriousContraptions.Physics;
+-
+-namespace CuriousContraptions.Tests;
+-
+-public class MotorPredictionTests
+-{
+-    private static readonly CollisionVector Z=new(0,0,1);
+-    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
+-    private static (PhysicsBody Body,PhysicsBody Anchor,PhysicsFrameJoint Joint) Setup(double speed=0,JointTravelRange? range=null)
+-    {
+-        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Z*speed,default,2,new(2,2,2));
+-        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
+-        return(body,anchor,joint);
+-    }
+-    private static ForcePrediction Predict(PhysicsBody body,PhysicsBody anchor,PhysicsFrameJoint joint,
+-        MotorPredictionSupply supply,double duration,BodyWrench load=default)=>
+-        AccelerationSolver.Predict(new(),new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),[body,anchor],[joint],[],
+-            new Dictionary<PhysicsBodyId,BodyWrench>{{body.Id,load},{anchor.Id,default}},duration,1e-7,1e-8,1e-9,[supply]);
+-    private static void Near(double expected,double actual,double tolerance=1e-8)=>
+-        Assert.InRange(Math.Abs(expected-actual),0,tolerance);
+-
+-    [Fact]
+-    public void LoadedMotorReachesTargetWithBalancedWorkWithoutMutatingBodies()
+-    {
+-        var (body,anchor,joint)=Setup();var before=new[]{body.Snapshot(),anchor.Snapshot()};
+-        var supply=new MotorPredictionSupply(new(joint.Id,1,100,2),10,1e-10);
+-        var prediction=Predict(body,anchor,joint,supply,.1,new(-Z*6,default));
+-        var use=Assert.Single(prediction.Motors);
+-        Near(26,use.Effort);Near(1.3,use.Work.Supplied);Near(0,use.Work.Dissipated);
+-        Near(1,prediction.Trajectories[body.Id].LinearVelocityAt(prediction.Duration).Z);
+-        Near(1,use.Work.Supplied-6*prediction.Trajectories[body.Id].At(prediction.Duration).Center.Z);
+-        Assert.Equal(before,new[]{body.Snapshot(),anchor.Snapshot()});
+-        var repeat=Predict(body,anchor,joint,supply,.1,new(-Z*6,default));
+-        Assert.Equal(prediction.Motors,repeat.Motors);Assert.Equal(prediction.Wrenches[body.Id],repeat.Wrenches[body.Id]);
+-    }
+-
+-    [Theory]
+-    [InlineData(1)]
+-    [InlineData(.25)]
+-    public void SupplyExhaustionLimitsKineticEnergy(double available)
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,2,100,available),100,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        var speed=prediction.Trajectories[body.Id].LinearVelocityAt(prediction.Duration).Z;
+-        Near(Math.Sqrt(available),speed);Near(available,use.Work.Supplied);
+-        Assert.True(use.Work.Supplied+use.Work.SuppliedErrorBound<=available);
+-        Near(speed*speed,use.Work.Supplied);
+-    }
+-
+-    [Fact]
+-    public void EmptySupplyCannotStartMotionButCanBrake()
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var noStart=Predict(body,anchor,joint,new(new(joint.Id,2,100,0),100,1e-10),1);
+-        Assert.Equal(0,Assert.Single(noStart.Motors).Effort);
+-        Near(0,noStart.Trajectories[body.Id].LinearVelocityAt(1).Length);
+-        (body,anchor,joint)=Setup(2);
+-        var braking=Predict(body,anchor,joint,new(new(joint.Id,0,10,0),10,1e-10),1);
+-        var use=Assert.Single(braking.Motors);
+-        Near(-4,use.Effort);Near(0,use.Work.Supplied);Near(4,use.Work.Dissipated);
+-        Near(0,braking.Trajectories[body.Id].LinearVelocityAt(1).Length);
+-    }
+-
+-    [Fact]
+-    public void ZeroWorkHoldingLoadDoesNotRequireAnEnergySource()
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,10,0),10,1e-10),1,new(-Z*6,default));
+-        Near(6,Assert.Single(prediction.Motors).Effort);
+-        Near(0,prediction.Motors[0].Work.Supplied);
+-        Near(0,prediction.Trajectories[body.Id].At(1).Center.Length);
+-    }
+-
+-    [Fact]
+-    public void RemainingImpulseCapsEffort()
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,10,100,100),.5,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(.5,use.AbsoluteImpulse);Near(.5,use.Effort);
+-        Near(.25,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
+-    }
+-
+-    [Fact]
+-    public void TravelBoundaryRemeasuresTheShortenedPath()
+-    {
+-        var (body,anchor,joint)=Setup(range:new(-1,.01));
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,1,10,1),10,1e-10),1);
+-        Assert.Equal(ForcePredictionBoundary.Joint,prediction.Boundary);
+-        Assert.InRange(prediction.Duration,0,.1);
+-        var use=Assert.Single(prediction.Motors);var endpoint=prediction.Trajectories[body.Id].At(prediction.Duration);
+-        Near(use.Effort*endpoint.Center.Z,use.Work.Supplied);
+-        Near(Math.Abs(use.Effort)*prediction.Duration,use.AbsoluteImpulse);
+-        Assert.True(use.Work.Supplied<=1);
+-    }
+-
+-
+-    [Fact]
+-    public void ReversalSpendsSupplyAfterBrakingWithoutRechargingIt()
+-    {
+-        var (body,anchor,joint)=Setup(2);
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,-2,100,1),100,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(-1,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
+-        Near(1,use.Work.Supplied);Near(4,use.Work.Dissipated);
+-        Assert.True(use.Work.Supplied+use.Work.SuppliedErrorBound<=1);
+-    }
+-
+-    [Fact]
+-    public void HingeTorqueAccountsForCapturedRotation()
+-    {
+-        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,Z*2,2,new(2,2,2));
+-        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,4,100,20),100,1e-10),.5);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(8,use.Effort);Near(12,use.Work.Supplied);Near(0,use.Work.Dissipated);
+-        Near(4,prediction.Trajectories[body.Id].PhysicalAngularVelocityAt(.5).Z);
+-    }
+-
+-    [Fact]
+-    public void ObstructedDriveSaturatesWithoutCreatingMotionOrWork()
+-    {
+-        var (body,anchor,joint)=Setup(range:new(0,0));
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,1,10,1),10,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(10,use.Effort);Near(0,use.Work.Supplied);Near(0,use.Work.Dissipated);
+-        Near(0,prediction.Trajectories[body.Id].LinearVelocityAt(1).Length);
+-    }
+-
+-
+-    [Fact]
+-    public void MultipleMotorsKeepIdentityOrderAndIndependentAllowances()
+-    {
+-        var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,2,new(2,2,2));
+-        var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,4,new(4,4,4));
+-        var anchor=new PhysicsBody(new(2),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-        var first=new PhysicsFrameJoint(new(7),FrameJointKind.Slider,a,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var second=new PhysicsFrameJoint(new(3),FrameJointKind.Slider,b,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var firstSupply=new MotorPredictionSupply(new(first.Id,1,10,10),10,1e-10);
+-        var secondSupply=new MotorPredictionSupply(new(second.Id,.5,10,10),10,1e-10);
+-        ForcePrediction Run(MotorPredictionSupply[] supplies)=>AccelerationSolver.Predict(new(),
+-            new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),[a,b,anchor],[first,second],[],
+-            new Dictionary<PhysicsBodyId,BodyWrench>{{a.Id,default},{b.Id,default},{anchor.Id,default}},
+-            1,1e-7,1e-8,1e-9,supplies);
+-        var prediction=Run([firstSupply,secondSupply]);var repeated=Run([secondSupply,firstSupply]);
+-        Assert.Equal(prediction.Motors,repeated.Motors);
+-        Assert.Equal(second.Id,prediction.Motors[0].Joint);Assert.Equal(first.Id,prediction.Motors[1].Joint);
+-        Near(.5,prediction.Motors[0].Work.Supplied);Near(1,prediction.Motors[1].Work.Supplied);
+-        Near(.5,prediction.Trajectories[b.Id].LinearVelocityAt(1).Z);
+-        Near(1,prediction.Trajectories[a.Id].LinearVelocityAt(1).Z);
+-    }
+-
+-
+-    [Fact]
+-    public void EmptySupplyStillBrakesAgainstAMovingPrescribedFrame()
+-    {
+-        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Z*2,default,2,new(2,2,2));
+-        var motion=new PrescribedBodyMotion(new QuinticRigidTrajectory(RigidPose.Identity,Z*.1,default,1),RigidPose.Identity,0);
+-        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
+-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,10,0),10,1e-8),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Assert.True(use.Effort<0);
+-        Near(0,use.Work.Supplied);
+-        Assert.True(use.Work.Dissipated>0);
+-    }
+-
+-    [Fact]
+-    public void ForeignAndDuplicateMotorDeclarationsReject()
+-    {
+-        var (body,anchor,joint)=Setup();var before=body.Snapshot();
+-        Assert.Throws<ArgumentException>(()=>new MotorPredictionSupply(new(joint.Id,1,1,1),-1,1e-6));
+-        Assert.Throws<ArgumentException>(()=>new MotorPredictionSupply(new(joint.Id,1,1,1),1,0));
+-        Assert.Throws<ArgumentException>(()=>Predict(body,anchor,joint,new(new(new(9),1,1,1),1,1e-6),1));
+-        var supply=new MotorPredictionSupply(new(joint.Id,1,1,1),1,1e-6);
+-        Assert.Throws<ArgumentException>(()=>AccelerationSolver.Predict(new(),new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),
+-            [body,anchor],[joint],[],new Dictionary<PhysicsBodyId,BodyWrench>{{body.Id,default},{anchor.Id,default}},
+-            1,1e-7,1e-8,1e-9,[supply,supply]));
+-        Assert.Equal(before,body.Snapshot());
+-    }
+-}
++using CuriousContraptions.Physics;
++
++namespace CuriousContraptions.Tests;
++
++public class MotorPredictionTests
++{
++    private static readonly CollisionVector Z=new(0,0,1);
++    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
++    private static (PhysicsBody Body,PhysicsBody Anchor,PhysicsFrameJoint Joint) Setup(double speed=0,JointTravelRange? range=null)
++    {
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Z*speed,default,2,new(2,2,2));
++        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
++        return(body,anchor,joint);
++    }
++    private static ForcePrediction Predict(PhysicsBody body,PhysicsBody anchor,PhysicsFrameJoint joint,
++        MotorPredictionSupply supply,double duration,BodyWrench load=default)=>
++        AccelerationSolver.Predict(new(),new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),[body,anchor],[joint],[],
++            new Dictionary<PhysicsBodyId,BodyWrench>{{body.Id,load},{anchor.Id,default}},duration,1e-7,1e-8,1e-9,[supply]);
++    private static void Near(double expected,double actual,double tolerance=1e-8)=>
++        Assert.InRange(Math.Abs(expected-actual),0,tolerance);
++
++    [Fact]
++    public void LoadedMotorReachesTargetWithBalancedWorkWithoutMutatingBodies()
++    {
++        var (body,anchor,joint)=Setup();var before=new[]{body.Snapshot(),anchor.Snapshot()};
++        var supply=new MotorPredictionSupply(new(joint.Id,1,100,2),10,1e-10);
++        var prediction=Predict(body,anchor,joint,supply,.1,new(-Z*6,default));
++        var use=Assert.Single(prediction.Motors);
++        Near(26,use.Effort);Near(1.3,use.Work.Supplied);Near(0,use.Work.Dissipated);
++        Near(1,prediction.Trajectories[body.Id].LinearVelocityAt(prediction.Duration).Z);
++        Near(1,use.Work.Supplied-6*prediction.Trajectories[body.Id].At(prediction.Duration).Center.Z);
++        Assert.Equal(before,new[]{body.Snapshot(),anchor.Snapshot()});
++        var repeat=Predict(body,anchor,joint,supply,.1,new(-Z*6,default));
++        Assert.Equal(prediction.Motors,repeat.Motors);Assert.Equal(prediction.Wrenches[body.Id],repeat.Wrenches[body.Id]);
++    }
++
++    [Theory]
++    [InlineData(1)]
++    [InlineData(.25)]
++    public void SupplyExhaustionLimitsKineticEnergy(double available)
++    {
++        var (body,anchor,joint)=Setup();
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,2,100,available),100,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        var speed=prediction.Trajectories[body.Id].LinearVelocityAt(prediction.Duration).Z;
++        Near(Math.Sqrt(available),speed);Near(available,use.Work.Supplied);
++        Assert.True(use.Work.Supplied+use.Work.ErrorBound<=available);
++        Near(speed*speed,use.Work.Supplied);
++    }
++
++    [Fact]
++    public void EmptySupplyCannotStartMotionButCanBrake()
++    {
++        var (body,anchor,joint)=Setup();
++        var noStart=Predict(body,anchor,joint,new(new(joint.Id,2,100,0),100,1e-10),1);
++        Assert.Equal(0,Assert.Single(noStart.Motors).Effort);
++        Near(0,noStart.Trajectories[body.Id].LinearVelocityAt(1).Length);
++        (body,anchor,joint)=Setup(2);
++        var braking=Predict(body,anchor,joint,new(new(joint.Id,0,10,0),10,1e-10),1);
++        var use=Assert.Single(braking.Motors);
++        Near(-4,use.Effort);Near(0,use.Work.Supplied);Near(4,use.Work.Dissipated);
++        Near(0,braking.Trajectories[body.Id].LinearVelocityAt(1).Length);
++    }
++
++    [Fact]
++    public void ZeroWorkHoldingLoadDoesNotRequireAnEnergySource()
++    {
++        var (body,anchor,joint)=Setup();
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,10,0),10,1e-10),1,new(-Z*6,default));
++        Near(6,Assert.Single(prediction.Motors).Effort);
++        Near(0,prediction.Motors[0].Work.Supplied);
++        Near(0,prediction.Trajectories[body.Id].At(1).Center.Length);
++    }
++
++    [Fact]
++    public void RemainingImpulseCapsEffort()
++    {
++        var (body,anchor,joint)=Setup();
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,10,100,100),.5,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        Near(.5,use.AbsoluteImpulse);Near(.5,use.Effort);
++        Near(.25,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
++    }
++
++    [Fact]
++    public void TravelBoundaryRemeasuresTheShortenedPath()
++    {
++        var (body,anchor,joint)=Setup(range:new(-1,.01));
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,1,10,1),10,1e-10),1);
++        Assert.Equal(ForcePredictionBoundary.Joint,prediction.Boundary);
++        Assert.InRange(prediction.Duration,0,.1);
++        var use=Assert.Single(prediction.Motors);var endpoint=prediction.Trajectories[body.Id].At(prediction.Duration);
++        Near(use.Effort*endpoint.Center.Z,use.Work.Supplied);
++        Near(Math.Abs(use.Effort)*prediction.Duration,use.AbsoluteImpulse);
++        Assert.True(use.Work.Supplied<=1);
++    }
++
++
++    [Fact]
++    public void ReversalSpendsSupplyAfterBrakingWithoutRechargingIt()
++    {
++        var (body,anchor,joint)=Setup(2);
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,-2,100,1),100,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        Near(-1,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
++        Near(1,use.Work.Supplied);Near(4,use.Work.Dissipated);
++        Assert.True(use.Work.Supplied+use.Work.ErrorBound<=1);
++    }
++
++    [Fact]
++    public void HingeTorqueAccountsForCapturedRotation()
++    {
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,Z*2,2,new(2,2,2));
++        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,4,100,20),100,1e-10),.5);
++        var use=Assert.Single(prediction.Motors);
++        Near(8,use.Effort);Near(12,use.Work.Supplied);Near(0,use.Work.Dissipated);
++        Near(4,prediction.Trajectories[body.Id].PhysicalAngularVelocityAt(.5).Z);
++    }
++
++    [Fact]
++    public void ObstructedDriveSaturatesWithoutCreatingMotionOrWork()
++    {
++        var (body,anchor,joint)=Setup(range:new(0,0));
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,1,10,1),10,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        Near(10,use.Effort);Near(0,use.Work.Supplied);Near(0,use.Work.Dissipated);
++        Near(0,prediction.Trajectories[body.Id].LinearVelocityAt(1).Length);
++    }
++
++
++    [Fact]
++    public void MultipleMotorsKeepIdentityOrderAndIndependentAllowances()
++    {
++        var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,2,new(2,2,2));
++        var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,4,new(4,4,4));
++        var anchor=new PhysicsBody(new(2),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++        var first=new PhysicsFrameJoint(new(7),FrameJointKind.Slider,a,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var second=new PhysicsFrameJoint(new(3),FrameJointKind.Slider,b,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var firstSupply=new MotorPredictionSupply(new(first.Id,1,10,10),10,1e-10);
++        var secondSupply=new MotorPredictionSupply(new(second.Id,.5,10,10),10,1e-10);
++        ForcePrediction Run(MotorPredictionSupply[] supplies)=>AccelerationSolver.Predict(new(),
++            new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),[a,b,anchor],[first,second],[],
++            new Dictionary<PhysicsBodyId,BodyWrench>{{a.Id,default},{b.Id,default},{anchor.Id,default}},
++            1,1e-7,1e-8,1e-9,supplies);
++        var prediction=Run([firstSupply,secondSupply]);var repeated=Run([secondSupply,firstSupply]);
++        Assert.Equal(prediction.Motors,repeated.Motors);
++        Assert.Equal(second.Id,prediction.Motors[0].Joint);Assert.Equal(first.Id,prediction.Motors[1].Joint);
++        Near(.5,prediction.Motors[0].Work.Supplied);Near(1,prediction.Motors[1].Work.Supplied);
++        Near(.5,prediction.Trajectories[b.Id].LinearVelocityAt(1).Z);
++        Near(1,prediction.Trajectories[a.Id].LinearVelocityAt(1).Z);
++    }
++
++
++    [Fact]
++    public void EmptySupplyStillBrakesAgainstAMovingPrescribedFrame()
++    {
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Z*2,default,2,new(2,2,2));
++        var motion=new PrescribedBodyMotion(new QuinticRigidTrajectory(RigidPose.Identity,Z*.1,default,1),RigidPose.Identity,0);
++        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
++        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,10,0),10,1e-8),1);
++        var use=Assert.Single(prediction.Motors);
++        Assert.True(use.Effort<0);
++        Near(0,use.Work.Supplied);
++        Assert.True(use.Work.Dissipated>0);
++    }
++
++    [Fact]
++    public void ForeignAndDuplicateMotorDeclarationsReject()
++    {
++        var (body,anchor,joint)=Setup();var before=body.Snapshot();
++        Assert.Throws<ArgumentException>(()=>new MotorPredictionSupply(new(joint.Id,1,1,1),-1,1e-6));
++        Assert.Throws<ArgumentException>(()=>new MotorPredictionSupply(new(joint.Id,1,1,1),1,0));
++        Assert.Throws<ArgumentException>(()=>Predict(body,anchor,joint,new(new(new(9),1,1,1),1,1e-6),1));
++        var supply=new MotorPredictionSupply(new(joint.Id,1,1,1),1,1e-6);
++        Assert.Throws<ArgumentException>(()=>AccelerationSolver.Predict(new(),new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),
++            [body,anchor],[joint],[],new Dictionary<PhysicsBodyId,BodyWrench>{{body.Id,default},{anchor.Id,default}},
++            1,1e-7,1e-8,1e-9,[supply,supply]));
++        Assert.Equal(before,body.Snapshot());
++    }
++}

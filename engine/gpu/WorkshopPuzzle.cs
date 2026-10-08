@@ -2,11 +2,27 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopPuzzleId : uint { Free, FirstPrinciples }
+public enum WorkshopPuzzleId : uint { Free, FirstPrinciples, DelayedSignal }
 public enum WorkshopPlacementMode : uint { Manual }
-public enum WorkshopGoalKind : uint { None, Captured }
+public enum WorkshopGoalKind : uint { None, Captured, ActivatedAfter }
 public readonly record struct PuzzlePrecision(Half Value);
-public readonly record struct WorkshopGoal(WorkshopGoalKind Kind, GpuBodyId Body, GpuBodyId Target, GpuSensorId EventSource);
+public readonly record struct WorkshopGoal(WorkshopGoalKind Kind, GpuBodyId Body, GpuBodyId Target, GpuSensorId EventSource,
+    ActivationNodeId SourceNode = default, ActivationNodeId TargetNode = default, DurationSeconds MinimumDelay = default)
+{
+    public void Validate()
+    {
+        switch (Kind)
+        {
+            case WorkshopGoalKind.None when this == default: return;
+            case WorkshopGoalKind.Captured when Body.Value != 0 && Target.Value != 0 && Body != Target &&
+                EventSource.Value != 0 && SourceNode == default && TargetNode == default && MinimumDelay == default: return;
+            case WorkshopGoalKind.ActivatedAfter when Body == default && Target == default && EventSource == default &&
+                SourceNode.Value != 0 && TargetNode.Value != 0 && SourceNode != TargetNode:
+                PhysicsDeclarationBounds.Range(MinimumDelay.Value, (Half)0, (Half)120); return;
+            default: throw new ArgumentException("Unsupported named goal.");
+        }
+    }
+}
 
 /// <summary>Canonical authored assistance, including physical nudging data retained for a later supported mode.</summary>
 public readonly record struct AssistanceKnot(Half Precision, Metres PositionWindow, Half RotationWindowDegrees,
@@ -35,7 +51,7 @@ public readonly record struct AssistanceProfile(AssistanceKnot Forgiving, Assist
 }
 
 public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacementMode Placement,
-    PuzzlePrecision Precision, uint RampInventory, WorkshopGoal Goal, AssistanceProfile BallAssistance,
+    PuzzlePrecision Precision, WorkshopPartKind InventoryKind, uint InventoryCount, WorkshopGoal Goal, AssistanceProfile BallAssistance,
     AssistanceProfile ReceiverAssistance, AssistanceProfile RampAssistance)
 {
     public void Validate(WorkshopConstruction construction)
@@ -46,8 +62,13 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
             if (this != default) throw new ArgumentException("Free Workshop has no authored puzzle settings.");
             return;
         }
+        var ballCount = 0;
+        foreach (var instance in construction.Instances) if (instance is WorkshopBall) ballCount++;
+        if (ballCount != 1) throw new ArgumentException("Authored puzzles require their one named Basketball.");
+        Goal.Validate();
+        if (Id == WorkshopPuzzleId.DelayedSignal) { DelayedSignal.Validate(this, construction); return; }
         PhysicsDeclarationBounds.Range(Precision.Value, (Half)0, (Half)1);
-        if (construction.Connections.Count != 0 || RampInventory != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||
+        if (construction.Connections.Count != 0 || InventoryKind != WorkshopPartKind.Ramp || InventoryCount != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||
             BallAssistance != FirstPrinciples.BallAssistance || ReceiverAssistance != FirstPrinciples.ReceiverAssistance || RampAssistance != FirstPrinciples.RampAssistance)
             throw new ArgumentException("Unsupported First principles authored settings.");
         var expectedBall = FirstPrinciples.Ball(Goal.Body);
@@ -88,12 +109,13 @@ public static class FirstPrinciples
         return WorkshopInput.Receiver(id, 2.5, .9, 0, 0, 0, 0, 1) with
         {
             Locked = true,
-            Capture = new(assistance.CaptureMargin, assistance.CaptureSpeed, assistance.CaptureDwell, SensorParticipation.Enabled)
+            Capture = new(assistance.CaptureMargin, assistance.CaptureSpeed, assistance.CaptureDwell, SensorParticipation.Enabled),
+            ForceRegion = ReceiverForceRegion.Create(assistance.CaptureMargin, assistance.GuideAcceleration)
         };
     }
     public static WorkshopConstruction Create(ConstructionRevision revision, WorkshopCadenceSettings settings, GpuBodyId ball, GpuBodyId receiver, PuzzlePrecision precision)
     {
-        var puzzle = new WorkshopPuzzle(WorkshopPuzzleId.FirstPrinciples, WorkshopPlacementMode.Manual, precision, 2,
+        var puzzle = new WorkshopPuzzle(WorkshopPuzzleId.FirstPrinciples, WorkshopPlacementMode.Manual, precision, WorkshopPartKind.Ramp, 2,
             new(WorkshopGoalKind.Captured, ball, receiver, WorkshopPhysicsCompiler.CaptureSensor(Receiver(receiver, precision))), BallAssistance, ReceiverAssistance, RampAssistance);
         var construction = new WorkshopConstruction(revision, settings, new(Ball(ball), Receiver(receiver, precision)), puzzle);
         construction.Validate(); return construction;

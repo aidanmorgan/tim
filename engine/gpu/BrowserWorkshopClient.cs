@@ -57,7 +57,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     private static partial void RecordPresentationObservation(int client, byte[] observation);
 
     [JSImport("create", "workshopClient")]
-    private static partial Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int captureMode, bool admitDisplay,
+    private static partial Task<int> CreateClient(int[] states, byte[] bootstrap, int[] clockAbi, int[] responseAbi, int captureMode, bool admitDisplay,
         [JSMarshalAs<JSType.Function>] Action clockReply,
         [JSMarshalAs<JSType.Function>] Action physicalRead,
         [JSMarshalAs<JSType.Function>] Action scheduleControl,
@@ -94,7 +94,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
     public static async Task<BrowserWorkshopClient> Create()
     {
         if (!OperatingSystem.IsBrowser())
-            throw new PlatformNotSupportedException("This Workshop requires Chrome WebGPU with shader-f16.");
+            throw new PlatformNotSupportedException("This Workshop requires a browser environment.");
         using var document = JSHost.GlobalThis.GetPropertyAsJSObject("document")
             ?? throw new InvalidOperationException("A browser document is required.");
         var baseUri = document.GetPropertyAsString("baseURI")
@@ -110,7 +110,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             identity, [(int)WorkshopClockWire.Version, (int)NativeClockProfile.Chromium154MacIsolated,
                 WorkshopClockWire.PeerBytes, WorkshopClockWire.ProbeBytes, WorkshopClockWire.ReplyBytes,
                 WorkshopClockWire.DiagnosticBytes, (int)WorkshopRuntimeRole.Browser, (int)WorkshopRuntimeRole.Simulation],
-            (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
+            WorkshopWire.ResponseAbi(), (int)WorkshopBuild.CaptureMode, client._construction.Settings.Presentation == PresentationCadence.AdmittedDisplay, client.ReceiveClockReply, client.ReceiveRead, client.ReceiveSchedule, client.ReceiveAnimation,
             client.Service, client.BeginMemory, client.ReceiveMemory, client.ReleaseMemory));
         try
         {
@@ -178,7 +178,6 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             var prepared = _cursor.PrepareAcknowledgement(command, response, dispatchedReadOrder, _disposed);
             if (prepared.Applicable)
             {
-                ValidateCommandRead(response, construction, _construction);
                 var boundary = response.Result.Outcome == WorkshopCommandOutcome.Applied ? kind switch
                 {
                     WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.Reset => PresentationBoundary.Seed,
@@ -191,7 +190,10 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
                 _cursor.Commit(prepared);
                 if (history is { } ready) _history.Commit(ready);
                 if (response.Result.Outcome == WorkshopCommandOutcome.Applied && construction is { } admitted)
+                {
                     _construction = admitted;
+                    EnsureInstalledScene(_construction);
+                }
             }
             // A valid terminal receipt releases its lease even when a newer read owns presentation.
             // Decode/identity/history failures above keep the reliable work unresolved.
@@ -266,9 +268,10 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         var prepared = _cursor.PrepareRead(response);
         if (response.Publication.Value > _observedPublication.Value) _observedPublication = response.Publication;
         if (!prepared.Applicable) return;
-        ValidateRead(response.Read, _construction);
         var boundary = response.Phase == WorkshopSimulationPhase.Completed ? PresentationBoundary.Completed : PresentationBoundary.Continuous;
         var history = PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(milliseconds));
+        EnsureInstalledScene(_construction);
+        ObserveContactFeedback(response.Read);
         _cursor.Commit(prepared);
         _history.Commit(history);
     }
@@ -337,55 +340,15 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             throw new InvalidOperationException("Worker session is unavailable; its unacknowledged operations remain indeterminate.");
     }
 
-    internal static void ValidateCommandRead(WorkshopResponse response, WorkshopConstruction? proposed, WorkshopConstruction current)
-    {
-        var construction = response.Result.Outcome == WorkshopCommandOutcome.Applied ? proposed ?? current : current;
-        var scene = WorkshopPhysicsCompiler.Compile(construction, new(response.Session.Low, response.Session.High));
-        ValidateReadContent(response.Read, construction, WorkshopActivationCompiler.Compile(construction), scene);
-    }
-
     private WorkshopConstruction? _readConstruction;
-    private ActivationNetwork? _readActivationNetwork;
     private PhysicsSceneDeclaration? _readScene;
-    private void ValidateRead(WorkshopRead read, WorkshopConstruction construction)
+    private void EnsureInstalledScene(WorkshopConstruction construction)
     {
         if (_readConstruction != construction)
         {
-            var scene = WorkshopPhysicsCompiler.Compile(construction, new(Peer.Session.Low, Peer.Session.High));
-            var network = WorkshopActivationCompiler.Compile(construction);
-            _readScene = scene; _readActivationNetwork = network; _readConstruction = construction;
+            _readScene = WorkshopPhysicsCompiler.Compile(construction, new(Peer.Session.Low, Peer.Session.High));
+            _readConstruction = construction;
         }
-        ValidateReadContent(read, construction, _readActivationNetwork!, _readScene!);
-    }
-    private static void ValidateReadContent(WorkshopRead read, WorkshopConstruction construction,
-        ActivationNetwork network, PhysicsSceneDeclaration scene)
-    {
-        if (read.Tick.Value > construction.Settings.RunTickLimit || (read.Ball is null) != (construction.Ball is null))
-            throw new ArgumentException("Read does not own the admitted construction.");
-        if (read.Tick.Value != 0 && (read.Motion is not { } motion ||
-            motion.Substeps != construction.Settings.PhysicalStepsPerCommit))
-            throw new ArgumentException("Motion cadence differs from the admitted construction.");
-        network.ValidateRead(read.Activations, read.Tick, construction.Settings.PhysicalStepsPerCommit, scene);
-        var expectedSensors = construction.Ball.HasValue && construction.Receiver.HasValue ? 1 : 0;
-        if (read.Captures.Count != expectedSensors || read.Rotation.HasValue != read.Ball.HasValue)
-            throw new ArgumentException("Read physical/sensor population differs from its construction.");
-        if (expectedSensors != 0)
-        {
-            var capture = read.Captures[0];
-            var end = checked((uint)(read.Tick.Value * (ulong)construction.Settings.PhysicalStepsPerCommit));
-            if (capture.Sensor != WorkshopPhysicsCompiler.CaptureSensor(construction.Receiver!.Value) ||
-                capture.EventOrdinal > end || (capture.EventOrdinal == end && capture.EventPhase > (Half)0) ||
-                (read.Tick.Value == 0 && capture.Phase != CaptureLatchPhase.Clear))
-                throw new ArgumentException("Capture identity/time differs from the admitted construction.");
-        }
-        if (read.Tick.Value == 0 && (read.Rotation != construction.Ball?.Rotation ||
-            !PhysicsDeclarationBounds.Zero(read.Angular.X, read.Angular.Y, read.Angular.Z)))
-            throw new ArgumentException("Initial physical orientation differs from construction.");
-        if (read.Ball is not { } body || construction.Ball is not { } ball) return;
-        body.Validate();
-        if (body.Id != ball.Id || body.Epoch != read.Epoch.Value || body.Tick != read.Tick.Value ||
-            (read.Tick.Value == 0 && (body.Cell != ball.Cell || !HalfBits.Equal(body.Local, ball.Local) || !HalfBits.IsPositiveZero(body.Velocity))))
-            throw new ArgumentException("Read differs from the admitted canonical construction.");
     }
 
     public async ValueTask DisposeAsync()

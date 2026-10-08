@@ -7,7 +7,8 @@ namespace CuriousContraptions.Coverage;
 /// <summary>Validated external Markdown/resource boundaries for current register and mode expectations.</summary>
 public static class CapabilityInputs
 {
-    private const string TodoPath="TODO.md";
+    public static readonly SourcePath RegisterPath=new("docs/planning/work-register.md");
+    private const string StageReference="../delivery-workflow.md#stage-gates";
     private const string ScenePattern="path=\"res://([^\" ]+\\.tscn)\"";
     private const string ScriptPattern="path=\"res://([^\" ]+\\.cs)\"";
     private const string OperationProperty="Operation";
@@ -65,7 +66,22 @@ public static class CapabilityInputs
             throw new InvalidDataException("Canonical mode enum differs from verified serialized mapping.");
     }
     private enum WorkStage { Baseline,Design,Native,Integration,Worker,Optimize,Qualify,Release,Audit,Cleanup,Element,ElementProof }
-    private sealed record RegisterRow(int Order,WorkOrderId Id,string[] Sources,WorkStage Stage);
+    private readonly record struct DocumentReference(SourcePath Path,RequirementId? Anchor);
+    private sealed record RegisterRow(int Order,WorkOrderId Id,DocumentReference[] Sources,WorkStage Stage);
+    // Markdown/serialized locations are external boundaries. Keep normalized paths and
+    // extensible fragment identities typed throughout ownership selection.
+    private static DocumentReference ReadReference(DirectoryInfo root,SourcePath? document,string value)
+    {
+        var fields=value.Split('#');
+        if(fields.Length>2||fields[0].Contains('\\')||Path.IsPathRooted(fields[0])||fields[0].Contains(':'))
+            throw new InvalidDataException("Unsupported document reference.");
+        var directory=document is { } source
+            ?Path.GetDirectoryName(Path.Combine(root.FullName,source.Value))!:root.FullName;
+        var path=fields[0].Length==0&&document is { } current
+            ?current:new SourcePath(Path.GetRelativePath(root.FullName,Path.GetFullPath(Path.Combine(directory,fields[0]))));
+        return new(path,fields.Length==2?new RequirementId(fields[1]):null);
+    }
+
     public static CapabilityInventory Read(DirectoryInfo root,string indexPath)
     {
         var index=ReadJson<CapabilityInventoryIndex>(indexPath);
@@ -86,18 +102,19 @@ public static class CapabilityInputs
         ??throw new InvalidDataException("Null inventory document.");
     public static CapabilityExpectations Discover(DirectoryInfo root,IReadOnlyList<SourceRequirement> sources)
     {
-        var text=File.ReadAllText(Path.Combine(root.FullName,TodoPath));
+        var text=File.ReadAllText(Path.Combine(root.FullName,RequirementDiscovery.RequirementsPath.Value));
+        var register=File.ReadAllText(Path.Combine(root.FullName,RegisterPath.Value));
         var rows=new List<RegisterRow>();
-        foreach(var line in text.Split('\n'))
+        foreach(var line in register.Split('\n'))
         {
             var match=Regex.Match(line,@"^\| ([0-9]+) \|.*?\*\*([^ ]+) — ");
             if(!match.Success)continue;
             var cell=line.Split(" | ",StringSplitOptions.None)[1];
-            var stageMatch=Regex.Match(line,@"\[([^\]]+)\]\(#stage-gates\)");
+            var stageMatch=Regex.Match(line,@"\[([^\]]+)\]\("+Regex.Escape(StageReference)+@"\)");
             if(!stageMatch.Success||!Enum.TryParse<WorkStage>(stageMatch.Groups[1].Value,false,out var stage)||!Enum.IsDefined(stage)||Enum.GetName(stage)!=stageMatch.Groups[1].Value)
                 throw new InvalidDataException("Unknown work-order stage.");
             rows.Add(new(int.Parse(match.Groups[1].Value,CultureInfo.InvariantCulture),new(match.Groups[2].Value),
-                Regex.Matches(cell,@"\]\(([^)]+)\)").Select(x=>x.Groups[1].Value).ToArray(),stage));
+                Regex.Matches(cell,@"\]\(([^)]+)\)").Select(x=>ReadReference(root,RegisterPath,x.Groups[1].Value)).ToArray(),stage));
         }
         if(rows.Count==0||rows.Select(x=>x.Id).Distinct().Count()!=rows.Count)throw new InvalidDataException("Invalid work-order register.");
         var owners=rows.Select(x=>x.Id).ToHashSet();
@@ -105,7 +122,7 @@ public static class CapabilityInputs
         foreach(var source in sources.Where(x=>x.Key.Origin==RequirementOrigin.Task))
         {
             var candidates=rows.Where(row=>Regex.IsMatch(row.Id.Value,@"\AS[0-9]{3}\z")&&
-                row.Sources.Contains("#"+source.Key.Id.Value)).OrderBy(row=>row.Sources.Length).ThenByDescending(row=>row.Order).ToArray();
+                row.Sources.Contains(new DocumentReference(RequirementDiscovery.RequirementsPath,source.Key.Id))).OrderBy(row=>row.Sources.Length).ThenByDescending(row=>row.Order).ToArray();
             if(candidates.Length==0)throw new InvalidDataException("Task has no delivery owner.");
             sourceOwners.Add(source.Key,candidates[0].Id);
         }
@@ -116,10 +133,10 @@ public static class CapabilityInputs
             switch(source.Key.Origin)
             {
                 case RequirementOrigin.Catalogue:
-                    var design=rows.Single(row=>Regex.IsMatch(row.Id.Value,@"\ACAT-[0-9]{3}-D\z")&&row.Sources.Contains(source.Location));
+                    var design=rows.Single(row=>Regex.IsMatch(row.Id.Value,@"\ACAT-[0-9]{3}-D\z")&&row.Sources.Contains(ReadReference(root,null,source.Location)));
                     owner=new(design.Id.Value[..^1]+"V");break;
                 case RequirementOrigin.Fixture:
-                    owner=rows.Single(row=>Regex.IsMatch(row.Id.Value,@"\AFIX-[0-9]+-[0-9]+\z")&&row.Sources.Contains(source.Location)).Id;break;
+                    owner=rows.Single(row=>Regex.IsMatch(row.Id.Value,@"\AFIX-[0-9]+-[0-9]+\z")&&row.Sources.Contains(ReadReference(root,null,source.Location))).Id;break;
                 case RequirementOrigin.Research:owner=new("P0-002");break;
                 case RequirementOrigin.Element:
                 case RequirementOrigin.Thermal:

@@ -12,7 +12,7 @@ The simulation worker hosts **WebGPU/WGSL f16 physics**. C# owns typed Half cons
 
 Simulation runs at 120 Hz, initially four outer substeps, animation initially at 60 Hz, and presentation follows its own display clock. Sustained 60 FPS on baseline devices and 90 FPS on qualified devices are acceptance targets. See the [numeric/execution contract](docs/gpu-f16-physics.md), [simulation–presentation bridge](docs/simulation-presentation-bridge.md) and [performance plan](docs/browser-physics-performance.md).
 
-Complete physics, rendering and independent workers through **P0-035** using small playable slices of existing parts before new components, general UX or campaign expansion. Then deliver each named element/variant with individual evidence and publication; component coverage precedes exhaustive campaign/difficulty sweeps. All original behavioral requirements remain in the [source requirements](docs/planning/requirements.md) and [work register](docs/planning/work-register.md).
+Complete physics, rendering and independent workers through **P0-035** using small playable slices of existing parts before new components, general UX or campaign expansion. Then deliver each named element/variant with individual evidence and publication; component coverage precedes exhaustive campaign/difficulty sweeps. All original behavioral requirements remain in the [source requirements](docs/planning/requirements.md) and [named elements](docs/planning/invest/named-elements.md).
 
 ## Play online
 
@@ -64,7 +64,7 @@ Parts declare construction and presentation; generic WGSL laws and typed C# disc
 
 ## Current evidence and remaining work
 
-[TODO](TODO.md) owns the current status. [Requirements](docs/planning/requirements.md) contain complete named behavior/control and the 150-level teaching target; the [register](docs/planning/work-register.md) keeps stable owners, criteria and technical prerequisites. Use the [working documentation index](docs/README.md) for current models and tools.
+[TODO](TODO.md) owns the current status. [Requirements](docs/planning/requirements.md) contain complete named behavior/control and the 150-level teaching target; the [roadmap](docs/planning/invest/vertical-delivery.md) governs order and [named elements](docs/planning/invest/named-elements.md) keep element identities. The former register/source-scope ledgers were deleted on 5 October 2026 and remain in git history as evidence only. Use the [working documentation index](docs/README.md) for current models and tools.
 
 ## UI icon credits
 

@@ -1,4 +1,6 @@
 using Godot;
+using CuriousContraptions.Presentation;
+using CuriousContraptions.Bridge;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,22 +18,35 @@ public partial class BeamCombinerPart : MachinePart
         new(OpticalPortId.Second,new(new(0,0,.76f),Vector3.Back,.43f),OpticalInteraction.Route,Vector3.One*Retention),
         new(OpticalPortId.Third,new(new(0,.76f,0),Vector3.Up,.43f),OpticalInteraction.Route,Vector3.One*Retention)
     ];
-    public Vector3 InputPower { get; private set; }
-    public Vector3 OutputPower { get; private set; }
-    private readonly List<StandardMaterial3D> _lenses=[];
+    private readonly SimulationState<Vector3> _inputPower = new(Vector3.Zero), _outputPower = new(Vector3.Zero);
+    public Vector3 InputPower => _inputPower.Value;
+    public Vector3 OutputPower => _outputPower.Value;
+    public static readonly ScalarObservationSlot RedOutput=new(0),GreenOutput=new(1),BlueOutput=new(2);
+    public override IReadOnlyList<SceneScalarObservation> ScalarObservations=>
+    [
+        new(RedOutput,ScalarUnit.GameOpticalPower,new(_outputPower,ScalarVectorComponent.X)),
+        new(GreenOutput,ScalarUnit.GameOpticalPower,new(_outputPower,ScalarVectorComponent.Y)),
+        new(BlueOutput,ScalarUnit.GameOpticalPower,new(_outputPower,ScalarVectorComponent.Z))
+    ];
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState => [_inputPower, _outputPower];
+    private MeshInstance3D _outputLamp=null!;
     private OpticalPathVisual _preview=null!;
+    public override Presentation.SceneOpticalPreview? OpticalPreview=>new(_preview,Presentation.OpticalPreviewComposition.MergeCollinear);
     public override void ReceiveOpticalPower(IReadOnlyDictionary<OpticalPortId,Vector3> power)
     {
-        InputPower=power.Values.Aggregate(Vector3.Zero,(a,b)=>a+b);
+        _inputPower.Value=power.Values.Aggregate(Vector3.Zero,(a,b)=>a+b);
 
     }
-    public override void ReceiveOpticalPath(IReadOnlyList<OpticalSegment> path)
+    public override void ReceiveOpticalOutputPower(Vector3 power)
     {
-        var exit=Transform*Exit;
-        OutputPower=path.Where(s=>s.From.DistanceSquaredTo(exit)<1e-6f)
-            .Aggregate(Vector3.Zero,(power,s)=>power+s.Power);
+        _outputPower.Value=power;
         Active=OutputPower.LengthSquared()>1e-8f;
     }
+    public override IReadOnlyList<SceneSpectralColour> SpectralColours=>
+    [
+        new(_outputLamp,new(this,RedOutput),new(this,GreenOutput),new(this,BlueOutput),
+            new("#556573"),12,AnimationClock.Presentation)
+    ];
     protected override void Build()
     {
         PickRadius=1.3f;
@@ -52,22 +67,10 @@ public partial class BeamCombinerPart : MachinePart
         }
         var output=PartArt.Cylinder(Visual,.34f,.04f,new("#556573"),Exit);
         output.RotationDegrees=new(0,0,90);
-        _lenses.Add((StandardMaterial3D)output.MaterialOverride);
+        _outputLamp=output;
         var rim=PartArt.Ring(Visual,.4f,.045f,new("#e8b764"),Exit);
         rim.RotationDegrees=new(0,0,90);
-        _preview=new OpticalPathVisual {Name="OutgoingAimPreview",Preview=true};
+        _preview=new OpticalPathVisual {Name="OutgoingAimPreview",Preview=true,Visible=false};
         Visual.AddChild(_preview);
-    }
-    public override void _Process(double delta)
-    {
-        var ink=Active?OpticalColours.BeamInk(OutputPower):new Color("#556573");
-        foreach(var material in _lenses)
-            material.AlbedoColor=material.AlbedoColor.Lerp(ink,1-Mathf.Exp(-(float)delta*12));
-        _preview.Visible=false;
-        if(!IsSelected||GetParent() is not MachineWorld world||world.Running||world.Won)return;
-        _preview.Visible=true;
-        _preview.Refresh(OpticalPathVisual.Merge(world.Parts.Where(p=>p.Visible&&p.OpticalPreviewSource.HasValue)
-            .SelectMany(p=>OpticalNetwork.Trace(world,p,p.OpticalPreviewSource!.Value).Segments)
-            .Where(s=>s.OriginPart==Uid).ToArray()));
     }
 }

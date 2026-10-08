@@ -7,7 +7,7 @@ public interface IPositionConstraint
 {
     ReadOnlySpan<PhysicsBody> Bodies { get; }
     double Error(double queryTolerance);
-    void Project(double tolerance,PositionProjector projector);
+    internal void Project(double tolerance,PositionProjector projector);
 }
 
 /// <summary>Nonlinear contact projection. Anchors are updated after each pose
@@ -29,11 +29,12 @@ public sealed class ContactPositionConstraint : IPositionConstraint
     }
     internal ConvexMotion MotionA(IRigidTrajectory path)=>new(_shapeA,path);
     internal ConvexMotion MotionB(IRigidTrajectory path)=>new(_shapeB,path);
-    private ConvexMotion.AtTime ShapeA()=>MotionA(A.CreateTrajectory(0)).At(0);
-    private ConvexMotion.AtTime ShapeB()=>MotionB(B.CreateTrajectory(0)).At(0);
+    private ConvexPose ShapeA()=>new(_shapeA,A.Pose);
+    private ConvexPose ShapeB()=>new(_shapeB,B.Pose);
     public double Error(double queryTolerance)=>Math.Max(0,-ConvexSeparation.Query(ShapeA(),ShapeB(),queryTolerance).LowerBound);
 
-    public void Project(double tolerance,PositionProjector projector)
+    void IPositionConstraint.Project(double tolerance,PositionProjector projector)=>Project(tolerance,projector);
+    internal void Project(double tolerance,PositionProjector projector)
     {
         if(!double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(tolerance));
         var manifold=ContactManifold.Query(ShapeA(),ShapeB(),0,tolerance*.125);
@@ -60,7 +61,7 @@ public sealed class ContactPositionConstraint : IPositionConstraint
 public readonly record struct PositionSolveResult(int Iterations,double MaximumError);
 public static class PositionSolver
 {
-    public static PositionSolveResult Solve(Func<IEnumerable<IPositionConstraint>> constraints,PositionProjector projector,double tolerance,int maximumIterations=64)
+    internal static PositionSolveResult Solve(Func<IEnumerable<IPositionConstraint>> constraints,PositionProjector projector,double tolerance,int maximumIterations=64)
     {
         ArgumentNullException.ThrowIfNull(constraints); ArgumentNullException.ThrowIfNull(projector);
         if(!double.IsFinite(tolerance)||tolerance<=0||maximumIterations<1) throw new ArgumentOutOfRangeException(nameof(tolerance));

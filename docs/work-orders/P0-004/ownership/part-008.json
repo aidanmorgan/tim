@@ -460,25 +460,25 @@
       "Path": {
         "Value": "engine/presentation/AnimationBatch.cs"
       },
-      "Sha256": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+      "Sha256": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
     },
     {
       "Path": {
         "Value": "engine/presentation/AnimationFollowDefinition.cs"
       },
-      "Sha256": "72c94a07978bee11ca60b3a676bfa2969701597ab05343a3cdf78d2432096a3f"
+      "Sha256": "b0cb9d77d46d2cb6b2523796ea10c590dcb47d4e8874b71693d36b5df1666ebd"
     },
     {
       "Path": {
         "Value": "engine/presentation/AnimationImpulseDefinition.cs"
       },
-      "Sha256": "406e922e6b4f0948831a8003a3457e8d43c98203c9d8365a5a5efd4c71b792e9"
+      "Sha256": "9e81fb4546054559287bfcbc494b5be702a13b39744dfd2aa8129daf6cea5dcc"
     },
     {
       "Path": {
         "Value": "engine/presentation/AnimationOscillationDefinition.cs"
       },
-      "Sha256": "de1f2f075b095647b48c736e132402eb542b8d00e15d2ed1c21471d495fef380"
+      "Sha256": "439d4cda48317b4fad06661ed4c1fb1c2ba984b4888df16d61383fe510c9fc88"
     },
     {
       "Path": {

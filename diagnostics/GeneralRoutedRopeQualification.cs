@@ -17,7 +17,7 @@ internal static class GeneralRoutedRopeQualification
     private static PhysicsBody Body(int id,CollisionVector center,CollisionVector velocity=default,CollisionVector spin=default)=>
         new(new(id),PhysicsMotionType.Dynamic,RigidPose.At(center),velocity,spin,1,new(1,1,1));
     private static PhysicsBody Fixed(int id,CollisionVector center)=>new(new(id),PhysicsMotionType.Static,RigidPose.At(center),default,default);
-    private static PhysicsObject Object(PhysicsBody body)=>new(body,new([new(new ConvexSphere(.05),Transform3D.Identity)]),new(0,0,0));
+    private static PhysicsObject Object(PhysicsBody body)=>new(body,new([new(new ConvexSphere(.05),AffineTransform.Identity)]),new(0,0,0));
     internal static GeneralRoutedRopeReport Run(GeneralRoutedRopeProbe probe)
     {
         if(!Enum.IsDefined(probe)) throw new ArgumentOutOfRangeException(nameof(probe));
@@ -33,9 +33,9 @@ internal static class GeneralRoutedRopeQualification
             slack?5:4,ConnectedBodyCollision.Disabled);
         var objects=new[]{Object(a),Object(guide),Object(b)};
         if(probe==GeneralRoutedRopeProbe.BlockedProjection)
-            objects=[..objects,new(Fixed(10,Y*1.5),new([new(new ConvexBox(new(.2,.05,.2)),Transform3D.Identity)]),new(0,0,0))];
+            objects=[..objects,new(Fixed(10,Y*1.5),new([new(new ConvexBox(new(.2,.05,.2)),AffineTransform.Identity)]),new(0,0,0))];
         var duration=slack?.012:.1;
-        var world=new PhysicsWorld(objects,[rope],new(default,maximumStep:duration));
+        var world=new PhysicsWorld([],objects,[rope],new(default,maximumStep:duration));
         double? beforeFlight=null;
         if(slack)
         {
@@ -45,7 +45,7 @@ internal static class GeneralRoutedRopeQualification
         var before=world.Capture();
         (RoutedRopeOutcome Outcome,PhysicsStepResult? Result) Step()
         {
-            try { return (RoutedRopeOutcome.Completed,world.Step([],duration)); }
+            try { return (RoutedRopeOutcome.Completed,world.Step([],[],duration)); }
             catch(InvalidOperationException) when(probe==GeneralRoutedRopeProbe.BlockedProjection)
             { return (RoutedRopeOutcome.Rejected,null); }
         }
@@ -69,8 +69,8 @@ internal static class GeneralRoutedRopeQualification
         var bodies=rope.Bodies.ToArray(); var before=bodies.Select(body=>body.Snapshot()).ToArray();
         JointSweepResult Sweep()
         {
-            var duration=Math.Tau/120; var paths=bodies.Select(body=>body.CreateTrajectory(duration)).ToArray();
-            var hit=rope.Sweep(paths,duration,1e-7);
+            var duration=Math.Tau/120; var paths=bodies.Select(body=>body.CreateTrajectory(duration,default)).ToArray();
+            var hit=rope.Sweep(paths,duration,1e-7,1e-8);
             if(hit.Status!=JointSweepStatus.Boundary) throw new InvalidOperationException("Expected hidden routed extension.");
             for(var i=0;i<bodies.Length;i++) bodies[i].Advance(paths[i],hit.Time);
             return hit;

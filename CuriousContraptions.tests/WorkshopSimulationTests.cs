@@ -10,7 +10,92 @@ public sealed class WorkshopSimulationTests
     private static WorkshopSimulation Create(ControlledDevice device, ControlledClock? clock = null, ControlledInstallation? installation = null) =>
         new(device, clock ?? new ControlledClock(), Settings, new(1), installation ?? new ControlledInstallation());
     private static WorkshopConstruction BallConstruction(ulong revision = 2) =>
-        new(new(revision), Settings, new(WorkshopInput.Basketball(new(0x20000000000001), 0, 4, 0, 0, 0, 0, 1)));
+        new(new(revision), Settings, new(WorkshopInput.Basketball(new(0xfffffffe), 0, 4, 0, 0, 0, 0, 1)));
+
+    [Fact]
+    public async Task RoundedGpuRotationCommitsThroughTheSimulationReadBoundary()
+    {
+        var device = new ControlledDevice();
+        await using var simulation = Create(device);
+        await simulation.Initialize();
+        var admission = simulation.Construct(BallConstruction()).AsTask();
+        device.CompleteAdmission(0); await admission;
+        await simulation.Run();
+        var advance = simulation.Advance().AsTask();
+        // Actual First principles tick86 output: normalised f16, norm squared1.0012203.
+        var rotation = new CanonicalRotation((Half)0, (Half)0, (Half)(-.301513671875), (Half).9541015625);
+        device.CompleteAdvance(0, read => ChangeOnlyBody(read, body => body with { Rotation = rotation }));
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await advance).Outcome);
+        Assert.Equal(WorkshopSimulationPhase.Running, simulation.Phase);
+        Assert.Equal(rotation, simulation.Committed.Bodies[0].Rotation);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(16)]
+    public async Task CompletePopulationSharesTimeAndResetRestoresEveryBody(int count)
+    {
+        var device = new ControlledDevice();
+        await using var simulation = Create(device);
+        await simulation.Initialize();
+        var construction = PopulationConstruction(count);
+        var admission = simulation.Construct(construction).AsTask();
+        device.CompleteAdmission(0); await admission;
+        var initial = simulation.Committed;
+        Assert.Equal(count, initial.Bodies.Count);
+        await simulation.Run();
+        var advance = simulation.Advance().AsTask(); device.CompleteAdvance(0);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await advance).Outcome);
+        Assert.Equal(1ul, simulation.Committed.Tick.Value);
+        for (var i = 0; i < count; i++)
+        {
+            Assert.Equal(initial.Bodies[i].Body.Id, simulation.Committed.Bodies[i].Body.Id);
+            Assert.Equal(simulation.Committed.Epoch.Value, simulation.Committed.Bodies[i].Body.Epoch);
+            Assert.Equal(1ul, simulation.Committed.Bodies[i].Body.Tick);
+        }
+        var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
+        Assert.Equal(0ul, simulation.Committed.Tick.Value);
+        Assert.Equal(count, simulation.Committed.Bodies.Count);
+        for (var i = 0; i < count; i++)
+        {
+            var expected = initial.Bodies[i] with
+            { Body = initial.Bodies[i].Body with { Epoch = simulation.Committed.Epoch.Value } };
+            Assert.True(expected.HasSameBits(simulation.Committed.Bodies[i]));
+        }
+        Assert.Equal(construction, simulation.Construction);
+    }
+
+    public enum PopulationChange { MissingLast, ForeignLast }
+
+    [Theory]
+    [InlineData(PopulationChange.MissingLast)]
+    [InlineData(PopulationChange.ForeignLast)]
+    public async Task InvalidNonfirstMemberCannotReplaceCompleteCommittedPopulation(PopulationChange change)
+    {
+        var device = new ControlledDevice();
+        await using var simulation = Create(device);
+        await simulation.Initialize();
+        var admission = simulation.Construct(PopulationConstruction(16)).AsTask();
+        device.CompleteAdmission(0); await admission;
+        await simulation.Run();
+        var before = simulation.Committed;
+        var advance = simulation.Advance().AsTask();
+        device.CompleteAdvance(0, read =>
+        {
+            var values = Enumerable.Range(0, read.Bodies.Count).Select(i => read.Bodies[i]).ToArray();
+            if (change == PopulationChange.MissingLast) Array.Resize(ref values, 15);
+            else values[15] = values[15] with { Body = values[15].Body with { Id = new(999) } };
+            return read with { Bodies = new(values) };
+        });
+        Assert.Equal(WorkshopCommandOutcome.Faulted, (await advance).Outcome);
+        Assert.Equal(before, simulation.Committed);
+        Assert.Equal(16, simulation.Committed.Bodies.Count);
+    }
+
+    private static WorkshopConstruction PopulationConstruction(int count) =>
+        new(new(2), Settings, new(Enumerable.Range(0, count).Select(i =>
+            (IWorkshopInstance)WorkshopInput.Basketball(new((ulong)i + 1),
+                (i % 4) * 2, 4, (i / 4) * 2, 0, 0, 0, 1)).ToArray()));
 
     [Fact]
     public async Task SaveChangesRevisionOnceWithoutChangingWorldOrDispatchingGpu()
@@ -160,7 +245,7 @@ public sealed class WorkshopSimulationTests
         var pending = simulation.Construct(BallConstruction()).AsTask();
         var request = device.Admissions[0];
         var correct = ControlledDevice.Initial(request.Construction, request.Epoch);
-        request.Completion.SetResult(new(request.Sequence, correct with { Ball = correct.Ball!.Value with { Id = new(7) } }));
+        request.Completion.SetResult(new(request.Sequence, ChangeOnlyBody(correct, value => value with { Body = value.Body with { Id = new(7) } })));
         Assert.Equal(WorkshopCommandOutcome.Faulted, (await pending).Outcome);
         Assert.Equal(before, simulation.Construction);
     }
@@ -212,17 +297,17 @@ public sealed class WorkshopSimulationTests
         await run;
         var initialGeneration = simulation.Epoch;
         var advance = simulation.Advance().AsTask();
-        device.CompleteAdvance(0, read => read with { Ball = read.Ball!.Value with
-            { Cell = new(0, 48, 0), Local = new((Half)0, (Half)0.25, (Half)0), Velocity = new((Half)0, (Half)(-0.1), (Half)0) } });
+        device.CompleteAdvance(0, read => ChangeOnlyBody(read, value => value with { Body = value.Body with
+            { Cell = new(0, 48, 0), Local = new((Half)0, (Half)0.25, (Half)0), Velocity = new((Half)0, (Half)(-0.1), (Half)0) } }));
         await advance;
-        Assert.NotEqual(construction.Ball!.Value.Cell, simulation.Committed.Ball!.Value.Cell);
+        Assert.NotEqual(construction.Instances.ToArray().OfType<WorkshopBall>().Single().Cell, simulation.Committed.Bodies[0].Body.Cell);
         var reset = simulation.Reset().AsTask();
         for (var i = 0; i < 8; i++) Assert.Equal(WorkshopRejection.Busy, (await simulation.Reset()).Reason);
         Assert.Equal(2, device.Admissions.Count);
         device.CompleteAdmission(1); await reset;
         Assert.Equal(initialGeneration.Value + 1, simulation.Epoch.Value);
-        Assert.Equal(ControlledDevice.Initial(construction, simulation.Epoch).Ball!.Value.Encode(),
-            simulation.Committed.Ball!.Value.Encode());
+        Assert.Equal(ControlledDevice.Initial(construction, simulation.Epoch).Bodies[0].Body.Encode(),
+            simulation.Committed.Bodies[0].Body.Encode());
         Assert.Equal(construction, simulation.Construction);
     }
 
@@ -236,9 +321,9 @@ public sealed class WorkshopSimulationTests
         var command = simulation.Construct(BallConstruction()).AsTask();
         var request = device.Admissions[0];
         var candidate = ControlledDevice.Initial(request.Construction, request.Epoch);
-        var ball = candidate.Ball!.Value;
-        request.Completion.SetResult(new(request.Sequence, candidate with
-            { Ball = ball with { Local = ball.Local with { X = BitConverter.UInt16BitsToHalf(0x8000) } } }));
+        var ball = candidate.Bodies[0].Body;
+        request.Completion.SetResult(new(request.Sequence, ChangeOnlyBody(candidate, value => value with
+            { Body = ball with { Local = ball.Local with { X = BitConverter.UInt16BitsToHalf(0x8000) } } })));
         Assert.Equal(WorkshopCommandOutcome.Faulted, (await command).Outcome);
         Assert.Equal(before, simulation.Committed);
     }
@@ -262,7 +347,7 @@ public sealed class WorkshopSimulationTests
         var reset = simulation.Reset().AsTask();
         device.CompleteAdmission(1);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await reset).Outcome);
-        Assert.Null(simulation.Committed.Ball);
+        Assert.Equal(0, simulation.Committed.Bodies.Count);
     }
 
     public enum AdvancedIdentityChange { None, Body, World, Tick }
@@ -284,17 +369,17 @@ public sealed class WorkshopSimulationTests
         var advance = simulation.Advance().AsTask();
         device.CompleteAdvance(0, read =>
         {
-            var body = read.Ball!.Value;
+            var body = read.Bodies[0].Body;
             body = body with { Local = new((Half).25, body.Local.Y, (Half)(-.25)),
                 Velocity = new((Half).03125, (Half)0, (Half)(-.03125)) };
             return change switch
             {
-                AdvancedIdentityChange.None => read with { Ball = body },
-                AdvancedIdentityChange.Body => read with { Ball = body with { Id = new(body.Id.Value + 1) } },
-                AdvancedIdentityChange.World => read with { Epoch = new(read.Epoch.Value + 1),
-                    Ball = body with { Epoch = read.Epoch.Value + 1 } },
-                AdvancedIdentityChange.Tick => read with { Tick = new(read.Tick.Value + 1),
-                    Ball = body with { Tick = read.Tick.Value + 1 } },
+                AdvancedIdentityChange.None => ChangeOnlyBody(read, value => value with { Body = body }),
+                AdvancedIdentityChange.Body => ChangeOnlyBody(read, value => value with { Body = body with { Id = new(body.Id.Value + 1) } }),
+                AdvancedIdentityChange.World => ChangeOnlyBody(read with { Epoch = new(read.Epoch.Value + 1) },
+                    value => value with { Body = body with { Epoch = read.Epoch.Value + 1 } }),
+                AdvancedIdentityChange.Tick => ChangeOnlyBody(read with { Tick = new(read.Tick.Value + 1) },
+                    value => value with { Body = body with { Tick = read.Tick.Value + 1 } }),
                 _ => throw new ArgumentOutOfRangeException(nameof(change))
             };
         });
@@ -303,10 +388,10 @@ public sealed class WorkshopSimulationTests
         if (change != AdvancedIdentityChange.None) Assert.Equal(before, simulation.Committed);
         else
         {
-            Assert.Equal((Half).25, simulation.Committed.Ball!.Value.Local.X);
-            Assert.Equal((Half)(-.25), simulation.Committed.Ball.Value.Local.Z);
-            Assert.Equal((Half).03125, simulation.Committed.Ball.Value.Velocity.X);
-            Assert.Equal((Half)(-.03125), simulation.Committed.Ball.Value.Velocity.Z);
+            Assert.Equal((Half).25, simulation.Committed.Bodies[0].Body.Local.X);
+            Assert.Equal((Half)(-.25), simulation.Committed.Bodies[0].Body.Local.Z);
+            Assert.Equal((Half).03125, simulation.Committed.Bodies[0].Body.Velocity.X);
+            Assert.Equal((Half)(-.03125), simulation.Committed.Bodies[0].Body.Velocity.Z);
         }
     }
 
@@ -506,6 +591,90 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(new SimulationTick(limit), simulation.Committed.Tick);
     }
 
+    [Fact]
+    public async Task TimerBearingStepInstallationRejectsAtomicallyAndResetCancelsCountdown()
+    {
+        var device = new ControlledDevice(); var installation = new ControlledInstallation();
+        await using var simulation = Create(device, installation: installation);
+        await simulation.Initialize();
+        var construction = new WorkshopConstruction(new(2), Settings, new(
+            WorkshopInput.Basketball(new(1),0,3,0,0,0,0,1),
+            WorkshopInput.Switch(new(2),0,1,0,0,0,0,1,ContactTriggerSettings.Default),
+            WorkshopInput.Delay(new(3),-3,1,0,0,0,0,1,DelayDuration.Default)),
+            Connections:new(new WorkshopConnection(new(2),WorkshopSocket.ActivationOut,new(3),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation)));
+        var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
+        await simulation.Run(); await simulation.Pause();
+        var before = simulation.Committed; var commits = device.Commits;
+        var network = WorkshopActivationCompiler.Compile(construction);
+        var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
+        var trigger = scene.Triggers[0];
+        var collider = scene.Colliders.ToArray().First(value=>value.Body==trigger.Owner).Id;
+        var occurrence = new ContactTriggerRead(trigger.Id,trigger.Owner,new GpuBodyId(1),1,collider,1,(Half)0,new((Half)1));
+        WorkshopRead Counting(WorkshopRead read)
+        {
+            var checkpoint = network.Consume(read.Activations,read.Timers,new[] {occurrence},read.Tick);
+            network.ValidateRead(checkpoint.Activations,checkpoint.Timers,read.Tick,4,scene);
+            return read with { Activations=checkpoint.Activations,Timers=checkpoint.Timers };
+        }
+        installation.HoldNext = true;
+        var rejected = simulation.Step().AsTask(); device.CompleteAdvance(0,Counting);
+        Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
+        installation.Pending[0].Completion.SetException(new WorkshopInstallationException());
+        Assert.Equal(WorkshopRejection.Transport,(await rejected).Reason);
+        Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
+        var accepted = simulation.Step().AsTask(); device.CompleteAdvance(1,Counting); await accepted;
+        Assert.Equal(ActivationTimerPhase.Counting,simulation.Committed.Timers[0].Phase);
+        var counting = simulation.Committed;
+        var pending = simulation.Step().AsTask();
+        var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
+        var restored = simulation.Committed;
+        Assert.Equal(ActivationTimerPhase.Ready,restored.Timers[0].Phase);
+        Assert.Equal(0ul,restored.Tick.Value); Assert.NotEqual(counting.Epoch,restored.Epoch);
+        device.CompleteAdvance(2); Assert.Equal(WorkshopCommandOutcome.Superseded,(await pending).Outcome);
+        Assert.Equal(restored,simulation.Committed);
+    }
+
+    [Fact]
+    public async Task PaidWorkStepInstallationRejectsAtomicallyAndResetRestoresPreload()
+    {
+        var device = new ControlledDevice(); var installation = new ControlledInstallation();
+        await using var simulation = Create(device, installation: installation);
+        await simulation.Initialize();
+        var construction = new WorkshopConstruction(new(2), Settings, new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+        var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
+        await simulation.Run(); await simulation.Pause();
+        var before = simulation.Committed; var commits = device.Commits;
+        var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
+        var collider = scene.Colliders.ToArray().First(value=>value.Body==new GpuBodyId(2)).Id;
+        WorkshopRead Paid(WorkshopRead read) => read with {
+            ContactWorks = new(new[] { read.ContactWorks[0] with {
+                OccurrenceCount=1, RemainingEnergy=new((Half)16) } },
+                new[] { new ContactWorkOccurrence(new(0),
+                    new(checked((ushort)Array.FindIndex(scene.Colliders.ToArray(), value => value.Id == collider))),
+                    new(1), 1, 1, (Half)0, new((Half)4), new((Half)16), ContactWorkEffect.Paid) }) };
+        installation.HoldNext = true;
+        var rejected = simulation.Step().AsTask(); device.CompleteAdvance(0,Paid);
+        Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
+        installation.Pending[0].Completion.SetException(new WorkshopInstallationException());
+        Assert.Equal(WorkshopRejection.Transport,(await rejected).Reason);
+        Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
+        var accepted = simulation.Step().AsTask(); device.CompleteAdvance(1,Paid); await accepted;
+        Assert.Equal(1u,simulation.Committed.ContactWorks[0].OccurrenceCount);
+        Assert.Equal((Half)16,simulation.Committed.ContactWorks[0].RemainingEnergy.Value);
+        var spent = simulation.Committed;
+        var pending = simulation.Step().AsTask();
+        var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
+        var restored = simulation.Committed;
+        Assert.Equal(0u,restored.ContactWorks[0].OccurrenceCount);
+        Assert.Equal((Half)32,restored.ContactWorks[0].RemainingEnergy.Value);
+        Assert.Equal((Half)0,restored.ContactWorks.Occurrence(0).Debit.Value);
+        Assert.Equal(0ul,restored.Tick.Value); Assert.NotEqual(spent.Epoch,restored.Epoch);
+        device.CompleteAdvance(2); Assert.Equal(WorkshopCommandOutcome.Superseded,(await pending).Outcome);
+        Assert.Equal(restored,simulation.Committed);
+    }
+
     private sealed class ControlledInstallation : IWorkshopInstallation
     {
         public bool HoldNext { get; set; }
@@ -529,6 +698,12 @@ public sealed class WorkshopSimulationTests
         public void Retire() { Retirements++; Active = null; }
     }
 
+
+    private static WorkshopRead ChangeOnlyBody(WorkshopRead read, Func<PhysicsBodyRead, PhysicsBodyRead> change)
+    {
+        Assert.Equal(1, read.Bodies.Count);
+        return read with { Bodies = new(new[] { change(read.Bodies[0]) }) };
+    }
 
     private sealed class ControlledDevice : IWorkshopGpuDevice
     {
@@ -558,10 +733,16 @@ public sealed class WorkshopSimulationTests
             var request = Admissions[index];
             request.Completion.SetResult(new(request.Sequence, Initial(request.Construction, request.Epoch)));
         }
-        public static WorkshopRead Initial(WorkshopConstruction construction, SimulationEpoch epoch) =>
-            new(epoch, new(0), construction.Ball is { } ball
-                ? new CanonicalBody(ball.Id, epoch.Value, 0, ball.Cell, ball.Local, default) : null,
-                Rotation: construction.Ball?.Rotation);
+        public static WorkshopRead Initial(WorkshopConstruction construction, SimulationEpoch epoch)
+        {
+            var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+            var bytes = PhysicsGpuAbi.Admission(scene, epoch,
+                new(construction.Settings.Simulation, PhysicalStepProfile.Canonical480Hz, new(1)));
+            var network = WorkshopActivationCompiler.Compile(construction);
+            return new(epoch, new(0), PhysicsGpuAbi.ReadDynamicBodies(bytes),
+                Activations: network.Clear(), Timers: network.ClearTimers(),
+                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes));
+        }
         public void FailAdvance(int index) => _advances[index].Completion.SetException(new InvalidOperationException("Injected old transport failure."));
         public void CompleteAdvance(int index, Func<WorkshopRead, WorkshopRead>? transform = null)
         {
@@ -571,7 +752,8 @@ public sealed class WorkshopSimulationTests
             {
                 Revision = default,
                 Tick = new(tick),
-                Ball = source.Ball is { } ball ? ball with { Tick = tick } : null
+                Bodies = new(Enumerable.Range(0, source.Bodies.Count).Select(i =>
+                    source.Bodies[i] with { Body = source.Bodies[i].Body with { Tick = tick } }).ToArray())
             };
             completion.SetResult(new(sequence, transform is null ? read : transform(read)));
         }

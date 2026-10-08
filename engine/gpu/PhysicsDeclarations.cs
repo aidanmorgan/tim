@@ -66,8 +66,9 @@ public readonly record struct RigidBodyDeclaration(
         PhysicsDeclarationBounds.Range(Mass.Value, (Half)(1.0 / 1024), (Half)1024);
         // Wide arithmetic is admission-only: it rejects an out-of-domain declaration, never integrates it.
         if (Squared(Velocity.X, Velocity.Y, Velocity.Z) > 4 ||
-            Squared(Gravity.X, Gravity.Y, Gravity.Z) > 256)
-            throw new ArgumentException("Motion or gravity exceeds the admitted vector magnitude.");
+            Squared(Gravity.X, Gravity.Y, Gravity.Z) > 256 ||
+            Squared(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z) > 4096)
+            throw new ArgumentException("Linear motion, angular motion or gravity exceeds the admitted vector magnitude.");
     }
 
     private static double Squared(Half x, Half y, Half z) =>
@@ -87,15 +88,15 @@ public readonly record struct ColliderDeclaration(
         switch (Shape)
         {
             case ColliderShapeKind.Sphere:
-                PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)2);
+                PhysicsDeclarationBounds.Range(Radius.Value, (Half)(1.0 / 16), (Half)16);
                 if (!PhysicsDeclarationBounds.Zero(HalfExtents.X, HalfExtents.Y, HalfExtents.Z))
                     throw new ArgumentException("Sphere extents must be zero.");
                 break;
             case ColliderShapeKind.Box:
                 if (!PhysicsDeclarationBounds.Zero(Radius.Value)) throw new ArgumentException("Box radius must be zero.");
-                PhysicsDeclarationBounds.Range(HalfExtents.X, (Half)(1.0 / 1024), (Half)4);
-                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)4);
-                PhysicsDeclarationBounds.Range(HalfExtents.Z, (Half)(1.0 / 1024), (Half)4);
+                PhysicsDeclarationBounds.Range(HalfExtents.X, (Half)(1.0 / 1024), (Half)16);
+                PhysicsDeclarationBounds.Range(HalfExtents.Y, (Half)(1.0 / 1024), (Half)16);
+                PhysicsDeclarationBounds.Range(HalfExtents.Z, (Half)(1.0 / 1024), (Half)16);
                 break;
             case ColliderShapeKind.Plane:
                 if (!PhysicsDeclarationBounds.Zero(Radius.Value) ||
@@ -152,18 +153,20 @@ public readonly record struct PlanarGuideDeclaration(
 /// <summary>One immutable owner of compiled physical declarations. Array order is not public identity.</summary>
 public sealed class PhysicsSceneDeclaration
 {
-    public const int BodyCapacity = 16;
-    public const int ColliderCapacity = 32;
-    public const int MaterialCapacity = 16;
-    public const int SensorCapacity = 8;
-    public const int GuideCapacity = 8;
+    public const int BodyCapacity = 33;
+    public const int ColliderCapacity = 64;
+    public const int MaterialCapacity = 33;
+    public const int SensorCapacity = 16;
+    public const int GuideCapacity = 16;
     public const int TriggerCapacity = 8;
+    public const int ContactWorkCapacity = 8;
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
     private readonly ResidenceSensorDeclaration[] _sensors;
     private readonly PlanarGuideDeclaration[] _guides;
     private readonly ContactTriggerDeclaration[] _triggers;
+    private readonly ContactWorkDeclaration[] _contactWorks;
     public PhysicsDocumentId Document { get; }
     public ulong NextIdentity { get; }
     public ReadOnlySpan<RigidBodyDeclaration> Bodies => _bodies;
@@ -172,15 +175,18 @@ public sealed class PhysicsSceneDeclaration
     public ReadOnlySpan<ResidenceSensorDeclaration> Sensors => _sensors;
     public ReadOnlySpan<PlanarGuideDeclaration> Guides => _guides;
     public ReadOnlySpan<ContactTriggerDeclaration> Triggers => _triggers;
+    public ReadOnlySpan<ContactWorkDeclaration> ContactWorks => _contactWorks;
 
     public PhysicsSceneDeclaration(PhysicsDocumentId document, ulong nextIdentity,
         ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders,
         ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
-        ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default)
+        ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default,
+        ReadOnlySpan<ContactWorkDeclaration> contactWorks = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
             bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
-            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity)
+            materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity ||
+            contactWorks.Length > ContactWorkCapacity)
             throw new ArgumentException("Invalid physics document or capacity.");
         var ids = new HashSet<ulong>();
         var bodyMap = new Dictionary<GpuBodyId, RigidBodyDeclaration>();
@@ -192,7 +198,7 @@ public sealed class PhysicsSceneDeclaration
             bodyMap.Add(body.Id, body);
             if (body.Motion == RigidMotionKind.Dynamic) dynamicCount++;
         }
-        if (dynamicCount > 1) throw new ArgumentException("Dynamic pair capability is not yet admitted.");
+        if (dynamicCount > PhysicsBodyReadSet.Capacity) throw new ArgumentException("Dynamic body capacity exceeded.");
         foreach (var material in materials)
         {
             material.Validate(); Identity(material.Id.Value, nextIdentity, ids);
@@ -206,21 +212,13 @@ public sealed class PhysicsSceneDeclaration
                 throw new ArgumentException("Collider refers to an absent body or material.");
             if (body.Motion == RigidMotionKind.Dynamic)
             {
-                if (collider.Shape != ColliderShapeKind.Sphere || !dynamicColliders.Add(body.Id) ||
-                    !PhysicsDeclarationBounds.Zero(collider.Pose.Translation.X,
-                        collider.Pose.Translation.Y, collider.Pose.Translation.Z))
-                    throw new ArgumentException("Dynamic capability requires one centred sphere.");
-                // Solid-sphere inverse inertia must fit the declared normal Half domain before GPU division.
-                var inertia = 0.4 * (double)body.Mass.Value *
-                    (double)collider.Radius.Value * (double)collider.Radius.Value;
-                if (inertia < 1.0 / 65504 || inertia > 16384)
-                    throw new ArgumentException("Sphere inertia exceeds the admitted arithmetic domain.");
+                if (collider.Shape is not (ColliderShapeKind.Sphere or ColliderShapeKind.Box) || !dynamicColliders.Add(body.Id))
+                    throw new ArgumentException("Dynamic bodies require one homogeneous sphere or box.");
+                RigidMassProperties.Compile(body, collider).Validate();
             }
-            else if (collider.Shape == ColliderShapeKind.Sphere)
-                throw new ArgumentException("Static sphere pair capability is not yet admitted.");
         }
         if (dynamicColliders.Count != dynamicCount)
-            throw new ArgumentException("Every dynamic body requires its sphere collider.");
+            throw new ArgumentException("Every dynamic body requires its homogeneous collider.");
         foreach (var sensor in sensors)
         {
             sensor.Validate(); Identity(sensor.Id.Value, nextIdentity, ids);
@@ -235,29 +233,45 @@ public sealed class PhysicsSceneDeclaration
             if (!bodyMap.TryGetValue(guide.Frame, out var frame) || frame.Motion != RigidMotionKind.Static ||
                 !bodyMap.TryGetValue(guide.Target, out var target) || target.Motion != RigidMotionKind.Dynamic ||
                 !dynamicColliders.Contains(guide.Target) || !guidedBodies.Add(guide.Target))
-                throw new ArgumentException("Guide requires a static frame and one uniquely guided dynamic sphere.");
+                throw new ArgumentException("Guide requires a static frame and one uniquely guided dynamic body.");
         }
         var owners = new HashSet<GpuBodyId>();
         foreach (var trigger in triggers)
         {
             trigger.Validate(); Identity(trigger.Id.Value, nextIdentity, ids);
             if (!bodyMap.TryGetValue(trigger.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
-                !bodyMap.TryGetValue(trigger.Target, out var target) || target.Motion != RigidMotionKind.Dynamic ||
+                (trigger.Targets.Kind == BodyTargetKind.NamedBody &&
+                    (!bodyMap.TryGetValue(trigger.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)) ||
                 !owners.Add(trigger.Owner))
                 throw new ArgumentException("Contact trigger requires a unique static owner and dynamic target.");
             var colliderFound = false;
             foreach (var collider in colliders) if (collider.Body == trigger.Owner) colliderFound = true;
             if (!colliderFound) throw new ArgumentException("Contact trigger owner has no physical collider.");
         }
+        var workOwners = new HashSet<GpuBodyId>();
+        foreach (var work in contactWorks)
+        {
+            work.Validate(); Identity(work.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(work.Owner, out var owner) || owner.Motion != RigidMotionKind.Static ||
+                (work.Targets.Kind == BodyTargetKind.NamedBody &&
+                    (!bodyMap.TryGetValue(work.Targets.Body, out var target) || target.Motion != RigidMotionKind.Dynamic)) ||
+                !workOwners.Add(work.Owner))
+                throw new ArgumentException("Contact work requires one reservoir per static owner and a dynamic target.");
+            var colliderFound = false;
+            foreach (var collider in colliders) if (collider.Body == work.Owner) colliderFound = true;
+            if (!colliderFound) throw new ArgumentException("Contact work owner has no physical collider.");
+        }
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();
+        _contactWorks = contactWorks.ToArray();
         Array.Sort(_bodies, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_colliders, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_materials, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_sensors, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_guides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_triggers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        Array.Sort(_contactWorks, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)
@@ -283,4 +297,3 @@ internal static class PhysicsDeclarationBounds
     internal static bool Zero(Half value) => BitConverter.HalfToUInt16Bits(value) == 0;
     internal static bool Zero(Half x, Half y, Half z) => Zero(x) && Zero(y) && Zero(z);
 }
-

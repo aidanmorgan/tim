@@ -62,5 +62,6 @@ public sealed class SupportFeature
 public interface IConvexFeatureSupport : IConvexSupport
 {
     double RoundingRadius { get; }
+    CollisionVector CoreSupport(CollisionVector direction);
     SupportFeature SupportingFeature(CollisionVector direction,double planeTolerance);
 }

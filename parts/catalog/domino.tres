@@ -7,8 +7,8 @@
 script = ExtResource("1")
 Id = "domino"
 Title = "Domino"
-Category = "Power"
-Description = "An impact tips it and starts the next nearby domino."
+Category = "Motion"
+Description = "A physical tile: knock it over to hit the next domino. Its output signals when it tips."
 Scene = ExtResource("2")
 Color = Color(0.91, 0.83, 0.65, 1)
 Parameters = {}

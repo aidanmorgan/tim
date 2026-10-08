@@ -2,108 +2,95 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CuriousContraptions.Physics;
 
 namespace CuriousContraptions;
 
-public enum ElasticContactPhase { Compressing, Returning, Settled }
 public enum TrampolineParameter { Tension, DampingRatio }
 
 /// <summary>Finite unilateral contact springs, not a powered launcher or a full cloth solver.</summary>
 public partial class TrampolinePart : MachinePart
 {
+    protected override PartParameterValues BindParameters(System.Collections.Generic.IReadOnlyDictionary<string,float> fields) =>
+        PartParameterValues.Bind<TrampolineParameter>(fields);
     public const string CatalogId = "trampoline";
     public const float RestHeight = .2f;
     public const float MaximumStroke = .65f;
     public static readonly Vector2 BedHalf = new(1.2f, .9f);
-    private sealed class Contact
+    private sealed record MembranePatch(Vector2 At, float Depth, float Radius, SupportFootprint Footprint);
+    private RuntimeCheckpoint? _runtimeCheckpoint;
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState =>
+        [_runtimeCheckpoint ??= new(this)];
+    private sealed class RuntimeCheckpoint(TrampolinePart owner) : SimulationTransactionParticipant
     {
-        public Vector2 At;
-        public float Depth;
-        public float Radius;
-        public ElasticContactPhase Phase;
+        private readonly List<KeyValuePair<SceneBodyKey,MembranePatch>> _patches = new();
+        private ulong? _observedStep;
+        private int _impactCount;
+        private bool _meshDirty;
+        protected override void CaptureCheckpoint()
+        {
+            _patches.Clear(); _patches.AddRange(owner._patches);
+            _observedStep=owner._observedStep; _impactCount=owner.ImpactCount;
+            _meshDirty=owner._meshDirty;
+        }
+        protected override void RestoreCheckpoint()
+        {
+            owner._patches.Clear();
+            foreach(var pair in _patches)owner._patches.Add(pair.Key,pair.Value);
+            owner._observedStep=_observedStep; owner.ImpactCount=_impactCount;
+            owner._meshDirty=_meshDirty;
+        }
     }
-    private readonly Dictionary<MachinePart, Contact> _contacts = new();
+    private readonly Dictionary<SceneBodyKey, MembranePatch> _patches = new();
+    private ulong? _observedStep;
     private MeshInstance3D _membrane = null!;
     private bool _meshDirty;
-    public int ContactCount => _contacts.Count;
+    public int ContactCount => _patches.Count;
     public int ImpactCount { get; private set; }
-    public float Compression => _contacts.Count == 0 ? 0 : _contacts.Values.Max(c => c.Depth);
-    public float StoredElasticEnergy => _contacts.Values.Sum(c => .5f * ReadParameter(TrampolineParameter.Tension) * c.Depth * c.Depth);
-    public override float SurfaceBounce => 0; // The rigid rim/back absorb; only the membrane stores energy.
+    public float Compression => _patches.Count == 0 ? 0 : _patches.Values.Max(c => c.Depth);
+    public float StoredElasticEnergy => _patches.Values.Sum(c => .5f * ReadParameter(TrampolineParameter.Tension) * c.Depth * c.Depth);
+    public override Physics.ContactMaterial InitialContactMaterial => new(0,.1,.3); // The rigid rim/back absorb; only the membrane stores energy.
 
-    public override void ValidateParameters()
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
-        var tension = ReadParameter(TrampolineParameter.Tension);
-        var damping = ReadParameter(TrampolineParameter.DampingRatio);
+        var tension = parameters.Read(TrampolineParameter.Tension);
+        var damping = parameters.Read(TrampolineParameter.DampingRatio);
         if (!float.IsFinite(tension) || tension < 120 || tension > 1200 ||
             !float.IsFinite(damping) || damping < .08f || damping > .8f)
             throw new ArgumentException("Trampoline tension must be 120–1200 and damping ratio 0.08–0.8.");
     }
 
-    public override void BeforeStep(MachineWorld world, float delta)
-    {
-        foreach (var body in _contacts.Keys.ToArray())
-            if (!body.Visible || !world.Bodies.Contains(body)) { _contacts.Remove(body); _meshDirty = true; }
-    }
+    public override IReadOnlyList<SceneCompliantSurface> PhysicsCompliantSurfaces=>
+        [new(new(this,RootBody),BedHalf.X,BedHalf.Y,RestHeight,MaximumStroke,
+            ReadParameter(TrampolineParameter.Tension),ReadParameter(TrampolineParameter.DampingRatio),
+            CompliantContactInitialState.Unloaded)];
 
-    public override void ResolveCompliantContact(MachinePart body, MachineWorld world, float delta)
+    public override void ObservePhysics(MachineWorld world,float delta)
     {
-        if (!body.Dynamic || !body.Visible) return;
-        var local = Transform.AffineInverse() * body.Position;
-        var normal = Basis.Y.Normalized();
-        var speed = body.Velocity.Dot(normal);
-        var depth = RestHeight - (local.Y - body.Radius);
-        // The entire projected body footprint must clear the rigid rim.
-        if (Mathf.Abs(local.X) + body.Radius >= BedHalf.X ||
-            Mathf.Abs(local.Z) + body.Radius >= BedHalf.Y || depth <= 0)
+        var frame=world.PhysicsAssembly.Body(new(this,RootBody)).Id;
+        _patches.Clear();
+        foreach(var state in world.Physics.CompliantContacts)
         {
-            if (_contacts.Remove(body)) _meshDirty = true;
-            return;
+            if(state.Key.Frame!=frame||state.Phase!=CompliantContactPhase.Engaged)continue;
+            var key=world.PhysicsAssembly.Key(state.Key.Body);
+            var sample=state.Footprint;
+            _patches.Add(key,new(new((float)sample.LowestPoint.X,(float)sample.LowestPoint.Z),
+                (float)Math.Clamp(RestHeight-sample.LowestPoint.Y,0,MaximumStroke),
+                (float)sample.RoundingRadius,sample));
         }
-        if (!_contacts.TryGetValue(body, out var contact))
+        if(_observedStep!=world.Physics.StepIndex)
         {
-            // Accept entry from the top only, not a side/underside arrival inside the bed volume.
-            var previousBottom = local.Y - body.Radius - speed * delta;
-            if (speed > 0 || previousBottom < RestHeight - .015f) return;
-            contact = new Contact();
-            _contacts.Add(body, contact);
-            if (-speed >= .45f)
+            foreach(var entry in world.Physics.CompliantEntries)
             {
+                if(entry.Contact.Frame!=frame||entry.ApproachSpeed<.45)continue;
+                var owner=world.PhysicsAssembly.Owner(entry.Contact.Body);
+                if(owner is null)throw new InvalidOperationException("A membrane payload needs a scene owner.");
                 ImpactCount++;
-                world.Events.TryAdd(new(MachineEventKind.Bounced, Uid, body.Uid), world.Ticks);
+                world.Events.TryAdd(new(MachineEventKind.Bounced,Uid,owner.Uid),world.Ticks);
             }
+            _observedStep=world.Physics.StepIndex;
         }
-        contact.At = new(local.X, local.Z);
-        contact.Depth = Mathf.Clamp(depth, 0, MaximumStroke);
-        _meshDirty = true;
-        contact.Radius = body.Radius;
-        contact.Phase = Mathf.Abs(speed) < .03f ? ElasticContactPhase.Settled :
-            speed < 0 ? ElasticContactPhase.Compressing : ElasticContactPhase.Returning;
-        var stiffness = ReadParameter(TrampolineParameter.Tension);
-        var damping = 2 * ReadParameter(TrampolineParameter.DampingRatio) * Mathf.Sqrt(stiffness * body.Mass);
-        // Unilateral spring/damper: it may push, never pull or impose a launch velocity.
-        var force = Mathf.Max(0, stiffness * contact.Depth - damping * speed);
-        body.Velocity += normal * (force / body.Mass * delta);
-    }
-
-    public override void AfterStep(MachineWorld world, float delta)
-    {
-        foreach (var (body, contact) in _contacts.ToArray())
-        {
-            var at = Transform.AffineInverse() * body.Position;
-            var depth = RestHeight - (at.Y - body.Radius);
-            if (!body.Visible || depth <= 0 ||
-                Mathf.Abs(at.X) + body.Radius >= BedHalf.X ||
-                Mathf.Abs(at.Z) + body.Radius >= BedHalf.Y)
-            {
-                _contacts.Remove(body);
-                _meshDirty = true;
-                continue;
-            }
-            contact.At = new(at.X, at.Z);
-            contact.Depth = Mathf.Clamp(depth, 0, MaximumStroke);
-        }
-        Active = ContactCount > 0;
+        _meshDirty=true;Active=ContactCount>0;
     }
 
     // Frame-bounded visual patches describe the massless spring approximation, not cloth waves.
@@ -111,7 +98,7 @@ public partial class TrampolinePart : MachinePart
     {
         if (Mathf.Abs(at.X) >= BedHalf.X || Mathf.Abs(at.Y) >= BedHalf.Y) return RestHeight;
         var depth = 0f;
-        foreach (var contact in _contacts.Values)
+        foreach (var contact in _patches.Values)
         {
             var offset = at - contact.At;
             var distance = offset.Length();
@@ -123,7 +110,7 @@ public partial class TrampolinePart : MachinePart
             var reachZ = direction.Y == 0 ? float.PositiveInfinity :
                 (BedHalf.Y - Mathf.Sign(direction.Y) * contact.At.Y) / Mathf.Abs(direction.Y);
             var support = Mathf.Min(reachX, reachZ);
-            foreach (var other in _contacts.Values)
+            foreach (var other in _patches.Values)
                 if (!ReferenceEquals(contact, other))
                 {
                     var separation = contact.At.DistanceTo(other.At) * .49f;
@@ -143,6 +130,11 @@ public partial class TrampolinePart : MachinePart
                 dent = Mathf.Max(dent, Mathf.Max(0, contact.Depth-contact.Radius) *
                     (1-t)*(1-t)*(1+2*t));
             }
+            // Flat supporting features need a flat lower bound under their
+            // footprint; rounded loads retain the approved curved indentation.
+            if(contact.Radius==0&&at.X>=contact.Footprint.MinimumX&&at.X<=contact.Footprint.MaximumX&&
+                at.Y>=contact.Footprint.MinimumZ&&at.Y<=contact.Footprint.MaximumZ)
+                dent=Mathf.Max(dent,contact.Depth);
             depth = Mathf.Max(depth, dent);
         }
         return RestHeight - depth;

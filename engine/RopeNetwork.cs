@@ -1,85 +1,60 @@
-using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CuriousContraptions.Physics;
 
 namespace CuriousContraptions;
 
-public readonly record struct RopeSocket(MachinePart Part, ConnectionPort Port)
-{
-    public Vector3 Position => Part.Transform * Port.LocalPosition;
-}
+/// <summary>A declared attachment, not a scene-derived runtime position.
+/// Resolve its pose through WorldGeometry with the owning MachineWorld.</summary>
+public readonly record struct RopeSocket(MachinePart Part, ConnectionPort Port);
 
 /// <summary>One unbranched rope, including any intervening fixed point guides.
 /// Segment lengths are authored spool contributions; only their sum constrains a complete rope.</summary>
-public sealed class RopePath(List<RopeSocket> sockets, float length)
+public sealed class RopePath
 {
-    public IReadOnlyList<RopeSocket> Sockets { get; } = sockets;
-    public float Length { get; } = length;
+    // Stable for this captured route's lifetime, not a serialized or global identity.
+    public JointSlot ConstraintSlot { get; }=new();
+    public IReadOnlyList<RopeSocket> Sockets { get; }
+    public float Length { get; }
+    public RopePath(IEnumerable<RopeSocket> sockets,float length)
+    {
+        ArgumentNullException.ThrowIfNull(sockets);
+        var captured=sockets.ToArray();
+        if(captured.Length<2||!float.IsFinite(length)||length<=0)
+            throw new ArgumentException("Rope path requires at least two sockets and finite positive length.");
+        foreach(var socket in captured)
+        {
+            ArgumentNullException.ThrowIfNull(socket.Part);
+            if(socket.Port.Domain!=ConnectionDomain.Rope||!socket.Port.LocalPosition.IsFinite())
+                throw new ArgumentException("Rope path requires finite rope sockets.");
+        }
+        Sockets=Array.AsReadOnly(captured); Length=length;
+    }
     public bool Complete => Sockets[0].Part.RopeAttachment != RopeAttachmentKind.Guide
         && Sockets[^1].Part.RopeAttachment != RopeAttachmentKind.Guide;
-    public float CurrentLength
-    {
-        get
-        {
-            var total = 0f;
-            for (var i = 1; i < Sockets.Count; i++) total += Sockets[i - 1].Position.DistanceTo(Sockets[i].Position);
-            return total;
-        }
-    }
-    public RopeState State => !Complete ? RopeState.Open
-        : CurrentLength < Length - .001f ? RopeState.Slack : RopeState.Taut;
+    public double CurrentLength(MachineWorld world)=>GuideDistances(world)[^1];
+    public RopeState State(MachineWorld world)=>!Complete?RopeState.Open:
+        CurrentLength(world)<Length-.001?RopeState.Slack:RopeState.Taut;
 
-    private (Vector3 A, Vector3 B, float Wa, float Wb, float Effective) Gradient()
+    public double[] GuideDistances(MachineWorld world)
     {
-        var a = (Sockets[0].Position - Sockets[1].Position).Normalized();
-        var b = (Sockets[^1].Position - Sockets[^2].Position).Normalized();
-        var wa = Sockets[0].Part.RopeAttachment == RopeAttachmentKind.Load ? 1 / Sockets[0].Part.Mass : 0;
-        var wb = Sockets[^1].Part.RopeAttachment == RopeAttachmentKind.Load ? 1 / Sockets[^1].Part.Mass : 0;
-        return (a, b, wa, wb, wa * a.LengthSquared() + wb * b.LengthSquared());
-    }
-    public void SolveVelocity(float delta)
-    {
-        if (!Complete) return; // Untied ends cannot carry tension.
-        var (a, b, wa, wb, effective) = Gradient();
-        if (effective < .000001f) return; // Fixed endpoints or coincident gradients have no movable degree of freedom.
-        var first = Sockets[0].Part;
-        var last = Sockets[^1].Part;
-        var rate = a.Dot(first.Velocity) + b.Dot(last.Velocity);
-        var allowedRate = Mathf.Max(0, Length - CurrentLength) / delta;
-        if (rate <= allowedRate) return; // A rope cannot push or resist shortening.
-        var impulse = (rate - allowedRate) / effective;
-        first.Velocity -= a * (impulse * wa);
-        last.Velocity -= b * (impulse * wb);
-    }
-    public void SolvePosition()
-    {
-        if (!Complete) return;
-        var excess = CurrentLength - Length;
-        if (excess <= 0) return;
-        var (a, b, wa, wb, effective) = Gradient();
-        if (effective < .000001f) return;
-        var correction = excess / effective;
-        Sockets[0].Part.Position -= a * (correction * wa);
-        Sockets[^1].Part.Position -= b * (correction * wb);
-    }
-    public float[] GuideDistances()
-    {
-        var distance = 0f;
-        var result = new float[Sockets.Count];
-        for (var i = 1; i < Sockets.Count; i++)
-        {
-            distance += Sockets[i - 1].Position.DistanceTo(Sockets[i].Position);
-            result[i] = distance;
-        }
+        ArgumentNullException.ThrowIfNull(world);
+        var positions=Sockets.Select(socket=>
+            WorldGeometry.CaptureSpatialState(world,new(socket.Part,MachinePart.RootBody)).Pose
+                .TransformPoint(SceneGeometryAdapter.CaptureVector(socket.Port.LocalPosition))).ToArray();
+        var result=new double[positions.Length];
+        for(var i=1;i<positions.Length;i++) result[i]=result[i-1]+(positions[i]-positions[i-1]).Length;
         return result;
     }
-    public void AnimateGuides(float[] before)
+    public void AnimateGuides(MachineWorld world,double[] before)
     {
-        if (State != RopeState.Taut) return;
-        var after = GuideDistances();
-        for (var i = 1; i < Sockets.Count - 1; i++)
-            Sockets[i].Part.AdvanceRope(after[i] - before[i]);
+        ArgumentNullException.ThrowIfNull(before);
+        if(before.Length!=Sockets.Count||before.Any(value=>!double.IsFinite(value)||value<0))
+            throw new ArgumentException("Guide samples must match the route and contain finite nonnegative distances.",nameof(before));
+        var after=GuideDistances(world);
+        if(!Complete||after[^1]<Length-.001) return;
+        for(var i=1;i<Sockets.Count-1;i++) Sockets[i].Part.AdvanceRope(after[i]-before[i]);
     }
 }
 
@@ -136,6 +111,39 @@ public static class RopeNetwork
         }
         if (seen.Count != edges.Count) throw new ArgumentException("Closed rope loops are not supported.");
         return paths;
+    }
+
+    public static IReadOnlyList<SceneRopeJoint> DeclarePhysics(IEnumerable<RopePath> paths,
+        IReadOnlyList<SceneWorldBodyDeclaration> declarations)
+    {
+        ArgumentNullException.ThrowIfNull(paths); ArgumentNullException.ThrowIfNull(declarations);
+        var bodies=declarations.ToDictionary(d=>new SceneBodyKey(d.Geometry.Owner,d.Geometry.Slot));
+        var result=new List<SceneRopeJoint>();
+        foreach(var path in paths)
+        {
+            ArgumentNullException.ThrowIfNull(path);
+            // An untied guide end cannot transmit tension. This is authored topology,
+            // not a failed constraint silently replaced by a different solver.
+            if(!path.Complete) continue;
+            var anchors=path.Sockets.Select(s=>new SceneRopeAnchor(new(s.Part,MachinePart.RootBody),
+                SceneGeometryAdapter.CaptureVector(s.Port.LocalPosition))).ToArray();
+            var routeBodies=anchors.Select(a=>bodies.TryGetValue(a.Body,out var body)?body:
+                throw new ArgumentException("Rope attachment has no captured body.")).ToArray();
+            if(!routeBodies.Any(b=>b.Dynamics.Motion==PhysicsMotionType.Dynamic))
+            {
+                if(routeBodies.Any(b=>b.Dynamics.Motion!=PhysicsMotionType.Static))
+                    throw new ArgumentException("A prescribed moving rope requires a dynamic participant.");
+                double length=0;
+                for(var i=1;i<anchors.Length;i++)
+                    length+=(routeBodies[i].Geometry.Pose.TransformPoint(anchors[i].LocalPosition)-
+                        routeBodies[i-1].Geometry.Pose.TransformPoint(anchors[i-1].LocalPosition)).Length;
+                if(length>path.Length+ConvexDistance.DefaultTolerance)
+                    throw new ArgumentException("A fixed rope route exceeds its authored length.");
+                continue; // Satisfied fixed geometry has no dynamic equation.
+            }
+            result.Add(new(new(path.Sockets[0].Part,path.ConstraintSlot),anchors,path.Length,ConnectedBodyCollision.Enabled));
+        }
+        return result;
     }
 
     public static bool CanConnect(IEnumerable<MachinePart> parts, IEnumerable<ConnectionSpec> links)

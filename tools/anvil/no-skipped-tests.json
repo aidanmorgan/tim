@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "compiled_at": "2026-09-28T00:00:00Z",
+  "source_root": "tools/anvil",
+  "patterns": [
+    {
+      "id": "TEST-001",
+      "family": "guardrail-suppression",
+      "title": "Test skipping is forbidden",
+      "version": 1,
+      "severity": "error",
+      "confidence": "high",
+      "spectrum_position": 1,
+      "targets": [
+        "source"
+      ],
+      "detection": {
+        "type": "regex",
+        "pattern": "\\b(?:Skip|SkipWhen|SkipUnless|SkipExceptions|SkipTestWithoutData|Explicit)\\s*=|\\b(?:Assert|Skip)\\s*\\.\\s*(?:Skip|SkipWhen|SkipUnless|If|IfNot)\\s*\\(|\\bSkipException\\b|\\b(?:test|it|describe)\\s*\\.\\s*(?:skip|fixme|todo|only)\\b|\\b(?:xit|xtest|xdescribe)\\s*\\("
+      },
+      "file_extensions": [
+        ".cs",
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".mjs",
+        ".cjs"
+      ],
+      "allowlist": [],
+      "nudge": "Fix the test or implementation; do not skip, disable, or focus tests before committing.",
+      "related": [],
+      "enabled": true,
+      "opt_in": false,
+      "family_name": "Guardrail Suppression",
+      "category": "escape-hatch",
+      "explanation": "Skipped tests remove required correctness evidence.",
+      "suggestion": "Restore normal test execution before committing.",
+      "definition_ref": "tools/anvil/README.md",
+      "tensions": [],
+      "related_families": []
+    }
+  ],
+  "prefixes": {
+    "TEST": "guardrail-suppression"
+  },
+  "families": [
+    {
+      "id": "guardrail-suppression",
+      "name": "Guardrail Suppression",
+      "category": "escape-hatch",
+      "definition_ref": "tools/anvil/README.md",
+      "rules": [
+        "TEST-001"
+      ],
+      "related": [],
+      "tensions": []
+    }
+  ]
+}

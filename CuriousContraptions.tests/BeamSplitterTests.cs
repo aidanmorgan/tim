@@ -1,11 +1,12 @@
 using Godot;
+using CuriousContraptions.Physics;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class BeamSplitterTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class BeamSplitterTests(NativeSceneFixture godot)
 {
     private MachineWorld World()
     {
@@ -22,14 +23,14 @@ public class BeamSplitterTests(HeadlessFixture godot)
         var world=World();
         try
         {
-            var splitter=world.AddPart(new(){Id="splitter",Kind="beam_splitter",Position=[0,6,0],Rotation=[0,0,45]});
+            var splitter=world.AddPart(new(){Id="splitter",Kind="beam_splitter",Position=[0,6,0],Orientation = PartOrientation.FromEulerDegrees(0,0,45)});
             var direction=back?Vector3.Left:Vector3.Right;
             var reflection=back?Vector3.Up:Vector3.Down;
-            var laser=(LaserPart)world.AddPart(new(){Id="laser",Kind="laser",Rotation=back?[0,180,0]:[0,0,0]});
+            var laser=(LaserPart)world.AddPart(new(){Id="laser",Kind="laser",Orientation = back?PartOrientation.FromEulerDegrees(0,180,0):PartOrientation.FromEulerDegrees(0,0,0)});
             laser.Position=splitter.Position-direction*3;
-            var straight=(LightReceiverPart)world.AddPart(new(){Id="straight",Kind="light_receiver",Rotation=back?[0,180,0]:[0,0,0]});
+            var straight=(LightReceiverPart)world.AddPart(new(){Id="straight",Kind="light_receiver",Orientation = back?PartOrientation.FromEulerDegrees(0,180,0):PartOrientation.FromEulerDegrees(0,0,0)});
             straight.Position=splitter.Position+direction*3;
-            var reflected=(LightReceiverPart)world.AddPart(new(){Id="reflected",Kind="light_receiver",Rotation=back?[0,0,90]:[0,0,-90]});
+            var reflected=(LightReceiverPart)world.AddPart(new(){Id="reflected",Kind="light_receiver",Orientation = back?PartOrientation.FromEulerDegrees(0,0,90):PartOrientation.FromEulerDegrees(0,0,-90)});
             reflected.Position=splitter.Position+reflection*3;
             if(block)
             {
@@ -60,11 +61,11 @@ public class BeamSplitterTests(HeadlessFixture godot)
         var world=World();
         try
         {
-            world.AddPart(new(){Id="first",Kind="beam_splitter",Position=[0,6,0],Rotation=[0,0,45]});
-            world.AddPart(new(){Id="second",Kind="beam_splitter",Position=[3,6,0],Rotation=[0,0,45]});
+            world.AddPart(new(){Id="first",Kind="beam_splitter",Position=[0,6,0],Orientation = PartOrientation.FromEulerDegrees(0,0,45)});
+            world.AddPart(new(){Id="second",Kind="beam_splitter",Position=[3,6,0],Orientation = PartOrientation.FromEulerDegrees(0,0,45)});
             var laser=(LaserPart)world.AddPart(new(){Id="laser",Kind="laser",Position=[-3,6,0]});
-            var half=(LightReceiverPart)world.AddPart(new(){Id="half",Kind="light_receiver",Position=[0,3,0],Rotation=[0,0,-90]});
-            var quarter=(LightReceiverPart)world.AddPart(new(){Id="quarter",Kind="light_receiver",Position=[3,3,0],Rotation=[0,0,-90]});
+            var half=(LightReceiverPart)world.AddPart(new(){Id="half",Kind="light_receiver",Position=[0,3,0],Orientation = PartOrientation.FromEulerDegrees(0,0,-90)});
+            var quarter=(LightReceiverPart)world.AddPart(new(){Id="quarter",Kind="light_receiver",Position=[3,3,0],Orientation = PartOrientation.FromEulerDegrees(0,0,-90)});
             var end=(LightReceiverPart)world.AddPart(new(){Id="end",Kind="light_receiver",Position=[6,6,0]});
             var trace=OpticalNetwork.Trace(world,laser,laser.OpticalPreviewSource!.Value);
             Assert.Equal(3,trace.Receptions.Count);
@@ -89,13 +90,13 @@ public class BeamSplitterTests(HeadlessFixture godot)
             Assert.Equal(8,WorldGeometry.Trace(TraceMedium.Light,world,new(-2,5,0),Vector3.Right,8,laser));
             Assert.True(WorldGeometry.Trace(TraceMedium.Light,world,new(-2,5.74f,0),Vector3.Right,8,laser)<2);
             var ball=world.AddPart(new(){Id="ball",Kind="ball",Position=[-1,5,0]});
-            world.Start();ball.Velocity=Vector3.Right*4;
+            ball.InitialVelocity=Vector3.Right*4;world.Start();
             for(var i=0;i<50;i++)
             {
                 world.Step();
                 Assert.True(ball.Position.X<0);
             }
-            Assert.True(ball.Velocity.X<0);
+            Assert.True(world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity.X<0);
         }
         finally{world.Free();}
     }
@@ -107,7 +108,7 @@ public class BeamSplitterTests(HeadlessFixture godot)
         {
             world.AddPart(new(){Id="splitter",Kind="beam_splitter",Position=[0,5,0]});
             world.AddPart(new(){Id="right",Kind="mirror",Position=[2,5,0]});
-            world.AddPart(new(){Id="left",Kind="mirror",Position=[-2,5,0],Rotation=[0,180,0]});
+            world.AddPart(new(){Id="left",Kind="mirror",Position=[-2,5,0],Orientation = PartOrientation.FromEulerDegrees(0,180,0)});
             var emitter=world.AddPart(new(){Id="emitter",Kind="laser",Position=[-6,5,0]});
             var trace=OpticalNetwork.Trace(world,emitter,new(new(5,0,0),Vector3.Right,100,Vector3.One));
             Assert.Equal(OpticalNetwork.MaximumSegments,trace.Segments.Count);
@@ -129,7 +130,7 @@ public class BeamSplitterTests(HeadlessFixture godot)
         try
         {
             Assert.Throws<ArgumentException>(()=>world.AddPart(new(){Id="receiver",Kind="light_receiver",
-                Properties=new(){[ReceiverParameters.Threshold]=threshold}}));
+                Properties=new(){[PartParameterName.Of(ReceiverParameter.Threshold)]=threshold}}));
         }
         finally{world.Free();}
     }

@@ -1,0 +1,12 @@
+{
+  "head": "8623ec9bfcb71f7b966f662469d8f638b4d33c76",
+  "baseline": "docs/motor-power-sources.json",
+  "unchangedBaselineFiles": 668,
+  "changes": {
+    "CuriousContraptions.tests/PoweredGateTests.cs": "2199f35e59ea5175f84ac5e0582063a4f1bebf783e76680abe445d17e7b2dcc8",
+    "engine/physics/ContactConstraint.cs": "a83990b2ee66b4b6e96611c2d30a5b5d65b9c2ea7ea8da322ae45dc8c30e96f2",
+    "engine/physics/ImpulseConstraint.cs": "3ed0d9ff78d6a1f882dec9adc065b5d4c506a2a23db9610995df50193870e1c4",
+    "engine/physics/ImpulseSweepAcceleration.cs": "1ca81088d3f4365b49ed2346ff481b17339decd7ca2bdba751759b70d9eca80b",
+    "CuriousContraptions.tests/CoupledFrictionContactTests.cs": "5b2ac76507b841c58f8ea60fba773ff0ce2231f757fb8de3ccb5924ef7381aa1"
+  }
+}

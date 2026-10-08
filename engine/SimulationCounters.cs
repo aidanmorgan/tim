@@ -15,7 +15,6 @@ public readonly record struct SimulationCounterId
 }
 public enum SimulationCounterPhase { Counting, Reached }
 public enum SimulationCounterResult { Accumulated, Reached, Saturated }
-public enum CounterTransactionPhase { Idle, Active }
 public readonly record struct SimulationCounterDeclaration(SimulationCounterId Id,int Target);
 public readonly record struct SimulationCounterState(SimulationCounterId Id,int Count,int Target)
 {
@@ -32,11 +31,10 @@ public sealed class SimulationCounterSnapshot
 /// <summary>Owned saturating event counters. One accepted delivery increments once.
 /// Reaching a target returns one occurrence; later deliveries preserve saturation.
 /// The host owns ordering, event delivery and electrical supply.</summary>
-public sealed class SimulationCounters
+public sealed class SimulationCounters : SimulationTransactionParticipant
 {
     private readonly SimulationCounterState[] _states,_checkpoint;
     private readonly Dictionary<SimulationCounterId,int> _indices=new();
-    public CounterTransactionPhase TransactionPhase { get; private set; }
     public SimulationCounters(IEnumerable<SimulationCounterDeclaration> declarations)
     {
         ArgumentNullException.ThrowIfNull(declarations);
@@ -52,6 +50,8 @@ public sealed class SimulationCounters
     }
     private int Index(SimulationCounterId id)=>_indices.TryGetValue(id,out var index)?index:
         throw new ArgumentException("Counter is not declared in this world.",nameof(id));
+    /// <summary>Borrowed producer view; copy into the transaction publication before subsequent mutation.</summary>
+    internal ReadOnlySpan<SimulationCounterState> PublicationReads=>_states;
     public SimulationCounterState Read(SimulationCounterId id)=>_states[Index(id)];
     public SimulationCounterResult Increment(SimulationCounterId id)
     {
@@ -60,31 +60,21 @@ public sealed class SimulationCounters
         state=state with {Count=checked(state.Count+1)};_states[index]=state;
         return state.Count==state.Target?SimulationCounterResult.Reached:SimulationCounterResult.Accumulated;
     }
-    private void RequirePhase(CounterTransactionPhase phase)
+    protected override void CaptureCheckpoint()
     {
-        if(TransactionPhase!=phase)throw new InvalidOperationException("Invalid counter transaction phase.");
+        _states.CopyTo(_checkpoint,0);
     }
-    public void BeginTransaction()
+    protected override void RestoreCheckpoint()
     {
-        RequirePhase(CounterTransactionPhase.Idle);
-        _states.CopyTo(_checkpoint,0);TransactionPhase=CounterTransactionPhase.Active;
-    }
-    public void CommitTransaction()
-    {
-        RequirePhase(CounterTransactionPhase.Active);TransactionPhase=CounterTransactionPhase.Idle;
-    }
-    public void RollbackTransaction()
-    {
-        RequirePhase(CounterTransactionPhase.Active);
-        _checkpoint.CopyTo(_states,0);TransactionPhase=CounterTransactionPhase.Idle;
+        _checkpoint.CopyTo(_states,0);
     }
     public SimulationCounterSnapshot Capture()
     {
-        RequirePhase(CounterTransactionPhase.Idle);return new(this,_states);
+        RequireTransactionPhase(SimulationTransactionPhase.Idle);return new(this,_states);
     }
     public void Restore(SimulationCounterSnapshot snapshot)
     {
-        RequirePhase(CounterTransactionPhase.Idle);ArgumentNullException.ThrowIfNull(snapshot);
+        RequireTransactionPhase(SimulationTransactionPhase.Idle);ArgumentNullException.ThrowIfNull(snapshot);
         if(!ReferenceEquals(snapshot.Owner,this))throw new ArgumentException("Snapshot belongs to another counter world.",nameof(snapshot));
         snapshot.States.CopyTo(_states,0);
     }

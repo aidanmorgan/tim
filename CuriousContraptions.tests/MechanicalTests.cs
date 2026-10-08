@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class MechanicalTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class MechanicalTests(NativeSceneFixture godot)
 {
     private MachineWorld World()
     {
@@ -45,7 +45,7 @@ public class MechanicalTests(HeadlessFixture godot)
             artwork._Process(0);
             var midpoint = (motor.Transform * output.LocalPosition + belt.Transform * input.LocalPosition) * .5f;
             Assert.InRange(((lines[0].Position + lines[1].Position) * .5f - midpoint).Length(), 0, .0001f);
-            var rate = motor.MechanicalSpeed(SocketId.Drive) * .16f;
+            var rate = MechanicalNetwork.Speed(world,motor,SocketId.Drive) * .16f;
             artwork._Process((1 - .00001f - rate * .1f) / rate);
             var beforeSeam = marks[0].Position;
             artwork._Process(.00002f / rate);
@@ -71,50 +71,64 @@ public class MechanicalTests(HeadlessFixture godot)
         var world = World();
         try
         {
-            var battery = world.AddPart(new() { Id = "battery", Kind = "battery" });
-            var motor = (MotorPart)world.AddPart(new() { Id = reverseOrder ? "z_motor" : "a_motor", Kind = "motor" });
-            var first = (ConveyorPart)world.AddPart(new() { Id = "first", Kind = "conveyor" });
-            var last = (ConveyorPart)world.AddPart(new() { Id = "last", Kind = "conveyor", Rotation = [30, 90, 20] });
-            Assert.True(world.Connect(battery, motor));
+            var battery = world.AddPart(new() { Id = "battery", Kind = "battery", Position = [-6,4,4] });
+            var motor = (MotorPart)world.AddPart(new() { Id = reverseOrder ? "z_motor" : "a_motor", Kind = "motor", Position = [-6,4,0] });
+            var first = (ConveyorPart)world.AddPart(new() { Id = "first", Kind = "conveyor", Position = [-2,4,0] });
+            var last = (ConveyorPart)world.AddPart(new() { Id = "last", Kind = "conveyor", Position = [8,4,0], Orientation = PartOrientation.FromEulerDegrees(30, 90, 20) });
+            var supply=new SupplyControl(world,battery);
+            Assert.True(world.Connect(supply.Output,motor));
             Assert.True(world.Connect(motor, first));
             MachinePart previous = first;
             for (var i = 0; i < reversers; i++)
             {
-                var reverse = world.AddPart(new() { Id = "reverse_" + i, Kind = "reverse_transmission" });
+                var reverse = world.AddPart(new() { Id = "reverse_" + i, Kind = "reverse_transmission", Position = [2+i*3,4,0] });
                 Assert.True(world.Connect(previous, reverse));
                 previous = reverse;
             }
             Assert.True(world.Connect(previous, last));
-            if (reverseOrder) world.Connections.Reverse();
+            if(reverseOrder)
+            {
+                var links=world.Connections.ToArray();
+                foreach(var link in links)Assert.True(world.Disconnect(link));
+                foreach(var link in links.Reverse())
+                    Assert.True(world.Connect(world.FindPart(link.From)!,link.FromPort!.Value,
+                        world.FindPart(link.To)!,link.ToPort!.Value,link.Type));
+            }
             var saved = world.Snapshot();
             world.Start();
+            supply.SetAndSettle(SimulationLatchPhase.On);
             // Assert the same substep, not only the eventual steady state.
-            world.Step();
             var sign = reversers % 2 == 0 ? 1 : -1;
             Assert.Equal(motor.ShaftSpeed, first.ShaftSpeed);
             Assert.Equal(motor.ShaftSpeed * sign, last.ShaftSpeed);
             for (var i = 0; i < 120; i++) world.Step();
             Assert.Equal(6, first.ShaftSpeed, 3);
-            Assert.Equal(6 * sign, last.MechanicalSpeed(SocketId.Drive), 3);
+            Assert.Equal(6 * sign, MechanicalNetwork.Speed(world,last,SocketId.Drive), 3);
             Assert.Equal(4 * sign, last.SurfaceSpeed, 3);
             Assert.All(world.Parts.OfType<ReverseTransmissionPart>(), r =>
             {
                 Assert.Equal(-r.InputSpeed, r.OutputSpeed);
                 Assert.InRange(Mathf.Abs(Mathf.AngleDifference(-r.InputAngle, r.OutputAngle)), 0, .0001f);
             });
-            battery.Properties["enabled"] = 0;
-            world.Step();
-            Assert.InRange(Mathf.Abs(last.ShaftSpeed), .001f, 5.999f);
+            var coastSpeed=last.ShaftSpeed;
+            var kineticEnergy=world.PhysicsAssembly.Bodies.ToArray().Sum(body=>body.KineticEnergy);
+            supply.SetAndSettle(SimulationLatchPhase.Off);
+            Assert.False(motor.Active);
+            // The reset command settles next tick; measure the unpowered interval after that boundary.
+            var suppliedWork=motor.SuppliedWork;
+            Assert.Equal(coastSpeed,last.ShaftSpeed);
             for (var i = 0; i < 120; i++) world.Step();
-            Assert.Equal(0, last.ShaftSpeed);
-            Assert.False(last.Active);
+            Assert.Equal(coastSpeed,last.ShaftSpeed);
+            Assert.Equal(suppliedWork,motor.SuppliedWork);
+            Assert.InRange(Math.Abs(world.PhysicsAssembly.Bodies.ToArray().Sum(body=>body.KineticEnergy)-kineticEnergy),0,1e-8);
+            Assert.True(last.Active); // An unloaded rotor coasts; electrical supply loss is not a brake.
             world.Restore();
             Assert.Equal(saved.Connections.Count, world.Connections.Count);
             Assert.All(world.Parts.OfType<ConveyorPart>(), c =>
             {
                 Assert.Equal(0, c.ShaftSpeed);
                 Assert.Equal(0, c.ShaftAngle);
-                Assert.Equal(0, c.MechanicalSpeed(SocketId.Drive));
+                Assert.Single(c.MechanicalBindings,b=>b.Port==SocketId.Drive);
             });
             Assert.All(world.Parts.OfType<ReverseTransmissionPart>(), r =>
             {
@@ -122,22 +136,22 @@ public class MechanicalTests(HeadlessFixture godot)
                 Assert.Equal(0, r.OutputAngle);
             });
             world.Start();
-            world.Step();
+            supply.SetAndSettle(SimulationLatchPhase.On);
             Assert.True(((ConveyorPart)world.FindPart("last")!).ShaftSpeed * sign > 0);
         }
         finally { world.Free(); }
     }
 
     [Fact]
-    public void DisconnectedConveyorsCannotCreateDriveAndRemovingUpstreamLinkStopsTheChain()
+    public void DisconnectedConveyorsCannotCreateDriveAndUpstreamRemovalRequiresReset()
     {
         var world = World();
         try
         {
-            var battery = world.AddPart(new() { Id = "battery", Kind = "battery" });
-            var motor = world.AddPart(new() { Id = "motor", Kind = "motor" });
-            var first = (ConveyorPart)world.AddPart(new() { Id = "first", Kind = "conveyor" });
-            var last = (ConveyorPart)world.AddPart(new() { Id = "last", Kind = "conveyor" });
+            var battery = world.AddPart(new() { Id = "battery", Kind = "battery", Position = [-6,4,4] });
+            var motor = world.AddPart(new() { Id = "motor", Kind = "motor", Position = [-6,4,0] });
+            var first = (ConveyorPart)world.AddPart(new() { Id = "first", Kind = "conveyor", Position = [-2,4,0] });
+            var last = (ConveyorPart)world.AddPart(new() { Id = "last", Kind = "conveyor", Position = [8,4,0] });
             Assert.True(world.Connect(first, last));
             world.Start();
             world.Activate(first); // An activation command is not mechanical energy.
@@ -154,7 +168,13 @@ public class MechanicalTests(HeadlessFixture godot)
             world.Start();
             world.Step();
             Assert.True(last.ShaftSpeed > 0);
-            world.Connections.RemoveAll(c => c.From == "motor");
+            var link=world.Connections.Single(c=>c.From==motor.Uid);
+            Assert.Throws<InvalidOperationException>(()=>world.Disconnect(link));
+            world.Restore();
+            Assert.True(world.Disconnect(link));
+            first=(ConveyorPart)world.FindPart("first")!;
+            last=(ConveyorPart)world.FindPart("last")!;
+            world.Start();
             world.Step();
             Assert.Equal(0, first.ShaftSpeed);
             Assert.Equal(0, last.ShaftSpeed);

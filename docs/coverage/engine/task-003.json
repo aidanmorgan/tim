@@ -19,7 +19,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/presentation/SceneAnimationAdapter.cs",
@@ -111,7 +111,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/presentation/SceneAnimationAdapter.cs",
@@ -200,7 +200,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/presentation/SceneAnimationAdapter.cs",
@@ -311,7 +311,7 @@
       "ProofOwner": "S048",
       "Artifacts": [
         {
-          "Path": "docs/tangent-quadratic-prototype.md",
+          "Path": "docs/history/checkpoints/tangent-quadratic-prototype.md",
           "Hash": "37572f02f76782710edd3902ced0baf56aad735239239ab31d6abfd218f3413f"
         }
       ]
@@ -370,8 +370,8 @@
       "ProofOwner": "S049",
       "Artifacts": [
         {
-          "Path": "docs/bilateral-response-map.md",
-          "Hash": "6c63c3d6a2df8c874a702bb467577d63548ae9c28616b4d29741770799014c7a"
+          "Path": "docs/history/checkpoints/bilateral-response-map.md",
+          "Hash": "89970473d17431fbb61121fdfb19e43c35ca5cc72941e3aa8a826dce23f9c0da"
         }
       ]
     },
@@ -429,8 +429,8 @@
       "ProofOwner": "S050",
       "Artifacts": [
         {
-          "Path": "docs/contact-residual-investigation.md",
-          "Hash": "feb9f9c0e62f7e5b4159adb0656a04a0899b4324ab1174b3542926d4cf2b161b"
+          "Path": "docs/history/checkpoints/contact-residual-investigation.md",
+          "Hash": "95e236e69f6f0ef636d4a8a8b7751641aa623f6601e44ab6a8191676d0b37153"
         }
       ]
     },
@@ -512,8 +512,8 @@
       "ProofOwner": "S051",
       "Artifacts": [
         {
-          "Path": "docs/predictor-endpoint.md",
-          "Hash": "d753bc23bf50955df7e43e68d763da7fe3e0c2465a21bbfe495e9796324039df"
+          "Path": "docs/history/checkpoints/predictor-endpoint.md",
+          "Hash": "e11c670d2ecd3c3b7aaf4c33d6a5d7c906371f39f754fea6c9136d6f9b18eb24"
         }
       ]
     },
@@ -595,8 +595,8 @@
       "ProofOwner": "S052",
       "Artifacts": [
         {
-          "Path": "docs/predictor-work.md",
-          "Hash": "a0a740230f5dec01169581f2f10d0244f8bfe9a8ff598ab39180e869fe4e0fe7"
+          "Path": "docs/history/checkpoints/predictor-work.md",
+          "Hash": "283df67465f57f1a4a88d9347a8d307eea64c2d74af93cb9378bfe878bfad13f"
         }
       ]
     },
@@ -678,8 +678,8 @@
       "ProofOwner": "S053",
       "Artifacts": [
         {
-          "Path": "docs/constraint-mass-scratch.md",
-          "Hash": "f7884dd1b46560caaf767ccb07193d2a9cd4efe4166f16ad6ef55b6f1898dcb1"
+          "Path": "docs/history/checkpoints/constraint-mass-scratch.md",
+          "Hash": "ecbfa1f9ca0de18db55681194e2b32ea5edb13c652847056d1d67b23eb47b6bf"
         }
       ]
     },
@@ -774,8 +774,8 @@
       "ProofOwner": "S054",
       "Artifacts": [
         {
-          "Path": "docs/shaft-ui-proof.md",
-          "Hash": "9d82bc00380ab531e3fd84ad813eb648060bd354e6d7f3ac9481cd6383942e86"
+          "Path": "docs/history/checkpoints/shaft-ui-proof.md",
+          "Hash": "89d8010a11838e2084e04ff09adae83185356554030d66bf841a31b0aa954edc"
         }
       ]
     },
@@ -870,8 +870,8 @@
       "ProofOwner": "S055",
       "Artifacts": [
         {
-          "Path": "docs/world-angular-travel.md",
-          "Hash": "6d7a5ff1d772848a90c4f29382680cdd2638700dde0481dfa91294a00546ef4e"
+          "Path": "docs/history/checkpoints/world-angular-travel.md",
+          "Hash": "35267a67a31aeb76d880321d2e34ad770abbbffdd4c5122a643e32e4317d7164"
         }
       ]
     },
@@ -966,8 +966,8 @@
       "ProofOwner": "S056",
       "Artifacts": [
         {
-          "Path": "docs/angular-path-measure.md",
-          "Hash": "b4bb122969f2c77dc8701690b5e57f9c321eb8b61ad4805659cce88d7efe96f3"
+          "Path": "docs/history/checkpoints/angular-path-measure.md",
+          "Hash": "7e05de78337b1c3b253dea1d00b608d23116e7dbf1d69ccfdc7c6a5c8bf21982"
         }
       ]
     },
@@ -983,7 +983,7 @@
       "Symbols": [
         {
           "Path": "ui/Workshop.cs",
-          "FileHash": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4",
+          "FileHash": "ce9a80b1d3ca267eec45be71ed9477903c72ee871ee44c65ac5153f4e7a73a5a",
           "Symbol": "Workshop"
         }
       ],
@@ -997,8 +997,8 @@
       "ProofOwner": "S057",
       "Artifacts": [
         {
-          "Path": "docs/fast-drag-investigation.md",
-          "Hash": "b0b702adbbc9efb3e8c9e5f366e4a7f028626cae401d6735f56742fdd5a0bf4e"
+          "Path": "docs/history/checkpoints/fast-drag-investigation.md",
+          "Hash": "3b4187f8f4ad2658fd72eb0b49efc12f658cb0367cd418428607a6f058e6655a"
         }
       ]
     },
@@ -1044,8 +1044,8 @@
       "ProofOwner": "S058",
       "Artifacts": [
         {
-          "Path": "docs/world-placement.md",
-          "Hash": "456c46e1515b551abb1adc011cca2fab81a3de4cf1f4c231bac91da5233afe7a"
+          "Path": "docs/history/checkpoints/world-placement.md",
+          "Hash": "660a37a65cda86ce5aa4c294945064e6dd97b671dfa4dbfe08e724efd7aa4343"
         }
       ]
     },
@@ -1091,8 +1091,8 @@
       "ProofOwner": "S059",
       "Artifacts": [
         {
-          "Path": "docs/compound-query-scratch.md",
-          "Hash": "21616b41b57adaf5cca7e6703e074359d64c35c1f97a5f756d37f3b473377bbb"
+          "Path": "docs/history/checkpoints/compound-query-scratch.md",
+          "Hash": "f4859761b4ec59a37a4d229965f775a5f536e773af3a8132abb9553fc00ecd86"
         }
       ]
     },
@@ -1136,8 +1136,8 @@
       "ProofOwner": "S060",
       "Artifacts": [
         {
-          "Path": "docs/performance-counters.md",
-          "Hash": "3a76ee70b75c1489aaa9b4be5a7b68224b03da3cf180d1bd784f5847e8f61886"
+          "Path": "docs/history/checkpoints/performance-counters.md",
+          "Hash": "c4da806ed826df43002fb4959aa2939f6a7dd9847053447be5561f14629afb4d"
         }
       ]
     },
@@ -1183,8 +1183,8 @@
       "ProofOwner": "S061",
       "Artifacts": [
         {
-          "Path": "docs/world-body-index.md",
-          "Hash": "46055ee7d626739733e3adafcacc2f6d1857217af003f0bd32ee353715c0a056"
+          "Path": "docs/history/checkpoints/world-body-index.md",
+          "Hash": "00a61fa6951be747b56b0b2bab8977dd067c327ea69a181136c218cd813a0deb"
         }
       ]
     },
@@ -1228,8 +1228,8 @@
       "ProofOwner": "S062",
       "Artifacts": [
         {
-          "Path": "docs/performance-stages.md",
-          "Hash": "11b43816507700313bc4f794d8cd769a80d2ee26efd24e2a6ad0533a54c8d4bf"
+          "Path": "docs/history/checkpoints/performance-stages.md",
+          "Hash": "61424a091280e356e9c49161740dd74e7c365c05029c5f72c297c3246d901920"
         }
       ]
     },
@@ -1293,8 +1293,8 @@
       "ProofOwner": "S063",
       "Artifacts": [
         {
-          "Path": "docs/local-body-pose.md",
-          "Hash": "554de71c83f247b72105faca54cfb06eeee31d5ff6ef081b85170ef555aefe96"
+          "Path": "docs/history/checkpoints/local-body-pose.md",
+          "Hash": "dfbcdc2539fc5b19e7ca54db747092bf44f0366ff571ea684121a2b010876204"
         }
       ]
     },
@@ -1338,8 +1338,8 @@
       "ProofOwner": "S064",
       "Artifacts": [
         {
-          "Path": "docs/current-ramp-ui-20260929.md",
-          "Hash": "7ef714722d0d52be13d4fe0819dd1f60dc8d29e59dfb8243cb81bb49ee8b55b3"
+          "Path": "docs/history/checkpoints/current-ramp-ui-20260929.md",
+          "Hash": "c91becc3a3d7f58505ae2670e88ce34f436e8dec5cf22e4df14b5f82007bf867"
         }
       ]
     },
@@ -1434,8 +1434,8 @@
       "ProofOwner": "S065",
       "Artifacts": [
         {
-          "Path": "docs/owned-axial-motion-readings.md",
-          "Hash": "555463965b5c0cb30760701303eeba819f2ca46b38c86a0ab3dabeed9471ef81"
+          "Path": "docs/history/checkpoints/owned-axial-motion-readings.md",
+          "Hash": "ca7959a64362176c8d2436d2521d4c262765e941fb6730b498d7153d91abc617"
         }
       ]
     },
@@ -1530,8 +1530,8 @@
       "ProofOwner": "S066",
       "Artifacts": [
         {
-          "Path": "docs/world-owned-motor-accounting.md",
-          "Hash": "52ea0285ab0a2568e987e19bab836d408e91af147e7647538672cf841c8616dc"
+          "Path": "docs/history/checkpoints/world-owned-motor-accounting.md",
+          "Hash": "f7f63856f7870c1846d23b264df33327ddd80602a3b4833b0f4ff749ec469c6b"
         }
       ]
     }
@@ -1542,7 +1542,7 @@
         "Origin": "Task",
         "Id": "sequence-task-051"
       },
-      "SourceHash": "d7954f95bc2728956151684d3dbdd2f593aaa83ed280b5e5cd03a2b4f1eefc50",
+      "SourceHash": "2320dd31274e403daed314f3da0d9bb24da062efefcc0641190f2a06c85f157b",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -1588,7 +1588,7 @@
         "Origin": "Task",
         "Id": "sequence-task-053"
       },
-      "SourceHash": "8ca48db2ecb2f9684d5ec4816b7368d9dd7a1b5c8bdff69b86ee295b4d0cbd4b",
+      "SourceHash": "d10c320a3ab73cee855b350f83f45ae6686cacab0415c6c1d7df02dfb6d1d664",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -1614,7 +1614,7 @@
         "Origin": "Task",
         "Id": "sequence-task-054"
       },
-      "SourceHash": "aa6b3e1c572102d1744ae6e53f562d40aefc327d637edf06313c174f7c9ae54d",
+      "SourceHash": "d926b20a8071b2d6f6b0223a7f116ef7f89867383706af61481d1baea287fe74",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -1636,7 +1636,7 @@
         "Origin": "Task",
         "Id": "sequence-task-055"
       },
-      "SourceHash": "7fd47adc0579ed9dd4cabcf518800fa401f046e8cee94da843fce10d9390a9ca",
+      "SourceHash": "78a035e7b2475fb0d0dc0832fcb890d0ada4a88a4ef84a308045266c15fb4fc9",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -4219,7 +4219,7 @@
         "Origin": "Task",
         "Id": "sequence-task-056"
       },
-      "SourceHash": "9f9959837d8d410e2ee0f9e70e1fb15a98af036d105ebd516fb96c6d87ffa9f9",
+      "SourceHash": "5903e929d81701a152d311fddec3ab5240fbb3ef9ab8cb6005940307932fb134",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -6797,7 +6797,7 @@
         "Origin": "Task",
         "Id": "sequence-task-057"
       },
-      "SourceHash": "e6d2c1cc1805e8dd535c27f3283e6e6b219e787d4fe46d6500e91dea9df9dde6",
+      "SourceHash": "c56815b06b0f8a9fb5259c43c40dae61a2b653a236a90943e8afc805c74df42a",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -6845,7 +6845,7 @@
         "Origin": "Task",
         "Id": "sequence-task-058"
       },
-      "SourceHash": "4001f64a39345aa96e8764b1219897e7a7ff8c0b87e019afaba77498e34663e1",
+      "SourceHash": "4be44e4b0b25f8c2e71328f83f98906f487742855957c247c4c6680ddea3286f",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -6893,7 +6893,7 @@
         "Origin": "Task",
         "Id": "sequence-task-059"
       },
-      "SourceHash": "d304863afc84cda71f9093b142444e54758e98d813ebc24b5cb442b67a745652",
+      "SourceHash": "d418a16d22d857ef4c38ae7cab0a242d463382c2f97c29b04f41c2057fe2783b",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -6941,7 +6941,7 @@
         "Origin": "Task",
         "Id": "sequence-task-060"
       },
-      "SourceHash": "155119ef1fc5e692c5eab910a97a690adfcee71598af91af93bfcd5916035135",
+      "SourceHash": "72b8877c2988f03a2244e0bee55fe07e3286af06be1d80a344f4523d3e2e3fe9",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -6971,7 +6971,7 @@
         "Origin": "Task",
         "Id": "sequence-task-061"
       },
-      "SourceHash": "7aebbde45b751d6bf18003b3d4f538f50e9faad096db3a874d32b47ebcd4af90",
+      "SourceHash": "f38facbf5bbe8c396e87dec0df96736c5df9992f4060aa4aef0c20c96b048f49",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -7001,7 +7001,7 @@
         "Origin": "Task",
         "Id": "sequence-task-062"
       },
-      "SourceHash": "d53a15c2131f07792dd6d2c468c606f3aeffe0930a5b3453710c31d5d09eeb32",
+      "SourceHash": "73d7f73c48a1c06d53a0cab06ff7d01c9d4fcfb868cf029c394510b80688545b",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -7031,7 +7031,7 @@
         "Origin": "Task",
         "Id": "sequence-task-063"
       },
-      "SourceHash": "6bb45560bde149e6a8885b5318b683e4833af37ea47e2e212fa101393ca2a7ab",
+      "SourceHash": "4382a6b1c7a108aaea4891b69948ba16299c449a09d38a757ea627c24ff7157e",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -7107,7 +7107,7 @@
         "Origin": "Task",
         "Id": "sequence-task-064"
       },
-      "SourceHash": "ae4d3fb545cf1a59d8722f27cb3cb5da22d867973cbbb72b23598a2a99c90ceb",
+      "SourceHash": "b06b2b756dfd09fc74c4a6a00e5d0a0f9f58fd09737ce4540a11e7a2946bd283",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -7183,7 +7183,7 @@
         "Origin": "Task",
         "Id": "sequence-task-065"
       },
-      "SourceHash": "b0a3cbb295bf572e971066ec0ff307386555822e736be9d99c48de6f3018531c",
+      "SourceHash": "123841f4f22c9404045b16e05f2c3a3d8b4084ef58ecc9e8090f5549fdfb0b15",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -7259,7 +7259,7 @@
         "Origin": "Task",
         "Id": "sequence-task-066"
       },
-      "SourceHash": "404926e308ce136a5c7d6dc78d4ab103aa857ff35c1b60448553d1a40567f6b9",
+      "SourceHash": "df06f34ed4ded48eb616fa36c37755eb20bad527509538ae296f4fa0edf5eff5",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -7282,7 +7282,7 @@
         "Origin": "Task",
         "Id": "sequence-task-067"
       },
-      "SourceHash": "ce478da8ced9dd7b0e053e41dff554a3d96e1bd2643c39b255013fdba40b5a88",
+      "SourceHash": "56974a40b22794df506ff754dd4c549bf685318921e03024b8d6ed8dc4e146f7",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -7342,7 +7342,7 @@
         "Origin": "Task",
         "Id": "sequence-task-068"
       },
-      "SourceHash": "d45d111bbc7e9144c464482f3beeb55be97414d57810444d8060125b94363aab",
+      "SourceHash": "5015e31a548b84126a39e3f8e7a25a47060ca86774046ac1ba75c0718b2c046e",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -7402,7 +7402,7 @@
         "Origin": "Task",
         "Id": "sequence-task-069"
       },
-      "SourceHash": "302ea4666f2677a7effdf58975bc2f7b27b0b9b1381799979a73330eae484888",
+      "SourceHash": "fb7cc49e8c74c1ec49d890fe8467ab43b68dea5b40a3dd873465b35442d16bd2",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -7929,7 +7929,7 @@
         "Origin": "Task",
         "Id": "sequence-task-070"
       },
-      "SourceHash": "89fc8225c23e62e3f94abc5b6b86c877fb6cbea2a83d6840804ccd344d822024",
+      "SourceHash": "8e3fea081c7e95f6300f8821457119d54cbfb7f9d2e659da80bcabbb5e27e014",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -7989,7 +7989,7 @@
         "Origin": "Task",
         "Id": "sequence-task-071"
       },
-      "SourceHash": "f8e0ba52fb86fef09c9af721b964cf5e342d55707751526d4a2a56ca186f06ad",
+      "SourceHash": "9b9fef911fb097944cd56d9323b47ebc2e50da638b17cac8f4bd8ec69c5d7092",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -8516,7 +8516,7 @@
         "Origin": "Task",
         "Id": "sequence-task-072"
       },
-      "SourceHash": "636efc1dc68440a49378413a29ba97e33ee627263b2a73c4c658db9defa3d20f",
+      "SourceHash": "9b9af24189c582d641048c425c4d7c26d1df62dc4757524c38228265fa3e511e",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -8543,7 +8543,7 @@
         "Origin": "Task",
         "Id": "sequence-task-073"
       },
-      "SourceHash": "ad1931afcbefb67660e9fa83ad77713ad2ceb7061221bd5c2d29c43c65713e65",
+      "SourceHash": "1e7e358c5e3b13a46ac16f109813b2d142fc1fc676232f2b07dcc813e58c0781",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -9070,7 +9070,7 @@
         "Origin": "Task",
         "Id": "sequence-task-074"
       },
-      "SourceHash": "76c25ecdec19ed5271f4e3f33e4e0e91da9cfd1d7d0b30270dd882c449cac495",
+      "SourceHash": "370feaa791d9b6498a73e200ed5b8b63fbfc8901b2633b57b6621f6c6f04adc5",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -9146,7 +9146,7 @@
         "Origin": "Task",
         "Id": "sequence-task-075"
       },
-      "SourceHash": "e4316d19bca79117b180ded0ee75c6b89314e502031deaae4090e5c073c258b3",
+      "SourceHash": "d6c17dec80eaf7ce68cd6e99a78ec1e6966c6a2482b2db502e03d0bc70965320",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -9220,4 +9220,3 @@
   ],
   "Modes": []
 }
-

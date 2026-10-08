@@ -6,4 +6,5 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup><Compile Include="../../engine/MachineData.cs" Link="MachineData.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../engine/PartOrientation.cs" Link="PartOrientation.cs" /></ItemGroup>
 </Project>

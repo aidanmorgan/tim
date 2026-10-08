@@ -17,8 +17,8 @@ public sealed class CapabilityTests
     private static readonly SourceArtifact Artifact=new(new("parts/Sample.cs"),RequirementDiscovery.Hash(Declaration));
     private static readonly SourceRequirement[] Sources=
     [
-        new(Parent,"TODO.md#sequence-task-001","Parent",RequirementDiscovery.Hash("parent")),
-        new(Child,"TODO.md#element-001","Child",RequirementDiscovery.Hash("child"))
+        new(Parent,"docs/planning/requirements.md#sequence-task-001","Parent",RequirementDiscovery.Hash("parent")),
+        new(Child,"docs/planning/requirements.md#element-001","Child",RequirementDiscovery.Hash("child"))
     ];
     private static CapabilityInventory Valid()
     {
@@ -206,9 +206,11 @@ public sealed class CapabilityTests
             Directory.CreateDirectory(Path.Combine(root.FullName,"parts"));
             Directory.CreateDirectory(Path.Combine(root.FullName,"engine"));
             File.WriteAllText(Path.Combine(root.FullName,"engine/LogicGate.cs"),"public enum LogicGateKind { And, Or, Xor, Nor, Nand }");
-            File.WriteAllText(Path.Combine(root.FullName,"TODO.md"),
-                "| 1 | **CAT-001-D — Test** [part](part.tres) | [Design](#stage-gates) |\n"+
-                "| 2 | **CAT-001-V — Test** | [ElementProof](#stage-gates) |\n");
+            Directory.CreateDirectory(Path.Combine(root.FullName,"docs/planning"));
+            File.WriteAllText(Path.Combine(root.FullName,RequirementDiscovery.RequirementsPath.Value),"");
+            File.WriteAllText(Path.Combine(root.FullName,CapabilityInputs.RegisterPath.Value),
+                "| 1 | **CAT-001-D — Test** [part](../../part.tres) | [Design](../delivery-workflow.md#stage-gates) |\n"+
+                "| 2 | **CAT-001-V — Test** | [ElementProof](../delivery-workflow.md#stage-gates) |\n");
             File.WriteAllText(Path.Combine(root.FullName,"part.tres"),"path=\"res://part.tscn\"");
             var scriptPath=Path.Combine(root.FullName,"parts/ElectricalLogicPart.cs");
             File.WriteAllText(scriptPath,"public LogicGateKind Operation { get; set; }");
@@ -219,6 +221,14 @@ public sealed class CapabilityTests
             File.WriteAllText(scenePath,scene);
             Assert.Contains(new ModeContract(key,ModeDimension.Logic,ModeChoice.And,new("CAT-001-V")),
                 CapabilityInputs.Discover(root,sources).Modes);
+            var registerPath=Path.Combine(root.FullName,CapabilityInputs.RegisterPath.Value);
+            var register=File.ReadAllText(registerPath);
+            File.WriteAllText(registerPath,register.Replace("../../part.tres","../../../outside.tres"));
+            Assert.Throws<ArgumentException>(()=>CapabilityInputs.Discover(root,sources));
+            File.WriteAllText(registerPath,register);
+            File.Delete(Path.Combine(root.FullName,RequirementDiscovery.RequirementsPath.Value));
+            Assert.Throws<FileNotFoundException>(()=>CapabilityInputs.Discover(root,sources));
+            File.WriteAllText(Path.Combine(root.FullName,RequirementDiscovery.RequirementsPath.Value),"");
             File.WriteAllText(scenePath,scene+"Operation = 99\n");
             Assert.Throws<InvalidDataException>(()=>CapabilityInputs.Discover(root,sources));
             File.WriteAllText(scenePath,scene+"Operation = unsupported\n");

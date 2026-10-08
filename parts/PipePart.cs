@@ -1,57 +1,48 @@
 using Godot;
-using System;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions;
 
-/// <summary>Clear hollow gravity tube. No capture, teleport, scripted transport or added energy.</summary>
-public partial class PipePart : MachinePart, IResizablePart, ITubePart
+/// <summary>Hollow-tube input/art adapter; shared annular contact owns all physical motion.</summary>
+public partial class PipePart : MachinePart, IResizablePart
 {
-    public float Length => Properties[PipeParameters.Length];
-    public Vector3 Dimensions => new(Length, PipeParameters.BoreDiameter, PipeParameters.BoreDiameter);
+    public PipeDimensions CanonicalDimensions { get; private set; }
+    public Vector3 Dimensions => new((float)CanonicalDimensions.Length.Value,
+        (float)PipeDimensions.BoreDiameter.Value, (float)PipeDimensions.BoreDiameter.Value);
     public ResizeAxes ResizableAxes => ResizeAxes.X;
-    public System.Collections.Generic.IEnumerable<TubeMouth> Mouths
-    {
-        get
-        {
-            yield return new(TubeMouthId.Start, Vector3.Left * (Length * .5f + .09f), Vector3.Left, BoreRadius);
-            yield return new(TubeMouthId.End, Vector3.Right * (Length * .5f + .09f), Vector3.Right, BoreRadius);
-        }
-    }
     private MeshInstance3D _shell = null!;
     private readonly MeshInstance3D[] _collars = new MeshInstance3D[2], _rails = new MeshInstance3D[2];
-    public override void ValidateParameters()
-    {
-        if (!float.IsFinite(Length) || Length < PipeParameters.MinimumLength || Length > PipeParameters.MaximumLength)
-            throw new ArgumentException("Pipe length must be finite and between one and eight units.");
-    }
-    public const float BoreRadius = .65f;
-    public override float SurfaceBounce => .15f;
     protected override void Build()
     {
-        _shell = PipeArt.Cylinder(Visual, Transform3D.Identity, .5f, BoreRadius, .70f, new Color(.40f, .72f, .79f, .16f), false);
+        var dimensions = Definition.Pipe!.Capture();
+        var profile = dimensions.Profile;
+        var bore = (float)profile.InnerRadius.Value;
+        var outer = (float)profile.MiddleRadius.Value;
+        _shell = PipeArt.Cylinder(Visual, Transform3D.Identity, .5f, bore, outer, new Color(.40f, .72f, .79f, .16f), false);
         for (var i = 0; i < 2; i++)
         {
-            _collars[i] = PipeArt.Cylinder(Visual, Transform3D.Identity, .09f, BoreRadius, .78f, new("#fff8e9"), true);
-            var z = i == 0 ? -.70f : .70f;
+            _collars[i] = PipeArt.Cylinder(Visual, Transform3D.Identity, (float)profile.EndHalfWidth.Value,
+                bore, (float)profile.EndRadius.Value, new("#fff8e9"), true);
+            var z = i == 0 ? -outer : outer;
             _rails[i] = PartArt.Line(Visual, new(-.5f, 0, z), new(.5f, 0, z), new("#293954"), .018f);
         }
-        SetDimensions(Dimensions);
+        ApplyDimensions(dimensions);
     }
-    public void SetDimensions(Vector3 size)
+    public void SetDimensions(Vector3 size) => ApplyDimensions(PipeDimensions.FromInput(size.X, size.Y, size.Z));
+    public void ApplyDimensions(PipeDimensions dimensions)
     {
-        if (!size.IsFinite() || !Mathf.IsEqualApprox(size.Y, PipeParameters.BoreDiameter)
-            || !Mathf.IsEqualApprox(size.Z, PipeParameters.BoreDiameter))
-            throw new ArgumentException("Only pipe length can be resized; the bore is fixed.");
-        Properties[PipeParameters.Length] = Mathf.Clamp(size.X, PipeParameters.MinimumLength, PipeParameters.MaximumLength);
-        _shell.Scale = new(Length, 1, 1);
-        Tubes.Clear();
-        Tubes.Add(new(Transform3D.Identity, Length * .5f, BoreRadius, .70f, false));
+        dimensions.Validate();
+        CanonicalDimensions = dimensions;
+        var length = (float)dimensions.Length.Value;
+        _shell.Scale = new(length, 1, 1);
         for (var i = 0; i < 2; i++)
         {
-            _collars[i].Position = new((i == 0 ? -1 : 1) * Length * .5f, 0, 0);
-            Tubes.Add(new(_collars[i].Transform, .09f, BoreRadius, .78f, true));
-            ((CylinderMesh)_rails[i].Mesh).Height = Length;
+            _collars[i].Position = new((i == 0 ? -1 : 1) * length * .5f, 0, 0);
+            ((CylinderMesh)_rails[i].Mesh).Height = length;
         }
-        UpdateSelectionRadius(Mathf.Sqrt(Length * Length + 1.56f * 1.56f) * .5f);
+        var profile = dimensions.Profile;
+        var axial = (float)profile.HalfLength.Value + (float)profile.EndHalfWidth.Value;
+        var radial = (float)profile.EndRadius.Value;
+        PickRadius = Mathf.Sqrt(axial * axial + radial * radial);
     }
 }

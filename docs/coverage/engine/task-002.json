@@ -518,7 +518,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         }
       ],
       "Capabilities": [
@@ -768,7 +768,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/presentation/SceneAnimationAdapter.cs",
@@ -818,7 +818,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         }
       ],
       "Capabilities": [
@@ -862,7 +862,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/presentation/SceneAnimationAdapter.cs",
@@ -1253,7 +1253,7 @@
         "Origin": "Task",
         "Id": "sequence-task-031"
       },
-      "SourceHash": "cd2d58cdb394d18e3ca4af8f1f84757f749f56774e56a9a38881945e7812d3f1",
+      "SourceHash": "709e7042063d5430049b6ac1d51fe28c9c7979ab8ec2e1d8b7abba49d6066967",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -8519,7 +8519,7 @@
         "Origin": "Task",
         "Id": "sequence-task-033"
       },
-      "SourceHash": "817505a1aa3050dfbcdbc9d4dc68d92a113fb14f81191744b6f21e55d7c16da9",
+      "SourceHash": "9c0d7bd45198c164718fee914bae0027661d0a9b49fa3ce5f4896208354690fa",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -13767,7 +13767,7 @@
         "Origin": "Task",
         "Id": "sequence-task-039"
       },
-      "SourceHash": "a47c5fdd065c28af31c3e9e4902c136b8116a9f89f9cba79935d9c5415c2d8c5",
+      "SourceHash": "9868435601aeb933553d9a3f1e87cfecdd71074c0435732011d7e73fb4243c23",
       "Kind": "Engine",
       "Capabilities": [
         "InputAdmission",
@@ -13883,7 +13883,7 @@
         "Origin": "Task",
         "Id": "sequence-task-044"
       },
-      "SourceHash": "df7a6d05830e3fef6affa61175d3d30a568b5f003ba914eb0415b1bfcfab14a4",
+      "SourceHash": "86a7f759ef84394fc5dfca3b60fc7d18712e874221c01d0b633e0afa37c24088",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -16487,7 +16487,7 @@
         "Origin": "Task",
         "Id": "sequence-task-046"
       },
-      "SourceHash": "60d621ee6d694598e870366f36708d3061fc474d79b21d686645981980a54592",
+      "SourceHash": "5de3f818bc966eda24dae44d82c437355a22a66a4142f51a42622e7857cef6ad",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -16511,7 +16511,7 @@
         "Origin": "Task",
         "Id": "sequence-task-047"
       },
-      "SourceHash": "a685df11433fd4c985cc87bb432f73fa85d565b9ea2cf56d7ba7294e243e6a4a",
+      "SourceHash": "c882a52db72c1b6ba7678ca30e2e843924484994d9b99d0dc25b7ef84131b7a5",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -21201,7 +21201,7 @@
         "Origin": "Task",
         "Id": "sequence-task-048"
       },
-      "SourceHash": "aba72d7287aaea17d3dfebc674e813f9d83d10a5733fe36bda549852e1d4b711",
+      "SourceHash": "25084232edfaef340f914cdcec67efd2e2c8398f8b71b6a78cfcd7695c276def",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -21222,7 +21222,7 @@
         "Origin": "Task",
         "Id": "sequence-task-049"
       },
-      "SourceHash": "38f044e92ae9eec2e8f39e54f235b6c061d24c319a5377f29e492d1a8b05508f",
+      "SourceHash": "c2fd4e84c713472a95e51ebbd3117c1ef086103242153bf8a7593100d854d43a",
       "Kind": "Engine",
       "Capabilities": [
         "ResourceLifetime",
@@ -21244,7 +21244,7 @@
         "Origin": "Task",
         "Id": "sequence-task-050"
       },
-      "SourceHash": "c5651a1e818edcaa9b67aba7152cbf2439d1ee6e7220adde21a0be93f681684e",
+      "SourceHash": "680e5e57150647fed0c65af39860a1ff6229ef4706443e9de39d12ca25359201",
       "Kind": "Engine",
       "Capabilities": [
         "ReliablePublication",
@@ -21267,4 +21267,3 @@
   ],
   "Modes": []
 }
-

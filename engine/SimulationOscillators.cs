@@ -13,6 +13,7 @@ public readonly record struct SimulationOscillatorId
         Index=index;
     }
 }
+public enum SimulationOscillatorQuantity { ProgressFraction }
 public enum SimulationOscillatorPhase { Stopped, Running }
 public readonly record struct SimulationOscillatorDeclaration(SimulationOscillatorId Id,int IntervalTicks);
 public readonly record struct SimulationOscillatorInput(SimulationOscillatorId Id,bool Enabled);
@@ -32,7 +33,7 @@ public sealed class SimulationOscillatorSnapshot
 /// <summary>Owned powered digital oscillators. Each consecutive integer tick samples
 /// every input once; power restoration starts a full interval. No startup pulse or
 /// catch-up for time spent disabled. Skipped or duplicate ticks reject.</summary>
-public sealed class SimulationOscillators
+public sealed class SimulationOscillators : SimulationTransactionParticipant
 {
     private readonly SimulationOscillatorDeclaration[] _declarations;
     private readonly SimulationOscillatorState[] _states,_staging,_checkpoint;
@@ -40,7 +41,6 @@ public sealed class SimulationOscillators
     private readonly Dictionary<SimulationOscillatorId,int> _indices=new();
     private int _checkpointTick;
     public int Tick { get; private set; }
-    public TimerTransactionPhase TransactionPhase { get; private set; }
     public SimulationOscillators(IEnumerable<SimulationOscillatorDeclaration> declarations,int firstTick=0)
     {
         ArgumentNullException.ThrowIfNull(declarations);
@@ -72,6 +72,11 @@ public sealed class SimulationOscillators
             _=>throw new InvalidOperationException("Unsupported oscillator phase.")
         };
     }
+    public double ReadQuantity(SimulationOscillatorId id,SimulationOscillatorQuantity quantity)=>quantity switch
+    {
+        SimulationOscillatorQuantity.ProgressFraction=>Progress(id),
+        _=>throw new ArgumentOutOfRangeException(nameof(quantity))
+    };
     /// <summary>Inputs must include each declared identity once in ascending order.
     /// The borrowed pulse span is valid until the next Advance attempt.
     /// Validation/overflow failures preserve every state and the committed clock.</summary>
@@ -102,32 +107,21 @@ public sealed class SimulationOscillators
         Tick=tick;
         return _pulses.AsSpan(0,count);
     }
-    private void RequirePhase(TimerTransactionPhase phase)
+    protected override void CaptureCheckpoint()
     {
-        if(TransactionPhase!=phase)throw new InvalidOperationException("Invalid oscillator transaction phase.");
-    }
-    public void BeginTransaction()
-    {
-        RequirePhase(TimerTransactionPhase.Idle);
         _states.CopyTo(_checkpoint,0);_checkpointTick=Tick;
-        TransactionPhase=TimerTransactionPhase.Active;
     }
-    public void CommitTransaction()
+    protected override void RestoreCheckpoint()
     {
-        RequirePhase(TimerTransactionPhase.Active);TransactionPhase=TimerTransactionPhase.Idle;
-    }
-    public void RollbackTransaction()
-    {
-        RequirePhase(TimerTransactionPhase.Active);
-        _checkpoint.CopyTo(_states,0);Tick=_checkpointTick;TransactionPhase=TimerTransactionPhase.Idle;
+        _checkpoint.CopyTo(_states,0);Tick=_checkpointTick;
     }
     public SimulationOscillatorSnapshot Capture()
     {
-        RequirePhase(TimerTransactionPhase.Idle);return new(this,Tick,_states);
+        RequireTransactionPhase(SimulationTransactionPhase.Idle);return new(this,Tick,_states);
     }
     public void Restore(SimulationOscillatorSnapshot snapshot)
     {
-        RequirePhase(TimerTransactionPhase.Idle);ArgumentNullException.ThrowIfNull(snapshot);
+        RequireTransactionPhase(SimulationTransactionPhase.Idle);ArgumentNullException.ThrowIfNull(snapshot);
         if(!ReferenceEquals(snapshot.Owner,this))throw new ArgumentException("Snapshot belongs to another oscillator world.",nameof(snapshot));
         snapshot.States.CopyTo(_states,0);Tick=snapshot.Tick;
     }

@@ -1,11 +1,12 @@
 using Godot;
+using CuriousContraptions.Physics;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class RopeTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class RopeTests(NativeSceneFixture godot)
 {
     private MachineWorld World()
     {
@@ -15,7 +16,7 @@ public class RopeTests(HeadlessFixture godot)
     }
     private static MachinePart Weight(MachineWorld world, string id, float mass, Vector3 at) =>
         world.AddPart(new() { Id = id, Kind = "weight", Position = [at.X, at.Y, at.Z],
-            Properties = new() { [WeightParameters.Mass] = mass } });
+            Properties = new() { [PartParameterName.Of(WeightParameter.Mass)] = mass } });
 
     [Theory]
     [InlineData(1f, 4f, false)]
@@ -36,19 +37,24 @@ public class RopeTests(HeadlessFixture godot)
             Assert.True(world.Connect(right, b));
             if (reverseLinks)
             {
-                foreach (var link in world.Connections) (link.From, link.To) = (link.To, link.From);
-                world.Connections.Reverse();
+                var construction=world.Snapshot();
+                construction.Connections=construction.Connections.Select(link=>link with
+                    {From=link.To,To=link.From,FromPort=link.ToPort,ToPort=link.FromPort}).Reverse().ToList();
+                var ids=new[]{a.Uid,b.Uid,left.Uid,right.Uid};
+                world.LoadMachine(construction);
+                a=world.FindPart(ids[0])!;b=world.FindPart(ids[1])!;
+                left=world.FindPart(ids[2])!;right=world.FindPart(ids[3])!;
             }
             var build = world.Snapshot();
             world.Start();
             for (var i = 0; i < 30; i++) world.Step();
             var acceleration = world.Gravity * (rightMass - leftMass) / (leftMass + rightMass);
-            Assert.InRange(Mathf.Abs(a.Velocity.Y - acceleration * .25f), 0, .015f);
-            Assert.InRange(Mathf.Abs(b.Velocity.Y + acceleration * .25f), 0, .015f);
+            Assert.InRange(Mathf.Abs(world.PhysicsAssembly.Body(new(a,MachinePart.RootBody)).LinearVelocity.Y - acceleration * .25f), 0, .015f);
+            Assert.InRange(Mathf.Abs(world.PhysicsAssembly.Body(new(b,MachinePart.RootBody)).LinearVelocity.Y + acceleration * .25f), 0, .015f);
             Assert.InRange(Mathf.Abs(a.Position.Y + b.Position.Y - 4), 0, .001f);
             var rope = Assert.Single(world.Ropes);
-            Assert.Equal(RopeState.Taut, rope.State);
-            Assert.InRange(rope.CurrentLength - rope.Length, -.001f, .001f);
+            Assert.Equal(RopeState.Taut, rope.State(world));
+            Assert.InRange(rope.CurrentLength(world) - rope.Length, -.001f, .001f);
             if (leftMass != rightMass) Assert.NotEqual(0, ((PulleyPart)left).WheelAngle);
             var signature = world.StateSignature();
             world.Restore();
@@ -92,7 +98,7 @@ public class RopeTests(HeadlessFixture godot)
                 Assert.False(world.Won, id + " still solved without " + missing.From + " -> " + missing.To);
             }
             var equal = MachineCodec.Clone(solution);
-            equal.Parts.Single(p => p.Id == "weight_1").Properties[WeightParameters.Mass] = 1;
+            equal.Parts.Single(p => p.Id == "weight_1").Properties[PartParameterName.Of(WeightParameter.Mass)] = 1;
             world.LoadMachine(equal);
             world.Start();
             for (var i = 0; i < 1500 && world.Running; i++) world.Step();
@@ -126,25 +132,31 @@ public class RopeTests(HeadlessFixture godot)
             var anchor = world.AddPart(new() { Id = "anchor", Kind = "rope_anchor", Position = [0, 6, -.18f] });
             var weight = Weight(world, "weight", 1, new(0, 4, 0));
             Assert.True(world.Connect(anchor, weight));
-            world.Connections[0].RopeLength += 1;
+            var construction=world.Snapshot();
+            construction.Connections[0]=construction.Connections[0] with
+                {RopeLength=construction.Connections[0].RopeLength+1};
+            var weightId=weight.Uid;
+            world.LoadMachine(construction);
+            weight=world.FindPart(weightId)!;
             world.Start();
             world.Step();
-            Assert.Equal(RopeState.Slack, Assert.Single(world.Ropes).State);
-            Assert.True(weight.Velocity.Y < 0);
+            Assert.Equal(RopeState.Slack, Assert.Single(world.Ropes).State(world));
+            Assert.True(world.PhysicsAssembly.Body(new(weight,MachinePart.RootBody)).LinearVelocity.Y < 0);
             for (var i = 0; i < 120; i++) world.Step();
             var rope = Assert.Single(world.Ropes);
-            Assert.Equal(RopeState.Taut, rope.State);
-            Assert.InRange(rope.CurrentLength, rope.Length - .001f, rope.Length + .001f);
-            Assert.InRange(Mathf.Abs(weight.Velocity.Y), 0, .001f);
-            weight.Velocity = Vector3.Up;
+            Assert.Equal(RopeState.Taut, rope.State(world));
+            Assert.InRange(rope.CurrentLength(world), rope.Length - .001f, rope.Length + .001f);
+            Assert.InRange(Mathf.Abs(world.PhysicsAssembly.Body(new(weight,MachinePart.RootBody)).LinearVelocity.Y), 0, .001f);
+            var body=world.PhysicsAssembly.Body(new(weight,MachinePart.RootBody));
+            world.Physics.ApplyImpulse(body.Id,(SceneGeometryAdapter.CaptureVector(Vector3.Up)-body.LinearVelocity)/body.InverseMass,body.Center);
             world.Step();
-            Assert.True(weight.Velocity.Y > .9f); // Tension cannot resist movement toward the anchor.
+            Assert.True(world.PhysicsAssembly.Body(new(weight,MachinePart.RootBody)).LinearVelocity.Y > .9f); // Tension cannot resist movement toward the anchor.
         }
         finally { world.Free(); }
     }
 
     [Fact]
-    public void AnUnfinishedPulleyRouteCannotLiftAndRemovingSpanReleasesLoad()
+    public void AnUnfinishedPulleyRouteCannotLiftAndSpanCanOnlyBeRemovedAfterReset()
     {
         var world = World();
         try
@@ -154,13 +166,24 @@ public class RopeTests(HeadlessFixture godot)
             Assert.True(world.Connect(weight, pulley));
             world.Start();
             for (var i = 0; i < 30; i++) world.Step();
-            Assert.Equal(RopeState.Open, Assert.Single(world.Ropes).State);
+            Assert.Equal(RopeState.Open, Assert.Single(world.Ropes).State(world));
             Assert.True(weight.Position.Y < 2.9f);
             Assert.Equal(0, ((PulleyPart)pulley).WheelAngle);
-            world.Connections.Clear();
-            world.Step();
+            var link=Assert.Single(world.Connections);
+            var physics=world.Physics;
+            Assert.Throws<InvalidOperationException>(()=>world.Disconnect(link));
+            Assert.Same(physics,world.Physics);
+            Assert.Equal(link,Assert.Single(world.Connections));
+            Assert.True(world.PhysicsAssembly.Body(new(weight,MachinePart.RootBody)).LinearVelocity.Y < -2);
+            world.Restore();
+            weight=world.FindPart("weight")!;
+            Assert.Equal(new Vector3(0,3,0),weight.Position);
+            Assert.Equal(link,Assert.Single(world.Connections));
+            Assert.True(world.Disconnect(link));
+            world.Start();
+            for(var i=0;i<30;i++)world.Step();
             Assert.Empty(world.Ropes);
-            Assert.True(weight.Velocity.Y < -2);
+            Assert.True(world.PhysicsAssembly.Body(new(weight,MachinePart.RootBody)).LinearVelocity.Y < -2);
         }
         finally { world.Free(); }
     }
@@ -181,9 +204,9 @@ public class RopeTests(HeadlessFixture godot)
             {
                 world.Step();
                 var rope = Assert.Single(world.Ropes);
-                Assert.InRange(rope.CurrentLength - rope.Length, -.002f, .002f);
+                Assert.InRange(rope.CurrentLength(world) - rope.Length, -.002f, .002f);
                 minDepth = Mathf.Min(minDepth, load.Position.Z);
-                var energy = load.Mass * (world.Gravity * load.Position.Y + .5f * load.Velocity.LengthSquared());
+                var energy = load.Mass * (world.Gravity * load.Position.Y + .5f * world.PhysicsAssembly.Body(new(load,MachinePart.RootBody)).LinearVelocity.LengthSquared);
                 Assert.True(energy <= initialEnergy + .5f, "The rope must not manufacture pendulum energy.");
             }
             Assert.True(minDepth < -1, $"The pendulum must swing through depth; minimum Z was {minDepth}.");
@@ -211,7 +234,7 @@ public class RopeTests(HeadlessFixture godot)
                 Assert.True(a.Position.Y >= Workbench.SurfaceY + a.Radius - .001f);
                 Assert.True(b.Position.Y >= Workbench.SurfaceY + b.Radius - .001f);
                 var rope = Assert.Single(world.Ropes);
-                Assert.True(rope.CurrentLength <= rope.Length + .002f);
+                Assert.True(rope.CurrentLength(world) <= rope.Length + .002f);
             }
         }
         finally { world.Free(); }
@@ -253,7 +276,7 @@ public class RopeTests(HeadlessFixture godot)
             Assert.True(world.Connect(q, r));
             Assert.False(world.Connect(r, p));
             var bad = world.Snapshot();
-            bad.Connections[0].RopeLength = null;
+            bad.Connections[0] = bad.Connections[0] with { RopeLength = null };
             Assert.Throws<ArgumentException>(() => world.LoadMachine(bad));
             Assert.Same(a, world.FindPart("a"));
         }

@@ -1,4 +1,5 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,25 +41,25 @@ public static class PartAssistance
     }
 
     private static Vector3 Point(float[] values) => new(values[0], values[1], values[2]);
-    private static Vector3 AngleDelta(Vector3 from, Vector3 to) => new(
-        Mathf.Wrap(to.X - from.X, -180, 180), Mathf.Wrap(to.Y - from.Y, -180, 180),
-        Mathf.Wrap(to.Z - from.Z, -180, 180));
-
-    public sealed class Correction(MachinePart part, Vector3 endPosition, Quaternion endRotation, float seconds)
+    private static CollisionVector RotationDelta(MachinePart part,PartSpec target)
     {
-        private readonly Vector3 _startPosition = part.Position;
-        private readonly Quaternion _startRotation = part.Quaternion;
-        public MachinePart Part { get; } = part;
-        public Vector3 EndPosition { get; } = endPosition;
-        public float Duration { get; } = Mathf.Max(.1f, seconds);
+        var from=SceneGeometryAdapter.CaptureRigidPose(part.Transform).Rotation;
+        var to=SceneGeometryAdapter.CaptureRigidPose(new(SceneOrientation.Present(target.Orientation),Vector3.Zero)).Rotation;
+        return (to*from.Inverse()).RotationVector();
+    }
 
-        public void Apply(float elapsed)
+    public sealed class Correction
+    {
+        public MachinePart Part { get; }
+        public QuinticRigidTrajectory Path { get; }
+
+        public Correction(MachinePart part,Vector3 endPosition,RigidRotation endRotation,float seconds)
         {
-            var t = Mathf.Clamp(elapsed / Duration, 0, 1);
-            // Quintic easing: continuous position, velocity and acceleration at both ends.
-            var blend = t * t * t * (10 + t * (-15 + 6 * t));
-            Part.Position = _startPosition.Lerp(EndPosition, blend);
-            Part.Quaternion = _startRotation.Slerp(endRotation, blend);
+            ArgumentNullException.ThrowIfNull(part);
+            var start=SceneGeometryAdapter.CaptureRigidPose(part.Transform);
+            Part=part;
+            Path=new(start,SceneGeometryAdapter.CaptureVector(endPosition)-start.Center,
+                (endRotation*start.Rotation.Inverse()).RotationVector(),Math.Max(.1,seconds));
         }
     }
 
@@ -71,7 +72,7 @@ public static class PartAssistance
                          from target in targets
                          where target.Kind == part.Definition.Id && !target.Locked
                          let score = part.Position.DistanceTo(Point(target.Position)) +
-                             AngleDelta(part.RotationDegrees, Point(target.Rotation)).Length() / 90
+                             RotationDelta(part,target).Length / (Math.PI/2)
                          select (part, target, score);
         var assignedParts = new HashSet<string>(StringComparer.Ordinal);
         var assignedTargets = new HashSet<string>(StringComparer.Ordinal);
@@ -85,12 +86,13 @@ public static class PartAssistance
             part.SetDifficulty(target.Difficulty);
             var settings = Evaluate(target.Difficulty, precision);
             var offset = Point(target.Position) - part.Position;
-            var angle = AngleDelta(part.RotationDegrees, Point(target.Rotation));
-            if (offset.Length() > settings.PositionWindow || angle.Length() > settings.RotationWindow) continue;
+            var angle = RotationDelta(part,target);
+            if (offset.Length() > settings.PositionWindow || angle.Length > settings.RotationWindow*Math.PI/180) continue;
             offset = offset.LimitLength(Mathf.Max(0, settings.MaxPositionCorrection));
-            angle = angle.LimitLength(Mathf.Max(0, settings.MaxRotationCorrection));
-            if (offset.LengthSquared() < .00000001f && angle.LengthSquared() < .00000001f) continue;
-            var endRotation = Quaternion.FromEuler((part.RotationDegrees + angle) * (Mathf.Pi / 180));
+            var maximumAngle = Math.Max(0, settings.MaxRotationCorrection)*Math.PI/180;
+            if(angle.Length>maximumAngle) angle*=maximumAngle/angle.Length;
+            if (offset.LengthSquared() < .00000001f && angle.LengthSquared < 1e-12) continue;
+            var endRotation = RigidRotation.FromRotationVector(angle)*SceneGeometryAdapter.CaptureRigidPose(part.Transform).Rotation;
             corrections.Add(new(part, part.Position + offset, endRotation, settings.BlendSeconds));
         }
         return corrections;

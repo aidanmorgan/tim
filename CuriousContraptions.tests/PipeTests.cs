@@ -1,11 +1,12 @@
 using Godot;
+using CuriousContraptions.Physics;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class PipeTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class PipeTests(NativeSceneFixture godot)
 {
     [Theory]
     [InlineData(0, 0, 0)]
@@ -20,14 +21,14 @@ public class PipeTests(HeadlessFixture godot)
             world.LoadMachine(new()
             {
                 Gravity = 0, Pressure = 0,
-                Parts = [new() { Id = "pipe", Kind = "pipe", Position = [0, 8, 0], Rotation = [x, y, z] },
+                Parts = [new() { Id = "pipe", Kind = "pipe", Position = [0, 8, 0], Orientation = PartOrientation.FromEulerDegrees(x, y, z) },
                     new() { Id = "ball", Kind = "ball", Position = [0, 12, 0] }]
             });
             var pipe = world.FindPart("pipe")!;
             var ball = world.FindPart("ball")!;
             ball.Position = pipe.Transform * new Vector3(-3, .1f, 0);
+            ball.InitialVelocity = pipe.Basis.X * 4;
             world.Start();
-            ball.Velocity = pipe.Basis.X * 4;
             var previous = ball.Position;
             for (var i = 0; i < 180; i++)
             {
@@ -38,13 +39,13 @@ public class PipeTests(HeadlessFixture godot)
             var local = pipe.Transform.AffineInverse() * ball.Position;
             Assert.InRange(local.X, 2.99f, 3.01f);
             Assert.InRange(local.Y, .09f, .11f);
-            Assert.InRange(ball.Velocity.Length(), 3.99f, 4.01f);
+            Assert.InRange(world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity.Length, 3.99f, 4.01f);
             world.Restore();
             pipe = world.FindPart("pipe")!;
             ball = world.FindPart("ball")!;
             ball.Position = pipe.Transform * new Vector3(0, 2, 0);
+            ball.InitialVelocity = -pipe.Basis.Y * 8;
             world.Start();
-            ball.Velocity = -pipe.Basis.Y * 8;
             for (var i = 0; i < 60; i++) world.Step();
             local = pipe.Transform.AffineInverse() * ball.Position;
             Assert.True(local.Y >= .70f + ball.Radius - .001f);
@@ -67,13 +68,13 @@ public class PipeTests(HeadlessFixture godot)
                 Parts = [new() { Id = "pipe", Kind = "pipe", Position = [0, 6, 0] },
                     new() { Id = "ball", Kind = "ball", Position = [-3, 6, 0], Properties = new() { ["radius"] = radius } }]
             });
-            world.Start();
             var ball = world.FindPart("ball")!;
-            ball.Velocity = Vector3.Right * speed;
+            ball.InitialVelocity = Vector3.Right * speed;
+            world.Start();
             for (var i = 0; i < 24; i++) world.Step();
             if (blocked) Assert.True(ball.Position.X < -1.89f);
             else Assert.InRange(ball.Position.X, 4.99f, 5.01f);
-            Assert.True(ball.Velocity.Length() <= speed + .001f);
+            Assert.True(world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity.Length <= speed + .001f);
         }
         finally { world.Free(); }
     }

@@ -1,0 +1,876 @@
+--- a/CuriousContraptions.Simulation/WorkshopTrace.cs
++++ b/CuriousContraptions.Simulation/WorkshopTrace.cs
+@@ -1,4 +1,3 @@
+-#if PLAYTEST
+ using System.Buffers.Binary;
+ using CuriousContraptions.Gpu;
+ 
+@@ -7,28 +6,31 @@
+ // Observational only. All methods contain diagnostic failure; none can reject or change a commit.
+ internal enum TraceEnd { Complete, Reset, Disposed, DeviceLost, Fault, InvalidRecord, Overflow }
+ internal enum TraceTimingStatus { Complete, Incomplete }
+-internal enum TraceTimingVersion : uint { NativeMilliseconds = 1 }
++internal enum TraceTimingVersion : uint { NativeMilliseconds = 2 }
+ internal sealed class WorkshopTrace
+ {
+     private const int Capacity = 7201;
+     private const int ChunkRecords = 128;
++    #if PLAYTEST
+     private readonly byte[] _records = new byte[Capacity * WorkshopTraceRecord.ByteLength];
++    private int _count;
++    #endif
+     private readonly double[] _durations = new double[Capacity - 1];
+     private readonly byte[] _durationBytes = new byte[ChunkRecords * sizeof(double)];
+     private int _durationCount;
+     private bool _timingValid;
+     private ulong _identity;
+     private SimulationEpoch _epoch;
+-    private int _count, _expectedCount;
++    private int _expectedCount;
+     private WorkshopGpuProfile _profile;
+     private bool _active, _sealed;
+     private TraceEnd _sealedReason;
+     private byte[] _construction = [];
+-    internal void Begin(RuntimeSessionId session, WorkshopConstruction construction, SimulationEpoch epoch, ProjectionEpoch projection, byte[] record)
++    internal void Begin(RuntimeSessionId session, WorkshopConstruction construction, SimulationEpoch epoch, ProjectionEpoch projection, WorkshopGpuProfile profile)
+     {
+         try
+         {
+-            var profile = WorkshopTraceRecord.ReadProfile(record);
++            profile.Validate();
+             construction.Validate(); projection.Validate();
+             if (construction.Settings.Simulation != profile.Cadence ||
+                 construction.Settings.Physical != profile.Physical)
+@@ -43,17 +45,19 @@
+             if (_identity == ulong.MaxValue) return;
+             _identity++;
+             _epoch = epoch;
++            #if PLAYTEST
+             _count = 0;
++            #endif
+             _durationCount = 0;
+             _timingValid = true;
+             _construction = encoded;
+             _profile = profile;
+             _expectedCount = expectedCount;
+             _active = true;
+-            Append(record);
+         }
+         catch { End(TraceEnd.InvalidRecord); }
+     }
++    #if PLAYTEST
+     internal void Append(byte[] record)
+     {
+         if (!_active) return;
+@@ -69,7 +73,8 @@
+         }
+         catch { End(TraceEnd.InvalidRecord); }
+     }
+-    // Host diagnostic milliseconds only. This is the complete critical-path wall span,
++    #endif
++    // Host observational milliseconds only. This is the complete critical-path wall span,
+     // including awaits and publication, not exclusive CPU time or numerical game state.
+     internal void RecordTickDuration(SimulationTick tick, double milliseconds)
+     {
+@@ -78,7 +83,11 @@
+         {
+             if (!_timingValid || !double.IsFinite(milliseconds) || milliseconds < 0 ||
+                 _durationCount >= _durations.Length || tick.Value != (ulong)_durationCount + 1 ||
+-                _count != _durationCount + 2)
++                tick.Value >= (ulong)_expectedCount
++                #if PLAYTEST
++                || _count != _durationCount + 2
++                #endif
++                )
+             { _timingValid = false; return; }
+             _durations[_durationCount++] = milliseconds;
+         }
+@@ -89,16 +98,21 @@
+     {
+         if (!_active) return;
+         _active = false;
++        #if PLAYTEST
+         if (reason == TraceEnd.Complete && _count != _expectedCount) reason = TraceEnd.InvalidRecord;
++        #endif
+         _sealedReason = reason;
+         _sealed = true;
+     }
+ 
++    internal bool CanFlush(WorkshopSimulationPhase phase) =>
++        _sealed && phase is WorkshopSimulationPhase.Building or WorkshopSimulationPhase.Completed or
++            WorkshopSimulationPhase.Faulted or WorkshopSimulationPhase.Disposed;
++
+     internal void Flush(WorkshopSimulationPhase phase)
+     {
+         // Invalid/overflow captures sealed during Run must not stall an ordinary publication.
+-        if (phase is WorkshopSimulationPhase.Building or WorkshopSimulationPhase.Completed or
+-            WorkshopSimulationPhase.Faulted or WorkshopSimulationPhase.Disposed) FlushSealed();
++        if (CanFlush(phase)) FlushSealed();
+     }
+ 
+     private void FlushSealed()
+@@ -108,6 +122,7 @@
+         var reason = _sealedReason;
+         try
+         {
++            #if PLAYTEST
+             var chunks = (_count + ChunkRecords - 1) / ChunkRecords;
+             // Closed discriminants are serialized numerically at this console boundary.
+             Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {(uint)WorkshopTraceVersion.GenericPoseAndCapture} {WorkshopTraceRecord.ByteLength} {_count} {chunks} {(int)reason} {Convert.ToBase64String(_construction)}");
+@@ -120,12 +135,13 @@
+                 Console.WriteLine($"CCGPU_TRACE_CHUNK {_identity} {ordinal} {chunks} {first} {count} {encoded}");
+             }
+             Console.WriteLine($"CCGPU_TRACE_END {_identity} {_count} {chunks} {(int)reason}");
++            #endif
+             var durationChunks = (_durationCount + ChunkRecords - 1) / ChunkRecords;
+             var status = reason == TraceEnd.Complete && _timingValid && _durationCount == _expectedCount - 1
+                 ? TraceTimingStatus.Complete : TraceTimingStatus.Incomplete;
+-            // Version 1 is original little-endian binary64 native-clock milliseconds.
++            // Version 2 binds original little-endian binary64 milliseconds to the construction and terminal reason.
+             // Tick IDs are exactly 1..count only when the capture is Complete.
+-            Console.WriteLine($"CCGPU_TICK_TIMES_BEGIN {_identity} {_epoch.Value} {(uint)TraceTimingVersion.NativeMilliseconds} {sizeof(double)} {(uint)_profile.Cadence} {(uint)_profile.Physical} {_profile.Revision.Value} {_expectedCount - 1} {_durationCount} {durationChunks} {(int)status}");
++            Console.WriteLine($"CCGPU_TICK_TIMES_BEGIN {_identity} {_epoch.Value} {(uint)TraceTimingVersion.NativeMilliseconds} {sizeof(double)} {(uint)_profile.Cadence} {(uint)_profile.Physical} {_profile.Revision.Value} {_expectedCount - 1} {_durationCount} {durationChunks} {(int)status} {Convert.ToBase64String(_construction)} {(int)reason}");
+             for (var ordinal = 0; ordinal < durationChunks; ordinal++)
+             {
+                 var first = ordinal * ChunkRecords;
+@@ -140,4 +156,3 @@
+         catch { /* Missing end/chunks are an explicit incomplete capture to its consumer. */ }
+     }
+ }
+-#endif
+--- a/CuriousContraptions.Simulation/Program.cs
++++ b/CuriousContraptions.Simulation/Program.cs
+@@ -20,9 +20,7 @@
+     private static ulong _loopOwner;
+     private static WorkshopCommandIdentity? _pendingCommand;
+     private static bool _reliableStalled;
+-#if PLAYTEST
+     private static readonly CuriousContraptions.Simulation.WorkshopTrace Trace = new();
+-#endif
+     public static void Main() { }
+ 
+     [JSImport("now", "workshopGpu")]
+@@ -54,26 +52,24 @@
+             WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
+ 
+     [JSImport("publish", "workshopGpu")]
+-    private static partial void Publish(byte[] read);
++    private static partial void Publish(byte[] read, bool observationPending);
+ 
+     [JSImport("acknowledge", "workshopGpu")]
+-    private static partial void Acknowledge(byte[] response);
++    private static partial void Acknowledge(byte[] response, bool observationPending);
+     [JSImport("retire", "workshopGpu")]
+     private static partial void Retire(string detail);
+ 
+     [JSExport]
+     public static int CaptureMode() => (int)WorkshopBuild.CaptureMode;
+ 
+-#if PLAYTEST
+     // Called only after the existing read/command transport admission barrier.
+     [JSExport]
+-    public static void FlushDiagnosticTrace() => Trace.Flush(Simulation.Phase);
+-    private static double DiagnosticMilliseconds()
++    public static void FlushObservation() => Trace.Flush(Simulation.Phase);
++    private static double ObservationMilliseconds()
+     {
+         try { return NativeMilliseconds(); }
+         catch { return double.NaN; } // Incomplete observation never replaces the physical result.
+     }
+-#endif
+ 
+     [JSExport]
+     public static byte[] ObserveMemory(byte[] bytes, bool transportIdle)
+@@ -97,7 +93,11 @@
+     public static int StateBytes() => PhysicsGpuAbi.ByteLength;
+ 
+     [JSExport]
+-    public static async Task Dispatch(byte[] bytes) => Acknowledge(await Commands.Dispatch(bytes));
++    public static async Task Dispatch(byte[] bytes)
++    {
++        var response = await Commands.Dispatch(bytes);
++        Acknowledge(response, Trace.CanFlush(Simulation.Phase));
++    }
+ 
+ 
+     private static async Task<byte[]> Execute(WorkshopCommand command, byte[] output)
+@@ -158,9 +158,7 @@
+                 result = await Simulation.Run();
+                 break;
+             case WorkshopCommandKind.Reset:
+-#if PLAYTEST
+                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Reset);
+-#endif
+                 var resetting = Simulation.Reset();
+                 result = await resetting;
+                 if (result.Outcome == WorkshopCommandOutcome.Applied)
+@@ -170,9 +168,7 @@
+                 }
+                 break;
+             case WorkshopCommandKind.Dispose:
+-#if PLAYTEST
+                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Disposed);
+-#endif
+                 _loopOwner++;
+                 await Simulation.DisposeAsync();
+                 result = new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
+@@ -184,8 +180,9 @@
+             await CommitInstallation();
+             if (command.Kind == WorkshopCommandKind.Run)
+             {
++                Trace.Begin(Peer.Session, Simulation.Construction, Simulation.Epoch, _schedule!.Value.World.Epoch, Simulation.Profile);
+ #if PLAYTEST
+-                Trace.Begin(Peer.Session, Simulation.Construction, Simulation.Epoch, _schedule!.Value.World.Epoch, Device.DiagnosticCommitted);
++                Trace.Append(Device.DiagnosticCommitted);
+ #endif
+             }
+ #if PLAYTEST
+@@ -214,9 +211,7 @@
+             if (owner != _loopOwner) return;
+             _loopOwner++;
+             Simulation.Stop(WorkshopRejection.Transport);
+-#if PLAYTEST
+             Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+-#endif
+             Retire("Physical publication failed after commit: " + error.Message);
+         }
+     }
+@@ -233,9 +228,7 @@
+             if (_reliableStalled || schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, now))
+             {
+                 Simulation.Stop(_reliableStalled ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity);
+-#if PLAYTEST
+                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+-#endif
+                 EmitRead(new(WorkshopCommandOutcome.Faulted, Simulation.Fault));
+                 return;
+             }
+@@ -244,30 +237,24 @@
+                 _transition = ScheduleTransition.Completed;
+                 await Simulation.CompleteRun();
+                 await CommitInstallation();
+-#if PLAYTEST
+                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Complete);
+-#endif
+                 EmitRead(new(WorkshopCommandOutcome.Applied, WorkshopRejection.None));
+                 return;
+             }
+             var due = schedule.World.DueTick(schedule.Settings, now);
+             if (Simulation.Committed.Tick.Value >= due.Value)
+             { batch = 0; await Task.Delay(1); continue; }
+-#if PLAYTEST
+-            var tickStarted = DiagnosticMilliseconds();
+-#endif
++            var tickStarted = ObservationMilliseconds();
+             var result = await Simulation.Advance();
+             if (owner != _loopOwner) return;
+             if (result.Outcome is WorkshopCommandOutcome.Superseded or WorkshopCommandOutcome.Cancelled) continue;
+ #if PLAYTEST
+             if (result.Outcome == WorkshopCommandOutcome.Applied) Trace.Append(Device.DiagnosticCommitted);
+-            else Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+ #endif
++            if (result.Outcome != WorkshopCommandOutcome.Applied) Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+             EmitRead(result);
+-#if PLAYTEST
+             if (result.Outcome == WorkshopCommandOutcome.Applied)
+-                Trace.RecordTickDuration(Simulation.Committed.Tick, DiagnosticMilliseconds() - tickStarted);
+-#endif
++                Trace.RecordTickDuration(Simulation.Committed.Tick, ObservationMilliseconds() - tickStarted);
+             if (result.Outcome != WorkshopCommandOutcome.Applied) return;
+             if (++batch == 4) { batch = 0; await Task.Delay(1); }
+         }
+@@ -279,7 +266,7 @@
+         var encoded = EncodeResponse(ReadOutput, new WorkshopResponse(default, WorkshopResponseKind.Read, result,
+             Simulation.Phase, Simulation.Committed, Peer.Session, sequence));
+         _publication++;
+-        Publish(encoded);
++        Publish(encoded, Trace.CanFlush(Simulation.Phase));
+     }
+ 
+     [JSExport]
+@@ -289,9 +276,7 @@
+     public static void DeviceLost()
+     {
+         _loopOwner++;
+-#if PLAYTEST
+         Trace.End(CuriousContraptions.Simulation.TraceEnd.DeviceLost);
+-#endif
+         Device.MarkLost();
+         Simulation.DeviceLost();
+         EmitRead(new(WorkshopCommandOutcome.Faulted, WorkshopRejection.DeviceLost));
+--- a/CuriousContraptions.Simulation/wwwroot/worker.js
++++ b/CuriousContraptions.Simulation/wwwroot/worker.js
+@@ -6,8 +6,8 @@
+ let host, device, pipelines, bindings, buffers = [], readback, input, stateBytes, current = 0;
+ let readyCandidate = false, resultBytes, operations;
+ let activeRequests = 0;
++let observationPending = false;
+ let animationPort, roles;
+-let diagnosticTraceEnabled = false;
+ let lifetime = 0, disposed = false;
+ function disposeOwned() {
+     disposed = true;
+@@ -44,9 +44,10 @@
+     pendingReadIdentity.set(bytes.subarray(104, 112), 16);
+     self.postMessage({ read: bytes, dispatchReadbackMs }, [bytes.buffer]);
+ }
+-function flushDiagnosticTrace() {
+-    if (!diagnosticTraceEnabled || activeRequests !== 0 || pendingReadIdentity || latestRead) return;
+-    try { host.FlushDiagnosticTrace(); }
++function flushObservation() {
++    if (!observationPending || activeRequests !== 0 || pendingReadIdentity || latestRead) return;
++    observationPending = false;
++    try { host.FlushObservation(); }
+     catch { /* Diagnostic output failure cannot reject an admitted read; missing trace remains Incomplete. */ }
+ }
+ function acknowledgeRead(receipt) {
+@@ -55,7 +56,7 @@
+     pendingReadIdentity = undefined;
+     // A queued terminal must become the next pending identity before any diagnostic output.
+     flushRead();
+-    flushDiagnosticTrace();
++    flushObservation();
+ }
+ runtime.setModuleImports('workshopGpu', {
+     now() { return clockNow(); },
+@@ -170,7 +171,8 @@
+         readyCandidate = false;
+     },
+     discard() { readyCandidate = false; resultBytes = undefined; },
+-    acknowledge(bytes) {
++    acknowledge(bytes, pending) {
++        observationPending = pending;
+         const result = new Uint8Array(bytes);
+         self.postMessage({ acknowledgement: result, dispatchReadbackMs }, [result.buffer]);
+     },
+@@ -178,7 +180,8 @@
+         try { self.postMessage({ failure: true, detail }); }
+         finally { self.close(); }
+     },
+-    publish(bytes) {
++    publish(bytes, pending) {
++        observationPending = pending;
+         const result = new Uint8Array(bytes);
+         latestRead = result;
+         flushRead();
+@@ -200,8 +203,6 @@
+             if ((captureMode !== 1 && captureMode !== 2) || captureMode !== host.CaptureMode())
+                 throw new Error('Browser and simulation capture modes differ.');
+             const masterPeer = new Uint8Array(host.Bootstrap(bootstrap));
+-            // Capture mode is validated above at its numeric bootstrap boundary.
+-            diagnosticTraceEnabled = captureMode === 2;
+             const nativeClock = new Float64Array(nativeClockEvidence());
+             self.postMessage({ ready: true, nativeClock, captureMode, masterPeer }, [nativeClock.buffer, masterPeer.buffer]);
+         }
+@@ -272,6 +273,6 @@
+         await host.Dispatch(bytes);
+     } catch (error) {
+         self.postMessage({ failure: Array.from(bytes.slice(0, 8)), detail: String(error) });
+-    } finally { activeRequests--; flushDiagnosticTrace(); }
++    } finally { activeRequests--; flushObservation(); }
+ };
+ self.postMessage({ awaitingBootstrap: true });
+--- a/CuriousContraptions.tests/WorkshopTraceTests.cs
++++ b/CuriousContraptions.tests/WorkshopTraceTests.cs
+@@ -1,4 +1,3 @@
+-#if PLAYTEST
+ using System.Buffers.Binary;
+ using System.Globalization;
+ using CuriousContraptions.Gpu;
+@@ -6,8 +5,8 @@
+ 
+ namespace CuriousContraptions.Tests;
+ 
+-// Exercises the actual diagnostic recorder and wire boundary, never numerical GPU behavior.
+-public sealed class WorkshopTraceTests
++// Exercises the actual all-mode observer and diagnostic-only pose recorder.
++public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
+ {
+     private static readonly RuntimeSessionId Session = new(0x20000000000001, ulong.MaxValue);
+     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
+@@ -23,6 +22,21 @@
+             Rotation: physical?.Rotation, Angular: physical?.AngularVelocity ?? default), profile);
+     }
+ 
++    private static void Begin(WorkshopTrace trace, RuntimeSessionId session, WorkshopConstruction construction,
++        SimulationEpoch epoch, ProjectionEpoch projection, byte[] record)
++    {
++        trace.Begin(session, construction, epoch, projection, WorkshopTraceRecord.ReadProfile(record));
++        Append(trace, record);
++    }
++
++    private static void Append(WorkshopTrace trace, byte[] record)
++    {
++#if PLAYTEST
++        trace.Append(record);
++#endif
++    }
++
++#if PLAYTEST
+     [Theory]
+     [InlineData(SimulationCadence.Hz60, 1800UL, 15)]
+     [InlineData(SimulationCadence.Hz120, 3600UL, 29)]
+@@ -36,13 +50,13 @@
+         var record = Record(configured, new(9), profile);
+         var count = checked((int)ticks + 1);
+         var expected = new byte[count * WorkshopTraceRecord.ByteLength];
+-        trace.Begin(Session, configured, new(9), new(3), record);
++        Begin(trace, Session, configured, new(9), new(3), record);
+         record.CopyTo(expected, 0);
+         for (ulong tick = 1; tick <= ticks; tick++)
+         {
+             BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
+             record.CopyTo(expected, checked((int)tick * WorkshopTraceRecord.ByteLength));
+-            trace.Append(record);
++            Append(trace, record);
+         }
+         var finalRecord = (byte[])record.Clone();
+         trace.End(TraceEnd.Complete);
+@@ -81,7 +95,7 @@
+         Assert.Equal(expected, observed.ToArray());
+         Assert.Equal(finalRecord, record);
+         Assert.Equal($"CCGPU_TRACE_END {header[1]} {count} {chunks} 0", lines[^1]);
+-        trace.Append(record);
++        Append(trace, record);
+         trace.End(TraceEnd.Reset);
+         trace.Flush(WorkshopSimulationPhase.Building);
+         Assert.Equal(chunks + 2, output.TraceLines.Length);
+@@ -93,12 +107,12 @@
+         using var output = new CapturedConsole();
+         var trace = new WorkshopTrace();
+         var record = Record(Construction, new(9), Profile);
+-        trace.Begin(default, Construction, new(9), new(3), record);
+-        trace.Append(record);
++        Begin(trace, default, Construction, new(9), new(3), record);
++        Append(trace, record);
+         trace.End(TraceEnd.Complete);
+         trace.Flush(WorkshopSimulationPhase.Completed);
+         Assert.Empty(output.TraceLines);
+-        trace.Begin(Session, Construction, new(9), new(3), record);
++        Begin(trace, Session, Construction, new(9), new(3), record);
+         trace.End(TraceEnd.Reset);
+         trace.Flush(WorkshopSimulationPhase.Building);
+         Assert.Equal(3, output.TraceLines.Length);
+@@ -112,11 +126,11 @@
+     {
+         using var output = new CapturedConsole();
+         var trace = new WorkshopTrace();
+-        trace.Begin(Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
++        Begin(trace, Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
+         var previousRecord = Record(Construction, new(9), Profile);
+         var nextRecord = Record(Construction, new(10), Profile);
+         var nextSession = new RuntimeSessionId(23, 41);
+-        trace.Begin(nextSession, Construction, new(10), new(3), Record(Construction, new(10), Profile));
++        Begin(trace, nextSession, Construction, new(10), new(3), Record(Construction, new(10), Profile));
+         trace.End(TraceEnd.Reset);
+         trace.Flush(WorkshopSimulationPhase.Building);
+         var lines = output.TraceLines;
+@@ -140,9 +154,9 @@
+         using var output = new CapturedConsole();
+         var trace = new WorkshopTrace();
+         var record = Record(Construction, new(9), Profile);
+-        trace.Begin(Session, Construction, new(9), new(3), record);
++        Begin(trace, Session, Construction, new(9), new(3), record);
+         BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), 2);
+-        trace.Append(record);
++        Append(trace, record);
+         trace.End(TraceEnd.Complete);
+         trace.Flush(WorkshopSimulationPhase.Completed);
+         Assert.Equal(3, output.TraceLines.Length);
+@@ -150,7 +164,7 @@
+         Assert.Equal(1UL, Number(header[5]));
+         Assert.Equal(TraceEnd.InvalidRecord, Reason(header[7]));
+         var before = output.TraceLines.Length;
+-        trace.Begin(Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
++        Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
+         trace.End(TraceEnd.Complete);
+         trace.Flush(WorkshopSimulationPhase.Completed);
+         Assert.Equal(before + 3, output.TraceLines.Length);
+@@ -168,15 +182,15 @@
+             using var output = new CapturedConsole();
+             var trace = new WorkshopTrace();
+             var record = Record(Construction, new(9), Profile);
+-            trace.Begin(Session, Construction, new(9), new(3), record);
++            Begin(trace, Session, Construction, new(9), new(3), record);
+             if (reason == TraceEnd.Overflow)
+                 for (ulong tick = 1; tick <= 3600; tick++)
+                 {
+                     BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
+-                    trace.Append(record);
++                    Append(trace, record);
+                 }
+             else BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), 2);
+-            trace.Append(record);
++            Append(trace, record);
+             trace.Flush(phase);
+             Assert.Empty(output.TraceLines);
+             trace.Flush(WorkshopSimulationPhase.Faulted);
+@@ -202,10 +216,10 @@
+         var trace = new WorkshopTrace();
+         var record = Record(Construction, new(9), Profile);
+         var expected = (byte[])record.Clone();
+-        trace.Begin(Session, Construction, new(9), new(3), record);
++        Begin(trace, Session, Construction, new(9), new(3), record);
+         trace.End(reason);
+         record.AsSpan().Clear();
+-        trace.Append(record);
++        Append(trace, record);
+         Assert.Empty(output.TraceLines);
+         trace.Flush(phase);
+         Assert.Equal(expected, Convert.FromBase64String(output.TraceLines[1].Split(' ')[6]));
+@@ -219,7 +233,7 @@
+     {
+         using var output = new CapturedConsole();
+         var trace = new WorkshopTrace();
+-        trace.Begin(Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
++        Begin(trace, Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
+         trace.End(TraceEnd.Reset);
+         var destination = Console.Out;
+         using var failure = new FailingOutput();
+@@ -227,26 +241,32 @@
+         finally { Console.SetOut(destination); }
+         trace.Flush(WorkshopSimulationPhase.Building);
+         Assert.Empty(output.TraceLines);
+-        trace.Begin(Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
++        Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
+         trace.End(TraceEnd.Reset);
+         trace.Flush(WorkshopSimulationPhase.Building);
+         Assert.Equal(3, output.TraceLines.Length);
+         Assert.Equal(10UL, Number(output.TraceLines[0].Split(' ')[2]));
+     }
+ 
+-    [Fact]
+-    public void CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier()
+-    {
+-        using var output = new CapturedConsole();
+-        var trace = new WorkshopTrace();
+-        var record = Record(Construction, new(9), Profile);
+-        trace.Begin(Session, Construction, new(9), new(3), record);
+-        var expected = new double[checked((int)Profile.RunTickLimit)];
++#endif
++    [Theory]
++    [InlineData(SimulationCadence.Hz60)]
++    [InlineData(SimulationCadence.Hz120)]
++    [InlineData(SimulationCadence.Hz240)]
++    public void CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(SimulationCadence cadence)
++    {
++        using var output = new CapturedConsole();
++        var trace = new WorkshopTrace();
++        var profile = Profile with { Cadence = cadence };
++        var construction = Construction with { Settings = Settings with { Simulation = cadence } };
++        var record = Record(construction, new(9), profile);
++        Begin(trace, Session, construction, new(9), new(3), record);
++        var expected = new double[checked((int)profile.RunTickLimit)];
+         for (var index = 0; index < expected.Length; index++)
+         {
+             var tick = (ulong)index + 1;
+             BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
+-            trace.Append(record);
++            Append(trace, record);
+             expected[index] = .5 + index / 1024d;
+             trace.RecordTickDuration(new(tick), expected[index]);
+         }
+@@ -258,14 +278,23 @@
+         var header = lines[0].Split(' ');
+         Assert.Equal("CCGPU_TICK_TIMES_BEGIN", header[0]);
+         Assert.Equal(9UL, Number(header[2]));
+-        Assert.Equal(1UL, Number(header[3]));
++        Assert.Equal(2UL, Number(header[3]));
+         Assert.Equal(8UL, Number(header[4]));
+-        Assert.Equal((ulong)Profile.Cadence, Number(header[5]));
+-        Assert.Equal((ulong)Profile.Physical, Number(header[6]));
+-        Assert.Equal(Profile.Revision.Value, Number(header[7]));
+-        Assert.Equal(Profile.RunTickLimit, Number(header[8]));
+-        Assert.Equal(Profile.RunTickLimit, Number(header[9]));
++        Assert.Equal((ulong)profile.Cadence, Number(header[5]));
++        Assert.Equal((ulong)profile.Physical, Number(header[6]));
++        Assert.Equal(profile.Revision.Value, Number(header[7]));
++        Assert.Equal(profile.RunTickLimit, Number(header[8]));
++        Assert.Equal(profile.RunTickLimit, Number(header[9]));
+         Assert.Equal(0UL, Number(header[11]));
++        var command = WorkshopWire.DecodeCommand(Convert.FromBase64String(header[12]));
++        Assert.Equal(Session, command.Session);
++        Assert.Equal(construction, command.Construction);
++        Assert.Equal(new ProjectionEpoch(3), command.Projection);
++        Assert.Equal(new SimulationEpoch(9), command.Epoch);
++        Assert.Equal(TraceEnd.Complete, Reason(header[13]));
++#if !PLAYTEST
++        Assert.Empty(output.TraceLines);
++#endif
+         var observed = new List<double>();
+         var chunks = checked((int)Number(header[10]));
+         for (var ordinal = 0; ordinal < chunks; ordinal++)
+@@ -288,11 +317,13 @@
+         Assert.Equal(lines, output.TimingLines);
+     }
+ 
+-    public enum TimingDefect { Missing, Duplicate, NonFinite }
++    public enum TimingDefect { Missing, Duplicate, NonFinite, Negative, Overflow }
+     [Theory]
+     [InlineData(TimingDefect.Missing)]
+     [InlineData(TimingDefect.Duplicate)]
+     [InlineData(TimingDefect.NonFinite)]
++    [InlineData(TimingDefect.Negative)]
++    [InlineData(TimingDefect.Overflow)]
+     public void TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(TimingDefect defect)
+     {
+         using var output = new CapturedConsole();
+@@ -300,16 +331,19 @@
+         for (ulong epoch = 9; epoch <= 10; epoch++)
+         {
+             var record = Record(Construction, new(epoch), Profile);
+-            trace.Begin(Session, Construction, new(epoch), new(3), record);
++            Begin(trace, Session, Construction, new(epoch), new(3), record);
+             for (ulong tick = 1; tick <= Profile.RunTickLimit; tick++)
+             {
+                 BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
+-                trace.Append(record);
++                Append(trace, record);
+                 if (epoch == 9 && tick == 1 && defect == TimingDefect.Missing) continue;
+-                trace.RecordTickDuration(new(tick), epoch == 9 && tick == 1 && defect == TimingDefect.NonFinite ? double.NaN : .75);
++                trace.RecordTickDuration(new(tick), epoch == 9 && tick == 1 && defect == TimingDefect.NonFinite ? double.NaN :
++                    epoch == 9 && tick == 1 && defect == TimingDefect.Negative ? -.25 : .75);
+                 if (epoch == 9 && tick == 1 && defect == TimingDefect.Duplicate)
+                     trace.RecordTickDuration(new(tick), .75);
+             }
++            if (epoch == 9 && defect == TimingDefect.Overflow)
++                trace.RecordTickDuration(new(Profile.RunTickLimit + 1), .75);
+             trace.End(TraceEnd.Complete);
+             trace.Flush(WorkshopSimulationPhase.Completed);
+             var header = output.TimingLines.Last(line => line.StartsWith("CCGPU_TICK_TIMES_BEGIN ", StringComparison.Ordinal)).Split(' ');
+@@ -317,6 +351,116 @@
+             Assert.Equal(epoch == 9 ? 1UL : 0UL, Number(header[11]));
+             if (epoch == 10) Assert.Equal(Profile.RunTickLimit, Number(header[9]));
+         }
++    }
++
++    public enum TimingTerminal { Reset, Disposed, DeviceLost, Fault }
++    [Theory]
++    [InlineData(TimingTerminal.Reset)]
++    [InlineData(TimingTerminal.Disposed)]
++    [InlineData(TimingTerminal.DeviceLost)]
++    [InlineData(TimingTerminal.Fault)]
++    public void EarlyTerminalTimingIsIncompleteAndFlushesOnce(TimingTerminal terminal)
++    {
++        var reason = terminal switch
++        {
++            TimingTerminal.Reset => TraceEnd.Reset,
++            TimingTerminal.Disposed => TraceEnd.Disposed,
++            TimingTerminal.DeviceLost => TraceEnd.DeviceLost,
++            TimingTerminal.Fault => TraceEnd.Fault,
++            _ => throw new ArgumentOutOfRangeException(nameof(terminal))
++        };
++        using var output = new CapturedConsole();
++        var trace = new WorkshopTrace();
++        Begin(trace, Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
++        trace.End(reason);
++        trace.Flush(WorkshopSimulationPhase.Running);
++        Assert.Empty(output.Lines);
++        trace.Flush(WorkshopSimulationPhase.Building);
++        var original = output.TimingLines;
++        var header = original[0].Split(' ');
++        Assert.Equal(1UL, Number(header[11]));
++        Assert.Equal(reason, Reason(header[13]));
++        trace.Flush(WorkshopSimulationPhase.Building);
++        Assert.Equal(original, output.TimingLines);
++    }
++
++    [Fact]
++    public void TimingOutputFailureCannotEscapeOrContaminateNextRun()
++    {
++        using var output = new CapturedConsole();
++        var trace = new WorkshopTrace();
++        Begin(trace, Session, Construction, new(9), new(3), Record(Construction, new(9), Profile));
++        trace.End(TraceEnd.Reset);
++        var destination = Console.Out;
++        using var failure = new FailingOutput();
++        try { Console.SetOut(failure); trace.Flush(WorkshopSimulationPhase.Building); }
++        finally { Console.SetOut(destination); }
++        trace.Flush(WorkshopSimulationPhase.Building);
++        Assert.Empty(output.TimingLines);
++        Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
++        trace.End(TraceEnd.Reset);
++        trace.Flush(WorkshopSimulationPhase.Building);
++        Assert.Equal(10UL, Number(output.TimingLines[0].Split(' ')[2]));
++    }
++
++    public enum BeginDefect { Session, ProfileMismatch, UndefinedProfile, Projection }
++    [Theory]
++    [InlineData(BeginDefect.Session)]
++    [InlineData(BeginDefect.ProfileMismatch)]
++    [InlineData(BeginDefect.UndefinedProfile)]
++    [InlineData(BeginDefect.Projection)]
++    public void InvalidTimingIdentityCannotStartOrContaminateTheNextRun(BeginDefect defect)
++    {
++        using var output = new CapturedConsole();
++        var trace = new WorkshopTrace();
++        var profile = defect switch
++        {
++            BeginDefect.ProfileMismatch => Profile with { Cadence = SimulationCadence.Hz60 },
++            BeginDefect.UndefinedProfile => Profile with { Cadence = (SimulationCadence)999 },
++            _ => Profile
++        };
++        trace.Begin(defect == BeginDefect.Session ? default : Session, Construction, new(9),
++            defect == BeginDefect.Projection ? default : new(3), profile);
++        trace.RecordTickDuration(new(1), .25);
++        trace.End(TraceEnd.Complete);
++        trace.Flush(WorkshopSimulationPhase.Completed);
++        Assert.Empty(output.Lines);
++        Begin(trace, Session, Construction, new(10), new(3), Record(Construction, new(10), Profile));
++        trace.End(TraceEnd.Reset);
++        trace.Flush(WorkshopSimulationPhase.Building);
++        var header = output.TimingLines[0].Split(' ');
++        Assert.Equal(10UL, Number(header[2]));
++        Assert.Equal(Session, WorkshopWire.DecodeCommand(Convert.FromBase64String(header[12])).Session);
++    }
++
++    [Fact]
++    public void DurationRetentionHasNoRoutineAllocationInNativeExecution()
++    {
++        using var output = new CapturedConsole();
++        var trace = new WorkshopTrace();
++        var profile = Profile with { Cadence = SimulationCadence.Hz240 };
++        var construction = Construction with { Settings = Settings with { Simulation = SimulationCadence.Hz240 } };
++        long allocated = 0, elapsed = 0;
++        for (ulong epoch = 9; epoch <= 10; epoch++)
++        {
++            var record = Record(construction, new(epoch), profile);
++            Begin(trace, Session, construction, new(epoch), new(3), record);
++            for (ulong tick = 1; tick <= profile.RunTickLimit; tick++)
++            {
++                BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
++                Append(trace, record);
++                var beforeBytes = GC.GetAllocatedBytesForCurrentThread();
++                var beforeTime = System.Diagnostics.Stopwatch.GetTimestamp();
++                trace.RecordTickDuration(new(tick), .75);
++                var afterTime = System.Diagnostics.Stopwatch.GetTimestamp();
++                var afterBytes = GC.GetAllocatedBytesForCurrentThread();
++                if (epoch == 10) { allocated += afterBytes - beforeBytes; elapsed += afterTime - beforeTime; }
++            }
++            trace.End(TraceEnd.Complete);
++            trace.Flush(WorkshopSimulationPhase.Completed);
++        }
++        Assert.Equal(0, allocated);
++        testOutput.WriteLine($"Native retention: {profile.RunTickLimit} calls, {allocated} allocated bytes, {elapsed * 1000d / System.Diagnostics.Stopwatch.Frequency:R} total observed milliseconds including timestamp overhead. Not a WASM timing bound.");
+     }
+ 
+     private sealed class FailingOutput : StringWriter
+@@ -343,4 +487,3 @@
+         public void Dispose() { Console.SetOut(_previous); _output.Dispose(); }
+     }
+ }
+-#endif
+--- /dev/null
++++ b/tools/workshop-observation.test.mjs
+@@ -0,0 +1,100 @@
++// Supplemental control of the actual shipped worker module; no gameplay outcomes are fabricated.
++import assert from 'node:assert/strict';
++import vm from 'node:vm';
++import { readFile } from 'node:fs/promises';
++import { MessagePort } from 'node:worker_threads';
++
++const source = await readFile('CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
++for (const captureMode of [1, 2]) {
++    let imports, flushes = 0, release, throwOutput = false;
++    const messages = [];
++    const host = {
++        OperationAbi: () => [0, 1], StateBytes: () => 18064, ScheduleRoles: () => [1, 2],
++        CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
++        Dispatch: async () => { await new Promise(resolve => { release = resolve; }); },
++        FlushObservation: () => { flushes++; if (throwOutput) throw Error('Output unavailable'); }
++    };
++    const runtime = {
++        setModuleImports: (_, methods) => { imports = methods; },
++        getAssemblyExports: async () => ({ Program: host }),
++        getConfig: () => ({ mainAssemblyName: 'BoundaryControl' })
++    };
++    const self = {
++        onmessage: undefined,
++        postMessage: (message, transfer = []) => messages.push(structuredClone(message, { transfer })),
++        close: () => {}
++    };
++    const context = vm.createContext({ self, Uint8Array, Float64Array, ArrayBuffer, DataView,
++        MessagePort, console, setTimeout, clearTimeout, Promise, Error });
++    const dotnet = new vm.SyntheticModule(['dotnet'], function () {
++        this.setExport('dotnet', { create: async () => runtime });
++    }, { context });
++    const clock = new vm.SyntheticModule(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'], function () {
++        this.setExport('admitNativeClock', async () => {});
++        this.setExport('nativeNow', () => 1);
++        this.setExport('nativeClockEvidence', () => [2, 1, 1, 1, .005, 1, 1]);
++    }, { context });
++    const module = new vm.SourceTextModule(source, { context });
++    await module.link(name => {
++        if (name === './_framework/dotnet.js') return dotnet;
++        if (name === '../native-clock.js') return clock;
++        throw Error('Unexpected worker import');
++    });
++    await module.evaluate();
++    await self.onmessage({ data: { bootstrap: new Uint8Array(16), captureMode } });
++    assert.equal(messages.at(-1).ready, true);
++    function publication(identity) {
++        const bytes = new Uint8Array(9744);
++        bytes.fill(7, 64, 80);
++        new DataView(bytes.buffer).setBigUint64(104, identity, true);
++        return bytes;
++    }
++    function receipt(bytes) {
++        const value = new Uint8Array(24);
++        value.set(bytes.subarray(64, 80));
++        value.set(bytes.subarray(104, 112), 16);
++        return value;
++    }
++    const first = publication(1n), final = publication(2n);
++    for (let index = 0; index < 8; index++) {
++        const running = publication(BigInt(index + 10));
++        imports.publish(running, false);
++        await self.onmessage({ data: { readAcknowledged: receipt(running) } });
++    }
++    assert.equal(flushes, 0, 'ordinary Running reads never call the observation export');
++    imports.publish(first, false);
++    imports.publish(final, true);
++    assert.equal(flushes, 0);
++    const wrong = receipt(first); wrong[0] ^= 1;
++    await self.onmessage({ data: { readAcknowledged: wrong } });
++    assert.equal(flushes, 0);
++    await self.onmessage({ data: { readAcknowledged: receipt(first) } });
++    assert.equal(flushes, 0, 'queued terminal is pending before observation flush');
++    const command = self.onmessage({ data: { bytes: new Uint8Array(72) } });
++    await Promise.resolve();
++    await self.onmessage({ data: { readAcknowledged: receipt(final) } });
++    assert.equal(flushes, 0, 'active command suppresses observation flush');
++    release();
++    await command;
++    assert.equal(flushes, 1);
++    await self.onmessage({ data: { readAcknowledged: receipt(final) } });
++    assert.equal(flushes, 1, 'duplicate receipt does not flush again');
++    throwOutput = true;
++    const last = publication(3n);
++    imports.publish(last, true);
++    const failuresBefore = messages.filter(item => item.failure).length;
++    await self.onmessage({ data: { readAcknowledged: receipt(last) } });
++    assert.equal(flushes, 2);
++    assert.equal(messages.filter(item => item.failure).length, failuresBefore, 'observation failure is contained');
++    throwOutput = false;
++    const reset = self.onmessage({ data: { bytes: new Uint8Array(72) } });
++    await Promise.resolve();
++    imports.acknowledge(new Uint8Array(9744), true);
++    assert.equal(flushes, 2);
++    release();
++    await reset;
++    assert.equal(flushes, 3, 'acknowledgement-only Reset announces sealed observation');
++    imports.dispose();
++    console.log(JSON.stringify({ captureMode, passed: true, controls: ['pending', 'staleReceipt',
++        'queuedTerminal', 'activeCommand', 'matchingReceipt', 'duplicateReceipt', 'outputFailure', 'ordinaryReadNoExport', 'acknowledgementOnlyReset', 'dispose'] }));
++}
+--- a/docs/gpu-f16-physics.md
++++ b/docs/gpu-f16-physics.md
+@@ -76,7 +76,7 @@
+ 
+ The forward generic state ABI is version 3, 18,064 bytes: the 8,832-byte scene/state prefix plus a 16-byte motion header and 72 ordered 128-byte motion pieces. Each successful commit records its positive-duration free-polynomial or supported-quadratic intervals, with original anchor/cell/local/quaternion, velocity/angular velocity, force/drag or effective acceleration, exact admitted physical rate and physical ordinal/phase boundaries. The timing field carries exactly Half480 for the current typed profile and both GPU and browser divide elapsed ordinal/phase by it; old reciprocal-bearing pieces are rejected. The bound is eight admitted substeps times at most eight impacts plus a tail; overflow rejects the whole candidate. Admission/Reset has no preceding motion. The v7 Workshop response is 9,744 bytes and carries those committed pieces with its pose and discrete capture state. Browser sampling evaluates those declared curves and angular paths, forces the original whole-commit endpoints, and holds when an adjacent commit or covering piece is missing. It never substitutes endpoint interpolation, a shortest quaternion arc or a browser contact solve.
+ 
+-The current Workshop trace is a 128-byte projection of one dynamic pose/orientation/angular state and at most one capture latch, including exact epoch/tick/profile identity. Its 7,201-record reservation is 921,728 bytes. The existing Diagnostic collector additionally reserves 7,200 binary64 host-clock duration slots (57,600 bytes) and a 1,024-byte encoding scratch buffer: 980,352 retained payload bytes in total. Each successful tick records the complete Advance-through-EmitRead critical-path wall span, including waits and publication; it is not exclusive CPU time. Original millisecond values are emitted in at most 128-value chunks only at the same acknowledged terminal flush. Epoch/profile, contiguous tick count and Complete/Incomplete status bind the observation; missing, duplicate or nonfinite timings cannot qualify a complete run. It does not claim to retain interior motion or the full generic scene; unsupported diagnostic composition becomes an incomplete capture without rejecting physics. Full motion fixtures retain their original GPU records separately. Receiver capture feedback is an instantaneous generic opacity endpoint declaration in the shared Animation evaluator. Browser application requires the matching selected committed occurrence/world and retains its original physical feedback stamp; Reset retires that world target and restores zero. No timed world-animation capability is inferred from this step effect.
++The current Workshop trace is a 128-byte projection of one dynamic pose/orientation/angular state and at most one capture latch, including exact epoch/tick/profile identity. Its 7,201-record reservation is 921,728 bytes. The pose collector remains Diagnostic-only. Both Production and Diagnostic reserve 7,200 binary64 host-clock duration slots (57,600 bytes) and a 1,024-byte encoding scratch buffer; their retained timing payload is 58,624 bytes, and Diagnostic's combined pose/timing payload is 980,352 bytes. Each successful automatic tick records the Advance-through-EmitRead critical-path wall span, including GPU waits, validation, packing and publication enqueue; reliable acknowledgement/display latency, scheduler waits and the final duration append remain outside that span. Native allocation/retention checks do not establish a WASM overhead bound or exclusive CPU time. Original millisecond values are emitted in at most 128-value chunks at the acknowledged stopped transport barrier. Begin also flushes a prior sealed capture before reusing the bounded buffer and before the new RunLoop starts. Timing schema v2 binds epoch/profile, the encoded canonical construction/session/projection, terminal reason, contiguous tick count and Complete/Incomplete status; missing, duplicate, out-of-range, negative or nonfinite timings cannot qualify a complete run. Earlier timing schemas are historical observations, not current input. It does not claim to retain interior motion or the full generic scene; unsupported diagnostic composition becomes an incomplete capture without rejecting physics. Full motion fixtures retain their original GPU records separately. Receiver capture feedback is an instantaneous generic opacity endpoint declaration in the shared Animation evaluator. Browser application requires the matching selected committed occurrence/world and retains its original physical feedback stamp; Reset retires that world target and restores zero. No timed world-animation capability is inferred from this step effect.
+ 
+ Acceptance includes unchanged intended Ball/workbench outcomes, Receiver floor settling/capture, real side/rounded-edge contact, fast crossing, open-boundary/exact-speed negatives, exit/re-entry, wrong target/disabled controls and exact Reset. A separate engine fixture changes material, geometry, gravity and drag and composes unfamiliar declarations without shader/solver edits. Historical specialized-law evidence is regression input, not qualification of this replacement.
+ 

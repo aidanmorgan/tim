@@ -186,4 +186,48 @@ public class PlaytestAuditTests
         Assert.NotEmpty(Check(TwoEdges, malformed).Errors);
         Assert.NotEmpty(Check(malformed, TwoEdges).Errors);
     }
+    private static List<int> CurrentTicks(int finalTick)
+    {
+        var ticks=new List<int>();
+        for(var tick=0;tick<=Math.Min(120,finalTick);tick+=4) ticks.Add(tick);
+        for(var tick=132;tick<=finalTick;tick+=12) ticks.Add(tick);
+        return ticks;
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(116)]
+    [InlineData(120)]
+    [InlineData(121)]
+    [InlineData(132)]
+    [InlineData(307)]
+    [InlineData(3600)]
+    public void CurrentDenseAndSparseCadenceIncludesEveryRequiredSample(int finalTick)=>
+        Assert.True(Audit.HasCompleteTrajectoryCadence(CurrentTicks(finalTick),finalTick));
+
+    public enum CadenceDamage { MissingDense, MissingSparse, Duplicate, OutOfOrder, UnexpectedTick, HistoricalDenseOnly }
+    [Theory]
+    [InlineData(CadenceDamage.MissingDense)]
+    [InlineData(CadenceDamage.MissingSparse)]
+    [InlineData(CadenceDamage.Duplicate)]
+    [InlineData(CadenceDamage.OutOfOrder)]
+    [InlineData(CadenceDamage.UnexpectedTick)]
+    [InlineData(CadenceDamage.HistoricalDenseOnly)]
+    public void DamagedOrHistoricalCadenceIsRejected(CadenceDamage damage)
+    {
+        var ticks=CurrentTicks(307);
+        switch(damage)
+        {
+            case CadenceDamage.MissingDense: ticks.Remove(4); break;
+            case CadenceDamage.MissingSparse: ticks.Remove(132); break;
+            case CadenceDamage.Duplicate: ticks.Insert(1,0); break;
+            case CadenceDamage.OutOfOrder: (ticks[1],ticks[2])=(ticks[2],ticks[1]); break;
+            case CadenceDamage.UnexpectedTick: ticks.Insert(1,1); break;
+            case CadenceDamage.HistoricalDenseOnly: ticks.RemoveAll(t=>t>120); break;
+            default: throw new ArgumentOutOfRangeException(nameof(damage));
+        }
+        Assert.False(Audit.HasCompleteTrajectoryCadence(ticks,307));
+    }
+
 }

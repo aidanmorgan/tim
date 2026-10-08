@@ -1,12 +1,13 @@
 using Godot;
+using CuriousContraptions.Physics;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 using FileAccess = Godot.FileAccess;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class BasicTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
     private MachineWorld CreateWorld()
     {
@@ -76,7 +77,7 @@ public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
         try
         {
             var puzzles = Puzzles();
-            Assert.Equal(61, puzzles.Count); // Expansion stage; the final target remains 75.
+            Assert.Equal(62, puzzles.Count); // Authored expansion stage; final target remains 150.
             Assert.Equal(puzzles.Count, puzzles.Select(p => p.Id).Distinct().Count());
             foreach (var puzzle in puzzles)
             {
@@ -226,7 +227,7 @@ public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
                 world.Step();
                 reference.Step();
                 Assert.Equal(reference.FindPart("ball")!.Position, world.FindPart("ball")!.Position);
-                Assert.Equal(reference.FindPart("ball")!.Velocity, world.FindPart("ball")!.Velocity);
+                Assert.Equal(reference.PhysicsAssembly.Body(new(reference.FindPart("ball")!,MachinePart.RootBody)).LinearVelocity, world.PhysicsAssembly.Body(new(world.FindPart("ball")!,MachinePart.RootBody)).LinearVelocity);
             }
         }
         finally { world.Free(); reference.Free(); }
@@ -256,14 +257,32 @@ public class BasicTests(HeadlessFixture godot, ITestOutputHelper output)
         finally { world.Free(); }
     }
 
+    private partial class ImmediateActivationRelay : MachinePart
+    {
+        public override bool CanSendActivation=>true;
+        public override bool CanReceiveActivation=>true;
+    }
+    private enum RelayIdentity { First, Second }
+    private static MachinePart Relay(MachineWorld world,RelayIdentity identity)
+    {
+        var part=new ImmediateActivationRelay {Definition=new PartDefinition()};
+        part.Configure(new PartSpec {Id=identity switch
+        {
+            RelayIdentity.First=>"first",RelayIdentity.Second=>"second",
+            _=>throw new ArgumentOutOfRangeException(nameof(identity))
+        }});
+        world.AttachPart(part);
+        return part;
+    }
+
     [Fact]
     public void PowerCyclesTerminateAndInvalidPortsAreRejected()
     {
         var world = CreateWorld();
         try
         {
-            var a = world.AddPart(new() { Id = "a", Kind = "domino" });
-            var b = world.AddPart(new() { Id = "b", Kind = "domino" });
+            var a = Relay(world,RelayIdentity.First);
+            var b = Relay(world,RelayIdentity.Second);
             var ball = world.AddPart(new() { Id = "ball", Kind = "ball" });
             Assert.True(world.Connect(a, b));
             Assert.True(world.Connect(b, a));

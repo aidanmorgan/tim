@@ -1,0 +1,106 @@
+{
+  "scope": "Actual-UI reproductions of the unfinished finite-radius migration. Quarter-bend positive remains a failure.",
+  "adapter": "tools/Playtest/direct-ui.js",
+  "baseCommit": "22ee03bc29f32cc269f18c9e9e7c01a0cd205869",
+  "cases": [
+    {
+      "recipe": {
+        "caseId": "shared-sweep-pipe-positive-v1",
+        "level": 25,
+        "precision": 0,
+        "parts": [
+          {
+            "slot": "pipe",
+            "kind": "pipe",
+            "position": [
+              0,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              -45
+            ]
+          }
+        ],
+        "connections": [],
+        "puzzleDataSha256": "d733094407fd3a14e36c8e8630e18e94e42e10aef23bb6a48e6682d875df14ae"
+      },
+      "observedOutcome": {
+        "level": 25,
+        "tick": 307,
+        "precision": 0,
+        "outcome": "won"
+      },
+      "outcomeScreenshot": ".playwright-mcp/shared-sweep-pipe-positive-v1-outcome.png",
+      "errors": []
+    },
+    {
+      "recipe": {
+        "caseId": "shared-sweep-bend-positive-v1",
+        "level": 27,
+        "precision": 0,
+        "parts": [
+          {
+            "slot": "bend",
+            "kind": "pipe_bend_90",
+            "position": [
+              0,
+              4,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              -90
+            ]
+          }
+        ],
+        "connections": [],
+        "puzzleDataSha256": "d733094407fd3a14e36c8e8630e18e94e42e10aef23bb6a48e6682d875df14ae"
+      },
+      "observedOutcome": {
+        "level": 27,
+        "tick": 3600,
+        "precision": 0,
+        "outcome": "timeout"
+      },
+      "outcomeScreenshot": ".playwright-mcp/shared-sweep-bend-positive-v1-outcome.png",
+      "errors": []
+    },
+    {
+      "recipe": {
+        "caseId": "shared-sweep-pipe-miss-v1",
+        "level": 25,
+        "precision": 0,
+        "parts": [
+          {
+            "slot": "pipe",
+            "kind": "pipe",
+            "position": [
+              3,
+              3,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              -45
+            ]
+          }
+        ],
+        "connections": [],
+        "puzzleDataSha256": "d733094407fd3a14e36c8e8630e18e94e42e10aef23bb6a48e6682d875df14ae"
+      },
+      "observedOutcome": {
+        "level": 25,
+        "tick": 3600,
+        "precision": 0,
+        "outcome": "timeout"
+      },
+      "outcomeScreenshot": ".playwright-mcp/shared-sweep-pipe-miss-v1-outcome.png",
+      "errors": []
+    }
+  ]
+}

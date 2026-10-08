@@ -5,9 +5,8 @@ namespace CuriousContraptions.Tests;
 
 public class RoundedSeparationTests
 {
-    private static ConvexMotion.AtTime At(ConvexGeometry geometry,RigidPose pose)=>
-        new ConvexMotion(new(geometry,Transform3D.Identity),
-            new PhysicsBody(new(0),PhysicsMotionType.Static,pose,default,default).CreateTrajectory(0)).At(0);
+    private static ConvexPose At(ConvexGeometry geometry,RigidPose pose)=>
+        new(new(geometry,AffineTransform.Identity),pose);
     private static void Near(CollisionVector expected,CollisionVector actual,double tolerance=1e-8)=>
         Assert.InRange((expected-actual).Length,0,tolerance);
 
@@ -57,7 +56,7 @@ public class RoundedSeparationTests
     public void RoundingDecompositionPreservesFloatBasisDistortionAndConvexSupport()
     {
         var instance=new ConvexInstance(new ConvexSphere(.7),
-            new(Basis.FromEuler(new(.2f,.4f,.7f)),new(3,2,1)));
+            new(SceneGeometryAdapter.CaptureBasis(Basis.FromEuler(new(.2f,.4f,.7f))),new(3,2,1)));
         Assert.True(instance.RoundingRadius>0);
         Assert.True(instance.RoundingRadius<=instance.InteriorBall.Radius);
         var random=new Random(703);
@@ -91,11 +90,11 @@ public class RoundedSeparationTests
         var direction=new CollisionVector(.3,.4,.5); direction/=direction.Length;
         var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(-direction*2),direction*100,default,2,new(.2,.2,.2));
         var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.At(direction*2),-direction*50,default,3,new(.3,.3,.3));
-        var geometry=new CompoundGeometry([new(new ConvexSphere(.5),Transform3D.Identity)]);
-        var world=new PhysicsWorld([new(a,geometry,new(1,0,0)),new(b,geometry,new(1,0,0))],[],new(default,maximumStep:1));
+        var geometry=new CompoundGeometry([new(new ConvexSphere(.5),AffineTransform.Identity)]);
+        var world=new PhysicsWorld([],[new(a,geometry,new(1,0,0)),new(b,geometry,new(1,0,0))],[],new(default,maximumStep:1));
         var momentum=a.LinearVelocity*2+b.LinearVelocity*3;
         var energy=a.LinearVelocity.LengthSquared+1.5*b.LinearVelocity.LengthSquared;
-        Assert.Equal(1,world.Step([],.03).Events);
+        Assert.Equal(1,world.Step([],[],.03).Events);
         Near(momentum,a.LinearVelocity*2+b.LinearVelocity*3);
         Assert.InRange(Math.Abs(energy-a.LinearVelocity.LengthSquared-1.5*b.LinearVelocity.LengthSquared),0,1e-8);
         Near(default,a.AngularVelocity); Near(default,b.AngularVelocity);
@@ -118,6 +117,7 @@ public class RoundedSeparationTests
 
     private sealed class Capsule(double radius,double halfLength) : ConvexGeometry
     {
+        public override CollisionVector CoreSupport(CollisionVector direction)=>new(direction.X<0?-halfLength:halfLength,0,0);
         public override double BoundingRadius=>radius+halfLength;
         public override double RoundingRadius=>radius;
         public override InteriorBall InteriorBall=>new(default,radius);

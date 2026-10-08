@@ -190,7 +190,7 @@
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.BasketPart_ScriptMethods.generated.cs"
       },
-      "Sha256": "9b09395e8621be7c3c356887d31ab2e9952bc5c79db58d87229888bb9b51af00"
+      "Sha256": "d0da042e12cceb1de136ce8c92bda08b4233e070313249c9ee273639a6c6632c"
     },
     {
       "Path": {
@@ -358,13 +358,13 @@
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachinePart_ScriptMethods.generated.cs"
       },
-      "Sha256": "5357bf4c8a4b251563389fa1787d0e5da9850ae5f0dd9d19c811d9a8f9dadc4c"
+      "Sha256": "3c168c9821a93ae4e599dfe19be01cd3268ae620dcdda0790de07fab9eeef079"
     },
     {
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionRelease/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs"
       },
-      "Sha256": "fa9305389f0a972358975564386968af4f05818f0bd70e3ff7ba8831b08eb763"
+      "Sha256": "0d7eae5b736a24554426aa32b44d1a47b2b03d76c999e3c7fddaa64b71b859eb"
     },
     {
       "Path": {

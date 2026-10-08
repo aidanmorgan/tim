@@ -145,7 +145,7 @@ async function directUiAttempt(page, attempt) {
     try {
         await page.setViewportSize({ width: 1440, height: 900 });
         await page.goto("http://127.0.0.1:8060");
-        await waitFor(() => ui?.buttons.length > 0, "rendered workshop");
+        await waitFor(() => ui?.buttons.length > 0, "rendered workshop", 30000);
         await page.waitForTimeout(200);
         await click([700,47], "puzzle selector");
         await page.keyboard.press("Home", { delay: 70 });

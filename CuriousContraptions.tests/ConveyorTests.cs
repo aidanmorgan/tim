@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class ConveyorTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class ConveyorTests(NativeSceneFixture godot)
 {
     private MachineWorld World()
     {
@@ -42,7 +42,7 @@ public class ConveyorTests(HeadlessFixture godot)
                 Parts =
                 [
                     new() { Id = "ball", Kind = "ball", Position = [start.X, start.Y, start.Z] },
-                    new() { Id = "belt", Kind = "conveyor", Position = [0, 1, 0], Rotation = [0, yaw, 0] }
+                    new() { Id = "belt", Kind = "conveyor", Position = [0, 1, 0], Orientation = PartOrientation.FromEulerDegrees(0, yaw, 0) }
                 ]
             });
             AddDrive(world, world.FindPart("switch"));

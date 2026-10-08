@@ -16,7 +16,6 @@ public readonly record struct SimulationLatchId
 public enum SimulationLatchPhase { Off, On }
 public enum SimulationLatchCommand { Set, Reset }
 [Flags] public enum SimulationLatchRequests { None=0, Set=1, Reset=2 }
-public enum LatchTransactionPhase { Idle, Active }
 public readonly record struct SimulationLatchState(
     SimulationLatchId Id,SimulationLatchPhase Phase,
     SimulationLatchRequests CurrentRequests,SimulationLatchRequests NextRequests);
@@ -32,13 +31,12 @@ public sealed class SimulationLatchSnapshot
 /// <summary>Owned reset-dominant digital memory. Deliveries from tick t settle at
 /// boundary t+1. The two request buckets admit deliveries on either side of the
 /// current boundary; future or late deliveries reject. No electrical energy is supplied.</summary>
-public sealed class SimulationLatches
+public sealed class SimulationLatches : SimulationTransactionParticipant
 {
     private readonly SimulationLatchState[] _states,_checkpoint;
     private readonly Dictionary<SimulationLatchId,int> _indices=new();
     private long _checkpointTick;
     public long Tick { get; private set; }
-    public LatchTransactionPhase TransactionPhase { get; private set; }
     public SimulationLatches(IEnumerable<SimulationLatchId> declarations,long firstTick=0)
     {
         ArgumentNullException.ThrowIfNull(declarations);
@@ -85,31 +83,21 @@ public sealed class SimulationLatches
         }
         Tick=tick;
     }
-    private void RequirePhase(LatchTransactionPhase phase)
+    protected override void CaptureCheckpoint()
     {
-        if(TransactionPhase!=phase)throw new InvalidOperationException("Invalid latch transaction phase.");
+        _states.CopyTo(_checkpoint,0);_checkpointTick=Tick;
     }
-    public void BeginTransaction()
+    protected override void RestoreCheckpoint()
     {
-        RequirePhase(LatchTransactionPhase.Idle);_states.CopyTo(_checkpoint,0);
-        _checkpointTick=Tick;TransactionPhase=LatchTransactionPhase.Active;
-    }
-    public void CommitTransaction()
-    {
-        RequirePhase(LatchTransactionPhase.Active);TransactionPhase=LatchTransactionPhase.Idle;
-    }
-    public void RollbackTransaction()
-    {
-        RequirePhase(LatchTransactionPhase.Active);_checkpoint.CopyTo(_states,0);
-        Tick=_checkpointTick;TransactionPhase=LatchTransactionPhase.Idle;
+        _checkpoint.CopyTo(_states,0);Tick=_checkpointTick;
     }
     public SimulationLatchSnapshot Capture()
     {
-        RequirePhase(LatchTransactionPhase.Idle);return new(this,Tick,_states);
+        RequireTransactionPhase(SimulationTransactionPhase.Idle);return new(this,Tick,_states);
     }
     public void Restore(SimulationLatchSnapshot snapshot)
     {
-        RequirePhase(LatchTransactionPhase.Idle);ArgumentNullException.ThrowIfNull(snapshot);
+        RequireTransactionPhase(SimulationTransactionPhase.Idle);ArgumentNullException.ThrowIfNull(snapshot);
         if(!ReferenceEquals(snapshot.Owner,this))throw new ArgumentException("Snapshot belongs to another latch world.",nameof(snapshot));
         snapshot.States.CopyTo(_states,0);Tick=snapshot.Tick;
     }

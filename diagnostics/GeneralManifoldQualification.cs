@@ -23,13 +23,13 @@ internal static class GeneralManifoldQualification
         };
         var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(new(0,1,0)),new(0,-3,0),default,1,new InertiaTensor(2.0/3,2.0/3,2.0/3));
         var ground=new PhysicsBody(new(1),PhysicsMotionType.Static,groundPose,default,default);
-        var shape=new ConvexInstance(new ConvexBox(new(1,1,1)),Transform3D.Identity);
-        var manifold=ContactManifold.Query(new ConvexMotion(shape,body.CreateTrajectory(0)).At(0),
-            new ConvexMotion(shape,ground.CreateTrajectory(0)).At(0));
+        var shape=new ConvexInstance(new ConvexBox(new(1,1,1)),AffineTransform.Identity);
+        var manifold=ContactManifold.Query(new ConvexMotion(shape,body.CreateTrajectory(0,default)).At(0),
+            new ConvexMotion(shape,ground.CreateTrajectory(0,default)).At(0));
         var points=manifold.Points.ToArray();
         var before=body.Snapshot();
         ImpulseSolveResult Solve()=>ImpulseSolver.Solve(points.Select(p=>
-            new ContactConstraint(body,ground,(p.PointA+p.PointB)*.5,manifold.Normal,0,0,.5)).ToArray());
+            new ContactConstraint(ContactKinematics.AtPoint(body,ground,(p.PointA+p.PointB)*.5,manifold.Normal),0,0,.5)).ToArray());
         var solved=Solve(); var after=body.Snapshot();
         var speed=body.LinearVelocity.Length; var spin=body.AngularVelocity.Length;
         body.Restore(before); var restored=body.Snapshot()==before;

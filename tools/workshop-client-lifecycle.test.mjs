@@ -19,6 +19,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     const profile = new Float64Array([2, 1, 1, 0, 0.001, 1, 1]);
     const context = {
         Uint8Array, Float64Array, DataView, URL, Map, Error, Array, Promise, Math,
+        SharedArrayBuffer, BigInt64Array, Float32Array, Atomics,
         document: { baseURI: 'http://127.0.0.1:8060/', hidden: false },
         nativeProfile: 2, nativeNow: () => milliseconds,
         nativeClockEvidence: () => Array.from(profile), admitNativeClock: async () => {},
@@ -47,7 +48,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     view.setBigUint64(24, 1n, true); view.setBigUint64(40, 1n, true); view.setBigUint64(48, 100000n, true);
     view.setUint32(56, 1, true); view.setUint32(60, 2, true);
     const service = () => { calls++; probes.push(publishedId); api.probe(publishedId, new Uint8Array([1])); };
-    const creation = api.create(Object.values(state), session, [2, 2, 64, 72, 96, 160, 1, 2], 1, false,
+    const creation = api.create(Object.values(state), session, [2, 2, 64, 72, 96, 160, 1, 2], [23952, 40, 56], 1, false,
         () => {}, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, () => {}, () => {});
     creation.catch(() => {});
     await workerCreated;
@@ -252,7 +253,7 @@ test('Animation constructor failure closes the already owned Simulation worker',
 
 test('premature Animation output fails without delivering to the managed consumer', async () => {
     const h = await clientHarness(false);
-    h.workers[1].onmessage({ data: { animationOutput: new Uint8Array(96) } });
+    h.workers[1].onmessage({ data: { animationOutput: new Uint8Array(144) } });
     await assert.rejects(h.creation, /precedes admission/);
     assert.equal(h.outputCalls(), 0); assert.ok(h.workers.every(worker => worker.terminated));
 });
@@ -333,12 +334,12 @@ test('two animation owners send sequential controls only after managed ACK deliv
     h.workers[1].onmessage({ data: { ready: true, nativeClock: new Float64Array([2, 1, 1, 0, .001, 1, 1]) } });
     h.workers[1].onmessage({ data: { qualified: true } });
     h.api.animationKinds(id, [1, 2, 3]);
-    const first = new Uint8Array(96), second = new Uint8Array(96);
+    const first = new Uint8Array(144), second = new Uint8Array(144);
     new DataView(first.buffer).setBigUint64(56, 4n, true);
     new DataView(second.buffer).setBigUint64(56, 5n, true);
     h.api.animationControl(id, first);
     h.onOutput(() => assert.throws(() => h.api.animationControl(id, second), /pending/));
-    const ack = new Uint8Array(96); new DataView(ack.buffer).setUint32(60, 1, true);
+    const ack = new Uint8Array(144); new DataView(ack.buffer).setUint32(60, 1, true);
     h.workers[1].onmessage({ data: { animationOutput: ack } });
     assert.equal(h.errors.length, 0);
     h.onOutput(() => {}); h.api.animationControl(id, second);

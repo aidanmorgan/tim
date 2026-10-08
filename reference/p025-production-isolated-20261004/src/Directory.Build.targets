@@ -1,0 +1,7 @@
+<Project>
+    <!-- Preserve the SDK's configuration-scoped, tracked-file Clean behavior.
+         BaseIntermediateOutputPath also contains shared NuGet restore state;
+         deleting it during Clean breaks Rebuild even after a successful restore.
+         Register custom generated outputs with FileWrites instead of deleting
+         entire intermediate or output roots. -->
+</Project>

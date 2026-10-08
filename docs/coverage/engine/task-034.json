@@ -54,7 +54,7 @@
       "ProofOwner": "S782",
       "Artifacts": [
         {
-          "Path": "docs/socket-enum-verification.md",
+          "Path": "docs/history/checkpoints/socket-enum-verification.md",
           "Hash": "a922b0986a1014221c8c71bf2e4d5ac913605e9881116d97ecb9d3f5ea956d31"
         }
       ]
@@ -173,12 +173,12 @@
       "ProofOwner": "S788",
       "Artifacts": [
         {
-          "Path": "docs/browser-playtest.md",
-          "Hash": "c80e6245f475b5aebdb1493be09d834038800211b9a95027bc2beb8090a24515"
+          "Path": "docs/history/checkpoints/browser-playtest.md",
+          "Hash": "64a8b6bcb5083a9eb27d96e9ece19c163a807d282a8a7371df1e3422edc9d5ee"
         },
         {
-          "Path": "docs/cannon-verification.md",
-          "Hash": "585036e221dcccfb30d8f458254d09a47d881b0db39764cf3b89eb054acead3c"
+          "Path": "docs/history/checkpoints/cannon-verification.md",
+          "Hash": "d01ab1aa8c11e351cd638703db5fa79d6662bf09e1e9bc3cf4490ab3f1a8bb81"
         },
         {
           "Path": "docs/collision-architecture-plan.md",
@@ -189,15 +189,15 @@
           "Hash": "82e11cc0f666149208643eded033517a1ff241fbca47296e5f763c3c64824902"
         },
         {
-          "Path": "docs/flight-browser-regressions.md",
-          "Hash": "76e0e983c27c59be908412e1762216050a84cfaf49ab5889be0147feb44bf0a2"
+          "Path": "docs/history/checkpoints/flight-browser-regressions.md",
+          "Hash": "8d2ec0e8b382e3e6bfe2521d1e891924c91cad9735b3f51a79a9826431694b95"
         },
         {
-          "Path": "docs/launch-energy-verification.md",
+          "Path": "docs/history/checkpoints/launch-energy-verification.md",
           "Hash": "3c12c27937194535965ff7af201ae5dddd46fdb8694dcf43966e887255bf2a17"
         },
         {
-          "Path": "docs/selection-verification.md",
+          "Path": "docs/history/checkpoints/selection-verification.md",
           "Hash": "13eb2be540a0b1c9375da022991a0ace466f1e78651a734eafe04adef8c8673e"
         },
         {
@@ -209,12 +209,12 @@
           "Hash": "6818eb9197096542e533c13fd76c5e0648b7b1fb46b280e9528829198f4e83b9"
         },
         {
-          "Path": "docs/trampoline-verification.md",
-          "Hash": "91a07c63b7649a231e634bf5233227fdb0205cab046965331572453a1d443ade"
+          "Path": "docs/history/checkpoints/trampoline-verification.md",
+          "Hash": "1771a1837716c366f27c053c05c20a5047c7010d9c6063c0ca54af6a8aa632dc"
         },
         {
-          "Path": "docs/wound-spring-verification.md",
-          "Hash": "d35c4aa0d10b916a33b00a40021e59dc69d3fae2639d4c7c0fda3c24e08bb265"
+          "Path": "docs/history/checkpoints/wound-spring-verification.md",
+          "Hash": "120de5ef2c8e0035714a29d696ad31f3dc036e7652c3d1edfa3480c52086d048"
         }
       ]
     }
@@ -252,7 +252,7 @@
         "Origin": "Task",
         "Id": "sequence-task-793"
       },
-      "SourceHash": "d0e24e4b9b9e33d6e6b996629aea2afb4eb8f9363d37a76d21e03823ef637b7c",
+      "SourceHash": "3ab0431d5a6e9ce034873bad6664cdc907d0000fddac348cdf8d8e6e6386eaf7",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -14445,4 +14445,3 @@
   ],
   "Modes": []
 }
-

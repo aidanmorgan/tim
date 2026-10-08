@@ -1,12 +1,13 @@
 using Godot;
+using CuriousContraptions.Physics;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 using FileAccess=Godot.FileAccess;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class FlightCampaignTests(HeadlessFixture godot,ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class FlightCampaignTests(NativeSceneFixture godot,ITestOutputHelper output)
 {
     private const string CampaignPath="res://content/puzzles.json";
     private const string SpringPuzzle="spring_forward",PipePuzzle="clear_pipe",BendPuzzle="quarter_bend";
@@ -32,9 +33,9 @@ public class FlightCampaignTests(HeadlessFixture godot,ITestOutputHelper output)
                 world.Step();
                 var local=receiver.Transform.AffineInverse()*ball.Position;
                 if(tick%10==0&&local.Length()<3)
-                    output.WriteLine($"tick={tick} local={local} velocity={ball.Velocity}");
+                    output.WriteLine($"tick={tick} local={local} velocity={world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity}");
             }
-            output.WriteLine($"end={ball.Position} velocity={ball.Velocity}");
+            output.WriteLine($"end={ball.Position} velocity={world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity}");
             Assert.Equal(expectedCapture,world.Won);
         }
         finally{world.Free();}

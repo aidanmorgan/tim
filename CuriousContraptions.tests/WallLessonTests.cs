@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class WallLessonTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class WallLessonTests(NativeSceneFixture godot)
 {
     [Theory]
     [InlineData("wall_return", 0f)]

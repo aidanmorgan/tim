@@ -19,8 +19,8 @@ internal static class GeneralPenetrationQualification
                 new(-1,-1,1),new(1,-1,1),new(-1,1,1),new(1,1,1)]),
             _=>throw new System.ArgumentOutOfRangeException(nameof(probe))
         };
-        var a=new ConvexInstance(geometry,Transform3D.Identity);
-        var b=new ConvexInstance(geometry,new(Basis.Identity,new(.4f,.2f,.1f)));
+        var a=new ConvexInstance(geometry,AffineTransform.Identity);
+        var b=new ConvexInstance(geometry,new(AffineBasis.Identity,new(.4f,.2f,.1f)));
         var result=ConvexPenetration.Query(a,b);
         return new(probe,result.Status,result.LowerDepth,result.UpperDepth,
             (result.PointA-result.PointB+result.Normal*result.LowerDepth).Length,result.Iterations);

@@ -17,26 +17,32 @@ public static class LightNetwork
 
     public static void Solve(MachineWorld world)
     {
-        var emitters = world.Parts.Where(p => p.Visible && p.LightSource.HasValue)
+        var emitters = world.Parts.Where(p => p.LightSource.HasValue)
             .OrderBy(p => p.Uid, StringComparer.Ordinal)
-            .Select(p => (Part: p, Source: p.LightSource!.Value, Transform: p.Transform)).ToArray();
+            .Select(p => (Part: p, Source: p.LightSource!.Value,
+                State: WorldGeometry.CaptureSpatialState(world,new(p,MachinePart.RootBody))))
+            .Where(p=>p.State.Enabled).Select(p=>(p.Part,p.Source,Transform:p.State.Pose.ToScene())).ToArray();
         var readings = new Dictionary<MachinePart, float>();
         foreach (var receiver in world.Parts)
         {
             var total = 0f;
-            if (receiver.Visible)
-            foreach (var sample in receiver.LightSamples)
+            var samples=receiver.LightSamples.ToArray();
+            if(samples.Length==0) { readings.Add(receiver,0); continue; }
+            var state=WorldGeometry.CaptureSpatialState(world,new(receiver,MachinePart.RootBody));
+            var transformReceiver=state.Pose.ToScene();
+            if (state.Enabled)
+            foreach (var sample in samples)
             foreach (var (part, source, transform) in emitters)
             {
                 if (part == receiver) continue;
                 var origin = transform * source.At;
-                var end = receiver.Transform * sample.At;
+                var end = transformReceiver * sample.At;
                 var offset = end - origin;
                 var distance = offset.Length();
                 if (distance < Epsilon || distance > source.Range) continue;
                 var direction = offset / distance;
                 if ((transform.Basis * source.Direction).Normalized().Dot(direction) < source.ConeCosine) continue;
-                var facing = Mathf.Max(0, (receiver.Basis * sample.Normal).Normalized().Dot(-direction));
+                var facing = Mathf.Max(0, (transformReceiver.Basis * sample.Normal).Normalized().Dot(-direction));
                 if (facing == 0 || WorldGeometry.Trace(TraceMedium.Light, world, origin, direction, distance, part, receiver) < distance - Epsilon) continue;
                 total += source.Intensity * facing * sample.Weight / Mathf.Max(1, distance * distance);
             }

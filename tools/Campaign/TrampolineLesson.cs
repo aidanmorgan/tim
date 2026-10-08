@@ -19,7 +19,7 @@ internal static class TrampolineLesson
     };
     private static PartSpec Part(Role role, float[] position, float[] rotation) => new()
     {
-        Id = Id(role), Kind = Kind(role), Position = position, Rotation = rotation,
+        Id = Id(role), Kind = Kind(role), Position = position, Orientation = PartOrientation.FromEulerDegrees(rotation),
         Locked = role != Role.Bed,
         Difficulty =
         [

@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
-    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs" Link="Gpu/%(Filename)%(Extension)" />
+    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs;../engine/gpu/WorkshopPipe.cs;../engine/gpu/AnnularProfile.cs" Link="Gpu/%(Filename)%(Extension)" />
     <WasmExtraFilesToDeploy Include="wwwroot/**" />
   </ItemGroup>
   <Target Name="GetWorkshopAnimationBundle" DependsOnTargets="Build" Returns="@(_WorkshopAnimationBundleFiles)">

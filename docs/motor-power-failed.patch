@@ -1,0 +1,2562 @@
+--- a/CuriousContraptions.tests/MotorPredictionTests.cs
++++ b/CuriousContraptions.tests/MotorPredictionTests.cs
+@@ -1,261 +1,243 @@
+-using CuriousContraptions.Physics;
+-
+-namespace CuriousContraptions.Tests;
+-
+-public class MotorPredictionTests
+-{
+-    private static readonly CollisionVector Z=new(0,0,1);
+-    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
+-    private static (PhysicsBody Body,PhysicsBody Anchor,PhysicsFrameJoint Joint) Setup(double speed=0,JointTravelRange? range=null)
+-    {
+-        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Z*speed,default,2,new(2,2,2));
+-        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
+-        return(body,anchor,joint);
+-    }
+-    private static ForcePrediction Predict(PhysicsBody body,PhysicsBody anchor,PhysicsFrameJoint joint,
+-        MotorPredictionSupply supply,double duration,BodyWrench load=default)=>
+-        AccelerationSolver.Predict(new(),new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),[body,anchor],[joint],[],
+-            new Dictionary<PhysicsBodyId,BodyWrench>{{body.Id,load},{anchor.Id,default}},duration,1e-7,1e-8,1e-9,[supply]);
+-    private static void Near(double expected,double actual,double tolerance=1e-8)=>
+-        Assert.InRange(Math.Abs(expected-actual),0,tolerance);
+-
+-
+-    [Theory]
+-    [InlineData(1)]
+-    [InlineData(-1)]
+-    public void PeakPowerLimitCannotBeReplacedByAnAverageWorkBudget(int sign)
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,sign*10,100,100,1),100,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        // Held force F on mass2: end speed F/2 and peak power F²/2=1W.
+-        Near(Math.Sqrt(2)*sign,use.Effort);
+-        Near(.5,use.Work.Supplied);
+-        Near(Math.Sqrt(.5)*sign,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
+-        Assert.InRange(use.Work.SuppliedPowerUpperBound,1-1e-8,1);
+-        Assert.True(use.Work.Supplied<1); // A 1J average budget alone would permit 2W at the endpoint.
+-    }
+-
+-    [Theory]
+-    [InlineData(1)]
+-    [InlineData(-1)]
+-    public void ZeroWattsWithAvailableEnergyCannotStartButCanBrake(int sign)
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var idle=Predict(body,anchor,joint,new(new(joint.Id,sign*2,100,100,0),100,1e-10),1);
+-        Near(0,Assert.Single(idle.Motors).Effort);
+-        (body,anchor,joint)=Setup(sign*2);
+-        var stopped=Predict(body,anchor,joint,new(new(joint.Id,0,100,100,0),100,1e-10),1);
+-        var use=Assert.Single(stopped.Motors);
+-        Near(0,use.Work.Supplied);Near(0,use.Work.SuppliedPowerUpperBound);
+-        Near(4,use.Work.Dissipated);Near(0,stopped.Trajectories[body.Id].LinearVelocityAt(1).Z);
+-    }
+-
+-
+-    [Theory]
+-    [InlineData(1)]
+-    [InlineData(-1)]
+-    public void HingePowerUsesPhysicalAngularSpeed(int sign)
+-    {
+-        var (body,anchor,slider)=Setup();
+-        var hinge=new PhysicsFrameJoint(slider.Id,FrameJointKind.Hinge,body,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var prediction=Predict(body,anchor,hinge,new(new(hinge.Id,sign*10,100,100,1),100,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(Math.Sqrt(2)*sign,use.Effort);Near(.5,use.Work.Supplied);
+-        Near(Math.Sqrt(.5)*sign,prediction.Trajectories[body.Id].PhysicalAngularVelocityAt(1).Z);
+-        Assert.InRange(use.Work.SuppliedPowerUpperBound,1-1e-8,1);
+-    }
+-
+-    [Theory]
+-    [InlineData(-1)]
+-    [InlineData(double.NaN)]
+-    [InlineData(double.PositiveInfinity)]
+-    public void InvalidPowerIsRejected(double power)
+-        =>Assert.Throws<ArgumentException>(()=>new PhysicsMotorCommand(new(0),1,1,1,power));
+-
+-    [Fact]
+-    public void LoadedMotorReachesTargetWithBalancedWorkWithoutMutatingBodies()
+-    {
+-        var (body,anchor,joint)=Setup();var before=new[]{body.Snapshot(),anchor.Snapshot()};
+-        var supply=new MotorPredictionSupply(new(joint.Id,1,100,2,1000000),10,1e-10);
+-        var prediction=Predict(body,anchor,joint,supply,.1,new(-Z*6,default));
+-        var use=Assert.Single(prediction.Motors);
+-        Near(26,use.Effort);Near(1.3,use.Work.Supplied);Near(0,use.Work.Dissipated);
+-        Near(1,prediction.Trajectories[body.Id].LinearVelocityAt(prediction.Duration).Z);
+-        Near(1,use.Work.Supplied-6*prediction.Trajectories[body.Id].At(prediction.Duration).Center.Z);
+-        Assert.Equal(before,new[]{body.Snapshot(),anchor.Snapshot()});
+-        var repeat=Predict(body,anchor,joint,supply,.1,new(-Z*6,default));
+-        Assert.Equal(prediction.Motors,repeat.Motors);Assert.Equal(prediction.Wrenches[body.Id],repeat.Wrenches[body.Id]);
+-    }
+-
+-    [Theory]
+-    [InlineData(1)]
+-    [InlineData(.25)]
+-    public void SupplyExhaustionLimitsKineticEnergy(double available)
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,2,100,available,1000000),100,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        var speed=prediction.Trajectories[body.Id].LinearVelocityAt(prediction.Duration).Z;
+-        Near(Math.Sqrt(available),speed);Near(available,use.Work.Supplied);
+-        Assert.True(use.Work.Supplied+use.Work.SuppliedErrorBound<=available);
+-        Near(speed*speed,use.Work.Supplied);
+-    }
+-
+-    [Fact]
+-    public void EmptySupplyCannotStartMotionButCanBrake()
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var noStart=Predict(body,anchor,joint,new(new(joint.Id,2,100,0,1000000),100,1e-10),1);
+-        Assert.Equal(0,Assert.Single(noStart.Motors).Effort);
+-        Near(0,noStart.Trajectories[body.Id].LinearVelocityAt(1).Length);
+-        (body,anchor,joint)=Setup(2);
+-        var braking=Predict(body,anchor,joint,new(new(joint.Id,0,10,0,1000000),10,1e-10),1);
+-        var use=Assert.Single(braking.Motors);
+-        Near(-4,use.Effort);Near(0,use.Work.Supplied);Near(4,use.Work.Dissipated);
+-        Near(0,braking.Trajectories[body.Id].LinearVelocityAt(1).Length);
+-    }
+-
+-    [Fact]
+-    public void ZeroWorkHoldingLoadDoesNotRequireAnEnergySource()
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,10,0,1000000),10,1e-10),1,new(-Z*6,default));
+-        Near(6,Assert.Single(prediction.Motors).Effort);
+-        Near(0,prediction.Motors[0].Work.Supplied);
+-        Near(0,prediction.Trajectories[body.Id].At(1).Center.Length);
+-    }
+-
+-    [Fact]
+-    public void RemainingImpulseCapsEffort()
+-    {
+-        var (body,anchor,joint)=Setup();
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,10,100,100,1000000),.5,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(.5,use.AbsoluteImpulse);Near(.5,use.Effort);
+-        Near(.25,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
+-    }
+-
+-    [Fact]
+-    public void TravelBoundaryRemeasuresTheShortenedPath()
+-    {
+-        var (body,anchor,joint)=Setup(range:new(-1,.01));
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,1,10,1,1000000),10,1e-10),1);
+-        Assert.Equal(ForcePredictionBoundary.Joint,prediction.Boundary);
+-        Assert.InRange(prediction.Duration,0,.1);
+-        var use=Assert.Single(prediction.Motors);var endpoint=prediction.Trajectories[body.Id].At(prediction.Duration);
+-        Near(use.Effort*endpoint.Center.Z,use.Work.Supplied);
+-        Near(Math.Abs(use.Effort)*prediction.Duration,use.AbsoluteImpulse);
+-        Assert.True(use.Work.Supplied<=1);
+-    }
+-
+-
+-    [Fact]
+-    public void ReversalSpendsSupplyAfterBrakingWithoutRechargingIt()
+-    {
+-        var (body,anchor,joint)=Setup(2);
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,-2,100,1,1000000),100,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(-1,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
+-        Near(1,use.Work.Supplied);Near(4,use.Work.Dissipated);
+-        Assert.True(use.Work.Supplied+use.Work.SuppliedErrorBound<=1);
+-    }
+-
+-    [Fact]
+-    public void HingeTorqueAccountsForCapturedRotation()
+-    {
+-        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,Z*2,2,new(2,2,2));
+-        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,4,100,20,1000000),100,1e-10),.5);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(8,use.Effort);Near(12,use.Work.Supplied);Near(0,use.Work.Dissipated);
+-        Near(4,prediction.Trajectories[body.Id].PhysicalAngularVelocityAt(.5).Z);
+-    }
+-
+-    [Fact]
+-    public void ObstructedDriveSaturatesWithoutCreatingMotionOrWork()
+-    {
+-        var (body,anchor,joint)=Setup(range:new(0,0));
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,1,10,1,1000000),10,1e-10),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Near(10,use.Effort);Near(0,use.Work.Supplied);Near(0,use.Work.Dissipated);
+-        Near(0,prediction.Trajectories[body.Id].LinearVelocityAt(1).Length);
+-    }
+-
+-
+-    [Fact]
+-    public void MultipleMotorsKeepIdentityOrderAndIndependentAllowances()
+-    {
+-        var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,2,new(2,2,2));
+-        var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,4,new(4,4,4));
+-        var anchor=new PhysicsBody(new(2),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-        var first=new PhysicsFrameJoint(new(7),FrameJointKind.Slider,a,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var second=new PhysicsFrameJoint(new(3),FrameJointKind.Slider,b,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var firstSupply=new MotorPredictionSupply(new(first.Id,1,10,10,1000000),10,1e-10);
+-        var secondSupply=new MotorPredictionSupply(new(second.Id,.5,10,10,1000000),10,1e-10);
+-        ForcePrediction Run(MotorPredictionSupply[] supplies)=>AccelerationSolver.Predict(new(),
+-            new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),[a,b,anchor],[first,second],[],
+-            new Dictionary<PhysicsBodyId,BodyWrench>{{a.Id,default},{b.Id,default},{anchor.Id,default}},
+-            1,1e-7,1e-8,1e-9,supplies);
+-        var prediction=Run([firstSupply,secondSupply]);var repeated=Run([secondSupply,firstSupply]);
+-        Assert.Equal(prediction.Motors,repeated.Motors);
+-        Assert.Equal(second.Id,prediction.Motors[0].Joint);Assert.Equal(first.Id,prediction.Motors[1].Joint);
+-        Near(.5,prediction.Motors[0].Work.Supplied);Near(1,prediction.Motors[1].Work.Supplied);
+-        Near(.5,prediction.Trajectories[b.Id].LinearVelocityAt(1).Z);
+-        Near(1,prediction.Trajectories[a.Id].LinearVelocityAt(1).Z);
+-    }
+-
+-
+-    [Theory]
+-    [InlineData(0)]
+-    [InlineData(1000000)]
+-    public void EmptySupplyStillBrakesAgainstAMovingPrescribedFrame(double maximumPower)
+-    {
+-        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Z*2,default,2,new(2,2,2));
+-        var motion=new PrescribedBodyMotion(new QuinticRigidTrajectory(RigidPose.Identity,Z*.1,default,1),RigidPose.Identity,0);
+-        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
+-        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,Origin,anchor,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,10,0,maximumPower),10,1e-8),1);
+-        var use=Assert.Single(prediction.Motors);
+-        Assert.True(use.Effort<0);
+-        Near(0,use.Work.Supplied);
+-        Assert.True(use.Work.Dissipated>0);
+-    }
+-
+-
+-    [Theory]
+-    [InlineData(.49999999999999956)]
+-    [InlineData(-.49999999999999956)]
+-    public void ZeroSupplyBrakingRoundsTheEndpointWithoutReversing(double speed)
+-    {
+-        var (body,anchor,joint)=Setup(speed);
+-        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,1000,0,0),10,1e-10),.005);
+-        var endpoint=prediction.Trajectories[body.Id].LinearVelocityAt(.005).Z;
+-        Assert.True(endpoint*speed>=0);Near(0,endpoint,1e-12);
+-        var use=Assert.Single(prediction.Motors);
+-        Assert.Equal(0,use.Work.Supplied);Assert.Equal(0,use.Work.SuppliedErrorBound);
+-        Near(speed*speed,use.Work.Dissipated,1e-12);
+-    }
+-
+-    [Fact]
+-    public void ForeignAndDuplicateMotorDeclarationsReject()
+-    {
+-        var (body,anchor,joint)=Setup();var before=body.Snapshot();
+-        Assert.Throws<ArgumentException>(()=>new MotorPredictionSupply(new(joint.Id,1,1,1,1000000),-1,1e-6));
+-        Assert.Throws<ArgumentException>(()=>new MotorPredictionSupply(new(joint.Id,1,1,1,1000000),1,0));
+-        Assert.Throws<ArgumentException>(()=>Predict(body,anchor,joint,new(new(new(9),1,1,1,1000000),1,1e-6),1));
+-        var supply=new MotorPredictionSupply(new(joint.Id,1,1,1,1000000),1,1e-6);
+-        Assert.Throws<ArgumentException>(()=>AccelerationSolver.Predict(new(),new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),
+-            [body,anchor],[joint],[],new Dictionary<PhysicsBodyId,BodyWrench>{{body.Id,default},{anchor.Id,default}},
+-            1,1e-7,1e-8,1e-9,[supply,supply]));
+-        Assert.Equal(before,body.Snapshot());
+-    }
+-}
++using CuriousContraptions.Physics;
++
++namespace CuriousContraptions.Tests;
++
++public class MotorPredictionTests
++{
++    private static readonly CollisionVector Z=new(0,0,1);
++    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
++    private static (PhysicsBody Body,PhysicsBody Anchor,PhysicsFrameJoint Joint) Setup(double speed=0,JointTravelRange? range=null)
++    {
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Z*speed,default,2,new(2,2,2));
++        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
++        return(body,anchor,joint);
++    }
++    private static ForcePrediction Predict(PhysicsBody body,PhysicsBody anchor,PhysicsFrameJoint joint,
++        MotorPredictionSupply supply,double duration,BodyWrench load=default)=>
++        AccelerationSolver.Predict(new(),new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),[body,anchor],[joint],[],
++            new Dictionary<PhysicsBodyId,BodyWrench>{{body.Id,load},{anchor.Id,default}},duration,1e-7,1e-8,1e-9,[supply]);
++    private static void Near(double expected,double actual,double tolerance=1e-8)=>
++        Assert.InRange(Math.Abs(expected-actual),0,tolerance);
++
++
++    [Theory]
++    [InlineData(1)]
++    [InlineData(-1)]
++    public void PeakPowerLimitCannotBeReplacedByAnAverageWorkBudget(int sign)
++    {
++        var (body,anchor,joint)=Setup();
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,sign*10,100,100,1),100,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        // Held force F on mass2: end speed F/2 and peak power F²/2=1W.
++        Near(Math.Sqrt(2)*sign,use.Effort);
++        Near(.5,use.Work.Supplied);
++        Near(Math.Sqrt(.5)*sign,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
++        Assert.InRange(use.Work.SuppliedPowerUpperBound,1-1e-8,1);
++        Assert.True(use.Work.Supplied<1); // A 1J average budget alone would permit 2W at the endpoint.
++    }
++
++    [Theory]
++    [InlineData(1)]
++    [InlineData(-1)]
++    public void ZeroWattsWithAvailableEnergyCannotStartButCanBrake(int sign)
++    {
++        var (body,anchor,joint)=Setup();
++        var idle=Predict(body,anchor,joint,new(new(joint.Id,sign*2,100,100,0),100,1e-10),1);
++        Near(0,Assert.Single(idle.Motors).Effort);
++        (body,anchor,joint)=Setup(sign*2);
++        var stopped=Predict(body,anchor,joint,new(new(joint.Id,0,100,100,0),100,1e-10),1);
++        var use=Assert.Single(stopped.Motors);
++        Near(0,use.Work.Supplied);Near(0,use.Work.SuppliedPowerUpperBound);
++        Near(4,use.Work.Dissipated);Near(0,stopped.Trajectories[body.Id].LinearVelocityAt(1).Z);
++    }
++
++    [Theory]
++    [InlineData(-1)]
++    [InlineData(double.NaN)]
++    [InlineData(double.PositiveInfinity)]
++    public void InvalidPowerIsRejected(double power)
++        =>Assert.Throws<ArgumentException>(()=>new PhysicsMotorCommand(new(0),1,1,1,power));
++
++    [Fact]
++    public void LoadedMotorReachesTargetWithBalancedWorkWithoutMutatingBodies()
++    {
++        var (body,anchor,joint)=Setup();var before=new[]{body.Snapshot(),anchor.Snapshot()};
++        var supply=new MotorPredictionSupply(new(joint.Id,1,100,2,1000000),10,1e-10);
++        var prediction=Predict(body,anchor,joint,supply,.1,new(-Z*6,default));
++        var use=Assert.Single(prediction.Motors);
++        Near(26,use.Effort);Near(1.3,use.Work.Supplied);Near(0,use.Work.Dissipated);
++        Near(1,prediction.Trajectories[body.Id].LinearVelocityAt(prediction.Duration).Z);
++        Near(1,use.Work.Supplied-6*prediction.Trajectories[body.Id].At(prediction.Duration).Center.Z);
++        Assert.Equal(before,new[]{body.Snapshot(),anchor.Snapshot()});
++        var repeat=Predict(body,anchor,joint,supply,.1,new(-Z*6,default));
++        Assert.Equal(prediction.Motors,repeat.Motors);Assert.Equal(prediction.Wrenches[body.Id],repeat.Wrenches[body.Id]);
++    }
++
++    [Theory]
++    [InlineData(1)]
++    [InlineData(.25)]
++    public void SupplyExhaustionLimitsKineticEnergy(double available)
++    {
++        var (body,anchor,joint)=Setup();
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,2,100,available,1000000),100,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        var speed=prediction.Trajectories[body.Id].LinearVelocityAt(prediction.Duration).Z;
++        Near(Math.Sqrt(available),speed);Near(available,use.Work.Supplied);
++        Assert.True(use.Work.Supplied+use.Work.SuppliedErrorBound<=available);
++        Near(speed*speed,use.Work.Supplied);
++    }
++
++    [Fact]
++    public void EmptySupplyCannotStartMotionButCanBrake()
++    {
++        var (body,anchor,joint)=Setup();
++        var noStart=Predict(body,anchor,joint,new(new(joint.Id,2,100,0,1000000),100,1e-10),1);
++        Assert.Equal(0,Assert.Single(noStart.Motors).Effort);
++        Near(0,noStart.Trajectories[body.Id].LinearVelocityAt(1).Length);
++        (body,anchor,joint)=Setup(2);
++        var braking=Predict(body,anchor,joint,new(new(joint.Id,0,10,0,1000000),10,1e-10),1);
++        var use=Assert.Single(braking.Motors);
++        Near(-4,use.Effort);Near(0,use.Work.Supplied);Near(4,use.Work.Dissipated);
++        Near(0,braking.Trajectories[body.Id].LinearVelocityAt(1).Length);
++    }
++
++    [Fact]
++    public void ZeroWorkHoldingLoadDoesNotRequireAnEnergySource()
++    {
++        var (body,anchor,joint)=Setup();
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,10,0,1000000),10,1e-10),1,new(-Z*6,default));
++        Near(6,Assert.Single(prediction.Motors).Effort);
++        Near(0,prediction.Motors[0].Work.Supplied);
++        Near(0,prediction.Trajectories[body.Id].At(1).Center.Length);
++    }
++
++    [Fact]
++    public void RemainingImpulseCapsEffort()
++    {
++        var (body,anchor,joint)=Setup();
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,10,100,100,1000000),.5,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        Near(.5,use.AbsoluteImpulse);Near(.5,use.Effort);
++        Near(.25,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
++    }
++
++    [Fact]
++    public void TravelBoundaryRemeasuresTheShortenedPath()
++    {
++        var (body,anchor,joint)=Setup(range:new(-1,.01));
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,1,10,1,1000000),10,1e-10),1);
++        Assert.Equal(ForcePredictionBoundary.Joint,prediction.Boundary);
++        Assert.InRange(prediction.Duration,0,.1);
++        var use=Assert.Single(prediction.Motors);var endpoint=prediction.Trajectories[body.Id].At(prediction.Duration);
++        Near(use.Effort*endpoint.Center.Z,use.Work.Supplied);
++        Near(Math.Abs(use.Effort)*prediction.Duration,use.AbsoluteImpulse);
++        Assert.True(use.Work.Supplied<=1);
++    }
++
++
++    [Fact]
++    public void ReversalSpendsSupplyAfterBrakingWithoutRechargingIt()
++    {
++        var (body,anchor,joint)=Setup(2);
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,-2,100,1,1000000),100,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        Near(-1,prediction.Trajectories[body.Id].LinearVelocityAt(1).Z);
++        Near(1,use.Work.Supplied);Near(4,use.Work.Dissipated);
++        Assert.True(use.Work.Supplied+use.Work.SuppliedErrorBound<=1);
++    }
++
++    [Fact]
++    public void HingeTorqueAccountsForCapturedRotation()
++    {
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,Z*2,2,new(2,2,2));
++        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Hinge,body,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,4,100,20,1000000),100,1e-10),.5);
++        var use=Assert.Single(prediction.Motors);
++        Near(8,use.Effort);Near(12,use.Work.Supplied);Near(0,use.Work.Dissipated);
++        Near(4,prediction.Trajectories[body.Id].PhysicalAngularVelocityAt(.5).Z);
++    }
++
++    [Fact]
++    public void ObstructedDriveSaturatesWithoutCreatingMotionOrWork()
++    {
++        var (body,anchor,joint)=Setup(range:new(0,0));
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,1,10,1,1000000),10,1e-10),1);
++        var use=Assert.Single(prediction.Motors);
++        Near(10,use.Effort);Near(0,use.Work.Supplied);Near(0,use.Work.Dissipated);
++        Near(0,prediction.Trajectories[body.Id].LinearVelocityAt(1).Length);
++    }
++
++
++    [Fact]
++    public void MultipleMotorsKeepIdentityOrderAndIndependentAllowances()
++    {
++        var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,2,new(2,2,2));
++        var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.Identity,default,default,4,new(4,4,4));
++        var anchor=new PhysicsBody(new(2),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++        var first=new PhysicsFrameJoint(new(7),FrameJointKind.Slider,a,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var second=new PhysicsFrameJoint(new(3),FrameJointKind.Slider,b,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var firstSupply=new MotorPredictionSupply(new(first.Id,1,10,10,1000000),10,1e-10);
++        var secondSupply=new MotorPredictionSupply(new(second.Id,.5,10,10,1000000),10,1e-10);
++        ForcePrediction Run(MotorPredictionSupply[] supplies)=>AccelerationSolver.Predict(new(),
++            new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),[a,b,anchor],[first,second],[],
++            new Dictionary<PhysicsBodyId,BodyWrench>{{a.Id,default},{b.Id,default},{anchor.Id,default}},
++            1,1e-7,1e-8,1e-9,supplies);
++        var prediction=Run([firstSupply,secondSupply]);var repeated=Run([secondSupply,firstSupply]);
++        Assert.Equal(prediction.Motors,repeated.Motors);
++        Assert.Equal(second.Id,prediction.Motors[0].Joint);Assert.Equal(first.Id,prediction.Motors[1].Joint);
++        Near(.5,prediction.Motors[0].Work.Supplied);Near(1,prediction.Motors[1].Work.Supplied);
++        Near(.5,prediction.Trajectories[b.Id].LinearVelocityAt(1).Z);
++        Near(1,prediction.Trajectories[a.Id].LinearVelocityAt(1).Z);
++    }
++
++
++    [Fact]
++    public void EmptySupplyStillBrakesAgainstAMovingPrescribedFrame()
++    {
++        var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Z*2,default,2,new(2,2,2));
++        var motion=new PrescribedBodyMotion(new QuinticRigidTrajectory(RigidPose.Identity,Z*.1,default,1),RigidPose.Identity,0);
++        var anchor=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,motion.At(0),default,default,prescribedMotion:motion);
++        var joint=new PhysicsFrameJoint(new(0),FrameJointKind.Slider,body,Origin,anchor,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,10,0,1000000),10,1e-8),1);
++        var use=Assert.Single(prediction.Motors);
++        Assert.True(use.Effort<0);
++        Near(0,use.Work.Supplied);
++        Assert.True(use.Work.Dissipated>0);
++    }
++
++
++    [Theory]
++    [InlineData(.49999999999999956)]
++    [InlineData(-.49999999999999956)]
++    public void ZeroSupplyBrakingRoundsTheEndpointWithoutReversing(double speed)
++    {
++        var (body,anchor,joint)=Setup(speed);
++        var prediction=Predict(body,anchor,joint,new(new(joint.Id,0,1000,0,1000000),10,1e-10),.005);
++        var endpoint=prediction.Trajectories[body.Id].LinearVelocityAt(.005).Z;
++        Assert.True(endpoint*speed>=0);Near(0,endpoint,1e-12);
++        var use=Assert.Single(prediction.Motors);
++        Assert.Equal(0,use.Work.Supplied);Assert.Equal(0,use.Work.SuppliedErrorBound);
++        Near(speed*speed,use.Work.Dissipated,1e-12);
++    }
++
++    [Fact]
++    public void ForeignAndDuplicateMotorDeclarationsReject()
++    {
++        var (body,anchor,joint)=Setup();var before=body.Snapshot();
++        Assert.Throws<ArgumentException>(()=>new MotorPredictionSupply(new(joint.Id,1,1,1,1000000),-1,1e-6));
++        Assert.Throws<ArgumentException>(()=>new MotorPredictionSupply(new(joint.Id,1,1,1,1000000),1,0));
++        Assert.Throws<ArgumentException>(()=>Predict(body,anchor,joint,new(new(new(9),1,1,1,1000000),1,1e-6),1));
++        var supply=new MotorPredictionSupply(new(joint.Id,1,1,1,1000000),1,1e-6);
++        Assert.Throws<ArgumentException>(()=>AccelerationSolver.Predict(new(),new Dictionary<PhysicsBodyId,PhysicsColliderUpdate>(),
++            [body,anchor],[joint],[],new Dictionary<PhysicsBodyId,BodyWrench>{{body.Id,default},{anchor.Id,default}},
++            1,1e-7,1e-8,1e-9,[supply,supply]));
++        Assert.Equal(before,body.Snapshot());
++    }
++}
+--- a/CuriousContraptions.tests/PhysicsMotorTests.cs
++++ b/CuriousContraptions.tests/PhysicsMotorTests.cs
+@@ -1,480 +1,455 @@
+-using Godot;
+-using CuriousContraptions.Physics;
+-
+-namespace CuriousContraptions.Tests;
+-
+-public class PhysicsMotorTests
+-{
+-
+-    [Theory]
+-    [InlineData(-1,1,.01,false)]
+-    [InlineData(1,1,.01,true)]
+-    [InlineData(-1,3,.01,true)]
+-    [InlineData(1,3,.01,false)]
+-    [InlineData(-1,1,10,true)]
+-    [InlineData(1,1,10,false)]
+-    [InlineData(-1,3,10,false)]
+-    [InlineData(1,3,10,true)]
+-    public void ContactLoadSharesMotorMomentumAndWorkWithExactReplay(int sign,double mass,double work,bool reverseOrder)
+-    {
+-        var driven=Body(0);var anchor=Fixed(1);
+-        var load=new PhysicsBody(new(2),PhysicsMotionType.Dynamic,
+-            RigidPose.At(new(0,0,sign*.02)),default,default,mass,new(.1,.1,.1));
+-        var joint=Joint(FrameJointKind.Slider,driven,anchor);
+-        PhysicsObject[] objects=[Object(driven),Object(anchor),Object(load)];
+-        if(reverseOrder) Array.Reverse(objects);
+-        var world=new PhysicsWorld([],objects,[joint],new(default,maximumStep:.01));
+-        var before=world.Capture();
+-        void Run()
+-        {
+-            world.Step([],[new(joint.Id,sign,100,work,1000000)],.01);
+-            var report=Assert.Single(world.MotorUse.ToArray());
+-            var speed=Math.Min(1/(1+mass),Math.Sqrt(2*work/(1+mass)));
+-            Assert.InRange(Math.Abs(driven.LinearVelocity.Z-sign*speed),0,1e-10);
+-            Assert.InRange(Math.Abs(load.LinearVelocity.Z-sign*speed),0,1e-10);
+-            Assert.InRange(Math.Abs(report.AbsoluteImpulse-(1+mass)*speed),0,1e-10);
+-            Assert.InRange(Math.Abs(report.SuppliedWork-.5*(1+mass)*speed*speed),0,1e-10);
+-            Assert.InRange(Math.Abs(driven.KineticEnergy+load.KineticEnergy-report.SuppliedWork),0,1e-10);
+-            Assert.InRange(report.SuppliedWork,0,work);
+-            Assert.InRange(Math.Abs((load.Center-driven.Center).Z-sign*.02),0,1e-10);
+-            var coast=load.Snapshot();
+-            world.Step([],[new(joint.Id,-sign,100,10,1000000)],.01);
+-            Assert.True(driven.LinearVelocity.Z*sign<0);
+-            Assert.Equal(coast.LinearVelocity,load.LinearVelocity);
+-            Assert.True((load.Center-driven.Center).Z*sign>.02);
+-        }
+-        Run();var after=world.Capture();var use=world.MotorUse.ToArray();
+-        world.Restore(before);Run();
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(use,world.MotorUse.ToArray());
+-    }
+-
+-    [Theory]
+-    [InlineData(-1)]
+-    [InlineData(1)]
+-    public void ContactBlocksMotorWorkAndPermitsReleaseWithExactReplay(int sign)
+-    {
+-        var a=Body(0);var anchor=Fixed(1);
+-        var obstacle=new PhysicsBody(new(2),PhysicsMotionType.Static,
+-            RigidPose.At(new(0,0,sign*.02)),default,default);
+-        var joint=Joint(FrameJointKind.Slider,a,anchor);
+-        var world=new PhysicsWorld([],[Object(a),Object(anchor),Object(obstacle)],[joint],new(default));
+-        var before=world.Capture();
+-        void Run()
+-        {
+-            world.Step([],[new(joint.Id,sign,100,100,1000000)],.01);
+-            Assert.InRange(a.LinearVelocity.Length,0,1e-10);
+-            Assert.InRange(a.Center.Length,0,1e-10);
+-            Assert.InRange(Assert.Single(world.MotorUse.ToArray()).SuppliedWork,0,1e-10);
+-            world.Step([],[new(joint.Id,-sign,100,100,1000000)],.01);
+-            Assert.True(a.LinearVelocity.Z*sign<0);
+-            Assert.True(a.Center.Z*sign<0);
+-            Assert.True(Assert.Single(world.MotorUse.ToArray()).SuppliedWork>0);
+-        }
+-        Run();var after=world.Capture();var use=world.MotorUse.ToArray();
+-        world.Restore(before);Run();
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(use,world.MotorUse.ToArray());
+-    }
+-
+-    [Theory]
+-    [InlineData(FrameJointKind.Slider)]
+-    [InlineData(FrameJointKind.Hinge)]
+-    public void CommittedMotorTotalsOwnAccelerationBrakingCoastingAndReplay(FrameJointKind kind)
+-    {
+-        var a=Body(0);var b=Fixed(1);var joint=Joint(kind,a,b);
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:.005));
+-        var zero=new PhysicsMotorTotals(joint.Id,0,0,0,0,0,0);
+-        Assert.Equal(zero,world.MotorTotal(joint.Id));
+-        Assert.Throws<ArgumentException>(()=>world.MotorTotal(new(99)));
+-        var initial=world.Capture();
+-        void Run()
+-        {
+-            world.Step([],[new(joint.Id,2,100,10,1000000)],.02);
+-            var first=Assert.Single(world.MotorUse.ToArray());
+-            Assert.True(first.SuppliedWork>0);
+-            Assert.Equal(new(joint.Id,first.AbsoluteImpulse,first.SuppliedWork,first.DissipatedWork,
+-                first.SuppliedWorkError,first.DissipatedWorkError,first.ReservedWork),
+-                world.MotorTotal(joint.Id));
+-            world.Step([],[new(joint.Id,0,100,0,1000000)],.02);
+-            var second=Assert.Single(world.MotorUse.ToArray());
+-            Assert.True(second.DissipatedWork>0);
+-            Assert.Equal(0,second.SuppliedWork);
+-            var total=world.MotorTotal(joint.Id);
+-            Assert.Equal(first.SuppliedWork,total.SuppliedWork);
+-            Assert.Equal(first.AbsoluteImpulse+second.AbsoluteImpulse,total.AbsoluteImpulse);
+-            Assert.Equal(first.DissipatedWork+second.DissipatedWork,total.DissipatedWork);
+-            world.Step([],[],.02);
+-            Assert.Empty(world.MotorUse.ToArray());
+-            Assert.Equal(total,world.MotorTotal(joint.Id));
+-            world.Step([],[new(joint.Id,3,0,10,1000000)],.02);
+-            Assert.Equal(total,world.MotorTotal(joint.Id));
+-        }
+-        Run();var after=world.Capture();
+-        var copy=world.MotorTotals.ToArray();copy[0]=zero;
+-        Assert.NotEqual(zero,world.MotorTotal(joint.Id));
+-        world.Restore(initial);
+-        Assert.Empty(world.MotorTotals.ToArray());Assert.Equal(zero,world.MotorTotal(joint.Id));
+-        Run();
+-        Assert.Equal(after.MotorTotals.ToArray(),world.MotorTotals.ToArray());
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        var replacement=new PhysicsFrameJoint(joint.Id,joint.Kind,joint.A,joint.LocalA,
+-            joint.B,joint.LocalB,joint.Collision,new(-1,1),joint.Direction);
+-        world.ReplaceJoints([replacement]);
+-        Assert.Equal(after.MotorTotals.ToArray(),world.MotorTotals.ToArray());
+-        // Removing the hinge also removes its collision suppression. Explicitly
+-        // disable the overlapping rotor before disassembling that joint.
+-        var collider=world.Collider(a.Id).Declaration;
+-        world.ApplyColliderUpdates([new(a.Id,collider.Geometry,collider.Material,CollisionParticipation.Disabled)]);
+-        world.ReplaceJoints([]);
+-        Assert.Equal(after.MotorTotals.ToArray(),world.MotorTotals.ToArray());
+-        Assert.Equal(after.MotorTotals[0],world.MotorTotal(joint.Id));
+-        world.Restore(initial);Assert.Equal(zero,world.MotorTotal(joint.Id));
+-    }
+-
+-
+-    [Theory]
+-    [InlineData(FrameJointKind.Slider)]
+-    [InlineData(FrameJointKind.Hinge)]
+-    public void WorldCommitsPeakLimitedWorkAndRestoresExactReplay(FrameJointKind kind)
+-    {
+-        var a=Body(0);var b=Fixed(1);var joint=Joint(kind,a,b);
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:1));
+-        PhysicsMotorCommand command=new(joint.Id,10,100,100,1);
+-        var before=world.Capture();
+-        world.Step([],[command],.1);
+-        var inertia=kind==FrameJointKind.Slider?1:.1;
+-        Assert.InRange(Math.Abs(Math.Sqrt(.1/inertia)-joint.Motion.Speed),0,1e-7);
+-        Assert.InRange(Math.Abs(.05-world.MotorUse[0].SuppliedWork),0,1e-8);
+-        Assert.True(world.MotorUse[0].ReservedWork<=100);
+-        var after=world.Capture();var use=world.MotorUse[0];
+-        world.Restore(before);
+-        world.Step([],[command],.1);
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(use,world.MotorUse[0]);
+-        Assert.Equal(after.MotorTotals.ToArray(),world.MotorTotals.ToArray());
+-        world.Restore(before);
+-        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-    }
+-
+-    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
+-    private static PhysicsBody Body(int id,CollisionVector velocity=default,CollisionVector spin=default)=>
+-        new(new(id),PhysicsMotionType.Dynamic,RigidPose.Identity,velocity,spin,1,new(.1,.1,.1));
+-    private static PhysicsBody Fixed(int id)=>new(new(id),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-    private static PhysicsObject Object(PhysicsBody body)=>new(body,new([new(new ConvexSphere(.01),Transform3D.Identity)]),new(0,0,0));
+-    private static PhysicsFrameJoint Joint(FrameJointKind kind,PhysicsBody a,PhysicsBody b,JointTravelRange? range=null)=>
+-        new(new(0),kind,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
+-    private static readonly ConstraintJacobian Linear=new(new(0,0,1),default,new(0,0,-1),default);
+-
+-    [Theory]
+-    [InlineData(-1)]
+-    [InlineData(1)]
+-    public void FiniteWorkCapsAccelerationAndDoesNotSpendBrakingEnergy(int sign)
+-    {
+-        var a=Body(0,new(0,0,-sign*3)); var b=Fixed(1);
+-        var result=PoweredImpulse.Apply(Linear.Bind(a,b),sign*10,100,.5);
+-        Assert.InRange(Math.Abs(a.LinearVelocity.Z-sign),0,1e-12);
+-        Assert.InRange(result.SuppliedWork,0,.5);
+-        Assert.InRange(Math.Abs(result.DissipatedWork-4.5),0,1e-12);
+-        Assert.InRange(Math.Abs(result.Impulse-sign*4),0,1e-12);
+-    }
+-
+-    [Fact]
+-    public void ZeroSupplyAllowsBrakingButNotReverseAcceleration()
+-    {
+-        var a=Body(0,new(0,0,3)); var b=Fixed(1);
+-        var result=PoweredImpulse.Apply(Linear.Bind(a,b),-10,100,0);
+-        Assert.InRange(Math.Abs(a.LinearVelocity.Z),0,1e-12);
+-        Assert.Equal(0,result.SuppliedWork);
+-        Assert.InRange(Math.Abs(result.DissipatedWork-4.5),0,1e-12);
+-        var before=a.Snapshot();
+-        Assert.Equal(default,PoweredImpulse.Apply(Linear.Bind(a,b),10,0,10));
+-        Assert.Equal(before,a.Snapshot());
+-    }
+-
+-    [Fact]
+-    public void TwoDynamicBodiesReceiveOppositeMomentumAndAccountForTheirTotalWork()
+-    {
+-        var a=Body(0); var b=Body(1);
+-        var result=PoweredImpulse.Apply(Linear.Bind(a,b),10,100,1);
+-        Assert.InRange(Math.Abs(a.LinearVelocity.Z-1),0,1e-12);
+-        Assert.Equal(-a.LinearVelocity,b.LinearVelocity);
+-        Assert.InRange(Math.Abs(a.KineticEnergy+b.KineticEnergy-result.SuppliedWork),0,1e-12);
+-    }
+-
+-    [Theory]
+-    [InlineData(FrameJointKind.Hinge)]
+-    [InlineData(FrameJointKind.Slider)]
+-    public void WorldSharesSupplyAcrossSubstepsAndReplaysExactly(FrameJointKind kind)
+-    {
+-        var a=Body(0); var b=Fixed(1); var joint=Joint(kind,a,b);
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default));
+-        PhysicsMotorCommand[] commands=[new(joint.Id,10,2,.5,1000000)];
+-        var before=world.Capture(); world.Step([],commands,.5);
+-        var use=Assert.Single(world.MotorUse.ToArray());
+-        Assert.InRange(use.SuppliedWork,0,.5); Assert.InRange(use.AbsoluteImpulse,0,1);
+-        Assert.InRange(a.KineticEnergy,0,.500000000001);
+-        var expected=kind==FrameJointKind.Hinge?Math.Sqrt(10):1;
+-        Assert.InRange(Math.Abs(a.LinearVelocity.Z+a.AngularVelocity.Z-expected),0,1e-10);
+-        var after=world.Capture(); var report=world.MotorUse.ToArray();
+-        world.Restore(before); Assert.Empty(world.MotorUse.ToArray());
+-        world.Step([],commands,.5);
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(report,world.MotorUse.ToArray());
+-    }
+-
+-    [Fact]
+-    public void StopEventAccountsForContinuedBoundedEffortWithoutAdditionalWork()
+-    {
+-        var a=Body(0); var b=Fixed(1); var joint=Joint(FrameJointKind.Slider,a,b,new(-.02,.02));
+-        var settings=new PhysicsWorldSettings(default,maximumStep:.1);
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],settings);
+-        world.Step([],[new(joint.Id,1,100,100,1000000)],.1);
+-        var stop=Assert.Single(world.JointStops.ToArray());
+-        Assert.InRange(Math.Abs(a.Center.Z-.02),0,1e-7);
+-        Assert.InRange(a.LinearVelocity.Length,0,1e-8);
+-        var use=Assert.Single(world.MotorUse.ToArray());
+-        Assert.InRange(Math.Abs(use.AbsoluteImpulse-(1+100*(.1-stop.Time))),0,1e-10);
+-        var speedError=settings.AccelerationTolerance*stop.Time;
+-        var energyError=speedError+.5*speedError*speedError;
+-        Assert.InRange(Math.Abs(use.SuppliedWork-.5),0,energyError);
+-    }
+-
+-    [Theory]
+-    [InlineData(-1)]
+-    [InlineData(1)]
+-    public void ContinuedSupplyAtTravelStopDoesNotSpendWork(int sign)
+-    {
+-        var a=Body(0); var b=Fixed(1);
+-        var joint=Joint(FrameJointKind.Slider,a,b,new(-.02,.02));
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:.1));
+-        PhysicsMotorCommand[] commands=[new(joint.Id,sign,100,100,1000000)];
+-        world.Step([],commands,.1);
+-        Assert.InRange(Math.Abs(a.Center.Z-sign*.02),0,1e-7);
+-        Assert.InRange(a.LinearVelocity.Length,0,1e-8);
+-        var stopped=world.Capture();
+-        double supplied=0;
+-        for(var i=0;i<10;i++)
+-        {
+-            world.Step([],commands,.1);
+-            supplied+=Assert.Single(world.MotorUse.ToArray()).SuppliedWork;
+-            Assert.InRange(Math.Abs(a.Center.Z-sign*.02),0,1e-7);
+-            Assert.InRange(a.LinearVelocity.Length,0,1e-8);
+-        }
+-        var after=world.Capture();
+-        world.Restore(stopped);
+-        for(var i=0;i<10;i++) world.Step([],commands,.1);
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.InRange(supplied,0,1e-10);
+-    }
+-
+-    [Theory]
+-    [InlineData(FrameJointKind.Slider,-1)]
+-    [InlineData(FrameJointKind.Slider,1)]
+-    [InlineData(FrameJointKind.Hinge,-1)]
+-    [InlineData(FrameJointKind.Hinge,1)]
+-    public void WorldMotorAtAStopBrakesInwardMotionAndThenReleases(FrameJointKind kind,int sign)
+-    {
+-        var a=Body(0);var b=Fixed(1);var joint=Joint(kind,a,b,new(-.02,.02));
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:.1));
+-        PhysicsMotorCommand[] outward=[new(joint.Id,sign,1000,100,1000000)];
+-        world.Step([],outward,.1);
+-        Assert.InRange(Math.Abs(joint.Travel.Error-sign*.02),0,1e-7);
+-        if(kind==FrameJointKind.Slider)
+-            world.ApplyImpulse(a.Id,new(0,0,-sign),a.Center);
+-        else
+-            world.ApplyImpulse(a.Id,new(0,-sign*.1,0),a.Center+new CollisionVector(1,0,0));
+-        var incomingEnergy=.5*(kind==FrameJointKind.Hinge?.1:1)*joint.Motion.Speed*joint.Motion.Speed;
+-        var before=world.Capture();
+-        world.Step([],outward,.005);
+-        var use=Assert.Single(world.MotorUse.ToArray());
+-        // Continuous force brakes the inward motion and drives it back to the
+-        // stop; the terminal impact removes the restored outgoing kinetic energy.
+-        Assert.InRange(Math.Abs(use.SuppliedWork-incomingEnergy),0,1e-10);
+-        Assert.InRange(Math.Abs(use.DissipatedWork-incomingEnergy),0,1e-10);
+-        Assert.InRange(Math.Abs(joint.Travel.Jacobian.Bind(a,b).Speed),0,1e-8);
+-        var stopped=world.Capture();
+-        world.Restore(before);
+-        world.Step([],outward,.005);
+-        Assert.Equal(stopped.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(use,Assert.Single(world.MotorUse.ToArray()));
+-        world.Step([],[new(joint.Id,-sign,100,100,1000000)],.005);
+-        Assert.True(sign*joint.Travel.Jacobian.Bind(a,b).Speed<0);
+-        Assert.True(sign*joint.Travel.Error<.02);
+-        Assert.True(Assert.Single(world.MotorUse.ToArray()).SuppliedWork>0);
+-    }
+-
+-    public enum TransmissionTopology { SingleLink, RedundantLoop, LockedLoop }
+-
+-    public static TheoryData<FrameJointKind,int,double,TransmissionEngagement,TransmissionTopology> TransmissionMotorCases()
+-    {
+-        var cases=new TheoryData<FrameJointKind,int,double,TransmissionEngagement,TransmissionTopology>();
+-        foreach(var kind in new[]{FrameJointKind.Slider,FrameJointKind.Hinge})
+-        foreach(var sign in new[]{-1,1})
+-        foreach(var ratio in new[]{-2d,1d,2d})
+-        foreach(var engagement in Enum.GetValues<TransmissionEngagement>())
+-        foreach(var topology in Enum.GetValues<TransmissionTopology>())
+-            cases.Add(kind,sign,ratio,engagement,topology);
+-        return cases;
+-    }
+-
+-    [Theory]
+-    [MemberData(nameof(TransmissionMotorCases))]
+-    public void TransmissionLoadParticipatesInMotorTargetAndWork(
+-        FrameJointKind kind,int sign,double ratio,TransmissionEngagement engagement,TransmissionTopology topology)
+-    {
+-        var a=Body(0); var b=Fixed(1);
+-        var c=Body(2); var d=Fixed(3);
+-        c.Restore(c.Snapshot() with {Pose=RigidPose.At(new(3,0,0))});
+-        d.Restore(d.Snapshot() with {Pose=RigidPose.At(new(3,0,0))});
+-        var first=Joint(kind,a,b);
+-        var second=new PhysicsFrameJoint(new(1),kind,c,Origin,d,Origin,
+-            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+-        var transmission=new PhysicsTransmissionJoint(new(2),first,second,ratio,engagement);
+-        var returnTransmission=new PhysicsTransmissionJoint(new(3),second,first,(topology==TransmissionTopology.LockedLoop?2:1)/ratio,engagement);
+-        PhysicsJoint[] joints=topology!=TransmissionTopology.SingleLink?[first,second,transmission,returnTransmission]:[first,second,transmission];
+-        var world=new PhysicsWorld([],[Object(a),Object(b),Object(c),Object(d)],
+-            joints,new(default,maximumStep:.1));
+-        var initial=world.Capture();
+-        var locked=engagement==TransmissionEngagement.Engaged&&topology==TransmissionTopology.LockedLoop;
+-        var expectedInputSpeed=locked?0:sign;
+-        var outputSpeed=engagement==TransmissionEngagement.Engaged?expectedInputSpeed*ratio:0;
+-        var inertia=kind==FrameJointKind.Hinge?.1:1;
+-        var requiredWork=.5*inertia*(expectedInputSpeed*expectedInputSpeed+outputSpeed*outputSpeed);
+-        PhysicsMotorCommand[] commands=[new(first.Id,sign,100,locked?1:requiredWork,1000000)];
+-        world.Step([],commands,.1);
+-        var after=world.Capture();
+-        var use=Assert.Single(world.MotorUse.ToArray());
+-        world.Restore(initial);
+-        world.Step([],commands,.1);
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(use,Assert.Single(world.MotorUse.ToArray()));
+-        if(engagement==TransmissionEngagement.Engaged)
+-        {
+-            Assert.InRange(Math.Abs(transmission.SpeedError),0,1e-10);
+-            if(topology!=TransmissionTopology.SingleLink) Assert.InRange(Math.Abs(returnTransmission.SpeedError),0,1e-10);
+-        }
+-        var inputSpeed=first.Travel.Jacobian.Bind(a,b).Speed;
+-        var actualOutputSpeed=second.Travel.Jacobian.Bind(c,d).Speed;
+-        Assert.InRange(Math.Abs(inputSpeed-expectedInputSpeed),0,1e-10);
+-        Assert.InRange(Math.Abs(actualOutputSpeed-outputSpeed),0,1e-10);
+-        Assert.InRange(Math.Abs(use.SuppliedWork-requiredWork),0,1e-10);
+-        Assert.InRange(Math.Abs(a.KineticEnergy+c.KineticEnergy-use.SuppliedWork),0,1e-10);
+-    }
+-
+-    [Fact]
+-    public void FailedStepRestoresBodiesClockAndThePreviousMotorReport()
+-    {
+-        var a=Body(0); var b=Fixed(1); var joint=Joint(FrameJointKind.Slider,a,b,new(-.5,.5));
+-        var c=Body(2,new(0,0,2)); c.Restore(c.Snapshot() with {Pose=RigidPose.At(new(2,0,0))});
+-        var d=Fixed(3); d.Restore(d.Snapshot() with {Pose=RigidPose.At(new(2,0,0))});
+-        var second=new PhysicsFrameJoint(new(1),FrameJointKind.Slider,c,Origin,d,Origin,ConnectedBodyCollision.Disabled,new(-.5,.5),JointTravelDirection.Both);
+-        var world=new PhysicsWorld([],[Object(a),Object(b),Object(c),Object(d)],[joint,second],new(default,maximumStep:1,maximumEvents:1));
+-        world.Step([],[new(joint.Id,1,1,1,1000000)],.01);
+-        var before=world.Capture(); var reports=world.MotorUse.ToArray();
+-        Assert.Throws<InvalidOperationException>(()=>world.Step([],[new(joint.Id,100,100,100,1000000)],1));
+-        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(before.Time,world.Time); Assert.Equal(before.StepIndex,world.StepIndex);
+-        Assert.Equal(reports,world.MotorUse.ToArray());
+-        Assert.Equal(before.MotorTotals.ToArray(),world.MotorTotals.ToArray());
+-    }
+-
+-    [Fact]
+-    public void InvalidAndDuplicateCommandsFailBeforeMutation()
+-    {
+-        var a=Body(0); var b=Fixed(1); var joint=Joint(FrameJointKind.Slider,a,b);
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default));
+-        var command=new PhysicsMotorCommand(joint.Id,1,1,1,1000000); var before=a.Snapshot();
+-        Assert.Throws<ArgumentException>(()=>world.Step([],[command,command],.01));
+-        Assert.Throws<ArgumentException>(()=>world.Step([],[new(new(99),1,1,1,1000000)],.01));
+-        Assert.Throws<ArgumentException>(()=>new PhysicsMotorCommand(joint.Id,double.NaN,1,1,1000000));
+-        Assert.Throws<ArgumentException>(()=>new PhysicsMotorCommand(joint.Id,1,-1,1,1000000));
+-        Assert.Throws<ArgumentException>(()=>new PhysicsMotorCommand(joint.Id,1,1,-1,1000000));
+-        Assert.Throws<ArgumentException>(()=>PoweredImpulse.Apply(new ConstraintGradient([new(a,default,default),new(b,default,default)]),1,1,1));
+-        Assert.Equal(before,a.Snapshot()); Assert.Equal(0,world.Time);
+-    }
+-
+-    [Fact]
+-    public void RandomSignedOffCentreAnisotropicUpdatesRespectBothBudgets()
+-    {
+-        var random=new Random(3801);
+-        double Number()=>2*random.NextDouble()-1;
+-        CollisionVector Vector()=>new(Number(),Number(),Number());
+-        for(var i=0;i<500;i++)
+-        {
+-            var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Vector()*4,Vector()*3,1,new(.1,.2,.4));
+-            var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.Identity,Vector()*4,Vector()*3,2,new(.4,.3,.2));
+-            var direction=Vector(); direction/=direction.Length;
+-            var j=ConstraintJacobian.AtPoint(a,b,Vector(),direction);
+-            var energy=a.KineticEnergy+b.KineticEnergy;
+-            var impulse=random.NextDouble()*3; var work=random.NextDouble()*2;
+-            var result=PoweredImpulse.Apply(j.Bind(a,b),Number()*10,impulse,work);
+-            Assert.InRange(Math.Abs(result.Impulse),0,impulse); Assert.InRange(result.SuppliedWork,0,work);
+-            var change=a.KineticEnergy+b.KineticEnergy-energy;
+-            Assert.InRange(Math.Abs(change-(result.SuppliedWork-result.DissipatedWork)),0,1e-11);
+-        }
+-    }
+-
+-    [Fact]
+-    public void PrescribedCarrierWorkIsSeparateFromMotorSupply()
+-    {
+-        var a=Body(0);
+-        var b=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,RigidPose.Identity,new(0,0,10),default);
+-        var result=PoweredImpulse.Apply(Linear.Bind(a,b),0,100,0);
+-        Assert.InRange(Math.Abs(a.LinearVelocity.Z-10),0,1e-12);
+-        Assert.Equal(0,result.SuppliedWork);
+-        Assert.InRange(Math.Abs(result.DissipatedWork-50),0,1e-12);
+-        Assert.InRange(Math.Abs(a.KineticEnergy-50),0,1e-12);
+-        Assert.Equal(new CollisionVector(0,0,10),b.LinearVelocity);
+-    }
+-
+-    [Theory]
+-    [InlineData(-1,false)]
+-    [InlineData(1,false)]
+-    [InlineData(-1,true)]
+-    [InlineData(1,true)]
+-    public void ArbitraryBodyGradientAccountsForEveryParticipantAndBraking(int sign,bool splitTerms)
+-    {
+-        var a=Body(0);var b=Body(1);var c=Body(2);
+-        var terms=new List<ConstraintTerm>
+-        {
+-            new(b,new(0,0,.5),default),
+-            new(c,new(0,0,-1),default)
+-        };
+-        if(splitTerms)
+-        {
+-            terms.Add(new(a,new(0,0,.25),default));
+-            terms.Add(new(a,new(0,0,.25),default));
+-        }
+-        else terms.Add(new(a,new(0,0,.5),default));
+-        var gradient=new ConstraintGradient(terms.ToArray());
+-        var before=new[]{a.Snapshot(),b.Snapshot(),c.Snapshot()};
+-        var use=PoweredImpulse.Apply(gradient,sign*10,100,1);
+-        var after=new[]{a.Snapshot(),b.Snapshot(),c.Snapshot()};
+-        Assert.InRange(use.SuppliedWork,.999999999999,1);
+-        Assert.InRange(Math.Abs(a.KineticEnergy+b.KineticEnergy+c.KineticEnergy-use.SuppliedWork),0,1e-12);
+-        Assert.InRange((a.LinearVelocity+b.LinearVelocity+c.LinearVelocity).Length,0,1e-12);
+-        Assert.Equal(a.LinearVelocity,b.LinearVelocity);
+-        Assert.InRange(Math.Abs(c.LinearVelocity.Z+2*a.LinearVelocity.Z),0,1e-12);
+-        Assert.True(sign*a.LinearVelocity.Z>0);
+-        var braking=PoweredImpulse.Apply(gradient,-sign*10,100,0);
+-        Assert.Equal(0,braking.SuppliedWork);
+-        Assert.InRange(Math.Abs(braking.DissipatedWork-use.SuppliedWork),0,1e-12);
+-        Assert.InRange(a.KineticEnergy+b.KineticEnergy+c.KineticEnergy,0,1e-12);
+-        a.Restore(before[0]);b.Restore(before[1]);c.Restore(before[2]);
+-        Assert.Equal(use,PoweredImpulse.Apply(gradient,sign*10,100,1));
+-        Assert.Equal(after,new[]{a.Snapshot(),b.Snapshot(),c.Snapshot()});
+-    }
+-
+-    [Fact]
+-    public void DisabledMotorDoesNotBrakeOrConsumeSupply()
+-    {
+-        var a=Body(0,new(0,0,2)); var b=Fixed(1); var joint=Joint(FrameJointKind.Slider,a,b);
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default));
+-        world.Step([],[new(joint.Id,-10,0,3,1000000)],.1);
+-        Assert.Equal(new CollisionVector(0,0,2),a.LinearVelocity);
+-        var use=Assert.Single(world.MotorUse.ToArray());
+-        Assert.Equal(0,use.AbsoluteImpulse); Assert.Equal(0,use.SuppliedWork); Assert.Equal(0,use.DissipatedWork);
+-        Assert.Equal(3,use.RemainingWork);
+-    }
+-}
++using Godot;
++using CuriousContraptions.Physics;
++
++namespace CuriousContraptions.Tests;
++
++public class PhysicsMotorTests
++{
++
++    [Theory]
++    [InlineData(-1,1,.01,false)]
++    [InlineData(1,1,.01,true)]
++    [InlineData(-1,3,.01,true)]
++    [InlineData(1,3,.01,false)]
++    [InlineData(-1,1,10,true)]
++    [InlineData(1,1,10,false)]
++    [InlineData(-1,3,10,false)]
++    [InlineData(1,3,10,true)]
++    public void ContactLoadSharesMotorMomentumAndWorkWithExactReplay(int sign,double mass,double work,bool reverseOrder)
++    {
++        var driven=Body(0);var anchor=Fixed(1);
++        var load=new PhysicsBody(new(2),PhysicsMotionType.Dynamic,
++            RigidPose.At(new(0,0,sign*.02)),default,default,mass,new(.1,.1,.1));
++        var joint=Joint(FrameJointKind.Slider,driven,anchor);
++        PhysicsObject[] objects=[Object(driven),Object(anchor),Object(load)];
++        if(reverseOrder) Array.Reverse(objects);
++        var world=new PhysicsWorld([],objects,[joint],new(default,maximumStep:.01));
++        var before=world.Capture();
++        void Run()
++        {
++            world.Step([],[new(joint.Id,sign,100,work,1000000)],.01);
++            var report=Assert.Single(world.MotorUse.ToArray());
++            var speed=Math.Min(1/(1+mass),Math.Sqrt(2*work/(1+mass)));
++            Assert.InRange(Math.Abs(driven.LinearVelocity.Z-sign*speed),0,1e-10);
++            Assert.InRange(Math.Abs(load.LinearVelocity.Z-sign*speed),0,1e-10);
++            Assert.InRange(Math.Abs(report.AbsoluteImpulse-(1+mass)*speed),0,1e-10);
++            Assert.InRange(Math.Abs(report.SuppliedWork-.5*(1+mass)*speed*speed),0,1e-10);
++            Assert.InRange(Math.Abs(driven.KineticEnergy+load.KineticEnergy-report.SuppliedWork),0,1e-10);
++            Assert.InRange(report.SuppliedWork,0,work);
++            Assert.InRange(Math.Abs((load.Center-driven.Center).Z-sign*.02),0,1e-10);
++            var coast=load.Snapshot();
++            world.Step([],[new(joint.Id,-sign,100,10,1000000)],.01);
++            Assert.True(driven.LinearVelocity.Z*sign<0);
++            Assert.Equal(coast.LinearVelocity,load.LinearVelocity);
++            Assert.True((load.Center-driven.Center).Z*sign>.02);
++        }
++        Run();var after=world.Capture();var use=world.MotorUse.ToArray();
++        world.Restore(before);Run();
++        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Equal(use,world.MotorUse.ToArray());
++    }
++
++    [Theory]
++    [InlineData(-1)]
++    [InlineData(1)]
++    public void ContactBlocksMotorWorkAndPermitsReleaseWithExactReplay(int sign)
++    {
++        var a=Body(0);var anchor=Fixed(1);
++        var obstacle=new PhysicsBody(new(2),PhysicsMotionType.Static,
++            RigidPose.At(new(0,0,sign*.02)),default,default);
++        var joint=Joint(FrameJointKind.Slider,a,anchor);
++        var world=new PhysicsWorld([],[Object(a),Object(anchor),Object(obstacle)],[joint],new(default));
++        var before=world.Capture();
++        void Run()
++        {
++            world.Step([],[new(joint.Id,sign,100,100,1000000)],.01);
++            Assert.InRange(a.LinearVelocity.Length,0,1e-10);
++            Assert.InRange(a.Center.Length,0,1e-10);
++            Assert.InRange(Assert.Single(world.MotorUse.ToArray()).SuppliedWork,0,1e-10);
++            world.Step([],[new(joint.Id,-sign,100,100,1000000)],.01);
++            Assert.True(a.LinearVelocity.Z*sign<0);
++            Assert.True(a.Center.Z*sign<0);
++            Assert.True(Assert.Single(world.MotorUse.ToArray()).SuppliedWork>0);
++        }
++        Run();var after=world.Capture();var use=world.MotorUse.ToArray();
++        world.Restore(before);Run();
++        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Equal(use,world.MotorUse.ToArray());
++    }
++
++    [Theory]
++    [InlineData(FrameJointKind.Slider)]
++    [InlineData(FrameJointKind.Hinge)]
++    public void CommittedMotorTotalsOwnAccelerationBrakingCoastingAndReplay(FrameJointKind kind)
++    {
++        var a=Body(0);var b=Fixed(1);var joint=Joint(kind,a,b);
++        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:.005));
++        var zero=new PhysicsMotorTotals(joint.Id,0,0,0,0,0,0);
++        Assert.Equal(zero,world.MotorTotal(joint.Id));
++        Assert.Throws<ArgumentException>(()=>world.MotorTotal(new(99)));
++        var initial=world.Capture();
++        void Run()
++        {
++            world.Step([],[new(joint.Id,2,100,10,1000000)],.02);
++            var first=Assert.Single(world.MotorUse.ToArray());
++            Assert.True(first.SuppliedWork>0);
++            Assert.Equal(new(joint.Id,first.AbsoluteImpulse,first.SuppliedWork,first.DissipatedWork,
++                first.SuppliedWorkError,first.DissipatedWorkError,first.ReservedWork),
++                world.MotorTotal(joint.Id));
++            world.Step([],[new(joint.Id,0,100,0,1000000)],.02);
++            var second=Assert.Single(world.MotorUse.ToArray());
++            Assert.True(second.DissipatedWork>0);
++            Assert.Equal(0,second.SuppliedWork);
++            var total=world.MotorTotal(joint.Id);
++            Assert.Equal(first.SuppliedWork,total.SuppliedWork);
++            Assert.Equal(first.AbsoluteImpulse+second.AbsoluteImpulse,total.AbsoluteImpulse);
++            Assert.Equal(first.DissipatedWork+second.DissipatedWork,total.DissipatedWork);
++            world.Step([],[],.02);
++            Assert.Empty(world.MotorUse.ToArray());
++            Assert.Equal(total,world.MotorTotal(joint.Id));
++            world.Step([],[new(joint.Id,3,0,10,1000000)],.02);
++            Assert.Equal(total,world.MotorTotal(joint.Id));
++        }
++        Run();var after=world.Capture();
++        var copy=world.MotorTotals.ToArray();copy[0]=zero;
++        Assert.NotEqual(zero,world.MotorTotal(joint.Id));
++        world.Restore(initial);
++        Assert.Empty(world.MotorTotals.ToArray());Assert.Equal(zero,world.MotorTotal(joint.Id));
++        Run();
++        Assert.Equal(after.MotorTotals.ToArray(),world.MotorTotals.ToArray());
++        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        var replacement=new PhysicsFrameJoint(joint.Id,joint.Kind,joint.A,joint.LocalA,
++            joint.B,joint.LocalB,joint.Collision,new(-1,1),joint.Direction);
++        world.ReplaceJoints([replacement]);
++        Assert.Equal(after.MotorTotals.ToArray(),world.MotorTotals.ToArray());
++        // Removing the hinge also removes its collision suppression. Explicitly
++        // disable the overlapping rotor before disassembling that joint.
++        var collider=world.Collider(a.Id).Declaration;
++        world.ApplyColliderUpdates([new(a.Id,collider.Geometry,collider.Material,CollisionParticipation.Disabled)]);
++        world.ReplaceJoints([]);
++        Assert.Equal(after.MotorTotals.ToArray(),world.MotorTotals.ToArray());
++        Assert.Equal(after.MotorTotals[0],world.MotorTotal(joint.Id));
++        world.Restore(initial);Assert.Equal(zero,world.MotorTotal(joint.Id));
++    }
++
++    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
++    private static PhysicsBody Body(int id,CollisionVector velocity=default,CollisionVector spin=default)=>
++        new(new(id),PhysicsMotionType.Dynamic,RigidPose.Identity,velocity,spin,1,new(.1,.1,.1));
++    private static PhysicsBody Fixed(int id)=>new(new(id),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++    private static PhysicsObject Object(PhysicsBody body)=>new(body,new([new(new ConvexSphere(.01),Transform3D.Identity)]),new(0,0,0));
++    private static PhysicsFrameJoint Joint(FrameJointKind kind,PhysicsBody a,PhysicsBody b,JointTravelRange? range=null)=>
++        new(new(0),kind,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
++    private static readonly ConstraintJacobian Linear=new(new(0,0,1),default,new(0,0,-1),default);
++
++    [Theory]
++    [InlineData(-1)]
++    [InlineData(1)]
++    public void FiniteWorkCapsAccelerationAndDoesNotSpendBrakingEnergy(int sign)
++    {
++        var a=Body(0,new(0,0,-sign*3)); var b=Fixed(1);
++        var result=PoweredImpulse.Apply(Linear.Bind(a,b),sign*10,100,.5);
++        Assert.InRange(Math.Abs(a.LinearVelocity.Z-sign),0,1e-12);
++        Assert.InRange(result.SuppliedWork,0,.5);
++        Assert.InRange(Math.Abs(result.DissipatedWork-4.5),0,1e-12);
++        Assert.InRange(Math.Abs(result.Impulse-sign*4),0,1e-12);
++    }
++
++    [Fact]
++    public void ZeroSupplyAllowsBrakingButNotReverseAcceleration()
++    {
++        var a=Body(0,new(0,0,3)); var b=Fixed(1);
++        var result=PoweredImpulse.Apply(Linear.Bind(a,b),-10,100,0);
++        Assert.InRange(Math.Abs(a.LinearVelocity.Z),0,1e-12);
++        Assert.Equal(0,result.SuppliedWork);
++        Assert.InRange(Math.Abs(result.DissipatedWork-4.5),0,1e-12);
++        var before=a.Snapshot();
++        Assert.Equal(default,PoweredImpulse.Apply(Linear.Bind(a,b),10,0,10));
++        Assert.Equal(before,a.Snapshot());
++    }
++
++    [Fact]
++    public void TwoDynamicBodiesReceiveOppositeMomentumAndAccountForTheirTotalWork()
++    {
++        var a=Body(0); var b=Body(1);
++        var result=PoweredImpulse.Apply(Linear.Bind(a,b),10,100,1);
++        Assert.InRange(Math.Abs(a.LinearVelocity.Z-1),0,1e-12);
++        Assert.Equal(-a.LinearVelocity,b.LinearVelocity);
++        Assert.InRange(Math.Abs(a.KineticEnergy+b.KineticEnergy-result.SuppliedWork),0,1e-12);
++    }
++
++    [Theory]
++    [InlineData(FrameJointKind.Hinge)]
++    [InlineData(FrameJointKind.Slider)]
++    public void WorldSharesSupplyAcrossSubstepsAndReplaysExactly(FrameJointKind kind)
++    {
++        var a=Body(0); var b=Fixed(1); var joint=Joint(kind,a,b);
++        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default));
++        PhysicsMotorCommand[] commands=[new(joint.Id,10,2,.5,1000000)];
++        var before=world.Capture(); world.Step([],commands,.5);
++        var use=Assert.Single(world.MotorUse.ToArray());
++        Assert.InRange(use.SuppliedWork,0,.5); Assert.InRange(use.AbsoluteImpulse,0,1);
++        Assert.InRange(a.KineticEnergy,0,.500000000001);
++        var expected=kind==FrameJointKind.Hinge?Math.Sqrt(10):1;
++        Assert.InRange(Math.Abs(a.LinearVelocity.Z+a.AngularVelocity.Z-expected),0,1e-10);
++        var after=world.Capture(); var report=world.MotorUse.ToArray();
++        world.Restore(before); Assert.Empty(world.MotorUse.ToArray());
++        world.Step([],commands,.5);
++        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Equal(report,world.MotorUse.ToArray());
++    }
++
++    [Fact]
++    public void StopEventAccountsForContinuedBoundedEffortWithoutAdditionalWork()
++    {
++        var a=Body(0); var b=Fixed(1); var joint=Joint(FrameJointKind.Slider,a,b,new(-.02,.02));
++        var settings=new PhysicsWorldSettings(default,maximumStep:.1);
++        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],settings);
++        world.Step([],[new(joint.Id,1,100,100,1000000)],.1);
++        var stop=Assert.Single(world.JointStops.ToArray());
++        Assert.InRange(Math.Abs(a.Center.Z-.02),0,1e-7);
++        Assert.InRange(a.LinearVelocity.Length,0,1e-8);
++        var use=Assert.Single(world.MotorUse.ToArray());
++        Assert.InRange(Math.Abs(use.AbsoluteImpulse-(1+100*(.1-stop.Time))),0,1e-10);
++        var speedError=settings.AccelerationTolerance*stop.Time;
++        var energyError=speedError+.5*speedError*speedError;
++        Assert.InRange(Math.Abs(use.SuppliedWork-.5),0,energyError);
++    }
++
++    [Theory]
++    [InlineData(-1)]
++    [InlineData(1)]
++    public void ContinuedSupplyAtTravelStopDoesNotSpendWork(int sign)
++    {
++        var a=Body(0); var b=Fixed(1);
++        var joint=Joint(FrameJointKind.Slider,a,b,new(-.02,.02));
++        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:.1));
++        PhysicsMotorCommand[] commands=[new(joint.Id,sign,100,100,1000000)];
++        world.Step([],commands,.1);
++        Assert.InRange(Math.Abs(a.Center.Z-sign*.02),0,1e-7);
++        Assert.InRange(a.LinearVelocity.Length,0,1e-8);
++        var stopped=world.Capture();
++        double supplied=0;
++        for(var i=0;i<10;i++)
++        {
++            world.Step([],commands,.1);
++            supplied+=Assert.Single(world.MotorUse.ToArray()).SuppliedWork;
++            Assert.InRange(Math.Abs(a.Center.Z-sign*.02),0,1e-7);
++            Assert.InRange(a.LinearVelocity.Length,0,1e-8);
++        }
++        var after=world.Capture();
++        world.Restore(stopped);
++        for(var i=0;i<10;i++) world.Step([],commands,.1);
++        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.InRange(supplied,0,1e-10);
++    }
++
++    [Theory]
++    [InlineData(FrameJointKind.Slider,-1)]
++    [InlineData(FrameJointKind.Slider,1)]
++    [InlineData(FrameJointKind.Hinge,-1)]
++    [InlineData(FrameJointKind.Hinge,1)]
++    public void WorldMotorAtAStopBrakesInwardMotionAndThenReleases(FrameJointKind kind,int sign)
++    {
++        var a=Body(0);var b=Fixed(1);var joint=Joint(kind,a,b,new(-.02,.02));
++        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:.1));
++        PhysicsMotorCommand[] outward=[new(joint.Id,sign,1000,100,1000000)];
++        world.Step([],outward,.1);
++        Assert.InRange(Math.Abs(joint.Travel.Error-sign*.02),0,1e-7);
++        if(kind==FrameJointKind.Slider)
++            world.ApplyImpulse(a.Id,new(0,0,-sign),a.Center);
++        else
++            world.ApplyImpulse(a.Id,new(0,-sign*.1,0),a.Center+new CollisionVector(1,0,0));
++        var incomingEnergy=.5*(kind==FrameJointKind.Hinge?.1:1)*joint.Motion.Speed*joint.Motion.Speed;
++        var before=world.Capture();
++        world.Step([],outward,.005);
++        var use=Assert.Single(world.MotorUse.ToArray());
++        // Continuous force brakes the inward motion and drives it back to the
++        // stop; the terminal impact removes the restored outgoing kinetic energy.
++        Assert.InRange(Math.Abs(use.SuppliedWork-incomingEnergy),0,1e-10);
++        Assert.InRange(Math.Abs(use.DissipatedWork-incomingEnergy),0,1e-10);
++        Assert.InRange(Math.Abs(joint.Travel.Jacobian.Bind(a,b).Speed),0,1e-8);
++        var stopped=world.Capture();
++        world.Restore(before);
++        world.Step([],outward,.005);
++        Assert.Equal(stopped.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Equal(use,Assert.Single(world.MotorUse.ToArray()));
++        world.Step([],[new(joint.Id,-sign,100,100,1000000)],.005);
++        Assert.True(sign*joint.Travel.Jacobian.Bind(a,b).Speed<0);
++        Assert.True(sign*joint.Travel.Error<.02);
++        Assert.True(Assert.Single(world.MotorUse.ToArray()).SuppliedWork>0);
++    }
++
++    public enum TransmissionTopology { SingleLink, RedundantLoop, LockedLoop }
++
++    public static TheoryData<FrameJointKind,int,double,TransmissionEngagement,TransmissionTopology> TransmissionMotorCases()
++    {
++        var cases=new TheoryData<FrameJointKind,int,double,TransmissionEngagement,TransmissionTopology>();
++        foreach(var kind in new[]{FrameJointKind.Slider,FrameJointKind.Hinge})
++        foreach(var sign in new[]{-1,1})
++        foreach(var ratio in new[]{-2d,1d,2d})
++        foreach(var engagement in Enum.GetValues<TransmissionEngagement>())
++        foreach(var topology in Enum.GetValues<TransmissionTopology>())
++            cases.Add(kind,sign,ratio,engagement,topology);
++        return cases;
++    }
++
++    [Theory]
++    [MemberData(nameof(TransmissionMotorCases))]
++    public void TransmissionLoadParticipatesInMotorTargetAndWork(
++        FrameJointKind kind,int sign,double ratio,TransmissionEngagement engagement,TransmissionTopology topology)
++    {
++        var a=Body(0); var b=Fixed(1);
++        var c=Body(2); var d=Fixed(3);
++        c.Restore(c.Snapshot() with {Pose=RigidPose.At(new(3,0,0))});
++        d.Restore(d.Snapshot() with {Pose=RigidPose.At(new(3,0,0))});
++        var first=Joint(kind,a,b);
++        var second=new PhysicsFrameJoint(new(1),kind,c,Origin,d,Origin,
++            ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
++        var transmission=new PhysicsTransmissionJoint(new(2),first,second,ratio,engagement);
++        var returnTransmission=new PhysicsTransmissionJoint(new(3),second,first,(topology==TransmissionTopology.LockedLoop?2:1)/ratio,engagement);
++        PhysicsJoint[] joints=topology!=TransmissionTopology.SingleLink?[first,second,transmission,returnTransmission]:[first,second,transmission];
++        var world=new PhysicsWorld([],[Object(a),Object(b),Object(c),Object(d)],
++            joints,new(default,maximumStep:.1));
++        var initial=world.Capture();
++        var locked=engagement==TransmissionEngagement.Engaged&&topology==TransmissionTopology.LockedLoop;
++        var expectedInputSpeed=locked?0:sign;
++        var outputSpeed=engagement==TransmissionEngagement.Engaged?expectedInputSpeed*ratio:0;
++        var inertia=kind==FrameJointKind.Hinge?.1:1;
++        var requiredWork=.5*inertia*(expectedInputSpeed*expectedInputSpeed+outputSpeed*outputSpeed);
++        PhysicsMotorCommand[] commands=[new(first.Id,sign,100,locked?1:requiredWork,1000000)];
++        world.Step([],commands,.1);
++        var after=world.Capture();
++        var use=Assert.Single(world.MotorUse.ToArray());
++        world.Restore(initial);
++        world.Step([],commands,.1);
++        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Equal(use,Assert.Single(world.MotorUse.ToArray()));
++        if(engagement==TransmissionEngagement.Engaged)
++        {
++            Assert.InRange(Math.Abs(transmission.SpeedError),0,1e-10);
++            if(topology!=TransmissionTopology.SingleLink) Assert.InRange(Math.Abs(returnTransmission.SpeedError),0,1e-10);
++        }
++        var inputSpeed=first.Travel.Jacobian.Bind(a,b).Speed;
++        var actualOutputSpeed=second.Travel.Jacobian.Bind(c,d).Speed;
++        Assert.InRange(Math.Abs(inputSpeed-expectedInputSpeed),0,1e-10);
++        Assert.InRange(Math.Abs(actualOutputSpeed-outputSpeed),0,1e-10);
++        Assert.InRange(Math.Abs(use.SuppliedWork-requiredWork),0,1e-10);
++        Assert.InRange(Math.Abs(a.KineticEnergy+c.KineticEnergy-use.SuppliedWork),0,1e-10);
++    }
++
++    [Fact]
++    public void FailedStepRestoresBodiesClockAndThePreviousMotorReport()
++    {
++        var a=Body(0); var b=Fixed(1); var joint=Joint(FrameJointKind.Slider,a,b,new(-.5,.5));
++        var c=Body(2,new(0,0,2)); c.Restore(c.Snapshot() with {Pose=RigidPose.At(new(2,0,0))});
++        var d=Fixed(3); d.Restore(d.Snapshot() with {Pose=RigidPose.At(new(2,0,0))});
++        var second=new PhysicsFrameJoint(new(1),FrameJointKind.Slider,c,Origin,d,Origin,ConnectedBodyCollision.Disabled,new(-.5,.5),JointTravelDirection.Both);
++        var world=new PhysicsWorld([],[Object(a),Object(b),Object(c),Object(d)],[joint,second],new(default,maximumStep:1,maximumEvents:1));
++        world.Step([],[new(joint.Id,1,1,1,1000000)],.01);
++        var before=world.Capture(); var reports=world.MotorUse.ToArray();
++        Assert.Throws<InvalidOperationException>(()=>world.Step([],[new(joint.Id,100,100,100,1000000)],1));
++        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Equal(before.Time,world.Time); Assert.Equal(before.StepIndex,world.StepIndex);
++        Assert.Equal(reports,world.MotorUse.ToArray());
++        Assert.Equal(before.MotorTotals.ToArray(),world.MotorTotals.ToArray());
++    }
++
++    [Fact]
++    public void InvalidAndDuplicateCommandsFailBeforeMutation()
++    {
++        var a=Body(0); var b=Fixed(1); var joint=Joint(FrameJointKind.Slider,a,b);
++        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default));
++        var command=new PhysicsMotorCommand(joint.Id,1,1,1,1000000); var before=a.Snapshot();
++        Assert.Throws<ArgumentException>(()=>world.Step([],[command,command],.01));
++        Assert.Throws<ArgumentException>(()=>world.Step([],[new(new(99),1,1,1,1000000)],.01));
++        Assert.Throws<ArgumentException>(()=>new PhysicsMotorCommand(joint.Id,double.NaN,1,1,1000000));
++        Assert.Throws<ArgumentException>(()=>new PhysicsMotorCommand(joint.Id,1,-1,1,1000000));
++        Assert.Throws<ArgumentException>(()=>new PhysicsMotorCommand(joint.Id,1,1,-1,1000000));
++        Assert.Throws<ArgumentException>(()=>PoweredImpulse.Apply(new ConstraintGradient([new(a,default,default),new(b,default,default)]),1,1,1));
++        Assert.Equal(before,a.Snapshot()); Assert.Equal(0,world.Time);
++    }
++
++    [Fact]
++    public void RandomSignedOffCentreAnisotropicUpdatesRespectBothBudgets()
++    {
++        var random=new Random(3801);
++        double Number()=>2*random.NextDouble()-1;
++        CollisionVector Vector()=>new(Number(),Number(),Number());
++        for(var i=0;i<500;i++)
++        {
++            var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,Vector()*4,Vector()*3,1,new(.1,.2,.4));
++            var b=new PhysicsBody(new(1),PhysicsMotionType.Dynamic,RigidPose.Identity,Vector()*4,Vector()*3,2,new(.4,.3,.2));
++            var direction=Vector(); direction/=direction.Length;
++            var j=ConstraintJacobian.AtPoint(a,b,Vector(),direction);
++            var energy=a.KineticEnergy+b.KineticEnergy;
++            var impulse=random.NextDouble()*3; var work=random.NextDouble()*2;
++            var result=PoweredImpulse.Apply(j.Bind(a,b),Number()*10,impulse,work);
++            Assert.InRange(Math.Abs(result.Impulse),0,impulse); Assert.InRange(result.SuppliedWork,0,work);
++            var change=a.KineticEnergy+b.KineticEnergy-energy;
++            Assert.InRange(Math.Abs(change-(result.SuppliedWork-result.DissipatedWork)),0,1e-11);
++        }
++    }
++
++    [Fact]
++    public void PrescribedCarrierWorkIsSeparateFromMotorSupply()
++    {
++        var a=Body(0);
++        var b=new PhysicsBody(new(1),PhysicsMotionType.Kinematic,RigidPose.Identity,new(0,0,10),default);
++        var result=PoweredImpulse.Apply(Linear.Bind(a,b),0,100,0);
++        Assert.InRange(Math.Abs(a.LinearVelocity.Z-10),0,1e-12);
++        Assert.Equal(0,result.SuppliedWork);
++        Assert.InRange(Math.Abs(result.DissipatedWork-50),0,1e-12);
++        Assert.InRange(Math.Abs(a.KineticEnergy-50),0,1e-12);
++        Assert.Equal(new CollisionVector(0,0,10),b.LinearVelocity);
++    }
++
++    [Theory]
++    [InlineData(-1,false)]
++    [InlineData(1,false)]
++    [InlineData(-1,true)]
++    [InlineData(1,true)]
++    public void ArbitraryBodyGradientAccountsForEveryParticipantAndBraking(int sign,bool splitTerms)
++    {
++        var a=Body(0);var b=Body(1);var c=Body(2);
++        var terms=new List<ConstraintTerm>
++        {
++            new(b,new(0,0,.5),default),
++            new(c,new(0,0,-1),default)
++        };
++        if(splitTerms)
++        {
++            terms.Add(new(a,new(0,0,.25),default));
++            terms.Add(new(a,new(0,0,.25),default));
++        }
++        else terms.Add(new(a,new(0,0,.5),default));
++        var gradient=new ConstraintGradient(terms.ToArray());
++        var before=new[]{a.Snapshot(),b.Snapshot(),c.Snapshot()};
++        var use=PoweredImpulse.Apply(gradient,sign*10,100,1);
++        var after=new[]{a.Snapshot(),b.Snapshot(),c.Snapshot()};
++        Assert.InRange(use.SuppliedWork,.999999999999,1);
++        Assert.InRange(Math.Abs(a.KineticEnergy+b.KineticEnergy+c.KineticEnergy-use.SuppliedWork),0,1e-12);
++        Assert.InRange((a.LinearVelocity+b.LinearVelocity+c.LinearVelocity).Length,0,1e-12);
++        Assert.Equal(a.LinearVelocity,b.LinearVelocity);
++        Assert.InRange(Math.Abs(c.LinearVelocity.Z+2*a.LinearVelocity.Z),0,1e-12);
++        Assert.True(sign*a.LinearVelocity.Z>0);
++        var braking=PoweredImpulse.Apply(gradient,-sign*10,100,0);
++        Assert.Equal(0,braking.SuppliedWork);
++        Assert.InRange(Math.Abs(braking.DissipatedWork-use.SuppliedWork),0,1e-12);
++        Assert.InRange(a.KineticEnergy+b.KineticEnergy+c.KineticEnergy,0,1e-12);
++        a.Restore(before[0]);b.Restore(before[1]);c.Restore(before[2]);
++        Assert.Equal(use,PoweredImpulse.Apply(gradient,sign*10,100,1));
++        Assert.Equal(after,new[]{a.Snapshot(),b.Snapshot(),c.Snapshot()});
++    }
++
++    [Fact]
++    public void DisabledMotorDoesNotBrakeOrConsumeSupply()
++    {
++        var a=Body(0,new(0,0,2)); var b=Fixed(1); var joint=Joint(FrameJointKind.Slider,a,b);
++        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default));
++        world.Step([],[new(joint.Id,-10,0,3,1000000)],.1);
++        Assert.Equal(new CollisionVector(0,0,2),a.LinearVelocity);
++        var use=Assert.Single(world.MotorUse.ToArray());
++        Assert.Equal(0,use.AbsoluteImpulse); Assert.Equal(0,use.SuppliedWork); Assert.Equal(0,use.DissipatedWork);
++        Assert.Equal(3,use.RemainingWork);
++    }
++}
+--- a/CuriousContraptions.tests/PhysicsImpactJointTests.cs
++++ b/CuriousContraptions.tests/PhysicsImpactJointTests.cs
+@@ -1,274 +1,274 @@
+-using Godot;
+-using CuriousContraptions.Physics;
+-
+-namespace CuriousContraptions.Tests;
+-
+-public class PhysicsImpactJointTests
+-{
+-    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
+-    private static readonly ContactMaterial Elastic=new(1,0,0);
+-    private sealed record EffectState(int Count,PhysicsImpactContext? Last):PhysicsImpactEffectState;
+-    private sealed class Effect(PhysicsBodyId owner,Func<PhysicsImpactContext,PhysicsImpactCommands> commands):PhysicsImpactEffect(owner)
+-    {
+-        public EffectState State { get; private set; }=new(0,null);
+-        public override PhysicsImpactEffectState Capture()=>State;
+-        public override void Restore(PhysicsImpactEffectState state)=>State=(EffectState)state;
+-        public override PhysicsImpactCommands OnImpact(PhysicsImpactContext context)
+-        {
+-            State=new(State.Count+1,context);
+-            return State.Count==1?commands(context):new([],[],[]);
+-        }
+-    }
+-    private static PhysicsBody Ball(int id=0,CollisionVector? center=null,CollisionVector? velocity=null)=>
+-        new(new(id),PhysicsMotionType.Dynamic,RigidPose.At(center??new(-2,0,0)),velocity??new(10,0,0),default,1,new(.1,.1,.1));
+-    private static PhysicsObject Object(PhysicsBody body,ConvexGeometry geometry)=>new(body,
+-        new([new(geometry,Transform3D.Identity)]),Elastic);
+-    private static PhysicsObject Wall(int id=1,double x=0)=>Object(new(new(id),PhysicsMotionType.Static,
+-        RigidPose.At(new(x,0,0)),default,default),new ConvexBox(new(.01,10,10)));
+-    private static PhysicsBody Anchor()=>new(new(11),PhysicsMotionType.Static,RigidPose.At(new(0,30,0)),default,default);
+-    private static PhysicsObject Mount(PhysicsBody anchor)=>new(anchor,
+-        new([new(new ConvexSphere(.1),new Transform3D(Basis.Identity,new(2,0,0)))]),Elastic);
+-    private static PhysicsFrameJoint Slider(PhysicsBody body,PhysicsBody anchor,JointTravelRange? range=null)=>
+-        new(new(7),FrameJointKind.Slider,body,Origin,anchor,Origin,ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
+-    private static void Near(double expected,double actual)=>Assert.InRange(Math.Abs(expected-actual),0,1e-7);
+-
+-    [Fact]
+-    public void ImpactAttachesAtCurrentPoseStopsRemainingMotionAndReplaysAtEndpoint()
+-    {
+-        var ball=Ball(); var wall=Wall();
+-        var effect=new Effect(wall.Body.Id,c=>new([],[],[PhysicsJointChange.Attach(
+-            new PhysicsFrameJoint(new(7),FrameJointKind.BallSocket,ball,Origin,wall.Body,
+-                new(c.A.After.Pose.Center,RigidRotation.Identity),ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both))]));
+-        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall],[],new(default,maximumStep:1));
+-        var before=world.Capture();
+-        var result=world.Step([],[],.2);
+-        var after=ball.Snapshot(); var context=effect.State.Last!.Value;
+-        Near(context.A.After.Pose.Center.X,ball.Center.X); Near(0,ball.LinearVelocity.Length);
+-        Near(-10,context.A.After.LinearVelocity.X);
+-        Assert.Equal(1,effect.State.Count); Assert.Single(world.Joints.ToArray());
+-        world.Restore(before); Assert.Empty(world.Joints.ToArray());
+-        Assert.Equal(result,world.Step([],[],.2)); Assert.Equal(after,ball.Snapshot());
+-        world.Restore(before); world.Step([],[],context.Impact.Time);
+-        Assert.Single(world.Joints.ToArray()); Near(0,ball.LinearVelocity.Length);
+-        Near(context.A.After.Pose.Center.X,ball.Center.X);
+-    }
+-
+-    [Theory]
+-    [InlineData(PhysicsJointChangeKind.Attach)]
+-    [InlineData(PhysicsJointChangeKind.Detach)]
+-    public void ColliderAndJointChangesValidateTheCombinedFinalGraph(PhysicsJointChangeKind kind)
+-    {
+-        var ball=Ball(); var wall=Wall(); var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor();
+-        var joint=Slider(load,anchor,new(0,0));
+-        var loadObject=Object(load,new ConvexSphere(.5));
+-        var effect=new Effect(wall.Body.Id,_=>new([],
+-            [new(load.Id,loadObject.Geometry,Elastic,kind==PhysicsJointChangeKind.Attach?CollisionParticipation.Enabled:CollisionParticipation.Disabled)],
+-            [kind==PhysicsJointChangeKind.Attach?PhysicsJointChange.Attach(joint):PhysicsJointChange.Detach(joint.Id)]));
+-        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,loadObject,Object(anchor,new ConvexSphere(.5))],
+-            kind==PhysicsJointChangeKind.Attach?[]:[joint],new(default,maximumStep:1));
+-        if(kind==PhysicsJointChangeKind.Attach)
+-            world.ApplyColliderUpdates([new(load.Id,loadObject.Geometry,Elastic,CollisionParticipation.Disabled)]);
+-        var before=world.Capture(); var declaration=world.Collider(load.Id);
+-        world.Step([],[],.2);
+-        Assert.Equal(kind==PhysicsJointChangeKind.Attach?1:0,world.Joints.Length);
+-        Assert.Equal(kind==PhysicsJointChangeKind.Attach?CollisionParticipation.Enabled:CollisionParticipation.Disabled,
+-            world.Collider(load.Id).Declaration.Participation);
+-        var after=world.Capture();
+-        world.Restore(before); Assert.Equal(declaration,world.Collider(load.Id));
+-        Assert.Equal(kind==PhysicsJointChangeKind.Attach?0:1,world.Joints.Length);
+-        Assert.Equal(0,effect.State.Count);
+-        world.Step([],[],.2);
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-    }
+-
+-    [Theory]
+-    [InlineData(false)]
+-    [InlineData(true)]
+-    public void ImpactReleasesRopeWhileMissingImpactLeavesLoadHeld(bool hit)
+-    {
+-        var ball=Ball(0,new(-2,hit?0:20,0)); var wall=Wall();
+-        var load=Ball(10,new(0,28,0),default(CollisionVector)); var anchor=Anchor();
+-        var rope=new PhysicsRopeJoint(new(7),new([new(load,default),new(anchor,default)]),2,ConnectedBodyCollision.Enabled);
+-        var effect=new Effect(wall.Body.Id,_=>new([],[],[PhysicsJointChange.Detach(rope.Id)]));
+-        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,Object(load,new ConvexSphere(.1)),Object(anchor,new ConvexSphere(.1))],
+-            [rope],new(new(0,-10,0),maximumStep:.01));
+-        var before=world.Capture(); world.Step([],[],.3);
+-        if(hit)
+-        {
+-            Assert.Empty(world.Joints.ToArray()); Assert.True(load.Center.Y<27.95); Assert.True(load.LinearVelocity.Y < -1);
+-        }
+-        else { Assert.Single(world.Joints.ToArray()); Near(28,load.Center.Y); Near(0,load.LinearVelocity.Y); }
+-        var after=load.Snapshot();
+-        world.Restore(before); Assert.Same(rope,Assert.Single(world.Joints.ToArray()));
+-        world.Step([],[],.3); Assert.Equal(after,load.Snapshot());
+-    }
+-
+-    [Theory]
+-    [InlineData(PhysicsJointChangeKind.Detach,true)]
+-    [InlineData(PhysicsJointChangeKind.Replace,true)]
+-    [InlineData(PhysicsJointChangeKind.Detach,false)]
+-    [InlineData(PhysicsJointChangeKind.Replace,false)]
+-    public void DrivenJointChangeRetainsSpentWorkAndUsesCurrentConstraint(PhysicsJointChangeKind kind,bool hit)
+-    {
+-        var ball=Ball(center:new(-2,hit?0:20,0)); var wall=Wall();
+-        var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor();
+-        var slider=Slider(load,anchor);
+-        var effect=new Effect(wall.Body.Id,_=>new([],[],[kind==PhysicsJointChangeKind.Detach?
+-            PhysicsJointChange.Detach(slider.Id):PhysicsJointChange.Replace(Slider(load,anchor,new(slider.Travel.Error,slider.Travel.Error)))]));
+-        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,Object(load,new ConvexSphere(.1)),Mount(anchor)],
+-            [slider],new(default,maximumStep:.1));
+-        PhysicsMotorCommand motor=new(slider.Id,10,1,10,1000000);
+-        var before=world.Capture(); world.Step([],[motor],.3);
+-        var report=world.MotorUse[0];
+-        // A held unit force accelerates until the event. Detachment ends force;
+-        // replacing the guide with a lock retains force, but performs no further work.
+-        var acceleratingTime=hit?effect.State.Last!.Value.Impact.Time:.3;
+-        var expectedImpulse=hit&&kind==PhysicsJointChangeKind.Detach?acceleratingTime:.3;
+-        Near(expectedImpulse,report.AbsoluteImpulse);
+-        Near(hit&&kind==PhysicsJointChangeKind.Replace?0:acceleratingTime,load.LinearVelocity.Z);
+-        Near(.5*acceleratingTime*acceleratingTime,report.SuppliedWork);
+-        Near(10-report.SuppliedWork,report.RemainingWork);
+-        Assert.Equal(hit?1:0,effect.State.Count);
+-        if(hit) Assert.InRange(effect.State.Last!.Value.Impact.Time,.1,.2);
+-        else Assert.Same(slider,Assert.Single(world.Joints.ToArray()));
+-        Assert.Equal(slider.Id,report.Joint);
+-        var after=world.Capture();var effectAfter=effect.State;
+-        world.Restore(before); world.Step([],[motor],.3);
+-        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(report,world.MotorUse[0]);Assert.Equal(effectAfter,effect.State);
+-    }
+-
+-    [Fact]
+-    public void DetachThenReattachDoesNotReplenishTheStepMotorBudget()
+-    {
+-        var ball=Ball(); var right=Wall(); var left=Wall(2,-3);
+-        var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor(); var slider=Slider(load,anchor);
+-        var detach=new Effect(right.Body.Id,_=>new([],[],[PhysicsJointChange.Detach(slider.Id)]));
+-        var attach=new Effect(left.Body.Id,_=>new([],[],[PhysicsJointChange.Attach(slider)]));
+-        var world=new PhysicsWorld([detach,attach],[Object(ball,new ConvexSphere(.5)),right,left,
+-            Object(load,new ConvexSphere(.1)),Mount(anchor)],[slider],new(default,maximumStep:.1));
+-        var before=world.Capture();
+-        world.Step([],[new(slider.Id,10,1,.025,1000000)],.5);
+-        Assert.Equal(1,detach.State.Count); Assert.Equal(1,attach.State.Count);
+-        Assert.Same(slider,Assert.Single(world.Joints.ToArray()));
+-        var report=world.MotorUse[0];
+-        Assert.InRange(report.SuppliedWork,.0249999,.025);
+-        Near(0,report.RemainingWork);
+-        Near(Math.Sqrt(.05),load.LinearVelocity.Z);
+-        Near(Math.Sqrt(.05),report.AbsoluteImpulse);
+-        var after=load.Snapshot();
+-        world.Restore(before); world.Step([],[new(slider.Id,10,1,.025,1000000)],.5);
+-        Assert.Equal(after,load.Snapshot()); Assert.Equal(report,world.MotorUse[0]);
+-    }
+-
+-    [Fact]
+-    public void ActiveMotorCannotChangeFromLinearToAngularSupply()
+-    {
+-        var ball=Ball(); var wall=Wall(); var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor();
+-        var slider=Slider(load,anchor);
+-        var effect=new Effect(wall.Body.Id,_=>new([],[],[PhysicsJointChange.Replace(
+-            new PhysicsFrameJoint(slider.Id,FrameJointKind.Hinge,load,Origin,anchor,Origin,ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both))]));
+-        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,Object(load,new ConvexSphere(.1)),Object(anchor,new ConvexSphere(.1))],
+-            [slider],new(default,maximumStep:.1));
+-        var before=world.Capture();
+-        Assert.Throws<InvalidOperationException>(()=>world.Step([],[new(slider.Id,10,1,10,1000000)],.3));
+-        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Same(slider,Assert.Single(world.Joints.ToArray())); Assert.Equal(0,effect.State.Count);
+-        Assert.Empty(world.MotorUse.ToArray()); Assert.Equal(0,world.Time);
+-    }
+-
+-    public enum InvalidChange { MissingDetach, MissingReplace, DuplicateAttach, ConflictingBatch, Uninitialised, ForeignBody, OffAxis }
+-
+-    [Theory]
+-    [InlineData(InvalidChange.MissingDetach)]
+-    [InlineData(InvalidChange.MissingReplace)]
+-    [InlineData(InvalidChange.DuplicateAttach)]
+-    [InlineData(InvalidChange.ConflictingBatch)]
+-    [InlineData(InvalidChange.Uninitialised)]
+-    [InlineData(InvalidChange.ForeignBody)]
+-    [InlineData(InvalidChange.OffAxis)]
+-    public void InvalidScheduledChangeRollsBackTheWholeStep(InvalidChange invalid)
+-    {
+-        var ball=Ball(); var wall=Wall(); var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor();
+-        var slider=Slider(load,anchor);
+-        PhysicsJointChange[] changes=invalid switch
+-        {
+-            InvalidChange.MissingDetach=>[PhysicsJointChange.Detach(slider.Id)],
+-            InvalidChange.MissingReplace=>[PhysicsJointChange.Replace(slider)],
+-            InvalidChange.DuplicateAttach=>[PhysicsJointChange.Attach(slider)],
+-            InvalidChange.ConflictingBatch=>[PhysicsJointChange.Attach(slider),PhysicsJointChange.Detach(slider.Id)],
+-            InvalidChange.Uninitialised=>[default],
+-            InvalidChange.ForeignBody=>[PhysicsJointChange.Attach(Slider(Ball(10,new(0,30,0),default(CollisionVector)),anchor))],
+-            InvalidChange.OffAxis=>[PhysicsJointChange.Attach(Slider(ball,anchor))],
+-            _=>throw new ArgumentOutOfRangeException(nameof(invalid))
+-        };
+-        var effect=new Effect(wall.Body.Id,_=>new([],[],changes));
+-        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,Object(load,new ConvexSphere(.1)),Object(anchor,new ConvexSphere(.1))],
+-            invalid==InvalidChange.DuplicateAttach?[slider]:[],new(default,maximumStep:1));
+-        // The control load overlaps its carrier only in the declared linked case.
+-        if(invalid!=InvalidChange.DuplicateAttach)
+-        {
+-            var c=world.Collider(load.Id).Declaration;
+-            world.ApplyColliderUpdates([new(load.Id,c.Geometry,c.Material,CollisionParticipation.Disabled)]);
+-        }
+-        var before=world.Capture();
+-        if(invalid==InvalidChange.OffAxis) Assert.Throws<InvalidOperationException>(()=>world.Step([],[],.2));
+-        else Assert.Throws<ArgumentException>(()=>world.Step([],[],.2));
+-        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Equal(invalid==InvalidChange.DuplicateAttach?1:0,world.Joints.Length);
+-        Assert.Equal(0,effect.State.Count); Assert.Equal(0,world.Time); Assert.Equal(0,world.RetainedContactPairs);
+-    }
+-
+-
+-    [Fact]
+-    public void SimultaneousEffectsCannotSilentlyOverrideEachOthersJointChanges()
+-    {
+-        var ball=Ball(); var first=Wall(); var second=Wall(2);
+-        var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor(); var slider=Slider(load,anchor);
+-        var a=new Effect(first.Body.Id,_=>new([],[],[PhysicsJointChange.Detach(slider.Id)]));
+-        var b=new Effect(second.Body.Id,_=>new([],[],[PhysicsJointChange.Detach(slider.Id)]));
+-        var world=new PhysicsWorld([b,a],[Object(ball,new ConvexSphere(.5)),first,second,Object(load,new ConvexSphere(.1)),Mount(anchor)],
+-            [slider],new(default,maximumStep:1));
+-        var before=world.Capture();
+-        Assert.Throws<ArgumentException>(()=>world.Step([],[],.2));
+-        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Same(slider,Assert.Single(world.Joints.ToArray()));
+-        Assert.Equal(0,a.State.Count); Assert.Equal(0,b.State.Count);
+-        Assert.Equal(0,world.Time); Assert.Equal(0,world.RetainedContactPairs);
+-    }
+-
+-    [Fact]
+-    public void LaterFailureRestoresAlreadyCommittedJointAndColliderChanges()
+-    {
+-        var ball=Ball(); var right=Wall(); var left=Wall(2,-3);
+-        var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor(); var slider=Slider(load,anchor);
+-        var loadObject=Object(load,new ConvexSphere(.1));
+-        var effect=new Effect(right.Body.Id,_=>new([],
+-            [new(load.Id,loadObject.Geometry,Elastic,CollisionParticipation.Disabled)],[PhysicsJointChange.Attach(slider)]));
+-        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),right,left,loadObject,Mount(anchor)],[],
+-            new(default,maximumStep:1,maximumEvents:1));
+-        var before=world.Capture(); var collider=world.Collider(load.Id);
+-        Assert.Throws<InvalidOperationException>(()=>world.Step([],[],.4));
+-        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-        Assert.Empty(world.Joints.ToArray()); Assert.Equal(collider,world.Collider(load.Id));
+-        Assert.Equal(0,effect.State.Count); Assert.Equal(0,world.Time);
+-        Assert.Empty(world.Impacts.ToArray()); Assert.Equal(0,world.RetainedContactPairs);
+-        // Same declarations succeed when the requested interval ends before the later failure.
+-        world.Step([],[],.2);
+-        Assert.Same(slider,Assert.Single(world.Joints.ToArray()));
+-        Assert.Equal(CollisionParticipation.Disabled,world.Collider(load.Id).Declaration.Participation);
+-        Assert.Equal(1,effect.State.Count);
+-    }
+-
+-    [Fact]
+-    public void JointCommandArrayIsCopiedAndNullDeclarationsReject()
+-    {
+-        PhysicsJointChange[] source=[PhysicsJointChange.Detach(new(8))];
+-        var commands=new PhysicsImpactCommands([],[],source);
+-        source[0]=default;
+-        Assert.Equal(PhysicsJointChangeKind.Detach,commands.Joints[0].Kind);
+-        Assert.Equal(new PhysicsJointId(8),commands.Joints[0].Id);
+-        Assert.Throws<ArgumentNullException>(()=>PhysicsJointChange.Attach(null!));
+-        Assert.Throws<ArgumentNullException>(()=>PhysicsJointChange.Replace(null!));
+-    }
+-}
++using Godot;
++using CuriousContraptions.Physics;
++
++namespace CuriousContraptions.Tests;
++
++public class PhysicsImpactJointTests
++{
++    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
++    private static readonly ContactMaterial Elastic=new(1,0,0);
++    private sealed record EffectState(int Count,PhysicsImpactContext? Last):PhysicsImpactEffectState;
++    private sealed class Effect(PhysicsBodyId owner,Func<PhysicsImpactContext,PhysicsImpactCommands> commands):PhysicsImpactEffect(owner)
++    {
++        public EffectState State { get; private set; }=new(0,null);
++        public override PhysicsImpactEffectState Capture()=>State;
++        public override void Restore(PhysicsImpactEffectState state)=>State=(EffectState)state;
++        public override PhysicsImpactCommands OnImpact(PhysicsImpactContext context)
++        {
++            State=new(State.Count+1,context);
++            return State.Count==1?commands(context):new([],[],[]);
++        }
++    }
++    private static PhysicsBody Ball(int id=0,CollisionVector? center=null,CollisionVector? velocity=null)=>
++        new(new(id),PhysicsMotionType.Dynamic,RigidPose.At(center??new(-2,0,0)),velocity??new(10,0,0),default,1,new(.1,.1,.1));
++    private static PhysicsObject Object(PhysicsBody body,ConvexGeometry geometry)=>new(body,
++        new([new(geometry,Transform3D.Identity)]),Elastic);
++    private static PhysicsObject Wall(int id=1,double x=0)=>Object(new(new(id),PhysicsMotionType.Static,
++        RigidPose.At(new(x,0,0)),default,default),new ConvexBox(new(.01,10,10)));
++    private static PhysicsBody Anchor()=>new(new(11),PhysicsMotionType.Static,RigidPose.At(new(0,30,0)),default,default);
++    private static PhysicsObject Mount(PhysicsBody anchor)=>new(anchor,
++        new([new(new ConvexSphere(.1),new Transform3D(Basis.Identity,new(2,0,0)))]),Elastic);
++    private static PhysicsFrameJoint Slider(PhysicsBody body,PhysicsBody anchor,JointTravelRange? range=null)=>
++        new(new(7),FrameJointKind.Slider,body,Origin,anchor,Origin,ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
++    private static void Near(double expected,double actual)=>Assert.InRange(Math.Abs(expected-actual),0,1e-7);
++
++    [Fact]
++    public void ImpactAttachesAtCurrentPoseStopsRemainingMotionAndReplaysAtEndpoint()
++    {
++        var ball=Ball(); var wall=Wall();
++        var effect=new Effect(wall.Body.Id,c=>new([],[],[PhysicsJointChange.Attach(
++            new PhysicsFrameJoint(new(7),FrameJointKind.BallSocket,ball,Origin,wall.Body,
++                new(c.A.After.Pose.Center,RigidRotation.Identity),ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both))]));
++        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall],[],new(default,maximumStep:1));
++        var before=world.Capture();
++        var result=world.Step([],[],.2);
++        var after=ball.Snapshot(); var context=effect.State.Last!.Value;
++        Near(context.A.After.Pose.Center.X,ball.Center.X); Near(0,ball.LinearVelocity.Length);
++        Near(-10,context.A.After.LinearVelocity.X);
++        Assert.Equal(1,effect.State.Count); Assert.Single(world.Joints.ToArray());
++        world.Restore(before); Assert.Empty(world.Joints.ToArray());
++        Assert.Equal(result,world.Step([],[],.2)); Assert.Equal(after,ball.Snapshot());
++        world.Restore(before); world.Step([],[],context.Impact.Time);
++        Assert.Single(world.Joints.ToArray()); Near(0,ball.LinearVelocity.Length);
++        Near(context.A.After.Pose.Center.X,ball.Center.X);
++    }
++
++    [Theory]
++    [InlineData(PhysicsJointChangeKind.Attach)]
++    [InlineData(PhysicsJointChangeKind.Detach)]
++    public void ColliderAndJointChangesValidateTheCombinedFinalGraph(PhysicsJointChangeKind kind)
++    {
++        var ball=Ball(); var wall=Wall(); var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor();
++        var joint=Slider(load,anchor,new(0,0));
++        var loadObject=Object(load,new ConvexSphere(.5));
++        var effect=new Effect(wall.Body.Id,_=>new([],
++            [new(load.Id,loadObject.Geometry,Elastic,kind==PhysicsJointChangeKind.Attach?CollisionParticipation.Enabled:CollisionParticipation.Disabled)],
++            [kind==PhysicsJointChangeKind.Attach?PhysicsJointChange.Attach(joint):PhysicsJointChange.Detach(joint.Id)]));
++        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,loadObject,Object(anchor,new ConvexSphere(.5))],
++            kind==PhysicsJointChangeKind.Attach?[]:[joint],new(default,maximumStep:1));
++        if(kind==PhysicsJointChangeKind.Attach)
++            world.ApplyColliderUpdates([new(load.Id,loadObject.Geometry,Elastic,CollisionParticipation.Disabled)]);
++        var before=world.Capture(); var declaration=world.Collider(load.Id);
++        world.Step([],[],.2);
++        Assert.Equal(kind==PhysicsJointChangeKind.Attach?1:0,world.Joints.Length);
++        Assert.Equal(kind==PhysicsJointChangeKind.Attach?CollisionParticipation.Enabled:CollisionParticipation.Disabled,
++            world.Collider(load.Id).Declaration.Participation);
++        var after=world.Capture();
++        world.Restore(before); Assert.Equal(declaration,world.Collider(load.Id));
++        Assert.Equal(kind==PhysicsJointChangeKind.Attach?0:1,world.Joints.Length);
++        Assert.Equal(0,effect.State.Count);
++        world.Step([],[],.2);
++        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++    }
++
++    [Theory]
++    [InlineData(false)]
++    [InlineData(true)]
++    public void ImpactReleasesRopeWhileMissingImpactLeavesLoadHeld(bool hit)
++    {
++        var ball=Ball(0,new(-2,hit?0:20,0)); var wall=Wall();
++        var load=Ball(10,new(0,28,0),default(CollisionVector)); var anchor=Anchor();
++        var rope=new PhysicsRopeJoint(new(7),new([new(load,default),new(anchor,default)]),2,ConnectedBodyCollision.Enabled);
++        var effect=new Effect(wall.Body.Id,_=>new([],[],[PhysicsJointChange.Detach(rope.Id)]));
++        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,Object(load,new ConvexSphere(.1)),Object(anchor,new ConvexSphere(.1))],
++            [rope],new(new(0,-10,0),maximumStep:.01));
++        var before=world.Capture(); world.Step([],[],.3);
++        if(hit)
++        {
++            Assert.Empty(world.Joints.ToArray()); Assert.True(load.Center.Y<27.95); Assert.True(load.LinearVelocity.Y < -1);
++        }
++        else { Assert.Single(world.Joints.ToArray()); Near(28,load.Center.Y); Near(0,load.LinearVelocity.Y); }
++        var after=load.Snapshot();
++        world.Restore(before); Assert.Same(rope,Assert.Single(world.Joints.ToArray()));
++        world.Step([],[],.3); Assert.Equal(after,load.Snapshot());
++    }
++
++    [Theory]
++    [InlineData(PhysicsJointChangeKind.Detach,true)]
++    [InlineData(PhysicsJointChangeKind.Replace,true)]
++    [InlineData(PhysicsJointChangeKind.Detach,false)]
++    [InlineData(PhysicsJointChangeKind.Replace,false)]
++    public void DrivenJointChangeRetainsSpentWorkAndUsesCurrentConstraint(PhysicsJointChangeKind kind,bool hit)
++    {
++        var ball=Ball(center:new(-2,hit?0:20,0)); var wall=Wall();
++        var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor();
++        var slider=Slider(load,anchor);
++        var effect=new Effect(wall.Body.Id,_=>new([],[],[kind==PhysicsJointChangeKind.Detach?
++            PhysicsJointChange.Detach(slider.Id):PhysicsJointChange.Replace(Slider(load,anchor,new(slider.Travel.Error,slider.Travel.Error)))]));
++        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,Object(load,new ConvexSphere(.1)),Mount(anchor)],
++            [slider],new(default,maximumStep:.1));
++        PhysicsMotorCommand motor=new(slider.Id,10,1,10,1000000);
++        var before=world.Capture(); world.Step([],[motor],.3);
++        var report=world.MotorUse[0];
++        // Unit effort supplies 0.1 impulse per substep. The impact arrives
++        // during substep two: removing or locking the guide prevents the third
++        // impulse, but must retain the work already supplied to reach speed 0.2.
++        var expectedImpulse=hit?.2:.3;
++        Near(expectedImpulse,report.AbsoluteImpulse);
++        Near(hit&&kind==PhysicsJointChangeKind.Replace?0:expectedImpulse,load.LinearVelocity.Z);
++        Near(.5*expectedImpulse*expectedImpulse,report.SuppliedWork);
++        Near(10-report.SuppliedWork,report.RemainingWork);
++        Assert.Equal(hit?1:0,effect.State.Count);
++        if(hit) Assert.InRange(effect.State.Last!.Value.Impact.Time,.1,.2);
++        else Assert.Same(slider,Assert.Single(world.Joints.ToArray()));
++        Assert.Equal(slider.Id,report.Joint);
++        var after=world.Capture();var effectAfter=effect.State;
++        world.Restore(before); world.Step([],[motor],.3);
++        Assert.Equal(after.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Equal(report,world.MotorUse[0]);Assert.Equal(effectAfter,effect.State);
++    }
++
++    [Fact]
++    public void DetachThenReattachDoesNotReplenishTheStepMotorBudget()
++    {
++        var ball=Ball(); var right=Wall(); var left=Wall(2,-3);
++        var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor(); var slider=Slider(load,anchor);
++        var detach=new Effect(right.Body.Id,_=>new([],[],[PhysicsJointChange.Detach(slider.Id)]));
++        var attach=new Effect(left.Body.Id,_=>new([],[],[PhysicsJointChange.Attach(slider)]));
++        var world=new PhysicsWorld([detach,attach],[Object(ball,new ConvexSphere(.5)),right,left,
++            Object(load,new ConvexSphere(.1)),Mount(anchor)],[slider],new(default,maximumStep:.1));
++        var before=world.Capture();
++        world.Step([],[new(slider.Id,10,1,.025,1000000)],.5);
++        Assert.Equal(1,detach.State.Count); Assert.Equal(1,attach.State.Count);
++        Assert.Same(slider,Assert.Single(world.Joints.ToArray()));
++        var report=world.MotorUse[0];
++        Assert.InRange(report.SuppliedWork,.0249999,.025);
++        Near(0,report.RemainingWork);
++        Near(Math.Sqrt(.05),load.LinearVelocity.Z);
++        Near(Math.Sqrt(.05),report.AbsoluteImpulse);
++        var after=load.Snapshot();
++        world.Restore(before); world.Step([],[new(slider.Id,10,1,.025,1000000)],.5);
++        Assert.Equal(after,load.Snapshot()); Assert.Equal(report,world.MotorUse[0]);
++    }
++
++    [Fact]
++    public void ActiveMotorCannotChangeFromLinearToAngularSupply()
++    {
++        var ball=Ball(); var wall=Wall(); var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor();
++        var slider=Slider(load,anchor);
++        var effect=new Effect(wall.Body.Id,_=>new([],[],[PhysicsJointChange.Replace(
++            new PhysicsFrameJoint(slider.Id,FrameJointKind.Hinge,load,Origin,anchor,Origin,ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both))]));
++        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,Object(load,new ConvexSphere(.1)),Object(anchor,new ConvexSphere(.1))],
++            [slider],new(default,maximumStep:.1));
++        var before=world.Capture();
++        Assert.Throws<InvalidOperationException>(()=>world.Step([],[new(slider.Id,10,1,10,1000000)],.3));
++        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Same(slider,Assert.Single(world.Joints.ToArray())); Assert.Equal(0,effect.State.Count);
++        Assert.Empty(world.MotorUse.ToArray()); Assert.Equal(0,world.Time);
++    }
++
++    public enum InvalidChange { MissingDetach, MissingReplace, DuplicateAttach, ConflictingBatch, Uninitialised, ForeignBody, OffAxis }
++
++    [Theory]
++    [InlineData(InvalidChange.MissingDetach)]
++    [InlineData(InvalidChange.MissingReplace)]
++    [InlineData(InvalidChange.DuplicateAttach)]
++    [InlineData(InvalidChange.ConflictingBatch)]
++    [InlineData(InvalidChange.Uninitialised)]
++    [InlineData(InvalidChange.ForeignBody)]
++    [InlineData(InvalidChange.OffAxis)]
++    public void InvalidScheduledChangeRollsBackTheWholeStep(InvalidChange invalid)
++    {
++        var ball=Ball(); var wall=Wall(); var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor();
++        var slider=Slider(load,anchor);
++        PhysicsJointChange[] changes=invalid switch
++        {
++            InvalidChange.MissingDetach=>[PhysicsJointChange.Detach(slider.Id)],
++            InvalidChange.MissingReplace=>[PhysicsJointChange.Replace(slider)],
++            InvalidChange.DuplicateAttach=>[PhysicsJointChange.Attach(slider)],
++            InvalidChange.ConflictingBatch=>[PhysicsJointChange.Attach(slider),PhysicsJointChange.Detach(slider.Id)],
++            InvalidChange.Uninitialised=>[default],
++            InvalidChange.ForeignBody=>[PhysicsJointChange.Attach(Slider(Ball(10,new(0,30,0),default(CollisionVector)),anchor))],
++            InvalidChange.OffAxis=>[PhysicsJointChange.Attach(Slider(ball,anchor))],
++            _=>throw new ArgumentOutOfRangeException(nameof(invalid))
++        };
++        var effect=new Effect(wall.Body.Id,_=>new([],[],changes));
++        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),wall,Object(load,new ConvexSphere(.1)),Object(anchor,new ConvexSphere(.1))],
++            invalid==InvalidChange.DuplicateAttach?[slider]:[],new(default,maximumStep:1));
++        // The control load overlaps its carrier only in the declared linked case.
++        if(invalid!=InvalidChange.DuplicateAttach)
++        {
++            var c=world.Collider(load.Id).Declaration;
++            world.ApplyColliderUpdates([new(load.Id,c.Geometry,c.Material,CollisionParticipation.Disabled)]);
++        }
++        var before=world.Capture();
++        if(invalid==InvalidChange.OffAxis) Assert.Throws<InvalidOperationException>(()=>world.Step([],[],.2));
++        else Assert.Throws<ArgumentException>(()=>world.Step([],[],.2));
++        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Equal(invalid==InvalidChange.DuplicateAttach?1:0,world.Joints.Length);
++        Assert.Equal(0,effect.State.Count); Assert.Equal(0,world.Time); Assert.Equal(0,world.RetainedContactPairs);
++    }
++
++
++    [Fact]
++    public void SimultaneousEffectsCannotSilentlyOverrideEachOthersJointChanges()
++    {
++        var ball=Ball(); var first=Wall(); var second=Wall(2);
++        var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor(); var slider=Slider(load,anchor);
++        var a=new Effect(first.Body.Id,_=>new([],[],[PhysicsJointChange.Detach(slider.Id)]));
++        var b=new Effect(second.Body.Id,_=>new([],[],[PhysicsJointChange.Detach(slider.Id)]));
++        var world=new PhysicsWorld([b,a],[Object(ball,new ConvexSphere(.5)),first,second,Object(load,new ConvexSphere(.1)),Mount(anchor)],
++            [slider],new(default,maximumStep:1));
++        var before=world.Capture();
++        Assert.Throws<ArgumentException>(()=>world.Step([],[],.2));
++        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Same(slider,Assert.Single(world.Joints.ToArray()));
++        Assert.Equal(0,a.State.Count); Assert.Equal(0,b.State.Count);
++        Assert.Equal(0,world.Time); Assert.Equal(0,world.RetainedContactPairs);
++    }
++
++    [Fact]
++    public void LaterFailureRestoresAlreadyCommittedJointAndColliderChanges()
++    {
++        var ball=Ball(); var right=Wall(); var left=Wall(2,-3);
++        var load=Ball(10,new(0,30,0),default(CollisionVector)); var anchor=Anchor(); var slider=Slider(load,anchor);
++        var loadObject=Object(load,new ConvexSphere(.1));
++        var effect=new Effect(right.Body.Id,_=>new([],
++            [new(load.Id,loadObject.Geometry,Elastic,CollisionParticipation.Disabled)],[PhysicsJointChange.Attach(slider)]));
++        var world=new PhysicsWorld([effect],[Object(ball,new ConvexSphere(.5)),right,left,loadObject,Mount(anchor)],[],
++            new(default,maximumStep:1,maximumEvents:1));
++        var before=world.Capture(); var collider=world.Collider(load.Id);
++        Assert.Throws<InvalidOperationException>(()=>world.Step([],[],.4));
++        Assert.Equal(before.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++        Assert.Empty(world.Joints.ToArray()); Assert.Equal(collider,world.Collider(load.Id));
++        Assert.Equal(0,effect.State.Count); Assert.Equal(0,world.Time);
++        Assert.Empty(world.Impacts.ToArray()); Assert.Equal(0,world.RetainedContactPairs);
++        // Same declarations succeed when the requested interval ends before the later failure.
++        world.Step([],[],.2);
++        Assert.Same(slider,Assert.Single(world.Joints.ToArray()));
++        Assert.Equal(CollisionParticipation.Disabled,world.Collider(load.Id).Declaration.Participation);
++        Assert.Equal(1,effect.State.Count);
++    }
++
++    [Fact]
++    public void JointCommandArrayIsCopiedAndNullDeclarationsReject()
++    {
++        PhysicsJointChange[] source=[PhysicsJointChange.Detach(new(8))];
++        var commands=new PhysicsImpactCommands([],[],source);
++        source[0]=default;
++        Assert.Equal(PhysicsJointChangeKind.Detach,commands.Joints[0].Kind);
++        Assert.Equal(new PhysicsJointId(8),commands.Joints[0].Id);
++        Assert.Throws<ArgumentNullException>(()=>PhysicsJointChange.Attach(null!));
++        Assert.Throws<ArgumentNullException>(()=>PhysicsJointChange.Replace(null!));
++    }
++}
+--- a/CuriousContraptions.tests/PhysicsJointUpdateTests.cs
++++ b/CuriousContraptions.tests/PhysicsJointUpdateTests.cs
+@@ -1,231 +1,231 @@
+-using Godot;
+-using CuriousContraptions.Physics;
+-
+-namespace CuriousContraptions.Tests;
+-
+-public class PhysicsJointUpdateTests
+-{
+-    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
+-    private static PhysicsBody Body(int id,CollisionVector center=default,CollisionVector velocity=default)=>
+-        new(new(id),PhysicsMotionType.Dynamic,RigidPose.At(center),velocity,default,1,new(.1,.1,.1));
+-    private static PhysicsBody Fixed(int id)=>new(new(id),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-    private static PhysicsObject Object(PhysicsBody body,CollisionVector offset=default)=>new(body,
+-        new([new(new ConvexSphere(.1),new Transform3D(Basis.Identity,new((float)offset.X,(float)offset.Y,(float)offset.Z)))]),new(0,0,0));
+-    private static PhysicsFrameJoint Frame(PhysicsBody a,PhysicsBody b,FrameJointKind kind,JointTravelRange? range=null,int id=7)=>
+-        new(new(id),kind,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
+-    private static void Near(double expected,double actual)=>Assert.InRange(Math.Abs(expected-actual),0,1e-7);
+-
+-    [Theory]
+-    [InlineData(FrameJointKind.Slider)]
+-    [InlineData(FrameJointKind.Hinge)]
+-    public void RuntimeLatchHoldsReleasesAndRestoresBothConstraintVersions(FrameJointKind kind)
+-    {
+-        var body=Body(3); var anchor=Fixed(11); var free=Frame(body,anchor,kind);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor,new(10,0,0))],[free],new(default,maximumStep:.01));
+-        PhysicsWrenchCommand drive=new(body.Id,kind==FrameJointKind.Slider?new(0,0,1):default,
+-            kind==FrameJointKind.Hinge?new(0,0,.1):default);
+-        world.Step([drive],[],.1);
+-        Assert.True(free.Travel.Error>0);
+-        var coordinate=free.Travel.Error; var pose=body.Pose;
+-        var released=world.Capture();
+-        var latch=Frame(body,anchor,kind,new(coordinate,coordinate));
+-        world.ReplaceJoints([latch]);
+-        Assert.Equal(pose,body.Pose); Near(.1,world.Time);
+-        var latched=world.Capture();
+-        world.Step([drive],[],.1);
+-        Near(coordinate,latch.Travel.Error); Near(0,body.KineticEnergy);
+-        var held=body.Snapshot();
+-        world.ReplaceJoints([free]);
+-        world.Step([drive],[],.1);
+-        Assert.True(free.Travel.Error>coordinate);
+-        world.Restore(latched);
+-        Assert.Same(latch,Assert.Single(world.Joints.ToArray()));
+-        world.Step([drive],[],.1);
+-        Assert.Equal(held,body.Snapshot());
+-        world.Restore(released);
+-        Assert.Same(free,Assert.Single(world.Joints.ToArray()));
+-        Assert.Equal(released.BodyStates[0],body.Snapshot());
+-        world.Step([drive],[],.1);
+-        Assert.True(free.Travel.Error>coordinate);
+-    }
+-
+-    [Fact]
+-    public void RemovingRopeReleasesLoadWithoutReplacingWorldOrBody()
+-    {
+-        var body=Body(4,new(0,-2,0)); var anchor=Fixed(20);
+-        var rope=new PhysicsRopeJoint(new(8),new([new(body,default),new(anchor,default)]),2,ConnectedBodyCollision.Enabled);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[rope],new(new(0,-10,0),maximumStep:.01));
+-        world.Step([],[],.1); Near(-2,body.Center.Y); Near(0,body.LinearVelocity.Y);
+-        var held=world.Capture();
+-        world.ReplaceJoints([]);
+-        world.Step([],[],.1);
+-        Assert.True(body.Center.Y < -2); Near(-1,body.LinearVelocity.Y);
+-        var falling=body.Snapshot();
+-        world.Restore(held);
+-        Assert.Same(rope,Assert.Single(world.Joints.ToArray()));
+-        world.Step([],[],.1); Near(-2,body.Center.Y);
+-        world.Restore(held); world.ReplaceJoints([]); world.Step([],[],.1);
+-        Assert.Equal(falling,body.Snapshot()); Near(.2,world.Time);
+-    }
+-
+-    [Fact]
+-    public void RuntimeConstraintCannotSnapAnOffAxisBodyIntoPlace()
+-    {
+-        var body=Body(0,new(1,0,0)); var anchor=Fixed(1);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[],new(default));
+-        var before=body.Snapshot();
+-        Assert.Throws<InvalidOperationException>(()=>world.ReplaceJoints([Frame(body,anchor,FrameJointKind.Slider)]));
+-        Assert.Empty(world.Joints.ToArray()); Assert.Equal(before,body.Snapshot());
+-        Assert.Equal(0,world.Time);
+-    }
+-
+-    [Fact]
+-    public void RemovingCollisionSuppressionCannotExposeOverlappingSolids()
+-    {
+-        var body=Body(0); var anchor=Fixed(1); var joint=Frame(body,anchor,FrameJointKind.Slider);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[joint],new(default));
+-        var before=body.Snapshot();
+-        Assert.Throws<InvalidOperationException>(()=>world.ReplaceJoints([]));
+-        Assert.Same(joint,Assert.Single(world.Joints.ToArray())); Assert.Equal(before,body.Snapshot());
+-        var collider=world.Collider(anchor.Id).Declaration;
+-        world.ApplyColliderUpdates([new(anchor.Id,collider.Geometry,collider.Material,CollisionParticipation.Disabled)]);
+-        world.ReplaceJoints([]);
+-        Assert.Empty(world.Joints.ToArray());
+-        world.Step([new(body.Id,new(1,0,0),default)],[],.1);
+-        Assert.True(body.Center.X>0);
+-        Assert.Throws<InvalidOperationException>(()=>world.ApplyColliderUpdates([collider]));
+-    }
+-
+-    [Fact]
+-    public void AddedSuppressionRemovesRestingCacheAndRemovalRestoresCollision()
+-    {
+-        var body=Body(0,new(-1,0,0),new(10,0,0)); var anchor=Fixed(1);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[],new(default,maximumStep:1));
+-        world.Step([],[],.1);
+-        Assert.True(world.RetainedContactPairs>0); Near(0,body.LinearVelocity.X);
+-        var contact=world.Capture();
+-        var slack=new PhysicsRopeJoint(new(12),new([new(body,default),new(anchor,default)]),10,ConnectedBodyCollision.Disabled);
+-        world.ReplaceJoints([slack]);
+-        Assert.Equal(0,world.RetainedContactPairs);
+-        world.ApplyImpulse(body.Id,new(10,0,0),body.Center);
+-        world.Step([],[],.1);
+-        Assert.True(body.Center.X>.7); Near(10,body.LinearVelocity.X);
+-        world.ReplaceJoints([]);
+-        world.ApplyImpulse(body.Id,new(-20,0,0),body.Center);
+-        world.Step([],[],.1);
+-        Assert.Single(world.Impacts.ToArray()); Near(0,body.LinearVelocity.X);
+-        Assert.True(body.Center.X>.2);
+-        world.Restore(contact);
+-        Assert.Empty(world.Joints.ToArray()); Assert.True(world.RetainedContactPairs>0);
+-        Assert.Equal(contact.BodyStates[0],body.Snapshot());
+-    }
+-
+-    [Fact]
+-    public void NewConstraintBatchRejectsForeignDuplicateAndNullDeclarationsAtomically()
+-    {
+-        var body=Body(0); var anchor=Fixed(1); var original=Frame(body,anchor,FrameJointKind.Slider);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[original],new(default));
+-        var valid=Frame(body,anchor,FrameJointKind.Hinge);
+-        var foreign=Frame(Body(0),anchor,FrameJointKind.Slider,id:8);
+-        Assert.Throws<ArgumentException>(()=>world.ReplaceJoints([valid,foreign]));
+-        Assert.Same(original,Assert.Single(world.Joints.ToArray()));
+-        Assert.Throws<ArgumentException>(()=>world.ReplaceJoints([valid,valid]));
+-        Assert.Same(original,Assert.Single(world.Joints.ToArray()));
+-        Assert.Throws<ArgumentException>(()=>world.ReplaceJoints([valid,null!]));
+-        Assert.Throws<ArgumentNullException>(()=>world.ReplaceJoints(null!));
+-        Assert.Same(original,Assert.Single(world.Joints.ToArray()));
+-    }
+-
+-    [Fact]
+-    public void JointInputArrayIsCopiedAndOrderedByTypedIdentity()
+-    {
+-        var body=Body(0); var anchor=Fixed(1);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[],new(default));
+-        var first=Frame(body,anchor,FrameJointKind.Slider,id:2);
+-        var last=Frame(body,anchor,FrameJointKind.Slider,id:19);
+-        PhysicsJoint[] declarations=[last,first];
+-        world.ReplaceJoints(declarations); declarations[0]=null!;
+-        Assert.Equal(new PhysicsJoint[]{first,last},world.Joints.ToArray());
+-        world.ReplaceJoints(world.Joints.ToArray());
+-        Assert.Equal(new PhysicsJoint[]{first,last},world.Joints.ToArray());
+-    }
+-
+-
+-    [Fact]
+-    public void RemovedJointCannotStillReceiveMotorWork()
+-    {
+-        var body=Body(0); var anchor=Fixed(1); var joint=Frame(body,anchor,FrameJointKind.Slider);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor,new(10,0,0))],[joint],new(default));
+-        world.ReplaceJoints([]);
+-        var before=body.Snapshot();
+-        Assert.Throws<ArgumentException>(()=>world.Step([],[new(joint.Id,1,10,10,1000000)],.1));
+-        Assert.Equal(before,body.Snapshot()); Assert.Equal(0,world.Time); Assert.Empty(world.MotorUse.ToArray());
+-        world.ReplaceJoints([joint]);
+-        world.Step([],[new(joint.Id,1,10,10,1000000)],.1);
+-        Assert.True(body.Center.Z>0); Assert.True(world.MotorUse[0].SuppliedWork>0);
+-    }
+-
+-    [Fact]
+-    public void JointChangesPreserveUnchangedCollisionCachesAndClock()
+-    {
+-        var body=Body(0,new(-1,0,0),new(10,0,0)); var anchor=Fixed(1);
+-        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[],new(default,maximumStep:1));
+-        world.Step([],[],.1);
+-        var retained=world.RetainedContactPairs; Assert.True(retained>0);
+-        var slack=new PhysicsRopeJoint(new(9),new([new(body,default),new(anchor,default)]),10,ConnectedBodyCollision.Enabled);
+-        world.ReplaceJoints([slack]);
+-        Assert.Equal(retained,world.RetainedContactPairs); Near(.1,world.Time); Assert.Equal(1ul,world.StepIndex);
+-        var before=world.Capture();
+-        world.ReplaceJoints([slack]);
+-        Assert.Equal(retained,world.RetainedContactPairs);
+-        world.Step([],[],.1);
+-        var result=world.Capture();
+-        Assert.Empty(world.Impacts.ToArray()); Assert.Equal(before.BodyStates[0],body.Snapshot());
+-        world.Restore(before); world.Step([],[],.1);
+-        Assert.Equal(result.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
+-    }
+-
+-    [Fact]
+-    public void FailedStepKeepsEditedJointsAndOlderSnapshotStillRestores()
+-    {
+-        var body=Body(0,new(-1,0,0),new(10,0,0)); var anchor=Fixed(1); var effect=new ReentrantEffect();
+-        var world=new PhysicsWorld([effect],[Object(body),Object(anchor)],[],new(default,maximumStep:1));
+-        effect.World=world;
+-        var original=world.Capture();
+-        var slack=new PhysicsRopeJoint(new(9),new([new(body,default),new(anchor,default)]),10,ConnectedBodyCollision.Enabled);
+-        world.ReplaceJoints([slack]);
+-        Assert.Throws<InvalidOperationException>(()=>world.Step([],[],.1));
+-        Assert.Same(slack,Assert.Single(world.Joints.ToArray()));
+-        Assert.Equal(original.BodyStates[0],body.Snapshot());
+-        Assert.Equal(0,world.Time); Assert.Equal(0,world.RetainedContactPairs);
+-        world.Restore(original);
+-        Assert.Empty(world.Joints.ToArray());
+-        Assert.Equal(original.BodyStates[0],body.Snapshot());
+-    }
+-
+-    private sealed record EmptyState:PhysicsImpactEffectState;
+-    private sealed class ReentrantEffect:PhysicsImpactEffect
+-    {
+-        public PhysicsWorld World { get; set; }=null!;
+-        public ReentrantEffect():base(new(1)) { }
+-        public override PhysicsImpactEffectState Capture()=>new EmptyState();
+-        public override void Restore(PhysicsImpactEffectState state)=>Assert.IsType<EmptyState>(state);
+-        public override PhysicsImpactCommands OnImpact(PhysicsImpactContext context)
+-        {
+-            World.ReplaceJoints([]);
+-            return new([],[],[]);
+-        }
+-    }
+-
+-    [Fact]
+-    public void DirectJointMutationFromImpactRejectsAndRollsBack()
+-    {
+-        var body=Body(0,new(-1,0,0),new(10,0,0)); var anchor=Fixed(1); var effect=new ReentrantEffect();
+-        var world=new PhysicsWorld([effect],[Object(body),Object(anchor)],[],new(default,maximumStep:1));
+-        effect.World=world; var before=world.Capture();
+-        Assert.Throws<InvalidOperationException>(()=>world.Step([],[],.1));
+-        Assert.Equal(before.BodyStates[0],body.Snapshot()); Assert.Equal(0,world.Time);
+-        Assert.Equal(PhysicsWorldPhase.Idle,world.Phase); Assert.Empty(world.Joints.ToArray());
+-        Assert.Equal(0,world.RetainedContactPairs);
+-    }
+-}
++using Godot;
++using CuriousContraptions.Physics;
++
++namespace CuriousContraptions.Tests;
++
++public class PhysicsJointUpdateTests
++{
++    private static readonly JointFrame Origin=new(default,RigidRotation.Identity);
++    private static PhysicsBody Body(int id,CollisionVector center=default,CollisionVector velocity=default)=>
++        new(new(id),PhysicsMotionType.Dynamic,RigidPose.At(center),velocity,default,1,new(.1,.1,.1));
++    private static PhysicsBody Fixed(int id)=>new(new(id),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++    private static PhysicsObject Object(PhysicsBody body,CollisionVector offset=default)=>new(body,
++        new([new(new ConvexSphere(.1),new Transform3D(Basis.Identity,new((float)offset.X,(float)offset.Y,(float)offset.Z)))]),new(0,0,0));
++    private static PhysicsFrameJoint Frame(PhysicsBody a,PhysicsBody b,FrameJointKind kind,JointTravelRange? range=null,int id=7)=>
++        new(new(id),kind,a,Origin,b,Origin,ConnectedBodyCollision.Disabled,range,JointTravelDirection.Both);
++    private static void Near(double expected,double actual)=>Assert.InRange(Math.Abs(expected-actual),0,1e-7);
++
++    [Theory]
++    [InlineData(FrameJointKind.Slider)]
++    [InlineData(FrameJointKind.Hinge)]
++    public void RuntimeLatchHoldsReleasesAndRestoresBothConstraintVersions(FrameJointKind kind)
++    {
++        var body=Body(3); var anchor=Fixed(11); var free=Frame(body,anchor,kind);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor,new(10,0,0))],[free],new(default,maximumStep:.01));
++        PhysicsWrenchCommand drive=new(body.Id,kind==FrameJointKind.Slider?new(0,0,1):default,
++            kind==FrameJointKind.Hinge?new(0,0,.1):default);
++        world.Step([drive],[],.1);
++        Assert.True(free.Travel.Error>0);
++        var coordinate=free.Travel.Error; var pose=body.Pose;
++        var released=world.Capture();
++        var latch=Frame(body,anchor,kind,new(coordinate,coordinate));
++        world.ReplaceJoints([latch]);
++        Assert.Equal(pose,body.Pose); Near(.1,world.Time);
++        var latched=world.Capture();
++        world.Step([drive],[],.1);
++        Near(coordinate,latch.Travel.Error); Near(0,body.KineticEnergy);
++        var held=body.Snapshot();
++        world.ReplaceJoints([free]);
++        world.Step([drive],[],.1);
++        Assert.True(free.Travel.Error>coordinate);
++        world.Restore(latched);
++        Assert.Same(latch,Assert.Single(world.Joints.ToArray()));
++        world.Step([drive],[],.1);
++        Assert.Equal(held,body.Snapshot());
++        world.Restore(released);
++        Assert.Same(free,Assert.Single(world.Joints.ToArray()));
++        Assert.Equal(released.BodyStates[0],body.Snapshot());
++        world.Step([drive],[],.1);
++        Assert.True(free.Travel.Error>coordinate);
++    }
++
++    [Fact]
++    public void RemovingRopeReleasesLoadWithoutReplacingWorldOrBody()
++    {
++        var body=Body(4,new(0,-2,0)); var anchor=Fixed(20);
++        var rope=new PhysicsRopeJoint(new(8),new([new(body,default),new(anchor,default)]),2,ConnectedBodyCollision.Enabled);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[rope],new(new(0,-10,0),maximumStep:.01));
++        world.Step([],[],.1); Near(-2,body.Center.Y); Near(0,body.LinearVelocity.Y);
++        var held=world.Capture();
++        world.ReplaceJoints([]);
++        world.Step([],[],.1);
++        Assert.True(body.Center.Y < -2); Near(-1,body.LinearVelocity.Y);
++        var falling=body.Snapshot();
++        world.Restore(held);
++        Assert.Same(rope,Assert.Single(world.Joints.ToArray()));
++        world.Step([],[],.1); Near(-2,body.Center.Y);
++        world.Restore(held); world.ReplaceJoints([]); world.Step([],[],.1);
++        Assert.Equal(falling,body.Snapshot()); Near(.2,world.Time);
++    }
++
++    [Fact]
++    public void RuntimeConstraintCannotSnapAnOffAxisBodyIntoPlace()
++    {
++        var body=Body(0,new(1,0,0)); var anchor=Fixed(1);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[],new(default));
++        var before=body.Snapshot();
++        Assert.Throws<InvalidOperationException>(()=>world.ReplaceJoints([Frame(body,anchor,FrameJointKind.Slider)]));
++        Assert.Empty(world.Joints.ToArray()); Assert.Equal(before,body.Snapshot());
++        Assert.Equal(0,world.Time);
++    }
++
++    [Fact]
++    public void RemovingCollisionSuppressionCannotExposeOverlappingSolids()
++    {
++        var body=Body(0); var anchor=Fixed(1); var joint=Frame(body,anchor,FrameJointKind.Slider);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[joint],new(default));
++        var before=body.Snapshot();
++        Assert.Throws<InvalidOperationException>(()=>world.ReplaceJoints([]));
++        Assert.Same(joint,Assert.Single(world.Joints.ToArray())); Assert.Equal(before,body.Snapshot());
++        var collider=world.Collider(anchor.Id).Declaration;
++        world.ApplyColliderUpdates([new(anchor.Id,collider.Geometry,collider.Material,CollisionParticipation.Disabled)]);
++        world.ReplaceJoints([]);
++        Assert.Empty(world.Joints.ToArray());
++        world.Step([new(body.Id,new(1,0,0),default)],[],.1);
++        Assert.True(body.Center.X>0);
++        Assert.Throws<InvalidOperationException>(()=>world.ApplyColliderUpdates([collider]));
++    }
++
++    [Fact]
++    public void AddedSuppressionRemovesRestingCacheAndRemovalRestoresCollision()
++    {
++        var body=Body(0,new(-1,0,0),new(10,0,0)); var anchor=Fixed(1);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[],new(default,maximumStep:1));
++        world.Step([],[],.1);
++        Assert.True(world.RetainedContactPairs>0); Near(0,body.LinearVelocity.X);
++        var contact=world.Capture();
++        var slack=new PhysicsRopeJoint(new(12),new([new(body,default),new(anchor,default)]),10,ConnectedBodyCollision.Disabled);
++        world.ReplaceJoints([slack]);
++        Assert.Equal(0,world.RetainedContactPairs);
++        body.ApplyImpulse(new(10,0,0),body.Center);
++        world.Step([],[],.1);
++        Assert.True(body.Center.X>.7); Near(10,body.LinearVelocity.X);
++        world.ReplaceJoints([]);
++        body.ApplyImpulse(new(-20,0,0),body.Center);
++        world.Step([],[],.1);
++        Assert.Single(world.Impacts.ToArray()); Near(0,body.LinearVelocity.X);
++        Assert.True(body.Center.X>.2);
++        world.Restore(contact);
++        Assert.Empty(world.Joints.ToArray()); Assert.True(world.RetainedContactPairs>0);
++        Assert.Equal(contact.BodyStates[0],body.Snapshot());
++    }
++
++    [Fact]
++    public void NewConstraintBatchRejectsForeignDuplicateAndNullDeclarationsAtomically()
++    {
++        var body=Body(0); var anchor=Fixed(1); var original=Frame(body,anchor,FrameJointKind.Slider);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[original],new(default));
++        var valid=Frame(body,anchor,FrameJointKind.Hinge);
++        var foreign=Frame(Body(0),anchor,FrameJointKind.Slider,id:8);
++        Assert.Throws<ArgumentException>(()=>world.ReplaceJoints([valid,foreign]));
++        Assert.Same(original,Assert.Single(world.Joints.ToArray()));
++        Assert.Throws<ArgumentException>(()=>world.ReplaceJoints([valid,valid]));
++        Assert.Same(original,Assert.Single(world.Joints.ToArray()));
++        Assert.Throws<ArgumentException>(()=>world.ReplaceJoints([valid,null!]));
++        Assert.Throws<ArgumentNullException>(()=>world.ReplaceJoints(null!));
++        Assert.Same(original,Assert.Single(world.Joints.ToArray()));
++    }
++
++    [Fact]
++    public void JointInputArrayIsCopiedAndOrderedByTypedIdentity()
++    {
++        var body=Body(0); var anchor=Fixed(1);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[],new(default));
++        var first=Frame(body,anchor,FrameJointKind.Slider,id:2);
++        var last=Frame(body,anchor,FrameJointKind.Slider,id:19);
++        PhysicsJoint[] declarations=[last,first];
++        world.ReplaceJoints(declarations); declarations[0]=null!;
++        Assert.Equal(new PhysicsJoint[]{first,last},world.Joints.ToArray());
++        world.ReplaceJoints(world.Joints.ToArray());
++        Assert.Equal(new PhysicsJoint[]{first,last},world.Joints.ToArray());
++    }
++
++
++    [Fact]
++    public void RemovedJointCannotStillReceiveMotorWork()
++    {
++        var body=Body(0); var anchor=Fixed(1); var joint=Frame(body,anchor,FrameJointKind.Slider);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor,new(10,0,0))],[joint],new(default));
++        world.ReplaceJoints([]);
++        var before=body.Snapshot();
++        Assert.Throws<ArgumentException>(()=>world.Step([],[new(joint.Id,1,10,10,1000000)],.1));
++        Assert.Equal(before,body.Snapshot()); Assert.Equal(0,world.Time); Assert.Empty(world.MotorUse.ToArray());
++        world.ReplaceJoints([joint]);
++        world.Step([],[new(joint.Id,1,10,10,1000000)],.1);
++        Assert.True(body.Center.Z>0); Assert.True(world.MotorUse[0].SuppliedWork>0);
++    }
++
++    [Fact]
++    public void JointChangesPreserveUnchangedCollisionCachesAndClock()
++    {
++        var body=Body(0,new(-1,0,0),new(10,0,0)); var anchor=Fixed(1);
++        var world=new PhysicsWorld([],[Object(body),Object(anchor)],[],new(default,maximumStep:1));
++        world.Step([],[],.1);
++        var retained=world.RetainedContactPairs; Assert.True(retained>0);
++        var slack=new PhysicsRopeJoint(new(9),new([new(body,default),new(anchor,default)]),10,ConnectedBodyCollision.Enabled);
++        world.ReplaceJoints([slack]);
++        Assert.Equal(retained,world.RetainedContactPairs); Near(.1,world.Time); Assert.Equal(1ul,world.StepIndex);
++        var before=world.Capture();
++        world.ReplaceJoints([slack]);
++        Assert.Equal(retained,world.RetainedContactPairs);
++        world.Step([],[],.1);
++        var result=world.Capture();
++        Assert.Empty(world.Impacts.ToArray()); Assert.Equal(before.BodyStates[0],body.Snapshot());
++        world.Restore(before); world.Step([],[],.1);
++        Assert.Equal(result.BodyStates.ToArray(),world.Capture().BodyStates.ToArray());
++    }
++
++    [Fact]
++    public void FailedStepKeepsEditedJointsAndOlderSnapshotStillRestores()
++    {
++        var body=Body(0,new(-1,0,0),new(10,0,0)); var anchor=Fixed(1); var effect=new ReentrantEffect();
++        var world=new PhysicsWorld([effect],[Object(body),Object(anchor)],[],new(default,maximumStep:1));
++        effect.World=world;
++        var original=world.Capture();
++        var slack=new PhysicsRopeJoint(new(9),new([new(body,default),new(anchor,default)]),10,ConnectedBodyCollision.Enabled);
++        world.ReplaceJoints([slack]);
++        Assert.Throws<InvalidOperationException>(()=>world.Step([],[],.1));
++        Assert.Same(slack,Assert.Single(world.Joints.ToArray()));
++        Assert.Equal(original.BodyStates[0],body.Snapshot());
++        Assert.Equal(0,world.Time); Assert.Equal(0,world.RetainedContactPairs);
++        world.Restore(original);
++        Assert.Empty(world.Joints.ToArray());
++        Assert.Equal(original.BodyStates[0],body.Snapshot());
++    }
++
++    private sealed record EmptyState:PhysicsImpactEffectState;
++    private sealed class ReentrantEffect:PhysicsImpactEffect
++    {
++        public PhysicsWorld World { get; set; }=null!;
++        public ReentrantEffect():base(new(1)) { }
++        public override PhysicsImpactEffectState Capture()=>new EmptyState();
++        public override void Restore(PhysicsImpactEffectState state)=>Assert.IsType<EmptyState>(state);
++        public override PhysicsImpactCommands OnImpact(PhysicsImpactContext context)
++        {
++            World.ReplaceJoints([]);
++            return new([],[],[]);
++        }
++    }
++
++    [Fact]
++    public void DirectJointMutationFromImpactRejectsAndRollsBack()
++    {
++        var body=Body(0,new(-1,0,0),new(10,0,0)); var anchor=Fixed(1); var effect=new ReentrantEffect();
++        var world=new PhysicsWorld([effect],[Object(body),Object(anchor)],[],new(default,maximumStep:1));
++        effect.World=world; var before=world.Capture();
++        Assert.Throws<InvalidOperationException>(()=>world.Step([],[],.1));
++        Assert.Equal(before.BodyStates[0],body.Snapshot()); Assert.Equal(0,world.Time);
++        Assert.Equal(PhysicsWorldPhase.Idle,world.Phase); Assert.Empty(world.Joints.ToArray());
++        Assert.Equal(0,world.RetainedContactPairs);
++    }
++}
+--- a/diagnostics/GeneralMotorQualification.cs
++++ b/diagnostics/GeneralMotorQualification.cs
+@@ -1,49 +1,49 @@
+-#if PLAYTEST
+-using System;
+-using System.Linq;
+-using Godot;
+-using CuriousContraptions.Physics;
+-
+-namespace CuriousContraptions;
+-
+-internal enum GeneralMotorProbe { SliderSupply, HingeSupply, BrakeReverse, Disabled, StopEvent }
+-internal sealed record GeneralMotorReport(GeneralMotorProbe Probe,double Speed,double Coordinate,double Energy,
+-    PhysicsMotorUse Use,int Events,bool ExactRestore,bool ExactReplay);
+-internal static class GeneralMotorQualification
+-{
+-    internal static GeneralMotorReport Run(GeneralMotorProbe probe)
+-    {
+-        if(!Enum.IsDefined(probe)) throw new ArgumentOutOfRangeException(nameof(probe));
+-        var kind=probe==GeneralMotorProbe.HingeSupply?FrameJointKind.Hinge:FrameJointKind.Slider;
+-        var velocity=probe==GeneralMotorProbe.BrakeReverse?new CollisionVector(0,0,3):
+-            probe==GeneralMotorProbe.Disabled?new CollisionVector(0,0,2):default;
+-        var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,velocity,default,1,new(.1,.1,.1));
+-        var b=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
+-        var origin=new JointFrame(default,RigidRotation.Identity);
+-        var joint=new PhysicsFrameJoint(new(0),kind,a,origin,b,origin,ConnectedBodyCollision.Disabled,
+-            probe==GeneralMotorProbe.StopEvent?new(-.02,.02):null,JointTravelDirection.Both);
+-        var duration=probe is GeneralMotorProbe.SliderSupply or GeneralMotorProbe.HingeSupply?.5:.1;
+-        var maximumStep=probe is GeneralMotorProbe.BrakeReverse or GeneralMotorProbe.StopEvent?.1:1.0/120;
+-        PhysicsObject Object(PhysicsBody body)=>new(body,new([new(new ConvexSphere(.01),Transform3D.Identity)]),new(0,0,0));
+-        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:maximumStep));
+-        var command=probe switch
+-        {
+-            GeneralMotorProbe.SliderSupply or GeneralMotorProbe.HingeSupply=>new PhysicsMotorCommand(joint.Id,10,2,.5,1000000),
+-            GeneralMotorProbe.BrakeReverse=>new PhysicsMotorCommand(joint.Id,-10,100,.5,1000000),
+-            GeneralMotorProbe.Disabled=>new PhysicsMotorCommand(joint.Id,-10,0,3,1000000),
+-            GeneralMotorProbe.StopEvent=>new PhysicsMotorCommand(joint.Id,1,100,100,1000000),
+-            _=>throw new ArgumentOutOfRangeException(nameof(probe))
+-        };
+-        var before=world.Capture(); var result=world.Step([],[command],duration);
+-        var after=world.Capture(); var use=world.MotorUse.ToArray(); var stops=world.JointStops.ToArray();
+-        var speed=a.LinearVelocity.Z+a.AngularVelocity.Z; var energy=a.KineticEnergy;
+-        var coordinate=joint.Travel.Error;
+-        world.Restore(before);
+-        var restored=world.Capture().BodyStates.SequenceEqual(before.BodyStates)&&world.Time==before.Time&&
+-            world.StepIndex==before.StepIndex&&world.MotorUse.Length==0&&world.JointStops.Length==0;
+-        var replay=world.Step([],[command],duration)==result&&world.Capture().BodyStates.SequenceEqual(after.BodyStates)&&
+-            world.MotorUse.SequenceEqual(use)&&world.JointStops.SequenceEqual(stops)&&world.Time==after.Time&&world.StepIndex==after.StepIndex;
+-        return new(probe,speed,coordinate,energy,use.Single(),result.Events,restored,replay);
+-    }
+-}
+-#endif
++#if PLAYTEST
++using System;
++using System.Linq;
++using Godot;
++using CuriousContraptions.Physics;
++
++namespace CuriousContraptions;
++
++internal enum GeneralMotorProbe { SliderSupply, HingeSupply, BrakeReverse, Disabled, StopEvent }
++internal sealed record GeneralMotorReport(GeneralMotorProbe Probe,double Speed,double Coordinate,double Energy,
++    PhysicsMotorUse Use,int Events,bool ExactRestore,bool ExactReplay);
++internal static class GeneralMotorQualification
++{
++    internal static GeneralMotorReport Run(GeneralMotorProbe probe)
++    {
++        if(!Enum.IsDefined(probe)) throw new ArgumentOutOfRangeException(nameof(probe));
++        var kind=probe==GeneralMotorProbe.HingeSupply?FrameJointKind.Hinge:FrameJointKind.Slider;
++        var velocity=probe==GeneralMotorProbe.BrakeReverse?new CollisionVector(0,0,3):
++            probe==GeneralMotorProbe.Disabled?new CollisionVector(0,0,2):default;
++        var a=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.Identity,velocity,default,1,new(.1,.1,.1));
++        var b=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.Identity,default,default);
++        var origin=new JointFrame(default,RigidRotation.Identity);
++        var joint=new PhysicsFrameJoint(new(0),kind,a,origin,b,origin,ConnectedBodyCollision.Disabled,
++            probe==GeneralMotorProbe.StopEvent?new(-.02,.02):null,JointTravelDirection.Both);
++        var duration=probe is GeneralMotorProbe.SliderSupply or GeneralMotorProbe.HingeSupply?.5:.1;
++        var maximumStep=probe is GeneralMotorProbe.BrakeReverse or GeneralMotorProbe.StopEvent?.1:1.0/120;
++        PhysicsObject Object(PhysicsBody body)=>new(body,new([new(new ConvexSphere(.01),Transform3D.Identity)]),new(0,0,0));
++        var world=new PhysicsWorld([],[Object(a),Object(b)],[joint],new(default,maximumStep:maximumStep));
++        var command=probe switch
++        {
++            GeneralMotorProbe.SliderSupply or GeneralMotorProbe.HingeSupply=>new PhysicsMotorCommand(joint.Id,10,2,.5),
++            GeneralMotorProbe.BrakeReverse=>new PhysicsMotorCommand(joint.Id,-10,100,.5),
++            GeneralMotorProbe.Disabled=>new PhysicsMotorCommand(joint.Id,-10,0,3),
++            GeneralMotorProbe.StopEvent=>new PhysicsMotorCommand(joint.Id,1,100,100),
++            _=>throw new ArgumentOutOfRangeException(nameof(probe))
++        };
++        var before=world.Capture(); var result=world.Step([],[command],duration);
++        var after=world.Capture(); var use=world.MotorUse.ToArray(); var stops=world.JointStops.ToArray();
++        var speed=a.LinearVelocity.Z+a.AngularVelocity.Z; var energy=a.KineticEnergy;
++        var coordinate=joint.Travel.Error;
++        world.Restore(before);
++        var restored=world.Capture().BodyStates.SequenceEqual(before.BodyStates)&&world.Time==before.Time&&
++            world.StepIndex==before.StepIndex&&world.MotorUse.Length==0&&world.JointStops.Length==0;
++        var replay=world.Step([],[command],duration)==result&&world.Capture().BodyStates.SequenceEqual(after.BodyStates)&&
++            world.MotorUse.SequenceEqual(use)&&world.JointStops.SequenceEqual(stops)&&world.Time==after.Time&&world.StepIndex==after.StepIndex;
++        return new(probe,speed,coordinate,energy,use.Single(),result.Events,restored,replay);
++    }
++}
++#endif

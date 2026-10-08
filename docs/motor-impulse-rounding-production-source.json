@@ -1,0 +1,32 @@
+{
+  "head": "0c3cf53428d2b0eb7b4b9b5e8764bab512be3d7b",
+  "runtimeCommitted": false,
+  "bundle": "production",
+  "files": {
+    "engine/presentation/ScenePoseAsset.cs": "25b1e0dfb421552e7d9577b06bd8a8fa2ff92aaa04decdb46016211aeb60e98b",
+    "engine/presentation/ScenePoseBatch.cs": "fc896a0ec232599525e9815f73ef647d48ad637ba8c3e434b445c14199e23ab8",
+    "engine/presentation/SceneAnimationRun.cs": "e40d7ee354132ba87f6bcbc0068a0bbc70a964b27ec1a22707700a3c337a7f15",
+    "engine/ScenePhysicsAssembly.cs": "8bbddc61c760ca73ad3abc344eb22ca9e637996aa5c7d881899bbaf9505bd738",
+    "engine/MachinePart.cs": "bf1c87ba0e0f6ac08941a402cb831556c43cc28e2c15f0ff95e8d320b701a65c",
+    "engine/SceneRotaryShaft.cs": "bb6d920797042b87dc9ac25368fdf96db5a2e8bceb62de1c3557a8deb1455bfa",
+    "engine/physics/MotorPredictionSupply.cs": "25194f86b58ccfe92b7c4efe77bcea30c10c8694527fd005240448080c878532",
+    "CuriousContraptions.tests/BooleanAnimationSignalTests.cs": "20f7bd9d894e4d2b206ebb4d8fd88af45bb87bded36b283660c4b485d6a79def",
+    "CuriousContraptions.tests/ExplicitPoseReferenceTests.cs": "e989227d29c64c078733068f3623ec465c531737bdd4af3c1c6b2c93feaf2002",
+    "CuriousContraptions.tests/WoundSpringBrowserWorkloadTests.cs": "958672711b417c148472a70d56c5df57a72d8bdd08d9ec9e85cc230a1083dc4d",
+    "CuriousContraptions.tests/MotorPredictionTests.cs": "4a3045e79da1c5d37ba6b232d8ed53a2e679cbb8c97cf0a5de6be5cd12f083aa",
+    "parts/WoundSpringPart.cs": "ac53893df335bee7576de5b1883451ad150a187e13bc60eb343f2ee8afeb85fe",
+    "parts/ImpactLeverPart.cs": "99437c441629d880f74abf03c4b2a412dba234b468e5afbe664df803fcb2894c",
+    "parts/BeamShutterPart.cs": "b5c2a772ecc9257cafb7d751c3c860717466d0446ef4a3fd6c79b75926fe827d",
+    "parts/WindmillPart.cs": "13bce88dcf65e57009623ea518fbef5df7ae4d15934b2cb2e4c1be474e07f61e",
+    "parts/WindChimesPart.cs": "cc6bd816a78f9fe4d0660b2c6dcd02d7d5964e816fcfa72b49f9e30a7675c222",
+    "parts/PoweredGatePart.cs": "6dce355534ed615bdf63d990d81883e72de4ec210b16cbc11f962467112a0f22",
+    "parts/MotorPart.cs": "c1654bf4906e791549e41e6bee95a6ed89743a7a836b6b73264ab13bd7b5a10e",
+    "parts/ConveyorPart.cs": "9246b67c683952f3ddd9b5269666f3676da51f2e31c54d06f6629b3c413faef7",
+    "parts/SpringPart.cs": "cb05b6ffa6c32cf5e2af19703ac720a478386f7480a0be5301c2146bfb502022",
+    "parts/BellowsPart.cs": "250a8ced660205e165f0ffd18269ac46547e12c52b3d8a0c7f509e2acf4a42a1",
+    "parts/LinearPusherPart.cs": "35fa75cb8cf0b5cd04774e5235253d271afb8b494c8b8529efaf6f949c835d36",
+    "CuriousContraptions.web/AppBundle/godot.pck": "51055f88b3b49a7a7bc8d28bcb0c34f2ef716a317dfabfefcca095c3605f7d8f",
+    "CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.wasm": "5eb7d8bebb8d12c9fc132ceaa889981c1d2567f68576c7ecc7401ffde488de01",
+    "CuriousContraptions.web/AppBundle/_framework/dotnet.boot.js": "5c7e112927c9c3b01c8e3b28d7437bc8c8c3ec852c0a206f6400209633ebd0da"
+  }
+}

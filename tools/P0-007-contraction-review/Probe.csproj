@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+<ItemGroup><Compile Include="../../CuriousContraptions.Geometry/CollisionVector.cs" Link="CollisionVector.cs"/><Compile Include="../../engine/physics/PreciseScalar.cs" Link="PreciseScalar.cs"/></ItemGroup>
+<ItemGroup><Using Include="CuriousContraptions.Geometry"/></ItemGroup>
+</Project>

@@ -21,7 +21,7 @@ public class SimulationTimersTests
         world.Advance(1,TimerBoundary.BeforeNetworks);
         var first=world.Advance(1,TimerBoundary.BeforePhysics).ToArray();
         world.RollbackTransaction();
-        Assert.Equal(TimerTransactionPhase.Idle,world.TransactionPhase);
+        Assert.Equal(SimulationTransactionPhase.Idle,world.TransactionPhase);
         Assert.Equal(0,world.Tick);Assert.Null(world.Boundary);
         Assert.Equal(new SimulationTimerState(id,SimulationTimerPhase.Counting,0,1),world.Read(id));
         world.BeginTransaction();

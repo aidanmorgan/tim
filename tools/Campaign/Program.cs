@@ -6,6 +6,7 @@ using System.Numerics;
 // The first five tutorial definitions are the independent building blocks.
 var source = MachineCodec.ReadPuzzles(File.ReadAllText(args.Length > 0 ? args[0] : "content/puzzles.json")).Take(5).ToList();
 if (source.Count != 5) throw new InvalidDataException("Five tutorial definitions are required.");
+source[3] = CuriousContraptions.Authoring.SpringboardLesson.Create();
 PuzzleData Copy(PuzzleData puzzle) => JsonSerializer.Deserialize(
     JsonSerializer.Serialize(new List<PuzzleData> { puzzle }, MachineJson.Default.ListPuzzleData),
     MachineJson.Default.ListPuzzleData)![0];
@@ -149,7 +150,8 @@ modules["switched_motor"] = new()
 
 var relayBelt = Copy(modules["conveyor"]);
 relayBelt.Parts.Add(new() { Id = "relay", Kind = "conveyor", Locked = true, Position = [1, 4.5f, 0] });
-relayBelt.SolutionConnections.Single(c => c.Type == ConnectionDomain.Mechanical).To = "relay";
+var relayDrive = relayBelt.SolutionConnections.Single(c => c.Type == ConnectionDomain.Mechanical);
+relayBelt.SolutionConnections[relayBelt.SolutionConnections.IndexOf(relayDrive)] = relayDrive with { To = "relay" };
 relayBelt.SolutionConnections.Add(new() { From = "relay", To = "conveyor_1", Type = ConnectionDomain.Mechanical,
     FromPort = SocketId.Drive, ToPort = SocketId.DriveIn });
 modules["belt_relay"] = relayBelt;
@@ -162,7 +164,8 @@ reverseBelt.Parts.Single(p => p.Id == "motor").Position = [-3.5f, 1, 0];
 reverseBelt.Solution.Single().Position[0] = 2;
 reverseBelt.Inventory["reverse_transmission"] = 1;
 reverseBelt.Solution.Add(new() { Id = "reverse_1", Kind = "reverse_transmission", Position = [-.3f, 1, 0] });
-reverseBelt.SolutionConnections.Single(c => c.Type == ConnectionDomain.Mechanical).To = "reverse_1";
+var reverseDrive = reverseBelt.SolutionConnections.Single(c => c.Type == ConnectionDomain.Mechanical);
+reverseBelt.SolutionConnections[reverseBelt.SolutionConnections.IndexOf(reverseDrive)] = reverseDrive with { To = "reverse_1" };
 reverseBelt.SolutionConnections.Add(new() { From = "reverse_1", To = "conveyor_1", Type = ConnectionDomain.Mechanical,
     FromPort = SocketId.Drive, ToPort = SocketId.DriveIn });
 modules["reverse_belt"] = reverseBelt;
@@ -174,13 +177,11 @@ ConnectionSpec Rope(PuzzleData puzzle, string from, string to)
         var part = puzzle.Parts.Concat(puzzle.Solution).Single(p => p.Id == id);
         var local = part.Kind switch
         {
-            "weight" => new Vector3(0, RopeGeometry.WeightTieHeight(part.Properties[WeightParameters.Mass]), 0),
+            "weight" => new Vector3(0, RopeGeometry.WeightTieHeight(part.Properties[PartParameterName.Of(WeightParameter.Mass)]), 0),
             "pulley" => new Vector3(0, RopeGeometry.PulleyRadius, RopeGeometry.PulleySocketDepth),
             _ => throw new InvalidDataException("No authored rope geometry for " + part.Kind)
         };
-        var degrees = MathF.PI / 180;
-        var rotation = Quaternion.CreateFromYawPitchRoll(part.Rotation[1] * degrees, part.Rotation[0] * degrees, part.Rotation[2] * degrees);
-        return new Vector3(part.Position[0], part.Position[1], part.Position[2]) + Vector3.Transform(local, rotation);
+        return new Vector3(part.Position[0], part.Position[1], part.Position[2]) + part.Orientation.Transform(local);
     }
     return new() { From = from, To = to, Type = ConnectionDomain.Rope, FromPort = SocketId.Tie, ToPort = SocketId.Tie,
         RopeLength = Vector3.Distance(Socket(from), Socket(to)) };
@@ -190,13 +191,13 @@ var lift = new PuzzleData
     Inventory = new() { ["weight"] = 1 },
     Parts =
     [
-        new() { Id = "load", Kind = "weight", Locked = true, Position = [-2, 1, .12f], Properties = new() { [WeightParameters.Mass] = 1 } },
+        new() { Id = "load", Kind = "weight", Locked = true, Position = [-2, 1, .12f], Properties = new() { [PartParameterName.Of(WeightParameter.Mass)] = 1 } },
         new() { Id = "left_pulley", Kind = "pulley", Locked = true, Position = [-2, 6, 0] },
         new() { Id = "right_pulley", Kind = "pulley", Locked = true, Position = [2, 6, 0] },
-        new() { Id = "switch", Kind = "switch", Locked = true, Position = [-2, 3.2f, .12f], Rotation = [0, 0, 180] },
+        new() { Id = "switch", Kind = "switch", Locked = true, Position = [-2, 3.2f, .12f], Orientation = PartOrientation.FromEulerDegrees(0, 0, 180) },
         new() { Id = "lamp", Kind = "lamp", Locked = true, Position = [5, 1, .12f] }
     ],
-    Solution = [new() { Id = "weight_1", Kind = "weight", Position = [2, 5, .12f], Properties = new() { [WeightParameters.Mass] = 4 } }],
+    Solution = [new() { Id = "weight_1", Kind = "weight", Position = [2, 5, .12f], Properties = new() { [PartParameterName.Of(WeightParameter.Mass)] = 4 } }],
     Goals = [new() { Type = GoalKind.Activated, Target = "lamp" }]
 };
 lift.SolutionConnections =
@@ -240,7 +241,7 @@ var shaded = Copy(solar);
 shaded.Parts.Single(p => p.Id == "torch").Position[0] = -3;
 shaded.Parts.Single(p => p.Id == "trigger").Position[0] = -3.15f;
 shaded.Parts.Add(new() { Id = "shade", Kind = "wall", Locked = true, Position = [-.5f, 3, 0],
-    Rotation = [0, 90, 0], Properties = new() { ["width"] = 3, ["height"] = 3, ["thickness"] = .3f } });
+    Orientation = PartOrientation.FromEulerDegrees(0, 90, 0), Properties = new() { ["width"] = 3, ["height"] = 3, ["thickness"] = .3f } });
 shaded.Solution[0].Position = [-1.5f, 3, 0];
 modules["solar_shadow"] = shaded;
 
@@ -265,7 +266,7 @@ modules["delayed_signal"] = delay;
 var delayedSolar = Copy(solar);
 delayedSolar.Parts.Single(p => p.Id == "trigger").Position = [-4, 5, -2];
 delayedSolar.Parts.Add(new() { Id = "switch", Kind = "switch", Locked = true, Position = [-4, 3, -2] });
-delayedSolar.Solution.Add(new() { Id = "delay_1", Kind = "delay", Position = [0, 1, 2], Rotation = [0, 180, 0] });
+delayedSolar.Solution.Add(new() { Id = "delay_1", Kind = "delay", Position = [0, 1, 2], Orientation = PartOrientation.FromEulerDegrees(0, 180, 0) });
 delayedSolar.Inventory["delay"] = 1;
 delayedSolar.SolutionConnections.AddRange(
 [
@@ -282,7 +283,7 @@ modules["clear_pipe"] = new PuzzleData
         new() { Id = "receiver", Kind = "basket", Locked = true, Position = [2, .6f, 0] }
     ],
     Inventory = new() { ["pipe"] = 1 },
-    Solution = [new() { Id = "pipe_1", Kind = "pipe", Position = [0, 3, 0], Rotation = [0, 0, -45], Properties = new() { [PipeParameters.Length] = 3.6f } }],
+    Solution = [new() { Id = "pipe_1", Kind = "pipe", Position = [0, 3, 0], Orientation = PartOrientation.FromEulerDegrees(0, 0, -45), Properties = new() { [PartParameterName.Of(PipeParameter.Length)] = 3.6f } }],
     Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
 };
 
@@ -299,7 +300,7 @@ foreach (var angle in Enum.GetValues<TubeBendAngle>())
             new() { Id = "receiver", Kind = "basket", Locked = true, Position = [angle == TubeBendAngle.Degrees45 ? -2f : -5.5f, .6f, 0] }
         ],
         Inventory = new() { [kind] = 1 },
-        Solution = [new() { Id = "bend_1", Kind = kind, Position = [0, 4, 0], Rotation = [0, 0, -90] }],
+        Solution = [new() { Id = "bend_1", Kind = kind, Position = [0, 4, 0], Orientation = PartOrientation.FromEulerDegrees(0, 0, -90) }],
         Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
     };
 }
@@ -309,12 +310,12 @@ modules["joined_pipe"] = new PuzzleData
 {
     Parts = [
         new() { Id = "ball", Kind = "ball", Locked = true, Position = [-1.308076f, 8.402188f, 0] },
-        new() { Id = "bend", Kind = "pipe_bend_90", Locked = true, Position = [1, 3.5f, 0], Rotation = [0, 0, -45] },
+        new() { Id = "bend", Kind = "pipe_bend_90", Locked = true, Position = [1, 3.5f, 0], Orientation = PartOrientation.FromEulerDegrees(0, 0, -45) },
         new() { Id = "receiver", Kind = "basket", Locked = true, Position = [-.2f, .6f, 0] }
     ],
     Inventory = new() { ["pipe"] = 1 },
-    Solution = [new() { Id = "pipe_1", Kind = "pipe", Position = [-.5373296f, 6.031442f, 0], Rotation = [0, 0, -45],
-        Properties = new() { [PipeParameters.Length] = 2 } }],
+    Solution = [new() { Id = "pipe_1", Kind = "pipe", Position = [-.5373296f, 6.031442f, 0], Orientation = PartOrientation.FromEulerDegrees(0, 0, -45),
+        Properties = new() { [PartParameterName.Of(PipeParameter.Length)] = 2 } }],
     Goals = [new() { Type = GoalKind.Captured, Target = "receiver", Body = "ball" }]
 };
 
@@ -339,16 +340,16 @@ void Add(string id, string title, string chapter, string description, string hin
             var pz = part.Position[2];
             part.Position[0] = MathF.Round(x + px * MathF.Cos(radians) + pz * MathF.Sin(radians), 4);
             part.Position[2] = MathF.Round(z - px * MathF.Sin(radians) + pz * MathF.Cos(radians), 4);
-            part.Rotation[1] += yaw;
+            part.Orientation = PartOrientation.FromEulerDegrees(0,yaw,0)*part.Orientation;
             part.Id = prefix + part.Id;
         }
-        foreach (var goal in module.Goals)
+        module.Goals = module.Goals.Select(goal => goal with
         {
-            goal.Target = prefix + goal.Target;
-            if (goal.Body != "") goal.Body = prefix + goal.Body;
-        }
-        foreach (var link in module.SolutionConnections)
-        { link.From = prefix + link.From; link.To = prefix + link.To; }
+            Target = prefix + goal.Target,
+            Body = string.IsNullOrEmpty(goal.Body) ? goal.Body : prefix + goal.Body
+        }).ToList();
+        module.SolutionConnections = module.SolutionConnections.Select(link =>
+            link with { From = prefix + link.From, To = prefix + link.To }).ToList();
         puzzle.Parts.AddRange(module.Parts);
         puzzle.Solution.AddRange(module.Solution);
         puzzle.Goals.AddRange(module.Goals);
@@ -361,9 +362,9 @@ void Add(string id, string title, string chapter, string description, string hin
 // Chapter 2 introduces propagation and turns familiar motion into signals.
 Add("domino_effect", "The domino effect", "Chain reactions",
     "Make the fixed end domino fall. Fill the gap with four dominoes.",
-    "Start under the bowling ball. Neighbours must be less than a metre apart.", ("domino", 0, 0, 0));
+    "Stand the tiles on a surface and leave gaps short enough for each falling tile to hit the next.", ("domino", 0, 0, 0));
 Add("spring_signal", "Spring-loaded signal", "Motion into power",
-    "Launch the ball onto the elevated switch and light the lamp.",
+    "Return the falling ball toward the lower switch and light the lamp.",
     "Tilt the spring clockwise. Remember the wire from switch to lamp.", ("spring_signal", 0, 0, 0));
 Add("wind_signal", "A breath of electricity", "Motion into power",
     "Use moving air to strike the switch and power the lamp.",
@@ -470,7 +471,7 @@ Add("mixed_signals", "Belt and signal", "Dependencies",
     "Separate capture from activation: one goal needs a settled ball, the other an impact.", ("conveyor", 0, -2, 0), ("air_signal", 0, 2, 0));
 Add("start_and_topple", "Start and topple", "Dependencies",
     "Power the cold fan, catch its ball, and finish the domino chain.",
-    "The fan needs a wire; the dominoes propagate through proximity, without wires.", ("gated_air", 0, -2, 0), ("domino", 0, 2, 0));
+    "The fan needs a wire; the domino chain needs physical contact between falling tiles, not wires.", ("gated_air", 0, -2, 0), ("domino", 0, 2, 0));
 
 // Chapter 5 rotates entire machines so trajectories genuinely travel through Z.
 Add("deep_routes", "Deep routes", "Spatial reasoning",
@@ -510,7 +511,7 @@ Add("double_cold_start", "Double cold start", "Master workshop",
     "Wire one trigger switch to the belt and another to the fan. The fan needs power before its ball falls past.", ("gated_belt", 0, -3, 0), ("spring", 0, 0, 0), ("gated_air", 0, 3, 0));
 Add("triple_chain", "Triple chain", "Master workshop",
     "Finish three separate domino chains with twelve movable dominoes.",
-    "Keep every gap below one metre and keep the three chains in their own depth planes.", ("domino", 0, -3, 0), ("domino", 0, 0, 0), ("domino", 0, 3, 0));
+    "Arrange three contact-driven chains on supporting surfaces, keeping each chain in its own depth plane.", ("domino", 0, -3, 0), ("domino", 0, 0, 0), ("domino", 0, 3, 0));
 Add("signals_and_chain", "Signals and chain", "Master workshop",
     "Light the ramp and spring lamps while a third lane topples its end domino.",
     "Do not confuse the fixed switches with receivers: impact is enough, but wiring is required.", ("ramps_signal", 0, -3, 0), ("spring_signal", 0, 0, 0), ("domino", 0, 3, 0));
@@ -565,14 +566,15 @@ foreach (var part in puzzle.Parts.Concat(puzzle.Solution))
     {
         // Curved outlets amplify residual lateral error. Bound eligibility and correction together:
         // align fully inside a small authored window, never move a more distant bend.
-        part.Difficulty[0].PositionWindow = part.Difficulty[0].MaxPositionCorrection = .6f;
-        part.Difficulty[1].PositionWindow = part.Difficulty[1].MaxPositionCorrection = .5f;
-        part.Difficulty[0].RotationWindow = part.Difficulty[0].MaxRotationCorrection = 5;
-        part.Difficulty[1].RotationWindow = part.Difficulty[1].MaxRotationCorrection = 2;
+        part.Difficulty[0] = part.Difficulty[0] with
+        { PositionWindow=.6f, MaxPositionCorrection=.6f, RotationWindow=5, MaxRotationCorrection=5 };
+        part.Difficulty[1] = part.Difficulty[1] with
+        { PositionWindow=.5f, MaxPositionCorrection=.5f, RotationWindow=2, MaxRotationCorrection=2 };
     }
 }
 // New component lessons retain their explicitly authored, bounded assistance curves.
 campaign.Add(CuriousContraptions.Authoring.WoundSpringLesson.Create(campaign.Count + 1));
 campaign.Add(CuriousContraptions.Authoring.WoundSpringLesson.CreateRetained(campaign.Count + 1));
 campaign.Add(CuriousContraptions.Authoring.TrampolineLesson.Create(campaign.Count + 1));
+campaign.Add(CuriousContraptions.Authoring.SpringboardLesson.CreatePrecharged(campaign.Count + 1));
 Console.Write(JsonSerializer.Serialize(campaign, MachineJson.Default.ListPuzzleData));

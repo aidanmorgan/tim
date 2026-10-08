@@ -18,9 +18,9 @@ internal static class GeneralSpatialQualification
     private static PhysicsBody Body(int id,CollisionVector center,PhysicsMotionType motion=PhysicsMotionType.Static,CollisionVector velocity=default)=>
         motion==PhysicsMotionType.Dynamic?new(new(id),motion,RigidPose.At(center),velocity,default,1,new(1,1,1)):
             new(new(id),motion,RigidPose.At(center),default,default);
-    private static CompoundGeometry Sphere()=>new([new(new ConvexSphere(.1),Transform3D.Identity)]);
+    private static CompoundGeometry Sphere()=>new([new(new ConvexSphere(.1),AffineTransform.Identity)]);
     private static CompoundGeometry Grid()=>new(Enumerable.Range(0,4096).Select(i=>
-        new ConvexInstance(new ConvexBox(new(.2,.2,.2)),new(Basis.Identity,new(i*2,0,0)))).ToArray());
+        new ConvexInstance(new ConvexBox(new(.2,.2,.2)),new(AffineBasis.Identity,new(i*2,0,0)))).ToArray());
     internal static GeneralSpatialReport Run(GeneralSpatialProbe probe)
     {
         if(!Enum.IsDefined(probe)) throw new ArgumentOutOfRangeException(nameof(probe));
@@ -31,8 +31,8 @@ internal static class GeneralSpatialQualification
                 watch.Elapsed.TotalMilliseconds,GC.GetAllocatedBytesForCurrentThread()-allocation);
         if(probe==GeneralSpatialProbe.SparseQuery)
         {
-            var a=new CompoundMotion(Sphere(),Body(0,new(4000,0,0)).CreateTrajectory(0));
-            var b=new CompoundMotion(Grid(),Body(1,default).CreateTrajectory(0));
+            var a=new CompoundMotion(Sphere(),Body(0,new(4000,0,0)).CreateTrajectory(0,default));
+            var b=new CompoundMotion(Grid(),Body(1,default).CreateTrajectory(0,default));
             var result=CompoundCollision.Candidates(a,b,0,0);
             var second=CompoundCollision.Candidates(a,b,0,0);
             return Report(GeneralSpatialOutcome.Completed,4096,result.NodeTests,result.LeafTests,result.Pairs.Count,result.Pairs.Single().B.Index,
@@ -56,13 +56,13 @@ internal static class GeneralSpatialQualification
         {
             var bend=HollowGeometry.Bend(2.4,Math.PI/2,.65,.7,new(.005)).Geometry;
             var a=Body(0,default,PhysicsMotionType.Dynamic); var b=Body(1,new(100,0,0),PhysicsMotionType.Dynamic);
-            var query=CompoundCollision.Candidates(new(bend,a.CreateTrajectory(.01)),new(bend,b.CreateTrajectory(.01)),.01,ConvexSweep.ContactDistance);
-            var world=new PhysicsWorld([new(a,bend,new(0,0,0)),new(b,bend,new(0,0,0))],[],new(default));
-            var before=world.Capture(); world.Step([],.01); var after=world.Capture();
+            var query=CompoundCollision.Candidates(new(bend,a.CreateTrajectory(.01,default)),new(bend,b.CreateTrajectory(.01,default)),.01,ConvexSweep.ContactDistance);
+            var world=new PhysicsWorld([],[new(a,bend,new(0,0,0)),new(b,bend,new(0,0,0))],[],new(default));
+            var before=world.Capture(); world.Step([],[],.01); var after=world.Capture();
             var retained=world.RetainedContactPairs;
             world.Restore(before);
             var restored=world.RetainedContactPairs==0&&world.Capture().BodyStates.SequenceEqual(before.BodyStates)&&world.Time==0;
-            world.Step([],.01);
+            world.Step([],[],.01);
             return Report(GeneralSpatialOutcome.Completed,(long)bend.Count*bend.Count,query.NodeTests,query.LeafTests,query.Pairs.Count,
                 retained:retained,restored:restored,replay:world.Capture().BodyStates.SequenceEqual(after.BodyStates)&&world.RetainedContactPairs==retained,
                 reference:a.LinearVelocity==default&&b.LinearVelocity==default);
@@ -71,30 +71,30 @@ internal static class GeneralSpatialQualification
         {
             var a=Body(0,new(-1,0,0),PhysicsMotionType.Dynamic); var anchor=Body(1,new(1,0,0)); var wall=Body(2,default);
             var joint=new PhysicsFrameJoint(new(0),FrameJointKind.BallSocket,a,new(default,RigidRotation.Identity),
-                anchor,new(default,RigidRotation.Identity),ConnectedBodyCollision.Disabled,null);
-            var world=new PhysicsWorld([new(a,Sphere(),new(0,0,0)),new(anchor,Sphere(),new(0,0,0)),
-                new(wall,new([new(new ConvexBox(new(.001,2,2)),Transform3D.Identity)]),new(0,0,0))],[joint],new(default));
+                anchor,new(default,RigidRotation.Identity),ConnectedBodyCollision.Disabled,null,JointTravelDirection.Both);
+            var world=new PhysicsWorld([],[new(a,Sphere(),new(0,0,0)),new(anchor,Sphere(),new(0,0,0)),
+                new(wall,new([new(new ConvexBox(new(.001,2,2)),AffineTransform.Identity)]),new(0,0,0))],[joint],new(default));
             var before=world.Capture();
             bool Reject()
             {
-                try { world.Step([],.01); return false; }
+                try { world.Step([],[],.01); return false; }
                 catch(InvalidOperationException) { return world.Time==0&&world.StepIndex==0&&world.RetainedContactPairs==0&&world.Capture().BodyStates.SequenceEqual(before.BodyStates); }
             }
             var restored=Reject(); var replay=Reject();
             return Report(restored?GeneralSpatialOutcome.Rejected:GeneralSpatialOutcome.Completed,1,retained:world.RetainedContactPairs,restored:restored,replay:replay);
         }
         var moving=Body(0,new(3999,.5,0),PhysicsMotionType.Dynamic,new(2,0,0)); var fixedBody=Body(1,default);
-        var simulation=new PhysicsWorld([new(moving,Sphere(),new(0,0,0)),new(fixedBody,Grid(),new(0,0,0))],[],new(new(0,-1,0)));
+        var simulation=new PhysicsWorld([],[new(moving,Sphere(),new(0,0,0)),new(fixedBody,Grid(),new(0,0,0))],[],new(new(0,-1,0)));
         var referenceBody=Body(0,new(3999,.5,0),PhysicsMotionType.Dynamic,new(2,0,0));
-        var referenceWorld=new PhysicsWorld([new(referenceBody,Sphere(),new(0,0,0)),
-            new(Body(1,default),new([new(new ConvexBox(new(.2,.2,.2)),new(Basis.Identity,new(4000,0,0)))]),new(0,0,0))],[],new(new(0,-1,0)));
+        var referenceWorld=new PhysicsWorld([],[new(referenceBody,Sphere(),new(0,0,0)),
+            new(Body(1,default),new([new(new ConvexBox(new(.2,.2,.2)),new(AffineBasis.Identity,new(4000,0,0)))]),new(0,0,0))],[],new(new(0,-1,0)));
         var initial=simulation.Capture();
-        for(var i=0;i<120;i++) { simulation.Step([],1.0/120); referenceWorld.Step([],1.0/120); }
+        for(var i=0;i<120;i++) { simulation.Step([],[],1.0/120); referenceWorld.Step([],[],1.0/120); }
         var final=simulation.Capture(); var count=simulation.RetainedContactPairs; var impacts=simulation.Impacts.ToArray();
         var matched=moving.Snapshot()==referenceBody.Snapshot();
         simulation.Restore(initial);
         var exact=simulation.RetainedContactPairs==0&&simulation.Capture().BodyStates.SequenceEqual(initial.BodyStates)&&simulation.Time==0;
-        for(var i=0;i<120;i++) simulation.Step([],1.0/120);
+        for(var i=0;i<120;i++) simulation.Step([],[],1.0/120);
         return Report(GeneralSpatialOutcome.Completed,4096,retained:count,restored:exact,
             replay:simulation.Capture().BodyStates.SequenceEqual(final.BodyStates)&&simulation.RetainedContactPairs==count&&simulation.Impacts.SequenceEqual(impacts),
             reference:matched);

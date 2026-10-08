@@ -70,8 +70,8 @@
       "ProofOwner": "S167",
       "Artifacts": [
         {
-          "Path": "docs/mechanical-authored-placement.md",
-          "Hash": "9f7031cbe11f546b0d864835926ee364bbc64d94d64916201f5f587f291eb6b4"
+          "Path": "docs/history/checkpoints/mechanical-authored-placement.md",
+          "Hash": "81dcf094a76f7c69f230db41bc21aed603e7a0060cd58d6ffd34a45daaed8f37"
         }
       ]
     },
@@ -129,8 +129,8 @@
       "ProofOwner": "S168",
       "Artifacts": [
         {
-          "Path": "docs/counter-gate-authored-motion.md",
-          "Hash": "7c1a04748135673336a6c4d056b7f643e3cce3d05db6adacebe0c700cbe42f69"
+          "Path": "docs/history/checkpoints/counter-gate-authored-motion.md",
+          "Hash": "3569913ea2cbba711bdb8989639ff5d52aae9c5a2be8bc88fcb4ebe15861bfb5"
         }
       ]
     },
@@ -206,8 +206,8 @@
       "ProofOwner": "S169",
       "Artifacts": [
         {
-          "Path": "docs/rope-route-ownership.md",
-          "Hash": "3ffee3c5066f063fe66e99a82086da85de3c9e3136f54ccabbbffb6acfb792bb"
+          "Path": "docs/history/checkpoints/rope-route-ownership.md",
+          "Hash": "0500056e4cd277a57d4f03c696e59a1324751c275b9cdcf7871d7d205beb79c3"
         }
       ]
     },
@@ -277,8 +277,8 @@
       "ProofOwner": "S170",
       "Artifacts": [
         {
-          "Path": "docs/readonly-connections.md",
-          "Hash": "99ec62422fe23697fc0bf862c70259dcb69c4b426c757ac6c75912a6342299ae"
+          "Path": "docs/history/checkpoints/readonly-connections.md",
+          "Hash": "04ca25a6b358e8313da960bedcccab1797bc2eafa622cde07d0c79935275540a"
         }
       ]
     },
@@ -378,8 +378,8 @@
       "ProofOwner": "S171",
       "Artifacts": [
         {
-          "Path": "docs/actuator-supply-reset.md",
-          "Hash": "82683a756d21ff78e9d6537fdc4cc7dd6794b8dfb1d0eef816a98a80026e0f76"
+          "Path": "docs/history/checkpoints/actuator-supply-reset.md",
+          "Hash": "7050f398152dd9071be228a01e43d155175ce1a2cd44ed570128f5dd21d55f35"
         }
       ]
     },
@@ -452,8 +452,8 @@
       "ProofOwner": "S172",
       "Artifacts": [
         {
-          "Path": "docs/electrical-fixture-ownership.md",
-          "Hash": "855d78c519ee9bd28ec5999b5c899a0130348e823e0734842a31d1a63c646817"
+          "Path": "docs/history/checkpoints/electrical-fixture-ownership.md",
+          "Hash": "2c956b541d546c3ef12da3737f5ed3ec6dfd22ce7f28c16171e62bde07feb5bb"
         }
       ]
     },
@@ -515,8 +515,8 @@
       "ProofOwner": "S173",
       "Artifacts": [
         {
-          "Path": "docs/optical-fixture-ownership.md",
-          "Hash": "340ec46fe7c5fa919298a04caedf3ac6edc739c90dad636ca892e8f6ad70883e"
+          "Path": "docs/history/checkpoints/optical-fixture-ownership.md",
+          "Hash": "572c90ffeb80c79c7c6f1961e32b2e6635f040ff541fb8065f9a0b82bdb53996"
         }
       ]
     },
@@ -589,8 +589,8 @@
       "ProofOwner": "S174",
       "Artifacts": [
         {
-          "Path": "docs/fixed-topology-power-controls.md",
-          "Hash": "9eaeac0264fe6102894bf79f38a7ec504ed47bac408b9e7c47e7dfc790e3b0f9"
+          "Path": "docs/history/checkpoints/fixed-topology-power-controls.md",
+          "Hash": "6f45d46ba52a083fb64c1ff976f7a609e0622ce1ba3c385e270b8860e028e5b0"
         }
       ]
     },
@@ -660,8 +660,8 @@
       "ProofOwner": "S175",
       "Artifacts": [
         {
-          "Path": "docs/immutable-connections.md",
-          "Hash": "8b9f867a387dddcbad47bb571aa6abc7352ef00dde55f135bb06e454827469a5"
+          "Path": "docs/history/checkpoints/immutable-connections.md",
+          "Hash": "bc0c1b340f093a7c28681681e0c62f1fdaaf6e48558618de57411a1d37be4f87"
         }
       ]
     },
@@ -731,8 +731,8 @@
       "ProofOwner": "S176",
       "Artifacts": [
         {
-          "Path": "docs/placed-part-ownership.md",
-          "Hash": "247f82e2c297a8832313164ebb08748b344b9a2f5c89a3248216d54639768ca8"
+          "Path": "docs/history/checkpoints/placed-part-ownership.md",
+          "Hash": "9abaefe6e7f9599e0cc4c89bd83caf09caf48815ab22bb8f9a1420b1b587a69c"
         }
       ]
     },
@@ -802,8 +802,8 @@
       "ProofOwner": "S177",
       "Artifacts": [
         {
-          "Path": "docs/construction-lifecycle.md",
-          "Hash": "62fae8fa8f0b70380273a18154534b88315344a56a3b91b9183253c32be2756f"
+          "Path": "docs/history/checkpoints/construction-lifecycle.md",
+          "Hash": "d0c80f42701ac3e6c87e747701d2e252a06f0ae9d038a5464063fab559a3103b"
         }
       ]
     },
@@ -847,8 +847,8 @@
       "ProofOwner": "S178",
       "Artifacts": [
         {
-          "Path": "docs/full-physics-regression-2026-09-29.md",
-          "Hash": "6a8881b70640527c6fa00af9500f64b95fedcc33de9d36b0d2673e546f7f8615"
+          "Path": "docs/history/checkpoints/full-physics-regression-2026-09-29.md",
+          "Hash": "6dbaec889fd8aa09adf31d2243e4f000895481d2fc43d4aeb80ba2ca14d6ddf8"
         }
       ]
     },
@@ -899,8 +899,8 @@
       "ProofOwner": "S179",
       "Artifacts": [
         {
-          "Path": "docs/initial-motion-reset.md",
-          "Hash": "64e7a2489e46290df08bf0ba076318db855cc939c1e505f97fa3c5fde0f94038"
+          "Path": "docs/history/checkpoints/initial-motion-reset.md",
+          "Hash": "b501dc316cbca547a0c8673ca6e5ba08e3facd7073777186de88b425aaff447b"
         }
       ]
     },
@@ -964,8 +964,8 @@
       "ProofOwner": "S180",
       "Artifacts": [
         {
-          "Path": "docs/body-telemetry-ownership.md",
-          "Hash": "a2eba76af445ad8e057c822dcbd916b05cfeeeffdd7f87ef62eab1b81228f7b0"
+          "Path": "docs/history/checkpoints/body-telemetry-ownership.md",
+          "Hash": "f3cc0ff6948d16c888623e3180995c8407da54848e56d3921233233d4aa67651"
         }
       ]
     },
@@ -1029,8 +1029,8 @@
       "ProofOwner": "S181",
       "Artifacts": [
         {
-          "Path": "docs/initial-velocity-boundary.md",
-          "Hash": "906d5149280cb361cce988b0d08def4b83e3ae78f1a3988ebde60af231014eac"
+          "Path": "docs/history/checkpoints/initial-velocity-boundary.md",
+          "Hash": "8f3615a694dcc6590c71f5ed6011bc4d75cb33eb679d707ee951e945819409b7"
         }
       ]
     },
@@ -1088,8 +1088,8 @@
       "ProofOwner": "S182",
       "Artifacts": [
         {
-          "Path": "docs/friction-helper-retirement.md",
-          "Hash": "951c25ac132b7010cfcff049f86fac1399821ee7ffcf5ffd88679245c13470b8"
+          "Path": "docs/history/checkpoints/friction-helper-retirement.md",
+          "Hash": "7c80bae1ab85563a7b4889a36124924af85ec4a8d028bc1e6b175750c5e565cd"
         }
       ]
     },
@@ -1184,8 +1184,8 @@
       "ProofOwner": "S183",
       "Artifacts": [
         {
-          "Path": "docs/mechanical-network-cutover.md",
-          "Hash": "77103ce2d4680dbf696fee39803d401937f9dff0124077938df1910a38e28e28"
+          "Path": "docs/history/checkpoints/mechanical-network-cutover.md",
+          "Hash": "321ceeaf7c99fbb179964e802c696bcf78974effc1b376195f91b34f84cc51f1"
         }
       ]
     },
@@ -1280,8 +1280,8 @@
       "ProofOwner": "S184",
       "Artifacts": [
         {
-          "Path": "docs/rotary-transmission-parts.md",
-          "Hash": "2c2e647b4a050b67a965b70f1562b2fadb47a56fa213720cdb96cbec0be71a8a"
+          "Path": "docs/history/checkpoints/rotary-transmission-parts.md",
+          "Hash": "84592def10d846c046d6de455a676ed6abd4747e5fd24c92803531791dcd143c"
         }
       ]
     },
@@ -1376,8 +1376,8 @@
       "ProofOwner": "S185",
       "Artifacts": [
         {
-          "Path": "docs/source-rotor-integration.md",
-          "Hash": "f9bd05ecb53b69265e4ca62859a1ddfada0b7b8e3441dc138d8c6365c76a532c"
+          "Path": "docs/history/checkpoints/source-rotor-integration.md",
+          "Hash": "d8aebce6447b97b7910282fd6299441db3ddeaf8423fe8f9e2fcbf6f8cece8c9"
         }
       ]
     },
@@ -1472,8 +1472,8 @@
       "ProofOwner": "S186",
       "Artifacts": [
         {
-          "Path": "docs/transmission-scene-integration.md",
-          "Hash": "afa6e9c95131d7032b37dbf2895a93f388e7383ecbc12687882be9e5bf4bcf60"
+          "Path": "docs/history/checkpoints/transmission-scene-integration.md",
+          "Hash": "9d1eaa0d74d78f58553c31265209551c5c3679eeca1654eefd40cf07334ef83c"
         }
       ]
     },
@@ -1542,7 +1542,7 @@
       "ProofOwner": "S187",
       "Artifacts": [
         {
-          "Path": "docs/prescribed-obstruction.md",
+          "Path": "docs/history/checkpoints/prescribed-obstruction.md",
           "Hash": "31304d856bfbed4a2febcd3225c468cab629ec40078349c755588635103f088d"
         }
       ]
@@ -1612,7 +1612,7 @@
       "ProofOwner": "S188",
       "Artifacts": [
         {
-          "Path": "docs/prescribed-body-integration.md",
+          "Path": "docs/history/checkpoints/prescribed-body-integration.md",
           "Hash": "11220486b339a9bbe7f6aa1fd5d27b1660064e3e28cf7279f4e22eabce0270b2"
         }
       ]
@@ -1682,7 +1682,7 @@
       "ProofOwner": "S189",
       "Artifacts": [
         {
-          "Path": "docs/prescribed-trajectory-foundation.md",
+          "Path": "docs/history/checkpoints/prescribed-trajectory-foundation.md",
           "Hash": "032cf723cdf4307cab6f51b10621cdd18ca374474ed9d8e923e6d7862e3dd7ee"
         }
       ]
@@ -1758,11 +1758,11 @@
       "ProofOwner": "S190",
       "Artifacts": [
         {
-          "Path": "docs/contact-local-ownership.md",
+          "Path": "docs/history/checkpoints/contact-local-ownership.md",
           "Hash": "a9128b835dc0bde0e9e9972af6d16eb54d5191541c3081a30e887a8d9c9b3ebe"
         },
         {
-          "Path": "docs/rope-scene-solver-removal.md",
+          "Path": "docs/history/checkpoints/rope-scene-solver-removal.md",
           "Hash": "4af678b368df47b4ddb2112d27702294b9d8f9334a1e288c0ba65309b3672f80"
         }
       ]
@@ -1857,8 +1857,8 @@
       "ProofOwner": "S191",
       "Artifacts": [
         {
-          "Path": "docs/contact-participation.md",
-          "Hash": "a40617b09bc063223fc86075ff3821152360ba07175beff8ab7d14c7bdd4fca1"
+          "Path": "docs/history/checkpoints/contact-participation.md",
+          "Hash": "5e59755420e3430c3191c1aa8d1e7ab87d28cd1ddb8651969de401c46e3122de"
         }
       ]
     }
@@ -1869,7 +1869,7 @@
         "Origin": "Task",
         "Id": "sequence-task-176"
       },
-      "SourceHash": "b5e3e4c197cf1d2d5def51a3a9e4716a37f126c29dc0663cd0a2336201e0a366",
+      "SourceHash": "a3bf6bf4e6d329a56e15af2e61e92ef49f336d2b83243f69fb72094b2a07fe7e",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -1931,7 +1931,7 @@
         "Origin": "Task",
         "Id": "sequence-task-177"
       },
-      "SourceHash": "8b18126c6561acfb3b1eea11ace5b5d74743264a9ebf3e07e19c340e37acd3d1",
+      "SourceHash": "2cc3438b430a8440b675db76a0f158598534dbf13378615646bd5c236de69707",
       "Kind": "Engine",
       "Capabilities": [
         "EnvironmentState",
@@ -1979,7 +1979,7 @@
         "Origin": "Task",
         "Id": "sequence-task-178"
       },
-      "SourceHash": "1b145f9e48f1fdc0a57102193310eb52a480b250c17d9920dcd362101e96b383",
+      "SourceHash": "a9cc8699dcdce7571cd5c1adddb8d2ca09a9956e4264723d190690062c5ed4ca",
       "Kind": "Engine",
       "Capabilities": [
         "EnvironmentState",
@@ -2030,7 +2030,7 @@
         "Origin": "Task",
         "Id": "sequence-task-179"
       },
-      "SourceHash": "1a21f2fabc5b14c73c25ebf60e232cf796887f8807a1f7c8664af59a50dbe6c7",
+      "SourceHash": "18469615ed082d3b3873845208828dfcb0067ba81708a866146caed6809c3a2a",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2058,7 +2058,7 @@
         "Origin": "Task",
         "Id": "sequence-task-180"
       },
-      "SourceHash": "57e84fccd8188cd290f378c819a3e8e5af5fa7eaa6964fb20b014fb2640d8870",
+      "SourceHash": "7bcbcaf246427e1377a03d6bb8b6c868d850e3a558899fc9da3f16f012adcf66",
       "Kind": "Engine",
       "Capabilities": [
         "ElasticStorage",
@@ -2106,7 +2106,7 @@
         "Origin": "Task",
         "Id": "sequence-task-181"
       },
-      "SourceHash": "b26b77d16c42b8e3c1e3317c731addae57cd671256de5b034122eab81b7ed361",
+      "SourceHash": "28978c2b3c696823c33b1bcf6a54c178225bbfb47ffd7076cfacd35ed979620d",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2168,7 +2168,7 @@
         "Origin": "Task",
         "Id": "sequence-task-182"
       },
-      "SourceHash": "6c4ec95a1a0afdc4bc42e58d70d3285eb3a97964244a53a6d447cfa3efb60b2b",
+      "SourceHash": "b699da5661672c17044b5eac571ae6b85cd57188989c6361149308956375e8b1",
       "Kind": "Engine",
       "Capabilities": [
         "AcousticPropagation",
@@ -2215,7 +2215,7 @@
         "Origin": "Task",
         "Id": "sequence-task-183"
       },
-      "SourceHash": "10aa6d9c8086e4a4f3ab16fe1fe3f007f4ae58ac48410adefa77f18f30aef1e7",
+      "SourceHash": "8edf7f918ce078b420198eeccb660294dff2865d3a76ff1a2a3c8861fd809c0c",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2277,7 +2277,7 @@
         "Origin": "Task",
         "Id": "sequence-task-184"
       },
-      "SourceHash": "9cb8ebb2b9304bbecf081fe6af6982461e6160bca6de975715fa0791c7be47cd",
+      "SourceHash": "5438f0dc4e7425cb932ee534765b9175c4c81c6d60a4d55b5c14ad3ec01c38c2",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2305,7 +2305,7 @@
         "Origin": "Task",
         "Id": "sequence-task-185"
       },
-      "SourceHash": "7410205058e2090d905c54cfbdd0987ce7e57e41f85fcdcae4a4c3c5610c0d57",
+      "SourceHash": "af4f7df9375dc89a40b479ae67f6ecf15f0c2fad858ed5ba43dc5b7c7dc3f2ab",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2333,7 +2333,7 @@
         "Origin": "Task",
         "Id": "sequence-task-186"
       },
-      "SourceHash": "17d8d715412b39c294d693596adc355a9d1c082436a7d0cf833493bf1ce372a6",
+      "SourceHash": "0610738bd994b7eaa939e98e697f24ca436943b8536aa43a18389a2383217aad",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2361,7 +2361,7 @@
         "Origin": "Task",
         "Id": "sequence-task-187"
       },
-      "SourceHash": "d21b71980408a4063b812c19c587eed39b0260eb20305dfc811c2f38febad792",
+      "SourceHash": "c57c457778d3b949fecb32b577b8e4941fdc9b0718268a7af8b0ac47b438717d",
       "Kind": "Engine",
       "Capabilities": [
         "PerformanceMeasurement",
@@ -2888,7 +2888,7 @@
         "Origin": "Task",
         "Id": "sequence-task-188"
       },
-      "SourceHash": "58fcf3069895d713ec7640e6e3a3a8f57292241798dffd4993484f892b6a1cf9",
+      "SourceHash": "88f8601ce1b64410794983b349b5fba4a52f17deae6a2fa01b97d0c321f2afa6",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2912,7 +2912,7 @@
         "Origin": "Task",
         "Id": "sequence-task-189"
       },
-      "SourceHash": "2c927d486af4393de006ea5219101350e998a5726cc61b3fbed1a257662bda35",
+      "SourceHash": "71e595df77e60e727ae921643843670c819642ef034d2b4a4e4581dc26a9aa2b",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2939,7 +2939,7 @@
         "Origin": "Task",
         "Id": "sequence-task-190"
       },
-      "SourceHash": "3009c9ac7e125c726b31ea8315307a94c4e77d1fceadc0837fe3fdc1f708bb60",
+      "SourceHash": "e7d38269aab094fe41d459ca5a514cb6184a5919902ca2c9b679ae22dc583fd5",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2966,7 +2966,7 @@
         "Origin": "Task",
         "Id": "sequence-task-191"
       },
-      "SourceHash": "b0c517be4491cfa005787ef5bf844e32f7890c297bbfccf2ba489ec4a02e4ee2",
+      "SourceHash": "a17a7e05569aae5007ff7724b36e8c37f0aa8e3e97663b4523c1dd7ee3251ff3",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3014,7 +3014,7 @@
         "Origin": "Task",
         "Id": "sequence-task-192"
       },
-      "SourceHash": "3aebb79de6278a5b4a801f7497e8a7435fe5241e7fd9f2ac16a56a48b54a0c09",
+      "SourceHash": "ab8c2ee4bde4842cbd3876ba8ac27ac8aa40a6f9eb545d1ffc8808292ec8f6be",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3090,7 +3090,7 @@
         "Origin": "Task",
         "Id": "sequence-task-193"
       },
-      "SourceHash": "0fccca4a3e1c6844f1e9e1963ed26c34b0000e238bbc7884ff6eca8209d44a89",
+      "SourceHash": "867aa9fbaebadd98c37d208a2b3bcd5c79de48cf83b8d61199fc4e7dfdb5b130",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3166,7 +3166,7 @@
         "Origin": "Task",
         "Id": "sequence-task-194"
       },
-      "SourceHash": "6f70f02f843fb5ead15afced9f22444f855fffa81e6218e922704d4c106a5e01",
+      "SourceHash": "17ab7b6aa8110d8646075f42ef860ca6e6f9ea2aaffcfbede85c77bb274a9735",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3242,7 +3242,7 @@
         "Origin": "Task",
         "Id": "sequence-task-195"
       },
-      "SourceHash": "2d3d51d324b5b3a86453035e703cba24decc3aa0ccc939252a4a6be77bfd4d62",
+      "SourceHash": "a7f5d21e33833c06dd8195865dbf296d5af00f3dcef3f92bbfdf0b3e5151924c",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3318,7 +3318,7 @@
         "Origin": "Task",
         "Id": "sequence-task-196"
       },
-      "SourceHash": "f37db5d2b429921f7bdc45225f811bdefcd576cbe42d0899ee7a94d672676048",
+      "SourceHash": "1b0d33253d5cf16b1c40fe1caa4ee6fe6fbf530671add09397aee5a871e846fb",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3345,7 +3345,7 @@
         "Origin": "Task",
         "Id": "sequence-task-197"
       },
-      "SourceHash": "d7611840f14cf047bf2fdd718c1f98ecf264728d6f52332f97b1c0865177a657",
+      "SourceHash": "54934c73df6e803962bf7bb39604871518fc51f45ad530e79504f0295c9248d0",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3372,7 +3372,7 @@
         "Origin": "Task",
         "Id": "sequence-task-198"
       },
-      "SourceHash": "9d144b002d3d2ddff958a7c07eabbb03661bf3c5586554f4973bebdf8dfd4565",
+      "SourceHash": "efb384a8fa0a0d7a610cedd8856c8dc08117e4f580c4c5664c33cd39055a18de",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3399,7 +3399,7 @@
         "Origin": "Task",
         "Id": "sequence-task-199"
       },
-      "SourceHash": "895a228c5c821e6429f88944d48280bc3b06471e8187ce544832a87678eee2c6",
+      "SourceHash": "9a55073ee3e75c06f1342152c46febf64e04b493cfdc57d0bff92b4dc4b7aa4d",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3427,7 +3427,7 @@
         "Origin": "Task",
         "Id": "sequence-task-200"
       },
-      "SourceHash": "abcd8f3ce7ca46fbf66b92d92e973796128b96dfac88090bacf96c3fb6ef5371",
+      "SourceHash": "b3c3e6e7c14e9606e07a9334c516fa1fd73b3cbb935b47d23d602feb3ee7f3ff",
       "Kind": "Engine",
       "Capabilities": [
         "AcousticPropagation",
@@ -3472,4 +3472,3 @@
   ],
   "Modes": []
 }
-

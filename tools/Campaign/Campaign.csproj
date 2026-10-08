@@ -5,6 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup><Compile Include="../../engine/MachineData.cs" Link="MachineData.cs" /></ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../engine/MachineData.cs" Link="MachineData.cs" />
+    <Compile Include="../../engine/PartOrientation.cs" Link="PartOrientation.cs" />
+    <Compile Include="../../engine/PartParameterName.cs" Link="PartParameterName.cs" />
+    <Compile Include="../../engine/SpringParameter.cs" Link="SpringParameter.cs" />
+  </ItemGroup>
 </Project>
-

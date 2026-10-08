@@ -1,4 +1,5 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,7 +16,6 @@ public partial class Workshop
     private bool _lastPlaytestRunning;
     private static float[] ScreenPoint(Vector2 point) => [point.X, point.Y];
     private static float[] Point(Vector3 point) => [point.X, point.Y, point.Z];
-    private static float[] Orientation(Quaternion value) => [value.X, value.Y, value.Z, value.W];
 
     [Conditional("PLAYTEST")]
     private void TracePlaytestStart()
@@ -27,7 +27,7 @@ public partial class Workshop
             Parts = World.Parts.Select(p => new PlaytestPart
             {
                 Id = p.Uid, Kind = p.Definition.Id, Locked = p.Locked, Dynamic = p.Dynamic,
-                Properties = new(p.Properties), Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
+                Properties = new(p.Properties), Position = Point(p.Position), Orientation = SceneOrientation.Capture(p.Basis)
             }).ToList()
         }, PlaytestJson.Default.PlaytestRun));
         TracePlaytestFrame();
@@ -43,7 +43,7 @@ public partial class Workshop
             Parts = World.Parts.Select(p => new PlaytestPart
             {
                 Id = p.Uid, Kind = p.Definition.Id, Locked = p.Locked, Dynamic = p.Dynamic,
-                Properties = new(p.Properties), Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
+                Properties = new(p.Properties), Position = Point(p.Position), Orientation = SceneOrientation.Capture(p.Basis)
             }).ToList()
         }, PlaytestJson.Default.PlaytestRun));
     }
@@ -57,16 +57,32 @@ public partial class Workshop
         GD.Print("CCFRAME " + JsonSerializer.Serialize(new PlaytestFrame
         {
             Tick = World.Ticks,
-            Bodies = World.Bodies.Select(p => new PlaytestBody
-            {
-                Id = p.Uid, Visible = p.Visible, Position = Point(p.Position), Velocity = Point(p.Velocity)
-            }).ToList(),
+#if PLAYTEST
+            Performance=PlaytestPerformanceBatch.Capture(World.DrainPerformance()),
+#endif
+            Latches = World.Parts.SelectMany(p=>p.SimulationLatches)
+                .Select(d=>PlaytestLatch.Capture(World,d)).ToList(),
+            Counters = World.Parts.SelectMany(p=>p.SimulationCounters)
+                .Select(d=>PlaytestCounter.Capture(World,d)).ToList(),
+            Oscillators = World.Parts.SelectMany(p=>p.SimulationOscillators)
+                .Select(d=>PlaytestOscillator.Capture(World,d)).ToList(),
+            Timers = World.Parts.SelectMany(p=>p.SimulationTimers)
+                .Select(d=>PlaytestTimer.Capture(World,d)).ToList(),
+            Electrical = World.Parts.SelectMany(p=>p.ConnectionPorts
+                .Where(port=>port.Domain==ConnectionDomain.Electrical&&port.Direction==PortDirection.Input)
+                .Select(port=>new PlaytestElectrical
+                {
+                    Part=PlaytestPartIdentity.FromBoundary(p.Uid),Port=port.Id,
+                    Powered=p.HasElectricalPower(port.Id)
+                })).ToList(),
+            Bodies = World.Bodies.Select(p => PlaytestBody.Capture(World,p)).ToList(),
             Mechanical = World.Parts.SelectMany(p => p.ConnectionPorts
                 .Where(port => port.Domain == ConnectionDomain.Mechanical)
                 .Select(port => new PlaytestMechanical
                 {
-                    Id = p.Uid, Port = port.Id, Speed = p.MechanicalSpeed(port.Id),
-                    Torque = p.MechanicalTorque(port.Id), WorkAvailable = p.MechanicalWorkAvailable(port.Id)
+                    Id = p.Uid, Port = port.Id, Speed = MechanicalNetwork.Speed(World,p,port.Id),
+                    Joint = MechanicalNetwork.Shaft(World,p,port.Id).Id,
+                    KineticEnergy = MechanicalNetwork.Shaft(World,p,port.Id).A.KineticEnergy
                 })).ToList(),
             Cannons = World.Parts.OfType<CannonPart>().Select(p => new PlaytestCannon
             {
@@ -74,22 +90,16 @@ public partial class Workshop
                 StoredEnergy = p.StoredEnergy, ReleasedEnergy = p.ReleasedEnergy,
                 PayloadId = p.LastPayload?.Uid, RecoilOffset = p.RecoilOffset
             }).ToList(),
-            Hinges = World.Parts.SelectMany(p => p.HingedBodies.Select(h => new PlaytestHinge
-            {
-                Id = p.Uid, Role = h.Role, Limit = h.Joint.Limit, Angle = h.Joint.Angle,
-                AngularVelocity = h.Joint.AngularVelocity, Energy = h.Joint.Energy
-            })).ToList(),
+            FrameJoints = World.Physics.Joints.ToArray().OfType<PhysicsFrameJoint>()
+                .Select(joint=>PlaytestFrameJoint.Capture(World.Physics,joint)).ToList(),
             WoundSprings = World.Parts.OfType<WoundSpringPart>().Select(p => new PlaytestWoundSpring
             {
                 Id = p.Uid, Phase = p.Phase, LastTrigger = p.LastTrigger, ReleaseCount = p.ReleaseCount,
                 Compression = p.Compression, StoredEnergy = p.StoredEnergy,
                 AcceptedWork = p.AcceptedWork, ReleasedWork = p.ReleasedWork
             }).ToList(),
-            Parts = World.Parts.Where(p => !p.Locked && !p.Dynamic).Select(p => new PlaytestPart
-            {
-                Id = p.Uid, Kind = p.Definition.Id,
-                Properties = new(p.Properties), Position = Point(p.Position), Rotation = Orientation(p.Quaternion)
-            }).ToList()
+            Parts = World.Parts.Where(p => !p.Locked && !p.Dynamic)
+                .Select(p => PlaytestPart.CaptureRuntime(World,p)).ToList()
         }, PlaytestJson.Default.PlaytestFrame));
     }
 
@@ -204,15 +214,35 @@ public sealed class PlaytestUi
     public List<PlaytestUiPart> Parts { get; set; } = new();
     public List<PlaytestHandle> Handles { get; set; } = new();
 }
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed class PlaytestPart
 {
+    /// <summary>External diagnostic DTO from authoritative state, independent of rendered poses.</summary>
+    public static PlaytestPart CaptureRuntime(MachineWorld world,MachinePart part)
+    {
+        ArgumentNullException.ThrowIfNull(world);ArgumentNullException.ThrowIfNull(part);
+        if(world.Phase!=MachineWorldPhase.Idle||!world.HasPhysicsState)
+            throw new InvalidOperationException("Runtime part diagnostics require a committed run.");
+        var pose=WorldGeometry.CaptureSpatialState(world,new(part,MachinePart.RootBody)).Pose.ToScene();
+        return new()
+        {
+            Id=part.Uid,Kind=part.Definition.Id,Locked=part.Locked,Dynamic=part.Dynamic,
+            Properties=new(part.Properties),Position=[pose.Origin.X,pose.Origin.Y,pose.Origin.Z],
+            Orientation=SceneOrientation.Capture(pose.Basis)
+        };
+    }
     public Dictionary<string, float> Properties { get; set; } = new();
     public string Id { get; set; } = "";
     public string Kind { get; set; } = "";
     public bool Locked { get; set; }
     public bool Dynamic { get; set; }
     public float[] Position { get; set; } = [];
-    public float[] Rotation { get; set; } = [];
+    [JsonRequired]
+    public PartOrientation Orientation
+    {
+        get;
+        set { ArgumentNullException.ThrowIfNull(value); field=value; }
+    } = PartOrientation.Identity;
 }
 public sealed class PlaytestRun
 {
@@ -223,15 +253,33 @@ public sealed class PlaytestRun
 }
 public sealed class PlaytestBody
 {
+    /// <summary>Read owned runtime state without requiring a render/presentation update.
+    /// Position remains the part origin, not its possibly offset mass centre.
+    /// Visible is a presentation observation, not collision participation.</summary>
+    public static PlaytestBody Capture(MachineWorld world,MachinePart part)
+    {
+        ArgumentNullException.ThrowIfNull(world);
+        ArgumentNullException.ThrowIfNull(part);
+        if(world.Physics.Phase!=PhysicsWorldPhase.Idle)
+            throw new InvalidOperationException("Body diagnostics require a committed physics state.");
+        var body=world.PhysicsAssembly.Body(new(part,MachinePart.RootBody));
+        var origin=body.Center-body.Pose.Rotation.Apply(SceneGeometryAdapter.CaptureVector(part.LocalCenterOfMass));
+        var velocity=body.LinearVelocity;
+        return new()
+        {
+            Id=part.Uid,Visible=part.Visible,
+            Position=[(float)origin.X,(float)origin.Y,(float)origin.Z],
+            Velocity=[(float)velocity.X,(float)velocity.Y,(float)velocity.Z]
+        };
+    }
+
     public string Id { get; set; } = "";
     public bool Visible { get; set; }
     public float[] Position { get; set; } = [];
     public float[] Velocity { get; set; } = [];
 }
-public sealed class PlaytestCannonPhaseConverter() :
-    JsonStringEnumConverter<CannonPhase>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
-public sealed class PlaytestCannonShotConverter() :
-    JsonStringEnumConverter<CannonShotResult>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
+public sealed class PlaytestCannonPhaseConverter : ExactPlaytestEnumConverter<CannonPhase>;
+public sealed class PlaytestCannonShotConverter : ExactPlaytestEnumConverter<CannonShotResult>;
 public sealed class PlaytestCannon
 {
     public string Id { get; set; } = "";
@@ -244,35 +292,6 @@ public sealed class PlaytestCannon
     public double ReleasedEnergy { get; set; }
     public string? PayloadId { get; set; }
     public float RecoilOffset { get; set; }
-}
-/// <summary>Exact diagnostic wire names only: no case folding, whitespace aliases or combined names.</summary>
-public abstract class ExactPlaytestEnumConverter<T> : JsonConverter<T> where T : struct, Enum
-{
-    private static readonly Dictionary<string, T> FromWire = new(StringComparer.Ordinal);
-    private static readonly Dictionary<T, string> ToWire = new();
-    static ExactPlaytestEnumConverter()
-    {
-        foreach (var value in Enum.GetValues<T>())
-        {
-            // Enum-to-string conversion belongs only at this serialization boundary.
-            var name = JsonNamingPolicy.SnakeCaseLower.ConvertName(value.ToString());
-            FromWire.Add(name, value);
-            ToWire.Add(value, name);
-        }
-    }
-    public override T Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
-    {
-        if (reader.TokenType != JsonTokenType.String ||
-            !FromWire.TryGetValue(reader.GetString()!, out var value))
-            throw new JsonException("Unknown diagnostic enum wire value.");
-        return value;
-    }
-    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-    {
-        if (!ToWire.TryGetValue(value, out var name))
-            throw new JsonException("Undefined diagnostic enum value.");
-        writer.WriteStringValue(name);
-    }
 }
 public sealed class PlaytestWoundSpringPhaseConverter : ExactPlaytestEnumConverter<WoundSpringPhase>;
 public sealed class PlaytestSpringTriggerConverter : ExactPlaytestEnumConverter<SpringTriggerResult>;
@@ -289,30 +308,76 @@ public sealed class PlaytestWoundSpring
     public double AcceptedWork { get; set; }
     public double ReleasedWork { get; set; }
 }
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed class PlaytestMechanical
 {
     public string Id { get; set; } = "";
     public SocketId Port { get; set; }
     public float Speed { get; set; }
-    public double Torque { get; set; }
-    public double WorkAvailable { get; set; }
+    [JsonConverter(typeof(PlaytestJointIdConverter))]
+    public required PhysicsJointId Joint { get; set; }
+    public required double KineticEnergy { get; set; }
 }
-public sealed class PlaytestHingeRoleConverter : ExactPlaytestEnumConverter<HingeRole>;
-public sealed class PlaytestHingeLimitConverter : ExactPlaytestEnumConverter<HingeLimit>;
-public sealed class PlaytestHinge
+public sealed class PlaytestFrameJointKindConverter : ExactPlaytestEnumConverter<FrameJointKind>;
+public sealed class PlaytestJointIdConverter : JsonConverter<PhysicsJointId>
 {
-    public string Id { get; set; } = "";
-    [JsonConverter(typeof(PlaytestHingeRoleConverter))]
-    public HingeRole Role { get; set; }
-    [JsonConverter(typeof(PlaytestHingeLimitConverter))]
-    public HingeLimit Limit { get; set; }
-    public double Angle { get; set; }
-    public double AngularVelocity { get; set; }
-    public double Energy { get; set; }
+    public override PhysicsJointId Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)=>
+        reader.TokenType==JsonTokenType.Number&&reader.TryGetInt32(out var value)&&value>=0
+            ?new(value):throw new JsonException("Joint identity must be a nonnegative integer.");
+    public override void Write(Utf8JsonWriter writer,PhysicsJointId value,JsonSerializerOptions options)=>
+        writer.WriteNumberValue(value.Index);
 }
+public sealed class PlaytestBodyIdConverter : JsonConverter<PhysicsBodyId>
+{
+    public override PhysicsBodyId Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)=>
+        reader.TokenType==JsonTokenType.Number&&reader.TryGetInt32(out var value)&&value>=0
+            ?new(value):throw new JsonException("Body identity must be a nonnegative integer.");
+    public override void Write(Utf8JsonWriter writer,PhysicsBodyId value,JsonSerializerOptions options)=>
+        writer.WriteNumberValue(value.Index);
+}
+/// <summary>Read-only external snapshot of a live shared frame joint, not a
+/// second part-specific hinge model. Ball sockets have no axial coordinate.</summary>
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed class PlaytestFrameJoint
+{
+    [JsonConverter(typeof(PlaytestJointIdConverter))]
+    public PhysicsJointId Id { get; set; }
+    [JsonConverter(typeof(PlaytestBodyIdConverter))]
+    public PhysicsBodyId BodyA { get; set; }
+    [JsonConverter(typeof(PlaytestBodyIdConverter))]
+    public PhysicsBodyId BodyB { get; set; }
+    [JsonConverter(typeof(PlaytestFrameJointKindConverter))]
+    public FrameJointKind Kind { get; set; }
+    public double? Coordinate { get; set; }
+    public double? Speed { get; set; }
+    public double? Lower { get; set; }
+    public double? Upper { get; set; }
+    public double Energy { get; set; }
+    public double? Winding { get; set; }
+    public double? AngularDistance { get; set; }
+    public double? AngularDistanceError { get; set; }
+    public static PlaytestFrameJoint Capture(PhysicsWorld world,PhysicsFrameJoint joint)=>new()
+    {
+        Id=joint.Id,BodyA=joint.A.Id,BodyB=joint.B.Id,Kind=joint.Kind,
+        Coordinate=joint.Kind==FrameJointKind.BallSocket?null:joint.Travel.Error,
+        Speed=joint.Kind==FrameJointKind.BallSocket?null:joint.Travel.Jacobian.Bind(joint.A,joint.B).Speed,
+        Lower=joint.TravelRange?.Lower,Upper=joint.TravelRange?.Upper,
+        Winding=joint.Kind==FrameJointKind.Hinge?world.AngularTravel(joint.Id).Winding:null,
+        AngularDistance=joint.Kind==FrameJointKind.Hinge?world.AngularTravel(joint.Id).Distance:null,
+        AngularDistanceError=joint.Kind==FrameJointKind.Hinge?world.AngularTravel(joint.Id).DistanceError:null,
+        Energy=joint.A.KineticEnergy+joint.B.KineticEnergy
+    };
+}
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed class PlaytestFrame
 {
-    public List<PlaytestHinge> Hinges { get; set; } = new();
+    public PlaytestPerformanceBatch? Performance { get; set; }
+    public List<PlaytestLatch> Latches { get; set; } = new();
+    public List<PlaytestCounter> Counters { get; set; } = new();
+    public List<PlaytestOscillator> Oscillators { get; set; } = new();
+    public List<PlaytestTimer> Timers { get; set; } = new();
+    public List<PlaytestElectrical> Electrical { get; set; } = new();
+    public List<PlaytestFrameJoint> FrameJoints { get; set; } = new();
     public List<PlaytestMechanical> Mechanical { get; set; } = new();
     public List<PlaytestBody> Bodies { get; set; } = new();
     public List<PlaytestCannon> Cannons { get; set; } = new();
@@ -327,9 +392,205 @@ public sealed class PlaytestResult
     public float Precision { get; set; }
     public string Outcome { get; set; } = "";
 }
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,RespectRequiredConstructorParameters = true)]
+[JsonSerializable(typeof(PlaytestPerformanceSample))]
+[JsonSerializable(typeof(PlaytestPerformanceCounter))]
 [JsonSerializable(typeof(PlaytestUi))]
 [JsonSerializable(typeof(PlaytestRun))]
+[JsonSerializable(typeof(PlaytestConstruction))]
 [JsonSerializable(typeof(PlaytestFrame))]
 [JsonSerializable(typeof(PlaytestResult))]
 public partial class PlaytestJson : JsonSerializerContext { }
+
+[JsonConverter(typeof(PlaytestPartIdentityConverter))]
+public readonly record struct PlaytestPartIdentity
+{
+    public string Value { get; }
+    private PlaytestPartIdentity(string value)=>Value=value;
+    public static PlaytestPartIdentity FromBoundary(string value)=>
+        !string.IsNullOrWhiteSpace(value)?new(value):throw new ArgumentException("Part identity cannot be empty.");
+}
+public sealed class PlaytestPartIdentityConverter : JsonConverter<PlaytestPartIdentity>
+{
+    public override PlaytestPartIdentity Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)
+    {
+        if(reader.TokenType!=JsonTokenType.String)throw new JsonException("Part identity must be text.");
+        var value=reader.GetString();
+        if(string.IsNullOrWhiteSpace(value))throw new JsonException("Part identity cannot be empty.");
+        return PlaytestPartIdentity.FromBoundary(value);
+    }
+    public override void Write(Utf8JsonWriter writer,PlaytestPartIdentity value,JsonSerializerOptions options)
+    {
+        if(string.IsNullOrWhiteSpace(value.Value))throw new JsonException("Part identity cannot be empty.");
+        writer.WriteStringValue(value.Value);
+    }
+}
+public sealed class PlaytestTimerPhaseConverter : ExactPlaytestEnumConverter<SimulationTimerPhase>;
+public sealed class PlaytestTimerCompletionConverter : ExactPlaytestEnumConverter<TimerCompletionPolicy>;
+public sealed class PlaytestTimerBoundaryConverter : ExactPlaytestEnumConverter<TimerBoundary>;
+public sealed class PlaytestTimerIdConverter : JsonConverter<SimulationTimerId>
+{
+    public override SimulationTimerId Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)=>
+        reader.TokenType==JsonTokenType.Number&&reader.TryGetInt32(out var value)&&value>=0
+            ?new(value):throw new JsonException("Timer identity must be a nonnegative integer.");
+    public override void Write(Utf8JsonWriter writer,SimulationTimerId value,JsonSerializerOptions options)=>
+        writer.WriteNumberValue(value.Index);
+}
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed class PlaytestTimer
+{
+    public required PlaytestPartIdentity Part { get; set; }
+    [JsonConverter(typeof(PlaytestTimerIdConverter))]
+    public required SimulationTimerId Id { get; set; }
+    [JsonConverter(typeof(PlaytestTimerPhaseConverter))]
+    public required SimulationTimerPhase Phase { get; set; }
+    [JsonConverter(typeof(PlaytestTimerCompletionConverter))]
+    public required TimerCompletionPolicy Completion { get; set; }
+    [JsonConverter(typeof(PlaytestTimerBoundaryConverter))]
+    public required TimerBoundary Boundary { get; set; }
+    public required int StartedTick { get; set; }
+    public required int DueTick { get; set; }
+    public required double Progress { get; set; }
+    public static PlaytestTimer Capture(MachineWorld world,SceneTimerDeclaration declaration)
+    {
+        if(world.Phase!=MachineWorldPhase.Idle||world.Timers.TransactionPhase!=SimulationTransactionPhase.Idle)
+            throw new InvalidOperationException("Timer diagnostics require committed timer state.");
+        var state=world.ReadTimer(declaration.Key);
+        return new()
+        {
+            Part=PlaytestPartIdentity.FromBoundary(declaration.Key.Owner.Uid),Id=state.Id,Phase=state.Phase,
+            Completion=declaration.Completion,Boundary=declaration.Boundary,
+            StartedTick=state.StartedTick,DueTick=state.DueTick,Progress=world.TimerProgress(declaration.Key)
+        };
+    }
+}
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed class PlaytestElectrical
+{
+    public required PlaytestPartIdentity Part { get; set; }
+    public required SocketId Port { get; set; }
+    public required bool Powered { get; set; }
+}
+
+public sealed class PlaytestOscillatorPhaseConverter : ExactPlaytestEnumConverter<SimulationOscillatorPhase>;
+public sealed class PlaytestOscillatorIdConverter : JsonConverter<SimulationOscillatorId>
+{
+    public override SimulationOscillatorId Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)=>
+        reader.TokenType==JsonTokenType.Number&&reader.TryGetInt32(out var value)&&value>=0
+            ?new(value):throw new JsonException("Oscillator identity must be a nonnegative integer.");
+    public override void Write(Utf8JsonWriter writer,SimulationOscillatorId value,JsonSerializerOptions options)=>
+        writer.WriteNumberValue(value.Index);
+}
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed class PlaytestOscillator
+{
+    public required PlaytestPartIdentity Part { get; set; }
+    [JsonConverter(typeof(PlaytestOscillatorIdConverter))]
+    public required SimulationOscillatorId Id { get; set; }
+    [JsonConverter(typeof(PlaytestOscillatorPhaseConverter))]
+    public required SimulationOscillatorPhase Phase { get; set; }
+    public required int DueTick { get; set; }
+    public required int PulseCount { get; set; }
+    public required int LastPulseTick { get; set; }
+    public required double Progress { get; set; }
+    public static PlaytestOscillator Capture(MachineWorld world,SceneOscillatorDeclaration declaration)
+    {
+        if(world.Phase!=MachineWorldPhase.Idle||world.Oscillators.TransactionPhase!=SimulationTransactionPhase.Idle)
+            throw new InvalidOperationException("Oscillator diagnostics require committed state.");
+        var state=world.ReadOscillator(declaration.Key);
+        return new()
+        {
+            Part=PlaytestPartIdentity.FromBoundary(declaration.Key.Owner.Uid),Id=state.Id,Phase=state.Phase,
+            DueTick=state.DueTick,PulseCount=state.PulseCount,LastPulseTick=state.LastPulseTick,
+            Progress=world.OscillatorProgress(declaration.Key)
+        };
+    }
+}
+
+public sealed class PlaytestCounterPhaseConverter : ExactPlaytestEnumConverter<SimulationCounterPhase>;
+public sealed class PlaytestCounterIdConverter : JsonConverter<SimulationCounterId>
+{
+    public override SimulationCounterId Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)=>
+        reader.TokenType==JsonTokenType.Number&&reader.TryGetInt32(out var value)&&value>=0
+            ?new(value):throw new JsonException("Counter identity must be a nonnegative integer.");
+    public override void Write(Utf8JsonWriter writer,SimulationCounterId value,JsonSerializerOptions options)=>
+        writer.WriteNumberValue(value.Index);
+}
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed class PlaytestCounter
+{
+    public required PlaytestPartIdentity Part { get; set; }
+    [JsonConverter(typeof(PlaytestCounterIdConverter))]
+    public required SimulationCounterId Id { get; set; }
+    [JsonConverter(typeof(PlaytestCounterPhaseConverter))]
+    public required SimulationCounterPhase Phase { get; set; }
+    public required int Count { get; set; }
+    public required int Target { get; set; }
+    public static PlaytestCounter Capture(MachineWorld world,SceneCounterDeclaration declaration)
+    {
+        if(world.Phase!=MachineWorldPhase.Idle||world.Counters.TransactionPhase!=SimulationTransactionPhase.Idle)
+            throw new InvalidOperationException("Counter diagnostics require committed state.");
+        var state=world.ReadCounter(declaration.Key);
+        return new()
+        {
+            Part=PlaytestPartIdentity.FromBoundary(declaration.Key.Owner.Uid),Id=state.Id,
+            Phase=state.Phase,Count=state.Count,Target=state.Target
+        };
+    }
+}
+
+public sealed class PlaytestLatchPhaseConverter : ExactPlaytestEnumConverter<SimulationLatchPhase>;
+public sealed class PlaytestLatchRequestsConverter : JsonConverter<SimulationLatchRequests>
+{
+    public override SimulationLatchRequests Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)=>
+        reader.TokenType!=JsonTokenType.String?throw new JsonException("Latch requests require a canonical string."):reader.GetString() switch
+        {
+            "none"=>SimulationLatchRequests.None,
+            "set"=>SimulationLatchRequests.Set,
+            "reset"=>SimulationLatchRequests.Reset,
+            "set_and_reset"=>SimulationLatchRequests.Set|SimulationLatchRequests.Reset,
+            _=>throw new JsonException("Unsupported latch requests.")
+        };
+    public override void Write(Utf8JsonWriter writer,SimulationLatchRequests value,JsonSerializerOptions options)=>
+        writer.WriteStringValue(value switch
+        {
+            SimulationLatchRequests.None=>"none",
+            SimulationLatchRequests.Set=>"set",
+            SimulationLatchRequests.Reset=>"reset",
+            SimulationLatchRequests.Set|SimulationLatchRequests.Reset=>"set_and_reset",
+            _=>throw new JsonException("Unsupported latch requests.")
+        });
+}
+public sealed class PlaytestLatchIdConverter : JsonConverter<SimulationLatchId>
+{
+    public override SimulationLatchId Read(ref Utf8JsonReader reader,Type type,JsonSerializerOptions options)=>
+        reader.TokenType==JsonTokenType.Number&&reader.TryGetInt32(out var value)&&value>=0
+            ?new(value):throw new JsonException("Latch identity must be a nonnegative integer.");
+    public override void Write(Utf8JsonWriter writer,SimulationLatchId value,JsonSerializerOptions options)=>
+        writer.WriteNumberValue(value.Index);
+}
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed class PlaytestLatch
+{
+    public required PlaytestPartIdentity Part { get; set; }
+    [JsonConverter(typeof(PlaytestLatchIdConverter))]
+    public required SimulationLatchId Id { get; set; }
+    [JsonConverter(typeof(PlaytestLatchPhaseConverter))]
+    public required SimulationLatchPhase Phase { get; set; }
+    public required long BoundaryTick { get; set; }
+    [JsonConverter(typeof(PlaytestLatchRequestsConverter))]
+    public required SimulationLatchRequests CurrentRequests { get; set; }
+    [JsonConverter(typeof(PlaytestLatchRequestsConverter))]
+    public required SimulationLatchRequests NextRequests { get; set; }
+    public static PlaytestLatch Capture(MachineWorld world,SceneLatchDeclaration declaration)
+    {
+        if(world.Phase!=MachineWorldPhase.Idle||world.Latches.TransactionPhase!=SimulationTransactionPhase.Idle)
+            throw new InvalidOperationException("Latch diagnostics require committed state.");
+        var state=world.ReadLatch(declaration.Key);
+        return new()
+        {
+            Part=PlaytestPartIdentity.FromBoundary(declaration.Key.Owner.Uid),Id=state.Id,Phase=state.Phase,
+            BoundaryTick=world.Latches.Tick,CurrentRequests=state.CurrentRequests,NextRequests=state.NextRequests
+        };
+    }
+}

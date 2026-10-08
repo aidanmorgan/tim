@@ -51,15 +51,17 @@ public static class AcousticNetwork
 {
     public static void Solve(MachineWorld world)
     {
-        var pulses=world.Parts.Where(p=>p.Visible).OrderBy(p=>p.Uid,StringComparer.Ordinal)
+        var pulses=world.Parts.Where(p=>p.AcousticPulses.Count>0).OrderBy(p=>p.Uid,StringComparer.Ordinal)
+            .Where(p=>WorldGeometry.CaptureSpatialState(world,new(p,MachinePart.RootBody)).Enabled)
             .SelectMany(p=>p.AcousticPulses.Select(pulse=>(Source:p,Pulse:pulse))).ToArray();
         var readings=new List<(MachinePart Receiver,float Level)>();
         foreach(var receiver in world.Parts.Where(p=>p.AcousticTarget.HasValue))
         {
             var level=0f;
-            if(receiver.Visible)
+            var state=WorldGeometry.CaptureSpatialState(world,new(receiver,MachinePart.RootBody));
+            if(state.Enabled)
             {
-                var point=receiver.Transform*receiver.AcousticTarget!.Value;
+                var point=state.Pose.ToScene()*receiver.AcousticTarget!.Value;
                 foreach(var (source,pulse) in pulses)
                 {
                     if(source==receiver)continue;

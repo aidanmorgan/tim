@@ -23,11 +23,11 @@ internal static class GeneralPersistenceQualification
         var steps=count==1?600:240;
         var tolerance=count==1?1e-8:1e-10;
         var up=new CollisionVector(0,1,0);
-        var shape=new ConvexInstance(new ConvexBox(new(1,1,1)),Transform3D.Identity);
+        var shape=new ConvexInstance(new ConvexBox(new(1,1,1)),AffineTransform.Identity);
         var ground=new PhysicsBody(new(100),PhysicsMotionType.Static,RigidPose.At(-up),default,default);
         var bodies=Enumerable.Range(0,count).Select(i=>new PhysicsBody(new(i),PhysicsMotionType.Dynamic,
             RigidPose.At(up*(1+2*i)),default,default,1,new InertiaTensor(2.0/3,2.0/3,2.0/3))).ToArray();
-        var pairs=bodies.Select((body,i)=>new PersistentContactPair(body,shape,i==0?ground:bodies[i-1],shape,new(.8,.5,.5),.01,.2)).ToArray();
+        var pairs=bodies.Select((body,i)=>new PersistentContactPair(body,shape,i==0?ground:bodies[i-1],shape,new(.8,.5,.5),.01,.2,[])).ToArray();
         var ids=new ContactPointId[count][];
         double drift=0,speed=0,spin=0,residual=0;
         var first=0; var later=0; var stable=true;
@@ -51,7 +51,7 @@ internal static class GeneralPersistenceQualification
             foreach(var pair in pairs) pair.WarmStart();
             var result=ImpulseSolver.Solve(constraints,tolerance:tolerance);
             foreach(var pair in pairs) pair.Complete(tolerance);
-            foreach(var body in bodies) body.Advance(body.CreateTrajectory(duration),duration);
+            foreach(var body in bodies) body.Advance(body.CreateTrajectory(duration,default),duration);
             if(!record) return;
             if(index==0) first=result.Iterations; else later=Math.Max(later,result.Iterations);
             residual=Math.Max(residual,result.MaximumResidual);
@@ -79,7 +79,7 @@ internal static class GeneralPersistenceQualification
         for(var i=0;i<count;i++)
         {
             bodies[i].ApplyImpulse(up*(2+2*i),bodies[i].Center);
-            bodies[i].Advance(bodies[i].CreateTrajectory(.01),.01);
+            bodies[i].Advance(bodies[i].CreateTrajectory(.01,default),.01);
         }
         foreach(var pair in pairs) pair.Prepare(.01);
         var released=pairs.All(p=>p.PreparedContacts.Length==0);

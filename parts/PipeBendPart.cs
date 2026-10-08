@@ -9,7 +9,7 @@ public partial class PipeBendPart : MachinePart, ITubePart
     public const float CentrelineRadius = 2.4f;
     public float Sweep => Mathf.DegToRad((int)BendAngle);
     public Vector3 ArcOffset => -new Vector3(Mathf.Sin(Sweep * .5f), Mathf.Cos(Sweep * .5f), 0) * CentrelineRadius;
-    public override float SurfaceBounce => .15f;
+    public override Physics.ContactMaterial InitialContactMaterial => new(.15f,.1,.3);
     public IEnumerable<TubeMouth> Mouths
     {
         get

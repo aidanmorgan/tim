@@ -4,9 +4,23 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class PulleyRopeRouteTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class PulleyRopeRouteTests(NativeSceneFixture godot)
 {
+    public enum Campaign { Counterweight, PulleyDepth }
+    private static string Id(Campaign campaign)=>campaign switch
+    {
+        Campaign.Counterweight=>"counterweight",Campaign.PulleyDepth=>"pulley_depth",
+        _=>throw new ArgumentOutOfRangeException(nameof(campaign))
+    };
+    private static void Load(MachineWorld world,Campaign campaign)
+    {
+        var puzzle=MachineCodec.ReadPuzzles(Godot.FileAccess.GetFileAsString("res://content/puzzles.json")).Single(p=>p.Id==Id(campaign));
+        var data=MachineCodec.Clone(puzzle.CreateMachine());
+        data.Parts.AddRange(puzzle.Solution);
+        data.Connections=puzzle.SolutionConnections;
+        world.LoadMachine(data);
+    }
     [Theory]
     [InlineData(0, 0, 0, 0)]
     [InlineData(30, 50, 70, 0)]
@@ -41,6 +55,60 @@ public class PulleyRopeRouteTests(HeadlessFixture godot)
         }
     }
 
+    [Theory]
+    [InlineData(Campaign.Counterweight,false)]
+    [InlineData(Campaign.Counterweight,true)]
+    [InlineData(Campaign.PulleyDepth,false)]
+    [InlineData(Campaign.PulleyDepth,true)]
+    public void ArtworkUsesOwnedPosesAndRebuildsAfterReset(Campaign campaign,bool paused)
+    {
+        var world=new MachineWorld();
+        godot.Tree.Root.AddChild(world);
+        RopeVisual? visual=null;
+        try
+        {
+            Load(world,campaign);
+            world.Start();
+            world.Running=!paused;
+            visual=new(){Path=Assert.Single(world.Ropes),World=world};
+            world.AddChild(visual);
+            var expected=visual.GetChildren().OfType<MeshInstance3D>().Select(m=>m.Transform).ToArray();
+            var state=world.Physics.Capture().BodyStates.ToArray();
+            foreach(var part in visual.Path.Sockets.Select(s=>s.Part).Distinct())
+            {
+                part.Position+=new Vector3(3,2,1);
+                part.RotateY(.6f);
+            }
+            // An unpublished solver pose must not leak through either endpoints or slack.
+            var original=world.Physics.Capture();
+            world.Physics.Step([],[],MachineWorld.Tick);
+            Assert.NotEqual(state.Select(body=>body.Pose),world.Physics.Capture().BodyStates.ToArray().Select(body=>body.Pose));
+            visual._Process(0);
+            Assert.Equal(expected,visual.GetChildren().OfType<MeshInstance3D>().Select(m=>m.Transform).ToArray());
+            world.Physics.Restore(original);
+            using(var held=world.ReadCommittedPoses())
+                Assert.Throws<InvalidOperationException>(()=>visual._Process(0));
+            visual._Process(0);
+            Assert.Equal(expected,visual.GetChildren().OfType<MeshInstance3D>().Select(m=>m.Transform).ToArray());
+            Assert.Equal(state,world.Physics.Capture().BodyStates.ToArray());
+            visual.Free();visual=null;
+            world.Restore();
+            var route=Assert.Single(RopeNetwork.Build(world.Parts,world.Connections));
+            visual=new(){Path=route,World=world};
+            world.AddChild(visual);
+            Assert.Equal(expected,visual.GetChildren().OfType<MeshInstance3D>().Select(m=>m.Transform).ToArray());
+        }
+        finally {visual?.Free();world.Free();}
+    }
+
+    [Fact]
+    public void CampaignIdentityBoundaryRejectsUndefinedValues()
+    {
+        Assert.Equal("counterweight",Id(Campaign.Counterweight));
+        Assert.Equal("pulley_depth",Id(Campaign.PulleyDepth));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>Id((Campaign)999));
+    }
+
     [Fact]
     public void CloseStartingLoadThreadsOverTheTopRatherThanMakingAFullLoop()
     {
@@ -72,27 +140,24 @@ public class PulleyRopeRouteTests(HeadlessFixture godot)
     }
 
     [Theory]
-    [InlineData("counterweight")]
-    [InlineData("pulley_depth")]
-    public void CampaignRopeArtworkUpdatesWithoutMutatingSimulation(string id)
+    [InlineData(Campaign.Counterweight)]
+    [InlineData(Campaign.PulleyDepth)]
+    public void CampaignRopeArtworkUpdatesWithoutMutatingSimulation(Campaign campaign)
     {
         var world = new MachineWorld();
         godot.Tree.Root.AddChild(world);
         RopeVisual? visual = null;
         try
         {
-            var puzzle = MachineCodec.ReadPuzzles(Godot.FileAccess.GetFileAsString("res://content/puzzles.json")).Single(p => p.Id == id);
-            var data = MachineCodec.Clone(puzzle.CreateMachine());
-            data.Parts.AddRange(puzzle.Solution);
-            data.Connections = puzzle.SolutionConnections;
-            world.LoadMachine(data);
+            Load(world,campaign);
             world.Start();
-            visual = new() { Path = Assert.Single(world.Ropes) };
+            visual = new() { Path = Assert.Single(world.Ropes), World=world };
             world.AddChild(visual);
             for (var tick = 0; tick < 180 && world.Running; tick++)
             {
                 world.Step();
                 var signature = world.StateSignature();
+                world.PresentFrame(1d/60,.5);
                 visual._Process(1d / 60);
                 Assert.Equal(signature, world.StateSignature());
                 foreach (var mesh in visual.GetChildren().OfType<MeshInstance3D>())

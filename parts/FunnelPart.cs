@@ -9,7 +9,7 @@ public partial class FunnelPart : MachinePart,ITubePart
     public const float HalfLength=.9f;
     public const float InletRadius=1.3f;
     public const float ShellThickness=.05f;
-    public override float SurfaceBounce=>.15f;
+    public override Physics.ContactMaterial InitialContactMaterial => new(.15f,.1,.3);
     public IEnumerable<TubeMouth> Mouths=>
     [
         new(TubeMouthId.Start,Vector3.Left*(HalfLength+.09f),Vector3.Left,InletRadius),

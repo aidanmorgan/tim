@@ -5,8 +5,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class ImpactLeverTubeObstructionTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class ImpactLeverTubeObstructionTests(NativeSceneFixture godot)
 {
     public enum Route { Shell, DepthMiss, Bore }
     private enum Role { Lever, Pipe, Driver }
@@ -36,11 +36,15 @@ public class ImpactLeverTubeObstructionTests(HeadlessFixture godot)
             for (var tick = 0; tick < 600; tick++)
             {
                 world.Step();
-                maximum = Math.Max(maximum,lever.Beam.Joint.Angle);
-                Assert.InRange(world.MaximumFlightIterationsThisStep,1,100);
+                maximum = Math.Max(maximum,LeverFixture.Angle(world,lever));
+                // Free flight may have zero contact events; every shared substep
+                // must still consume its full duration.
+                Assert.InRange(world.LastPhysicsStep.Events,0,100);
+                Assert.Equal((ulong)((tick+1)*MachineWorld.Substeps),world.Physics.StepIndex);
+                Assert.InRange(Math.Abs(world.Physics.Time-(tick+1)*(double)MachineWorld.Tick),0,1e-9);
             }
             Assert.InRange(maximum,.1,.25);
-            Assert.Equal(0,lever.Beam.Joint.AngularVelocity);
+            Assert.InRange(Math.Abs(LeverFixture.Speed(world,lever)),0,1e-7);
             world.Restore();
             Assert.Equal(before,JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData));
         }
@@ -62,24 +66,24 @@ public class ImpactLeverTubeObstructionTests(HeadlessFixture godot)
                 new(1.5f,4.1f,route == Route.DepthMiss ? 2 : 0)));
             pipe.SetDimensions(new(1,1.3f,1.3f));
             world.Start();
-            lever.Beam.Joint.ApplyAngularImpulse(lever.Beam.Joint.Inertia * 3);
+            LeverFixture.Push(world,lever,3);
             if (route == Route.Bore)
             {
                 world.Step();
-                Assert.True(lever.Beam.Joint.Angle > 0);
-                Assert.True(lever.Beam.Joint.AngularVelocity > 0);
+                Assert.True(LeverFixture.Angle(world,lever) > 0);
+                Assert.True(LeverFixture.Speed(world,lever) > 0);
                 for (var tick = 0; tick < 120; tick++) world.Step();
-                Assert.InRange(lever.Beam.Joint.Angle,.12,.14);
-                Assert.Equal(0,lever.Beam.Joint.AngularVelocity);
+                Assert.InRange(LeverFixture.Angle(world,lever),.12,.14);
+                Assert.InRange(Math.Abs(LeverFixture.Speed(world,lever)),0,1e-7);
             }
             else
             {
                 for (var tick = 0; tick < 120; tick++) world.Step();
-                if (route == Route.DepthMiss) Assert.Equal(ImpactLeverPart.LimitAngle,lever.Beam.Joint.Angle);
+                if (route == Route.DepthMiss) Assert.InRange(Math.Abs(LeverFixture.Angle(world,lever)-(ImpactLeverPart.LimitAngle)),0,1e-7);
                 else
                 {
-                    Assert.InRange(lever.Beam.Joint.Angle,.1,.25);
-                    Assert.Equal(0,lever.Beam.Joint.AngularVelocity);
+                    Assert.InRange(LeverFixture.Angle(world,lever),.1,.25);
+                    Assert.InRange(Math.Abs(LeverFixture.Speed(world,lever)),0,1e-7);
                 }
             }
         }

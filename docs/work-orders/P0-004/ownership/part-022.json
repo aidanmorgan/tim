@@ -112,13 +112,13 @@
       "Path": {
         "Value": "ui/Workshop.cs"
       },
-      "Sha256": "6206523533d60b21530c05bf2b22e7de668f9c5d93811c323ff6d33efcbb29b4"
+      "Sha256": "d34397c749bc634a7f6c9d356acea671fabdac6760530faf96b9f2b0dd576d1f"
     },
     {
       "Path": {
         "Value": "ui/WorkshopAnimation.cs"
       },
-      "Sha256": "f84c67715544b50e743893ee4381904120f8a380c052186f441e4732597e5770"
+      "Sha256": "84375607dd61121a10132a01357724f69be309b8ab6d54d8e8985518f3680e9e"
     },
     {
       "Path": {
@@ -130,13 +130,13 @@
       "Path": {
         "Value": "ui/WorkshopGuidance.cs"
       },
-      "Sha256": "5d6d57440699ff3b5d3c4c68d63012894053eb6545123791a52a3013eb0b2f92"
+      "Sha256": "679cf111ea01861470f5dac17f41bd3ed2e79e6ef47e665d1bbf03b2be69213e"
     },
     {
       "Path": {
         "Value": "ui/WorkshopIcons.cs"
       },
-      "Sha256": "cca1ad3b8840f9b4496070e97bda9d391cf1d040252b2af13c3933678753f6f3"
+      "Sha256": "df37016807f5bee9a6ade9aef50d05c005ef9b3a975fa08ac0cb2b35e67a99fe"
     },
     {
       "Path": {
@@ -148,13 +148,13 @@
       "Path": {
         "Value": "CuriousContraptions.csproj"
       },
-      "Sha256": "bdcd6f1de8e038aa92ea7ef702add55b60f12c3c6a6dd1d9dab3c647615c8ffd"
+      "Sha256": "ba60016981912a763ebf98c1039b870a9838e423fad0ce7079c7e2d865528e9b"
     },
     {
       "Path": {
         "Value": "CuriousContraptions.web/CuriousContraptions.web.csproj"
       },
-      "Sha256": "149d1ac1524af1f458087f41107eebe5a0a8e5fb7cdf26da6a4a5b6c30593637"
+      "Sha256": "cb5fa150fbb43b738dd1df89731bc3e43f2f5befa0c6434a3467bbae02323e66"
     },
     {
       "Path": {
@@ -190,7 +190,7 @@
       "Path": {
         "Value": "CuriousContraptions.web/obj/project.assets.json"
       },
-      "Sha256": "45ef3ffb1fccd22289dc4bd191b25f0f59baa7c3332ac309b31a6ddba82bef2a"
+      "Sha256": "dce75aa89cc88675eaca8704c3dc79ba2f6e17bb42e8a5e88bb58443b2979f98"
     },
     {
       "Path": {
@@ -870,7 +870,7 @@
         "Value": "P0-026"
       },
       "Rule": 2,
-      "MemberSha256": "45a58e7451baa536f22724d6882dbcc9f7c3ebfdec5e8bb3d0edf40e64fdc613"
+      "MemberSha256": "788cb23279e2c556caebae5ecc701df99354792c65e78a6d97c5925343a9b4a9"
     },
     {
       "Member": {

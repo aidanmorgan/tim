@@ -76,7 +76,7 @@
     },
     {
       "Capability": "AerodynamicDrag",
-      "ModelBoundary": "Use relative flow, geometry and declared drag model; zero relative motion generates no drag.",
+      "ModelBoundary": "Use relative flow, geometry and declared drag model; zero relative motion generates no drag. Current Workshop subset: declaration-parameterized isotropic linear drag in the shared GPU motion law; other aerodynamic loads remain unsupported.",
       "Units": [
         "Metre",
         "Second",
@@ -87,9 +87,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/physics/BodyDragLoad.cs",
-          "Symbol": "BodyDragLoad",
-          "FileHash": "900a10597fec7356034c9991bd6491a13ccbb143dafefc3cd3ba018820aa64bf"
+          "Path": "engine/gpu/physics.wgsl",
+          "Symbol": "MotionCurve",
+          "FileHash": "ded4c11995382931423761056837f8d8c9320eaea8446a4c3f59215f76414eb7"
+        },
+        {
+          "Path": "engine/gpu/PhysicsDeclarations.cs",
+          "Symbol": "RigidBodyDeclaration",
+          "FileHash": "c5fa237ea0f2941a048b4cfb35d71d62d322e2c1c42c963b8fe4af101d7f85c3"
         }
       ],
       "IndependentOracle": "Zero relative velocity gives zero drag; reversal reverses force and dissipated relative work remains nonnegative.",

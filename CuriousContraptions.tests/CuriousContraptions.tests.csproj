@@ -43,11 +43,16 @@
     <!-- Fixed current GPU/native boundary checks. All other source files remain unshipped reference obligations. -->
     <ItemGroup>
         <Compile Include="CanonicalBodyTests.cs" />
+        <Compile Include="RigidMassPropertiesTests.cs" />
         <Compile Include="WorkshopSimulationTests.cs" />
         <Compile Include="WorkshopSaveTests.cs" />
         <Compile Include="ContactActivationTests.cs" />
         <Compile Include="WorkshopActivationAnimationTests.cs" />
         <Compile Include="WorkshopWallTests.cs" />
+        <Compile Include="WorkshopDelayTests.cs" />
+        <Compile Include="WorkshopBumperTests.cs" />
+        <Compile Include="DelayedSignalTests.cs" />
+        <Compile Include="ActivationTimerTests.cs" />
         <Compile Include="WorkshopWireTests.cs" />
         <Compile Include="WorkshopReadTests.cs" />
         <Compile Include="NativeSceneFixture.cs" />
@@ -56,6 +61,7 @@
         <Compile Include="PortableAnimationTests.cs" />
         <Compile Include="WorkshopGpuDeviceTests.cs" />
         <Compile Include="WorkshopTraceTests.cs" />
+        <Compile Include="WorkshopPoseRingTests.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopTrace.cs" Link="WorkshopTrace.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" Link="WorkshopGpuDevice.cs" />
     </ItemGroup>

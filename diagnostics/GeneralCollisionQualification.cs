@@ -9,22 +9,22 @@ internal sealed record GeneralCollisionReport(GeneralCollisionProbe Probe,Convex
 internal static class GeneralCollisionQualification
 {
     private static BodyTrajectory Path(RigidPose pose,CollisionVector velocity=default,CollisionVector spin=default,double duration=1)=>
-        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration);
+        new PhysicsBody(new(0),PhysicsMotionType.Kinematic,pose,velocity,spin).CreateTrajectory(duration,default);
     internal static GeneralCollisionReport Run(GeneralCollisionProbe probe)
     {
         if(probe==GeneralCollisionProbe.PureRotation)
         {
-            var beam=new ConvexMotion(new(new ConvexBox(new(2,.05,.05)),Transform3D.Identity),Path(RigidPose.Identity,spin:new(0,0,120)));
-            var pose=new Transform3D(Basis.Identity,new(1.5f*Mathf.Cos(.4f),1.5f*Mathf.Sin(.4f),0));
-            var obstacle=new ConvexMotion(new(new ConvexBox(new(.05,.05,.05)),Transform3D.Identity),Path(RigidPose.At(CollisionVector.From(pose.Origin))));
+            var beam=new ConvexMotion(new(new ConvexBox(new(2,.05,.05)),AffineTransform.Identity),Path(RigidPose.Identity,spin:new(0,0,120)));
+            var pose=new AffineTransform(AffineBasis.Identity,new(1.5f*Mathf.Cos(.4f),1.5f*Mathf.Sin(.4f),0));
+            var obstacle=new ConvexMotion(new(new ConvexBox(new(.05,.05,.05)),AffineTransform.Identity),Path(RigidPose.At(pose.Origin)));
             var hit=ConvexSweep.Cast(beam,obstacle,1.0/120,ConvexSweep.ContactDistance);
             return new(probe,hit.Status,hit.Time,hit.Iterations);
         }
         if(probe==GeneralCollisionProbe.OpposingBodies)
         {
             var shape=new ConvexSphere(.5);
-            var a=new ConvexMotion(new(shape,Transform3D.Identity),Path(RigidPose.At(new(-2,0,0)),new(400,0,0)));
-            var b=new ConvexMotion(new(shape,Transform3D.Identity),Path(RigidPose.At(new(2,0,0)),new(-400,0,0)));
+            var a=new ConvexMotion(new(shape,AffineTransform.Identity),Path(RigidPose.At(new(-2,0,0)),new(400,0,0)));
+            var b=new ConvexMotion(new(shape,AffineTransform.Identity),Path(RigidPose.At(new(2,0,0)),new(-400,0,0)));
             var hit=ConvexSweep.Cast(a,b,.005,ConvexSweep.ContactDistance);
             return new(probe,hit.Status,hit.Time,hit.Iterations);
         }
@@ -33,11 +33,11 @@ internal static class GeneralCollisionQualification
         var children=new System.Collections.Generic.List<ConvexInstance>();
         foreach(var side in new[]{-1,1})
         {
-            children.Add(new(new ConvexBox(new(1,.1,1.2)),new(Basis.Identity,new(3,side*1.1f,0))));
-            children.Add(new(new ConvexBox(new(1,1,.1)),new(Basis.Identity,new(3,0,side*1.1f))));
+            children.Add(new(new ConvexBox(new(1,.1,1.2)),new(AffineBasis.Identity,new(3,side*1.1f,0))));
+            children.Add(new(new ConvexBox(new(1,1,.1)),new(AffineBasis.Identity,new(3,0,side*1.1f))));
         }
         var height=probe==GeneralCollisionProbe.CompoundWall?1.1f:0;
-        var moving=new CompoundMotion(new([new(new ConvexSphere(.25),Transform3D.Identity)]),
+        var moving=new CompoundMotion(new([new(new ConvexSphere(.25),AffineTransform.Identity)]),
             Path(RigidPose.At(new(0,height,0)),new(6,0,0)));
         var passage=new CompoundMotion(new(children.ToArray()),Path(RigidPose.Identity));
         var result=CompoundCollision.Cast(moving,passage,1,ConvexSweep.ContactDistance);

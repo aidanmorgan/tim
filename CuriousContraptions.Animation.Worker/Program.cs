@@ -211,14 +211,80 @@ public static partial class Program
             throw new ArgumentException("Visibility requires its registered target.");
         if (!Clock.TryMasterNow(WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()), out var now))
             throw new InvalidOperationException("Animation control requires qualified master time.");
-        if (control.Kind != AnimationControlKind.Visibility)
+        if (control.Kind == AnimationControlKind.Impulse)
         {
-            var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, control.From),
-                WorkshopAnimationWire.Value(control.Property, control.To), new AnimationDurationSeconds(control.Duration),
+            // One impulse slot per target; every committed occurrence is enqueued and overlap is combined here.
+            AnimationHandle handle;
+            if (previous.Handle is { } existing)
+            {
+                if (previous.Control.Kind != AnimationControlKind.Impulse || previous.Control.ImpulseCurve != control.ImpulseCurve ||
+                    previous.Control.Overlap != control.Overlap || previous.Control.Duration != control.Duration)
+                    throw new ArgumentException("Impulse target changed its declared envelope.");
+                handle = existing;
+            }
+            else
+            {
+                var envelope = new AnimationImpulseDefinition(new(control.Duration), control.ImpulseCurve, control.Overlap,
+                    AnimationImpulseVisibility.AdvanceWhileHidden, AnimationClock.Presentation, WorkshopAnimationWire.ImpulseCapacity,
+                    AnimationImpulseTiming.EventTime, AnimationImpulseDefinition.CanonicalPeak(control.ImpulseCurve));
+                handle = Tracks.RegisterImpulses(new(control.Target, control.Property), envelope,
+                    WorkshopAnimationWire.Value(control.Property, control.From), WorkshopAnimationWire.Value(control.Property, control.To));
+            }
+            // A retransmitted occurrence is already admitted; only a newer occurrence sequence enqueues.
+            if (previous.Handle is null || control.Generation > previous.Control.Generation)
+            {
+                var admission = Tracks.EnqueueImpulse(handle, new(control.Generation), new((Half)1),
+                    (double)now.Lower / WorkshopPulse.NanosecondsPerSecond);
+                if (admission == AnimationImpulseAdmission.CapacityExhausted)
+                    Console.Error.WriteLine("Impulse occurrence dropped: animation target capacity exhausted.");
+            }
+            Tracks.SetVisible(handle, control.Visible);
+            Instances[slot] = new() { Handle = handle, Control = control };
+        }
+        else if (control.Kind != AnimationControlKind.Visibility)
+        {
+            Half from, to;
+            bool start;
+            if (control.Kind == AnimationControlKind.TimerObservation)
+            {
+                if (control.Timer.Phase == AnimationTimerPhase.Counting)
+                {
+                    from = AnimationTimerSegment.Create(control.Timer).Endpoint.Value;
+                    to = (Half)1;
+                    start = true;
+                }
+                else if (control.Timer.Phase == AnimationTimerPhase.Finished)
+                {
+                    from = to = (Half)1;
+                    start = false;
+                }
+                else
+                {
+                    from = to = (Half)0;
+                    start = false;
+                }
+            }
+            else if (control.Kind == AnimationControlKind.Endpoint && control.Property == AnimationProperty.ColourBlend)
+            {
+                from = (Half)0;
+                to = (Half)1;
+                start = true;
+            }
+            else
+            {
+                from = control.From;
+                to = control.To;
+                start = control.Kind == AnimationControlKind.Reveal;
+            }
+            var duration = control.Kind == AnimationControlKind.TimerObservation && control.Timer.Phase == AnimationTimerPhase.Counting
+                ? (Half)Math.Max(0.01, (control.Timer.Due - control.Timer.Observed) * (double)schedule.Settings.SimulationRate.Denominator / schedule.Settings.SimulationRate.Numerator)
+                : control.Duration;
+            var definition = new AnimationDefinition(WorkshopAnimationWire.Value(control.Property, from),
+                WorkshopAnimationWire.Value(control.Property, to), new AnimationDurationSeconds(duration),
                 control.Curve, AnimationRepeat.Once, AnimationClock.Presentation);
             if (previous.Handle is { } old) Tracks.Remove(old);
             var handle = Tracks.Register(new(control.Target, control.Property), definition);
-            if (control.Kind == AnimationControlKind.Reveal)
+            if (start)
             {
                 Tracks.StartAt(handle, (double)now.Lower / WorkshopPulse.NanosecondsPerSecond);
                 _lastOrdinal = Math.Max(_lastOrdinal, WorkshopPulse.Due(schedule.Settings.AnimationRate,
@@ -256,6 +322,9 @@ public static partial class Program
         BinaryPrimitives.WriteUInt64LittleEndian(Output.AsSpan(72), control.World.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(Output.AsSpan(80), control.EventOrdinal);
         BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(84), BitConverter.HalfToUInt16Bits(control.EventPhase));
+        WorkshopAnimationWire.WriteTimer(Output, control.Timer);
+        if (control.Kind == AnimationControlKind.Impulse)
+            BinaryPrimitives.WriteUInt16LittleEndian(Output.AsSpan(132), BitConverter.HalfToUInt16Bits(control.Duration));
         SendOutput(Output);
     }
 }

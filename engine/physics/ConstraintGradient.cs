@@ -45,6 +45,21 @@ public sealed class ConstraintGradient
             return speed;
         }
     }
+    /// <summary>Physical velocity along captured paths, with complete products and
+    /// participant cancellation retained until the final scalar read.</summary>
+    public double SpeedAlong(IReadOnlyDictionary<PhysicsBodyId,BodyTrajectory> paths,double time)
+    {
+        ArgumentNullException.ThrowIfNull(paths);
+        Span<ulong> storage=stackalloc ulong[BinaryProductSum.StorageLength];
+        var sum=new BinaryProductSum(storage);
+        foreach(var term in _terms)
+        {
+            if(!paths.TryGetValue(term.Body.Id,out var path)||path is null||path.SourceBody!=term.Body.Id)
+                throw new ArgumentException("Constraint path is missing a participant.",nameof(paths));
+            path.AccumulatePhysicalVelocity(ref sum,term.Linear,term.Angular,time);
+        }
+        return sum.Finish();
+    }
     public double Coupling(ConstraintGradient other)
     {
         ArgumentNullException.ThrowIfNull(other);

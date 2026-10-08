@@ -8,7 +8,9 @@ public partial class PulleyPart : MachinePart
 {
     public const float WheelRadius = RopeGeometry.PulleyRadius;
     private Node3D _wheel = null!;
-    public float WheelAngle { get; private set; }
+    private readonly SimulationState<float> _wheelAngle = new(0);
+    public float WheelAngle => _wheelAngle.Value;
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState => [_wheelAngle];
     public override RopeAttachmentKind RopeAttachment => RopeAttachmentKind.Guide;
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
@@ -19,7 +21,7 @@ public partial class PulleyPart : MachinePart
         PickRadius = .65f;
         AddBox(new(0, .55f, -.1f), new(.5f, .15f, .4f), new("#293954"));
         PartArt.Box(Visual, new(.12f, .55f, .12f), new("#fff8e9"), new(0, .3f, -.13f));
-        Spheres.Add(new(Vector3.Zero, WheelRadius));
+        Spheres.Add(new(Vector3.Zero, WheelRadius,MachinePart.RootBody));
         _wheel = new Node3D();
         Visual.AddChild(_wheel);
         var wheel = PartArt.Cylinder(_wheel, WheelRadius, .17f, Definition.Color);
@@ -29,9 +31,9 @@ public partial class PulleyPart : MachinePart
         PartArt.Box(_wheel, new(.57f, .065f, .04f), new("#293954"), new(0, 0, .12f));
         PartArt.Sphere(_wheel, .06f, new("#f7cb52"), new(.27f, 0, .15f));
     }
-    public override void AdvanceRope(float distance)
+    public override void AdvanceRope(double distance)
     {
-        WheelAngle = Mathf.PosMod(WheelAngle + distance / WheelRadius, Mathf.Tau);
+        _wheelAngle.Value = Mathf.PosMod(WheelAngle + (float)(distance / WheelRadius), Mathf.Tau);
         _wheel.Rotation = new(0, 0, WheelAngle);
     }
 }

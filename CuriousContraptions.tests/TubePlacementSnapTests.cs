@@ -1,11 +1,12 @@
 using Godot;
+using CuriousContraptions.Physics;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class TubePlacementSnapTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class TubePlacementSnapTests(NativeSceneFixture godot)
 {
     [Theory]
     [InlineData(0, 0, 0)]
@@ -17,7 +18,7 @@ public class TubePlacementSnapTests(HeadlessFixture godot)
         godot.Tree.Root.AddChild(world);
         try
         {
-            var a = (PipePart)world.AddPart(new() { Id = "a", Kind = "pipe", Position = [0, 8, 0], Rotation = [x, y, z], Locked = true });
+            var a = (PipePart)world.AddPart(new() { Id = "a", Kind = "pipe", Position = [0, 8, 0], Orientation = PartOrientation.FromEulerDegrees(x, y, z), Locked = true });
             var b = (PipePart)world.AddPart(new() { Id = "b", Kind = "pipe" });
             b.GlobalTransform = a.GlobalTransform * new Transform3D(new Basis(Vector3.Back, .08f), new(3.9f, .05f, 0));
             var original = b.GlobalTransform;
@@ -31,8 +32,8 @@ public class TubePlacementSnapTests(HeadlessFixture godot)
             Assert.True((a.GlobalBasis * end.Outward).Dot(b.GlobalBasis * start.Outward) < -.9999f);
             var ball = world.AddPart(new() { Id = "ball", Kind = "ball" });
             ball.Position = a.Transform * new Vector3(-3, .1f, 0);
+            ball.InitialVelocity = a.Basis.X * 4;
             world.Start();
-            ball.Velocity = a.Basis.X * 4;
             var previous = ball.Position;
             for (var i = 0; i < 300; i++)
             {
@@ -41,13 +42,46 @@ public class TubePlacementSnapTests(HeadlessFixture godot)
                 previous = ball.Position;
             }
             Assert.InRange((a.Transform.AffineInverse() * ball.Position).X, 6.99f, 7.01f);
-            Assert.InRange(ball.Velocity.Length(), 3.99f, 4.01f);
+            Assert.InRange(world.PhysicsAssembly.Body(new(ball,MachinePart.RootBody)).LinearVelocity.Length, 3.99f, 4.01f);
             Assert.Null(TubePlacementSnap.Find(world, b));
             var placement = b.Serialize().Position;
             world.Restore();
             Assert.Equal(placement, world.FindPart("b")!.Serialize().Position);
         }
         finally { world.Free(); }
+    }
+
+    [Fact]
+    public void CapturedAndForeignPartsCannotSnapUntilReset()
+    {
+        var world=new MachineWorld();
+        var other=new MachineWorld();
+        godot.Tree.Root.AddChild(world);
+        godot.Tree.Root.AddChild(other);
+        try
+        {
+            world.AddPart(new(){Id=FixtureParts.Id(FixturePartId.First),Kind="pipe",Position=[0,4,0]});
+            var moving=world.AddPart(new(){Id=FixtureParts.Id(FixturePartId.Second),Kind="pipe",Position=[3.9f,4,0]});
+            var foreign=other.AddPart(new(){Id=FixtureParts.Id(FixturePartId.Second),Kind="pipe",Position=[3.9f,4,0]});
+            Assert.NotNull(TubePlacementSnap.Find(world,moving));
+            Assert.Null(TubePlacementSnap.Find(world,foreign));
+            var pose=moving.Transform;
+            world.Start();
+            var physics=world.Physics;
+            var bodies=physics.Capture().BodyStates.ToArray();
+            Assert.Null(TubePlacementSnap.Find(world,moving));
+            world.Running=false;
+            Assert.Null(TubePlacementSnap.Find(world,moving));
+            Assert.Equal(pose,moving.Transform);
+            Assert.Same(physics,world.Physics);
+            Assert.Equal(bodies,physics.Capture().BodyStates.ToArray());
+            world.Restore();
+            moving=world.FindPart(FixtureParts.Id(FixturePartId.Second))!;
+            Assert.Equal(pose,moving.Transform);
+            Assert.NotNull(TubePlacementSnap.Find(world,moving));
+            Assert.Null(TubePlacementSnap.Find(world,foreign));
+        }
+        finally {world.Free();other.Free();}
     }
 
     [Theory]
@@ -60,7 +94,7 @@ public class TubePlacementSnapTests(HeadlessFixture godot)
         try
         {
             world.AddPart(new() { Id = "a", Kind = "pipe", Position = [0, 4, 0] });
-            var b = world.AddPart(new() { Id = "b", Kind = "pipe", Position = [separation, 4, 0], Rotation = [0, 0, angle] });
+            var b = world.AddPart(new() { Id = "b", Kind = "pipe", Position = [separation, 4, 0], Orientation = PartOrientation.FromEulerDegrees(0, 0, angle) });
             Assert.Null(TubePlacementSnap.Find(world, b));
         }
         finally { world.Free(); }

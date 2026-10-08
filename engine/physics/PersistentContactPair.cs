@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CuriousContraptions.Physics;
 
@@ -26,6 +27,13 @@ public readonly record struct ContactMaterial
             throw new ArgumentException("Contact material values must be finite and physically valid.");
         Restitution=restitution; BounceThreshold=bounceThreshold; Friction=friction;
     }
+
+    /// <summary>Each surface retains a fraction of normal impact speed. Either
+    /// surface can absorb it completely; neither can override the other's loss.
+    /// Friction uses the symmetric geometric mean; both bounce thresholds apply.</summary>
+    public static ContactMaterial Combine(ContactMaterial a,ContactMaterial b)=>new(
+        a.Restitution*b.Restitution,Math.Max(a.BounceThreshold,b.BounceThreshold),
+        Math.Sqrt(a.Friction)*Math.Sqrt(b.Friction));
 }
 public readonly record struct CachedContactPoint(ContactPointId Id,CollisionVector LocalA,CollisionVector LocalB,
     CollisionVector NormalInA,ContactImpulse ImpulseInA);
@@ -39,6 +47,9 @@ public sealed class PersistentContactPair
 {
     public PhysicsBody A { get; }
     public PhysicsBody B { get; }
+    private readonly DrivenSurface[] _surfaces;
+    private readonly PhysicsBody[] _bodies;
+    public ReadOnlySpan<PhysicsBody> Bodies=>_bodies;
     public ContactPairPhase Phase { get; private set; }
     public ReadOnlySpan<CachedContactPoint> Contacts=>_contacts;
     public ReadOnlySpan<PreparedContactPoint> PreparedContacts=>_prepared;
@@ -53,7 +64,7 @@ public sealed class PersistentContactPair
     private ulong _revisionA,_revisionB;
 
     public PersistentContactPair(PhysicsBody a,ConvexInstance shapeA,PhysicsBody b,ConvexInstance shapeB,
-        ContactMaterial material,double anchorMatchDistance,double maximumNormalAngle)
+        ContactMaterial material,double anchorMatchDistance,double maximumNormalAngle,IEnumerable<DrivenSurface> surfaces)
     {
         ArgumentNullException.ThrowIfNull(a); ArgumentNullException.ThrowIfNull(b);
         if(a==b||a.Id==b.Id) throw new ArgumentException("A contact pair needs two distinct bodies.");
@@ -62,16 +73,63 @@ public sealed class PersistentContactPair
             !double.IsFinite(anchorMatchDistance*anchorMatchDistance)||
             !double.IsFinite(maximumNormalAngle)||maximumNormalAngle<0||maximumNormalAngle>=Math.PI/2)
             throw new ArgumentOutOfRangeException(nameof(anchorMatchDistance));
+        ArgumentNullException.ThrowIfNull(surfaces);
+        _surfaces=surfaces.ToArray();
+        if(_surfaces.Any(s=>s is null||s.Carrier!=a&&s.Carrier!=b))
+            throw new ArgumentException("Contact surfaces must belong to a geometric owner.");
+        _bodies=new ConstraintGradient([new(a,default,default),new(b,default,default),
+            .._surfaces.SelectMany(s=>s.Drive.Bodies.ToArray()).Select(body=>new ConstraintTerm(body,default,default))]).Bodies.ToArray();
         A=a; B=b; _shapeA=shapeA; _shapeB=shapeB; _material=material;
         _matchDistanceSquared=anchorMatchDistance*anchorMatchDistance; _minimumNormalDot=Math.Cos(maximumNormalAngle);
+    }
+
+    /// <summary>Coupled normal/Coulomb contacts at a prediction stage. Capture
+    /// the source friction regime before predicting; scratch accelerations must
+    /// not masquerade as physical slip or change that regime during iteration.</summary>
+    public ContactForce[] AccelerationContacts(
+        IReadOnlyDictionary<PhysicsBodyId,PhysicsBody> states,double velocityTolerance,
+        IReadOnlyDictionary<PhysicsBodyId,BodyTrajectory> paths,double time)
+    {
+        Require(ContactPairPhase.Idle);
+        ArgumentNullException.ThrowIfNull(states);
+        if(!double.IsFinite(velocityTolerance)||velocityTolerance<=0)
+            throw new ArgumentOutOfRangeException(nameof(velocityTolerance));
+        if(!states.TryGetValue(A.Id,out var a)||a is null||a.Id!=A.Id||
+            !states.TryGetValue(B.Id,out var b)||b is null||b.Id!=B.Id)
+            throw new ArgumentException("Contact prediction requires both declared bodies.");
+        var source=ContactGap.Query(A,_shapeA,B,_shapeB,ConvexSweep.ContactDistance,ConvexDistance.DefaultTolerance);
+        var rows=new List<ContactForce>();
+        foreach(var gap in source)
+            if(gap.Rate<=velocityTolerance)
+            {
+                var material=new MaterialContact(gap,_surfaces);
+                rows.Add(material.Rebind(states).Force(_material.Friction,
+                    material.Slip.Length>velocityTolerance?FrictionRegime.Sliding:FrictionRegime.Sticking,paths,time));
+            }
+        return rows.ToArray();
+    }
+
+    internal MaterialContact[] SlidingFeatures(double velocityTolerance)
+    {
+        Require(ContactPairPhase.Idle);
+        if(!double.IsFinite(velocityTolerance)||velocityTolerance<=0)
+            throw new ArgumentOutOfRangeException(nameof(velocityTolerance));
+        if(_material.Friction==0) return [];
+        var result=new List<MaterialContact>();
+        foreach(var gap in ContactGap.Query(A,_shapeA,B,_shapeB,ConvexSweep.ContactDistance,ConvexDistance.DefaultTolerance))
+        {
+            var material=new MaterialContact(gap,_surfaces);
+            if(gap.Rate<=velocityTolerance&&material.Slip.Length>velocityTolerance) result.Add(material);
+        }
+        return result.ToArray();
     }
 
     public void Prepare(double duration)
     {
         Require(ContactPairPhase.Idle);
         if(!double.IsFinite(duration)||duration<=0) throw new ArgumentOutOfRangeException(nameof(duration));
-        var manifold=ContactManifold.Query(new ConvexMotion(_shapeA,A.CreateTrajectory(0)).At(0),
-            new ConvexMotion(_shapeB,B.CreateTrajectory(0)).At(0));
+        var manifold=ContactManifold.Query(new ConvexPose(_shapeA,A.Pose),
+            new ConvexPose(_shapeB,B.Pose));
         var points=manifold.Points;
         var prepared=new PreparedContactPoint[points.Length]; var seeds=new ContactImpulse[points.Length];
         var used=new bool[_contacts.Length];
@@ -105,8 +163,9 @@ public sealed class PersistentContactPair
             // Restitution belongs to the onset of a pair's contact episode, not
             // to every newly clipped corner while the pair is already touching.
             var restitution=_contacts.Length==0?_material.Restitution:0;
-            var constraint=new ContactConstraint(A,B,(point.PointA+point.PointB)*.5,manifold.Normal,
-                restitution,_material.BounceThreshold,_material.Friction);
+            var rigid=ContactKinematics.AtPoint(A,B,(point.PointA+point.PointB)*.5,manifold.Normal);
+            var material=MaterialContact.Map(rigid,_surfaces.Where(s=>s.Matches(A,B,manifold.Normal)));
+            var constraint=new ContactConstraint(material,restitution,_material.BounceThreshold,_material.Friction);
             prepared[i]=new(id,persistence,localA,localB,localNormal,constraint);
         }
         // Geometry may enumerate the same anchors in a different tangent basis.
@@ -116,7 +175,7 @@ public sealed class PersistentContactPair
         _revisionA=A.PoseRevision; _revisionB=B.PoseRevision; Phase=ContactPairPhase.Prepared;
     }
 
-    public void WarmStart()
+    internal void WarmStart()
     {
         Require(ContactPairPhase.Prepared); ValidatePose();
         Phase=ContactPairPhase.Faulted;
@@ -162,13 +221,13 @@ public sealed class PersistentContactPair
     public Snapshot Capture()
     {
         Require(ContactPairPhase.Idle);
-        return new(this,A.Snapshot(),B.Snapshot(),_contacts,_duration,_nextId);
+        return new(this,_bodies.Select(body=>body.Snapshot()).ToArray(),_contacts,_duration,_nextId);
     }
     public void Restore(Snapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
-        if(snapshot.Owner!=this||A.Snapshot()!=snapshot.BodyA||B.Snapshot()!=snapshot.BodyB)
-            throw new ArgumentException("Restore both declared body states before their contact cache.",nameof(snapshot));
+        if(snapshot.Owner!=this||!_bodies.Select(body=>body.Snapshot()).SequenceEqual(snapshot.Bodies))
+            throw new ArgumentException("Restore all material-contact participants before their contact cache.",nameof(snapshot));
         _contacts=snapshot.Contacts.ToArray(); _duration=snapshot.Duration; _nextId=snapshot.NextId;
         _prepared=[]; _seeds=[]; Phase=ContactPairPhase.Idle;
     }
@@ -176,16 +235,15 @@ public sealed class PersistentContactPair
     public sealed class Snapshot
     {
         internal PersistentContactPair Owner { get; }
-        internal PhysicsBodySnapshot BodyA { get; }
-        internal PhysicsBodySnapshot BodyB { get; }
+        internal PhysicsBodySnapshot[] Bodies { get; }
         private readonly CachedContactPoint[] _contacts;
         public ReadOnlySpan<CachedContactPoint> Contacts=>_contacts;
         public double Duration { get; }
         public long NextId { get; }
-        internal Snapshot(PersistentContactPair owner,PhysicsBodySnapshot bodyA,PhysicsBodySnapshot bodyB,
+        internal Snapshot(PersistentContactPair owner,PhysicsBodySnapshot[] bodies,
             CachedContactPoint[] contacts,double duration,long nextId)
         {
-            Owner=owner; BodyA=bodyA; BodyB=bodyB; _contacts=(CachedContactPoint[])contacts.Clone(); Duration=duration; NextId=nextId;
+            Owner=owner; Bodies=(PhysicsBodySnapshot[])bodies.Clone(); _contacts=(CachedContactPoint[])contacts.Clone(); Duration=duration; NextId=nextId;
         }
     }
 }

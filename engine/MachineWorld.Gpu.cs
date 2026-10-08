@@ -43,7 +43,7 @@ public partial class MachineWorld
     {
         opacity = (Half)0;
         return GoalPhase == WorkshopGoalPhase.Solved && _workshopClient is not null &&
-            _workshopClient.TryCaptureOpacity(frame, _workshopPresentation, out opacity);
+            _workshopClient.TryGoalOpacity(frame, _workshopPresentation, out opacity);
     }
     public PartDefinition BasketballDefinition => Registry.Definitions[WorkshopPartKind.Basketball];
 
@@ -66,7 +66,7 @@ public partial class MachineWorld
             if (_workshopRemoved) { await client.DisposeAsync(); return; }
             _workshopClient = client;
             Construction = Construction with { Settings = client.Settings };
-            WorkshopRead = new(client.Epoch, new(0), null);
+            WorkshopRead = new(client.Epoch, new(0), default);
             WorkshopPhase = WorkshopPhase.Building;
         }
         catch (Exception error)
@@ -104,6 +104,12 @@ public partial class MachineWorld
                 wallDimensions ?? Registry.Definitions[WorkshopPartKind.Wall].Wall!.Capture()),
             WorkshopPartKind.ImpactSwitch => WorkshopInput.Switch(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
+            WorkshopPartKind.Delay => WorkshopInput.Delay(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopDelay timer ? timer.Duration :
+                    Registry.Definitions[WorkshopPartKind.Delay].Delay!.Capture()),
+            WorkshopPartKind.PinballBumper => WorkshopInput.Bumper(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopBumper bumper ? bumper.Work :
+                    Registry.Definitions[WorkshopPartKind.PinballBumper].Bumper!.Capture()),
             WorkshopPartKind.SignalLamp => WorkshopInput.Lamp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             _ => throw new ArgumentException("Unsupported instance kind.")
         };
@@ -121,11 +127,6 @@ public partial class MachineWorld
         next.Validate();
         var delivery = await ExecuteWorkshop(WorkshopCommandKind.Construct, next);
         var response = delivery.Response;
-        if (delivery.Applicable && response.Result.Outcome == WorkshopCommandOutcome.Applied)
-        {
-            Construction = next;
-            RestoreConstructionPresentation();
-        }
         return new(response.Result, delivery.Applicable);
     }
 
@@ -184,6 +185,8 @@ public partial class MachineWorld
             {
                 if (next is { } admitted) Construction = admitted;
                 Construction = Construction with { Settings = client.Settings };
+                if (next.HasValue) RestoreConstructionPresentation();
+                WorkshopFault = null;
                 ApplyWorkshopRead(response.Read);
             }
             else if (response.Result.Outcome == WorkshopCommandOutcome.Rejected) WorkshopPhase = previous;
@@ -204,7 +207,8 @@ public partial class MachineWorld
 
     private void PresentWorkshopRead()
     {
-        if (_workshopClient is null || _workshopRemoved) return;
+        if (_workshopClient is null || _workshopRemoved ||
+            (_workshopPending && WorkshopPhase == WorkshopPhase.Admitting)) return;
         try
         {
             if (_workshopClient.TryRead(out var response))
@@ -221,9 +225,12 @@ public partial class MachineWorld
             {
                 _workshopPresentation = presentation;
                 DisplaySimulationTime = presentation.SimulationTime.Seconds;
-                if (presentation.Body is { } pose && Part(WorkshopPartKind.Basketball) is { } physical)
+                for (var bodyIndex = 0; bodyIndex < presentation.Bodies.Count; bodyIndex++)
                 {
-                    ApplyWorkshopPosition(RenderPosition(pose.Cell, pose.Local));
+                    var pose = presentation.Bodies[bodyIndex];
+                    var physical = _parts.FirstOrDefault(part => part.AuthoredId == pose.Id)
+                        ?? throw new ArgumentException("Presented body is absent from installed construction.");
+                    ApplyWorkshopPosition(physical, RenderPosition(pose.Cell, pose.Local));
                     var q = pose.Rotation;
                     physical.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
                 }
@@ -233,8 +240,8 @@ public partial class MachineWorld
                 _workshopClient.TryCaptureOpacity(frame, _workshopPresentation, out var opacity))
             { receiver.ApplyHalo(opacity); _workshopClient.RecordCapturePresentation(frame); }
             foreach (var part in _parts)
-                if (part.HasActivationBindings && _workshopClient.TryActivationBlend(frame, _workshopPresentation,
-                    new(part.AuthoredId.Value), out var blend)) part.ApplyActivationBlend(blend);
+                if (part.HasCosmeticBindings && _workshopClient.TryCosmeticFrame(frame, _workshopPresentation, part.AuthoredId, out var cosmetic))
+                    part.ApplyCosmetic(cosmetic);
             var position = Part(WorkshopPartKind.Basketball)?.Position ?? Vector3.Zero;
             var rotation = Part(WorkshopPartKind.Basketball)?.Quaternion ?? Quaternion.Identity;
             _workshopClient.RecordPresentation(presentation, selected, new(frame,
@@ -248,7 +255,7 @@ public partial class MachineWorld
     {
         ValidateWorkshopRead(read, Construction);
         if (read.Epoch != WorkshopRead.Epoch)
-            foreach (var part in _parts) if (part.HasActivationBindings) part.ApplyActivationBlend((Half)0);
+            foreach (var part in _parts) if (part.HasCosmeticBindings) part.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
         WorkshopRead = read;
         Ticks = checked((int)read.Tick.Value);
         Running = WorkshopPhase == WorkshopPhase.Running;
@@ -256,18 +263,11 @@ public partial class MachineWorld
 
     private void ValidateWorkshopRead(WorkshopRead read, WorkshopConstruction construction)
     {
-        if (read.Epoch != _workshopClient!.Epoch || read.Revision != _workshopClient.Revision || read.Tick.Value > construction.Settings.RunTickLimit ||
-            (read.Ball is null) != (construction.Ball is null))
+        if (read.Epoch != _workshopClient!.Epoch || read.Revision != _workshopClient.Revision ||
+            read.Tick.Value > construction.Settings.RunTickLimit)
             throw new ArgumentException("Read does not own the admitted construction.");
-        if (read.Ball is { } body && construction.Ball is { } ball)
-        {
-            body.Validate();
-            if (body.Id != ball.Id || body.Epoch != read.Epoch.Value || body.Tick != read.Tick.Value)
-                throw new ArgumentException("Read identity differs from the admitted construction.");
-            if (read.Tick.Value == 0 && (body.Cell != ball.Cell || !HalfBits.Equal(body.Local, ball.Local) ||
-                !HalfBits.IsPositiveZero(body.Velocity)))
-                throw new ArgumentException("Initial read changed canonical construction bits.");
-        }
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
+        read.Bodies.ValidateScene(scene, read.Epoch, read.Tick);
     }
 
     public void RestoreConstructionPresentation()
@@ -286,20 +286,23 @@ public partial class MachineWorld
             if (part.Definition.WorkshopKind != instance.Kind) throw new ArgumentException("Authored identity changed part kind.");
             if (instance is WorkshopRamp ramp && part is RampPart rampPart) rampPart.ApplyDimensions(ramp.Dimensions);
             if (instance is WorkshopWall wall && part is WallPart wallPart) wallPart.ApplyDimensions(wall.Dimensions);
+            if (instance is WorkshopDelay delay && part is DelayPart delayPart) delayPart.ApplyDuration(delay.Duration);
+            if (instance is WorkshopBumper bumper && part is BumperPart bumperPart) bumperPart.ApplyWork(bumper.Work);
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;
             part.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
             if (part is BasketPart receiver) receiver.ApplyHalo((Half)0);
-            if (part.HasActivationBindings) part.ApplyActivationBlend((Half)0);
+            if (part.HasCosmeticBindings != instance.Cosmetic.IsDeclared || (part.HasCosmeticBindings && part.Cosmetic != instance.Cosmetic))
+                throw new ArgumentException("Part artwork and its instance must declare the same cosmetic curve.");
+            if (part.HasCosmeticBindings) part.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
         }
     }
 
-    private void ApplyWorkshopPosition(Vector3 position)
+    private void ApplyWorkshopPosition(MachinePart part, Vector3 position)
     {
         // One final physical position writer. Repeated unchanged endpoint application is clean.
-        var part = Part(WorkshopPartKind.Basketball);
-        if (part is null || part.Position == position) return;
+        if (part.Position == position) return;
         var frame = Engine.GetProcessFrames();
         if (frame != _workshopWriteFrame) { _workshopWriteFrame = frame; _workshopPositionWrites = 0; }
         part.Position = position;

@@ -2,7 +2,7 @@
   "Capabilities": [
     {
       "Capability": "TopologyTransaction",
-      "ModelBoundary": "Atomic construction/runtime creation, release, fracture and material updates preserve typed handles, mass/inertia, queries and rollback.",
+      "ModelBoundary": "Atomic construction/runtime creation, release, fracture and material updates preserve typed handles, mass/inertia, queries and rollback. Current Workshop subset: atomic whole-construction admission, commit and Reset; fracture, runtime material mutation and broader topology operations remain open.",
       "Units": [
         "Kilogram",
         "Metre",
@@ -13,9 +13,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/physics/PhysicsWorld.cs",
-          "Symbol": "PhysicsWorld",
-          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+          "Path": "engine/gpu/WorkshopSimulation.cs",
+          "Symbol": "WorkshopSimulation",
+          "FileHash": "693bcb0844a4c31162cc43844c94d882c81a521c4c780898a2358af39d8522cc"
+        },
+        {
+          "Path": "engine/gpu/PhysicsGpuAbi.cs",
+          "Symbol": "PhysicsGpuAbi",
+          "FileHash": "8e9d828d6d8e179b5e95e50a92a0eaa1329a9b41f34eeea0148e4eb35753e7b8"
         }
       ],
       "IndependentOracle": "Failure during create/remove/rebind exposes no partial graph; no stale handle reuse; conserved mass and exact Reset.",
@@ -1291,7 +1296,7 @@
     },
     {
       "Capability": "PresentationHistory",
-      "ModelBoundary": "Calibrated clock origins and bounded timestamp histories sample one delayed display time.",
+      "ModelBoundary": "Calibrated clock origins and bounded timestamp histories sample one delayed display time. Current Workshop subset: bounded committed GPU motion pieces, exact endpoints and gap holds; broader admitted body populations remain open.",
       "Units": [
         "Second",
         "Metre",
@@ -1302,9 +1307,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/bridge/CommittedPoseBuffer.cs",
-          "Symbol": "CommittedPoseBuffer",
-          "FileHash": "eee96e783fadc86370e3cd4f03bbee1dfd49d3995a2e90d38159a5aa2f6456a4"
+          "Path": "engine/gpu/WorkshopPoseHistory.cs",
+          "Symbol": "WorkshopPoseHistory",
+          "FileHash": "4e228f178e3c8221207878e43be66e900382cba178f4dd7bab321bcf4eb274ae"
+        },
+        {
+          "Path": "engine/gpu/PhysicsMotionRead.cs",
+          "Symbol": "PhysicsMotionRead",
+          "FileHash": "d97171a5286a7184185fa5b295c7b2e0dff68c6ab1220694385df7c7d6e23907"
         }
       ],
       "IndependentOracle": "Analytic parent/child trajectories at shared time; delayed/missing histories follow explicit policy without extrapolated authority.",
@@ -3207,7 +3217,7 @@
     },
     {
       "Capability": "RenderApplication",
-      "ModelBoundary": "Nonblocking Godot adapter owns float conversion and dirty property application once per displayed frame.",
+      "ModelBoundary": "Nonblocking Godot adapter owns float conversion and dirty property application once per displayed frame. Current Workshop subset: B is the sole writer of admitted pose and generic opacity samples; catalogue-wide rendering qualification remains open.",
       "Units": [
         "Second",
         "Byte"
@@ -3217,9 +3227,9 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/presentation/SceneAnimationAdapter.cs",
-          "Symbol": "SceneAnimationAdapter",
-          "FileHash": "32ae6f5f992fefb7c3bbba14d0bed796995624fbb4dac0390c373e03ba9e942b"
+          "Path": "engine/MachineWorld.Gpu.cs",
+          "Symbol": "MachineWorld",
+          "FileHash": "72f92735776158e24f32e4c173ec4f9e460dd254d21c37ec0c992b5d154e0add"
         }
       ],
       "IndependentOracle": "Producer stalls retain coherent visible state; camera/animation invalidation and hidden control match property ownership.",
@@ -9865,7 +9875,7 @@
     },
     {
       "Capability": "TypedContracts",
-      "ModelBoundary": "Closed sets remain enums and extensible identities remain typed across compiler, runtime, tooling and wire boundaries.",
+      "ModelBoundary": "Closed sets remain enums and extensible identities remain typed across compiler, runtime, tooling and wire boundaries. Current Workshop subset: canonical Half bodies, colliders, materials, sensors and strict current wire discriminants; repository-wide typed-contract closure remains open.",
       "Units": [
         "Dimensionless",
         "Byte"
@@ -9875,9 +9885,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/ConnectionPort.cs",
-          "Symbol": "ConnectionPort",
-          "FileHash": "3f90b9372d8302fdd97bdd26eee866e0e4e06d0fb59144b6f9cecf8a9d67cb28"
+          "Path": "engine/gpu/PhysicsDeclarations.cs",
+          "Symbol": "PhysicsSceneDeclaration",
+          "FileHash": "c5fa237ea0f2941a048b4cfb35d71d62d322e2c1c42c963b8fe4af101d7f85c3"
+        },
+        {
+          "Path": "engine/gpu/WorkshopWire.cs",
+          "Symbol": "WorkshopWire",
+          "FileHash": "43d322b9bf3e0d86bd7a74b41f761294556657b74b6825487b924a57c0bb99b7"
         }
       ],
       "IndependentOracle": "Canonical external mappings round-trip; unknown variants, overflow, stale schema and malformed lengths reject.",
@@ -12906,7 +12921,7 @@
     },
     {
       "Capability": "RigidBodyDynamics",
-      "ModelBoundary": "Double-precision Newton/Euler free flight integrates declared finite mass, inertia, force and torque independently of render cadence.",
+      "ModelBoundary": "Shared WGSL f16 rigid-body dynamics integrate typed canonical Half mass, inertia, force and torque independently of render cadence under the current numerical contract; no CPU physical solver. Current Workshop subset: one generic GPU dynamic sphere versus static plane/box path with bounded motion/contact/support; other shape pairs and populations remain unsupported.",
       "Units": [
         "Kilogram",
         "Metre",
@@ -12920,9 +12935,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/physics/PhysicsWorld.cs",
-          "Symbol": "PhysicsWorld",
-          "FileHash": "151bcb7bf317cbba9cf610bde3cdf36729047e4a2582bfcfc7709ea234ef1563"
+          "Path": "engine/gpu/physics.wgsl",
+          "Symbol": "RigidBody",
+          "FileHash": "ded4c11995382931423761056837f8d8c9320eaea8446a4c3f59215f76414eb7"
+        },
+        {
+          "Path": "engine/gpu/physics.wgsl",
+          "Symbol": "MotionCurve",
+          "FileHash": "ded4c11995382931423761056837f8d8c9320eaea8446a4c3f59215f76414eb7"
         }
       ],
       "IndependentOracle": "Analytic free-fall, constant-force and torque/inertia cases; zero force/torque control and equal-tick replay.",

@@ -4,20 +4,21 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 5 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 8 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
-public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, ContactResidual, UnsupportedPair, Arithmetic, MotionCapacity }
+public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
 public enum ResidencePhase : uint { Outside, Dwelling, Qualified }
 public readonly record struct ResidenceRead(GpuSensorId Id, ResidencePhase Phase, uint OccurrenceCount,
     uint StartOrdinal, Half StartPhase, uint EventOrdinal, Half EventPhase);
-public readonly record struct PhysicsBodyRead(CanonicalBody Body, CanonicalRotation Rotation, AngularVelocity AngularVelocity);
 
-/// <summary>One bounded generic scene/state ABI. Physical arithmetic lives only in the matching WGSL module.</summary>
-public static class PhysicsGpuAbi
+public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, PhysicsMotionRead Motion);
+
+/// <summary>One bounded generic scene/state ABI.</summary>
+public static partial class PhysicsGpuAbi
 {
     public const int HeaderBytes = 128;
-    public const int BodyBytes = 256;
+    public const int BodyBytes = 128;
     public const int ColliderBytes = 96;
     public const int MaterialBytes = 32;
     public const int SensorBytes = 128;
@@ -29,8 +30,15 @@ public static class PhysicsGpuAbi
     public const int SensorsOffset = MaterialsOffset + PhysicsSceneDeclaration.MaterialCapacity * MaterialBytes;
     public const int GuidesOffset = SensorsOffset + PhysicsSceneDeclaration.SensorCapacity * SensorBytes;
     public const int TriggersOffset = GuidesOffset + PhysicsSceneDeclaration.GuideCapacity * GuideBytes;
-    public const int MotionOffset = TriggersOffset + PhysicsSceneDeclaration.TriggerCapacity * TriggerBytes;
-    public const int ByteLength = MotionOffset + PhysicsMotionRead.ByteLength;
+    public const int ContactWorkBytes = 64;
+    public const int ContactWorksOffset = TriggersOffset + PhysicsSceneDeclaration.TriggerCapacity * TriggerBytes;
+    public const int WorkOccurrencesOffset = ContactWorksOffset + PhysicsSceneDeclaration.ContactWorkCapacity * ContactWorkBytes;
+    public const int WorkOccurrenceBytes = 32;
+    public const int MotionOffset = WorkOccurrencesOffset + PhysicsContactWorkRead.OccurrenceCapacity * WorkOccurrenceBytes;
+    public const int CacheOffset = MotionOffset + PhysicsMotionRead.ByteLength;
+    public const int CacheCapacity = 888 * 4;
+    public const int CacheBytes = 32;
+    public const int ByteLength = CacheOffset + CacheCapacity * CacheBytes;
     public const uint NoBody = uint.MaxValue;
     // A binary eighth-second primary segment bounds elapsed-value quantization.
     public const uint PrimarySegmentSteps = WorkshopCadenceSettings.PhysicalFrequency / 8;
@@ -43,7 +51,8 @@ public static class PhysicsGpuAbi
         U32(data, 0, (uint)PhysicsStateVersion.GenericMechanical);
         U32(data, 12, (uint)scene.Bodies.Length); U32(data, 16, (uint)scene.Colliders.Length);
         U32(data, 20, (uint)scene.Materials.Length); U32(data, 24, (uint)scene.Sensors.Length);
-        U32(data, 28, NoBody); U32(data, 96, (uint)scene.Guides.Length); U32(data, 100, (uint)scene.Triggers.Length);
+        U32(data, 28, 0); U32(data, 96, (uint)scene.Guides.Length); U32(data, 100, (uint)scene.Triggers.Length);
+        U32(data, 104, (uint)scene.ContactWorks.Length);
         U64(data, 32, epoch.Value); U32(data, 48, (uint)profile.Cadence);
         U32(data, 52, (uint)profile.Physical); U64(data, 56, profile.Revision.Value);
         U64(data, 64, scene.Document.Low); U64(data, 72, scene.Document.High); U64(data, 80, scene.NextIdentity);
@@ -56,11 +65,19 @@ public static class PhysicsGpuAbi
             Vector(record, 56, body.AngularVelocity.X, body.AngularVelocity.Y, body.AngularVelocity.Z);
             H(record, 64, body.Mass.Value); H(record, 66, body.LinearDrag.Value);
             Vector(record, 68, body.Gravity.X, body.Gravity.Y, body.Gravity.Z);
-            Cell(record, 80, body.Cell); Local(record, 96, body.Local);
-            Vector(record, 104, body.Velocity.X, body.Velocity.Y, body.Velocity.Z);
-            Rotation(record, 112, body.Rotation);
-            Vector(record, 120, body.AngularVelocity.X, body.AngularVelocity.Y, body.AngularVelocity.Z);
-            if (body.Motion == RigidMotionKind.Dynamic) U32(data, 28, (uint)i);
+            if (body.Motion == RigidMotionKind.Dynamic)
+            {
+                U32(data,28,R32(data,28)+1);
+                for (var collider=0; collider<scene.Colliders.Length; collider++)
+                    if (scene.Colliders[collider].Body==body.Id)
+                    {
+                        var properties=RigidMassProperties.Compile(body,scene.Colliders[collider]);
+                        Vector(record,80,properties.LocalCentreOfMass.X,properties.LocalCentreOfMass.Y,properties.LocalCentreOfMass.Z);
+                        Rotation(record,88,properties.PrincipalFrame);
+                        Principal(record,96,properties.X); Principal(record,104,properties.Y); Principal(record,112,properties.Z);
+                        U32(record,120,(uint)collider);
+                    }
+            }
         }
         for (var i = 0; i < scene.Colliders.Length; i++)
         {
@@ -100,8 +117,45 @@ public static class PhysicsGpuAbi
         {
             var trigger = scene.Triggers[i]; var record = data.Slice(TriggersOffset + i * TriggerBytes, TriggerBytes);
             U64(record, 0, trigger.Id.Value); U32(record, 8, BodySlot(scene, trigger.Owner));
-            U32(record, 12, BodySlot(scene, trigger.Target)); H(record, 16, trigger.Threshold.Value);
+            U32(record, 12, (uint)trigger.Targets.Kind); H(record, 16, trigger.Threshold.Value);
+            U32(record, 24, trigger.Targets.Kind == BodyTargetKind.NamedBody ? BodySlot(scene, trigger.Targets.Body) : NoBody);
         }
+        for (var i = 0; i < scene.ContactWorks.Length; i++)
+        {
+            var work = scene.ContactWorks[i]; var record = data.Slice(ContactWorksOffset + i * ContactWorkBytes, ContactWorkBytes);
+            U64(record, 0, work.Id.Value); U32(record, 8, BodySlot(scene, work.Owner)); U32(record,12,(uint)work.Targets.Kind);
+            U32(record,28,work.Targets.Kind==BodyTargetKind.NamedBody ? BodySlot(scene,work.Targets.Body) : NoBody);
+            H(record, 16, work.TargetSpeed.Value); H(record, 18, work.InitialEnergy.Value); H(record, 20, work.Threshold.Value);
+            U32(record, 24, work.CooldownPhysicalSteps); H(record, 48, work.InitialEnergy.Value);
+        }
+        var occurrence=0;
+        for (var work=0; work<scene.ContactWorks.Length; work++)
+            foreach (var body in scene.Bodies)
+                if (body.Motion==RigidMotionKind.Dynamic && scene.ContactWorks[work].Targets.Contains(body.Id))
+                {
+                    var slot=data.Slice(WorkOccurrencesOffset+occurrence++*WorkOccurrenceBytes,WorkOccurrenceBytes);
+                    BinaryPrimitives.WriteUInt16LittleEndian(slot,(ushort)work); U64(slot,4,body.Id.Value);
+                }
+        U32(data,108,(uint)occurrence);
+        var pair=0;
+        for (var first=0; first<scene.Colliders.Length; first++)
+            for (var second=first+1; second<scene.Colliders.Length; second++)
+            {
+                var firstBody=scene.Bodies[(int)BodySlot(scene,scene.Colliders[first].Body)];
+                var secondBody=scene.Bodies[(int)BodySlot(scene,scene.Colliders[second].Body)];
+                if (firstBody.Id==secondBody.Id || (firstBody.Motion==RigidMotionKind.Static && secondBody.Motion==RigidMotionKind.Static)) continue;
+                var firstScale=firstBody.Motion==RigidMotionKind.Dynamic ? Math.ILogB((double)firstBody.Mass.Value)+1 : int.MinValue;
+                var secondScale=secondBody.Motion==RigidMotionKind.Dynamic ? Math.ILogB((double)secondBody.Mass.Value)+1 : int.MinValue;
+                for (var point=0; point<4; point++)
+                {
+                    if (pair>=CacheCapacity) throw new ArgumentException("Contact cache capacity exceeded.");
+                    var slot=data.Slice(CacheOffset+pair++*CacheBytes,CacheBytes);
+                    BinaryPrimitives.WriteUInt16LittleEndian(slot,(ushort)first);
+                    BinaryPrimitives.WriteUInt16LittleEndian(slot[2..],(ushort)second);
+                    BinaryPrimitives.WriteInt32LittleEndian(slot[28..],Math.Max(firstScale,secondScale));
+                }
+            }
+        U32(data,112,(uint)pair);
         return bytes;
     }
 
@@ -123,32 +177,34 @@ public static class PhysicsGpuAbi
         return failure;
     }
 
-    public static PhysicsBodyRead? ReadDynamicBody(ReadOnlySpan<byte> data)
+    public static PhysicsBodyReadSet ReadDynamicBodies(ReadOnlySpan<byte> data)
     {
         if (ReadFailure(data) != PhysicsFailure.None) throw new ArgumentException("Candidate is not committed.");
         var profile = ReadProfile(data); var epoch = R64(data, 32); var tick = R64(data, 40);
         if (epoch == 0 || tick > profile.RunTickLimit ||
             R32(data, 88) != checked((uint)(tick * profile.Substeps)))
             throw new ArgumentException("Invalid generic physical time.");
-        var slot = R32(data, 28);
-        if (slot == NoBody) return null;
-        if (slot >= R32(data, 12)) throw new ArgumentException("Dynamic slot is invalid.");
-        var record = data.Slice(BodiesOffset + checked((int)slot) * BodyBytes, BodyBytes);
-        if ((RigidMotionKind)R32(record, 8) != RigidMotionKind.Dynamic ||
-            !Enum.IsDefined((PhysicsMotionPhase)R32(record, 128)) || R32(record, 132) > 4)
-            throw new ArgumentException("Invalid dynamic body state.");
-        var body = new CanonicalBody(new(R64(record, 0)), epoch, tick,
-            ReadCell(record, 16), ReadLocal(record, 32),
-            new(RH(record, 48), RH(record, 50), RH(record, 52)));
-        body.Validate();
-        if ((double)body.Velocity.X * (double)body.Velocity.X +
-            (double)body.Velocity.Y * (double)body.Velocity.Y +
-            (double)body.Velocity.Z * (double)body.Velocity.Z > 4)
-            throw new ArgumentException("Committed velocity exceeds the vector bound.");
-        var rotation = ReadRotation(record, 40); rotation.Validate();
-        var angular = new AngularVelocity(RH(record, 56), RH(record, 58), RH(record, 60));
-        PhysicsDeclarationBounds.Vector(angular.X, angular.Y, angular.Z, (Half)64);
-        return new(body, rotation, angular);
+        Span<PhysicsBodyRead> values = stackalloc PhysicsBodyRead[PhysicsBodyReadSet.Capacity];
+        var count = 0;
+        for (var slot = 0; slot < R32(data, 12); slot++)
+        {
+            var record = data.Slice(BodiesOffset + slot * BodyBytes, BodyBytes);
+            var motion = (RigidMotionKind)R32(record, 8);
+            if (!Enum.IsDefined(motion)) throw new ArgumentException("Undefined rigid motion.");
+            if (motion == RigidMotionKind.Static) continue;
+            if (count == values.Length) throw new ArgumentException("Dynamic body capacity exceeded.");
+            var body = new CanonicalBody(new(R64(record, 0)), epoch, tick,
+                ReadCell(record, 16), ReadLocal(record, 32),
+                new(RH(record, 48), RH(record, 50), RH(record, 52)));
+            if ((double)body.Velocity.X * (double)body.Velocity.X +
+                (double)body.Velocity.Y * (double)body.Velocity.Y +
+                (double)body.Velocity.Z * (double)body.Velocity.Z > 4)
+                throw new ArgumentException("Committed velocity exceeds the vector bound.");
+            values[count++] = new(body, ReadRotation(record, 40),
+                new(RH(record, 56), RH(record, 58), RH(record, 60)), new(RH(record,80),RH(record,82),RH(record,84)));
+        }
+        var result = new PhysicsBodyReadSet(values[..count]);
+        result.ValidateTime(new(epoch), new(tick)); return result;
     }
 
     public static ResidenceRead ReadSensor(ReadOnlySpan<byte> data, int slot)
@@ -178,34 +234,39 @@ public static class PhysicsGpuAbi
         if (ReadFailure(data) != PhysicsFailure.None || slot < 0 || (uint)slot >= R32(data, 100))
             throw new ArgumentException("Invalid contact trigger read.");
         var record = data.Slice(TriggersOffset + slot * TriggerBytes, TriggerBytes);
-        var owner = R32(record, 8); var target = R32(record, 12); var count = R32(record, 32);
-        if (R64(record, 0) == 0 || owner >= R32(data, 12) || target >= R32(data, 12) || target != R32(data, 28) || owner == target ||
+        var owner = R32(record, 8); var kind = (BodyTargetKind)R32(record, 12);
+        var named = R32(record, 24); var target = R32(record, 48); var count = R32(record, 32);
+        var bodyCount = R32(data, 12);
+
+        if (R64(record, 0) == 0 || owner >= bodyCount || R32(record, 12) is < 1 or > 2 || !Enum.IsDefined(kind) ||
+            (kind == BodyTargetKind.NamedBody ? (named >= bodyCount || (RigidMotionKind)R32(data, BodiesOffset + checked((int)named) * BodyBytes + 8) != RigidMotionKind.Dynamic) || named == owner : named != NoBody) ||
             (RigidMotionKind)R32(data, BodiesOffset + checked((int)owner) * BodyBytes + 8) != RigidMotionKind.Static ||
             !Half.IsFinite(RH(record, 16)) || RH(record, 16) < (Half)0 || RH(record, 16) > (Half)64 ||
-            !AllZero(record[18..32]) || !AllZero(record[48..]) || count > 1)
+            !AllZero(record[18..24]) || !AllZero(record[28..32]) || !AllZero(record[52..]) || count > 1)
             throw new ArgumentException("Invalid contact trigger declaration or padding.");
-        var collider = default(GpuColliderId);
+        var collider = default(GpuColliderId); var targetId = default(GpuBodyId);
         if (count == 0)
         {
-            if (!AllZero(record[36..48])) throw new ArgumentException("An absent impact retained event data.");
+            if (!AllZero(record[36..52])) throw new ArgumentException("An absent impact retained event data.");
         }
         else
         {
             var colliderSlot = R32(record, 36);
-            if (colliderSlot >= R32(data, 16) ||
+            if ((target >= bodyCount || (RigidMotionKind)R32(data, BodiesOffset + checked((int)target) * BodyBytes + 8) != RigidMotionKind.Dynamic) || (kind == BodyTargetKind.NamedBody && target != named) ||
+                colliderSlot >= R32(data, 16) ||
                 R32(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes + 8) != owner ||
                 !AdmittedTime(R32(record, 40), RH(record, 44), R32(data, 88)) ||
-                !Half.IsFinite(RH(record, 46)) || RH(record, 46) < RH(record, 16) || RH(record, 46) > (Half)128)
+                !Half.IsFinite(RH(record, 46)) || RH(record, 46) < RH(record, 16) || RH(record, 46) > (Half)4096)
                 throw new ArgumentException("Invalid qualifying impact identity, time or normal speed.");
             collider = new(R64(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes));
+            targetId = new(R64(data, BodiesOffset + checked((int)target) * BodyBytes));
         }
         return new(new(R64(record, 0)), new(R64(data, BodiesOffset + checked((int)owner) * BodyBytes)),
-            new(R64(data, BodiesOffset + checked((int)target) * BodyBytes)), count, collider,
-            R32(record, 40), RH(record, 44), new(RH(record, 46)));
+            targetId, count, collider, R32(record, 40), RH(record, 44), new(RH(record, 46)));
     }
 
     /// <summary>Required before committing a GPU result; selected reads alone do not qualify a candidate.</summary>
-    public static PhysicsMotionRead ValidateCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick)
+    public static PhysicsCandidateRead ValidateCandidate(ReadOnlySpan<byte> candidate, ReadOnlySpan<byte> source, SimulationTick expectedTick)
     {
         if (ReadFailure(candidate) != PhysicsFailure.None || ReadFailure(source) != PhysicsFailure.None)
             throw new ArgumentException("Only a successful candidate can commit.");
@@ -215,66 +276,31 @@ public static class PhysicsGpuAbi
             !candidate[..4].SequenceEqual(source[..4]) ||
             !candidate[12..40].SequenceEqual(source[12..40]) ||
             !candidate[48..88].SequenceEqual(source[48..88]) ||
-            !candidate[96..104].SequenceEqual(source[96..104]))
+            !candidate[96..116].SequenceEqual(source[96..116]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
-        var bodyCount = checked((int)R32(source, 12)); var dynamicSlot = R32(source, 28);
-        var dynamicCount = 0;
-        for (var i = 0; i < bodyCount; i++)
+        var bodyCount=checked((int)R32(source,12)); var dynamicCount=0;
+        for (var i=0; i<bodyCount; i++)
         {
-            var offset = BodiesOffset + i * BodyBytes;
-            var actual = candidate.Slice(offset, BodyBytes); var previous = source.Slice(offset, BodyBytes);
-            if ((RigidMotionKind)R32(previous, 8) == RigidMotionKind.Static)
+            var actual=candidate.Slice(BodiesOffset+i*BodyBytes,BodyBytes);
+            var previous=source.Slice(BodiesOffset+i*BodyBytes,BodyBytes);
+            var motion=(RigidMotionKind)R32(previous,8);
+            if (motion==RigidMotionKind.Static)
             {
                 if (!actual.SequenceEqual(previous)) throw new ArgumentException("Static body changed.");
                 continue;
             }
+            if (motion!=RigidMotionKind.Dynamic) throw new ArgumentException("Undefined rigid motion.");
             dynamicCount++;
-            if (dynamicSlot != (uint)i || !actual[..16].SequenceEqual(previous[..16]) ||
-                !actual[64..80].SequenceEqual(previous[64..80]) ||
-                !AllZero(actual[28..32]) || !AllZero(actual[38..40]) ||
-                !AllZero(actual[54..56]) || !AllZero(actual[62..64]) ||
-                !AllZero(actual[110..112]) || !AllZero(actual[126..128]) ||
-                !AllZero(actual[140..160]) || !AllZero(actual[224..256]))
-                throw new ArgumentException("Dynamic identity, force declaration or padding changed.");
-            var start = R32(actual, 92); var phase = RH(actual, 102);
-            if (!AdmittedTime(start, phase, R32(candidate, 88)) ||
-                R32(candidate, 88) - start > PrimarySegmentSteps ||
-                (R32(candidate, 88) - start == PrimarySegmentSteps && phase < (Half)0))
-                throw new ArgumentException("Invalid primary segment age.");
-            var segment = new CanonicalBody(new(R64(actual, 0)), R64(candidate, 32), expectedTick.Value,
-                ReadCell(actual, 80), ReadLocal(actual, 96),
-                new(RH(actual, 104), RH(actual, 106), RH(actual, 108)));
-            segment.Validate();
-            if ((double)segment.Velocity.X * (double)segment.Velocity.X +
-                (double)segment.Velocity.Y * (double)segment.Velocity.Y +
-                (double)segment.Velocity.Z * (double)segment.Velocity.Z > 4)
-                throw new ArgumentException("Segment launch exceeds the vector bound.");
-            ReadRotation(actual, 112).Validate();
-            PhysicsDeclarationBounds.Vector(RH(actual, 120), RH(actual, 122), RH(actual, 124), (Half)64);
-            var contacts = R32(actual, 132);
-            if (contacts > 4 || !AllZero(actual.Slice(160 + checked((int)contacts) * 16, checked((int)(4 - contacts)) * 16)))
-                throw new ArgumentException("Invalid contact manifold padding.");
-            for (var c = 0; c < contacts; c++)
-            {
-                var contact = actual.Slice(160 + c * 16, 16);
-                if (R32(contact, 0) >= R32(source, 16) || !Half.IsFinite(RH(contact, 8)) ||
-                    RH(contact, 8) < (Half)0 || !Half.IsFinite(RH(contact, 10)) ||
-                    !Half.IsFinite(RH(contact, 12)) || !AllZero(contact[14..16]))
-                    throw new ArgumentException("Invalid contact state.");
-                var collider = source.Slice(CollidersOffset + checked((int)R32(contact, 0)) * ColliderBytes, ColliderBytes);
-                var owner = R32(collider, 8);
-                if (owner >= bodyCount || owner == dynamicSlot ||
-                    (RigidMotionKind)R32(source.Slice(BodiesOffset + checked((int)owner) * BodyBytes), 8) != RigidMotionKind.Static ||
-                    !ValidFeature((ColliderShapeKind)R32(collider, 16), R32(contact, 4)))
-                    throw new ArgumentException("Contact feature is not an admitted static feature.");
-            }
+            if (!actual[..16].SequenceEqual(previous[..16]) || !actual[64..].SequenceEqual(previous[64..]) ||
+                !AllZero(actual[28..32]) || !AllZero(actual[38..40]) || !AllZero(actual[54..56]) || !AllZero(actual[62..64]))
+                throw new ArgumentException("Dynamic immutable declaration or padding changed.");
+            ReadMassProperties(actual).Validate();
         }
-        if (dynamicCount != (dynamicSlot == NoBody ? 0 : 1) ||
-            !AllZero(candidate.Slice(BodiesOffset + bodyCount * BodyBytes,
-                (PhysicsSceneDeclaration.BodyCapacity - bodyCount) * BodyBytes)) ||
+        if (dynamicCount!=R32(source,28) || dynamicCount>PhysicsBodyReadSet.Capacity ||
+            !AllZero(candidate.Slice(BodiesOffset+bodyCount*BodyBytes,(PhysicsSceneDeclaration.BodyCapacity-bodyCount)*BodyBytes)) ||
             !candidate[CollidersOffset..SensorsOffset].SequenceEqual(source[CollidersOffset..SensorsOffset]))
-            throw new ArgumentException("Candidate changed geometry, materials or unused body slots.");
-        var body = ReadDynamicBody(candidate);
+            throw new ArgumentException("Candidate changed body population, geometry or material.");
+        var bodies = ReadDynamicBodies(candidate);
         uint captured = 0;
         var sensorCount = checked((int)R32(source, 24));
         for (var i = 0; i < sensorCount; i++)
@@ -318,17 +344,63 @@ public static class PhysicsGpuAbi
                 Before(trigger.EventOrdinal, trigger.EventPhase, R32(source, 88), (Half)0)))
                 throw new ArgumentException("Impact event does not belong to this candidate interval.");
         }
-        if (!AllZero(candidate[(TriggersOffset + triggerCount * TriggerBytes)..MotionOffset]))
+        if (!AllZero(candidate[(TriggersOffset + triggerCount * TriggerBytes)..ContactWorksOffset]))
             throw new ArgumentException("Unused contact trigger slots changed.");
+        ValidateContactWorkCandidate(candidate, source, expectedTick);
         if (expectedTick.Value != 0 && (R32(candidate, MotionOffset + 4) != profile.Substeps ||
             R32(candidate, MotionOffset + 12) != R32(candidate, 88)))
             throw new ArgumentException("Motion profile differs from its committed world.");
-        return PhysicsMotionRead.Decode(candidate[MotionOffset..], body?.Body, expectedTick);
+        ValidateCache(candidate,source);
+        return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(MotionOffset,PhysicsMotionRead.ByteLength), bodies, expectedTick));
+    }
+
+
+    private static void Principal(Span<byte> bytes,int offset,PrincipalInertia value)
+    {
+        value.Validate(); H(bytes,offset,value.Mantissa);
+        BinaryPrimitives.WriteInt32LittleEndian(bytes[(offset+4)..],value.Exponent);
+    }
+    private static RigidMassProperties ReadMassProperties(ReadOnlySpan<byte> record) =>
+        new(new(RH(record,80),RH(record,82),RH(record,84)),ReadRotation(record,88),
+            ReadPrincipal(record,96),ReadPrincipal(record,104),ReadPrincipal(record,112));
+    private static PrincipalInertia ReadPrincipal(ReadOnlySpan<byte> record,int offset)
+    {
+        if (!AllZero(record.Slice(offset+2,2))) throw new ArgumentException("Nonzero inertia padding.");
+        var value=new PrincipalInertia(RH(record,offset),BinaryPrimitives.ReadInt32LittleEndian(record[(offset+4)..]));
+        value.Validate(); return value;
+    }
+    private static void ValidateCache(ReadOnlySpan<byte> candidate,ReadOnlySpan<byte> source)
+    {
+        var count=checked((int)R32(source,112));
+        for (var i=0; i<count; i++)
+        {
+            var before=source.Slice(CacheOffset+i*CacheBytes,CacheBytes);
+            var after=candidate.Slice(CacheOffset+i*CacheBytes,CacheBytes);
+            // This external byte boundary checks the same complete record with four integer loads.
+            var identityFeature = R64(after, 0);
+            var impulses = R64(after, 8);
+            var normalPadding = R64(after, 16);
+            var enabledExponent = R64(after, 24);
+            var enabled = (uint)enabledExponent;
+            if ((uint)identityFeature != R32(before, 0) || (uint)(enabledExponent >> 32) != R32(before, 28) ||
+                enabled > 1 || (normalPadding >> 48) != 0)
+                throw new ArgumentException("Contact cache identity or padding changed.");
+            if (enabled == 0)
+            {
+                if (((identityFeature >> 32) | impulses | normalPadding) != 0) throw new ArgumentException("Inactive contact retained a warm impulse.");
+                continue;
+            }
+            PhysicsDeclarationBounds.Range(RH(after,8),(Half)0,(Half)8192);
+            PhysicsDeclarationBounds.Range(RH(after,14),(Half)0,(Half)4096);
+            PhysicsDeclarationBounds.Vector(RH(after,10),RH(after,12),(Half)0,(Half)8192);
+            PhysicsDeclarationBounds.Vector(RH(after,16),RH(after,18),RH(after,20),(Half)1);
+        }
+        if (!AllZero(candidate[(CacheOffset+count*CacheBytes)..])) throw new ArgumentException("Unused cache changed.");
     }
 
     private static bool ValidFeature(ColliderShapeKind shape, uint feature)
     {
-        if (shape == ColliderShapeKind.Plane) return feature == 0;
+        if (shape is ColliderShapeKind.Plane or ColliderShapeKind.Sphere) return feature == 0;
         if (shape != ColliderShapeKind.Box) return false;
         if (feature is >= 64 and <= 69) return true;
         return feature < 64 && feature != 21 && (feature & 3) <= 2 &&
@@ -351,6 +423,7 @@ const MATERIAL_CAPACITY:u32={PhysicsSceneDeclaration.MaterialCapacity}u;
 const SENSOR_CAPACITY:u32={PhysicsSceneDeclaration.SensorCapacity}u;
 const GUIDE_CAPACITY:u32={PhysicsSceneDeclaration.GuideCapacity}u;
 const TRIGGER_CAPACITY:u32={PhysicsSceneDeclaration.TriggerCapacity}u;
+const CONTACT_WORK_CAPACITY:u32={PhysicsSceneDeclaration.ContactWorkCapacity}u;
 const STATE_VERSION:u32={(uint)PhysicsStateVersion.GenericMechanical}u;
 const STATUS_COMMITTED:u32={(uint)PhysicsCandidateStatus.Committed}u;
 const STATUS_INVALID:u32={(uint)PhysicsCandidateStatus.Invalid}u;
@@ -359,7 +432,6 @@ const FAILURE_DECLARATION:u32={(uint)PhysicsFailure.InvalidDeclaration}u;
 const FAILURE_DOMAIN:u32={(uint)PhysicsFailure.Domain}u;
 const FAILURE_CONTACT_BUDGET:u32={(uint)PhysicsFailure.ContactBudget}u;
 const FAILURE_ROOT_BUDGET:u32={(uint)PhysicsFailure.RootBudget}u;
-const FAILURE_RESIDUAL:u32={(uint)PhysicsFailure.ContactResidual}u;
 const FAILURE_PAIR:u32={(uint)PhysicsFailure.UnsupportedPair}u;
 const FAILURE_ARITHMETIC:u32={(uint)PhysicsFailure.Arithmetic}u;
 const FAILURE_MOTION_CAPACITY:u32={(uint)PhysicsFailure.MotionCapacity}u;
@@ -390,8 +462,10 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             R32(data, 24) > PhysicsSceneDeclaration.SensorCapacity ||
             R32(data, 96) > PhysicsSceneDeclaration.GuideCapacity ||
             R32(data, 100) > PhysicsSceneDeclaration.TriggerCapacity ||
+            R32(data, 104) > PhysicsSceneDeclaration.ContactWorkCapacity ||
             (R64(data, 64) == 0 && R64(data, 72) == 0) || R64(data, 80) == 0 ||
-            !AllZero(data[104..128]))
+            R32(data,28)>PhysicsBodyReadSet.Capacity || R32(data,108)>PhysicsContactWorkRead.OccurrenceCapacity ||
+            R32(data,112)>CacheCapacity || !AllZero(data[116..128]))
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;

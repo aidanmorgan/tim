@@ -1,34 +1,46 @@
 using Godot;
+using System;
+using CuriousContraptions.Physics;
+
 namespace CuriousContraptions;
 
-/// <summary>Prototype deterministic topple rule; rigid lever dynamics are future work.</summary>
+/// <summary>Passive finite-mass tile. Shared contacts cause tipping and propagation;
+/// the output observes rotation and supplies no motion or energy.</summary>
 public partial class DominoPart : MachinePart
 {
-    private float _topple;
-    public override bool CanSendActivation => true;
-    public override bool CanReceiveActivation => true;
+    public static readonly Vector3 HalfSize=new(.125f,.55f,.325f);
+    private static readonly Vector3 CenterOffset=new(0,.45f,0);
+    private const float TileMass=.4f;
+    private const double ToppledCosine=.7071067811865476;
+    public override System.Collections.Generic.IReadOnlyList<SceneTiltSensorDeclaration> PhysicsTiltSensors=>
+        [new(new(this,RootBody),new(0,1,0),ToppledCosine)];
+    public override Vector3 LocalCenterOfMass=>CenterOffset;
+    public override BodyDynamics InitialBodyDynamics=>new(PhysicsMotionType.Dynamic,Mass,
+        new(Mass*((double)HalfSize.Y*HalfSize.Y+(double)HalfSize.Z*HalfSize.Z)/3,
+            Mass*((double)HalfSize.X*HalfSize.X+(double)HalfSize.Z*HalfSize.Z)/3,
+            Mass*((double)HalfSize.X*HalfSize.X+(double)HalfSize.Y*HalfSize.Y)/3),
+        SceneGeometryAdapter.CaptureVector(InitialVelocity),default);
+    public override ContactMaterial InitialContactMaterial=>new(.05,.6,.3);
+    public override bool CanSendActivation=>true;
+    public override ActivationDisposition HandleActivation(MachineWorld world,ActivationCommand command)
+        =>throw new InvalidOperationException("A passive domino cannot receive an activation command; tip it through physical contact.");
+
     protected override void Build()
     {
-        PickRadius = .6f;
-        AddBox(new(0, .45f, 0), new(.25f, 1.1f, .65f), Definition.Color);
-        foreach (var height in new[] { .2f, .7f })
-            PartArt.Sphere(Visual, .045f, new("#384757"), new(.14f, height, 0));
+        Dynamic=true; Mass=TileMass; Drag=0; Bounce=.05f;
+        Radius=HalfSize.Length(); PickRadius=.6f;
+        // Collider coordinates are relative to the declared centre of mass;
+        // authored placement and artwork keep their original construction origin.
+        Boxes.Add(new(Vector3.Zero,HalfSize,RootBody));
+        PartArt.Box(Visual,HalfSize*2,Definition.Color,CenterOffset);
+        foreach(var height in new[]{.2f,.7f})
+            PartArt.Sphere(Visual,.045f,new("#384757"),new(.14f,height,0));
     }
-    public override void OnContact(MachinePart body, float speed, MachineWorld world)
+
+    public override void ObservePhysics(MachineWorld world,float delta)
     {
-        if (speed > Assistance(world.Precision).TriggerThreshold && !Active) world.Activate(this);
-    }
-    public override void AfterStep(MachineWorld world, float delta)
-    {
-        if (!Active) return;
-        _topple = Mathf.Min(_topple + delta * 4, 1.4f);
-        Visual.Rotation = new(0, 0, -_topple);
-        if (_topple <= .7f) return;
-        foreach (var other in world.Parts)
-        {
-            var local = ToLocal(other.Position);
-            if (other is DominoPart && other != this && local.X > 0 && local.X < 1 && Mathf.Abs(local.Y) < .4f && Mathf.Abs(local.Z) < .4f)
-                world.Activate(other);
-        }
+        var state=world.Physics.TiltState(world.PhysicsAssembly.Body(new(this,RootBody)).Id);
+        if(state.Phase==PhysicsTiltPhase.Waiting)Active=false;
+        else if(!Active)world.EmitActivation(this);
     }
 }

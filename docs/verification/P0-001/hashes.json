@@ -1,8 +1,0 @@
-{
-  "algorithm": "SHA-256",
-  "files": {
-    "docs/work-orders/P0-001/contract.md": "198c83e9d8256e26550925002e3db54d97b4f001f21ab7766862a42087a307a3",
-    "docs/verification/P0-001/identity.json": "e8e219bc511354ffe05990599bd89fe6c45191894f657aa8d651f75ed2f8cb2a",
-    "docs/verification/P0-001/chrome-readback.json": "170d9da6a69dc266d0c90778e5091c3b9f853debca394dd389ba2506332c7979"
-  }
-}

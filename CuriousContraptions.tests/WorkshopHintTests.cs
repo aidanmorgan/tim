@@ -321,9 +321,10 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
             if (Disposed || Next is not { } value) { sample = default; return false; }
             Next = null; sample = value; _consumed = value.Opacity; return true;
         }
+        public bool TryGoalOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity) { opacity = default; return false; }
         public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
         { opacity = default; return false; }
-        public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend) { blend = default; return false; }
+        public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
         public void RecordCapturePresentation(ulong frame) => throw new InvalidOperationException("No capture opacity was supplied by this fixture.");
         public void RecordHintPresentation(ulong frame) => Assert.Equal((float)_consumed, ReadOpacity());
         public bool TryRead(out WorkshopResponse response) { response = default; return false; }

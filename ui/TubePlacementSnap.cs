@@ -12,7 +12,7 @@ public static class TubePlacementSnap
 
     public static Transform3D? Find(MachineWorld world, MachinePart moving)
     {
-        if (world.Running || moving.Locked || moving is not ITubePart source) return null;
+        if (world.HasPhysicsState || !world.Parts.Contains(moving) || moving.Locked || moving is not ITubePart source) return null;
         Transform3D? result = null;
         var best = Proximity * Proximity;
         foreach (var target in world.Parts.OrderBy(p => p.Uid, System.StringComparer.Ordinal))

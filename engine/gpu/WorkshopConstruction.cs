@@ -18,15 +18,20 @@ public readonly record struct CanonicalRotation(Half X, Half Y, Half Z, Half W)
 
     public void Validate()
     {
+        ValidateCommitted();
+        // Authored input admission is separate from rounded, normalised GPU output.
+        var norm = (double)X * (double)X + (double)Y * (double)Y + (double)Z * (double)Z + (double)W * (double)W;
+        if (norm < 0.999 || norm > 1.001)
+            throw new ArgumentException("Canonical rotation must represent a unit quaternion.");
+    }
+
+    public void ValidateCommitted()
+    {
         if (!Half.IsFinite(X) || !Half.IsFinite(Y) || !Half.IsFinite(Z) || !Half.IsFinite(W) ||
             X < (Half)(-1) || X > (Half)1 || Y < (Half)(-1) || Y > (Half)1 ||
             Z < (Half)(-1) || Z > (Half)1 || W < (Half)(-1) || W > (Half)1 ||
             (X == (Half)0 && Y == (Half)0 && Z == (Half)0 && W == (Half)0))
-            throw new ArgumentException("Unsupported canonical rotation.");
-        // Validation at the canonical input/codec boundary; this value is never used to correct rotation.
-        var norm = (double)X * (double)X + (double)Y * (double)Y + (double)Z * (double)Z + (double)W * (double)W;
-        if (norm < 0.999 || norm > 1.001)
-            throw new ArgumentException("Canonical rotation must represent a unit quaternion.");
+            throw new ArgumentException("Unsupported committed rotation.");
     }
 }
 
@@ -51,6 +56,7 @@ public readonly record struct WorkshopBall(
     GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, BasketballMaterial Material, bool Locked = false) : IWorkshopInstance
 {
     public WorkshopPartKind Kind => WorkshopPartKind.Basketball;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {
         Material.Validate();
@@ -71,14 +77,27 @@ public readonly record struct ReceiverCaptureSettings(
         if (!Enum.IsDefined(Participation)) throw new ArgumentException("Undefined sensor participation.");
     }
 }
+/// <summary>Authored force region; evaluated only by the shared physical law.</summary>
+public readonly record struct ReceiverForceRegion(MetreVector Minimum, MetreVector Maximum,
+    Metres SupportHeight, Metres SupportMargin, Acceleration MaximumAcceleration)
+{
+    public static ReceiverForceRegion Free => Create(new((Half)0), new((Half)0));
+    public static ReceiverForceRegion Create(Metres margin, Acceleration acceleration) => new(
+        new((Half)(-1.1), (Half).5, (Half)(-1.1)), new((Half)1.1, (Half)1.5, (Half)1.1),
+        new((Half).5), margin, acceleration);
+    public void Validate() => new PlanarGuideDeclaration(new(1), new(2), new(3),
+        RigidLocalPose.Identity, Minimum, Maximum, SupportHeight, SupportMargin, MaximumAcceleration).Validate();
+}
 public readonly record struct WorkshopReceiver(
     GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, ReceiverCaptureSettings Capture, bool Locked = false) : IWorkshopInstance
 {
+    public ReceiverForceRegion ForceRegion { get; init; } = ReceiverForceRegion.Free;
     public WorkshopPartKind Kind => WorkshopPartKind.Receiver;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
-        Rotation.Validate(); Capture.Validate();
+        Rotation.Validate(); Capture.Validate(); ForceRegion.Validate();
     }
 }
 
@@ -151,6 +170,22 @@ public static class WorkshopInput
             new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), trigger);
         result.Validate(); return result;
     }
+    public static WorkshopDelay Delay(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, DelayDuration duration)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopDelay(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), duration);
+        result.Validate(); return result;
+    }
+    public static WorkshopBumper Bumper(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, BumperWork work)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopBumper(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), work);
+        result.Validate(); return result;
+    }
     public static WorkshopLamp Lamp(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw)
     {
@@ -184,6 +219,7 @@ public static class HalfBits
 {
     public static bool Equal(Half a, Half b) => BitConverter.HalfToUInt16Bits(a) == BitConverter.HalfToUInt16Bits(b);
     public static bool Equal(LocalPosition a, LocalPosition b) => Equal(a.X, b.X) && Equal(a.Y, b.Y) && Equal(a.Z, b.Z);
+    public static bool Equal(MetreVector a, MetreVector b) => Equal(a.X, b.X) && Equal(a.Y, b.Y) && Equal(a.Z, b.Z);
     public static bool IsPositiveZero(CellVelocity value) => BitConverter.HalfToUInt16Bits(value.X) == 0 &&
         BitConverter.HalfToUInt16Bits(value.Y) == 0 && BitConverter.HalfToUInt16Bits(value.Z) == 0;
 }

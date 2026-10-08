@@ -1,8 +1,8 @@
 # Current presentation bindings
 
-This is the current presentation contract under [canonical Half values and WGSL physics](gpu-f16-physics.md) and [engine lifecycle/protocol requirements](engine-contracts.md). Descriptor, feedback and event semantics below are binding; revised Half ABI offsets and byte-length formulas belong to P0-016 before a variant is admitted. Explicit integers, identity tags and approved palette identities retain their correct types. Every numeric value/intermediate must satisfy the current admitted scale/range; platform widening is a declared adapter only.
+This is the binding contract between the separate animation worker, the physics worker's committed results and the main-thread renderer under [canonical IEEE-754 f32 game values and WASM SIMD physics](gpu-f16-physics.md#compilation-model) and the [engine contracts](engine-contracts.md#general-data-driven-engines). Every presentation property of every element has exactly one declared binding in that element's declaration data: either a committed physical pose/state read directly from physics (descriptors 6–8 below) or an animation sample produced by the shared evaluators in the animation worker from the declared feedback below. There are no per-element animation evaluators or update loops; a new element adds bindings, art and curve values only, and roadmap slice ANIM-1 deletes the remaining legacy evaluators. Descriptor, feedback and event semantics below are binding; revised f32 ABI offsets and byte-length formulas belong to P0-016 before a variant is admitted. Explicit integers, identity tags and approved palette identities retain their correct types. Every numeric value/intermediate must satisfy the current admitted scale/range; platform widening is a declared adapter only.
 
-Registrations select reusable typed evaluator/feedback and final-writer capabilities under the [general-engine contract](engine-contracts.md#general-data-driven-engines). Descriptor and instance IDs identify bindings/state; they never select element-specific code. Source class names below trace migration consumers, not a dispatch permission. Element-specific shapes, curves, colours and resources are declarative inputs to shared evaluators and adapters.
+Registrations select reusable typed evaluator/feedback and final-writer capabilities. Descriptor and instance IDs identify bindings/state; they never select element-specific code. Class names in the feedback table name the legacy consumers whose behaviour each declared kind carries; they are traceability for ANIM-1, not a dispatch permission. Element-specific shapes, curves, colours and resources are declarative inputs to shared evaluators and adapters.
 
 ## Browser-owned sealed descriptor registry
 
@@ -25,7 +25,7 @@ per-generation captured descriptor identity. No late mutable registry lookup may
 
 Descriptor canonical prefix: DescriptorKind E, TargetKind E(Spatial=1,Canvas=2,Material=3,WavefrontGroup=4),
 Removal E(RestoreBaseline=1,Detach=2), baseline Affine, baseline RGBA, baseline visible B,
-alpha-enabled B, payload length U32. RGBA is four finite canonical Half values; alpha in[0,1],
+alpha-enabled B, payload length U32. RGBA is four finite canonical f32 values; alpha in[0,1],
 with approved palette identities preserved through the declared colour adapter. Spatial requires baseline RGBA=(0,0,0,0); Canvas/Material
 require identity baseline Affine. WavefrontGroup retains both baseline affine and RGBA values. Baseline visible is the captured original target visibility.
 Material opacity requires alpha-enabled=true and unchanged alpha material capability at application.
@@ -38,11 +38,11 @@ validation material, not an additional worker message or a second renderer imple
 | 2 BlendColour | from RGBA + to RGBA; Canvas/Material; scalar blend plus independent opacity |
 | 3 RgbFollow | 0; Canvas/Material; three RGB channels plus optional independent opacity |
 | 4 Opacity | 0; Canvas/Material; alpha only, baseline RGB |
-| 5 ScalarExtent | axis E,anchor canonical Half,minimum scale canonical Half,initial fraction canonical Half; Spatial; exclusive transform+visibility |
+| 5 ScalarExtent | axis E,anchor canonical f32,minimum scale canonical f32,initial fraction canonical f32; Spatial; exclusive transform+visibility |
 | 6 CommittedRotation | axis E; Spatial; exclusive transform |
 | 7 CommittedColour | 0; Canvas/Material; exclusive RGBA |
 | 8 PhysicalPose | reference kind E(Fixed=1,Body=2),reference BodyId U64(0 only Fixed),reference offset Pose,read space E(World=1,Reference=2,Relative=3),map kind E(Rigid=1,AxisAffine=2),map bytes U32,variant; Spatial; exclusive transform |
-| 9 Wavefront | pattern E(Cone=1,Omnidirectional=2),minimum distance canonical Half,initial radius canonical Half,radius per distance canonical Half,thickness canonical Half,opacity canonical Half,response E(Uniform=1,Strength=2),capacity U32; WavefrontGroup; browser ring/mesh/material registry owns resources |
+| 9 Wavefront | pattern E(Cone=1,Omnidirectional=2),minimum distance canonical f32,initial radius canonical f32,radius per distance canonical f32,thickness canonical f32,opacity canonical f32,response E(Uniform=1,Strength=2),capacity U32; WavefrontGroup; browser ring/mesh/material registry owns resources |
 
 PhysicalPose Rigid map is offset Pose. AxisAffine map is axis E+rotation Q+position offset V3+
 position gain V3+scale offset V3+scale gain V3. Position offset metres, position gain
@@ -54,7 +54,7 @@ No quaternion conversion discards an anisotropic captured baseline or collider b
 
 Axis tags X=1,Y=2,Z=3 are distinct compiler-checked rotation/translation/extent/pose-map enums,
 even though their boundary numbers agree. Validate the actual enum type through all callers.
-ScalarExtent anchor is metres within its admitted local-coordinate range; minimum scale is strictly positive, normal-f16 and at most 1; initial fraction is in [0,1]. Freeze the actual supported scale/coordinate bounds before admission; reject subnormal/overflowing or unrepresentable values explicitly.
+ScalarExtent anchor is metres within its admitted local-coordinate range; minimum scale is strictly positive, normal-f32 and at most 1; initial fraction is in [0,1]. Freeze the actual supported scale/coordinate bounds before admission; reject subnormal/overflowing or unrepresentable values explicitly.
 At fraction f, initial=max(minimum,initialFraction), requested=max(minimum,f);
 axis scale=requested/initial and local origin offset=baselineBasis*axis*anchor*(initial-requested)/initial.
 For Y, anchor=-.5,initial1,minimum.1,f=.25, the Y basis scales.25 and local origin shifts-.375m.
@@ -64,7 +64,7 @@ Colour endpoints are finite with equal baseline alpha; blend changes RGB, opacit
 changes alpha. RgbFollow exclusively owns RGB and rejects a BlendColour writer. CommittedColour
 owns all RGBA and rejects any animation RGB/alpha writer. Cosmetic transform composition is
 baselineBasis*axisRotation, then uniform column scale; origin is baselineOrigin plus selected local
-translation axis times scalar metres (not baseline-rotated axis). Scale stays within its declared positive normal-f16/invertible range, translation
+translation axis times scalar metres (not baseline-rotated axis). Scale stays within its declared positive normal-f32/invertible range, translation
 stays within the declared local-coordinate range, and the final declared platform-adapter transform must remain finite/invertible. Physical/Extent/CommittedRotation
 exclude all cosmetic transform writers on the same object, including ancestors of functional
 geometry. Physical parent plus separate cosmetic child is permitted in that declared order.
@@ -84,9 +84,9 @@ The final browser descriptor above stays local; this feedback record is value-on
 | 2 OwnerActive | Boolean ObservableId U64 + drive E; owner activity copied as typed Boolean observation |
 | 3 CounterThreshold | scalar ObservableId U64,positive threshold U32,drive E; exact nonnegative integer count <=Int32.MaxValue, Dimensionless |
 | 4 ElectricalInput | Boolean ObservableId U64,drive E; specific compiled input-availability reading |
-| 5 ScalarThreshold | ObservableId U64,QuantityUnit E,threshold canonical Half,drive E |
+| 5 ScalarThreshold | ObservableId U64,QuantityUnit E,threshold canonical f32,drive E |
 | 6 BooleanObservation | ObservableId U64,drive E |
-| 7 ScalarMap | ObservableId U64,QuantityUnit E,inputFrom canonical Half,inputTo canonical Half,mapping E(Linear=1,SineCycle=2); SceneScalarRotationAnimation |
+| 7 ScalarMap | ObservableId U64,QuantityUnit E,inputFrom canonical f32,inputTo canonical f32,mapping E(Linear=1,SineCycle=2); SceneScalarRotationAnimation |
 | 8 RelativeAngularVelocity | BodyId U64,reference BodyId U64,source axis E,direction E(Forward=1,Reverse=2); source velocities/reference poses must be subscribed |
 | 9 Occurrence | EventStreamId U64,source CapabilityId U64,direction E; SceneOccurrence and acoustic oscillation bindings |
 | 10 SpectralChannel | red/green/blue ObservableIds (24),owner-active Boolean ObservableId U64,inactive RGBA,channel E(Red=1,Green=2,Blue=3); three registered RGB followers |
@@ -102,11 +102,11 @@ Source unit exact; range saturation and SineCycle
 are the current SceneAnimationRun mapping, not behavior inferred from a field label.
 RelativeAngularVelocity projects the authoritative body/reference angular velocities into the
 reference pose's chosen axis and applies the direction sign; cosmetic integrated phase stays A-owned.
-Spectral inputs must be nonnegative GameOpticalPower, a finite total within the admitted f16 optical-power range; active zero total
+Spectral inputs must be nonnegative GameOpticalPower, a finite total within the admitted f32 optical-power range; active zero total
 rejects, inactive uses the explicit captured colour; same OpticalColours.BeamInk mapping as source.
 
 Committed browser-only mappings remain separate typed local registrations, not animation state:
-SceneScalarRotation stores ObservableId,unit,inputFrom/inputTo,angleFrom/angleTo (canonical Half radians),
+SceneScalarRotation stores ObservableId,unit,inputFrom/inputTo,angleFrom/angleTo (canonical f32 radians),
 axis; SceneScalarExtent stores ObservableId,unit,inputFrom/inputTo and visibility enum Always1/
 OwnerActive2 plus owner-active Boolean ID; TimerColour stores timer-phase Enum ObservableId and
 three RGBA palette values in Ready1/Counting2/Finished3 order; SceneEnumRotation/Colour stores
@@ -153,7 +153,7 @@ captured from the same identified committed occurrence, never from interpolated 
 Browser consumes the reliable occurrence into its bounded ring-group registry, selects the smallest
 free stable group identity and registers one A-owned Clip (From0,To8,Duration=8/12,Once,Linear,
 Simulation clock) with FeedbackKind WavefrontDistance=12. Payload is world generation I64,
-EventStreamId U64,EventSequence U64,emission tick U64,minimum distance canonical Half. It references the exact
+EventStreamId U64,EventSequence U64,emission tick U64,minimum distance canonical f32. It references the exact
 S→A occurrence; A waits within its bounded occurrence reservation until both arrive, validates
 identity/payload and starts at emissionTick/120. No second cosmetic request producer is introduced.
 The descriptor's group resources and immutable event values are local browser registration state;
@@ -233,3 +233,59 @@ Presented only when both equal the active immutable feedback12 registration. An 
 receipt, late scalar sample or late registration result cannot complete or animate a reused ring.
 P0-016/023/024/026 must update codec, feedback, history, browser application and present-once
 consumers together; no target/property-only sample path remains.
+
+## Declared cosmetic curves (ANIM-1b)
+
+Every currently playable animated part declares its cosmetic curve as typed data next to its physics
+record and nowhere else. `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.cs`) carries
+`Source` (`AnimationFeedbackSource`: None=0, Activation=1, Timer=2, ContactWork=3), `Curve`
+(`AnimationCurve`), `Duration` (Half seconds), `ImpulseCurve` (`AnimationImpulseCurve`) and `Overlap`
+(`AnimationImpulseOverlap`). `Validate` rejects unknown members and any field a source does not use.
+The per-part constants live in `CosmeticCurves`: ImpactSwitch and SignalLamp (Activation, SmoothStep,
+0.16 s), Delay (Timer, Linear; the duration is the committed Started..Due interval), PinballBumper
+(ContactWork, 0.32 s, SineSquaredPulse, SaturatingSum). Each `IWorkshopInstance` exposes `Cosmetic`;
+it is never persisted, so the save format and the physics wire are unchanged. Basketball, Receiver,
+Ramp and Wall declare `None`, and a part artwork that binds visuals without a declared curve is
+rejected at construction, as is artwork whose declaration differs from its instance's.
+
+Evaluation path, in order and with nothing evaluated on the main thread: committed physics read →
+`BrowserWorkshopClient` resolves the owning instance's declaration by body id and sends one
+`WorkshopAnimationControl` (Version 5; bytes 92–93 `ImpulseCurve`, 94–95 `Overlap`, both zero unless
+the kind is Impulse) → the animation worker evaluates the shared clip or impulse slot → the 60 Hz
+sample returns as a 0..1 blend → `TryCosmeticFrame` hands a `WorkshopCosmeticSample` (blend, timer
+phase) to `MachinePart.ApplyCosmetic`, whose single binding list drives `WorkshopVisualBinding`.
+Activation targets are `node + 2`, timer targets `2^32 + node`, contact targets `2^33 + body`.
+
+Animation channel ABI, Version 5 (`WorkshopAnimationWire`; little-endian; both records are 144 bytes):
+
+| Bytes | Control (`ControlBytes`) | Output (`OutputBytes`) |
+| --- | --- | --- |
+| 0–15 | session | session |
+| 16–23 | master generation | master generation |
+| 24–31 | cadence revision | cadence revision |
+| 32–39 | Sequence | Generation |
+| 40–47 | Generation | ordinal (ACK: Sequence; Sample: animation pulse) |
+| 48–51 / 48–55 | Kind U32 (48), Visible U32 (52) | AppliedAt I64 |
+| 56–63 | Target U64 | Value Half (56), Property U16 (58), kind U32 (60) |
+| 64–71 | World U64 | Target U64 |
+| 72–79 | From/To/Duration Half (72/74/76), Property U16 (78) | World U64 |
+| 80–87 | Curve U32 (80), EventOrdinal U32 (84) | EventOrdinal U32 (80), EventPhase Half (84), Version U16 (86) |
+| 88–95 | EventPhase Half (88), Version U16 (90), ImpulseCurve U16 (92), Overlap U16 (94) | zero padding U64 (88) |
+| 96–131 | Timer: Started/Due/Observed/InputEmitter U64 (96/104/112/120), Phase U32 (128) | same timer layout |
+| 132–143 | zero padding U16 (132), U16 (134), U64 (136) | PulseDuration Half (132, impulse only), zero padding U16 (134), U64 (136) |
+
+Readers reject any non-zero padding, a wrong Version, undefined enum members, an impulse envelope on a non-impulse control, and a PulseDuration outside (0, 30] or carried without a ColourBlend world target or alongside a timer observation.
+
+Impulse overlap is worker-owned: the first Impulse control for a target registers one
+`AnimationImpulseDefinition` from the declared envelope (`WorkshopAnimationWire.ImpulseCapacity`
+occurrences, Presentation clock, EventTime timing) and every later committed occurrence enqueues by
+its occurrence sequence; a target cannot change its envelope within a world, a retransmitted
+occurrence is not enqueued twice, and an exhausted slot drops the occurrence with a logged line and
+no fault. Timer feedback sends controls only for Counting and Finished intervals; Ready is the
+declared neutral. Bindings are keyed by an optional `AnimationTimerPhase`: a phase binding writes
+its declared value whenever the sampled phase matches, so the Delay indicator palette is data, not a
+branch. Reset applies `WorkshopCosmeticSample.Neutral` (blend 0, Ready) to every binding and the
+worker retires old-world slots on commit; non-finite or out-of-range blends keep the last committed
+values. This slice deleted `AnimationPulseSegment`, `AnimationTimerFrame`/`TrySample`, the
+main-thread pulse summation, the three per-channel binding lists and the `BindContactWork`/
+`BindTimer*` entry points.

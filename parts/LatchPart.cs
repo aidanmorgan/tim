@@ -1,22 +1,29 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions;
-
-public enum LatchState { Off, On }
 
 /// <summary>Reset-dominant memory contact. Commands settle at the next tick boundary,
 /// so every delivery in a simulation tick participates before the electrical solve.</summary>
 public partial class LatchPart : MachinePart
 {
-    [Flags] private enum Requests { None=0, Set=1, Reset=2 }
-    private readonly SortedDictionary<int,Requests> _pending=new();
-    public LatchState State { get; private set; }
+    public static readonly LatchSlot Memory=new();
+    public SimulationLatchPhase State=>GetParent() is MachineWorld {HasPhysicsState:true} world
+        ?world.ReadLatch(new(this,Memory)).Phase:SimulationLatchPhase.Off;
+    public override IReadOnlyList<SceneLatchDeclaration> SimulationLatches=>[new(new(this,Memory))];
     private MeshInstance3D _rocker=null!;
-    private StandardMaterial3D _indicator=null!;
-    private float _level;
+    private MeshInstance3D _indicator=null!;
+    private static readonly Color InactiveColour=new("#556573"), ActiveColour=new("#f7cb52");
+    private static readonly AnimationDefinition RockerTransition=new(0,.5,.125,
+        AnimationCurve.SmoothStep,AnimationRepeat.Once,AnimationClock.Presentation);
+    private static readonly AnimationDefinition IndicatorTransition=new(0,1,.125,
+        AnimationCurve.SmoothStep,AnimationRepeat.Once,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneRotationAnimation> RotationAnimations =>
+        [new(_rocker,RockerTransition,AnimationRotationAxis.Z,SceneAnimationSignal.OwnerActive,SceneAnimationDrive.Endpoint)];
+    public override IReadOnlyList<SceneColourAnimation> ColourAnimations =>
+        [new(_indicator,IndicatorTransition,InactiveColour,ActiveColour,SceneAnimationSignal.OwnerActive,SceneAnimationDrive.Endpoint)];
     public override bool CanReceiveActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
@@ -26,27 +33,21 @@ public partial class LatchPart : MachinePart
         new(SocketId.Supply,ConnectionDomain.Electrical,PortDirection.Output,new(.93f,0,0))
     ];
     public override IEnumerable<ElectricalRoute> ElectricalRoutes=>
-        [new(SocketId.PowerIn,SocketId.Supply,State==LatchState.On)];
+        [new(SocketId.PowerIn,SocketId.Supply,ElectricalContactSignal.LatchOn(new(this,Memory)))];
     public override ActivationDisposition HandleActivation(MachineWorld world,ActivationCommand command)
     {
         var request=command switch
         {
-            ActivationCommand.Set=>Requests.Set,
-            ActivationCommand.Reset=>Requests.Reset,
+            ActivationCommand.Set=>SimulationLatchCommand.Set,
+            ActivationCommand.Reset=>SimulationLatchCommand.Reset,
             _=>throw new ArgumentException("Latch requires an explicit Set or Reset input.")
         };
-        _pending.TryGetValue(world.Ticks,out var previous);
-        _pending[world.Ticks]=previous|request;
+        world.SubmitLatch(new(this,Memory),request);
         return ActivationDisposition.Deferred;
     }
     public override void BeforeNetworks(MachineWorld world)
     {
-        foreach(var tick in _pending.Keys.TakeWhile(t=>t<world.Ticks).ToArray())
-        {
-            State=(_pending[tick]&Requests.Reset)!=0?LatchState.Off:LatchState.On;
-            _pending.Remove(tick);
-        }
-        Active=State==LatchState.On;
+        Active=State==SimulationLatchPhase.On;
         if(Active)world.Events.TryAdd(new(MachineEventKind.Activated,Uid),world.Ticks);
     }
     protected override void Build()
@@ -56,7 +57,8 @@ public partial class LatchPart : MachinePart
         AddBox(new(0,-.72f,0),new(1.8f,.16f,.85f),new("#293954"));
         PartArt.Box(Visual,new(1.4f,1.02f,.04f),new("#fff8e9"),new(0,0,.35f));
         _rocker=PartArt.Box(Visual,new(.65f,.28f,.12f),new("#293954"),new(0,0,.44f));
-        _indicator=(StandardMaterial3D)PartArt.Sphere(Visual,.09f,new("#556573"),new(0,-.33f,.42f)).MaterialOverride;
+        _rocker.Rotation=new(0,0,-.25f);
+        _indicator=PartArt.Sphere(Visual,.09f,InactiveColour,new(0,-.33f,.42f));
         // Raised bar and hollow ring distinguish Set and Reset without text or colour dependence.
         PartArt.Box(Visual,new(.055f,.20f,.04f),new("#293954"),new(-.45f,.34f,.4f));
         for(var i=0;i<12;i++)
@@ -65,12 +67,5 @@ public partial class LatchPart : MachinePart
             PartArt.Sphere(Visual,.025f,new("#293954"),new(.45f+Mathf.Cos(angle)*.1f,.34f+Mathf.Sin(angle)*.1f,.4f));
         }
         foreach(var port in ConnectionPorts)PartArt.Sphere(Visual,.075f,new("#f7cb52"),port.LocalPosition);
-    }
-    public override void _Process(double delta)
-    {
-        _level=Mathf.MoveToward(_level,State==LatchState.On?1:0,(float)delta*8);
-        var eased=_level*_level*(3-2*_level);
-        _rocker.Rotation=new(0,0,Mathf.Lerp(-.25f,.25f,eased));
-        _indicator.AlbedoColor=new Color("#556573").Lerp(new("#f7cb52"),eased);
     }
 }

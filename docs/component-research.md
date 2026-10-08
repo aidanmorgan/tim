@@ -1,41 +1,48 @@
-# Component research: water, sound and cross-domain logic
+# Water, acoustic, electrical and optical capability families
 
-Research date: 27 September 2026. Status: **proposed backlog, not implemented or verified**. Companion checklist: [TODO](../TODO.md). Fluid, sound and logic were researched by sub-agents; the consolidated priorities and puzzle recipes are project design proposals, not claims about historical TIM behaviour.
+Each domain below is one generic capability family inside the single WASM SIMD f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory), [general data-driven engines](engine-contracts.md#general-data-driven-engines)), added in the slice that first needs it. Every element is declaration data over those records (which capabilities it instantiates, parameters, art and animation bindings); no element has its own solver, kernel branch, equation table or update loop. Individual element obligations are in [named-elements](planning/invest/named-elements.md) and [requirements](planning/requirements.md); companion families: [gas/airflow](finite-gas-foundation.md), [heat](thermal-component-research.md), [radiation](radiation-component-research.md). Slices follow the [roadmap order](planning/invest/vertical-delivery.md#rolling-playable-roadmap): ENGINE-CORE-1/2 precede new elements; P0-035 is the engine-closure release gate at LEGACY-0. Preserve [DESIGN.md](../DESIGN.md): cream/navy/cyan/gold palette, toy-like forms, minimal contextual icons, touch-friendly controls, no CAD panels or permanent network overlays. Closed sets are C# enums; port/parameter identities are typed. These families expand the candidate catalogue; teach each mechanism before its capstone within the 150 progressively taught levels and reserve optional advanced pieces for the workshop.
 
-Planning update, 28 September 2026: [Radiation component research](radiation-component-research.md) adds 22 separately tracked potential elements, primary-source evidence, simulation boundaries and a proposed **150-level** teaching allocation. The 75-level statements below are historical proposal context only; current adopted teaching scope is 150 levels and the complete named requirements retain every candidate. Radiation candidates remain proposals, with no implementation or browser-proof claim.
+<a id="water"></a>
+## Water capability family
 
-## Design contract and priority
+### State variables and laws at puzzle scale
 
-The P1/P2/P3 labels below are the original research proposal priorities, not the current execution queue. Current delivery is engine-first through P0-035, then every named component before exhaustive campaign/difficulty sweeps. Preserve DESIGN.md and its existing cream/navy/cyan/gold palette, toy-like forms, minimal contextual icons and touch-friendly controls. No CAD panels or permanent network overlays. Use C# enums for finite domains/states/operations and typed port/parameter identities. Forward-refactor current systems; no compatibility aliases or silent substitute behaviours.
-
-Implement components before exhaustive difficulty testing. Each selected batch still needs native behaviour/Reset tests, authoring and inventory integration, original icons, animation and a real-UI browser smoke puzzle. These proposals expand the candidate catalogue, not a requirement to crowd every concept into the 150 progressively taught levels. Teach each required mechanism before its capstone; reserve optional advanced pieces for the workshop or later content.
-
-## Water: transport, storage and conversion
-
-Use finite conserved water, bounded network transfers and visible free-stream capture rather than full CFD. Cosmetic particles never decide capture, success or water quantity. Existing ball tubes remain ball conduits; add explicitly typed fluid capabilities and distinguish sealed pressure pipes from open gutters.
-
-| Priority | Candidate | Behaviour and puzzle decision |
+| Record | State | Law |
 | --- | --- | --- |
-| P1 | Reservoir / header tank | Capacity, initial volume, outlet elevation and open catch mouth. Horizontal waterline and etched fill marks; dwindling head changes discharge. An external source must be explicitly authored and visually distinct. |
-| P1 | Tap / stopcock | Regulates existing supply; build-set opening with a visible quarter-turn handle. Later mechanical lever and powered solenoid variants supply different actuation choices, not free water. |
-| P1 | Water pipe kit | Straight length, 45° and 90° bends, T junction, cap, outlet nozzle. Compatible-mouth snapping and visible seated collars. A split shares supply rather than copying it. |
-| P1 | Gutter / trough / aqueduct | Broad open collection and downhill flow with visible spill edges; cannot behave like a sealed uphill pressure pipe. |
-| P1 | Catch basin / funnel / drain | Capacity-limited capture and explicit overflow. A drain is an accounted sink, not invisible cleanup anywhere on the floor. |
-| P1 | Waterwheel | Stream position and direction create signed mechanical drive for belts/conveyors; the discharged water remains available underneath. Paddle filling/rotation must reflect actual flow. |
-| P1 | Movable / leaky bucket | Extend the existing rope-container entry: total mass includes contents; tilt spills, leaks drain visibly into other containers. Do not substitute an unrelated countdown or silently remove mass. |
-| P1 | Guided float / level switch | Water lifts a visible float. A mechanical float valve needs no battery; an electronic level contact needs supply. Distinct high/low thresholds prevent chatter. |
-| P2 | Check valve / diverter / sluice | One-way flow, route selection and channel gating. Animate actual flap/blade state; closed valves and split branches must conserve volume. |
-| P2 | Pump / Archimedes screw | Mechanical or electrical input lifts finite water against head. Dry intake is visibly idle. Exposed screw/bucket elevator makes conversion especially readable. |
-| P2 | Siphon / priming bulb | Explicit dry, priming, flowing and broken states. Air entry breaks the column; the final receiving surface must allow gravity-driven transfer. |
-| P2 | Tipping bucket / water clock | Real fill/load tips a hinged cup, spills a batch and returns. A physical strike can ring a chime or pulse a counter. Requires hinges and load support. |
-| P2 | Communicating tanks / canal lock | Low connecting pipes equalize levels; controlled sluices lift a floating platform. Order and finite supply matter. |
-| P2 | Cork / raft / floating platform | Displaced volume and load determine flotation. Start with constrained basins and simple hulls; rising water can deliver a ball onto a track. |
-| P2 | Hydraulic piston | Pressure acts on a piston with finite stroke, displaced-water storage and return path; load resists motion. |
-| P2 | Flow / volume / pressure meter | Separate moving-water, accumulated-volume and pressure measurements. Visible paddle or dial; threshold controls do not generate actuator power. |
-| P3 | Accumulator | Finite stored hydraulic energy with a visible spring/bladder; requires load and energy accounting first. |
-| P3 | Sponge / wick / squeeze pad | Finite absorption adds mass; compression releases water. Any capillary rule must be explicit and bounded. |
-| P3 | Sprinkler / rain collector | Spatial distribution and collection with an authored finite source budget and selected-only footprint preview. |
-| P3 | Ice plug / melt gate / kettle / condenser | Thermal-energy and phase-change extension; visible steam is not proof of a working thermal simulation. |
+| Finite water store | Volume V (m³), capacity, outlet elevation, open mouth geometry | Conserved: initial volume + explicit external input = contained + in transit + sinks + explicit loss |
+| Water network node | Typed port list (mouth, inlet, outlet, cap), sealed/open flag, valve opening, check direction | Sealed pipes carry head uphill; open gutters flow downhill only; a split shares supply, never copies it |
+| Head/flow transfer | Elevation difference, opening, conductance | Discharge from a common substep snapshot; shared supply/capacity resolved before commit, so insertion order never selects a branch |
+| Free-stream packet | Bounded airborne volume, velocity, capture sweep | Swept against moving mouths so capture never depends on render rate; exceeding the packet budget rejects at authoring, never deletes water |
+| Buoyancy/displacement | Displaced volume, hull geometry | Displaced-fluid weight lifts; carried water adds body mass without double counting |
+| Siphon/prime state | Dry, Priming, Flowing, Broken | Air entry breaks the column; the receiving surface must be lower |
+| Level sensor | High/Low thresholds (separate), dwell in ticks | Float position sampled at substep endpoints |
+
+Floor handling is explicit: shallow catch tray, bounded puddles or visible drains. Mechanical drive from a waterwheel shares the finite power/torque budget of the mechanical family; wheel → pump loops conserve energy, so there are no perpetual fountains. Cosmetic particles never decide capture, success or quantity. Later nudging may ease catch tolerances but never invents supply, ignores a wall, bypasses priming or creates pumping energy. All quantities are canonical IEEE-754 f32 with declared scales; residuals are clamp-or-continue under the [game-grade envelope](gpu-f16-physics.md#game-grade-envelope).
+
+### Per-element declarations
+
+| Element | Capabilities instantiated | Parameters (f32) | Player-observable behaviour | Animation binding |
+| --- | --- | --- | --- | --- |
+| Finite reservoir / Header tank (EL-001, EL-002) | Finite store + outlet port + open mouth | capacity, initial volume (m³, scale 2⁻⁴), outlet height | Level waterline against etched fill marks; discharge weakens as head drops | Waterline ← committed volume |
+| Tap / stopcock (EL-003, EL-165–167) | Network valve node; mechanical lever or solenoid input variants | opening 0–1 | Quarter-turn handle regulates existing supply; actuated variants need their lever or supply, never free water | Handle angle ← committed opening |
+| Water pipe kit (EL-008–013) | Sealed network nodes: straight, 45°, 90°, T, cap, nozzle | length | Compatible-mouth snapping with seated collars; a T shares supply | None (static) |
+| Open gutter / trough / aqueduct (EL-007) | Open network node with spill edges | length, slope | Downhill collection and flow; cannot act as an uphill pressure pipe | Spill ← overflow |
+| Catch basin / Liquid funnel / Drain (EL-004–006) | Finite store with capacity + accounted sink | capacity | Capture up to capacity, explicit overflow; a drain is an accounted sink | Fill ← volume |
+| Waterwheel | Hinge rotor + stream receiver + mechanical output port | inertia, paddle count | Stream position/direction gives signed drive to belts/conveyors; discharged water stays available underneath | Paddles ← committed hinge angle |
+| Water-carrying / Leaky bucket (EL-014, EL-015) | Dynamic container body + finite store + leak port | capacity, leak rate | Contents add mass; tilt spills; leaks drain visibly into other containers | Tilt/fill ← committed pose and volume |
+| Float / Mechanical float valve / Electronic level switch (EL-016–018) | Buoyant body + level sensor (+ valve or electrical output) | High/Low thresholds | Water lifts a visible float; the mechanical valve needs no battery, the electronic contact needs supply | Float ← committed height |
+| Check valve / Diverter / Sluice gate (EL-019–021) | Network node with direction, route selection or gating input | opening | One-way flow, route choice, channel gating; closed valves and split branches conserve volume | Flap/blade ← committed state |
+| Water pump / Archimedes screw (EL-022, EL-023) | Mechanical or electrical input → head transfer | lift head, rate | Lifts finite water against head; a dry intake is visibly idle | Screw/impeller ← committed rate |
+| Primed siphon / Priming bulb (EL-024, EL-168) | Siphon state + network nodes | column height | Dry → Priming → Flowing → Broken; air entry breaks it | Column fill ← state |
+| Tipping-bucket water clock (EL-025) | Hinged cup body + finite store + contact trigger | tip volume | Fills, tips a batch, strikes a chime or pulses a counter, returns | Cup ← committed hinge angle |
+| Communicating tank / Canal lock (EL-026, EL-027) | Linked stores + sluice nodes + buoyant platform | capacities | Low pipes equalise levels; sluices lift a floating platform in order | Waterlines ← volumes |
+| Cork float / Raft / Buoyant platform / Boat (EL-169, EL-170, EL-028, EL-029) | Dynamic body + displacement | hull volume, load | Flotation from displaced volume and load; rising water delivers a ball onto a track | Pose ← committed body |
+| Hydraulic piston | Chamber + slider body + displaced-water store | stroke, area | Pressure extends a finite stroke against load; return path required | Rod ← committed slider |
+| Flow / Volume / Pressure meter (EL-030–032) | Sensors on a network node | thresholds | Separate moving-water, accumulated-volume and pressure readings; threshold controls do not power actuators | Needle/dial ← committed reading |
+| Fluid accumulator (EL-033) | Finite hydraulic energy store with spring/bladder | capacity | Stores and returns bounded hydraulic energy | Bladder ← stored energy |
+| Sponge / Wick / Squeeze pad (EL-034, EL-035, EL-171) | Absorbing store + bounded capillary transfer + compression input | absorption capacity | Absorbs finite water (adds mass); compression releases it | Damp fraction ← volume |
+| Sprinkler / Rain collector (EL-036, EL-172) | Distributed packet source with finite budget + collection mouth | budget, footprint | Selected-only footprint preview; collection is accounted | Spray ← committed rate |
+| Ice plug / Melt gate / Kettle / Condenser | Water store + [heat family](thermal-component-research.md) phase change (TH-15, TH-17, TH-18) | see heat family | Visible steam is not proof of thermal state | See heat bindings |
 
 ### Water puzzle recipes
 
@@ -54,63 +61,60 @@ Use finite conserved water, bounded network transfers and visible free-stream ca
 13. **Pressure, Not Plenty:** choose an elevated narrow tank rather than a large low tank to lift a loaded hydraulic piston.
 14. **Catch the Escape:** rope lifts/tilts a bucket into a movable funnel; mistimed pours visibly spill to a collection tray.
 
-### Water acceptance and simulation boundaries
+### Chrome-observable acceptance for the first water slice
 
-- Account for initial volume + explicit external input = contained + in transit + sinks + explicit loss, within a documented numerical tolerance.
-- Calculate transfers from a common tick snapshot, resolve shared supply/capacity, then commit. Construction/insertion order must not decide which branch receives all the water.
-- Track gravity/head, priming and venting explicitly. Do not grant uphill motion just because mouths are connected.
-- Current ideal mechanical drive lacks complete torque/load sharing. Forward-refactor power budgeting before claiming wheel → pump loops conserve energy; no perpetual fountains.
-- Sweep streams/capture mouths so moving buckets and narrow mouths do not depend on rendered frame rate. Airborne packets may be bounded, but exceeding supported limits must fail authoring validation rather than delete water.
-- Choose explicit floor handling: shallow catch tray, bounded puddles or visible drains. Include displaced water and filled-bucket load without double counting.
-- Reset restores volumes, in-flight transfers, primes, valve states, wheel state, load and sensor hysteresis. Test empty/full/overflow, equal/reversed head, closed/backflow valves, branching, dry pumps, cycles, tilted capture, source exhaustion and pause/slow playback.
-- Later authored nudging may ease valid alignment/catch tolerances; it must not invent supply, ignore a wall, bypass priming or create pumping energy.
+**First Pour** introduces the family (ELEMENT-n in roadmap order). Through actual palette, gizmo and socket controls in Chrome/Playwright: place tank, tap, gutter and marked bucket; open the tap; Run: the waterline falls in the tank, water flows along the gutter and the bucket fills to its mark (Solved). Controls: closed tap (nothing moves); gutter sloped away (water spills to the tray, bucket stays empty); tank initial volume below the bucket mark (bucket never reaches it, no invented supply). Reset restores volumes, in-flight packets, prime and valve states, wheel state, load and sensor hysteresis exactly; Save/Load where supported restores identical canonical bits. Later slices add empty/full/overflow, equal/reversed head, closed/backflow valves, branching, dry pumps, cycles, tilted capture, source exhaustion and pause/slow playback checks as their elements arrive.
 
-### Water evidence
+Evidence for the principles: [EPA EPANET](https://www.epa.gov/water-research/epanet) (network vocabulary; not a requirement to integrate it), [DOE: How Hydropower Works](https://www.energy.gov/cmei/water/how-hydropower-works), [NPS: Hopewell waterwheel](https://www.nps.gov/places/000/waterwheel.htm), [NPS: Lowell water power](https://www.nps.gov/lowe/learn/photosmultimedia/water_power.htm), [OpenStax: Buoyancy](https://openstax.org/books/university-physics-volume-1/pages/14-4-archimedes-principle-and-buoyancy), [Science Buddies: Straw siphon](https://www.sciencebuddies.org/stem-activities/straw-siphon), [Factorio: Fluids 2.0](https://www.factorio.com/blog/post/fff-416) and [Drowning in fluids](https://www.factorio.com/blog/post/fff-430), [Disney: Where's My Water?](https://appsupport.disney.com/hc/en-us/articles/360000758626-Getting-Started-with-Where-s-My-Water), [Nintendo: Fluidity—Spin Cycle](https://my.nintendo.com/rewards/54cbade66846a414).
 
-- [EPA EPANET](https://www.epa.gov/water-research/epanet): network vocabulary and modelling of tanks, reservoirs, pipes, pumps, valves, flows and pressure. Supports a bounded network abstraction, not a requirement to integrate EPANET.
-- [DOE: How Hydropower Works](https://www.energy.gov/cmei/water/how-hydropower-works): head and flow determine available hydropower; turbine and generator are separate conversion stages.
-- [NPS: Hopewell waterwheel](https://www.nps.gov/places/000/waterwheel.htm) and [Lowell water power](https://www.nps.gov/lowe/learn/photosmultimedia/water_power.htm): water-filled wheel buckets and transmission through shafts/gears/pulleys.
-- [OpenStax: Buoyancy](https://openstax.org/books/university-physics-volume-1/pages/14-4-archimedes-principle-and-buoyancy): displaced-fluid weight underpins buoyancy.
-- [Science Buddies: Straw siphon](https://www.sciencebuddies.org/stem-activities/straw-siphon): priming, air interruption and level constraints.
-- [Factorio: Fluids 2.0](https://www.factorio.com/blog/post/fff-416) and [Drowning in fluids](https://www.factorio.com/blog/post/fff-430): developer lessons on predictable flow, readable connections and preserving meaningful constraints.
-- [Disney: Where's My Water?](https://appsupport.disney.com/hc/en-us/articles/360000758626-Getting-Started-with-Where-s-My-Water) and [Nintendo: Fluidity—Spin Cycle](https://my.nintendo.com/rewards/54cbade66846a414): official water-routing puzzle precedents, not specifications for these proposed parts.
+## Complementary mechanical declarations
 
-## Complementary mechanisms
+These compose existing mechanical records (hinges, sliders, springs, finite stores, contact triggers) rather than duplicating gears, bellows, converters or heat entries.
 
-These are original proposals; extend existing gears, bellows, converters and heat entries rather than duplicating them.
+| Element | Capabilities instantiated | Parameters (f32) | Player-observable behaviour | Animation binding |
+| --- | --- | --- | --- | --- |
+| Cam and follower / Crank | Hinge body with profile collider + slider follower | profile, dwell | Rotation becomes periodic displacement; strikes a bell or opens a tap once per revolution; profile changes dwell, not just looks | Follower ← committed contact |
+| Clutch / Brake (EL-055) | Engagement constraint between shafts, controller input | close duration | Engages a powered shaft or stops its load without deleting upstream energy | Plate gap ← committed engagement |
+| Ratchet / Escapement (EL-056, EL-057) | One-way hinge limit; stepped release of a stored load | tooth count | Holds gained motion; releases stored weight/spring energy in steps | Pawl ← committed state |
+| Bellows, air hose, pneumatic piston | See [gas family](finite-gas-foundation.md) | — | Wheel → cam → bellows → whistle or piston | See gas bindings |
+| Air reservoir / Release valve (EL-039, EL-040) | Sealed gas store + valve node | capacity | Stores a bounded charge; bursts after the source stops; open fan stream ≠ sealed compressed air | Gauge/flap ← committed state |
+| Electromagnet / Magnetic pickup (EL-060) | Electrical node + force region on compatible material | force, range | Attracts steel while supplied, releases on loss; wooden ball unaffected | Coil lamp ← supply |
+| Material/size sorter and escapement feeder | Aperture geometry or powered diverter + one-at-a-time release | aperture | Physical apertures sort actual bodies; no hidden ID-based routing | Gate ← committed state |
+| Bimetal thermostat / Melt plug / Expansion actuator | [Heat family](thermal-component-research.md) (TH-22, TH-15, TH-23) | — | Slow accumulation gives delay without a timer | See heat bindings |
+| Flywheel / Governor (EL-110) | High-inertia hinge body + speed sensor → valve | inertia, thresholds | Bridges a short supply gap; overspeed changes a valve | Wheel ← committed angle |
 
-| Priority | Candidate | New decision and combination |
+Additional recipes: **Polite Factory** (clutch holds conveyor until a receiving bucket is ready); **One Breath** (finite air charge raises piston, then exhaust rings a whistle); **Sorting Office** (magnet removes steel ball, remaining ball reaches a different chute); **Clockwork Rain** (waterwheel cam meters individual drops into a counterweight); **Warm Welcome** (heat releases an ice plug, waterwheel rings a bell, detector opens final hatch). Evidence: [KiwiCo automaton education](https://www.kiwico.com/explore/edu/automaton), [Festo pneumatic cylinders](https://www.festo.com/us/en/c/products/actuators-and-drives/pneumatic-cylinders-id_pim135).
+
+<a id="sound"></a>
+## Acoustic capability family
+
+### State variables and laws at puzzle scale
+
+| Record | State | Law |
 | --- | --- | --- |
-| P1 | Cam and follower / crank | Rotation becomes visible periodic displacement; wheel-driven cam strikes a bell or opens a tap once per revolution. Cam profiles change dwell rather than merely appearance. |
-| P1 | Clutch / brake | Engage a powered shaft or stop its load without deleting upstream energy; sound/level control starts a conveyor only when its destination is ready. |
-| P2 | Ratchet / escapement | Ratchet holds gained motion; escapement releases stored weight/spring energy in steps. A dripping bucket can advance a lift without letting it roll back. |
-| P2 | Bellows, air hose and pneumatic piston | Extend bellows with finite compression, routed air, valve and spring-return actuator. Wheel → cam → bellows → whistle or piston bridges mechanical, air and sound. |
-| P2 | Air reservoir / release valve | Store a bounded charge and release a burst after the source stops. Show pressure and exhaust; don't conflate an open fan stream with sealed compressed air. |
-| P2 | Electromagnet / magnetic pickup | Supplied coil attracts compatible material, releases on power loss; move a steel ball past a wooden one. Define force, material and range explicitly before puzzles depend on them. |
-| P2 | Material/size sorter and escapement feeder | Physical apertures or a powered diverter sort actual bodies; one-at-a-time release prevents jams. No hidden ID-based success routing. |
-| P3 | Bimetal thermostat / melt plug / expansion actuator | Slow heat accumulation and cooling offer delay without a timer; require a bounded thermal model and explicit energy source. |
-| P3 | Flywheel / governor | Stored rotational energy bridges a short supply gap; overspeed control changes a valve. Depends on torque, inertia and loads, not the current ideal drive alone. |
+| Acoustic event | Source identity, tone band (Low, Mid, High), emission tick, strength, duration, propagation identity | Typed occurrence emitted by a contact trigger or a powered source; bounded lifetime and relay depth; the same propagated event is never delivered twice |
+| Propagation | Direction, distance attenuation, occlusion by bodies, transit time | Computed in the solver from committed geometry; audio playback, mute, camera and browser audio suspension never feed it |
+| Acoustic receiver | Received strength, tone filter, On/Off thresholds (separate), sustained versus one-shot mode | Strongest arrival, not summed loudness (additive intensity is a later taught mechanic); a ringing bell does not count every tick |
+| Acoustic network node | Horn/duct typed ports | Validated connected ducts carry attenuated, delayed pulses; ball pipes do not silently gain acoustic capability |
+| Resonator | Excitation level, matching band, decay | Builds under a matching tone, decays otherwise; passive resonance supplies no electricity |
 
-Additional recipes: **Polite Factory** (clutch holds conveyor until a receiving bucket is ready); **One Breath** (finite air charge raises piston, then exhaust rings a whistle); **Sorting Office** (magnet removes steel ball, remaining ball reaches a different chute); **Clockwork Rain** (waterwheel cam meters individual drops into a counterweight); **Warm Welcome** (heat releases an ice plug, waterwheel rings a bell, detector opens final hatch).
+No microphone permission, musical knowledge or hearing is required: muted and audible outcomes are identical, and captions can identify tone/source/location. All quantities are canonical IEEE-754 f32; residuals clamp-or-continue.
 
-Evidence: [KiwiCo automaton education](https://www.kiwico.com/explore/edu/automaton) describes different cam profiles producing different motion; [Festo pneumatic cylinders](https://www.festo.com/us/en/c/products/actuators-and-drives/pneumatic-cylinders-id_pim135) explains compressed-air actuation and single-acting spring/gravity return. These support the mechanical principles, not our exact game implementation.
+### Per-element declarations
 
-## Sound: physical events, readable signals
-
-Sound gameplay runs in the fixed-tick simulation; audio playback only presents it. No microphone permissions, musical knowledge or hearing requirement. Muting, browser audio suspension, camera position and audio voice limits must not change puzzle outcomes.
-
-| Priority | Candidate | Behaviour and puzzle decision |
-| --- | --- | --- |
-| P1 | Powered speaker | Electrical supply plus activation input; one pulse per rising trigger while powered. Author-set Low/Mid/High band, visible cone direction and restrained expanding arcs. Continuous tone is a later explicit mode. |
-| P1 | Sound meter | Needle measures simulated received strength; high threshold activates, lower threshold rearms. Separate sustained threshold state from one-shot crossing so a ringing bell does not count every tick. Switching an electrical load requires real supply. |
-| P1 | Wind chimes | Air moves a suspended sail and clapper; actual tube contact emits sound. A ball may strike a tube too. Mere fan-volume overlap must not ring stationary chimes. |
-| P1 | Struck bell | Ball, pendulum or shaft-driven striker produces a bounded impact pulse. Contact must separate before retriggering. |
-| P2 | Tuned meter | Extends the meter with an explicit tone filter. Engraved shapes/labels distinguish bands without relying on colour or pitch. |
-| P2 | Whistle | Airflow through a marked inlet sustains a tone above a threshold; lower release threshold prevents chatter. Distinguish open airflow from pressurized pneumatic tubing. |
-| P2 | Listening horn / acoustic duct | Collects sound into typed ports; validated connected ducts carry attenuated, delayed pulses to an exit horn. Ball pipes do not silently acquire acoustic capability. |
-| P2 | Resonator | Matching tone builds visible excitation which decays; threshold rings or triggers a contact. Passive resonance does not supply free actuator electricity. |
-| P3 | Acoustic screen / reflecting dish | Explicit attenuation/redirection rules. Add only when placement creates a distinct decision beyond horn routing; do not claim full diffraction/interference simulation. |
-| P3 | Water-tuned bottle | Fill level selects a marked resonance band; fan across the mouth excites it. Requires conserved fluid and boundary hysteresis. Blown bottles and struck glasses are not interchangeable physical models. |
+| Element | Capabilities instantiated | Parameters (f32) | Player-observable behaviour | Animation binding |
+| --- | --- | --- | --- | --- |
+| Pulse speaker (EL-180, CAT-061) | Electrical node + acoustic source (one pulse per rising trigger) | band, strength, cone direction | Pulses while powered on each trigger; restrained expanding arcs | Cone ← committed emission tick |
+| Continuous-tone speaker (EL-179) | Electrical node + sustained acoustic source | band, strength | Holds a tone while powered and enabled | Cone ← committed state |
+| Sound meter | Electrical node + acoustic receiver | On/Off thresholds | Needle reads received strength; switches a supplied load above On, rearms below Off | Needle ← committed strength |
+| Tone-selective sound meter (EL-044) | Receiver + tone filter | band, thresholds | Responds only to its engraved band | Needle ← strength |
+| Wind chimes | Suspended sail body + clapper contacts + acoustic source | tube bands | Airflow swings the sail; actual tube contact emits; a ball may strike a tube; mere fan overlap stays silent | Tubes/sail ← committed bodies |
+| Struck bell (CAT-009) | Static body + contact trigger + acoustic source | threshold speed | Ball, pendulum or striker impact emits one bounded pulse; contact must separate before re-trigger | Bell swing ← occurrence |
+| Air whistle (EL-045) | Airflow receiver + sustained acoustic source | flow threshold, release threshold | Sounds above the flow threshold; open airflow ≠ pressurised tubing | Reed ← committed flow |
+| Listening horn / Exit horn / Acoustic duct (EL-046–048) | Acoustic network nodes | attenuation, delay | Collects sound into typed ports and carries it to an exit around a blocking wall | Pulse travel ← committed transit |
+| Acoustic resonator (EL-049) | Resonator + contact output | band, threshold | Visible excitation builds under a matching tone then decays; threshold triggers a contact | Excitation ← committed level |
+| Acoustic screen / Acoustic dish (EL-050, EL-051) | Occluder / redirector with explicit attenuation | attenuation | Blocks or redirects; no diffraction/interference claim | None |
+| Water-tuned bottle (EL-052) | Water store + resonator with level-selected band | fill marks | Fill level selects a marked band; airflow across the mouth excites it | Waterline ← volume |
 
 ### Sound puzzle recipes
 
@@ -123,18 +127,26 @@ Sound gameplay runs in the fixed-tick simulation; audio playback only presents i
 7. **The Right Voice:** low bell is a distractor; high speaker/tuned meter controls the goal. Matching engraved symbols make the solution equally readable muted.
 8. **Fill to Sing:** tap fills bottle to its mid-band; airflow excites it; tuned meter closes the tap and opens a hatch. A leak creates a later timing variant.
 
-### Sound acceptance and evidence
+### Chrome-observable acceptance for the first acoustic slice
 
-- Typed events carry source, tone, emission tick, strength, duration and propagation identity. Proposed initial receiver rule: strongest arrival, not summed loudness. Add additive intensity only as a separately taught mechanic.
-- Simulation owns directionality, distance attenuation, occlusion, transit time and thresholds; audio never feeds these calculations. Use bounded event lifetimes/relay depth and suppress repeat delivery of the same propagated event.
-- Test threshold/rearm boundaries, sustained ringing, simultaneous arrivals, wrong tones, unpowered sources, occlusion and loops; Reset clears pending pulses, clapper motion and meter state. Compare muted and audible outcomes.
-- Use cream housings/navy marks/gold needles and clappers, with the existing cyan accents. Animate the actual cause and response; optional captions identify tone/source/location. Avoid continuous screen-filling rings.
+**Across the Gap** introduces the family. Through actual controls in Chrome/Playwright: Battery → Switch → Pulse speaker aimed at a supplied Sound meter → release gate; Run: the meter needle rises on the pulse, the gate opens, the ball reaches the Receiver (Solved). Controls: no battery; speaker facing away; meter beyond range; a Wall between them. The same construction played muted and audible gives identical outcomes. Reset clears pending pulses, clapper motion and meter state; Save/Load where supported restores identical canonical bits. Later slices add threshold/rearm boundaries, sustained ringing, simultaneous arrivals, wrong tones, unpowered sources, occlusion and loops.
 
-Sources: [Exploratorium Pipes of Pan](https://annex.exploratorium.edu/xref/exhibits/pipes_of_pan.html) supports tube-length resonance; [Resonant Rings](https://annex.exploratorium.edu/xref/exhibits/resonant_rings.html) shows visible speaker-driven resonance. [Baxter and Hagenbuch's wind-chime teaching experiment](https://leehite.org/documents/Wind_Chimes_Student_Project.pdf) concerns vibrating rods/tubes and suspension, not air-column whistles. [Minecraft Snapshot 23w12a](https://www.minecraft.net/en-us/article/minecraft-snapshot-23w12a) offers an official selective-vibration-sensor precedent; its event categories are not musical pitches. [Bottle resonance experiment](https://arxiv.org/abs/1805.04014) motivates water tuning, not the proposed discrete game bands. [Godot positional audio](https://docs.godotengine.org/en/stable/classes/class_audiostreamplayer3d.html) is a presentation facility; [Xbox Accessibility Guideline 103](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/103) supports conveying critical sound through another sensory channel.
+Evidence: [Exploratorium Pipes of Pan](https://annex.exploratorium.edu/xref/exhibits/pipes_of_pan.html), [Resonant Rings](https://annex.exploratorium.edu/xref/exhibits/resonant_rings.html), [Baxter and Hagenbuch wind-chime experiment](https://leehite.org/documents/Wind_Chimes_Student_Project.pdf) (vibrating tubes, not air-column whistles), [Minecraft Snapshot 23w12a](https://www.minecraft.net/en-us/article/minecraft-snapshot-23w12a) (selective vibration sensor precedent), [Bottle resonance experiment](https://arxiv.org/abs/1805.04014), [Godot positional audio](https://docs.godotengine.org/en/stable/classes/class_audiostreamplayer3d.html) (presentation only), [Xbox Accessibility Guideline 103](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/103).
 
-## Electrical and optical logic
+<a id="logic"></a>
+## Electrical and optical logic families
 
-P1: implement AND, OR, XOR, NOR and NAND in both domains with one pure C# `LogicGateKind` evaluator. Existing Both is AND: forward-refactor it and its callers/content/tests, never add a duplicate alias. Exactly two conditions initially; multi-input XOR parity would make “Exactly one” misleading.
+### State variables and laws at puzzle scale
+
+| Record | State | Law |
+| --- | --- | --- |
+| Electrical network node | Supply reachability (binary), condition inputs A/B, output Y | Fanout is binary availability, not modelled current; conversion to another domain needs an explicit supplied transducer |
+| Logic gate (`LogicGateKind`: And, Or, Xor, Nor, Nand) | Two condition inputs, separate supply P | Y = P AND f(A, B); inverted gates cannot create power when their conditions are absent; Both is And, forward-refactored with its callers, never aliased |
+| Network settlement | Acyclic dependencies evaluated topologically; source-reachable And/Or strongly connected components by least fixed point | Xor/Nand/Nor retract output when another input arrives (10 → 11), so the compiled network solves to a settled state each tick; zero-delay nonmonotone cycles reject at compile; latches/delays are the only memory boundaries |
+| Optical gate | Two independently addressed absorbing control apertures + separate carrier input/output | Truth opens the carrier path with declared transmission loss; no carrier means no output even for Nand/Nor; control beams never become output energy; brighter A never counts as B |
+| Optical latency | Active changes affect the next optical tick; passive mirrors/splitters route within the same trace | Documented one-tick latency instead of recursive light in one trace |
+| Detector hysteresis | Separate On/Off thresholds (example 0.25/0.225 game units), explicit false initialisation, complete Reset | Sampled at substep endpoints |
+| Edge detector (EL-181, EL-182) | Rising/falling edge → one pulse | Counters never increment every tick; missed events are not replayed on power restoration |
 
 | A | B | Both / AND | Either / OR | Exactly one / XOR | Neither / NOR | Not both / NAND |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -143,17 +155,16 @@ P1: implement AND, OR, XOR, NOR and NAND in both domains with one pure C# `Logic
 | 1 | 0 | 0 | 1 | 1 | 0 | 1 |
 | 1 | 1 | 1 | 1 | 0 | 0 | 0 |
 
-### Contracts and dependencies
+Exactly two conditions initially; multi-input XOR parity would make "Exactly one" misleading. Optical fanout retains finite power, loss, range and trace budgets. Author/inventory selects the operation; a free dropdown cannot bypass part budgets.
 
-- Electrical proposal: A/B condition inputs, separate supply P, switched output Y = P AND Boolean result. Inverted gates cannot create power when their conditions are absent.
-- Current ElectricalNetwork accumulates reachable sockets. XOR/NAND/NOR can retract output when another input arrives, so they need a settled nonmonotone solver, not extra enqueue rules. Evaluate acyclic dependencies topologically; preserve source-reachable AND/OR strongly connected components using least fixed points. Explicitly reject zero-delay nonmonotone cycles. Latches/delays are intentional memory boundaries; arbitrary iteration caps must not select a truth result.
-- Optical proposal: two independently addressed absorbing control apertures plus a separate carrier input/output. Truth opens the carrier path with documented transmission loss; no carrier means no output, even for NAND/NOR. Control beams never become free output energy.
-- Research originally identified single-surface/per-part aggregation as a blocker. Implemented prerequisite on 27 September: typed aperture lists, addressed receptions and one per-port snapshot commit, with independent-input tests. The passive combiner now uses that foundation; actual optical logic gates remain unimplemented. Brighter A must never count as B.
-- Sample fixed-tick conditions and commit settled electrical outputs together. Active optical changes affect the next optical tick; passive mirrors/splitters remain same-trace routing. Document this latency rather than recursively creating light in one trace.
-- Proposed detector hysteresis uses separate On/Off thresholds (example 0.25/0.225 in current game units), explicit false initialization and complete Reset. This is a future behavioural change, not an existing feature.
-- Electrical fanout remains binary availability, not modeled current/charge. Optical fanout retains finite power, loss, range and trace budgets. Conversion between domains requires an explicit supplied transducer.
-- Author/inventory selects operation initially; a free operation dropdown must not bypass part budgets. Distinct cable sockets versus lenses, one/two A/B marks, rear supply/carrier and forward output arrow retain the current toy style. Contextual truth cards supplement icons; no permanent engineering panel.
-- P2: explicit edge detector converts a held condition to one pulse. Do not increment counters every tick or replay missed events on power restoration.
+### Per-element declarations
+
+| Element | Capabilities instantiated | Parameters (f32) | Player-observable behaviour | Animation binding |
+| --- | --- | --- | --- | --- |
+| Electrical AND/OR/XOR/NOR/NAND gate (EL-133–137) | Electrical node (A, B, supply P, output Y) + `LogicGateKind` | kind | Distinct cable sockets, one/two A/B marks, rear supply, forward output arrow; contextual truth card | Output lamp ← committed Y |
+| Optical AND/OR/XOR/NOR/NAND gate (EL-138–142) | Two control apertures + carrier aperture + `LogicGateKind` | kind, transmission loss | Lenses for controls, rear carrier, forward output; carrier passes only on truth | Output glow ← committed carrier |
+| Rising-edge / Falling-edge detector (EL-181, EL-182) | Electrical node + edge → pulse | — | One pulse per held-condition change | Lamp ← pulse |
+| Optical combiner (EL-213) | Passive same-trace routing with typed aperture lists and per-port snapshot commit | — | Combines independent arrivals without one counting as another | None |
 
 ### Logic puzzle recipes
 
@@ -170,12 +181,8 @@ P1: implement AND, OR, XOR, NOR and NAND in both domains with one pure C# `Logic
 11. **Light-to-Motion Relay:** optical XOR → supplied receiver → electrical AND with occupied dock → motor lifts shutter.
 12. **Three-Lantern Finale:** optical OR permits alternate routes; AND confirms cargo; NOR confirms return lanes clear. Teach latch memory separately before using it here.
 
-### Acceptance and evidence
+### Chrome-observable acceptance for the first logic slice
 
-Test four truth rows × five operations × both domains × supply/carrier present/absent. Include XOR/NAND 10→11 output retraction, reversed insertion/entity order, unequal paths, reconvergence, source removal, monotone cycles and rejected nonmonotone cycles. Optical cases: bright A-only, multiple arrivals at one aperture, independent occlusion, front/back/offset hits, nearest absorption, carrier loss and split thresholds. Reset at every truth row and during hysteresis/latency. Verify real-UI socket selection, Undo, mobile targets and muted play. Defer full difficulty sweeps.
+**Two Banks, One Bridge** introduces the electrical gate family. Through actual socket selection in Chrome/Playwright: wire a plate condition and a float condition into an AND gate's A/B, a Battery into its supply, and its output into a bridge; Run: the bridge lowers only when both conditions hold and the ball crosses (Solved). Controls: either condition alone (bridge stays up); supply removed with both conditions true (no output); reversed socket insertion order gives the same result. Reset at every truth row restores the exact construction; Undo, mobile targets and muted play work. Later slices cover four truth rows × five operations × both domains × supply/carrier present/absent, 10 → 11 output retraction, unequal paths, reconvergence, source removal, monotone cycles and compile-time rejection of nonmonotone cycles, plus optical bright-A-only, multiple arrivals, independent occlusion, front/back/offset hits, nearest absorption, carrier loss and split thresholds.
 
-Primary Boolean references: TI [AND](https://www.ti.com/product/SN74HC7001/part-details/SN74HC7001DR), [OR](https://www.ti.com/product/SN74HC32), [XOR](https://www.ti.com/product/SN74HC86/part-details/SN74HC86DT), [NOR](https://www.ti.com/product/SN74HC02), [NAND](https://www.ti.com/lit/ds/symlink/sn74hc00.pdf). Named functions/function tables matter: flattened equations can lose inversion bars. [TI Schmitt-trigger explanation](https://www.ti.com/document-viewer/lit/html/scea046) supports separate rising/falling thresholds.
-
-[All-optical temporal logic research](https://www.nature.com/articles/s41566-024-01483-2) uses a pumped optical state and control interaction; it does not establish that passive mirrors alone implement arbitrary gates. Our carrier gate is a readable game abstraction. [Godot fixed/idle processing](https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html) supports separating gameplay timing from visual easing.
-
-[Zachtronics SHENZHEN I/O](https://www.zachtronics.com/shenzhen-io/) provides a logic/memory component and reference-manual precedent; [Factorio Combinators 2.0](https://www.factorio.com/blog/post/fff-384) motivates live visible values and approachable conditions. Borrow local clarity, not programming burden.
+Evidence: TI [AND](https://www.ti.com/product/SN74HC7001/part-details/SN74HC7001DR), [OR](https://www.ti.com/product/SN74HC32), [XOR](https://www.ti.com/product/SN74HC86/part-details/SN74HC86DT), [NOR](https://www.ti.com/product/SN74HC02), [NAND](https://www.ti.com/lit/ds/symlink/sn74hc00.pdf) function tables (flattened equations can lose inversion bars); [TI Schmitt-trigger explanation](https://www.ti.com/document-viewer/lit/html/scea046) for separate rising/falling thresholds; [all-optical temporal logic research](https://www.nature.com/articles/s41566-024-01483-2) (passive mirrors alone do not implement arbitrary gates; the carrier gate is a game abstraction); [Godot fixed/idle processing](https://docs.godotengine.org/en/stable/tutorials/scripting/idle_and_physics_processing.html); [Zachtronics SHENZHEN I/O](https://www.zachtronics.com/shenzhen-io/) and [Factorio Combinators 2.0](https://www.factorio.com/blog/post/fff-384) for local clarity without programming burden.

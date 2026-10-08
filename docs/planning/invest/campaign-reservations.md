@@ -1,8 +1,12 @@
 # Chapter and exact-slot decision inputs
 
+Navigation and preservation ledger only: chapter and slot reservations are kept exactly; they do not define the system.
+Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f16-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
+Levels are authored in the roadmap's CAMPAIGN slices toward 150 progressively taught levels plus an unlimited free-play workshop; a reservation never prescribes a mechanism inside the solver or the animation engine.
+
 This is a navigation view of existing authoritative reservations, not a new allocation or proof of teachability. Proposed, optional and conditional wording remains unchanged; a numeric mention does not silently adopt an optional mode. Natural-language chapter references are not converted to level numbers. Each LEVEL chooses within its linked chapter and exact named reservations; no reserved child silently disappears. A reservation range is a bounded allocation problem, not a claim that every listed part is taught in every slot.
 
-**Decision oracle and stop for each chapter/slot:** record one teachable outcome (or separately scaffolded stages), fixed/available inventory, typed goal, intended failure/control and prior lesson IDs; verify no untaught mode, no new mode 136–150, all chapter/TH/RAD/GAP/IX/TX reservations still assigned and exactly 150 slots. Pilot the densest proposed new distinction for comprehension, duration and fatigue, retaining observations. Finish one reviewed allocation or explicit unresolved conflict with a named slot to revise; do not keep researching or declare untested density acceptable. Then the same LEVEL owner authors/proves that outcome. Current authored ordering is input, not target certification.
+**Decision oracle and stop for each chapter/slot:** record one teachable outcome (or separately scaffolded stages), fixed/available inventory, typed goal, intended failure/control and prior lesson IDs; verify no untaught mode, no new mode 136–150, all chapter/TH/RAD/GAP/IX/TX reservations still assigned and exactly 150 slots. Pilot the densest proposed new distinction for comprehension, duration and fatigue, retaining observations. Finish one reviewed allocation or explicit unresolved conflict with a named slot to revise; do not keep researching or declare untested density acceptable. Then the same LEVEL owner authors/proves that outcome. Current authored ordering is input, not the target ordering.
 
 <a id="chapter-01"></a>
 ## Chapter 1: On a Roll · slots 1–10
@@ -26,7 +30,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-215](../requirements.md#element-215): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 - [element-216](../requirements.md#element-216): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-001](campaign.md#level-001), [LEVEL-002](campaign.md#level-002), [LEVEL-003](campaign.md#level-003), [LEVEL-004](campaign.md#level-004), [LEVEL-005](campaign.md#level-005), [LEVEL-006](campaign.md#level-006), [LEVEL-007](campaign.md#level-007), [LEVEL-008](campaign.md#level-008), [LEVEL-009](campaign.md#level-009), [LEVEL-010](campaign.md#level-010). [Chapter player check](../work-register.md#work-chapter-01-h) and [closure](../work-register.md#work-chapter-01) retain their source criteria.
+**Coverage owners:** [LEVEL-001](campaign.md#level-001), [LEVEL-002](campaign.md#level-002), [LEVEL-003](campaign.md#level-003), [LEVEL-004](campaign.md#level-004), [LEVEL-005](campaign.md#level-005), [LEVEL-006](campaign.md#level-006), [LEVEL-007](campaign.md#level-007), [LEVEL-008](campaign.md#level-008), [LEVEL-009](campaign.md#level-009), [LEVEL-010](campaign.md#level-010). Chapter player check CHAPTER-01-H and closure CHAPTER-01 retain their source criteria.
 
 <a id="chapter-02"></a>
 ## Chapter 2: A Helping Weight · slots 11–20
@@ -54,7 +58,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-17](../requirements.md#gap-17): Introduction **6 · Room for Improvement**; guided practice **8**; later combinations/reuse **19, 42, 147**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-18](../requirements.md#gap-18): Introduction **17 · Down to Earth (gravity); 79 · Air on the Side (supported atmosphere)**; guided practice **18, 80 respectively**; later combinations/reuse **gravity: 97, 139; atmosphere: 99, 143**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 
-**Coverage owners:** [LEVEL-011](campaign.md#level-011), [LEVEL-012](campaign.md#level-012), [LEVEL-013](campaign.md#level-013), [LEVEL-014](campaign.md#level-014), [LEVEL-015](campaign.md#level-015), [LEVEL-016](campaign.md#level-016), [LEVEL-017](campaign.md#level-017), [LEVEL-018](campaign.md#level-018), [LEVEL-019](campaign.md#level-019), [LEVEL-020](campaign.md#level-020). [Chapter player check](../work-register.md#work-chapter-02-h) and [closure](../work-register.md#work-chapter-02) retain their source criteria.
+**Coverage owners:** [LEVEL-011](campaign.md#level-011), [LEVEL-012](campaign.md#level-012), [LEVEL-013](campaign.md#level-013), [LEVEL-014](campaign.md#level-014), [LEVEL-015](campaign.md#level-015), [LEVEL-016](campaign.md#level-016), [LEVEL-017](campaign.md#level-017), [LEVEL-018](campaign.md#level-018), [LEVEL-019](campaign.md#level-019), [LEVEL-020](campaign.md#level-020). Chapter player check CHAPTER-02-H and closure CHAPTER-02 retain their source criteria.
 
 <a id="chapter-03"></a>
 ## Chapter 3: Pipe Dreams · slots 21–30
@@ -78,7 +82,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-14](../requirements.md#gap-14): Introduction **3 · Wait a Second**; guided practice **8**; later combinations/reuse **29, 80, 148**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-16](../requirements.md#gap-16): Introduction **25 · A Steady Job (quantity); 29 · Going Steady (rate); 49 · First Things First (order); 89 · Leave It Lovely (end state)**; guided practice **26, 30, 50, 90 respectively**; later combinations/reuse **quantity: 96, 136; rate: 97, 140; order: 100, 146; end state: 100, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 
-**Coverage owners:** [LEVEL-021](campaign.md#level-021), [LEVEL-022](campaign.md#level-022), [LEVEL-023](campaign.md#level-023), [LEVEL-024](campaign.md#level-024), [LEVEL-025](campaign.md#level-025), [LEVEL-026](campaign.md#level-026), [LEVEL-027](campaign.md#level-027), [LEVEL-028](campaign.md#level-028), [LEVEL-029](campaign.md#level-029), [LEVEL-030](campaign.md#level-030). [Chapter player check](../work-register.md#work-chapter-03-h) and [closure](../work-register.md#work-chapter-03) retain their source criteria.
+**Coverage owners:** [LEVEL-021](campaign.md#level-021), [LEVEL-022](campaign.md#level-022), [LEVEL-023](campaign.md#level-023), [LEVEL-024](campaign.md#level-024), [LEVEL-025](campaign.md#level-025), [LEVEL-026](campaign.md#level-026), [LEVEL-027](campaign.md#level-027), [LEVEL-028](campaign.md#level-028), [LEVEL-029](campaign.md#level-029), [LEVEL-030](campaign.md#level-030). Chapter player check CHAPTER-03-H and closure CHAPTER-03 retain their source criteria.
 
 <a id="chapter-04"></a>
 ## Chapter 4: Gears of an Idea · slots 31–40
@@ -106,7 +110,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-04](../requirements.md#gap-04): Introduction **37 · Driven to Deliver**; guided practice **38**; later combinations/reuse **48, 68, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-15](../requirements.md#gap-15): Introduction **7 · Cause for Celebration**; guided practice **15**; later combinations/reuse **39, 66, 145**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 
-**Coverage owners:** [LEVEL-031](campaign.md#level-031), [LEVEL-032](campaign.md#level-032), [LEVEL-033](campaign.md#level-033), [LEVEL-034](campaign.md#level-034), [LEVEL-035](campaign.md#level-035), [LEVEL-036](campaign.md#level-036), [LEVEL-037](campaign.md#level-037), [LEVEL-038](campaign.md#level-038), [LEVEL-039](campaign.md#level-039), [LEVEL-040](campaign.md#level-040). [Chapter player check](../work-register.md#work-chapter-04-h) and [closure](../work-register.md#work-chapter-04) retain their source criteria.
+**Coverage owners:** [LEVEL-031](campaign.md#level-031), [LEVEL-032](campaign.md#level-032), [LEVEL-033](campaign.md#level-033), [LEVEL-034](campaign.md#level-034), [LEVEL-035](campaign.md#level-035), [LEVEL-036](campaign.md#level-036), [LEVEL-037](campaign.md#level-037), [LEVEL-038](campaign.md#level-038), [LEVEL-039](campaign.md#level-039), [LEVEL-040](campaign.md#level-040). Chapter player check CHAPTER-04-H and closure CHAPTER-04 retain their source criteria.
 
 <a id="chapter-05"></a>
 ## Chapter 5: Ready, Set, Throw! · slots 41–50
@@ -139,7 +143,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-215](../requirements.md#element-215): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 - [element-216](../requirements.md#element-216): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-041](campaign.md#level-041), [LEVEL-042](campaign.md#level-042), [LEVEL-043](campaign.md#level-043), [LEVEL-044](campaign.md#level-044), [LEVEL-045](campaign.md#level-045), [LEVEL-046](campaign.md#level-046), [LEVEL-047](campaign.md#level-047), [LEVEL-048](campaign.md#level-048), [LEVEL-049](campaign.md#level-049), [LEVEL-050](campaign.md#level-050). [Chapter player check](../work-register.md#work-chapter-05-h) and [closure](../work-register.md#work-chapter-05) retain their source criteria.
+**Coverage owners:** [LEVEL-041](campaign.md#level-041), [LEVEL-042](campaign.md#level-042), [LEVEL-043](campaign.md#level-043), [LEVEL-044](campaign.md#level-044), [LEVEL-045](campaign.md#level-045), [LEVEL-046](campaign.md#level-046), [LEVEL-047](campaign.md#level-047), [LEVEL-048](campaign.md#level-048), [LEVEL-049](campaign.md#level-049), [LEVEL-050](campaign.md#level-050). Chapter player check CHAPTER-05-H and closure CHAPTER-05 retain their source criteria.
 
 <a id="chapter-06"></a>
 ## Chapter 6: A Bright Idea · slots 51–60
@@ -173,7 +177,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-213](../requirements.md#element-213): 51–60; practice71–80; reuse117,142 as separate objectives in existing slots.
 - [element-214](../requirements.md#element-214): 51–60; practice71–80; reuse110,142 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-051](campaign.md#level-051), [LEVEL-052](campaign.md#level-052), [LEVEL-053](campaign.md#level-053), [LEVEL-054](campaign.md#level-054), [LEVEL-055](campaign.md#level-055), [LEVEL-056](campaign.md#level-056), [LEVEL-057](campaign.md#level-057), [LEVEL-058](campaign.md#level-058), [LEVEL-059](campaign.md#level-059), [LEVEL-060](campaign.md#level-060). [Chapter player check](../work-register.md#work-chapter-06-h) and [closure](../work-register.md#work-chapter-06) retain their source criteria.
+**Coverage owners:** [LEVEL-051](campaign.md#level-051), [LEVEL-052](campaign.md#level-052), [LEVEL-053](campaign.md#level-053), [LEVEL-054](campaign.md#level-054), [LEVEL-055](campaign.md#level-055), [LEVEL-056](campaign.md#level-056), [LEVEL-057](campaign.md#level-057), [LEVEL-058](campaign.md#level-058), [LEVEL-059](campaign.md#level-059), [LEVEL-060](campaign.md#level-060). Chapter player check CHAPTER-06-H and closure CHAPTER-06 retain their source criteria.
 
 <a id="chapter-07"></a>
 ## Chapter 7: Go with the Flow · slots 61–70
@@ -215,7 +219,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-15](../requirements.md#gap-15): Introduction **7 · Cause for Celebration**; guided practice **15**; later combinations/reuse **39, 66, 145**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [element-212](../requirements.md#element-212): 51–60; practice61–70; reuse111–120,142 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-061](campaign.md#level-061), [LEVEL-062](campaign.md#level-062), [LEVEL-063](campaign.md#level-063), [LEVEL-064](campaign.md#level-064), [LEVEL-065](campaign.md#level-065), [LEVEL-066](campaign.md#level-066), [LEVEL-067](campaign.md#level-067), [LEVEL-068](campaign.md#level-068), [LEVEL-069](campaign.md#level-069), [LEVEL-070](campaign.md#level-070). [Chapter player check](../work-register.md#work-chapter-07-h) and [closure](../work-register.md#work-chapter-07) retain their source criteria.
+**Coverage owners:** [LEVEL-061](campaign.md#level-061), [LEVEL-062](campaign.md#level-062), [LEVEL-063](campaign.md#level-063), [LEVEL-064](campaign.md#level-064), [LEVEL-065](campaign.md#level-065), [LEVEL-066](campaign.md#level-066), [LEVEL-067](campaign.md#level-067), [LEVEL-068](campaign.md#level-068), [LEVEL-069](campaign.md#level-069), [LEVEL-070](campaign.md#level-070). Chapter player check CHAPTER-07-H and closure CHAPTER-07 retain their source criteria.
 
 <a id="chapter-08"></a>
 ## Chapter 8: Sounds Like a Plan · slots 71–80
@@ -262,7 +266,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-213](../requirements.md#element-213): 51–60; practice71–80; reuse117,142 as separate objectives in existing slots.
 - [element-214](../requirements.md#element-214): 51–60; practice71–80; reuse110,142 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-071](campaign.md#level-071), [LEVEL-072](campaign.md#level-072), [LEVEL-073](campaign.md#level-073), [LEVEL-074](campaign.md#level-074), [LEVEL-075](campaign.md#level-075), [LEVEL-076](campaign.md#level-076), [LEVEL-077](campaign.md#level-077), [LEVEL-078](campaign.md#level-078), [LEVEL-079](campaign.md#level-079), [LEVEL-080](campaign.md#level-080). [Chapter player check](../work-register.md#work-chapter-08-h) and [closure](../work-register.md#work-chapter-08) retain their source criteria.
+**Coverage owners:** [LEVEL-071](campaign.md#level-071), [LEVEL-072](campaign.md#level-072), [LEVEL-073](campaign.md#level-073), [LEVEL-074](campaign.md#level-074), [LEVEL-075](campaign.md#level-075), [LEVEL-076](campaign.md#level-076), [LEVEL-077](campaign.md#level-077), [LEVEL-078](campaign.md#level-078), [LEVEL-079](campaign.md#level-079), [LEVEL-080](campaign.md#level-080). Chapter player check CHAPTER-08-H and closure CHAPTER-08 retain their source criteria.
 
 <a id="chapter-09"></a>
 ## Chapter 9: Stored Potential · slots 81–90
@@ -333,7 +337,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-scenario-14](../requirements.md#thermal-scenario-14): 61 introduction after cooling suppression60, 62 practice, 86 and149 reuse.
 - [gap-16](../requirements.md#gap-16): Introduction **25 · A Steady Job (quantity); 29 · Going Steady (rate); 49 · First Things First (order); 89 · Leave It Lovely (end state)**; guided practice **26, 30, 50, 90 respectively**; later combinations/reuse **quantity: 96, 136; rate: 97, 140; order: 100, 146; end state: 100, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 
-**Coverage owners:** [LEVEL-081](campaign.md#level-081), [LEVEL-082](campaign.md#level-082), [LEVEL-083](campaign.md#level-083), [LEVEL-084](campaign.md#level-084), [LEVEL-085](campaign.md#level-085), [LEVEL-086](campaign.md#level-086), [LEVEL-087](campaign.md#level-087), [LEVEL-088](campaign.md#level-088), [LEVEL-089](campaign.md#level-089), [LEVEL-090](campaign.md#level-090). [Chapter player check](../work-register.md#work-chapter-09-h) and [closure](../work-register.md#work-chapter-09) retain their source criteria.
+**Coverage owners:** [LEVEL-081](campaign.md#level-081), [LEVEL-082](campaign.md#level-082), [LEVEL-083](campaign.md#level-083), [LEVEL-084](campaign.md#level-084), [LEVEL-085](campaign.md#level-085), [LEVEL-086](campaign.md#level-086), [LEVEL-087](campaign.md#level-087), [LEVEL-088](campaign.md#level-088), [LEVEL-089](campaign.md#level-089), [LEVEL-090](campaign.md#level-090). Chapter player check CHAPTER-09-H and closure CHAPTER-09 retain their source criteria.
 
 <a id="chapter-10"></a>
 ## Chapter 10: Oddly Satisfying · slots 91–100
@@ -379,7 +383,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-215](../requirements.md#element-215): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 - [element-216](../requirements.md#element-216): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-091](campaign.md#level-091), [LEVEL-092](campaign.md#level-092), [LEVEL-093](campaign.md#level-093), [LEVEL-094](campaign.md#level-094), [LEVEL-095](campaign.md#level-095), [LEVEL-096](campaign.md#level-096), [LEVEL-097](campaign.md#level-097), [LEVEL-098](campaign.md#level-098), [LEVEL-099](campaign.md#level-099), [LEVEL-100](campaign.md#level-100). [Chapter player check](../work-register.md#work-chapter-10-h) and [closure](../work-register.md#work-chapter-10) retain their source criteria.
+**Coverage owners:** [LEVEL-091](campaign.md#level-091), [LEVEL-092](campaign.md#level-092), [LEVEL-093](campaign.md#level-093), [LEVEL-094](campaign.md#level-094), [LEVEL-095](campaign.md#level-095), [LEVEL-096](campaign.md#level-096), [LEVEL-097](campaign.md#level-097), [LEVEL-098](campaign.md#level-098), [LEVEL-099](campaign.md#level-099), [LEVEL-100](campaign.md#level-100). Chapter player check CHAPTER-10-H and closure CHAPTER-10 retain their source criteria.
 
 <a id="chapter-11"></a>
 ## Chapter 11: A Ray of Possibility · slots 101–110
@@ -402,7 +406,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [radiation-09](../requirements.md#radiation-09): 109, 110
 - [element-214](../requirements.md#element-214): 51–60; practice71–80; reuse110,142 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-101](campaign.md#level-101), [LEVEL-102](campaign.md#level-102), [LEVEL-103](campaign.md#level-103), [LEVEL-104](campaign.md#level-104), [LEVEL-105](campaign.md#level-105), [LEVEL-106](campaign.md#level-106), [LEVEL-107](campaign.md#level-107), [LEVEL-108](campaign.md#level-108), [LEVEL-109](campaign.md#level-109), [LEVEL-110](campaign.md#level-110). [Chapter player check](../work-register.md#work-chapter-11-h) and [closure](../work-register.md#work-chapter-11) retain their source criteria.
+**Coverage owners:** [LEVEL-101](campaign.md#level-101), [LEVEL-102](campaign.md#level-102), [LEVEL-103](campaign.md#level-103), [LEVEL-104](campaign.md#level-104), [LEVEL-105](campaign.md#level-105), [LEVEL-106](campaign.md#level-106), [LEVEL-107](campaign.md#level-107), [LEVEL-108](campaign.md#level-108), [LEVEL-109](campaign.md#level-109), [LEVEL-110](campaign.md#level-110). Chapter player check CHAPTER-11-H and closure CHAPTER-11 retain their source criteria.
 
 <a id="chapter-12"></a>
 ## Chapter 12: Particle Manners · slots 111–120
@@ -437,7 +441,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-212](../requirements.md#element-212): 51–60; practice61–70; reuse111–120,142 as separate objectives in existing slots.
 - [element-213](../requirements.md#element-213): 51–60; practice71–80; reuse117,142 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-111](campaign.md#level-111), [LEVEL-112](campaign.md#level-112), [LEVEL-113](campaign.md#level-113), [LEVEL-114](campaign.md#level-114), [LEVEL-115](campaign.md#level-115), [LEVEL-116](campaign.md#level-116), [LEVEL-117](campaign.md#level-117), [LEVEL-118](campaign.md#level-118), [LEVEL-119](campaign.md#level-119), [LEVEL-120](campaign.md#level-120). [Chapter player check](../work-register.md#work-chapter-12-h) and [closure](../work-register.md#work-chapter-12) retain their source criteria.
+**Coverage owners:** [LEVEL-111](campaign.md#level-111), [LEVEL-112](campaign.md#level-112), [LEVEL-113](campaign.md#level-113), [LEVEL-114](campaign.md#level-114), [LEVEL-115](campaign.md#level-115), [LEVEL-116](campaign.md#level-116), [LEVEL-117](campaign.md#level-117), [LEVEL-118](campaign.md#level-118), [LEVEL-119](campaign.md#level-119), [LEVEL-120](campaign.md#level-120). Chapter player check CHAPTER-12-H and closure CHAPTER-12 retain their source criteria.
 
 <a id="chapter-13"></a>
 ## Chapter 13: Half the Battle · slots 121–130
@@ -466,7 +470,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [radiation-17](../requirements.md#radiation-17): 126, 128
 - [radiation-18](../requirements.md#radiation-18): 127, 130
 
-**Coverage owners:** [LEVEL-121](campaign.md#level-121), [LEVEL-122](campaign.md#level-122), [LEVEL-123](campaign.md#level-123), [LEVEL-124](campaign.md#level-124), [LEVEL-125](campaign.md#level-125), [LEVEL-126](campaign.md#level-126), [LEVEL-127](campaign.md#level-127), [LEVEL-128](campaign.md#level-128), [LEVEL-129](campaign.md#level-129), [LEVEL-130](campaign.md#level-130). [Chapter player check](../work-register.md#work-chapter-13-h) and [closure](../work-register.md#work-chapter-13) retain their source criteria.
+**Coverage owners:** [LEVEL-121](campaign.md#level-121), [LEVEL-122](campaign.md#level-122), [LEVEL-123](campaign.md#level-123), [LEVEL-124](campaign.md#level-124), [LEVEL-125](campaign.md#level-125), [LEVEL-126](campaign.md#level-126), [LEVEL-127](campaign.md#level-127), [LEVEL-128](campaign.md#level-128), [LEVEL-129](campaign.md#level-129), [LEVEL-130](campaign.md#level-130). Chapter player check CHAPTER-13-H and closure CHAPTER-13 retain their source criteria.
 
 <a id="chapter-14"></a>
 ## Chapter 14: Many Happy Returns · slots 131–140
@@ -531,7 +535,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-16](../requirements.md#gap-16): Introduction **25 · A Steady Job (quantity); 29 · Going Steady (rate); 49 · First Things First (order); 89 · Leave It Lovely (end state)**; guided practice **26, 30, 50, 90 respectively**; later combinations/reuse **quantity: 96, 136; rate: 97, 140; order: 100, 146; end state: 100, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-18](../requirements.md#gap-18): Introduction **17 · Down to Earth (gravity); 79 · Air on the Side (supported atmosphere)**; guided practice **18, 80 respectively**; later combinations/reuse **gravity: 97, 139; atmosphere: 99, 143**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 
-**Coverage owners:** [LEVEL-131](campaign.md#level-131), [LEVEL-132](campaign.md#level-132), [LEVEL-133](campaign.md#level-133), [LEVEL-134](campaign.md#level-134), [LEVEL-135](campaign.md#level-135), [LEVEL-136](campaign.md#level-136), [LEVEL-137](campaign.md#level-137), [LEVEL-138](campaign.md#level-138), [LEVEL-139](campaign.md#level-139), [LEVEL-140](campaign.md#level-140). [Chapter player check](../work-register.md#work-chapter-14-h) and [closure](../work-register.md#work-chapter-14) retain their source criteria.
+**Coverage owners:** [LEVEL-131](campaign.md#level-131), [LEVEL-132](campaign.md#level-132), [LEVEL-133](campaign.md#level-133), [LEVEL-134](campaign.md#level-134), [LEVEL-135](campaign.md#level-135), [LEVEL-136](campaign.md#level-136), [LEVEL-137](campaign.md#level-137), [LEVEL-138](campaign.md#level-138), [LEVEL-139](campaign.md#level-139), [LEVEL-140](campaign.md#level-140). Chapter player check CHAPTER-14-H and closure CHAPTER-14 retain their source criteria.
 
 <a id="chapter-15"></a>
 ## Chapter 15: All Together Now · slots 141–150
@@ -619,5 +623,5 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-215](../requirements.md#element-215): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 - [element-216](../requirements.md#element-216): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 
-**Coverage owners:** [LEVEL-141](campaign.md#level-141), [LEVEL-142](campaign.md#level-142), [LEVEL-143](campaign.md#level-143), [LEVEL-144](campaign.md#level-144), [LEVEL-145](campaign.md#level-145), [LEVEL-146](campaign.md#level-146), [LEVEL-147](campaign.md#level-147), [LEVEL-148](campaign.md#level-148), [LEVEL-149](campaign.md#level-149), [LEVEL-150](campaign.md#level-150). [Chapter player check](../work-register.md#work-chapter-15-h) and [closure](../work-register.md#work-chapter-15) retain their source criteria.
+**Coverage owners:** [LEVEL-141](campaign.md#level-141), [LEVEL-142](campaign.md#level-142), [LEVEL-143](campaign.md#level-143), [LEVEL-144](campaign.md#level-144), [LEVEL-145](campaign.md#level-145), [LEVEL-146](campaign.md#level-146), [LEVEL-147](campaign.md#level-147), [LEVEL-148](campaign.md#level-148), [LEVEL-149](campaign.md#level-149), [LEVEL-150](campaign.md#level-150). Chapter player check CHAPTER-15-H and closure CHAPTER-15 retain their source criteria.
 

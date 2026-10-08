@@ -1,12 +1,13 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System.Text.Json;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class CannonFeederTests(HeadlessFixture godot, ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class CannonFeederTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
     private const string CannonId="cannon", FirstId="first", SecondId="second",
         BatteryId="battery", ClockId="clock", DelayId="delay", LatchId="latch", GateId="gate";
@@ -24,14 +25,14 @@ public class CannonFeederTests(HeadlessFixture godot, ITestOutputHelper output)
         try
         {
             var cannon=(CannonPart)world.AddPart(new(){Id=CannonId,Kind=CannonPart.CatalogId,
-                Position=[0,3,0],Rotation=[0,0,75]});
+                Position=[0,3,0],Orientation = PartOrientation.FromEulerDegrees(0,0,75)});
             var first=world.AddPart(new(){Id=FirstId,Kind=BallKind,Position=[0,3,0]});
             var second=world.AddPart(new(){Id=SecondId,Kind=BallKind,Position=[feederX,8.8f,0]});
             var battery=world.AddPart(new(){Id=BatteryId,Kind=BatteryKind,Position=[-4,3,2]});
             var clock=world.AddPart(new(){Id=ClockId,Kind=ClockKind,Position=[-3,5,-2]});
             var delay=world.AddPart(new(){Id=DelayId,Kind=DelayKind,Position=[-5,6,-2]});
             var latch=world.AddPart(new(){Id=LatchId,Kind=LatchKind,Position=[3,5,2]});
-            var gate=world.AddPart(new(){Id=GateId,Kind=GateKind,Position=[feederX,8,0],Rotation=[0,0,90]});
+            var gate=world.AddPart(new(){Id=GateId,Kind=GateKind,Position=[feederX,8,0],Orientation = PartOrientation.FromEulerDegrees(0,0,90)});
             void Link(MachinePart a,SocketId from,MachinePart b,SocketId to,ConnectionDomain domain)
                 =>Assert.True(world.Connect(a,from,b,to,domain));
             Link(battery,SocketId.Supply,cannon,SocketId.PowerIn,ConnectionDomain.Electrical);
@@ -51,7 +52,7 @@ public class CannonFeederTests(HeadlessFixture godot, ITestOutputHelper output)
                 Assert.Equal(8,world.Parts.Count);
                 Assert.Same(first,world.FindPart(FirstId));
                 Assert.Same(second,world.FindPart(SecondId));
-                if(tick%60==0)output.WriteLine($"tick={tick} shots={cannon.ShotCount} result={cannon.LastShot} second={second.Position} velocity={second.Velocity}");
+                if(tick%60==0)output.WriteLine($"tick={tick} shots={cannon.ShotCount} result={cannon.LastShot} second={second.Position} velocity={world.PhysicsAssembly.Body(new(second,MachinePart.RootBody)).LinearVelocity}");
             }
             Assert.Equal(poweredGate?2:1,fired.Count);
             Assert.Same(first,fired[0]);

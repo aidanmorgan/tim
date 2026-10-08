@@ -102,7 +102,7 @@ public class MultiBodyConstraintTests
         var row=new ImpulseConstraint(new([new(bodies[0],X,default),new(bodies[1],-X,default),
             new(bodies[2],Y,default)]),0,double.NegativeInfinity,double.PositiveInfinity);
         var block=new BilateralConstraintBlock([row]);
-        bodies[2].Advance(bodies[2].CreateTrajectory(.1),.1);
+        bodies[2].Advance(bodies[2].CreateTrajectory(.1,default),.1);
         var before=bodies.Select(b=>b.Snapshot()).ToArray();
         Assert.Throws<InvalidOperationException>(()=>row.Solve());
         Assert.Throws<InvalidOperationException>(()=>block.Solve());

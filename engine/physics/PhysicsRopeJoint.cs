@@ -55,6 +55,28 @@ public sealed class RopeRoute
             return length;
         }
     }
+    public double ConvectiveAcceleration()
+    {
+        double bias=0;
+        for(var i=1;i<_anchors.Length;i++)
+        {
+            var a=_anchors[i-1]; var b=_anchors[i];
+            if(a.Body==b.Body) continue;
+            var delta=a.Position-b.Position; var distance=delta.Length;
+            if(!double.IsFinite(distance)||distance==0)
+                throw new InvalidOperationException("An active rope span requires distinct attachment positions.");
+            var axis=delta/distance;
+            var velocity=a.Body.PointVelocity(a.Position)-b.Body.PointVelocity(b.Position);
+            var ra=a.Position-a.Body.Center; var rb=b.Position-b.Body.Center;
+            var wa=a.Body.AngularVelocity; var wb=b.Body.AngularVelocity;
+            var centripetal=CollisionVector.Cross(wa,CollisionVector.Cross(wa,ra))-
+                CollisionVector.Cross(wb,CollisionVector.Cross(wb,rb));
+            var tangent=velocity-axis*CollisionVector.Dot(velocity,axis);
+            bias+=CollisionVector.Dot(axis,centripetal)+tangent.LengthSquared/distance;
+        }
+        if(!double.IsFinite(bias)) throw new InvalidOperationException("Rope acceleration exceeds numeric range.");
+        return bias;
+    }
     public PositionEquation Equation(double maximumLength)
     {
         if(!double.IsFinite(maximumLength)||maximumLength<=0) throw new ArgumentOutOfRangeException(nameof(maximumLength));
@@ -85,17 +107,36 @@ public sealed class PhysicsRopeJoint : PhysicsJoint
         if(!double.IsFinite(maximumLength)||maximumLength<=0) throw new ArgumentException("Rope length must be finite and positive.");
         Route=route; MaximumLength=maximumLength;
     }
-    public override IReadOnlyList<IImpulseConstraint> VelocityConstraints(double activationTolerance)
+    public override ReadOnlySpan<PhysicsJoint> Dependencies=>[];
+    public override PhysicsJoint Rebind(IReadOnlyDictionary<PhysicsBodyId,PhysicsBody> bodies)=>
+        new PhysicsRopeJoint(Id,new(Route.Anchors.ToArray().Select(a=>new RopeAnchor(ReboundBody(a.Body,bodies),a.LocalPosition))),
+            MaximumLength,Collision);
+    // A rope supplies tension only; it has no unconditional equality row.
+    public override IReadOnlyList<ConstraintGradient> BilateralVelocityGradients()=>[];
+    public override IReadOnlyList<IImpulseConstraint> UnilateralVelocityConstraints(double activationTolerance)
     {
         if(!double.IsFinite(activationTolerance)||activationTolerance<=0||MaximumLength<=activationTolerance)
             throw new ArgumentOutOfRangeException(nameof(activationTolerance));
         if(Route.CurrentLength<MaximumLength-activationTolerance) return [];
         return [new ImpulseConstraint(Route.Equation(MaximumLength).Gradient,0,double.NegativeInfinity,0)];
     }
-    public override JointSweepResult Sweep(ReadOnlySpan<BodyTrajectory> paths,double duration,double tolerance)=>
-        JointBoundarySweep.Rope(this,paths,duration,tolerance);
+    public override IReadOnlyList<ConstraintAcceleration> AccelerationConstraints(IReadOnlyDictionary<PhysicsBodyId,PhysicsBody> sample,double positionTolerance,double velocityTolerance)
+    {
+        if(!double.IsFinite(positionTolerance)||positionTolerance<=0||!double.IsFinite(velocityTolerance)||velocityTolerance<=0)
+            throw new ArgumentOutOfRangeException(nameof(positionTolerance));
+        if(Route.CurrentLength<MaximumLength-positionTolerance) return [];
+        var gradient=Route.Equation(MaximumLength).Gradient;
+        if(gradient.Speed < -velocityTolerance) return [];
+        var stage=(PhysicsRopeJoint)Rebind(sample);
+        return [new(stage.Route.Equation(MaximumLength).Gradient,stage.Route.ConvectiveAcceleration(),AccelerationRelation.Nonpositive)];
+    }
+    public override JointSweepResult Sweep(ReadOnlySpan<BodyTrajectory> paths,double duration,double tolerance,double velocityTolerance)
+    {
+        ValidatePaths(paths,duration,tolerance,velocityTolerance);
+        return new(JointSweepStatus.Clear,duration,null,0);
+    }
     public override double Error(double queryTolerance)=>Math.Max(0,Route.CurrentLength-MaximumLength);
-    public override void Project(double tolerance,PositionProjector projector)
+    internal override void Project(double tolerance,PositionProjector projector)
     {
         if(!double.IsFinite(tolerance)||tolerance<=0) throw new ArgumentOutOfRangeException(nameof(tolerance));
         if(Error(tolerance)<=tolerance) return;

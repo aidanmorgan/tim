@@ -40,7 +40,7 @@ public partial class MechanicalBeltVisual : Node3D
         Segment(_strands[2], a - across, a + across);
         Segment(_strands[3], b + across, b - across);
         if (World.Running)
-            _phase = Mathf.PosMod(_phase + Source.MechanicalSpeed(Output.Id) * (float)delta * .16f, 1);
+            _phase = Mathf.PosMod(_phase + MechanicalNetwork.Speed(World,Source,Output.Id) * (float)delta * .16f, 1);
         _forward.Position = LoopPoint(_phase, a, b, across);
         _return.Position = LoopPoint(Mathf.PosMod(_phase + .5f, 1), a, b, across);
     }

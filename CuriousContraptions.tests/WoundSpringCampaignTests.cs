@@ -6,8 +6,8 @@ using FileAccess = Godot.FileAccess;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class WoundSpringCampaignTests(HeadlessFixture godot, ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class WoundSpringCampaignTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
     private const string CampaignPath = "res://content/puzzles.json";
     public enum Circuit { Complete, NoSupply, NoBelt, NoRelease }
@@ -89,8 +89,8 @@ public class WoundSpringCampaignTests(HeadlessFixture godot, ITestOutputHelper o
             for (var tick = 0; tick < 1200 && world.Running; tick++)
             {
                 world.Step();
-                if (spring.StoredEnergy > 51 && spring.MechanicalSpeed(SocketId.DriveIn) == 0 &&
-                    spring.MechanicalTorque(SocketId.DriveIn) == 0)
+                if (spring.StoredEnergy > 51 && MechanicalNetwork.Speed(world,spring,SocketId.DriveIn) == 0 &&
+                    world.Physics.MotorUse.ToArray().All(use=>use.SuppliedWork==0))
                 {
                     heldTicks++;
                     retainedWork ??= spring.AcceptedWork;
@@ -100,8 +100,8 @@ public class WoundSpringCampaignTests(HeadlessFixture godot, ITestOutputHelper o
                 {
                     releaseTick = world.Ticks;
                     Assert.True(heldTicks >= 30, $"Only {heldTicks} ticks of unpowered retention.");
-                    Assert.Equal(0, spring.MechanicalSpeed(SocketId.DriveIn));
-                    Assert.Equal(0, spring.MechanicalTorque(SocketId.DriveIn));
+                    Assert.Equal(0, MechanicalNetwork.Speed(world,spring,SocketId.DriveIn));
+                    Assert.All(world.Physics.MotorUse.ToArray(),use=>Assert.Equal(0,use.SuppliedWork));
                 }
             }
             output.WriteLine($"precision={precision}, circuit={circuit}, won={world.Won}, tick={world.Ticks}, held={heldTicks}, release={releaseTick}, accepted={spring.AcceptedWork}, released={spring.ReleasedWork}");

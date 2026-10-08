@@ -4,10 +4,9 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class OpticalPortsTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class OpticalPortsTests(NativeSceneFixture godot)
 {
-    private enum ProbeRole { Target, First, Second }
     private partial class Probe : MachinePart
     {
         public OpticalSurface[] Surfaces { get; set; }=[];
@@ -43,7 +42,10 @@ public class OpticalPortsTests(HeadlessFixture godot)
         var red=Source(-1,Vector3.Right);var green=Source(1,Vector3.Up);var extra=Source(-1,Vector3.Right*.5f);
         try
         {
-            world.Parts.AddRange(reverse?[extra,green,red,target]:[target,red,green,extra]);
+            FixtureParts.Attach(world,target,reverse?FixturePartId.Fourth:FixturePartId.First);
+            FixtureParts.Attach(world,red,reverse?FixturePartId.Third:FixturePartId.Second);
+            FixtureParts.Attach(world,green,reverse?FixturePartId.Second:FixturePartId.Third);
+            FixtureParts.Attach(world,extra,reverse?FixturePartId.First:FixturePartId.Fourth);
             var trace=OpticalNetwork.Trace(world,red,red.Emission!.Value);
             Assert.Equal(OpticalPortId.First,Assert.Single(trace.Receptions).Port);
             Assert.Empty(target.Reading);Assert.Equal(0,target.Commits);
@@ -59,7 +61,7 @@ public class OpticalPortsTests(HeadlessFixture godot)
             OpticalNetwork.Solve(world);
             Assert.All(target.Reading.Values,p=>Assert.Equal(Vector3.Zero,p));
         }
-        finally{world.Parts.Clear();target.Free();red.Free();green.Free();extra.Free();world.Free();}
+        finally{world.Free();}
     }
     [Fact]
     public void RotatedPortGeometryAndOcclusionDoNotLeakBetweenInputs()
@@ -69,16 +71,11 @@ public class OpticalPortsTests(HeadlessFixture godot)
         var first=Source(-1,Vector3.One);var second=Source(1,Vector3.One);
         try
         {
-            foreach (var (probe, role) in new[] { (target, ProbeRole.Target), (first, ProbeRole.First), (second, ProbeRole.Second) })
-            {
-                var position = probe.Position;
-                probe.Definition = new PartDefinition();
-                // Test-fixture instance IDs at the explicit scene configuration boundary.
-                probe.Configure(new() { Id = role.ToString(), Position = [position.X, position.Y, position.Z] });
-            }
+            FixtureParts.Attach(world,target,FixturePartId.First);
+            FixtureParts.Attach(world,first,FixturePartId.Second);
+            FixtureParts.Attach(world,second,FixturePartId.Third);
             var around=new Transform3D(Basis.FromEuler(new(.2f,.3f,.4f)),new(0,2,0));
             foreach(var p in new Probe[]{target,first,second})p.Transform=around*p.Transform;
-            world.Parts.AddRange([target,first,second]);
             var blocker=world.AddPart(new(){Id="blocker",Kind="wall",Position=[-1.5f,6,-1]});
             blocker.Transform=around*blocker.Transform;
             OpticalNetwork.Solve(world);
@@ -89,7 +86,7 @@ public class OpticalPortsTests(HeadlessFixture godot)
             Assert.Equal(Vector3.One,target.Reading[OpticalPortId.First]);
             Assert.Equal(Vector3.One,target.Reading[OpticalPortId.Second]);
         }
-        finally{world.Parts.Remove(target);world.Parts.Remove(first);world.Parts.Remove(second);target.Free();first.Free();second.Free();world.Free();}
+        finally{world.Free();}
     }
     [Fact]
     public void AllRaysAreTracedBeforeAnyReceiverCommits()
@@ -100,13 +97,15 @@ public class OpticalPortsTests(HeadlessFixture godot)
         try
         {
             first.OnCommit=()=>second.Emission=null;
-            world.Parts.AddRange([first,target,second]);
+            FixtureParts.Attach(world,first,FixturePartId.First);
+            FixtureParts.Attach(world,target,FixturePartId.Second);
+            FixtureParts.Attach(world,second,FixturePartId.Third);
             OpticalNetwork.Solve(world);
             Assert.Equal(Vector3.Up,target.Reading[OpticalPortId.Second]);
             OpticalNetwork.Solve(world);
             Assert.Equal(Vector3.Zero,target.Reading[OpticalPortId.Second]);
         }
-        finally{world.Parts.Clear();target.Free();first.Free();second.Free();world.Free();}
+        finally{world.Free();}
     }
     [Theory]
     [InlineData(0)] [InlineData(1)] [InlineData(2)] [InlineData(3)]
@@ -133,10 +132,11 @@ public class OpticalPortsTests(HeadlessFixture godot)
                 _=>throw new ArgumentOutOfRangeException(nameof(fault))
             };
             target.Surfaces=fault==1?[valid,invalid]:[invalid];
-            world.Parts.AddRange([source,target]);
+            FixtureParts.Attach(world,source,FixturePartId.First);
+            FixtureParts.Attach(world,target,FixturePartId.Second);
             Assert.Throws<InvalidOperationException>(()=>OpticalNetwork.Solve(world));
             Assert.Equal(0,target.Commits);
         }
-        finally{world.Parts.Clear();target.Free();source.Free();world.Free();}
+        finally{world.Free();}
     }
 }

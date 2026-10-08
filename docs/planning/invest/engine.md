@@ -1,633 +1,327 @@
 # Engine delivery slices
 
-**Current architecture:** [Canonical Half game values and WGSL f16 physics](../../gpu-f16-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](../../../TODO.md).
+**System (stated once; every card below inherits it):** the player's construction is compiled at Run into one flat SIMD Structure-of-Arrays (SoA) physics record ([compilation model](../../gpu-f16-physics.md#compilation-model)); one generic WebAssembly SIMD f32 solver (`wasm-simd128` with Box2D v3 TGS Soft solver and Dynamic AABB BVH) advances it in the physics worker at a fixed 120 Hz tick with 480 Hz substeps ([solver model](../../gpu-f16-physics.md#solver-model)); a separate animation model compiled from the same element data runs in its own worker at its own rate (60 Hz), fed one-way by committed physics results; the universal instanced renderer on the browser main thread (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU) reads committed poses from a lock-free zero-copy triple pose ring in `SharedArrayBuffer` and the latest animation sample and draws at 30–60 FPS, never influencing either. Numerical tolerances are the [game-grade envelope](../../gpu-f16-physics.md#game-grade-envelope): residuals clamp or continue and never fault a tick. Ownership, protocol, lifecycle and clocks follow the [engine contracts](../../engine-contracts.md). Delivery order is the [rolling playable roadmap](vertical-delivery.md#rolling-playable-roadmap); [TODO](../../../TODO.md) owns the live slice.
 
-These are labels within existing canonical work IDs, not new work orders or independently required administrative gates. Their parent IDs, technical prerequisites and full acceptance remain in [the register](../work-register.md). Read [the execution rules](../invest-index.md) before selecting a slice. A bounded candidate is not a runtime Pass or an assertion that its prerequisites are complete.
+**Proof rule & timing relaxation (stated once):** each card is a supporting criterion inside the roadmap slice that stages it, with the same implementation/reviewer pair. Required now at that slice: affected production build, actual Chrome/Playwright behavior through real controls, ordinary Run/Pause/Reset and supported Save/Load correctness, and a meaningful negative/control. Timing budgets, tick latencies (<0.5 ms), zero-clock-debt thresholds over 20 runs, and display-rate 60 FPS pacing are advisory telemetry and target recommendations, not hard gating constraints for development slices. Release-only numbers (30–60 FPS windows, 2.5 ms tick p95, memory after 20 cycles, fault injection, device matrix, 10,000-message transport runs, 5-minute thermal sessions) are the release checklist at the [P0-034 stage gate](../../delivery-workflow.md#stage-gates), never per-slice gates. Fixed: one WASM SIMD physics authority, canonical f32, puzzle-scale envelope, exact discrete/Reset, typed ABI. Algorithms, layout and factoring are negotiable.
 
-The target owner is fixed by [P0-004](../../engine-contracts.md#ownership-and-assemblies), [spatial authority](../../engine-contracts.md#ownership-and-assemblies), [P0-005](../../engine-contracts.md#wire-and-admission) and [P0-006](../../engine-contracts.md#lifecycle-and-atomicity). Existing mixed MachineWorld/ScenePhysicsAssembly, SimulationTransaction, SimulationCommandInbox, CommittedPoseBuffer, AnimationBatch, SceneAnimationAdapter and Workshop callers ground these boundaries. Each cutover updates all affected current callers/content and removes the superseded route together. New target-contract adapters are allowed; compatibility bridges are not.
+These labels sit under their existing canonical work IDs ([requirements](../requirements.md)); they are not new work orders. Algorithm, array layout and helper factoring remain negotiable inside the fixed contracts. A card is not a runtime Pass.
 
-Choices of algorithm, array layout and helper factoring remain negotiable inside those fixed ownership/typing/physics constraints. Estimate by the named affected closure and concrete unknown, not fictional time. Required source-specific positive/control/boundary, rollback, build, actual Chrome, Reset/save, performance and publication gates apply at their original stage. Parent aggregate closure never follows merely from one child passing.
+## Disposition of every P0 ID
 
-P0-001–006 are bounded baseline/design decisions, already with their own records: use the latest applicable verdict, and reopen only an affected contract question. P0-009/010/012/030/031/033/034/035 are conjunction/audit/qualification/release parents; choose their explicitly named law, consumer, fixture, defect or device/workload child. Do not implement an audit as one feature. P0-035 alone unlocks product expansion.
+| ID | Staged at | Current disposition |
+| --- | --- | --- |
+| P0-001–006 | Settled baseline/design records (P0-004 ownership, P0-005 wire, P0-006 lifecycle) | Reopen only an affected contract question; otherwise use the latest verdict. |
+| P0-007 | ENGINE-CORE-1 (ball on the envelope), ENGINE-CORE-2 (multi-body) | Contact behavior becomes slop/clamp/normalise policy; moving-support and compound cases close on the generic core. |
+| P0-008 | ENGINE-CORE-1 | Compile-to-state is the current path; the slice deletes the puzzle-keyed guide branch so no element identifier remains in dispatch. |
+| P0-009 / P0-010 | Each slice's reviewer grep; closure at LEGACY-0 | Solver code ownership/proof binding is the per-slice `grep` for element identifiers in the physics solver plus actual Chrome proof; CHECK-AGGREGATE enforcement of the evidence schema is release checklist. |
+| P0-011 | ENGINE-CORE-2 (broadphase/sweeps); ELEMENT-n optics (ordered intervals) | Conservative AABB broadphase and speculative margin replace the bounds-tree reference; ordered material intervals arrive with the first optical element. |
+| P0-012 | ENGINE-CORE-2 | Retained numerical defects are re-judged against the envelope on the generic core; a residual that clamps is closed, not a defect. |
+| P0-013 | Release checklist (P0-034) | Scratch, checkpoint, predictor, sleep and island work (OPT-SCRATCH, OPT-CHECKPOINT, OPT-PREDICTOR, OPT-SLEEP) are measured optimisations after a reproduced cost, never prerequisites. |
+| P0-014 / P0-015 | ENGINE-CORE-1 | Committed publication and timed command admission are the current path; each slice re-proves Run/Reset through them. |
+| P0-016 | ENGINE-CORE-2 | One forward ABI revision carries the multi-body scene record; prior layouts reject. |
+| P0-017 | ENGINE-CORE-1 | Standalone simulation worker/device startup is the current path; no CPU physics path exists. |
+| P0-018 | Release checklist (P0-034/P0-032) | Reliable sequencing is current behavior; 10,000-message, saturation and transfer campaigns are release-only. |
+| P0-019 | ENGINE-CORE-1 | The simulation worker is the only stepping owner; the old synchronous Start/Step/Restore route is already unreachable for the playable target. |
+| P0-020 | ENGINE-CORE-1 and every later slice | Run/Pause/Step/Reset/Load/Save/navigation acknowledgements are re-proved by each slice's "Done when". |
+| P0-021 | Fault semantics now; injected campaigns at release | Device loss/worker crash leave a typed fault and usable Reset; injection matrices are release-only. |
+| P0-022 / P0-023 / P0-024 | ANIM-1 | Separate animation worker with declared bindings for every presentation property; per-consumer feedback cards become declarations on their element slice. |
+| P0-025 / P0-026 | ENGINE-CORE-1 (renderer reads committed poses); ANIM-1 (animation sample) | Main-thread renderer interpolates committed physics and animation samples; nothing flows back. |
+| P0-027 / P0-028 | Release checklist (P0-034) | Resource sharing, dirty tracking, idle wake and visibility culling are measured render-cost work. |
+| P0-029 | Production build every slice; startup at release | Clean Release export of both worker artifacts is required each slice; startup 15 s cold / 5 s warm is release-only. |
+| P0-030 / P0-031 | LEGACY-0 | Consumer coverage and cleanup audits close when the tree holds only shipped code. |
+| P0-032 / P0-033 / P0-034 | Release checklist | Concurrency attacks, bottleneck remediation and device/workload qualification are enforced at LEGACY-0 and CAMPAIGN. |
+| P0-035 | CAMPAIGN | Engine closure is the programme's definition of done, not a gate before element or level work. |
 
-The planned vertical order starts with **[Basketball drop/contact/Reset](vertical-delivery.md#ball-drop)** then Receiver capture. [TODO](../../../TODO.md) identifies current execution. These engine labels provide required criteria inside playable outcomes, not a serial subsystem queue. Every card below states current physical behavior and admitted f16 controls.
+## ENGINE-CORE-1 · the existing ball on the game-grade envelope
 
 <a id="p007-contact"></a>
-## P0-007 · p007-contact
+### P0-007 · p007-contact
 
-**Outcome / value:** Preserve the captured moving-support physical invariant in the [bounded GPU contact method](gpu-physics.md#p007-constraint); the old CPU diagnostic remains historical evidence.
-
-**Small closure / forward cutover:** Use the new sole GPU numerical owner and approved f16 error contract; change affected callers together, with no CPU correction or second solver path. Follow the live recovery record, not a copied residual.
-
-**Observable acceptance:** Replay captured x15/compound failure and independent stationary/zero-gravity/rotated/support-order controls; finite work, Coulomb admissibility, exact failed-step restoration. Required affected Chrome proof stays in P0-007.
-
-**Dependencies / estimate boundary / stop:** Moving-support/x15/compound contact behavior belongs to the admitted moving-support/compound consumer and full P0-007 audit, not the first ball/workbench scope. Prove that named invariant under current f16 limits; harness success alone is not delivered behavior.
+**Outcome:** ball/workbench/ramp/wall contact behaves as the player expects with no tick fault: slop ≤ 1/64 m corrected over substeps, normal velocity clamped ≥ 0, acceleration clamped, quaternion normalised each substep. **Acceptance:** first_principles and delayed_signal solvable, Bumper demo pays out as before, 20 Runs without a fault, a resting ball never starts moving. Moving-support/compound cases close under ENGINE-CORE-2.
 
 <a id="p007-affine"></a>
-## P0-007 · p007-affine
+### P0-007 · p007-affine
 
-**Outcome / value:** Preserve captured affine support geometry and the corrected support footprint.
-
-**Small closure / forward cutover:** Geometry is sole numeric owner; scene boundary copies full basis, stable identity and material metadata. Update all support/sweep/contact consumers; retire quaternion-only or slot-derived identity paths.
-
-**Observable acceptance:** Independent hollow, rotating, anisotropic and reflected/invalid transform goldens; storage reorder cannot change identity. Distinguish representation-only values from actual SupportFootprint correction.
-
-**Dependencies / estimate boundary / stop:** Ball/workbench geometry is first; Receiver walls and rotated Ramp follow in their named verticals. Retained P0-007 findings constrain physical behavior, while the target GPU implementation replaces the old CPU extraction. Other shape/query consumers remain individually required.
+**Outcome:** rotated Ramp and resized Wall keep full authored affine geometry as declared shape data in the compiled scene record; identity survives storage reorder. **Acceptance:** two-ramp path and local-axis Wall resize work through the UI; reflected/singular transforms reject before mutation.
 
 <a id="p008-reject"></a>
-## P0-008 · p008-reject
+### P0-008 · p008-reject
 
-**Outcome / value:** Reject an invalid current construction before any installed state changes.
-
-**Small closure / forward cutover:** ConstructionCompiler validates/copies current declarations at the actual entry point; update current capture/callers and serialized content simultaneously. Reject obsolete fields/unknown enums; no accepted-but-uninstallable DTO stage.
-
-**Observable acceptance:** Valid current construction still runs; malformed topology/duplicate identity/nonfinite geometry fail without changing old state, counters or queues; mutate caller arrays after submission to prove isolation.
-
-**Dependencies / estimate boundary / stop:** P0-004/P0-005/P0-006 fixed contracts; the actual Basketball capture/compile/install proof is internal to ball-drop. Required schema/ownership checks pass now for that closure; complete CHECK-AGGREGATE is a later aggregate, not a first-UI prerequisite.
+**Outcome:** an invalid construction is rejected at compile with nothing installed. **Acceptance:** malformed topology, duplicate identity, out-of-envelope admission bounds (speed, gravity, mass, extent) fail visibly and leave the old world, counters and queues unchanged.
 
 <a id="p008-compile"></a>
-## P0-008 · p008-compile
+### P0-008 · p008-compile
 
-**Outcome / value:** Compile a valid construction into deterministically owned runnable state.
-
-**Small closure / forward cutover:** Compiler owns candidate-local arrays and bindings; stable typed IDs survive order/compaction. Core retains sole mutable runtime owner. Remove direct scene-object/delegate references through all compiled consumers.
-
-**Observable acceptance:** Same semantic construction in alternate declaration order produces declared canonical IDs/results; unknown references reject; no Godot/BodySlot/Node/closure escapes. Execute actual GPU numerical behavior plus native host/admission controls, not only a DTO roundtrip.
-
-**Dependencies / estimate boundary / stop:** Follows validated entry; source ownership contracts constrain representation choices. This compiler outcome must run its actual compiled candidate end to end. The declared admitted target construction remains runnable through every cut; unsupported current content rejects explicitly and remains required for final release; if compiler replacement cannot be consumed atomically without the install change, join p008-compile and p008-install into one coherent cutover rather than shipping an unused route.
+**Outcome:** the same construction in any declaration order compiles to the same typed scene record with stable IDs; no element or puzzle identifier reaches solver dispatch. **Acceptance:** `grep` of physics solver source and compiler dispatch finds nothing element-keyed; compiled candidate runs end to end in Chrome.
 
 <a id="p008-install"></a>
-## P0-008 · p008-install
+### P0-008 · p008-install
 
-**Outcome / value:** Install or discard one complete construction atomically.
-
-**Small closure / forward cutover:** Compiler candidate and SimulationCore install transaction transfer ownership at one commit. Update registration, maps, free lists, RNG and pending work together; retire piecemeal scene installation.
-
-**Observable acceptance:** Inject each install failure: old world remains usable and identical; successful replacement retires old handles; duplicate/stale candidate cannot install twice.
-
-**Dependencies / estimate boundary / stop:** Candidate generation/publication capacity decisions are fixed by P0-006; no partial implementation accepted.
-
-<a id="p011-bounds"></a>
-## P0-011 · p011-bounds
-
-**Outcome / value:** A shared query cannot miss a declared interaction volume.
-
-**Small closure / forward cutover:** Use current BodyBoundsTree geometry/invalidation evidence as reference; choose the GPU-owned conservative query needed by the named consumer, callers for contact/optical/acoustic/field queries declare conservative extents. Retire remaining authoritative all-pairs query path at its cutover.
-
-**Observable acceptance:** Independent brute-force oracle covers hollow/rotating/grazing, disabled and owner-filtered bodies; no false negatives; topology and movement invalidate.
-
-**Dependencies / estimate boundary / stop:** Review the named consumer's actual bounds first. Ball/workbench then rotated Ramp are the current scope; full all-law audit is not a prerequisite. No CPU index is prescribed and no speculative new abstraction is required.
-
-<a id="p011-intervals"></a>
-## P0-011 · p011-intervals
-
-**Outcome / value:** Ordered surface/material intervals preserve pass-through and attenuation.
-
-**Small closure / forward cutover:** Core query returns stable copied geometry/material identity; update optical, acoustic and radiation consumers using the common ordered interval contract. Remove bounding-box hit substitution.
-
-**Observable acceptance:** Hollow bore versus wall, transparent then opaque, inside-origin and equal-distance ordering controls; retained snapshot keeps matching metadata revision.
-
-**Dependencies / estimate boundary / stop:** Separate failure domain from broad-phase bounds; no material model silently selected.
-
-<a id="p012-defect"></a>
-## P0-012 · p012-defect
-
-**Outcome / value:** Close one retained numerical defect with an independent oracle.
-
-**Small closure / forward cutover:** Select one current failing invariant from the retained ledger; update its single solver/law owner and complete affected closure. Dead historical prototypes are evidence, never reinstated.
-
-**Observable acceptance:** Original failure, nearby boundary, meaningful passing/control, ordering/scale and rollback checks; retain every unresolved ledger item.
-
-**Dependencies / estimate boundary / stop:** Aggregate P0-012 closes only when every member is reconciled; this pattern names each selected failure before starting.
-
-<a id="p013-scratch"></a>
-## P0-013 · p013-scratch
-
-**Outcome / value:** Remove one measured scratch allocation hotspot without changing results.
-
-**Small closure / forward cutover:** Reuse existing specialized storage at the measured owner; update lifetime/reentrancy callers and clear/resize/dispose paths; remove prior allocation route.
-
-**Observable acceptance:** Matched algorithm/topology controls show attributable allocations/time; empty/grow/shrink/reentry and rollback controls preserve results.
-
-**Dependencies / estimate boundary / stop:** OPT-SCRATCH; measure first, no speculative universal store.
-
-<a id="p013-checkpoint"></a>
-## P0-013 · p013-checkpoint
-
-**Outcome / value:** Reuse one checkpoint safely across transaction lifetimes.
-
-**Small closure / forward cutover:** Keep SimulationTransaction ownership and participant order; update captured stores and cleanup together, remove duplicated checkpoint storage.
-
-**Observable acceptance:** Failed capture/restore, nested admission rejection, variable topology and stale reuse; exact state equivalence and matched cost.
-
-**Dependencies / estimate boundary / stop:** OPT-CHECKPOINT; cannot narrow rollback coverage to win time.
-
-<a id="p013-predictor"></a>
-## P0-013 · p013-predictor
-
-**Outcome / value:** Avoid one repeated predictor computation with correct invalidation.
-
-**Small closure / forward cutover:** Existing coupled solver owns reusable work; key all physically relevant topology/pose/load inputs and retire old repeated calculation in this closure.
-
-**Observable acceptance:** Changed load/geometry/contact invalidates; unchanged input reuses; independent numerical oracle and matched predictor counts.
-
-**Dependencies / estimate boundary / stop:** OPT-PREDICTOR; no cross-evaluation cache without complete input proof.
-
-<a id="p013-sleep"></a>
-## P0-013 · p013-sleep
-
-**Outcome / value:** Sleep one quiescent coupled island and wake it correctly.
-
-**Small closure / forward cutover:** SimulationCore owns sleep state; force/command/contact/topology changes wake dependent islands; remove any scene visibility influence on authority.
-
-**Observable acceptance:** Near-threshold wake, connected awake load, queued event, moving contact and Reset; work/error budgets and matched cost.
-
-**Dependencies / estimate boundary / stop:** OPT-SLEEP; genuine dependency closure required.
+**Outcome:** one complete scene record installs or is discarded atomically. **Acceptance:** each injected install failure leaves the previous world usable and identical; a stale candidate cannot install twice.
 
 <a id="p014-state"></a>
-## P0-014 · p014-state
+### P0-014 · p014-state
 
-**Outcome / value:** Publish only a complete committed physical state.
-
-**Small closure / forward cutover:** Extend CommittedPoseBuffer owned generation/revision snapshots with all state covered by current contract; reserve capacity before commit and delete partial publication routes.
-
-**Observable acceptance:** Failed tick leaks no poses/IDs/topology; old read lease stays coherent; zero/capacity/full/boundary revisions; readers cannot mutate producer storage.
-
-**Dependencies / estimate boundary / stop:** P0-005/P0-006; ball-drop requires actual worker commit/pose proof now, before any global optimization completion. Pure commit unit checks supplement its visible behavior.
+**Outcome:** only a complete committed physical state is published to the renderer and animation worker. **Acceptance:** a discarded non-finite candidate keeps the previous pose; readers never mutate producer storage.
 
 <a id="p014-events"></a>
-## P0-014 · p014-events
+### P0-014 · p014-events
 
-**Outcome / value:** Committed occurrences and results are delivered once with their state.
-
-**Small closure / forward cutover:** Core stages reliable events/results in same commit; host owns delivery/ack storage separately; no transient event escapes before commit.
-
-**Observable acceptance:** Rollback emits nothing; retry cannot duplicate; capacity rejection leaves transaction unchanged; pose/result generation/revision agree.
-
-**Dependencies / estimate boundary / stop:** State publication plus P0-005 event semantics; distinct reliability outcome.
+**Outcome:** committed occurrences (impact, capture, activation) are delivered once with their state. **Acceptance:** the lamp lights once per switch impact; a retried message cannot add a second activation.
 
 <a id="p015-admit"></a>
-## P0-015 · p015-admit
+### P0-015 · p015-admit
 
-**Outcome / value:** A command is admitted or rejected deterministically without claiming application.
-
-**Small closure / forward cutover:** SimulationCommandInbox/host own bounded admission; update all command producers to typed timed envelope, reject obsolete command routes.
-
-**Observable acceptance:** Stale generation, duplicate ID, invalid enum, late tick and full queue controls; admitted status never reported as completed.
-
-**Dependencies / estimate boundary / stop:** P0-005/P0-006 fixed command/commit policy; ball-drop proves its consumed admission/application boundary inside the vertical.
+**Outcome:** a command is admitted or rejected deterministically without claiming application. **Acceptance:** stale generation, duplicate ID, invalid enum, late tick and full queue reject explicitly.
 
 <a id="p015-apply"></a>
-## P0-015 · p015-apply
+### P0-015 · p015-apply
 
-**Outcome / value:** Replay applies each admitted command at the declared commit point.
-
-**Small closure / forward cutover:** Core executes canonical tick/phase/order with dependent edits before Run; update replay/save callers and retire immediate scene mutation.
-
-**Observable acceptance:** Same timed log across producer ordering/cadences yields identical state; rejection/failed tick cannot consume a result twice.
-
-**Dependencies / estimate boundary / stop:** Admission complete; all coupled mutations participate.
+**Outcome:** admitted commands apply at their declared tick/phase/order. **Acceptance:** same timed log yields the same outcome regardless of producer cadence.
 
 <a id="p016-codec"></a>
-## P0-016 · p016-codec
+### P0-016 · p016-codec
 
-**Outcome / value:** The actual C#/browser boundary transmits one canonical typed protocol losslessly.
-
-**Small closure / forward cutover:** Protocol codecs replace every current caller's ad hoc conversions; selectors stay enums and IDs typed internally; old encodings rejected.
-
-**Observable acceptance:** Cross-language values at 2^53 and signed/unsigned limits, zero/default, overflow, NaN/infinity, truncation and unknown tags; real adapter, not fake-page-only.
-
-**Dependencies / estimate boundary / stop:** P0-005 revised layout; the ball construction/Run/pose/Reset variants include their sender/receiver/application proof inside ball-drop. Extend a later message family only with its actual consumer.
+**Outcome:** the C#/browser/worker boundary carries canonical IEEE-754 f32 bits, typed cells/scales and integer identities losslessly. **Staged at ENGINE-CORE-2:** the multi-body scene record is one forward revision; earlier layouts reject.
 
 <a id="p017-bootstrap"></a>
-## P0-017 · p017-bootstrap
+### P0-017 · p017-bootstrap
 
-**Outcome / value:** A standalone simulation worker reaches verified readiness or explicit failure.
-
-**Small closure / forward cutover:** SimulationHost owns runtime and imports no Godot payload; current launcher uses new manifest/schema readiness; remove any synchronous fallback.
-
-**Observable acceptance:** Actual worker boot/export check, missing asset, malformed protocol, startup timeout and repeated start/dispose; identity logged.
-
-**Dependencies / estimate boundary / stop:** Ball-drop includes its minimal actual compile/install/codec/device proof; native success is insufficient and complete compiler/codec parents are not predecessors.
-
-<a id="p018-reliable"></a>
-## P0-018 · p018-reliable
-
-**Outcome / value:** Real-worker reliable results survive reordering and retransmission.
-
-**Small closure / forward cutover:** Host/adapter own sequence, ack and bounded reliable queues; move all reliable message callers together, reject stale generations.
-
-**Observable acceptance:** At least 10000 actual messages: no unexplained loss or double application; delay, reorder, duplicate and reconnect controls.
-
-**Dependencies / estimate boundary / stop:** The named consumer's committed publication and actual worker readiness must pass together; P0-005/P0-006 fix queue/overflow policy. Full unrelated message variants are not predecessors.
-
-<a id="p018-pressure"></a>
-## P0-018 · p018-pressure
-
-**Outcome / value:** Saturation cannot starve lifecycle or fabricate successful commands.
-
-**Small closure / forward cutover:** Admission reserves lifecycle capacity; backpressure returns typed refusal; remove overwrite/drop behavior for reliable work.
-
-**Observable acceptance:** Full data queue still admits required Reset/stop; overflow refusal preserves state; bounded queue/memory under stalled receiver.
-
-**Dependencies / estimate boundary / stop:** Real transport in place; distinguish lossy pose replacement from reliable loss.
-
-<a id="p018-transfer"></a>
-## P0-018 · p018-transfer
-
-**Outcome / value:** Each recipient receives independently owned bounded publication storage.
-
-**Small closure / forward cutover:** Producer transfers/copies ownership per actual adapter contract; fan-out never aliases a transferred or mutable buffer.
-
-**Observable acceptance:** Detached/reused buffer, two recipients with different delays, disposal and stale lease controls; bytes/copies/heap measured.
-
-**Dependencies / estimate boundary / stop:** Separate ownership failure domain; not a shared mutable compatibility bridge.
+**Outcome:** the simulation worker reaches verified readiness (WebAssembly SIMD128 + SharedArrayBuffer) or an explicit unsupported state; there is no CPU fallback physics path.
 
 <a id="p019-step"></a>
-## P0-019 · p019-step
+### P0-019 · p019-step
 
-**Outcome / value:** Simulation worker is the only authoritative stepping owner.
-
-**Small closure / forward cutover:** Move World.Step and full authority closure to SimulationHost; update scene callers to commands/committed samples and remove browser stepping calls and core references.
-
-**Observable acceptance:** 120 Hz/four outer substeps initially; 250 ms browser stall leaves worker progressing; timed replay matches, no double stepping.
-
-**Dependencies / estimate boundary / stop:** Ball-drop's real worker, bounded transport and commit criteria pass inside its one-path cutover. All-consumer extraction and full transport stress remain parent completion gates, not its starting prerequisites.
+**Outcome:** the simulation worker is the only stepping authority at 120 Hz; a browser stall never stops physics. **Acceptance:** a 250 ms main-thread stall leaves the committed tick advancing.
 
 <a id="p019-debt"></a>
-## P0-019 · p019-debt
+### P0-019 · p019-debt
 
-**Outcome / value:** Overload is bounded and observable without changing physics time silently.
-
-**Small closure / forward cutover:** SimulationHost monotonic scheduler owns debt/catch-up; remove browser cadence/timer ownership of simulation progress.
-
-**Observable acceptance:** Clock jitter, long stall, hidden/resume and sustained overload boundaries; debt and missed-budget counters match fixed limits.
-
-**Dependencies / estimate boundary / stop:** Same worker owner; topology-only comparison or honestly combined measurement.
+**Outcome:** overload is bounded and visible; physics time is never silently stretched. Exact debt counters are release-checklist measurements.
 
 <a id="p020-run"></a>
-## P0-020 · p020-run
+### P0-020 · p020-run
 
-**Outcome / value:** Run/Pause/Step complete only after the defined worker acknowledgement.
-
-**Small closure / forward cutover:** Host transition owner coordinates inbox/commit barrier and UI controls; move all current Run/Pause/Step callers together, remove synchronous state flips.
-
-**Observable acceptance:** Delayed/repeated commands, step while paused, busy queue, stale ack and failure before/after commit; exact tick count.
-
-**Dependencies / estimate boundary / stop:** P0-006 plus the actual consuming worker/commit criterion; ball-drop proves Run/Reset, construction-save adds Save/Load. Full stepping across all domains is not a prerequisite.
+**Outcome:** Run/Pause/Step complete only after worker acknowledgement; queued Run is not Running.
 
 <a id="p020-reset"></a>
-## P0-020 · p020-reset
+### P0-020 · p020-reset
 
-**Outcome / value:** Reset restores exact construction across worker and presentation state.
-
-**Small closure / forward cutover:** Host owns reset generation barrier; reset every runtime store/queue/map/animation binding via committed snapshot; retire scene-only reset.
-
-**Observable acceptance:** Reset during Run/queued command/pending event/animation, repeated Reset, stale pre-reset ack and old handle; actual Chrome construction equality.
-
-**Dependencies / estimate boundary / stop:** No old-world messages can mutate new generation.
+**Outcome:** Reset restores the exact canonical construction across worker, animation and renderer state. **Acceptance (every slice):** Reset after motion equals the pre-Run construction in the UI.
 
 <a id="p020-load"></a>
-## P0-020 · p020-load
+### P0-020 · p020-load
 
-**Outcome / value:** Load atomically replaces the current construction or leaves it usable.
-
-**Small closure / forward cutover:** Compiler candidate + host Load barrier update current UI/file inputs together; reject unsupported current schema rather than migrate.
-
-**Observable acceptance:** Malformed/partial/unknown input, concurrent Reset/Load, late ack and compile/install failure; old world intact; valid replacement has one owner.
-
-**Dependencies / estimate boundary / stop:** The admitted construction's actual atomic install criterion plus P0-006 transition contract; no accepted half-load or need to complete every compiler domain first.
+**Outcome:** Load atomically replaces the construction or leaves it usable; unsupported saves reject, never migrate.
 
 <a id="p020-save"></a>
-## P0-020 · p020-save
+### P0-020 · p020-save
 
-**Outcome / value:** Save captures one committed construction snapshot after the required barrier.
-
-**Small closure / forward cutover:** Host serializes the P0-006 construction-only durable-save format; move Workshop save/reopen/input-gating callers together. Reject Save while Run is active and unsupported runtime-resume/old-schema inputs explicitly.
-
-**Observable acceptance:** Save during pending edit, delayed ack, paused/running refusal and snapshot failure; reopen exact construction/IDs with no runtime stores smuggled into durable format and no mutable alias.
-
-**Dependencies / estimate boundary / stop:** Current Workshop Save rejects _inRun. Preserve construction-only support; no new live-runtime resume feature.
+**Outcome:** Save stores the construction only, after the required barrier; Save during Run is rejected. **Acceptance (every slice):** Save/Load round-trips the construction after every Run.
 
 <a id="p020-navigation"></a>
-## P0-020 · p020-navigation
+### P0-020 · p020-navigation
 
-**Outcome / value:** Navigation cancels or completes pending work without cross-level mutation.
-
-**Small closure / forward cutover:** Host owns retirement/new generation; UI transition waits for declared outcome and disposes old listeners/leases.
-
-**Observable acceptance:** Navigate during Run/Load/save/Reset, double selection, old ack/event after new level; new puzzle remains usable.
-
-**Dependencies / estimate boundary / stop:** All navigation callers move together; no stale generation reuse.
+**Outcome:** level navigation cancels or completes pending work without cross-level mutation; the new puzzle is usable.
 
 <a id="p021-outcome"></a>
-## P0-021 · p021-outcome
+### P0-021 · p021-outcome
 
-**Outcome / value:** A worker crash reports the correct recoverable or uncertain outcome.
-
-**Small closure / forward cutover:** Host records commit/transfer/ack states; recovery never silently replays an uncertain effect or runs browser physics.
-
-**Observable acceptance:** Faults before commit, after commit, before/after transfer and lost ack each follow P0-006 matrix; explicit user recovery.
-
-**Dependencies / estimate boundary / stop:** The affected consumer's Run/Reset/commit criteria and P0-006 recovery contract; device-loss handling is required now for ball-drop. No synchronous fallback or all-lifecycle prerequisite.
+**Outcome:** a worker crash or device loss reports recoverable or indeterminate honestly, leaves a typed fault and a usable Reset, and never runs physics elsewhere. Injected before/after-commit matrices are release checklist.
 
 <a id="p021-restart"></a>
-## P0-021 · p021-restart
+### P0-021 · p021-restart
 
-**Outcome / value:** Recovery starts exactly one replacement worker from supported state.
-
-**Small closure / forward cutover:** Host owns restart token/generation and timeout; update retry/Reset/UI callers and retire previous worker before accepting new traffic.
-
-**Observable acceptance:** Double retry, late readiness, repeated crash, timeout then Reset, stale old-worker result; bounded recovery attempts.
-
-**Dependencies / estimate boundary / stop:** Outcome classification must be complete before automatic replay choices.
+**Outcome:** recovery starts exactly one replacement worker from a known-good construction; at most one attempt.
 
 <a id="p021-dispose"></a>
-## P0-021 · p021-dispose
+### P0-021 · p021-dispose
 
-**Outcome / value:** Disposal releases workers, buffers, leases and listeners exactly once.
-
-**Small closure / forward cutover:** Each host/presenter resource has one disposal owner; remove orphan subscriptions and live mutable references.
-
-**Observable acceptance:** Repeated dispose, dispose during transfer/startup and subsequent reuse; 20 lifecycle cycles/transition proofs at required integration gate.
-
-**Dependencies / estimate boundary / stop:** No new memory claim without actual retained heap measurements.
-
-<a id="p022-evaluate"></a>
-## P0-022 · p022-evaluate
-
-**Outcome / value:** Portable animation samples match existing typed clip mathematics.
-
-**Small closure / forward cutover:** Extract AnimationBatch evaluator/arrays with no scene references; current native callers switch together, old evaluator retired.
-
-**Observable acceptance:** Every curve/repeat/property, endpoints, negative/large time policy, invalid/nonfinite definition and generation checks.
-
-**Dependencies / estimate boundary / stop:** P0-004/P0-005 canonical values/writer ownership; Receiver halo is the first cosmetic consumer. Its simple feedback does not wait for every physical geometry family or all animation workers.
-
-<a id="p022-writer"></a>
-## P0-022 · p022-writer
-
-**Outcome / value:** A presentation property has one typed writer for its lifetime.
-
-**Small closure / forward cutover:** Animation owner handles register/start/stop/release; SceneAnimationAdapter becomes target boundary only; no duplicated evaluator.
-
-**Observable acceptance:** Conflicting writer rejection, stale reused handle, stop Hold/RestoreInitial, resize/dispose and inactive allocation controls.
-
-**Dependencies / estimate boundary / stop:** Existing arrays/handles reused, not a second owner.
-
-<a id="p023-feedback"></a>
-## P0-023 · p023-feedback
-
-**Outcome / value:** One named feedback consumer responds to committed typed events.
-
-**Small closure / forward cutover:** Use the five concrete consumer scopes below; map committed event to cosmetic clip without functional mutation and remove old callback for that consumer.
-
-**Observable acceptance:** Late/overlap/offscreen/reduced-motion controls and unchanged physical timed replay; generation Reset/save rules per consumer.
-
-**Dependencies / estimate boundary / stop:** Execute one feedback consumer at a time; all five remain mandatory children.
-
-<a id="p023-lifecycle"></a>
-## P0-023 · p023-lifecycle
-
-**Outcome / value:** Animation registration follows committed lifecycle boundaries.
-
-**Small closure / forward cutover:** Animation host owns generation/clip state; update Reset/Load/pause/event subscriptions together.
-
-**Observable acceptance:** Old event after reset, dispose/reuse, overlap at generation boundary; no old clip rewrites new part.
-
-**Dependencies / estimate boundary / stop:** Feedback semantics fixed before worker cutover.
-
-<a id="p024-worker"></a>
-## P0-024 · p024-worker
-
-**Outcome / value:** A distinct second worker owns all animation evaluation.
-
-**Small closure / forward cutover:** AnimationHost uses portable evaluator; remove main-thread animation evaluation calls, maintain only committed final application.
-
-**Observable acceptance:** Initial60 Hz plus30/60/90/120 sampling; physics stall/pause permits animation; disabling animation leaves physical replay unchanged.
-
-**Dependencies / estimate boundary / stop:** P0-018/P0-023; required architecture, never an optional experiment.
+**Outcome:** disposal releases workers, buffers, leases and listeners exactly once. The 20-cycle retention proof is release checklist.
 
 <a id="p025-map"></a>
-## P0-025 · p025-map
+### P0-025 · p025-map
 
-**Outcome / value:** Monotonic worker clocks map to one bounded display time.
-
-**Small closure / forward cutover:** Host/presenter exchange calibrated timestamps; replace Godot interpolation fraction as authority; retain native clock origins separately.
-
-**Observable acceptance:** Synthetic origin offsets/drift/jitter/delayed calibration and measured real-worker mapping error/age; no backward display time.
-
-**Dependencies / estimate boundary / stop:** P0-005/P0-006 fixed timing bounds plus actual ball committed-pose history now; autonomous animation adds its own clock/history criterion later. Full animation-worker completion was not a prerequisite of the historical first-pose checkpoint. The current [shared-clock outcome](../../shared-clock-cadence.md) requires P0-024/P0-025/P0-026 together: checkpoint 1 runs actual S and A workers with the existing hint, one master and bounded identity/cleanup safety; checkpoint 2 qualifies the active 120 Hz simulation/60 Hz animation/60 Hz presentation defaults, lifecycle, numerical/UI behavior and all affected acceptance criteria. Internal cadence capability remains available for future qualified changes, without player frequency controls. Checkpoint 1 does not grant terminal contract Pass.
+**Outcome:** the main-thread renderer maps the worker clocks to one display time and presents committed poses with the fixed display delay; no backward display time. The [shared-clock contract](../../shared-clock-cadence.md) fixes 120 Hz physics / 60 Hz animation / display-rate presentation with no player frequency controls.
 
 <a id="p025-history"></a>
-## P0-025 · p025-history
+### P0-025 · p025-history
 
-**Outcome / value:** Bounded histories sample coherent physical parent and cosmetic child times.
-
-**Small closure / forward cutover:** Presenter owns read-only histories; remove mixed-revision/direct live-body reads and independent fractional sampling.
-
-**Observable acceptance:** Missing/duplicate/reordered samples,100/250ms stalls, empty/full history and known discontinuity; declared exhaustion policy exactly.
-
-**Dependencies / estimate boundary / stop:** Clock mapping first; no unbounded extrapolation or hidden wait.
+**Outcome:** bounded read-only histories give coherent physical parent and cosmetic child samples; a missing bracket holds the last coherent view.
 
 <a id="p025-discontinuity"></a>
-## P0-025 · p025-discontinuity
+### P0-025 · p025-discontinuity
 
-**Outcome / value:** Reset/Load/teleport cannot interpolate across incompatible generations.
-
-**Small closure / forward cutover:** Presenter flushes/reseeds only at committed discontinuity stamp; all appearance/hierarchy callers use that boundary.
-
-**Observable acceptance:** Old sample after reset, teleport at interpolation boundary, reparent/remove/reuse; no visual sweep through invalid state.
-
-**Dependencies / estimate boundary / stop:** Distinct lifecycle consequence, same one display-time authority.
+**Outcome:** Reset/Load never interpolate across generations; no visual sweep through an invalid state.
 
 <a id="p026-apply"></a>
-## P0-026 · p026-apply
+### P0-026 · p026-apply
 
-**Outcome / value:** Godot applies coherent committed transforms/properties without waiting.
-
-**Small closure / forward cutover:** Presenter owns final property application and physical-parent/cosmetic-child composition; remove live solver/query/evaluator calls.
-
-**Observable acceptance:** Producer stalls keep coherent old view; apply each dirty property once/frame; chrome input remains responsive; no physical feedback.
-
-**Dependencies / estimate boundary / stop:** Ball-drop's bounded committed-pose history/renderer boundary must pass now; full physical/cosmetic history variants remain aggregate P0-025 work. Audit forbidden assemblies/callers for this exact consumer.
-
-<a id="p027-resource"></a>
-## P0-027 · p027-resource
-
-**Outcome / value:** Identical artwork shares immutable GPU resources safely.
-
-**Small closure / forward cutover:** Presenter resource owner shares mesh/material/shader inputs; per-instance mutable parameters isolated; update all affected part constructors.
-
-**Observable acceptance:** Change one instance color/scale/state; others unchanged; create/remove/recreate and render call/upload/memory comparison.
-
-**Dependencies / estimate boundary / stop:** P0-026; preserve approved palette/form.
-
-<a id="p027-dirty"></a>
-## P0-027 · p027-dirty
-
-**Outcome / value:** Only changed properties produce updates while invalidation remains complete.
-
-**Small closure / forward cutover:** Typed dirty tracking replaces unconditional writers through current caller closure; resize/topology/camera/resource changes invalidate.
-
-**Observable acceptance:** Unchanged frame zero redundant writes; each individual change updates once; remove/reuse/resize boundaries; measured uploads/calls.
-
-**Dependencies / estimate boundary / stop:** Resource identity and lifetime are relevant inputs; no guessed savings.
-
-<a id="p028-idle"></a>
-## P0-028 · p028-idle
-
-**Outcome / value:** Idle rendering wakes for every visible change.
-
-**Small closure / forward cutover:** Presenter owns invalidate/request frame; UI/camera/animation/resource callbacks call it, old unconditional loops retired.
-
-**Observable acceptance:** Idle then input/camera/UI/worker sample/animation resize; no stale frame; real display cadence proof separated synthetic tests.
-
-**Dependencies / estimate boundary / stop:** P0-027; frame caps cannot stall workers.
-
-<a id="p028-visible"></a>
-## P0-028 · p028-visible
-
-**Outcome / value:** Cosmetic visibility scheduling preserves authority and return appearance.
-
-**Small closure / forward cutover:** Presenter may cull cosmetic work only; no visibility gate in core laws or goals; update shadow/offscreen policies.
-
-**Observable acceptance:** Occlude/offscreen/hidden/reappear while physics runs; physical replay identical, latest coherent pose restored, shadows correct.
-
-**Dependencies / estimate boundary / stop:** Required modes frozen before optimization.
+**Outcome:** the renderer applies committed transforms and properties once per frame without waiting on either worker; a stalled producer keeps the last coherent view and input stays responsive.
 
 <a id="p029-assets"></a>
-## P0-029 · p029-assets
+### P0-029 · p029-assets
 
-**Outcome / value:** A clean production export serves both exact worker artifacts.
+**Outcome:** a clean Release export serves both worker artifacts with exact build identities. Required each slice.
 
-**Small closure / forward cutover:** Build/deploy owns manifest and validated path/MIME/cache/compression; replace old single bundle assumptions and all launcher paths.
+## ENGINE-CORE-2 · multi-body speculative-contact core (decomposed into <1d thin vertical slices)
 
-**Observable acceptance:** Clean Release export, missing/stale/wrong-schema assets fail visibly at actual origin; exact commit/build/deploy identities.
+Delivered through thin vertical slices (<1 day developer effort each), followed by streamlining, sensor sampling, and animation pipeline:
+- **ENGINE-CORE-2a1 (Pose Ring & Dual Spheres):** Expand SAB triple pose ring to 16 body slots with atomic sequence protocol; WASM SIMD dual-sphere stepping with basic ground/workbench plane impulse; instanced renderer reads multi-body poses directly from SAB; test by dropping 2 Basketballs in Workshop.
+- **ENGINE-CORE-2a2 (TGS Soft Solver Formulation):** Box2D v3 TGS Soft constraint step (compliance $\gamma$, softness $\beta$, effective mass) with FeatureId warm-starting in WASM SIMD for spheres and static planes; stable resting contact on workbench without bounce jitter; Bumper demo payout exact.
+- **ENGINE-CORE-2a3 (Box SAT Manifolds & Dynamic AABB BVH):** Dynamic AABB BVH with velocity fattening; branchless SAT narrowphase for Box-Sphere and Box-Box (Wall and Ramp colliders); first_principles 2-ramp solve in Chrome.
+- **ENGINE-CORE-2a4 (Speculative Contacts & High-Speed Wall Impact):** Speculative contact margin ($|v| \cdot dt + \text{slop}$) in narrowphase; ball at maximum UI launch speed never passes a Wall of any admitted thickness in 20 Runs.
+- **ENGINE-CORE-2b1 (Host Validation & Error Lane Removal):** Remove per-tick byte-exact host validation and motion-piece error lanes from BrowserWorkshopClient and PhysicsMotionRead; simulation worker publishes committed poses directly to SAB ring without intermediate host shadow checking.
+- **ENGINE-CORE-2b2 (Certificate & Directed Rounding Removal):** Permanently delete clearance/closing certificates and directed rounding math (LipschitzBoundarySweep, JointBoundarySweep, directed rounding math); rely exclusively on TGS Soft constraint limits.
+- **ENGINE-CORE-2b3 (Analytic CCD & Interval Library Removal):** Remove analytic CCD continuous collision sweep roots, interval-arithmetic range library, and delete engine/gpu/physics.wgsl compute shaders; collisions rely exclusively on Dynamic AABB BVH with speculative contact margins.
+- **ENGINE-CORE-2b4 (Guide Horizon & Departure Ownership Removal):** Remove guide horizon calculation, departure ownership, and trajectory prediction branches from Receiver physics, converting assist curves to declarative force region fields (PlanarGuideBoundaryPath).
+- **ENGINE-CORE-2c (Endpoint-Sampled Sensors):** Sensors and triggers sampled at substep endpoints, dwell counted in ticks; legacy sensor root-finding and sub-phase residence intervals deleted.
+- **ANIM-1a (Dedicated Animation Worker Pipeline):** Dedicated 60 Hz WebAssembly animation worker and SAB event channel established before element additions; declared animation bindings for Receiver halo and Signal lamp glow.
+- **CAT-023a (Dynamic Box Rigid Body & Upright Stability):** Dynamic box rigid body physics in WASM SIMD (box 3x3 inertia tensor, 4-point SAT contact manifold with workbench plane, friction, upright resting stability).
+- **CAT-023b (Orientation Sensor & Domino Cascade):** Declarative orientation-threshold sensor (angle from initial pose, one-shot trigger, rearm on Reset); domino_effect level solve.
 
-**Dependencies / estimate boundary / stop:** P0-021/P0-028; publication two-phase review retained.
+<a id="p011-bounds"></a>
+### P0-011 · p011-bounds (delivered at ENGINE-CORE-2a3 and 2a4)
 
-<a id="p029-startup"></a>
-## P0-029 · p029-startup
+**Outcome:** the AABB broadphase with speculative margin |v|·dt + slop cannot miss a declared interaction. **Acceptance:** a 64 m/s ball never tunnels a 1-cell wall in 20 runs; three stacked boxes settle within 60 frames. Timing latency and clock debt are advisory telemetry.
 
-**Outcome / value:** Startup accounts for and bounds all three contexts and heaps.
+<a id="p011-intervals"></a>
+### P0-011 · p011-intervals
 
-**Small closure / forward cutover:** Existing performance record captures main+simulation+animation startup/copies/memory; no hidden omitted worker cost.
+**Outcome:** ordered surface/material intervals for light, sound and radiation queries. **Staged at** the first optical ELEMENT-n slice as a generic capability, not before.
 
-**Observable acceptance:** Cold/warm startup and actual device workload; unavailable device remains incomplete; numerical frozen caps.
+<a id="p012-defect"></a>
+### P0-012 · p012-defect (delivered at ENGINE-CORE-2a2)
 
-**Dependencies / estimate boundary / stop:** Production artifact identity must match measurements.
+**Outcome:** each retained numerical defect is re-judged on the generic core against the envelope with a player-observable check; those that clamp or continue are closed.
 
-<a id="p032-schedule"></a>
-## P0-032 · p032-schedule
+## ANIM-1 · separate animation engine (decomposed into <1d thin vertical slices)
 
-**Outcome / value:** Declared concurrency schedules produce the same timed physical replay.
+Delivered through three focused vertical slices:
+- **ANIM-1a (Dedicated Animation Worker Pipeline & Core Feedback):** Dedicated 60 Hz WebAssembly animation worker and SAB event/feedback channel; declared animation bindings for Receiver halo and Signal lamp glow. Halo pulses and lamp glows via animation worker; physics paused leaves animation active; Reset exact.
+- **ANIM-1b (Mechanical Cosmetic Bindings):** Declared procedural curves and squash/stretch bindings for Bumper compression, Impact switch depression, and Delay progress fill.
+- **ANIM-1c (Legacy Presentation Code Retirement):** Delete retired per-element presentation evaluators in `engine/presentation/*.cs` and `ui/*.cs` not listed in project file. Reviewer grep confirms zero part-keyed presentation update loops.
 
-**Small closure / forward cutover:** Attack actual three contexts at supported cadences; no new runtime diagnostic path shipped.
+<a id="p022-evaluate"></a>
+### P0-022 · p022-evaluate (delivered at ANIM-1a)
 
-**Observable acceptance:** Delays/saturation/hidden resume, canonical reductions/IDs, reliable event reconciliation; diagnostic fault hooks absent production.
+**Outcome:** the animation model is compiled from element data (curves, tracks, transitions, bindings) and evaluated in its own worker at its own clock (60 Hz advisory target). **Acceptance:** physics paused with animation active still animates; disabling animation leaves physical outcomes unchanged.
 
-**Dependencies / estimate boundary / stop:** Integration qualification gate; findings produce one defect slice each.
+<a id="p022-writer"></a>
+### P0-022 · p022-writer
 
-<a id="p032-lifetime"></a>
-## P0-032 · p032-lifetime
+**Outcome:** every presentation property has one declared writer for its lifetime; a conflicting writer is rejected.
 
-**Outcome / value:** Topology and resource reuse cannot resurrect stale state.
+<a id="p023-feedback"></a>
+### P0-023 · p023-feedback
 
-**Small closure / forward cutover:** Inject failed mutations, compaction and recycled handles across worker/presenter lifecycle.
+**Outcome:** committed events drive declared cosmetic bindings; no element has its own update loop. The five consumer cards below are declaration specifications delivered with their element's slice.
 
-**Observable acceptance:** Rollback all maps/free lists/queues; stale generation rejected; deterministic reordered storage;20cycles/20transitions when required.
+<a id="p023-lifecycle"></a>
+### P0-023 · p023-lifecycle
 
-**Dependencies / estimate boundary / stop:** Distinct from scheduling attacks; unchanged exhaustive gate remains.
+**Outcome:** animation registrations follow generation boundaries; an old event cannot rewrite a new part after Reset.
 
-<a id="p033-remediate"></a>
-## P0-033 · p033-remediate
+<a id="p024-worker"></a>
+### P0-024 · p024-worker (delivered at ANIM-1a)
 
-**Outcome / value:** Remove one measured remaining full-system bottleneck.
-
-**Small closure / forward cutover:** Choose one attributable hotspot and exact changed closure; retire superseded route; do not bundle unrelated optimizations.
-
-**Observable acceptance:** Matched before/after with frozen uncertainty, CPU/copy/alloc/frame tails and all affected part proof; no worsened scoped failures.
-
-**Dependencies / estimate boundary / stop:** P0-033 remains aggregate; unknown cost triggers bounded measurement then named fix.
-
-<a id="p034-device"></a>
-## P0-034 · p034-device
-
-**Outcome / value:** One declared device/workload meets every applicable frozen budget.
-
-**Small closure / forward cutover:** Use existing device01/02/03 owner record; exact full deployed artifacts and complete actual UI attempts.
-
-**Observable acceptance:** >=3matched attempts,3600ticks/explicit early-goal,>=5minute continuous thermal,20cycles/20transitions; missing hardware incomplete.
-
-**Dependencies / estimate boundary / stop:** Qualification unit is device/workload, all units required; no averaged-away failure.
-
-<a id="wasm-experiment"></a>
-## S044 · wasm-experiment
-
-**Outcome / value:** Decide one supported Wasm compilation change from matched evidence.
-
-**Small closure / forward cutover:** Change only a supported compilation option in isolated measured candidate; no runtime compatibility flag or dual shipped format.
-
-**Observable acceptance:** Same source/algorithm/workload outputs, startup/download/memory/CPU; accept only attributable net benefit, otherwise retain current build and recorded rejection.
-
-**Dependencies / estimate boundary / stop:** PERF-12 bounded experiment ends with adopt/reject; required worker implementation is not optional.
+**Outcome:** a distinct second worker owns all animation evaluation at 60 Hz (advisory pacing); the main thread only applies samples. Cross-rate replay equality is release checklist.
 
 <a id="p023-motor"></a>
-## P0-023 · motor feedback
+### P0-023 · motor feedback (delivered with CAT-042)
 
-**Outcome / value:** Physically functional shaft/contact geometry depicts committed physical state; decorative motor spin may run independently in the animation owner as its source specifies, without inventing a physics body or angle ledger solely for visuals.
-
-**Small closure / cutover:** Replace this consumer's executable scene callback with typed event/feedback, generation/clip and disposal declarations consumed by the shared AnimationKernel/AnimationHost evaluators. Do not copy a per-element callback/evaluator into the worker; extend a reusable typed capability if needed and delete the former scene evaluator/callback writer. Final Godot application remains presenter-only. This is one consumer, not all feedback at once.
-
-**Observable acceptance:** Stall or disable cosmetic animation: torque/work and physical replay stay equal. Where declared, decorative spin continues with physics absent or paused. Reverse/stop/stale generation/reduced motion obey each functional-versus-decorative contract; no cosmetic angle feeds contact physics. Retain this consumer's declared visibility, late-event, overlap, lifecycle/save and real-Chrome proof.
-
-**Dependencies / estimate boundary:** The named consumer's committed-event and evaluator/writer criteria within P0-014/P0-022; inspect this consumer's actual current source and applicable mode list. Choose clip timing/shape within fixed physical separation and source policies.
+Shaft and contact geometry show committed physical state; decorative spin is a declared animation binding that may run while physics is paused. **Control:** disabling animation leaves torque/work and replay equal; no cosmetic angle feeds contact.
 
 <a id="p023-indicator"></a>
-## P0-023 · indicator feedback
+### P0-023 · indicator feedback (delivered with lamp/receiver slices)
 
-**Outcome / value:** Indicator reads committed sensor/control state; animation owns only glow/pulse appearance and never the signal itself.
-
-**Small closure / cutover:** Replace this consumer's executable scene callback with typed event/feedback, generation/clip and disposal declarations consumed by the shared AnimationKernel/AnimationHost evaluators. Do not copy a per-element callback/evaluator into the worker; extend a reusable typed capability if needed and delete the former scene evaluator/callback writer. Final Godot application remains presenter-only. This is one consumer, not all feedback at once.
-
-**Observable acceptance:** False/no-supply control stays functionally false despite a fading glow; rapid true/false events, late samples, overlap and Reset cannot latch a phantom signal. Retain this consumer's declared visibility, late-event, overlap, lifecycle/save and real-Chrome proof.
-
-**Dependencies / estimate boundary:** The named consumer's committed-event and evaluator/writer criteria within P0-014/P0-022; inspect this consumer's actual current source and applicable mode list. Choose clip timing/shape within fixed physical separation and source policies.
+Indicators read committed sensor/control state; glow/pulse is a binding. **Control:** a fading glow cannot latch a phantom true signal across rapid events or Reset.
 
 <a id="p023-recoil"></a>
-## P0-023 · recoil feedback
+### P0-023 · recoil feedback (delivered with CAT-016)
 
-**Outcome / value:** One committed launch event causes a cosmetic recoil clip while launch impulse remains solely core-owned.
-
-**Small closure / cutover:** Replace this consumer's executable scene callback with typed event/feedback, generation/clip and disposal declarations consumed by the shared AnimationKernel/AnimationHost evaluators. Do not copy a per-element callback/evaluator into the worker; extend a reusable typed capability if needed and delete the former scene evaluator/callback writer. Final Godot application remains presenter-only. This is one consumer, not all feedback at once.
-
-**Observable acceptance:** One actual shot gives one recoil; no shot/blocked rejected command gives none, duplicates cannot add recoil or impulse, overlapping shots follow fixed policy; Reset cancels old clips. Retain this consumer's declared visibility, late-event, overlap, lifecycle/save and real-Chrome proof.
-
-**Dependencies / estimate boundary:** The named consumer's committed-event and evaluator/writer criteria within P0-014/P0-022; inspect this consumer's actual current source and applicable mode list. Choose clip timing/shape within fixed physical separation and source policies.
+One committed launch event binds one recoil clip; impulse stays physics-owned. **Control:** a blocked or rejected shot gives no recoil; duplicates add neither recoil nor impulse.
 
 <a id="p023-ui"></a>
-## P0-023 · ui feedback
+### P0-023 · ui feedback (delivered with ANIM-1)
 
-**Outcome / value:** UI transition/pending/success clips follow acknowledged state, never complete Run or navigation themselves.
-
-**Small closure / cutover:** Replace this consumer's executable scene callback with typed event/feedback, generation/clip and disposal declarations consumed by the shared AnimationKernel/AnimationHost evaluators. Do not copy a per-element callback/evaluator into the worker; extend a reusable typed capability if needed and delete the former scene evaluator/callback writer. Final Godot application remains presenter-only. This is one consumer, not all feedback at once.
-
-**Observable acceptance:** Delayed/rejected acknowledgement remains pending/error regardless of clip completion; skip/reduced-motion and pause keep controls usable; stale old-level callback cannot close current UI. Retain this consumer's declared visibility, late-event, overlap, lifecycle/save and real-Chrome proof.
-
-**Dependencies / estimate boundary:** The named consumer's committed-event and evaluator/writer criteria within P0-014/P0-022; inspect this consumer's actual current source and applicable mode list. Choose clip timing/shape within fixed physical separation and source policies.
+Transition/pending/success clips follow acknowledged state and never complete Run or navigation themselves. **Control:** a delayed acknowledgement stays pending regardless of clip completion.
 
 <a id="p023-acoustic"></a>
-## P0-023 · acoustic feedback
+### P0-023 · acoustic feedback (delivered with CAT-009/CAT-061)
 
-**Outcome / value:** A committed acoustic occurrence drives the declared sound/visual feedback while finite acoustic propagation remains core-owned.
+A committed acoustic occurrence drives declared sound/visual feedback; propagation stays physics-owned. **Control:** silence, no power or wrong tone fabricates nothing; disabled audio cannot change the receiver.
 
-**Small closure / cutover:** Replace this consumer's executable scene callback with typed event/feedback, generation/clip and disposal declarations consumed by the shared AnimationKernel/AnimationHost evaluators. Do not copy a per-element callback/evaluator into the worker; extend a reusable typed capability if needed and delete the former scene evaluator/callback writer. Final Godot application remains presenter-only. This is one consumer, not all feedback at once.
+## Release checklist · P0-034 stage gate
 
-**Observable acceptance:** Silence/no power/wrong tone does not fabricate occurrence; late/duplicate/overlap events obey audibility policy; offscreen/reduced-motion/disabled audio cannot change receiver or physical replay. Retain this consumer's declared visibility, late-event, overlap, lifecycle/save and real-Chrome proof.
+<a id="p013-scratch"></a>
+### P0-013 · p013-scratch
+Remove one measured scratch allocation after a reproduced cost; results unchanged.
 
-**Dependencies / estimate boundary:** The named consumer's committed-event and evaluator/writer criteria within P0-014/P0-022; inspect this consumer's actual current source and applicable mode list. Choose clip timing/shape within fixed physical separation and source policies.
+<a id="p013-checkpoint"></a>
+### P0-013 · p013-checkpoint
+Reuse one checkpoint across transaction lifetimes without narrowing rollback.
 
-## Consumer scope for retained engine cards
+<a id="p013-predictor"></a>
+### P0-013 · p013-predictor
+Avoid one repeated computation with complete invalidation keys.
 
-Read [GPU criteria](gpu-physics.md) for each changed numerical/backend criterion and [the vertical sequence](vertical-delivery.md) for its actual consumer. Existing cards that describe all messages, domains, histories or resources are aggregate acceptance inventories. They do not require implementing unrelated variants before the named consumer; nor does one consumer close the parent. Ball-drop owns minimal Run/Reset/commit/device/pose support, basket-capture adds residence/event/halo, construction-save adds Save/Load, switch-lamp adds a typed activation edge, and first-principles adds rotated Ramp contact and Captured success. Remaining named motor/indicator/recoil/UI/acoustic cards retain their distinct contracts and later consuming scope.
+<a id="p013-sleep"></a>
+### P0-013 · p013-sleep
+Sleep a quiescent island and wake it on force/command/contact/topology change; visibility never influences authority.
+
+<a id="p018-reliable"></a>
+### P0-018 · p018-reliable
+10,000 actual messages with delay/reorder/duplicate/reconnect: no loss or double application.
+
+<a id="p018-pressure"></a>
+### P0-018 · p018-pressure
+Saturation cannot starve Reset/stop or fabricate successful commands.
+
+<a id="p018-transfer"></a>
+### P0-018 · p018-transfer
+Each recipient owns bounded publication storage; no aliasing of transferred buffers.
+
+<a id="p027-resource"></a>
+### P0-027 · p027-resource
+Identical artwork shares immutable GPU resources; per-instance parameters stay isolated; palette preserved.
+
+<a id="p027-dirty"></a>
+### P0-027 · p027-dirty
+Only changed properties produce updates; invalidation remains complete.
+
+<a id="p028-idle"></a>
+### P0-028 · p028-idle
+Idle rendering wakes for every visible change; frame caps cannot stall workers.
+
+<a id="p028-visible"></a>
+### P0-028 · p028-visible
+Cosmetic-only visibility culling; physical replay identical offscreen.
+
+<a id="p029-startup"></a>
+### P0-029 · p029-startup
+Startup bounds all three contexts and heaps: 15 s cold / 5 s warm on the dev machine.
+
+<a id="p032-schedule"></a>
+### P0-032 · p032-schedule
+Declared concurrency schedules and injected delays/saturation produce the same timed replay.
+
+<a id="p032-lifetime"></a>
+### P0-032 · p032-lifetime
+Failed mutations, compaction and recycled handles cannot resurrect stale state across 20 cycles/20 transitions.
+
+<a id="p033-remediate"></a>
+### P0-033 · p033-remediate
+Remove one measured full-system bottleneck with matched before/after evidence.
+
+<a id="p034-device"></a>
+### P0-034 · p034-device
+One declared device/workload meets every frozen budget: 30–60 FPS windows, 2.5 ms tick p95, memory after 20 cycles, ≥3 attempts, 5-minute thermal session. Missing hardware stays Incomplete.
+
+<a id="wasm-experiment"></a>
+### S044 · wasm-experiment
+Optional measured compilation-option experiment (PERF-12); adopt only on attributable net benefit, otherwise record rejection. Never a dual shipped format.
+
+## Consumer scope
+
+Read [physics engine criteria](gpu-physics.md) for the numerical criteria staged inside the same slices and [vertical delivery](vertical-delivery.md) for the actual consumer. Ball-drop owns minimal Run/Reset/commit/device/pose support, basket-capture adds residence/event/halo, construction-save adds Save/Load, switch-lamp adds a typed activation edge, first-principles adds rotated Ramp contact and Captured success; each roadmap row after them adds one generic capability or one element by declaration and deletes the legacy it names.

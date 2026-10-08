@@ -194,13 +194,16 @@ public sealed class WorkshopGpuDeviceTests
         var construction = new WorkshopConstruction(new(1), Settings, new(
             WorkshopInput.Basketball(new(1), 0, 3, 0, 0, 0, 0, 1),
             WorkshopInput.Switch(new(2), 0, 1, 0, 0, 0, 0, 1, ContactTriggerSettings.Default),
-            WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1)), Connections: new(new WorkshopConnection(
+            WorkshopInput.Lamp(new(3), 3, 1, 0, 0, 0, 0, 1),
+            WorkshopInput.Delay(new(4), -3, 1, 0, 0, 0, 0, 1, DelayDuration.Default)), Connections: new(new WorkshopConnection(
                 new(2), WorkshopSocket.ActivationOut, new(3), WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation)));
         var first = await device.Admit(construction, new(1), Profile, new(1));
         device.Commit(first.Sequence); device.Discard(first.Sequence);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         var physical = (byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!;
         var expected = (byte[])physical.Clone();
+        var timers = first.Read.Timers;
+        Assert.Equal(ActivationTimerPhase.Ready, timers[0].Phase);
         var logical = (PhysicsActivationRead)typeof(WorkshopGpuDevice).GetField("_committedActivations", flags)!.GetValue(device)!;
         transport.ReadMutation = bytes => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(PhysicsGpuAbi.TriggersOffset + 32), 1);
         await Assert.ThrowsAsync<ArgumentException>(() => device.Admit(construction, new(2), Profile, new(2)).AsTask());
@@ -208,9 +211,11 @@ public sealed class WorkshopGpuDeviceTests
         Assert.Equal(expected, (byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!);
         var after = (PhysicsActivationRead)typeof(WorkshopGpuDevice).GetField("_committedActivations", flags)!.GetValue(device)!;
         Assert.Equal(logical[0], after[0]); Assert.Equal(logical[1], after[1]);
+        Assert.Equal(timers[0], ((PhysicsTimerRead)typeof(WorkshopGpuDevice).GetField("_committedTimers", flags)!.GetValue(device)!)[0]);
         transport.ReadMutation = null;
         var reset = await device.Admit(construction, new(2), Profile, new(3));
         Assert.Equal(ActivationPhase.Clear, reset.Read.Activations[0].Phase);
+        Assert.Equal(timers[0], reset.Read.Timers[0]);
         device.Commit(reset.Sequence); device.Discard(reset.Sequence); await device.DisposeAsync();
     }
 

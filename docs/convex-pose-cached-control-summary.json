@@ -1,0 +1,249 @@
+{
+  "CCRUN": {
+    "connections": [
+      {
+        "from": "battery_3",
+        "to": "clock_4",
+        "type": "electrical",
+        "fromPort": "supply",
+        "toPort": "power_in"
+      },
+      {
+        "from": "clock_4",
+        "to": "cannon_1",
+        "type": "activation",
+        "fromPort": "activation_out",
+        "toPort": "activation_in"
+      }
+    ],
+    "level": 63,
+    "precision": 0.45,
+    "parts": [
+      {
+        "properties": {
+          "radius": 0.34,
+          "mass": 1,
+          "bounce": 0.55,
+          "buoyancy": 0,
+          "drag": 0.04
+        },
+        "id": "ball_2",
+        "kind": "ball",
+        "locked": false,
+        "dynamic": true,
+        "position": [
+          0,
+          4.999069,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "properties": {
+          "enabled": 1
+        },
+        "id": "battery_3",
+        "kind": "battery",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          -4,
+          3,
+          2
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "properties": {
+          "capacity": 45,
+          "charge_power": 30
+        },
+        "id": "cannon_1",
+        "kind": "cannon",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0.70710677,
+          0.70710677
+        ]
+      },
+      {
+        "properties": {
+          "interval_seconds": 1
+        },
+        "id": "clock_4",
+        "kind": "clock",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          -3,
+          4.9985094,
+          -2
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  "CCRUNWallMs": 6476713,
+  "CCRESULT": {
+    "level": 63,
+    "tick": 3600,
+    "precision": 0.45,
+    "outcome": "timeout"
+  },
+  "CCRESULTWallMs": 6573557,
+  "CCRESET": {
+    "connections": [
+      {
+        "from": "battery_3",
+        "to": "clock_4",
+        "type": "electrical",
+        "fromPort": "supply",
+        "toPort": "power_in"
+      },
+      {
+        "from": "clock_4",
+        "to": "cannon_1",
+        "type": "activation",
+        "fromPort": "activation_out",
+        "toPort": "activation_in"
+      }
+    ],
+    "level": 63,
+    "precision": 0.45,
+    "parts": [
+      {
+        "properties": {
+          "radius": 0.34,
+          "mass": 1,
+          "bounce": 0.55,
+          "buoyancy": 0,
+          "drag": 0.04
+        },
+        "id": "ball_2",
+        "kind": "ball",
+        "locked": false,
+        "dynamic": true,
+        "position": [
+          0,
+          4.999069,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "properties": {
+          "enabled": 1
+        },
+        "id": "battery_3",
+        "kind": "battery",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          -4,
+          3,
+          2
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "properties": {
+          "capacity": 45,
+          "charge_power": 30
+        },
+        "id": "cannon_1",
+        "kind": "cannon",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          0,
+          3,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0.70710677,
+          0.70710677
+        ]
+      },
+      {
+        "properties": {
+          "interval_seconds": 1
+        },
+        "id": "clock_4",
+        "kind": "clock",
+        "locked": false,
+        "dynamic": false,
+        "position": [
+          -3,
+          4.9985094,
+          -2
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  "CCRESETWallMs": 6602276,
+  "exactReset": true,
+  "onlyRemovedPoweredConnection": {
+    "from": "battery_3",
+    "to": "cannon_1",
+    "type": "electrical",
+    "fromPort": "supply",
+    "toPort": "power_in"
+  },
+  "identicalParts": true,
+  "observations": 321,
+  "finalCannon": [
+    {
+      "id": "cannon_1",
+      "phase": "charging",
+      "lastShot": "uncharged",
+      "shotCount": 0,
+      "storedEnergy": 0,
+      "releasedEnergy": 0,
+      "payloadId": null,
+      "recoilOffset": 0
+    }
+  ],
+  "wallElapsedMs": 96844,
+  "timingLimitation": "Anvil background validation active; this control timing is not a clean CPU comparison. Driver55s timeout retained, same run completed without restart."
+}

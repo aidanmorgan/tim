@@ -1,4 +1,7 @@
 using Godot;
+using System;
+using System.Collections.Generic;
+using CuriousContraptions.Presentation;
 namespace CuriousContraptions;
 
 /// <summary>A self-contained battery torch, latched on by a physical button or activation command.</summary>
@@ -11,10 +14,17 @@ public partial class FlashlightPart : MachinePart
     private LightConeVisual _beam = null!;
     private MeshInstance3D _lens = null!;
     private MeshInstance3D _button = null!;
-    private MachineWorld? _world;
+    private static readonly LightEmitter Emitter=new(LensPosition,Vector3.Right,Range,ConeCosine,Intensity);
+    private static readonly AnimationDefinition ButtonTravel=new(0,-.06,.06,AnimationCurve.Linear,AnimationRepeat.Once,AnimationClock.Presentation);
+    private static readonly AnimationDefinition LensTransition=new(0,1,.06,AnimationCurve.Linear,AnimationRepeat.Once,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneTranslationAnimation> TranslationAnimations=>
+        [new(_button,ButtonTravel,AnimationTranslationAxis.Y,SceneAnimationSignal.OwnerActive,SceneAnimationDrive.Endpoint)];
+    public override IReadOnlyList<SceneColourAnimation> ColourAnimations=>
+        [new(_lens,LensTransition,new("#556573"),new("#fff0a5"),SceneAnimationSignal.OwnerActive,SceneAnimationDrive.Endpoint)];
+    public override IReadOnlyList<SceneLightCone> LightCones=>[new(_beam,Emitter)];
     public override bool CanReceiveActivation => true;
     public override LightEmitter? LightSource => Active
-        ? new(LensPosition, Vector3.Right, Range, ConeCosine, Intensity) : null;
+        ? Emitter : null;
     protected override void Build()
     {
         PickRadius = .9f;
@@ -23,7 +33,7 @@ public partial class FlashlightPart : MachinePart
         body.RotationDegrees = new(0, 0, 90);
         var collar = PartArt.Cylinder(Visual, .43f, .25f, new("#fff8e9"), new(.5f, 0, 0));
         collar.RotationDegrees = new(0, 0, 90);
-        Boxes.Add(new(new(.5f, 0, 0), new(.125f, .43f, .43f)));
+        Boxes.Add(new(new(.5f, 0, 0), new(.125f, .43f, .43f), MachinePart.RootBody));
         _lens = PartArt.Cylinder(Visual, .34f, .03f, new("#556573"), LensPosition);
         _lens.RotationDegrees = new(0, 0, 90);
         AddBox(new(-.15f, .36f, 0), new(.4f, .14f, .35f), Definition.Color, false);
@@ -32,22 +42,12 @@ public partial class FlashlightPart : MachinePart
         _beam = new LightConeVisual { Name = "LightCone", Visible = false };
         Visual.AddChild(_beam);
     }
-    public override void _Process(double delta)
+    public override void ObserveContact(SceneContact contact,MachineWorld world)
     {
-        _beam.Visible = Active;
-        if (_world != null && LightSource is { } source) _beam.Refresh(_world, this, source);
-    }
-    public override void OnContact(MachinePart body, float speed, MachineWorld world)
-    {
-        var point = Transform.AffineInverse() * body.Position;
+        var speed=contact.ApproachSpeed;
+        var point=contact.SelfLocalPoint;
         if (speed >= Assistance(world.Precision).TriggerThreshold &&
-            point.Y > .3f && Mathf.Abs(point.X + .15f) < .45f && Mathf.Abs(point.Z) < .4f)
+            point.Y > .3f && Math.Abs(point.X + .15) < .45f && Math.Abs(point.Z) < .4f)
             world.Activate(this);
-    }
-    public override void AfterStep(MachineWorld world, float delta)
-    {
-        _button.Position = new(-.15f, Mathf.MoveToward(_button.Position.Y, Active ? .3f : .36f, delta), 0);
-        ((StandardMaterial3D)_lens.MaterialOverride).AlbedoColor = Active ? new("#fff0a5") : new("#556573");
-        _world = world;
     }
 }

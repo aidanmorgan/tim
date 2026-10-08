@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class MirrorTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class MirrorTests(NativeSceneFixture godot)
 {
     private MachineWorld World()
     {
@@ -20,11 +20,11 @@ public class MirrorTests(HeadlessFixture godot)
         var world=World();
         try
         {
-            var mirror=world.AddPart(new(){Id="mirror",Kind="mirror",Position=[0,6,0],Rotation=[0,0,45]});
+            var mirror=world.AddPart(new(){Id="mirror",Kind="mirror",Position=[0,6,0],Orientation = PartOrientation.FromEulerDegrees(0,0,45)});
             var point=mirror.Transform*mirror.OpticalSurfaces.Single().Aperture.At;
             var laser=(LaserPart)world.AddPart(new(){Id="laser",Kind="laser"});
             laser.Position=point-Vector3.Right*3;
-            var receiver=(LightReceiverPart)world.AddPart(new(){Id="receiver",Kind="light_receiver",Rotation=[0,0,-90]});
+            var receiver=(LightReceiverPart)world.AddPart(new(){Id="receiver",Kind="light_receiver",Orientation = PartOrientation.FromEulerDegrees(0,0,-90)});
             receiver.Position=point+Vector3.Down*3;
             if(rotated)
             {
@@ -58,9 +58,9 @@ public class MirrorTests(HeadlessFixture godot)
         var world=World();
         try
         {
-            var first=world.AddPart(new(){Id="first",Kind="mirror",Position=[0,4,0],Rotation=[0,0,-45]});
+            var first=world.AddPart(new(){Id="first",Kind="mirror",Position=[0,4,0],Orientation = PartOrientation.FromEulerDegrees(0,0,-45)});
             var p=first.Transform*first.OpticalSurfaces.Single().Aperture.At;
-            var second=world.AddPart(new(){Id="second",Kind="mirror",Rotation=[0,0,135]});
+            var second=world.AddPart(new(){Id="second",Kind="mirror",Orientation = PartOrientation.FromEulerDegrees(0,0,135)});
             second.Position=p+Vector3.Up*3-second.Basis*second.OpticalSurfaces.Single().Aperture.At;
             var laser=world.AddPart(new(){Id="laser",Kind="laser"});
             laser.Position=p-Vector3.Right*3;
@@ -83,7 +83,7 @@ public class MirrorTests(HeadlessFixture godot)
         var world=World();
         try
         {
-            var mirror=world.AddPart(new(){Id="mirror",Kind="mirror",Position=[0,6,0],Rotation=[0,0,45]});
+            var mirror=world.AddPart(new(){Id="mirror",Kind="mirror",Position=[0,6,0],Orientation = PartOrientation.FromEulerDegrees(0,0,45)});
             var point=mirror.Transform*mirror.OpticalSurfaces.Single().Aperture.At;
             var laser=world.AddPart(new(){Id="laser",Kind="laser"});
             laser.Position=point-Vector3.Right*3;
@@ -118,8 +118,8 @@ public class MirrorTests(HeadlessFixture godot)
             var ghost=(MirrorPart)world.Registry.Create(new(){Id="ghost",Kind="mirror"});
             ghostContainer.AddChild(ghost);
             ghost.SetSelected(true);
-            ghost._Process(0);
-            Assert.False(ghost.GetNode<Node3D>("Visual/OutgoingAimPreview").Visible);
+            world.PresentFrame(0,1);
+            Assert.False(ghost.OpticalPreview!.Value.Target.Visible);
         }
         finally{ghostContainer.Free();world.Free();}
     }
@@ -130,7 +130,7 @@ public class MirrorTests(HeadlessFixture godot)
         try
         {
             world.AddPart(new(){Id="right",Kind="mirror",Position=[1,5,0]});
-            world.AddPart(new(){Id="left",Kind="mirror",Position=[-1,5,0],Rotation=[0,180,0]});
+            world.AddPart(new(){Id="left",Kind="mirror",Position=[-1,5,0],Orientation = PartOrientation.FromEulerDegrees(0,180,0)});
             var laser=world.AddPart(new(){Id="laser",Kind="laser",Position=[-4,5,0]});
             var source=new OpticalEmitter(new(4,0,0),Vector3.Right,100,Vector3.One);
             var trace=OpticalNetwork.Trace(world,laser,source);

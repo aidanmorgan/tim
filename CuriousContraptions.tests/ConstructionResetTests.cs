@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class ConstructionResetTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class ConstructionResetTests(NativeSceneFixture godot)
 {
     private const string PartId = "aimed_part";
 
@@ -21,7 +21,7 @@ public class ConstructionResetTests(HeadlessFixture godot)
             world.LoadMachine(new());
             world.Restore();
             Assert.Empty(world.Parts);
-            Assert.Null(world.Initial);
+            Assert.False(world.HasConstructionSnapshot);
             Assert.False(world.Running);
         }
         finally { world.Free(); }
@@ -37,7 +37,7 @@ public class ConstructionResetTests(HeadlessFixture godot)
         try
         {
             var part = world.AddPart(new() { Id = PartId, Kind = CannonPart.CatalogId,
-                Position = [0, 3, 0], Rotation = [x, y, z] });
+                Position = [0, 3, 0], Orientation = PartOrientation.FromEulerDegrees(x, y, z) });
             // Match gizmo editing: successive world-axis rotations rather than Euler assignment.
             part.Basis = Basis.Identity;
             part.Rotate(Vector3.Back, Mathf.DegToRad(z));
@@ -57,7 +57,7 @@ public class ConstructionResetTests(HeadlessFixture godot)
                 Assert.Equal(expectedScale, part.Scale);
                 Assert.False(world.Running);
                 Assert.Equal(0, world.Ticks);
-                Assert.Null(world.Initial);
+                Assert.False(world.HasConstructionSnapshot);
             }
         }
         finally { world.Free(); }

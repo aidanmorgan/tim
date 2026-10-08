@@ -40,13 +40,13 @@
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachinePart_ScriptMethods.generated.cs"
       },
-      "Sha256": "5357bf4c8a4b251563389fa1787d0e5da9850ae5f0dd9d19c811d9a8f9dadc4c"
+      "Sha256": "3c168c9821a93ae4e599dfe19be01cd3268ae620dcdda0790de07fab9eeef079"
     },
     {
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.MachineWorld_ScriptMethods.generated.cs"
       },
-      "Sha256": "fa9305389f0a972358975564386968af4f05818f0bd70e3ff7ba8831b08eb763"
+      "Sha256": "0d7eae5b736a24554426aa32b44d1a47b2b03d76c999e3c7fddaa64b71b859eb"
     },
     {
       "Path": {
@@ -226,7 +226,7 @@
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/CuriousContraptions.Workshop_ScriptMethods.generated.cs"
       },
-      "Sha256": "2d6ed9fc3f1cea6cf93a938dfc26182de161ee552f535fb3891652e354d8eb25"
+      "Sha256": "4ade7c021494b326f55b9c9fa0eb4d019a0d9e5bcce09705e82f6cb5013da456"
     },
     {
       "Path": {
@@ -244,7 +244,7 @@
       "Path": {
         "Value": "tools/Ownership/obj/binding/ProductionDiagnostic/Godot.SourceGenerators/Godot.SourceGenerators.ScriptPathAttributeGenerator/AssemblyScriptTypes.generated.cs"
       },
-      "Sha256": "d477414ab00412a951105b544fdf408b9509ec97a4e3dfa267739f43eceb2e6f"
+      "Sha256": "4312f9af0e0eca768b6e69d1468e3cd9640aec551df201a06e9d747d9658ae8e"
     },
     {
       "Path": {
@@ -1500,7 +1500,7 @@
         "Value": "P0-008"
       },
       "Rule": 3,
-      "MemberSha256": "21fcb0c324892cb4715d3e8cb867950b95386f9c3badb988b0c29f600b0882d4"
+      "MemberSha256": "2c45c0882d3a703ad72132d77c9fa9c736b55eb791ca99ee10127531b5369899"
     },
     {
       "Member": {
@@ -1511,7 +1511,7 @@
         "Value": "P0-008"
       },
       "Rule": 3,
-      "MemberSha256": "ad2291061182cf5dd9168c0335c60ae16c9b23e6440073a9e9003582b800f02b"
+      "MemberSha256": "e8dbf812c1d638c95a9d9b306a83fe36d45bcb90c47ed62e946e112be9a8410e"
     },
     {
       "Member": {
@@ -2424,7 +2424,7 @@
         "Value": "P0-008"
       },
       "Rule": 3,
-      "MemberSha256": "3e4124d539ee4c6726acf11ec7dde0eef42ad929e865f8ac012126f196fb2a30"
+      "MemberSha256": "8a5a619ae8d6194c09c548ce1b7ab62153c57cc4e6d2c1c8d7df9b0c8c700ebb"
     },
     {
       "Member": {
@@ -2677,7 +2677,7 @@
         "Value": "P0-008"
       },
       "Rule": 3,
-      "MemberSha256": "57eb5009735161aa9094eb904c069de56d9ee2a0f5698177ba484d0028a9ca1d"
+      "MemberSha256": "d729391b6d3bb54478be9ad32de4531fb09d4ece9ab606b1c8a4c0614339cc1d"
     },
     {
       "Member": {

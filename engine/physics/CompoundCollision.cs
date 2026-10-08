@@ -1,4 +1,3 @@
-using Godot;
 using System;
 
 namespace CuriousContraptions.Physics;
@@ -29,6 +28,9 @@ public sealed class CompoundGeometry
     }
 }
 
+public readonly record struct CompoundOverlapResult(ColliderChildId ChildA,ColliderChildId ChildB,
+    ConvexSeparationResult Separation);
+
 public readonly record struct CompoundSweepResult(ConvexSweepStatus Status,double Time,
     ColliderChildId? ChildA,ColliderChildId? ChildB,ConvexSeparationResult? Separation,int NarrowPhaseCalls);
 
@@ -42,11 +44,14 @@ public readonly record struct CollisionBounds(CollisionVector Minimum,CollisionV
     public static CollisionBounds Swept(ConvexMotion motion,double duration)
     {
         motion.At(duration); // Validate time even when used only by the broad phase.
-        var bounds=Of(motion.At(0)); var displacement=motion.LinearVelocity*duration;
+        var bounds=Of(motion.At(0)); var displacement=motion.Trajectory.At(duration).Center-motion.CenterAtStart;
         // Support planes can move by at most integrated angular speed times
         // the support derivative radius, and never by more than twice reach.
-        // Zero rotation naturally gives exact translated child AABBs.
-        var turn=Math.Min(2*motion.Reach,motion.AngularSpeedBound*motion.RotationalReach*duration);
+        // Zero rotation and acceleration give exact translated child AABBs.
+        // Smooth translation stays within its acceleration bound * duration² / 8
+        // of its endpoint chord, including a return to the start position.
+        var turn=Math.Min(2*motion.Reach,motion.AngularSpeedBound*motion.RotationalReach*duration)+
+            motion.LinearAccelerationBound*duration*duration/8;
         var minimum=bounds.Minimum+new CollisionVector(Math.Min(0,displacement.X)-turn,
             Math.Min(0,displacement.Y)-turn,Math.Min(0,displacement.Z)-turn);
         var maximum=bounds.Maximum+new CollisionVector(Math.Max(0,displacement.X)+turn,
@@ -89,6 +94,21 @@ public readonly struct CompoundMotion
 /// their source part. Child indices are stable declaration-order identities.</summary>
 public static class CompoundCollision
 {
+    /// <summary>First declaration-ordered pair exceeding the allowed initial
+    /// penetration. Uncertain separation bounds reject conservatively.</summary>
+    public static CompoundOverlapResult? FindOverlap(CompoundMotion a,CompoundMotion b,double maximumPenetration,out CompoundCandidateResult candidates)
+    {
+        if(!double.IsFinite(maximumPenetration)||maximumPenetration<0)
+            throw new ArgumentOutOfRangeException(nameof(maximumPenetration));
+        candidates=Candidates(a,b,0,0);
+        foreach(var pair in candidates.Pairs)
+        {
+            var separation=ConvexSeparation.Query(a.Child(pair.A).At(0),b.Child(pair.B).At(0));
+            if(separation.LowerBound < -maximumPenetration) return new(pair.A,pair.B,separation);
+        }
+        return null;
+    }
+
     public static CompoundCandidateResult Candidates(CompoundMotion a,CompoundMotion b,double duration,double margin)=>
         CompoundBoundsTree.Query(a,b,duration,margin);
 

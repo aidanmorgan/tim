@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <OutputType>Exe</OutputType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <WasmMainJSPath>wwwroot/worker.js</WasmMainJSPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
+    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs" Link="Gpu/%(Filename)%(Extension)" />
+    <WasmExtraFilesToDeploy Include="wwwroot/**" />
+  </ItemGroup>
+  <Target Name="GetWorkshopAnimationBundle" DependsOnTargets="Build" Returns="@(_WorkshopAnimationBundleFiles)">
+    <Error Condition="'$(WasmAppDir)' == '' Or !Exists('$(WasmAppDir)worker.js')" Text="Current Animation worker bundle is missing." />
+    <ItemGroup>
+      <_WorkshopAnimationBundleFiles Include="$(WasmAppDir)**/*" />
+    </ItemGroup>
+    <ItemGroup>
+      <_WorkshopAnimationBundleFiles Update="@(_WorkshopAnimationBundleFiles)">
+        <BundleRelativePath>%(_WorkshopAnimationBundleFiles.RecursiveDir)%(_WorkshopAnimationBundleFiles.Filename)%(_WorkshopAnimationBundleFiles.Extension)</BundleRelativePath>
+      </_WorkshopAnimationBundleFiles>
+    </ItemGroup>
+  </Target>
+</Project>

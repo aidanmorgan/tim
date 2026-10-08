@@ -1,0 +1,154 @@
+# Sprint Status for Curious Contraptions
+# Generated and maintained via BMAD Method (bmm module)
+
+generated: 10-08-2026 00:26
+last_updated: 10-09-2026 00:48
+project: Curious Contraptions
+project_key: CC
+tracking_system: file-system
+story_location: "_bmad-output/planning-artifacts/epics.md"
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created or ready for developer pickup
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for adversarial review
+#   - done: Story completed and verified
+
+development_status:
+  epic-1: done
+  1-1-game-grade-contact-and-substep-norm: done
+  1-2-multibody-pose-ring-and-dual-sphere: done
+  1-3-tgs-soft-solver-and-feature-warmstart: done
+  1-4-dynamic-aabb-bvh-and-sat-narrowphase: done
+  1-5-speculative-contacts-anti-tunneling: done
+  epic-1-retrospective: optional
+
+  epic-2: done
+  2-1-host-validation-and-error-lane-removal: done
+  2-2-certificate-and-directed-rounding-removal: done
+  2-3-analytic-ccd-and-interval-library-removal: done
+  2-4-guide-horizon-and-departure-ownership-removal: done
+  epic-2-retrospective: optional
+
+  epic-3: done
+  3-1-endpoint-sampled-sensors-dwell-counter: done
+  epic-3-retrospective: optional
+
+  epic-4: in-progress
+  4-1-dedicated-wasm-animation-worker: done
+  4-2-mechanical-cosmetic-bindings: done
+  4-3-legacy-presentation-code-retirement: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-dynamic-box-rigid-body-upright-stability: backlog
+  5-2-domino-cascade-orientation-threshold-sensor: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-bowling-ball-dynamic-sphere: backlog
+  6-2-bumper-radial-impulse-work-store: backlog
+  6-3-bumper-multi-angle-contacts: backlog
+  6-4-prismatic-slider-tgs-soft-spring: backlog
+  6-5-preload-energy-store-springboard-launch: backlog
+  6-6-generic-aperture-sensor-directional-rearm: backlog
+  6-7-straight-pipe-compound-cylinder: backlog
+  6-8-hollow-sdf-torus-cap-clear-pipe: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-reference-historical-archive-purge: backlog
+  7-2-diagnostics-legacy-probe-tools-purge: backlog
+  7-3-uncompiled-legacy-test-purge: backlog
+  7-4-legacy-cpu-physics-unshipped-engine-purge: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-pressure-plate-surface-contact-load-sensor: backlog
+  8-2-pulse-counter-event-accumulator: backlog
+  8-3-system-clock-periodic-pulse-generator: backlog
+  8-4-state-latch-bistable-memory: backlog
+  8-5-hold-timer-pulse-stretcher: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-battery-dc-power-source-network-graph: backlog
+  9-2-dual-supply-both-gate: backlog
+  9-3-electrical-logic-gates-nand-nor: backlog
+  9-4-electrical-logic-gates-or-xor: backlog
+  epic-9-retrospective: optional
+
+  epic-10: backlog
+  10-1-trampoline-compliant-membrane-dynamics: backlog
+  10-2-balanced-impact-lever-pivot-fulcrum: backlog
+  10-3-pulley-wheel-tensile-rope-dynamics: backlog
+  10-4-counterweight-multibody-pendulum-lifting: backlog
+  epic-10-retrospective: optional
+
+  epic-11: backlog
+  11-1-electric-motor-tangential-conveyor-belt: backlog
+  11-2-mechanical-clutch-reverse-transmission: backlog
+  11-3-linear-pusher-telescopic-actuator: backlog
+  11-4-powered-gate-passageway-barrier: backlog
+  11-5-wound-spring-motor-toy-cannon-launcher: backlog
+  11-6-beam-shutter-mechanical-guillotine: backlog
+  epic-11-retrospective: optional
+
+  epic-12: backlog
+  12-1-lightweight-tennis-ball-floating-balloon: backlog
+  12-2-electric-fan-aerodynamic-airflow-jet: backlog
+  12-3-pneumatic-bellows-compression-pulse: backlog
+  12-4-windmill-rotor-aerodynamic-capture-drive: backlog
+  epic-12-retrospective: optional
+
+  epic-13: backlog
+  13-1-flashlight-torch-collimated-laser-emitters: backlog
+  13-2-planar-reflection-mirror-beam-splitter-combiner: backlog
+  13-3-spectral-color-bandpass-filters-rgb: backlog
+  13-4-broadband-pure-channel-optical-receivers: backlog
+  13-5-secondary-spectral-receivers-cmyw: backlog
+  13-6-photovoltaic-solar-panel-energy-conversion: backlog
+  13-7-optical-logic-gates-boolean-crystals: backlog
+  epic-13-retrospective: optional
+
+  epic-14: backlog
+  14-1-service-bell-percussion-resonant-ringing: backlog
+  14-2-audio-speaker-directional-pulse-emission: backlog
+  14-3-sound-level-meter-threshold-sensor: backlog
+  14-4-resonant-wind-chimes-airflow-percussion: backlog
+  epic-14-retrospective: optional
+
+  epic-15: backlog
+  15-1-campaign-chapter-1-levels-1-10: backlog
+  15-2-campaign-chapter-1-levels-11-20: backlog
+  15-3-campaign-chapter-1-levels-21-30: backlog
+  15-4-campaign-chapter-2-levels-31-40: backlog
+  15-5-campaign-chapter-2-levels-41-50: backlog
+  15-6-campaign-chapter-2-levels-51-60: backlog
+  15-7-campaign-chapter-3-levels-61-70: backlog
+  15-8-campaign-chapter-3-levels-71-80: backlog
+  15-9-campaign-chapter-3-levels-81-90: backlog
+  15-10-campaign-chapter-4-levels-91-100: backlog
+  15-11-campaign-chapter-4-levels-101-110: backlog
+  15-12-campaign-chapter-4-levels-111-120: backlog
+  15-13-campaign-chapter-5-levels-121-130: backlog
+  15-14-campaign-chapter-5-levels-131-140: backlog
+  15-15-campaign-chapter-5-levels-141-150: backlog
+  epic-15-retrospective: optional
+
+  epic-16: backlog
+  16-1-simulation-timing-telemetry-audit-p034: backlog
+  16-2-universal-rendering-webgl2-webgpu-pacing: backlog
+  16-3-long-session-memory-leak-lifecycle-audit: backlog
+  16-4-production-build-packaging-release-manifest: backlog
+  epic-16-retrospective: optional
+
+action_items: []

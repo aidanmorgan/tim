@@ -4,14 +4,48 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class DelayTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class DelayTests(NativeSceneFixture godot)
 {
     private MachineWorld World()
     {
         var world = new MachineWorld();
         godot.Tree.Root.AddChild(world);
         return world;
+    }
+    [Fact]
+    public void ParameterBoundaryIsCanonicalAndRejectsUnsupportedValues()
+    {
+        Assert.Equal("delay_seconds",PartParameterName.Of(DelayParameter.DelaySeconds));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>PartParameterName.Of((DelayParameter)99));
+        Assert.Throws<ArgumentException>(()=>PartParameterName.RequireExact<DelayParameter>([]));
+        Assert.Throws<ArgumentException>(()=>PartParameterName.RequireExact<DelayParameter>(["unsupported"]));
+    }
+    [Fact]
+    public void CountdownReadingsFollowOwnedSnapshotRestoration()
+    {
+        const string catalogue="delay";
+        const string identity="owned_timer";
+        var world=World();
+        try
+        {
+            var timer=(DelayPart)world.AddPart(new() {Id=identity,Kind=catalogue,
+                Properties=new() {[PartParameterName.Of(DelayParameter.DelaySeconds)]=.1f}});
+            world.Start();
+            var ready=world.Timers.Capture();
+            world.Activate(timer);world.Step();
+            var counting=world.Timers.Capture();
+            var due=timer.DueTick;
+            while(world.Ticks<=due)world.Step();
+            Assert.Equal(SimulationTimerPhase.Finished,timer.State);
+            world.Timers.Restore(counting);
+            Assert.Equal(SimulationTimerPhase.Counting,timer.State);
+            Assert.Equal(due,timer.DueTick);Assert.Equal(0,timer.Progress);
+            world.Timers.Restore(ready);
+            Assert.Equal(SimulationTimerPhase.Ready,timer.State);
+            Assert.Equal(-1,timer.StartedTick);Assert.Equal(-1,timer.DueTick);
+        }
+        finally {world.Free();}
     }
     [Theory]
     [InlineData(.1f)]
@@ -23,7 +57,7 @@ public class DelayTests(HeadlessFixture godot)
         try
         {
             var timer = (DelayPart)world.AddPart(new() { Id = "timer", Kind = "delay",
-                Properties = new() { [DelayParameters.Seconds] = seconds } });
+                Properties = new() { [PartParameterName.Of(DelayParameter.DelaySeconds)] = seconds } });
             var lamp = world.AddPart(new() { Id = "lamp", Kind = "lamp", Position = [3, 1, 0] });
             Assert.True(world.Connect(timer, lamp));
             var motor = world.AddPart(new() { Id = "motor", Kind = "motor", Position = [6, 1, 0] });
@@ -31,7 +65,7 @@ public class DelayTests(HeadlessFixture godot)
             world.Start();
             world.Activate(timer);
             var due = timer.DueTick;
-            Assert.Equal(DelayState.Counting, timer.State);
+            Assert.Equal(SimulationTimerPhase.Counting, timer.State);
             while (world.Ticks < due)
             {
                 world.Activate(timer);
@@ -40,15 +74,15 @@ public class DelayTests(HeadlessFixture godot)
                 Assert.False(lamp.Active);
             }
             world.Step();
-            Assert.Equal(DelayState.Finished, timer.State);
+            Assert.Equal(SimulationTimerPhase.Finished, timer.State);
             Assert.True(lamp.Active);
             Assert.Equal(due, world.Events[new(MachineEventKind.Activated, "lamp")]);
             world.Activate(timer);
-            Assert.Equal(DelayState.Finished, timer.State);
+            Assert.Equal(SimulationTimerPhase.Finished, timer.State);
             Assert.Equal(due, timer.DueTick);
             world.Restore();
             timer = (DelayPart)world.FindPart("timer")!;
-            Assert.Equal(DelayState.Ready, timer.State);
+            Assert.Equal(SimulationTimerPhase.Ready, timer.State);
             Assert.Equal(-1, timer.DueTick);
             Assert.Equal(0, timer.Progress);
             Assert.False(world.FindPart("lamp")!.Active);
@@ -58,15 +92,15 @@ public class DelayTests(HeadlessFixture godot)
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void ChainedCountdownsIgnoreEntityOrderAndInputRemoval(bool reverse)
+    public void ChainedCountdownsIgnoreEntityOrderAndRejectLiveInputRemoval(bool reverse)
     {
         var world = World();
         try
         {
             var specs = new List<PartSpec>
             {
-                new() { Id = "a", Kind = "delay", Properties = new() { [DelayParameters.Seconds] = .1f } },
-                new() { Id = "b", Kind = "delay", Properties = new() { [DelayParameters.Seconds] = .2f } },
+                new() { Id = "a", Kind = "delay", Properties = new() { [PartParameterName.Of(DelayParameter.DelaySeconds)] = .1f } },
+                new() { Id = "b", Kind = "delay", Properties = new() { [PartParameterName.Of(DelayParameter.DelaySeconds)] = .2f } },
                 new() { Id = "lamp", Kind = "lamp" }
             };
             if (reverse) specs.Reverse();
@@ -77,9 +111,13 @@ public class DelayTests(HeadlessFixture godot)
             world.Activate(world.FindPart("a")!);
             for (var i = 0; i < 20; i++) world.Step();
             var b = (DelayPart)world.FindPart("b")!;
-            Assert.Equal(DelayState.Counting, b.State);
+            Assert.Equal(SimulationTimerPhase.Counting, b.State);
             var expected = b.DueTick;
-            world.Connections.RemoveAll(c => c.From == "a");
+            var input=world.Connections.Single(c=>c.From==world.FindPart("a")!.Uid);
+            var physics=world.Physics;
+            Assert.Throws<InvalidOperationException>(()=>world.Disconnect(input));
+            Assert.Same(physics,world.Physics);
+            Assert.Contains(input,world.Connections);
             for (var i = 0; i < 40; i++) world.Step();
             Assert.True(world.FindPart("lamp")!.Active);
             Assert.Equal(expected, world.Events[new(MachineEventKind.Activated, "lamp")]);
@@ -98,7 +136,7 @@ public class DelayTests(HeadlessFixture godot)
         try
         {
             Assert.Throws<ArgumentException>(() => world.AddPart(new() { Id = "timer", Kind = "delay",
-                Properties = new() { [DelayParameters.Seconds] = duration } }));
+                Properties = new() { [PartParameterName.Of(DelayParameter.DelaySeconds)] = duration } }));
             Assert.Empty(world.Parts);
         }
         finally { world.Free(); }
@@ -121,27 +159,34 @@ public class DelayTests(HeadlessFixture godot)
         }
         finally { world.Free(); }
     }
+    public enum Lesson { Signal, Solar }
     [Theory]
-    [InlineData("delayed_signal", 0f)]
-    [InlineData("delayed_signal", .45f)]
-    [InlineData("delayed_signal", 1f)]
-    [InlineData("delayed_solar", 0f)]
-    [InlineData("delayed_solar", .45f)]
-    [InlineData("delayed_solar", 1f)]
-    public void LessonsNeedEveryLinkAndRejectEarlyBypass(string id, float precision)
+    [InlineData(Lesson.Signal, 0f)]
+    [InlineData(Lesson.Signal, .45f)]
+    [InlineData(Lesson.Signal, 1f)]
+    [InlineData(Lesson.Solar, 0f)]
+    [InlineData(Lesson.Solar, .45f)]
+    [InlineData(Lesson.Solar, 1f)]
+    public void LessonsNeedEveryLinkAndRejectEarlyBypass(Lesson lesson, float precision)
     {
+        var id=lesson switch
+        {
+            Lesson.Signal=>"delayed_signal",Lesson.Solar=>"delayed_solar",
+            _=>throw new ArgumentOutOfRangeException(nameof(lesson))
+        };
         var puzzle = MachineCodec.ReadPuzzles(Godot.FileAccess.GetFileAsString("res://content/puzzles.json")).Single(p => p.Id == id);
         var data = MachineCodec.Clone(puzzle.CreateMachine());
         data.Parts.AddRange(puzzle.Solution);
         data.Connections = puzzle.SolutionConnections;
         // UI-created IDs depend on placement order, not authored solution-slot names.
         const string placedDelayId = "delay_27";
-        data.Parts.Single(p => p.Id == "delay_1").Id = placedDelayId;
-        foreach (var connection in data.Connections)
+        const string authoredDelayId = "delay_1";
+        data.Parts.Single(p => p.Id == authoredDelayId).Id = placedDelayId;
+        data.Connections = data.Connections.Select(connection => connection with
         {
-            if (connection.From == "delay_1") connection.From = placedDelayId;
-            if (connection.To == "delay_1") connection.To = placedDelayId;
-        }
+            From = connection.From == authoredDelayId ? placedDelayId : connection.From,
+            To = connection.To == authoredDelayId ? placedDelayId : connection.To
+        }).ToList();
         var world = World();
         world.Precision = precision;
         void Run()
@@ -168,12 +213,12 @@ public class DelayTests(HeadlessFixture godot)
                 Assert.False(world.Won);
             }
             var bypass = MachineCodec.Clone(data);
-            bypass.Connections.Add(new() { From = "switch", To = id == "delayed_signal" ? "lamp" : "torch",
+            bypass.Connections.Add(new() { From = "switch", To = lesson == Lesson.Signal ? "lamp" : "torch",
                 Type = ConnectionDomain.Activation, FromPort = SocketId.ActivationOut, ToPort = SocketId.ActivationIn });
             world.LoadMachine(bypass);
             Run();
             Assert.False(world.Won);
-Assert.Equal(DelayState.Finished, ((DelayPart)world.FindPart(placedDelayId)!).State);
+Assert.Equal(SimulationTimerPhase.Finished, ((DelayPart)world.FindPart(placedDelayId)!).State);
         }
         finally { world.Free(); }
     }

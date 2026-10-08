@@ -1,11 +1,12 @@
 using Godot;
+using CuriousContraptions.Physics;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class LightTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class LightTests(NativeSceneFixture godot)
 {
     private MachineWorld World()
     {
@@ -56,7 +57,7 @@ public class LightTests(HeadlessFixture godot)
         data.Parts.Single(p => p.Id == "panel_1").Position[2] += error;
         // Keep impact triggering identical: only placement correction changes across difficulties.
         foreach (var part in data.Parts)
-        foreach (var knot in part.Difficulty) knot.TriggerThreshold = .8f;
+            part.Difficulty = part.Difficulty.Select(knot=>knot with {TriggerThreshold=.8f}).ToList();
         var world = World();
         world.Precision = precision;
         try
@@ -68,7 +69,7 @@ public class LightTests(HeadlessFixture godot)
             Assert.Equal(expectedWin, world.Won);
             var panel = (SolarPanelPart)world.FindPart("panel_1")!;
             Assert.Equal(expectedWin, panel.Irradiance >= SolarPanelPart.Threshold);
-            Assert.InRange(Mathf.Abs(panel.Position.Z - (error - (precision == 0 ? .25f : precision == 1 ? 0 : .1f))), 0, .001f);
+            Assert.InRange(Mathf.Abs(WorldGeometry.CaptureSpatialState(world,new(panel,MachinePart.RootBody)).Pose.ToScene().Origin.Z - (error - (precision == 0 ? .25f : precision == 1 ? 0 : .1f))), 0, .001f);
         }
         finally { world.Free(); }
     }
@@ -82,7 +83,7 @@ public class LightTests(HeadlessFixture godot)
         try
         {
             var torch = (FlashlightPart)world.AddPart(new() { Id = "torch", Kind = "flashlight",
-                Position = [0, 5, 0], Rotation = [x, y, z] });
+                Position = [0, 5, 0], Orientation = PartOrientation.FromEulerDegrees(x, y, z) });
             torch.Active = true;
             var source = torch.LightSource!.Value;
             var clear = LightConeVisual.Sample(world, torch, source, 1);
@@ -103,13 +104,12 @@ public class LightTests(HeadlessFixture godot)
                 Assert.InRange(end.X, 2.899f, 2.901f);
                 Assert.True(ray.Distance < source.Range);
             });
-            using var visual = new LightConeVisual();
+            var visual = new LightConeVisual();
             torch.AddChild(visual);
             visual.Refresh(world, torch, source);
             Assert.Equal(1, visual.Mesh.GetSurfaceCount());
             Assert.Equal(LightConeVisual.ShellCount * LightConeVisual.Sectors * 9,
                 visual.Mesh.SurfaceGetArrays(0)[(int)Godot.Mesh.ArrayType.Vertex].AsVector3Array().Length);
-            torch.RemoveChild(visual);
         }
         finally { world.Free(); }
     }
@@ -120,8 +120,11 @@ public class LightTests(HeadlessFixture godot)
         try
         {
             var (torch, panel, motor) = Setup(world);
+            Assert.True(world.Disconnect(world.Connections.Single()));
+            var supply=new SupplyControl(world,panel);
+            Assert.True(world.Connect(supply.Output,motor));
             world.Start();
-            world.Step();
+            supply.SetAndSettle(SimulationLatchPhase.On);
             Assert.Equal(0, panel.Irradiance);
             Assert.False(motor.Active);
             world.Activate(torch);
@@ -129,19 +132,29 @@ public class LightTests(HeadlessFixture godot)
             Assert.True(panel.Irradiance > SolarPanelPart.Threshold);
             Assert.True(motor.Active);
             var intensity = panel.Irradiance;
-            panel.RotationDegrees = new(0, 180, 0);
+            void Place(Transform3D pose)
+            {
+                // A new authored arrangement enters through construction, never a live body setter.
+                world.Restore();
+                torch=Assert.Single(world.Parts.OfType<FlashlightPart>());
+                panel=Assert.Single(world.Parts.OfType<SolarPanelPart>());
+                motor=Assert.Single(world.Parts.OfType<MotorPart>());
+                panel.Transform=pose;
+                world.Start();
+                supply.SetAndSettle(SimulationLatchPhase.On);
+                world.Activate(torch);
+            }
+            Place(new(new Basis(Vector3.Up,Mathf.Pi),new(1,3,0)));
             world.Step();
             Assert.Equal(0, panel.Irradiance);
             Assert.False(motor.Active);
-            panel.RotationDegrees = Vector3.Zero;
-            panel.Position = new(7, 3, 0);
+            Place(new(Basis.Identity,new(7,3,0)));
             world.Step();
             Assert.Equal(0, panel.Irradiance);
-            panel.Position = new(1, 3, 0);
+            Place(new(Basis.Identity,new(1,3,0)));
             world.Step();
             Assert.Equal(intensity, panel.Irradiance);
-            world.Connections.Clear();
-            world.Step();
+            supply.SetAndSettle(SimulationLatchPhase.Off);
             Assert.True(panel.Active);
             Assert.False(motor.Active);
             torch.Active = false;
@@ -151,27 +164,44 @@ public class LightTests(HeadlessFixture godot)
         }
         finally { world.Free(); }
     }
+    public enum Occluder { Wall, Weight }
+    private static string OccluderWire(Occluder kind)=>kind switch
+    {
+        Occluder.Wall=>"wall",Occluder.Weight=>"weight",
+        _=>throw new ArgumentOutOfRangeException(nameof(kind))
+    };
+    [Fact]
+    public void OccluderBoundaryIsCanonicalAndRejectsUnknownValues()
+    {
+        Assert.Equal("wall",OccluderWire(Occluder.Wall));
+        Assert.Equal("weight",OccluderWire(Occluder.Weight));
+        Assert.Throws<ArgumentOutOfRangeException>(()=>OccluderWire((Occluder)999));
+    }
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void OcclusionUsesRotatedBoxesAndDynamicBodiesAndRecovers(bool dynamic)
+    [InlineData(Occluder.Wall)]
+    [InlineData(Occluder.Weight)]
+    public void OcclusionUsesCommittedRotatedBodiesAndDisablingClearsThePath(Occluder kind)
     {
         var world = World();
         try
         {
             var (torch, panel, motor) = Setup(world);
+            // Explicit catalogue boundary; the selection remains enum-typed.
+            var wire=OccluderWire(kind);
             var blocker = world.AddPart(new()
             {
-                Id = "blocker", Kind = dynamic ? "weight" : "wall", Position = [-.3f, 3, 0],
-                Rotation = [0, 90, 0],
-                Properties = dynamic ? new() { [WeightParameters.Mass] = 8 } : new() { ["width"] = 3, ["height"] = 3, ["thickness"] = .4f }
+                Id=wire,Kind=wire,Position=[-.3f,3,0],Orientation = PartOrientation.FromEulerDegrees(0,90,0),
+                Properties=kind==Occluder.Weight?new(){[PartParameterName.Of(WeightParameter.Mass)]=8}:new()
             });
+            if(blocker is WallPart wall)wall.SetDimensions(new(3,3,.4f));
             world.Start();
             world.Activate(torch);
             world.Step();
             Assert.False(motor.Active);
             var blocked = panel.Irradiance;
-            blocker.Position = new(-.3f, 3, 3);
+            var body=world.PhysicsAssembly.Body(new(blocker,MachinePart.RootBody));
+            var collider=world.Physics.Collider(body.Id).Declaration;
+            world.Physics.ApplyColliderUpdates([new(body.Id,collider.Geometry,collider.Material,CollisionParticipation.Disabled)]);
             world.Step();
             Assert.True(motor.Active);
             Assert.True(panel.Irradiance > blocked);

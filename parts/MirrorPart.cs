@@ -1,6 +1,5 @@
 using Godot;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CuriousContraptions;
 
@@ -9,6 +8,7 @@ public partial class MirrorPart : MachinePart
 {
     public override IReadOnlyList<OpticalSurface> OpticalSurfaces=>[new(OpticalPortId.Main,new(new(-.18f,0,0),Vector3.Left,.65f),OpticalInteraction.Mirror,Vector3.One)];
     private OpticalPathVisual _preview=null!;
+    public override Presentation.SceneOpticalPreview? OpticalPreview=>new(_preview,Presentation.OpticalPreviewComposition.Separate);
     protected override void Build()
     {
         PickRadius=1.2f;
@@ -24,18 +24,7 @@ public partial class MirrorPart : MachinePart
             var glint=PartArt.Box(Visual,new(.018f,.5f,.035f),new("#fff8e9"),new(-.205f,0,z));
             glint.RotationDegrees=new(25,0,0);
         }
-        _preview=new OpticalPathVisual {Name="OutgoingAimPreview",Preview=true};
+        _preview=new OpticalPathVisual {Name="OutgoingAimPreview",Preview=true,Visible=false};
         Visual.AddChild(_preview);
-    }
-    public override void _Process(double delta)
-    {
-        _preview.Visible=false;
-        // Palette placement ghosts live outside MachineWorld and must not trace/activate anything.
-        if(!IsSelected||GetParent() is not MachineWorld world||world.Running||world.Won)return;
-        _preview.Visible=true;
-        var segments=world.Parts.Where(p=>p.Visible&&p.OpticalPreviewSource.HasValue)
-            .SelectMany(p=>OpticalNetwork.Trace(world,p,p.OpticalPreviewSource!.Value).Segments)
-            .Where(s=>s.OriginPart==Uid).ToArray();
-        _preview.Refresh(segments);
     }
 }

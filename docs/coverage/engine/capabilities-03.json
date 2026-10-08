@@ -2,7 +2,7 @@
   "Capabilities": [
     {
       "Capability": "AnimationLifecycle",
-      "ModelBoundary": "One typed property writer, explicit autonomous/feedback clocks, overlap/cancel/visibility/generation ownership.",
+      "ModelBoundary": "One typed property writer, explicit autonomous/feedback clocks, overlap/cancel/visibility/generation ownership. Current Workshop subset: A-owned evaluation and B admission bound to session/world/target/occurrence; broader target and lifecycle qualification remains open.",
       "Units": [
         "Second",
         "Dimensionless"
@@ -12,9 +12,14 @@
       "Availability": "Partial",
       "CurrentSymbols": [
         {
-          "Path": "engine/presentation/SceneAnimationAdapter.cs",
-          "Symbol": "SceneAnimationAdapter",
-          "FileHash": "32ae6f5f992fefb7c3bbba14d0bed796995624fbb4dac0390c373e03ba9e942b"
+          "Path": "CuriousContraptions.Animation.Worker/Program.cs",
+          "Symbol": "Program",
+          "FileHash": "81b3bf94caf500ae670392bc15e32b6165d980357b17d251804b2d8272a9b864"
+        },
+        {
+          "Path": "engine/gpu/BrowserWorkshopClient.cs",
+          "Symbol": "BrowserWorkshopClient",
+          "FileHash": "e3e469a31fec64d55ca8b2043f3f26ae92a01cd758263db4336caff1c7f17f60"
         }
       ],
       "IndependentOracle": "Reset and old feedback cannot revive retired targets; reduced-motion and offscreen re-entry preserve authority.",

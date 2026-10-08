@@ -1,6 +1,8 @@
 using Godot;
+using CuriousContraptions.Presentation;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CuriousContraptions;
 
@@ -12,7 +14,19 @@ public partial class LaserPart : MachinePart
     public static readonly Vector3 BeamPower=new(1,.78f,.32f);
     public bool Enabled { get; private set; }
     public IReadOnlyList<OpticalSegment> BeamPath { get; private set; }=[];
-    private StandardMaterial3D _lens=null!;
+    private RuntimeCheckpoint? _checkpoint;
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState => [_checkpoint ??= new(this)];
+    private sealed class RuntimeCheckpoint(LaserPart owner) : SimulationTransactionParticipant
+    {
+        private bool _enabled;
+        private IReadOnlyList<OpticalSegment> _path = [];
+        protected override void CaptureCheckpoint() { _enabled=owner.Enabled; _path=owner.BeamPath; }
+        protected override void RestoreCheckpoint() { owner.Enabled=_enabled; owner.BeamPath=_path; }
+    }
+    private MeshInstance3D _lens=null!;
+    private static readonly AnimationFollowDefinition LensResponse=new(0,1,0,12,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneColourFollow> FollowingColours=>
+        [new(_lens,LensResponse,new("#556573"),new("#fff0a5"),SceneColourFollowSignal.OwnerActive)];
     public override bool CanReceiveActivation=>true;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
     [
@@ -28,7 +42,13 @@ public partial class LaserPart : MachinePart
         Enabled=true;
         return ActivationDisposition.Deferred;
     }
-    public override void ReceiveOpticalPath(IReadOnlyList<OpticalSegment> path){BeamPath=path;Active=path.Count>0;}
+    public override void ReceiveOpticalPath(IReadOnlyList<OpticalSegment> path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        // Own an immutable copy: neither the sender nor readers can mutate a checkpoint.
+        BeamPath=path.Count==0 ? Array.Empty<OpticalSegment>() : Array.AsReadOnly(path.ToArray());
+        Active=BeamPath.Count>0;
+    }
     protected override void Build()
     {
         PickRadius=1;
@@ -37,11 +57,7 @@ public partial class LaserPart : MachinePart
         var rim=PartArt.Cylinder(Visual,.38f,.12f,new("#fff8e9"),new(.66f,0,0));
         rim.RotationDegrees=new(0,0,90);
         var lens=PartArt.Cylinder(Visual,.23f,.035f,new("#556573"),LensPosition);
-        lens.RotationDegrees=new(0,0,90);_lens=(StandardMaterial3D)lens.MaterialOverride;
+        lens.RotationDegrees=new(0,0,90);_lens=lens;
         foreach(var port in ConnectionPorts)PartArt.Sphere(Visual,.075f,new("#f7cb52"),port.LocalPosition);
-    }
-    public override void _Process(double delta)
-    {
-        _lens.AlbedoColor=_lens.AlbedoColor.Lerp(Active?new("#fff0a5"):new("#556573"),1-Mathf.Exp(-(float)delta*12));
     }
 }

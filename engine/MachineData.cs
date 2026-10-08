@@ -8,21 +8,45 @@ namespace CuriousContraptions;
 public enum TubeBendAngle { Degrees45 = 45, Degrees90 = 90 }
 
 /// <summary>Puzzle-authored assistance at one difficulty knot; precision 0 is easiest, 1 is strict.</summary>
-public sealed class PartDifficulty
+public sealed record PartDifficulty
 {
-    public float Precision { get; set; }
-    public float PositionWindow { get; set; }
-    public float RotationWindow { get; set; }
-    public float MaxPositionCorrection { get; set; }
-    public float MaxRotationCorrection { get; set; }
-    public float BlendSeconds { get; set; } = .4f;
-    public float CaptureMargin { get; set; } = .02f;
-    public float CaptureSpeed { get; set; } = 1.5f;
-    public float CaptureDwell { get; set; } = .35f;
-    public float GuideAcceleration { get; set; }
-    public float TriggerThreshold { get; set; } = .8f;
+    public float Precision { get; init; }
+    public float PositionWindow { get; init; }
+    public float RotationWindow { get; init; }
+    public float MaxPositionCorrection { get; init; }
+    public float MaxRotationCorrection { get; init; }
+    public float BlendSeconds { get; init; } = .4f;
+    public float CaptureMargin { get; init; } = .02f;
+    public float CaptureSpeed { get; init; } = 1.5f;
+    public float CaptureDwell { get; init; } = .35f;
+    public float GuideAcceleration { get; init; }
+    public float TriggerThreshold { get; init; } = .8f;
 }
 
+[JsonConverter(typeof(InternalBodyRoleJsonConverter))]
+public enum InternalBodyRole { Plunger }
+
+/// <summary>Canonical serialization names only; unsupported roles are rejected.</summary>
+public sealed class InternalBodyRoleJsonConverter : JsonConverter<InternalBodyRole>
+{
+    public override InternalBodyRole Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
+        => reader.TokenType == JsonTokenType.String && reader.GetString() == "plunger"
+            ? InternalBodyRole.Plunger : throw new JsonException("Unknown internal body role.");
+    public override void Write(Utf8JsonWriter writer, InternalBodyRole value, JsonSerializerOptions options)
+    {
+        if (value != InternalBodyRole.Plunger) throw new JsonException("Unknown internal body role.");
+        writer.WriteStringValue("plunger");
+    }
+}
+
+public sealed class InternalBodySpec
+{
+    [JsonRequired]
+    public InternalBodyRole Role { get; set; }
+    public float[] InitialVelocity { get; set; } = [0, 0, 0];
+}
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed class PartSpec
 {
     public string Id { get; set; } = "";
@@ -30,7 +54,14 @@ public sealed class PartSpec
     public List<PartDifficulty> Difficulty { get; set; } = new();
     public bool Locked { get; set; }
     public float[] Position { get; set; } = [0, 1, 0];
-    public float[] Rotation { get; set; } = [0, 0, 0];
+    [JsonRequired]
+    public PartOrientation Orientation
+    {
+        get;
+        set { ArgumentNullException.ThrowIfNull(value); field=value; }
+    } = PartOrientation.Identity;
+    public float[] InitialVelocity { get; set; } = [0, 0, 0];
+    public List<InternalBodySpec> InternalBodies { get; set; } = new();
     public Dictionary<string, float> Properties { get; set; } = new();
 }
 [JsonConverter(typeof(ConnectionDomainJsonConverter))]
@@ -40,46 +71,25 @@ public sealed class ConnectionDomainJsonConverter() :
 
 public static class PipeParameters
 {
-    public const string Length = "length";
     public const float MinimumLength = 1;
     public const float MaximumLength = 8;
     public const float BoreDiameter = 1.3f;
 }
 
-public static class ReceiverParameters
-{
-    public const string Threshold = "threshold";
-}
+public enum PipeParameter { Length }
+public enum ReceiverParameter { Threshold }
 
-public static class ClockParameters
-{
-    public const string Seconds = "interval_seconds";
-}
+public enum ClockParameter { IntervalSeconds }
 
-public static class CounterParameters
-{
-    public const string Target = "target_count";
-}
+public enum CounterParameter { TargetCount }
 
-public static class PressurePlateParameters
-{
-    public const string MinimumMass = "minimum_mass";
-}
+public enum PressurePlateParameter { MinimumMass }
 
-public static class HoldTimerParameters
-{
-    public const string Seconds = "hold_seconds";
-}
+public enum HoldTimerParameter { HoldSeconds }
 
-public static class DelayParameters
-{
-    public const string Seconds = "delay_seconds";
-}
+public enum DelayParameter { DelaySeconds }
 
-public static class WeightParameters
-{
-    public const string Mass = "mass";
-}
+public enum WeightParameter { Mass }
 
 // Engine-independent geometry used by authored rope lengths and runtime sockets.
 public static class RopeGeometry
@@ -126,30 +136,30 @@ public sealed class SocketIdJsonConverter : JsonConverter<SocketId>
     }
 }
 
-public sealed class ConnectionSpec
+public sealed record ConnectionSpec
 {
-    public string From { get; set; } = "";
-    public string To { get; set; } = "";
-    public ConnectionDomain Type { get; set; }
+    public string From { get; init; } = "";
+    public string To { get; init; } = "";
+    public ConnectionDomain Type { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public SocketId? FromPort { get; set; }
+    public SocketId? FromPort { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public SocketId? ToPort { get; set; }
+    public SocketId? ToPort { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public float? RopeLength { get; set; }
+    public float? RopeLength { get; init; }
 }
 [JsonConverter(typeof(GoalKindJsonConverter))]
 public enum GoalKind { Unknown, Captured, Activated, Powered, Turned, PoweredAfter, ActivatedAfter }
 public sealed class GoalKindJsonConverter() :
     JsonStringEnumConverter<GoalKind>(JsonNamingPolicy.SnakeCaseLower, allowIntegerValues: false);
 
-public sealed class GoalSpec
+public sealed record GoalSpec
 {
-    public GoalKind Type { get; set; }
-    public string Target { get; set; } = "";
-    public string Body { get; set; } = "";
+    public GoalKind Type { get; init; }
+    public string Target { get; init; } = "";
+    public string Body { get; init; } = "";
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public float MinimumDelaySeconds { get; set; }
+    public float MinimumDelaySeconds { get; init; }
 }
 public sealed class MachineData
 {
@@ -176,7 +186,7 @@ public sealed class PuzzleData
 }
 public sealed class SavedMachine
 {
-    public const int CurrentVersion = 3;
+    public const int CurrentVersion = 4;
     public int Version { get; set; } // Absent or older versions are rejected.
     public string PuzzleId { get; set; } = "";
     public float Precision { get; set; } = .45f;

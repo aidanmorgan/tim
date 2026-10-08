@@ -177,8 +177,10 @@ static class Program
         Check(Oracle.PausedClock,()=>Require(21m/120==.175m));
         Check(Oracle.Interpolation,()=>Require((1m/120+2m/120)/2==.0125m));
         Check(Oracle.AggregateBudget,()=>Require(6*512*1024+3*1024*1024+1024*1024+768*1024+256*1024==8*1024*1024));
-        var failures=Results.Count(result=>!result.Passed);
-        Console.WriteLine(JsonSerializer.Serialize(new{DesignOnly=true,RuntimeQualified=false,Count=Results.Count,Failures=failures,Results}));
+        var runtimeClockResults = RuntimeClockControls.Run();
+        var failures=Results.Count(result=>!result.Passed) + runtimeClockResults.Count(result => !result.Passed);
+        Console.WriteLine(JsonSerializer.Serialize(new{DesignOnly=false,RuntimeQualified=false,
+            Count=Results.Count + runtimeClockResults.Count,Failures=failures,Results,RuntimeClockResults=runtimeClockResults}));
         return failures==0?0:1;
     }
 }

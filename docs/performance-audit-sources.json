@@ -1,0 +1,2249 @@
+{
+  "head": "22ee03bc29f32cc269f18c9e9e7c01a0cd205869",
+  "files": [
+    {
+      "path": "CuriousContraptions.2dog/CuriousContraptions.2dog.csproj",
+      "sha256": "9957c9101959e186088cacf3359ae5f41d4907afce5465328e223d2c24dfb791"
+    },
+    {
+      "path": "CuriousContraptions.2dog/Program.cs",
+      "sha256": "8ad4f3fcc17087052864f3eac685ef2ffc2983f9a8174c357b39a882afb7a3af"
+    },
+    {
+      "path": "CuriousContraptions.csproj",
+      "sha256": "bdcd6f1de8e038aa92ea7ef702add55b60f12c3c6a6dd1d9dab3c647615c8ffd"
+    },
+    {
+      "path": "CuriousContraptions.tests/AccelerationSolverTests.cs",
+      "sha256": "a13e06bd95b6d7e71bcc48ed22500f7bd5adaf3949ed78016e0b57d16aec2203"
+    },
+    {
+      "path": "CuriousContraptions.tests/AcousticTests.cs",
+      "sha256": "cc74bbdda0ae189c91472b2b62f25cd33c22d83f8a8e154c2bcf41c0bb75996f"
+    },
+    {
+      "path": "CuriousContraptions.tests/ActuatorBodyGeometryTests.cs",
+      "sha256": "0e97599c887c10182cc5359e897e9bf1988cbc73aec635aa6c7710b9383fdb3a"
+    },
+    {
+      "path": "CuriousContraptions.tests/AdmissibleImpulseResponseTests.cs",
+      "sha256": "8b06161e8d767f95a9bc6d2671b2ac29ef722311d4c340fa4f354712719e101d"
+    },
+    {
+      "path": "CuriousContraptions.tests/AirDrivenAxialTests.cs",
+      "sha256": "6cc960d48ba3357e905a2ebe47c4f9c2c9a50983af9d5cb83ebc856782ba3bb2"
+    },
+    {
+      "path": "CuriousContraptions.tests/AirJetBoundaryTests.cs",
+      "sha256": "c4b6a4c0e43a48e0680000fddf45108067df6d2bd5cb977ff17b17f64142be22"
+    },
+    {
+      "path": "CuriousContraptions.tests/AirJetLoadTests.cs",
+      "sha256": "305e4dcc0e6cdeec7fb89eb421f01ca5dbe3687956930408cd3c30939f150622"
+    },
+    {
+      "path": "CuriousContraptions.tests/AirJetStrengthTests.cs",
+      "sha256": "ff3951bbaa7c02d701655ec0b87495de1ad5d71caa886ae81734c5a11cf8dac8"
+    },
+    {
+      "path": "CuriousContraptions.tests/AirJetWorldTests.cs",
+      "sha256": "de78a1b718ed28d1dc3db9f40ecfa1eb5c103532383c73ece35e2825b6abce8d"
+    },
+    {
+      "path": "CuriousContraptions.tests/AngularPathMeasureTests.cs",
+      "sha256": "766c42615ac93c677365db9d6899019ba72bf51db2ca2feaf062cc342e77d04c"
+    },
+    {
+      "path": "CuriousContraptions.tests/AssistancePhysicsTests.cs",
+      "sha256": "af49f9e2832098c44ebeb6c1a4a16b63b5789a3b2854fc3f88e085043f92354e"
+    },
+    {
+      "path": "CuriousContraptions.tests/AssistanceTests.cs",
+      "sha256": "5088b6d6fce597241e664a755f4193dc3a8352c4b370d5bed573dca13f578946"
+    },
+    {
+      "path": "CuriousContraptions.tests/AuthoredOrientationSceneTests.cs",
+      "sha256": "bbc7d2eed6d443c5ee277b3bbc33be227f7afe3ae69ec2be52eeadc60ce982bb"
+    },
+    {
+      "path": "CuriousContraptions.tests/AxialDampingTests.cs",
+      "sha256": "7b241a8b80038261291ac019fca8aee23fd7ff3a2af5ce9b74291d5026b6ed63"
+    },
+    {
+      "path": "CuriousContraptions.tests/AxialEffortTests.cs",
+      "sha256": "f6decd7053f72028a286bdd1f13f6102575f09c5d796ef7926874573fd2bd4d0"
+    },
+    {
+      "path": "CuriousContraptions.tests/AxialElasticPotentialTests.cs",
+      "sha256": "9228c95b9325b890e008c938f174d3b2ac9322385fce5279187bac42e89ff28f"
+    },
+    {
+      "path": "CuriousContraptions.tests/AxialMotionOwnershipTests.cs",
+      "sha256": "08fb4cce97c284542536a5b3b4744c0b14981786f879d94ffc7169bca71af4c8"
+    },
+    {
+      "path": "CuriousContraptions.tests/BallDetectorTests.cs",
+      "sha256": "ea045ae5ee2e6ee9f483b50f463d411fb6da2941276e2fad7d5f871291c82d1c"
+    },
+    {
+      "path": "CuriousContraptions.tests/BasicTests.cs",
+      "sha256": "192bcaec9bb8078eb52cff3fa3cd3ca7c61b3d6ac470f1f2f57fcaa2752dff96"
+    },
+    {
+      "path": "CuriousContraptions.tests/BasketGuideTests.cs",
+      "sha256": "5b2723e40429f39c153ac3740a3d889b496ac4290e70f98d98b3e25b117c0360"
+    },
+    {
+      "path": "CuriousContraptions.tests/BasketResidenceOwnershipTests.cs",
+      "sha256": "d47fb7b0dd4416404ce6472a650288e54ba3ec0cdcc03e2bf030acd8b10618ee"
+    },
+    {
+      "path": "CuriousContraptions.tests/BeamCombinerTests.cs",
+      "sha256": "dd46dbe240181297e9eab194390df7d51bd88f6d565a32a235baa64c3a9d1eab"
+    },
+    {
+      "path": "CuriousContraptions.tests/BeamShutterTests.cs",
+      "sha256": "bd045e9a7a2fad43940d8b59680195a521a40f017a00096a70894ec8eaa57577"
+    },
+    {
+      "path": "CuriousContraptions.tests/BeamSplitterTests.cs",
+      "sha256": "38f75e13e242fb3e237b0738f109d3f8079ff2436e06ef063d5d8a80989c96ea"
+    },
+    {
+      "path": "CuriousContraptions.tests/BellTests.cs",
+      "sha256": "c143d45652dddd9988dfb79a4b137425809a5a3e0c0daf3bec46d7a796df6391"
+    },
+    {
+      "path": "CuriousContraptions.tests/BellowsTests.cs",
+      "sha256": "745b3561d7aa6b4a4d5d47b207876f15c7b76ffc33030cd9c2838eba079704e1"
+    },
+    {
+      "path": "CuriousContraptions.tests/BilateralConstraintBlockTests.cs",
+      "sha256": "2c1e0ff0ed1574012ff49b60e1f3f210e9aee83ca6a43ce547b04948affb3bd5"
+    },
+    {
+      "path": "CuriousContraptions.tests/BilateralResponseMapTests.cs",
+      "sha256": "a96e678d86198b1416bca85d719870a48da7abaa2eaf87875a0ab7dadb17682d"
+    },
+    {
+      "path": "CuriousContraptions.tests/BilateralResponseProjectionTests.cs",
+      "sha256": "75907b4de95ec910b3a5ed46632d9b6b5ee8ae58ff1baaf48900daee947479d6"
+    },
+    {
+      "path": "CuriousContraptions.tests/BodyBoundsTreeTests.cs",
+      "sha256": "e5e98338dea878542ca5e3ce2e08b979c111fd62f7cb897f59b0b68815f80423"
+    },
+    {
+      "path": "CuriousContraptions.tests/BodyDiagnosticTests.cs",
+      "sha256": "4398aac703737365809c0961ee8d964a2c70f8afce0f96cd7a19bfc4e2c67837"
+    },
+    {
+      "path": "CuriousContraptions.tests/BodyDragTests.cs",
+      "sha256": "e3ada432c00ff7dcea3b84e4233da4e30fdf5fb2c6c8d31ac4079b84ecb219c2"
+    },
+    {
+      "path": "CuriousContraptions.tests/BodyDynamicsTests.cs",
+      "sha256": "672ca831faf922a6946fe85b6f0f534b187a17c72fb20c11762c23128e965705"
+    },
+    {
+      "path": "CuriousContraptions.tests/BodyLocalBoxTests.cs",
+      "sha256": "c7a62b16e718de94a656cf954e03952d5f6c66ac0969adb8e27cfe6bd6db9b06"
+    },
+    {
+      "path": "CuriousContraptions.tests/BodySlotTests.cs",
+      "sha256": "38e92b220e76898183be068c71135ac15b7ebe53ca2a3f2c794a257b3a67a8e3"
+    },
+    {
+      "path": "CuriousContraptions.tests/BodyTrajectoryTests.cs",
+      "sha256": "126a3ad7cb45c11e4a22cfbae77188d3b7258f8f3eaeb8d637854b99a937c698"
+    },
+    {
+      "path": "CuriousContraptions.tests/BothGateTests.cs",
+      "sha256": "50b1851c06b2cfed12e5212713e07c8caffb91e5588ea0c78551ccf297ab73e6"
+    },
+    {
+      "path": "CuriousContraptions.tests/BumperTests.cs",
+      "sha256": "50f09c29a6981e8687467766c615b7a98fef7535b660895a9e01b9a0a3697933"
+    },
+    {
+      "path": "CuriousContraptions.tests/CampaignProgressTests.cs",
+      "sha256": "37c1fa174027c1a2444bebab80f1ee78cd3b6ec879b075a922080515d05a26fc"
+    },
+    {
+      "path": "CuriousContraptions.tests/CannonChamberGeometryTests.cs",
+      "sha256": "af8f7b18189f7249adb667e3741504fcd696c866530dfb9ad15d3bd9ff3a8828"
+    },
+    {
+      "path": "CuriousContraptions.tests/CannonDiagnosticTests.cs",
+      "sha256": "01451995a65f1e8d31cc00394a11d51a8a5b0ff61ddb301a017c18832cf550b1"
+    },
+    {
+      "path": "CuriousContraptions.tests/CannonEnergyOwnershipTests.cs",
+      "sha256": "87674d2424cc91d886d35ca587bd37a327dbd294b7c7d37d359d4e193596390a"
+    },
+    {
+      "path": "CuriousContraptions.tests/CannonFeederTests.cs",
+      "sha256": "e3d5cd6af7c59a9c6f758a68395961de22a28e7cc8ac1b4a182fde0b721c9434"
+    },
+    {
+      "path": "CuriousContraptions.tests/CannonTests.cs",
+      "sha256": "ce6dec05af549a6765b3c9d061311d6c4c0be0fae9b151076e6773d2f4a935f1"
+    },
+    {
+      "path": "CuriousContraptions.tests/ClockTests.cs",
+      "sha256": "a70ebcbb78aa37b9a5e1a1e6d2d1e5e3f7671c347f9a0ba8f1fd05389be844d4"
+    },
+    {
+      "path": "CuriousContraptions.tests/ClutchTests.cs",
+      "sha256": "3b44231f162ec1ad4e70fc1d9f584cfbe38d38bdc18c75e1a007ec3f5c48f462"
+    },
+    {
+      "path": "CuriousContraptions.tests/ColourOpticsTests.cs",
+      "sha256": "451fe26777912010638c00184f7472b1b7b025d7f80fc9d47913113a6cea9b20"
+    },
+    {
+      "path": "CuriousContraptions.tests/CompliantContactStateTests.cs",
+      "sha256": "5c38f3329924a55ce17f4e4375545b505f892143e5e304d811840b9c8f71a51a"
+    },
+    {
+      "path": "CuriousContraptions.tests/CompliantContactTests.cs",
+      "sha256": "537c02a50584364d34ce006f1029cccc079e86541c6a923e55a3716cb1cb84c2"
+    },
+    {
+      "path": "CuriousContraptions.tests/CompoundBoundsAllocationTests.cs",
+      "sha256": "a7ddd0771ac21425a0933d7de5a744e7a47d8c5e1045644b2f04f71675a7b9fc"
+    },
+    {
+      "path": "CuriousContraptions.tests/CompoundCollisionTests.cs",
+      "sha256": "5864079dc14f3c9b71545e94cd0edaf6aed8cab26eee83e1d037da5d90270a84"
+    },
+    {
+      "path": "CuriousContraptions.tests/CompoundOverlapTests.cs",
+      "sha256": "da2868b13a861fa2ca5a56e65a63e5cdee28442efed887ad62d0f9be6646e091"
+    },
+    {
+      "path": "CuriousContraptions.tests/CompoundWorldSweepTests.cs",
+      "sha256": "3f431cbb705a71ef256183cbed40df0564a846673db3492e25f5d4b02bb88874"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConnectionChoiceTests.cs",
+      "sha256": "25d99e18c5a36d209ba693d38aa011c0a857dc8e4c78a0ae1d87324d0dd2754f"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConnectionPortTests.cs",
+      "sha256": "b9bfcaca5da4fe3c66bc8106648d93a573fe539b218cd32c15a473d68c35a639"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConstrainedPoweredImpulseTests.cs",
+      "sha256": "c496e8bff0dccd60416ce51e1c38415dd9e9447d192f18688a56fcda12ad33bf"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConstraintMassScratchTests.cs",
+      "sha256": "62d939566a72ff78774846ba2540cea54b73674c59bfdae06aa5e08dc0e0d892"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConstructionLifecycleTests.cs",
+      "sha256": "a7330fd3ce888c6494ab8592b46aef9480041d260064dcc3050d02694ab4783a"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConstructionResetTests.cs",
+      "sha256": "1d5a61adad9a74a2cfaffafea736942eedc89bd0c6ef57abccc16b1771b5da76"
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactConstraintTests.cs",
+      "sha256": "b81870328e7093c105e9ff139f20615398cdb584fefa4951880d71e46030a572"
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactForceTests.cs",
+      "sha256": "2c959c15f54cb6f115b88c6757d7322d18f941339ca70a0a1834dcfe16e51eca"
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactFrictionBudgetTests.cs",
+      "sha256": "c5e806ecae12df65e800604f3cf86ad22760053758bbef8ee82f590a7f402896"
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactGapTests.cs",
+      "sha256": "ea013bf8d06a562b6755a90db7b5703eb6080f7e7d0512e72d03497ef663f162"
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactMaterialTests.cs",
+      "sha256": "4d08fb376fd6374030e1f2606032520d8c2a2432ac9a9746b661088fb07cad28"
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactParticipationTests.cs",
+      "sha256": "6abf159cf929b5fd1438142bb67821d8935e4f33a5af0c5393e4713dd668b61b"
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactPatchTests.cs",
+      "sha256": "7fb070ec26d9dd7058b9540abff1c6963d97cc927be81a2078f60eecb938a105"
+    },
+    {
+      "path": "CuriousContraptions.tests/ContactSlipSweepTests.cs",
+      "sha256": "976d4115fb1f7420e13cc1a2cda09c016bc609e2ad21e12a28288f38d677647c"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConvexDistanceTests.cs",
+      "sha256": "a6fb4cffb784879a248ee62c35043ab1d1418d5560dd60a1d1f4f4bbc2be9d5c"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConvexPenetrationTests.cs",
+      "sha256": "268dd99e5ddf4ee6fcb9e3f027de6a04901b06ded810b4cf59dc844b8d8fb39a"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConvexRoundedTests.cs",
+      "sha256": "d2b4dfdb277be6387c57d4c92b5b8d93f22bb461a3faf9743baceda0907fd1f8"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConvexSweepTests.cs",
+      "sha256": "af1c494d6378ec1aea4f0ffd9c4a5e006b06d5fe1d7317d570d456797cbf76ff"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConveyorRuntimeTests.cs",
+      "sha256": "2e7426ebecc1eed73b49a0f0ab0e465808cb2f9f227bfe69a75ce2a917dfad9c"
+    },
+    {
+      "path": "CuriousContraptions.tests/ConveyorTests.cs",
+      "sha256": "80ee1786c00f53a6f2993b14d334866b3e0028d88653de203fa24e50fee813ff"
+    },
+    {
+      "path": "CuriousContraptions.tests/CoreSupportTests.cs",
+      "sha256": "2793f42056d1e8139246ff370a1fb535c2cb8b289c31be55b8f06276120005c9"
+    },
+    {
+      "path": "CuriousContraptions.tests/CounterTests.cs",
+      "sha256": "b11df64c0e7b75d012343f960b1ad0fe7c798f47bde016b0b8693ff6566c0343"
+    },
+    {
+      "path": "CuriousContraptions.tests/CoupledImpulseTests.cs",
+      "sha256": "06dfabad6a6385e8c0822cc1a20b55b4fc6fbc255c45e9efa38531a57fadec7b"
+    },
+    {
+      "path": "CuriousContraptions.tests/CuriousContraptions.tests.csproj",
+      "sha256": "ce6496fc487f342e168ccf95fdb66742486dc9c26e651225cb4a51b4285dc2d2"
+    },
+    {
+      "path": "CuriousContraptions.tests/CylindricalRegionTests.cs",
+      "sha256": "3e6df62e45c18279828238a518f92ecc516c59510a8156ca249f2dbb66048544"
+    },
+    {
+      "path": "CuriousContraptions.tests/DelayTests.cs",
+      "sha256": "41f0f7d78a7c99b9bbd9f3a19618108d30a07a0594842437c4c5c261215a0e4b"
+    },
+    {
+      "path": "CuriousContraptions.tests/DominoOwnershipTests.cs",
+      "sha256": "7a8ba141c78694e16e927d205182e9e819231193bf2a57b4446f283a27bef1ff"
+    },
+    {
+      "path": "CuriousContraptions.tests/DominoPhysicsTests.cs",
+      "sha256": "31cbbeedae41e24b3782ff8a9e32befb6d2d5d9e7c8d0770213816e75a8c4014"
+    },
+    {
+      "path": "CuriousContraptions.tests/DrivenContactTests.cs",
+      "sha256": "925830d5cb8ad817686de278534aecf56b90d28a9218129d74217accf5ec3946"
+    },
+    {
+      "path": "CuriousContraptions.tests/DrivenSurfaceWorldTests.cs",
+      "sha256": "bbcbf309dae468ec3ae65f8719d21c8ea6be193fd028212ac420959c3a254f80"
+    },
+    {
+      "path": "CuriousContraptions.tests/ElasticWorldTests.cs",
+      "sha256": "6eab17f9529cf6bd24a1acc850a316911ac7423f9691e551c88a3ec2392da1d5"
+    },
+    {
+      "path": "CuriousContraptions.tests/ElectricalLogicTests.cs",
+      "sha256": "b1f4db42df1f21275facea28d02cf557f7f9ed36c4fc12850bf19bbc723ecea5"
+    },
+    {
+      "path": "CuriousContraptions.tests/ElectricalTests.cs",
+      "sha256": "07040deedda09b4a522a2349537d60ad8f1d6273e38195c2d1ce8ae6fffa2fc9"
+    },
+    {
+      "path": "CuriousContraptions.tests/EnumContractTests.cs",
+      "sha256": "283f7bf076218ca9eca5da27b61b26347de525bb41b41847b64cf87a32d3cc73"
+    },
+    {
+      "path": "CuriousContraptions.tests/FixtureParts.cs",
+      "sha256": "a493fee25b9c887b2ff04385e8905599b3e2c5725a33ff515f640abdc13f7871"
+    },
+    {
+      "path": "CuriousContraptions.tests/FlashlightContactTests.cs",
+      "sha256": "7449700d8bbe4ba4aa8324634e96acd150dc62fb215ae6e75a74084aba19d7b5"
+    },
+    {
+      "path": "CuriousContraptions.tests/FlightCampaignTests.cs",
+      "sha256": "c573e5e47f61a72f410a1285fa820061174158090ae0510a65f47e99be574929"
+    },
+    {
+      "path": "CuriousContraptions.tests/FloorTests.cs",
+      "sha256": "e934ecf2c2889e65adf067a7ae35bd52c9c81d83eca629625f8f68c374fb902f"
+    },
+    {
+      "path": "CuriousContraptions.tests/ForcedTrajectoryTests.cs",
+      "sha256": "883de1c775ed4f85ae85dd236a7400195375f26f22d6a10a2195d9b21fcd4f88"
+    },
+    {
+      "path": "CuriousContraptions.tests/FrustumBoxIntersectionTests.cs",
+      "sha256": "faf03c66d43ce77e2d3b1550fa725bcc7c3b9814edaad3ed64e2d78bcfb87ead"
+    },
+    {
+      "path": "CuriousContraptions.tests/FunnelTests.cs",
+      "sha256": "a1913e569d85fcde892a5b29302980a180c76c579818e60278b20e26e475d898"
+    },
+    {
+      "path": "CuriousContraptions.tests/GeometryQueryScene.cs",
+      "sha256": "a1fe4d5959d1fd0c59c66f126bc449d90e75b7b5ee4851b3905af5c335a6ad79"
+    },
+    {
+      "path": "CuriousContraptions.tests/GuideSupportBoundaryTests.cs",
+      "sha256": "4f86cc28109b71b9d3abadf11948996c0972ffb5bd6263429caec00a39752d25"
+    },
+    {
+      "path": "CuriousContraptions.tests/HingeConstructionTests.cs",
+      "sha256": "e62e2673336fbe3d9c138b204ef2a8638099fc37b018f86d722c799aa19ac960"
+    },
+    {
+      "path": "CuriousContraptions.tests/HoldTimerTests.cs",
+      "sha256": "fa292b1ac033e37767ebff8b46b67db8e8769f529ea9cbe211d0d5a595a8afe8"
+    },
+    {
+      "path": "CuriousContraptions.tests/HollowBoxTestProbe.cs",
+      "sha256": "e1a51db411e3b8d6d46e294589569f20a92b48566c40b89dfa0572680e67ef9e"
+    },
+    {
+      "path": "CuriousContraptions.tests/HollowGeometryTests.cs",
+      "sha256": "41611f6ff1a1e1bf67c750a210c98b267e325f73efc566bb6b21c6ec6dd70988"
+    },
+    {
+      "path": "CuriousContraptions.tests/HollowSurfaceTests.cs",
+      "sha256": "7e3ee89d977c7ad76011e924db8f2aef800a53c445b637213f6b01f3ad84b381"
+    },
+    {
+      "path": "CuriousContraptions.tests/ImpactFrameTests.cs",
+      "sha256": "063a18b81dcf315215d15704643c711623a724848cefa65a4998224a8afda157"
+    },
+    {
+      "path": "CuriousContraptions.tests/ImpactLeverFrustumObstructionTests.cs",
+      "sha256": "e2c5f4667fed4693a0720e7dd86be86591aef18c298f5bfc1950d919415173c8"
+    },
+    {
+      "path": "CuriousContraptions.tests/ImpactLeverObstructionTests.cs",
+      "sha256": "fc3c7ca5048e2be3c2e820573bec7517c9451b2304de84e4ccd6c49c936eaae1"
+    },
+    {
+      "path": "CuriousContraptions.tests/ImpactLeverSphereObstructionTests.cs",
+      "sha256": "56bd38dfa1522f679a6b239ab7c915ab69d95982cec7714ab244c4cf1c0cb11f"
+    },
+    {
+      "path": "CuriousContraptions.tests/ImpactLeverTests.cs",
+      "sha256": "797f298e54f2d3dc2644ee7cc80c80a3e35b3b260315dbf974454f4cd54f0323"
+    },
+    {
+      "path": "CuriousContraptions.tests/ImpactLeverTubeObstructionTests.cs",
+      "sha256": "a835149083f6faf5b96ec5f1e2a672b6245ff8431792c903191c56c44c52d6fa"
+    },
+    {
+      "path": "CuriousContraptions.tests/ImpulseSolverTests.cs",
+      "sha256": "a57e7620400061c60b51d90047302c7968e43ebaeb583c0da1769ab5c8c32070"
+    },
+    {
+      "path": "CuriousContraptions.tests/InitialParticipationTests.cs",
+      "sha256": "16928b287b8c3e52bd10a34884715fa726a7bec982094f592c3b3f1fc9e8684a"
+    },
+    {
+      "path": "CuriousContraptions.tests/JointBoundaryTests.cs",
+      "sha256": "500950b6f2759c55ae507315d6e590be5718e12210b47f1b7bbe1ce6dd06c896"
+    },
+    {
+      "path": "CuriousContraptions.tests/JointConstraintTests.cs",
+      "sha256": "5d63d9d0a8aa74ae953ef6357a87b2d3fd81a296d1099f4462da68d4854ab8bf"
+    },
+    {
+      "path": "CuriousContraptions.tests/JointDiagnosticTests.cs",
+      "sha256": "1ad74c2e970b6a2209a8184c93dbe437deede405c2aac651c81ca80aa1b890bd"
+    },
+    {
+      "path": "CuriousContraptions.tests/JointRangeTests.cs",
+      "sha256": "3491b39dd1d68d47c96cd53102e8b01f999e6a051e68f506c27d909f7b34ad9f"
+    },
+    {
+      "path": "CuriousContraptions.tests/LatchTests.cs",
+      "sha256": "ee56b9368a5ca220e8fd46391db3abe2cefd13007944ca2d17ba638a2292cb28"
+    },
+    {
+      "path": "CuriousContraptions.tests/LeverFixture.cs",
+      "sha256": "192e4538e60a314f61909d978258797792f6f89dde469543ff990ee433b63126"
+    },
+    {
+      "path": "CuriousContraptions.tests/LightTests.cs",
+      "sha256": "27fedc13584db15061c01a5a581f5e0a133b70e623581f28151742d0c581e81f"
+    },
+    {
+      "path": "CuriousContraptions.tests/LinearPusherTests.cs",
+      "sha256": "76cf5852e53cbeba6f54d682d5b95580d596ce9c808f9ba44a6852d5b4cb3b4b"
+    },
+    {
+      "path": "CuriousContraptions.tests/LogicGateTests.cs",
+      "sha256": "0679fc0576748b06db6b250038d6c43a7373454e7e79b265768d2b1acf67bd0b"
+    },
+    {
+      "path": "CuriousContraptions.tests/MachineStepLifecycleTests.cs",
+      "sha256": "66e19160ee1c6cedfaa51a975bdc9b61442645ae6ebdd2c4b441725725ae353c"
+    },
+    {
+      "path": "CuriousContraptions.tests/MechanicalDiagnosticTests.cs",
+      "sha256": "99641629ba56cf18b13ea24c9890d41a559284e78dfcb5e9105a4e7267bad1aa"
+    },
+    {
+      "path": "CuriousContraptions.tests/MechanicalTests.cs",
+      "sha256": "6d30419656ace1b9e18a43f50b87ece7d5c3a05c773516693cce0b9e9de58ae2"
+    },
+    {
+      "path": "CuriousContraptions.tests/MechanicalWorkTests.cs",
+      "sha256": "0cc3bbd8c6f9aa0c0ff02f1f74b0586c4d6bab1277bf555d1270530a31e658d9"
+    },
+    {
+      "path": "CuriousContraptions.tests/MirrorTests.cs",
+      "sha256": "09c7965e8b222e3ee584be3be7af66343aa1ff4fe60c1093ed8750aa47c9c215"
+    },
+    {
+      "path": "CuriousContraptions.tests/MotorAccountingOwnershipTests.cs",
+      "sha256": "89cb69a3a0a35d4ec1930001446517e4a8bc56688664359dfaf6853ee1630c3d"
+    },
+    {
+      "path": "CuriousContraptions.tests/MultiBodyConstraintTests.cs",
+      "sha256": "a8120757ad7a636944984b7fdedcb4c435fd4d577ad252e7f0e7eca99ea4e751"
+    },
+    {
+      "path": "CuriousContraptions.tests/NetworkSpatialOwnershipTests.cs",
+      "sha256": "024c3703c85930c850cc7f10b66dfb27a2d653f6b2cece935444910e3333f84b"
+    },
+    {
+      "path": "CuriousContraptions.tests/NonlinearIterationTests.cs",
+      "sha256": "c6787f21a50e49820a628fd8c42dd7103b5e687f960abbe3c1bf79cec4f98fa0"
+    },
+    {
+      "path": "CuriousContraptions.tests/OpticalLogicTests.cs",
+      "sha256": "14987277816986bad8f04925eb8623c2bf71375c1016fbc781d790d25a29b20d"
+    },
+    {
+      "path": "CuriousContraptions.tests/OpticalPortsTests.cs",
+      "sha256": "e80612370792e83c8e6f962e02e8112ab4bf09d76fbb0ff8e3d069c222985e1a"
+    },
+    {
+      "path": "CuriousContraptions.tests/OpticalTests.cs",
+      "sha256": "b315eecba32dacbccba7814afc5ede9cebcaad84990ac5cdd4296ccfaf0c3201"
+    },
+    {
+      "path": "CuriousContraptions.tests/PartOrientationTests.cs",
+      "sha256": "77abe01b7d36acfa5b1db23bad8f4b38decb82de4cf2f76584331ded64da7fe8"
+    },
+    {
+      "path": "CuriousContraptions.tests/PartParameterNameTests.cs",
+      "sha256": "58c664da10006d811011e62f0d294e6df023d1d49320a6c534ff1d4eac553226"
+    },
+    {
+      "path": "CuriousContraptions.tests/PerformanceAuditTests.cs",
+      "sha256": "aa58978420656272512fb11fc61e58391ef6cef22c1f4b85f6d5dd4a28f2442e"
+    },
+    {
+      "path": "CuriousContraptions.tests/PerformanceRecorderTests.cs",
+      "sha256": "651989a9b865f71e0913c2dfcff8147be9f75f2d690eabeed95c54416a908eb8"
+    },
+    {
+      "path": "CuriousContraptions.tests/PersistentContactTests.cs",
+      "sha256": "686688e1dd7e6feb5e771728f8ae8cbe48f457d44ffff4ead94826c0c28c38c1"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsBackendQualificationTests.cs",
+      "sha256": "c575211b5202365ee2ba7803ba994896821e4af02d240a20393501f3d009eddd"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsBodyOwnershipTests.cs",
+      "sha256": "54391657dbb79d8016f880046680eafc73c4a46e781855f460464cdf71ddf47a"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsBodyTests.cs",
+      "sha256": "25e984ec7a758c5a6c2d6779e2ea8a693c8b4ca8c4df5f07561967c1ff87f6ec"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsCalibrationTests.cs",
+      "sha256": "ea4bc5548eebb1987915148779819158542b518e09dd89b32cf07ff7f551b3e3"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsColliderUpdateTests.cs",
+      "sha256": "eaf78e08c7fc9757ee7f1a6882df3f18fc4d7f2792dd418e385a1550fd2f5117"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsContactLoadSensorTests.cs",
+      "sha256": "22a64394d8d805240823e36b2018b3f19f0b8c9da9e0af680e720a761f448680"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsEnergyStoreTests.cs",
+      "sha256": "610abe8de46b02f3c84ce2f18922f7e58ee9957195d7a9be4a1e6aaa88ad7c0c"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsImpactEffectTests.cs",
+      "sha256": "182ca1348e7edd96ced23eccdbc1cd0f1de03df7990d82ab7053aceb4dad07d6"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsImpactJointTests.cs",
+      "sha256": "10004f6609c788c3431edca24d414b29d5e217d6db808c34ab4aee7a7c3fc113"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsJointTests.cs",
+      "sha256": "e12898b348971a61656406545660347642cf874a4b310cc73b9dab624c2bd547"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsJointUpdateTests.cs",
+      "sha256": "969441fbee8c7da4f68d8a62e1027a3280a94df1e194c1a8ce54008c6fef1b7e"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsLatchedSpringTests.cs",
+      "sha256": "bc81ae1dbbb124e63d82056fd46ec6e66f9ee325c41e114acdf241af33c5bf38"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsLoadSetTests.cs",
+      "sha256": "33883d42cb680aeb6880ed767cb7c1be9767b61ec3d8643f02faff68400a3e5e"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsMotorTests.cs",
+      "sha256": "27f7c2e28f41beb75c102741f3eeca0963756023f1ab6a8115eca370ef461972"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsMutationVisibilityTests.cs",
+      "sha256": "534c5036bafbecc9f7b98ad6a4f13d02b1a749edb4ec2cd4c0010cfb32fee9df"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsPassageSensorTests.cs",
+      "sha256": "859238a7a7acb75b8e1da0a778bd8c27816147d3eb810402d77538834db094f1"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsResidenceSensorTests.cs",
+      "sha256": "a90aadc266ff8e80758b4c34c085495e4d84b3a274decb76fd249ba62cbc3b4a"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsServoTests.cs",
+      "sha256": "e63cd0b84356a6eda9c99a96c01a1fc5aaecc2d5e4ebf35b053969e89acef28f"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsTiltSensorTests.cs",
+      "sha256": "cb552f882bc6a105227d7023b3d2085e3333d854257f64ddb308bbf7a76c4994"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsWorldTests.cs",
+      "sha256": "1c470604653a033135dd831686bf564aae3b720e1bfe83b32213f01074c10824"
+    },
+    {
+      "path": "CuriousContraptions.tests/PhysicsWrenchTests.cs",
+      "sha256": "b03cec78e8520b608b8e1a0f1537ed32bf4af8feba3a1f92ed3f6ed8adf64c5b"
+    },
+    {
+      "path": "CuriousContraptions.tests/PipeBendTests.cs",
+      "sha256": "bd44509243787af6dd8413f191f69936cacd9c6b53a78453dd98f9cafdb5a6ae"
+    },
+    {
+      "path": "CuriousContraptions.tests/PipeResizeTests.cs",
+      "sha256": "662a58c426a95dd7df32185481091c027a8890cdd5d0611077f7965c959d109a"
+    },
+    {
+      "path": "CuriousContraptions.tests/PipeTests.cs",
+      "sha256": "d455e77d1e511766eaaec64f104d5d0b2911c94bfef94f4c9643c508e32de511"
+    },
+    {
+      "path": "CuriousContraptions.tests/PlanarGuideBoundaryTests.cs",
+      "sha256": "6ddc43f745ac0d9d1cd147b0448557b97621aa683fce59957fa70c938074801a"
+    },
+    {
+      "path": "CuriousContraptions.tests/PlanarGuideTests.cs",
+      "sha256": "3b0087107aaa75e88cf0e74fd218b2210f09c085e30bb1dc0680ebfd812dd855"
+    },
+    {
+      "path": "CuriousContraptions.tests/PlaytestAuditTests.cs",
+      "sha256": "e1b19d374c8be4fb7906c1137a37d9111141eb4742b2af8d2233b56466b6ae75"
+    },
+    {
+      "path": "CuriousContraptions.tests/PositionProjectorTests.cs",
+      "sha256": "6ceba2bc33ec8fc518e0d259fdcae19dc175f98556edea242a31729f31585047"
+    },
+    {
+      "path": "CuriousContraptions.tests/PoweredGateTests.cs",
+      "sha256": "77b0af2161c07c428cab549fca7b700a0092955a609b1aa7410778f8742e36ad"
+    },
+    {
+      "path": "CuriousContraptions.tests/PrescribedBodyTests.cs",
+      "sha256": "afa58240003f5ba3a42ec0185af6a1348b730f02e4bcf0ef461064c8420cbe5f"
+    },
+    {
+      "path": "CuriousContraptions.tests/PrescribedCollisionTests.cs",
+      "sha256": "3ee9577208861948a7dd923e27b4fb12d4ae0dbdd3e6eae8c6b87d35c1b9e885"
+    },
+    {
+      "path": "CuriousContraptions.tests/PressureContactOwnershipTests.cs",
+      "sha256": "7af521ec874d2f989096509e7e009adf5cb376fe3c5c908859130a60ef9b9799"
+    },
+    {
+      "path": "CuriousContraptions.tests/PressurePlateTests.cs",
+      "sha256": "9da562047317d7a4351aacfb390e525eece6ccde872d49e449668ccb36b27dae"
+    },
+    {
+      "path": "CuriousContraptions.tests/PulleyRopeRouteTests.cs",
+      "sha256": "f5af0ebf5d75197801f1a4baced1125640d65a31e93fa0a0eb4010f5576f2e5d"
+    },
+    {
+      "path": "CuriousContraptions.tests/PusherServoOwnershipTests.cs",
+      "sha256": "bbbf54e6bc4550c1c663354d4499cae95db2d9b29cb5dc7b0ee5284ffc129bde"
+    },
+    {
+      "path": "CuriousContraptions.tests/QuinticTrajectoryTests.cs",
+      "sha256": "50a57196b6b55b0bc2d30954b080e9b40a83249458c346314c9fd03db1681baa"
+    },
+    {
+      "path": "CuriousContraptions.tests/RequiredPhysicsParameterTests.cs",
+      "sha256": "9cd48b2cf75ab9ddd59761561e41aaac6b80d282818ce1efeb17cb9a06b2565b"
+    },
+    {
+      "path": "CuriousContraptions.tests/RopeOwnershipTests.cs",
+      "sha256": "d24f9a038defe8bb44634a017c9ad26b68702de2b3d359963624a0aee2902f58"
+    },
+    {
+      "path": "CuriousContraptions.tests/RopeTests.cs",
+      "sha256": "a40befaf6e3be73864c5441b143872e7a6ab264703a62e337583f3342928fa64"
+    },
+    {
+      "path": "CuriousContraptions.tests/RotaryTransmissionPartTests.cs",
+      "sha256": "46671da92f14103fec929a0b706d113195201715f0a6f3f9de891a14211a4816"
+    },
+    {
+      "path": "CuriousContraptions.tests/RotatingBoxObstacleSweepTests.cs",
+      "sha256": "b5e8af20f22cc206dca304fc053b126484e2d431a381d3bea2aa5166335fbed4"
+    },
+    {
+      "path": "CuriousContraptions.tests/RotatingBoxSweepTests.cs",
+      "sha256": "4dd94c95343d57cb641b0022918b4c86c2bd6b3421c267a98e9b66db236da02b"
+    },
+    {
+      "path": "CuriousContraptions.tests/RotatingFrustumSweepTests.cs",
+      "sha256": "bebf7d20b1fb8d137c21c31603703e51dd62da0a0b4f2f578ad7ed029c946bf8"
+    },
+    {
+      "path": "CuriousContraptions.tests/RotatingTubeSweepTests.cs",
+      "sha256": "bc16c8a769441a2077f1b9d58c99f106577b8b496761c58524870a664be21529"
+    },
+    {
+      "path": "CuriousContraptions.tests/RoundedSeparationTests.cs",
+      "sha256": "32fa3247980ff337548b512604ed6aa62537423870f40d6490a01eea44ec5a73"
+    },
+    {
+      "path": "CuriousContraptions.tests/RoutedRopeTests.cs",
+      "sha256": "7bea56f853158fd7db9ff3dece52259a5f57485ff4fb9b25d9a93864b59b764c"
+    },
+    {
+      "path": "CuriousContraptions.tests/RuntimePhysicsCutoverTests.cs",
+      "sha256": "f1c2a4e47cd1a0195b81582d788a086afb285a429f932da07c3b880f96d33bcb"
+    },
+    {
+      "path": "CuriousContraptions.tests/RuntimeQueryOwnershipTests.cs",
+      "sha256": "21255bcbcb11359676209e30a47fc36061c7ee150f8e973b4702a0aad4b7c819"
+    },
+    {
+      "path": "CuriousContraptions.tests/ScalarBoundarySweepTests.cs",
+      "sha256": "5d0f1aac2c6e50fc11fa86eeba0152fc33718cf82b8e361d402d79a2a5798a33"
+    },
+    {
+      "path": "CuriousContraptions.tests/SceneBodyDynamicsTests.cs",
+      "sha256": "c54b7d134b01891139097dfa0ca587a59a67fd96db388d79e175fe8b303711ef"
+    },
+    {
+      "path": "CuriousContraptions.tests/SceneBodyGeometryTests.cs",
+      "sha256": "566a3b270b89aebecb4cf3429b1f415f3ac51a11dca7c5dfe0f27fa19950a7fd"
+    },
+    {
+      "path": "CuriousContraptions.tests/SceneGeometryUpdateTests.cs",
+      "sha256": "b7181fcd270b0a8e2887929c49612fed5254aff808b4457e171de4013d2790d6"
+    },
+    {
+      "path": "CuriousContraptions.tests/SceneJointDeclarationTests.cs",
+      "sha256": "47cd211e90e19cabe13302f3abdf2a66d78f48ae0fbda25004b5a82bb586ef0a"
+    },
+    {
+      "path": "CuriousContraptions.tests/SceneJointIdentityTests.cs",
+      "sha256": "29c1030844822eabc15f529237edb763700023c1bd05bbbc17ca78bf63f3b7cc"
+    },
+    {
+      "path": "CuriousContraptions.tests/ScenePlungerBindingTests.cs",
+      "sha256": "21813e47bc418ea11b65d325a11bb5ce04f421cd8cb9ff10625d08bd2f999c11"
+    },
+    {
+      "path": "CuriousContraptions.tests/SceneRopeBindingTests.cs",
+      "sha256": "1ce32492ea463a57d73fb917de652571df33465ef93d7b83f39ccb0f01baac24"
+    },
+    {
+      "path": "CuriousContraptions.tests/SharedContactMigrationTests.cs",
+      "sha256": "7a6de00e9eb30132b6fb020f8b3fc8e6f32fae0edfc29a57a2ebb81667ceeee5"
+    },
+    {
+      "path": "CuriousContraptions.tests/SharedHingeMechanicsTests.cs",
+      "sha256": "8d6ca0896efb3e067730aaec54756be7fef68c3aea510ea62f569360caf9c339"
+    },
+    {
+      "path": "CuriousContraptions.tests/SharedImpactRequirementsTests.cs",
+      "sha256": "ca5da07171b9ecd0d861f90dfac160489bf13bc3d43062e86912f2004331af4b"
+    },
+    {
+      "path": "CuriousContraptions.tests/SharedSphereSweepTests.cs",
+      "sha256": "84a1ae534924c95176b3ed9a51fe474229a9dd3ab1b44e1f7a4292820721c863"
+    },
+    {
+      "path": "CuriousContraptions.tests/SignedSweepTests.cs",
+      "sha256": "cd475a961d6459d61856f9f6355df405eb8a1a6734dffcebf745056370b3f79a"
+    },
+    {
+      "path": "CuriousContraptions.tests/SlidingBladeDynamicsTests.cs",
+      "sha256": "966ae79bf24d13bd3eae441d07569abe4e9b4e20e02e8da0d6c44932c49d3d8e"
+    },
+    {
+      "path": "CuriousContraptions.tests/SlidingBladeOwnershipTests.cs",
+      "sha256": "a0e1a532b6cc25644fbc7d7bffd124dfbd249843fe36f69cae3245ed201754dc"
+    },
+    {
+      "path": "CuriousContraptions.tests/SocketIdentityTests.cs",
+      "sha256": "1426a3c13f3e9e483905a46a072f4a12c33100347625f277b858806ed863b196"
+    },
+    {
+      "path": "CuriousContraptions.tests/SoundMeterTests.cs",
+      "sha256": "1f7a76d6c0ebfd7acee92cd11fe248921497830881245e3207d7770a63528914"
+    },
+    {
+      "path": "CuriousContraptions.tests/SourceRotorTests.cs",
+      "sha256": "e3973984ee596f8754f38791930077c2bde7dc3ade598464397e8201693fa4ce"
+    },
+    {
+      "path": "CuriousContraptions.tests/SpatialCandidateTests.cs",
+      "sha256": "641bc4f4c5364298c66a0257d09bd4bd733173ec262f96b67584f0b77d5fb330"
+    },
+    {
+      "path": "CuriousContraptions.tests/SpringAnimationTests.cs",
+      "sha256": "f872b0be5c477591059221368cbfbf92e6aa1e2fb14e1913f20a1cfa81e78ab3"
+    },
+    {
+      "path": "CuriousContraptions.tests/SupplyControl.cs",
+      "sha256": "73feaf269abec82db8b4c79c8871f66b306188b79c9040d4faf31e87dd927953"
+    },
+    {
+      "path": "CuriousContraptions.tests/SupportFootprintTests.cs",
+      "sha256": "b8003ef75c737e6670509b73fbcc2948c716452646819bd51e2e1c8321de7ec4"
+    },
+    {
+      "path": "CuriousContraptions.tests/SurfaceMotorBudgetTests.cs",
+      "sha256": "01f6ff5e86e01b32d925f3a9a98e5b63ef6797572be3ebea081377a11da67abf"
+    },
+    {
+      "path": "CuriousContraptions.tests/TangentQuadraticTests.cs",
+      "sha256": "78647fd349fa01f300d5c624f084f3772eb40b7cda6cefd76d5efc4236abc43c"
+    },
+    {
+      "path": "CuriousContraptions.tests/TrampolineCampaignTests.cs",
+      "sha256": "5338ae7dbbba95ff849287217520bab4ac2ee087b8231896f669a2770dccdff9"
+    },
+    {
+      "path": "CuriousContraptions.tests/TrampolineOwnershipTests.cs",
+      "sha256": "7e91049a5fbfbec325e4981aacbb159ba896bc27ce6cb186e8ca6ffd4a18d24f"
+    },
+    {
+      "path": "CuriousContraptions.tests/TrampolinePipeTests.cs",
+      "sha256": "eba2ae04ebbe37087f187c758e7b9e1a6b32ec5f79cb6c85f11a2a7f60589d62"
+    },
+    {
+      "path": "CuriousContraptions.tests/TrampolineRopeTests.cs",
+      "sha256": "33fd646d41c2482595582a41e3629ada4f059b0332e180e9669c3dc8f576fb98"
+    },
+    {
+      "path": "CuriousContraptions.tests/TrampolineSkinTests.cs",
+      "sha256": "d1cbfcbf939ae8ab4b1aa1463db7cb09c0d6e5b3d93a31173ab499c8895e60b7"
+    },
+    {
+      "path": "CuriousContraptions.tests/TrampolineStackTests.cs",
+      "sha256": "0015b9132a12c1b82e18db5ffd771864459c3db15c29fd4e883ba675a7138bbf"
+    },
+    {
+      "path": "CuriousContraptions.tests/TrampolineTests.cs",
+      "sha256": "b01bee26319265cfe3828de18e35f163b892f9804cb51f1a06f91360a14f318e"
+    },
+    {
+      "path": "CuriousContraptions.tests/TransmissionJointTests.cs",
+      "sha256": "38d788d1d89347e9f948bd640c3df52d911561dff65dcf0391475c7314653da6"
+    },
+    {
+      "path": "CuriousContraptions.tests/TubeBoxIntersectionTests.cs",
+      "sha256": "3e19e35fe25e314e629aa87f4c3a4598bfb6712daa1e6047687e60dae3c97ebd"
+    },
+    {
+      "path": "CuriousContraptions.tests/TubePlacementSnapTests.cs",
+      "sha256": "69fe2bd04020a923a114e4d1430e17197337b613919ba250fd43d504b92f222c"
+    },
+    {
+      "path": "CuriousContraptions.tests/WallLessonTests.cs",
+      "sha256": "6124d6831fc5b4f05cdbb599d0ae283413d71f6de2602fb5945ece8adb8b18ee"
+    },
+    {
+      "path": "CuriousContraptions.tests/WallTests.cs",
+      "sha256": "fd4c768ca6fe0d88a202aa17c95467996c45f446455d9deb0c135f5aa25ad87e"
+    },
+    {
+      "path": "CuriousContraptions.tests/WindChimeTests.cs",
+      "sha256": "2179a5b0ad0d43c4dea1039fabd8942fbeec8e2f8096b149f6695af90a4fccfc"
+    },
+    {
+      "path": "CuriousContraptions.tests/WindmillTests.cs",
+      "sha256": "da03842973e23c3f789ba1797cd5132fe0a266e73894ac31c0c08d3c22646ee4"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorkshopInteractionTests.cs",
+      "sha256": "b34603bb239304651ef1f5f67adcbf09ea19a0a02aefb9a90d699e0ecc952a68"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorldAngularTravelTests.cs",
+      "sha256": "8c506d0393cef0ff4c599007ecc477502fd261477ca7ab5ec0a8fbc3f1202dc9"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorldFlightTests.cs",
+      "sha256": "bd4097c3ed3994ae341a1d53b8fb9a0afd6da4eb8eefa79cfc90c5f60f53754e"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorldPlacementTests.cs",
+      "sha256": "86ae9a98ab4b7ab09c2dc07692a65c50d0dc8407f7a630338f4aee836bffbf40"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorldPoweredImpulseTests.cs",
+      "sha256": "8246811079764f498718a90ec9f0258b06b64627eddb72d892347e95a844153c"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorldSweepShapeTests.cs",
+      "sha256": "283de14d544da3226b25fd99bbb614c867a141b8fc8457864e2ec2d439860b19"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorldSweepTests.cs",
+      "sha256": "09de1e4619ebc65e2b51f0e3425402cfa1929fdadf28a981381a73d51b54ea83"
+    },
+    {
+      "path": "CuriousContraptions.tests/WorldTraceTests.cs",
+      "sha256": "0201d1476357321832bfaf865b9fc79cfa6bfe84086be1bd3ca18883f5658a52"
+    },
+    {
+      "path": "CuriousContraptions.tests/WoundSpringCampaignTests.cs",
+      "sha256": "658335ab2aeab097439c32b2629898195136fae163342a016a0ab45fe5fc5168"
+    },
+    {
+      "path": "CuriousContraptions.tests/WoundSpringDiagnosticTests.cs",
+      "sha256": "b4e4d6a48c50085d85d5f5530b2ef958090b130a902c86030c0884a15a66bd55"
+    },
+    {
+      "path": "CuriousContraptions.tests/WoundSpringOwnershipTests.cs",
+      "sha256": "8a30012a215a7c398788cf1d1853b9ec9d24ba8ee32eef495f1e52605c4d9ae8"
+    },
+    {
+      "path": "CuriousContraptions.tests/WoundSpringRuntimeTests.cs",
+      "sha256": "7b44c74898a8158dcb852475c5aaa6c3eec86e9b9e653f515d9a3cabbc3d00a5"
+    },
+    {
+      "path": "CuriousContraptions.tests/WoundSpringTests.cs",
+      "sha256": "912a87d2a4ac582f2253324304b53df8393e209346ae440b64dc45de5d9e1720"
+    },
+    {
+      "path": "CuriousContraptions.web/CuriousContraptions.web.csproj",
+      "sha256": "149d1ac1524af1f458087f41107eebe5a0a8e5fb7cdf26da6a4a5b6c30593637"
+    },
+    {
+      "path": "CuriousContraptions.web/Directory.Build.props",
+      "sha256": "56644c3a55cb9ccf0485b3198f922e7c9fb9cd9d4729e0f4ceac1a398c2cb357"
+    },
+    {
+      "path": "CuriousContraptions.web/Program.cs",
+      "sha256": "1585540d8f90049197de6aa79d61b519f806078fb9cdbe62d98f265e7af20e5f"
+    },
+    {
+      "path": "CuriousContraptions.web/TwoDogWebBoot.cs",
+      "sha256": "32b2cccb83744bea40e57daba3c1aaecef4f197fa0e8a640c9be3e7663074211"
+    },
+    {
+      "path": "Directory.Build.props",
+      "sha256": "549d2120e64f3e0f1c1af86832759a50f082ea82d4a7254cb5cc780d4f387fa7"
+    },
+    {
+      "path": "Directory.Build.targets",
+      "sha256": "ce9e471a414fd8ca236d709ccf79333b1e1af8cb735b8a1947c9c1c12d69c263"
+    },
+    {
+      "path": "content/puzzles.json",
+      "sha256": "1f78089c59c82c24e8c754f5045c535193f9c0495a53d99abea60c09e7bb0db3"
+    },
+    {
+      "path": "diagnostics/BackendQualificationDiagnostics.cs",
+      "sha256": "17f8caa3abe89f47e4c7f7250efd2eb9b186af90bafbf5fb4be7ad162cb9892d"
+    },
+    {
+      "path": "diagnostics/ExactPlaytestEnumConverter.cs",
+      "sha256": "0bbef739a1e3338ad03db430b755d2c10afab3fa924148cfeacfd752aa6be726"
+    },
+    {
+      "path": "diagnostics/GeneralBodyQualification.cs",
+      "sha256": "87182e7826e31a67aac7935ec61043cbd715284d9ec4c7d47eac4bfcd7759821"
+    },
+    {
+      "path": "diagnostics/GeneralCollisionQualification.cs",
+      "sha256": "8a65954d042a3044df712445a91c0907b150da857a56899217066be603199245"
+    },
+    {
+      "path": "diagnostics/GeneralConstraintQualification.cs",
+      "sha256": "e682f75955505eb3a8043dc716242be5a0bbccb4780080e385723563f1722ce9"
+    },
+    {
+      "path": "diagnostics/GeneralHollowQualification.cs",
+      "sha256": "08102c52cf72ab1c29875a121b8c8dad99d1ad886b732ab8581c3c10cdb58f21"
+    },
+    {
+      "path": "diagnostics/GeneralImpactEffectQualification.cs",
+      "sha256": "562d134ce303b784ac409900bc4b652934c7c6d2948868cdb75d44797c7590e9"
+    },
+    {
+      "path": "diagnostics/GeneralImpulseQualification.cs",
+      "sha256": "4f79a886ebf20418be001fe9db300134d3a66ec28a7ce48b2dda490210c15adf"
+    },
+    {
+      "path": "diagnostics/GeneralJointBoundaryQualification.cs",
+      "sha256": "16cc4db306d6b86db6a2787959391ad67582e53af9376d241590924975084afc"
+    },
+    {
+      "path": "diagnostics/GeneralJointQualification.cs",
+      "sha256": "ab68b0f4004296e860b084d9f00bc3a4e7f67f6e2d5c500d3c2689de78151cc7"
+    },
+    {
+      "path": "diagnostics/GeneralJointRangeQualification.cs",
+      "sha256": "486f12543c2a820884a048e5b32db1f14036ac76440c0c8c661d3b2eb3b46c39"
+    },
+    {
+      "path": "diagnostics/GeneralManifoldQualification.cs",
+      "sha256": "dc6ecd7cc28e3c0e5be20a744639591471391121ac686d5970d47b929b90a47b"
+    },
+    {
+      "path": "diagnostics/GeneralMotorQualification.cs",
+      "sha256": "c4104ce50d9d8c336620c67ee291850e6da9cd5f0a84192039d66baca7ae50ab"
+    },
+    {
+      "path": "diagnostics/GeneralMultiBodyQualification.cs",
+      "sha256": "7cb893244cdfaf46cd4f4878f425ee1c0c536860cd15f4b9598ce4cf34ddfb29"
+    },
+    {
+      "path": "diagnostics/GeneralPenetrationQualification.cs",
+      "sha256": "e4051aadfada41d07c7b5f4f62454966f6fa72965ffb9a4fbc0ac197729a9216"
+    },
+    {
+      "path": "diagnostics/GeneralPersistenceQualification.cs",
+      "sha256": "a3df9ad63bdee5610aec47f38a90bebfe3b377515e0eae82660d7426b43d5329"
+    },
+    {
+      "path": "diagnostics/GeneralProjectionQualification.cs",
+      "sha256": "9a386730d69e4887a94d687e3152ca7a415df7ee6d67eb70c88b8a463ffb4a10"
+    },
+    {
+      "path": "diagnostics/GeneralRoutedRopeQualification.cs",
+      "sha256": "7a73e0e7827f3d1da4d511b3dee120af4041465a2487af47a0d30a073735a222"
+    },
+    {
+      "path": "diagnostics/GeneralSignedSweepQualification.cs",
+      "sha256": "4f48e67683d12970be5d7c26a9a4ca8878c9c3d702a46ff2ffcdfb8bdb0b80d0"
+    },
+    {
+      "path": "diagnostics/GeneralSpatialQualification.cs",
+      "sha256": "15472500b5cf3d220706d664f3ea4f152b340a14ebb6ab41ebcb5d73903d135d"
+    },
+    {
+      "path": "diagnostics/GeneralTrajectoryQualification.cs",
+      "sha256": "69431a8d0b927ebe7f641f4c7a5a4e58fb1e6a9fa8d4cdda6a3d004f24f6bfdd"
+    },
+    {
+      "path": "diagnostics/GeneralWorldQualification.cs",
+      "sha256": "c9e348a854ae117cde005f15cb0c4a44c62d516ef951e0c8780d3de1672829a0"
+    },
+    {
+      "path": "diagnostics/PerformanceProtocol.cs",
+      "sha256": "8f03e73fba10f418ed45c4cc0e0dd9f5fbebbd34e8e35ef923246f857747e331"
+    },
+    {
+      "path": "diagnostics/PhysicsBackendMotionProbe.cs",
+      "sha256": "cb7a8a4f8fa7d34da3ef06911183a7f5bc038c090100ba5bc5d75550515d7efc"
+    },
+    {
+      "path": "diagnostics/PhysicsBackendQualification.cs",
+      "sha256": "b707e4f730dda3e757725430fa5d31d59142c52a161d47338c308d09db97bdf8"
+    },
+    {
+      "path": "engine/AcousticAudio.cs",
+      "sha256": "f317ce2ff30e4823653a10385a3fec03a13ef9b64c6dd16a915c6753844377e9"
+    },
+    {
+      "path": "engine/Acoustics.cs",
+      "sha256": "5b5702fcc3b279f3480610b98053a3c241da1f741be01ae231a0127990ed4f89"
+    },
+    {
+      "path": "engine/AirflowNetwork.cs",
+      "sha256": "d79c47ab2fdbd59dbf1c6d76e608b8f70f1b5e1da81df7ab97c552cba0e1ca33"
+    },
+    {
+      "path": "engine/BendProxy.cs",
+      "sha256": "df225cafb114e76abda7a6aedd498a1a56f834fcef1241e949a03ba45f67a95a"
+    },
+    {
+      "path": "engine/BodyDynamics.cs",
+      "sha256": "273e422f03fe557c5668a54b073d6de6a2834f28b4b87890cc4aea431d82a6e9"
+    },
+    {
+      "path": "engine/BodySlot.cs",
+      "sha256": "3a7b44d19dc73e23aa7e43053f5e2cead07de5da9f50e5583c49061874bb249a"
+    },
+    {
+      "path": "engine/ChimeAssembly.cs",
+      "sha256": "7f6ce9cbf7b20d8787e66c7507e0bb1fe547b4f15cf13765161966df49d78be1"
+    },
+    {
+      "path": "engine/ConnectionPort.cs",
+      "sha256": "037238922ad8bfcdefe0e1f643720df675117ad613892919423bf414d12ac7ab"
+    },
+    {
+      "path": "engine/ElectricalNetwork.cs",
+      "sha256": "5e1e267e9d2237e58c882077fd77c865ccf7f6355be2005e99ee93723c8feb4b"
+    },
+    {
+      "path": "engine/FrustumProxy.cs",
+      "sha256": "6ddb490d6cc3642baf02bd557b5fde8cbd04323a8675146fed1f2296e6b372ce"
+    },
+    {
+      "path": "engine/IResizablePart.cs",
+      "sha256": "72978dbe4cfaa726f69d3f1edb02a416965c26feef8975dc9eef43405e550297"
+    },
+    {
+      "path": "engine/LightNetwork.cs",
+      "sha256": "5a09066e61489810832ec7ce6949cf4300d5143984ee89a5799f01fbabf9694b"
+    },
+    {
+      "path": "engine/LogicGate.cs",
+      "sha256": "7f2680c6ce27ca9b3639d6aa1285930f38f87821e754eb4b7620506651b348da"
+    },
+    {
+      "path": "engine/MachineData.cs",
+      "sha256": "a9fdd551ae0b9f4ba875aa9326e7c6492f25d08a13a49615d254620959f08ac0"
+    },
+    {
+      "path": "engine/MachineEvent.cs",
+      "sha256": "b2d055839623047a3f35346560b1a7a78518310c364744603c5f53f207b69e22"
+    },
+    {
+      "path": "engine/MachinePart.cs",
+      "sha256": "a32f5379c27554eaffaf84c563343aead590636da95cfd5f484d13399a4a75a3"
+    },
+    {
+      "path": "engine/MachineWorld.cs",
+      "sha256": "3fe3251c4934e503c482b4ed2a349767d6f3c51957dcfaa408a20ffbcf046794"
+    },
+    {
+      "path": "engine/MechanicalNetwork.cs",
+      "sha256": "e928290b7ab9e1d6769d2b223ee608f62a7a493ea590e5bd1a40b2b017dd3d43"
+    },
+    {
+      "path": "engine/OpticalColour.cs",
+      "sha256": "289e91607b160ba20c7a30997625c5f353f60c737c2c54bad39741a06fef3d40"
+    },
+    {
+      "path": "engine/OpticalNetwork.cs",
+      "sha256": "194f8ebf9f920741c76a0b6715d3ea026eca59a6e20161a7f5ef205788b37a04"
+    },
+    {
+      "path": "engine/PartArt.cs",
+      "sha256": "6dd08ba04fc0b6edd1bd5049d96589806d8de91bf4f02ded4788e27da6794c6e"
+    },
+    {
+      "path": "engine/PartAssistance.cs",
+      "sha256": "3f402a006142003224907e37db8490f7ef83d47688e7738454161108ada5fae4"
+    },
+    {
+      "path": "engine/PartDefinition.cs",
+      "sha256": "ce7a66dcad5a44353c0b7b65816ea218253809dce09d6a1657043984f3bb19d7"
+    },
+    {
+      "path": "engine/PartOrientation.cs",
+      "sha256": "e61a89700577863ebe412631324e596e02872414423f2c30ba8ea759cb0e0171"
+    },
+    {
+      "path": "engine/PartParameterName.cs",
+      "sha256": "58ce9680c651984129171f484933dc0f34379a1c6afe1ffc794eef25e486b3ee"
+    },
+    {
+      "path": "engine/PartRegistry.cs",
+      "sha256": "2edb5f2e9d04d6769399b3439ce688580b28da7e52b5bcef39774a445414b443"
+    },
+    {
+      "path": "engine/PerformanceContracts.cs",
+      "sha256": "ae799bc903fa098bb55cb6059aea01775f9c6d9ac48a50d007e2932a07058b0b"
+    },
+    {
+      "path": "engine/PerformanceRecorder.cs",
+      "sha256": "617ad01f19b3f2120041624aad51d10670bfd25c4b2b51d3b2c8839720e18ff7"
+    },
+    {
+      "path": "engine/RopeNetwork.cs",
+      "sha256": "dfb6b697c8c41c15ce2452e2c4fbf67fb3038138bc223f3c7e974e5fe37f3934"
+    },
+    {
+      "path": "engine/SceneCollisionGeometry.cs",
+      "sha256": "ab0946b10a8f53691ea0ea19ee81501d10bd6b6149c62f0f11b4df741623d210"
+    },
+    {
+      "path": "engine/SceneContactLoadSensorDeclaration.cs",
+      "sha256": "bb14cd0326e913131d66dc65e24ce55288ce1075bf2c7a1a70affaf0a6607530"
+    },
+    {
+      "path": "engine/SceneDrivenSurface.cs",
+      "sha256": "c02042e0a9c7f2620b01b0d8c575ecc5dabaa91a9dfb0d7a14b5e80375ed42cd"
+    },
+    {
+      "path": "engine/SceneEnergyStoreDeclaration.cs",
+      "sha256": "52447843ebf340bf5a9f18953aadcf32f678932fd03a297b8ef7da9ecf69ff17"
+    },
+    {
+      "path": "engine/SceneImpactEffect.cs",
+      "sha256": "6d4b42e2284f52fad880ee33cba70b08dfcdbdc5ce41244ceafba36d5024222a"
+    },
+    {
+      "path": "engine/SceneJointDeclaration.cs",
+      "sha256": "cc8804bff412137b4d0f24293f64bc893be87e111f446f891764606697c9fa28"
+    },
+    {
+      "path": "engine/SceneLatchedSpringDeclaration.cs",
+      "sha256": "6323851bd839b27ea51d3455b14f8992b78f8d164fbac901bc73ce52e8a5c87b"
+    },
+    {
+      "path": "engine/SceneOrientation.cs",
+      "sha256": "697f8aacd17ecf7c22ea9297c9e06de379bb10e348737f4ef56e1b6db1183c88"
+    },
+    {
+      "path": "engine/ScenePassageSensorDeclaration.cs",
+      "sha256": "054f20a0ca63cb513423648f7a2d23c53ba6ce3eb2f119346a927975319b9e9a"
+    },
+    {
+      "path": "engine/ScenePhysicsAssembly.cs",
+      "sha256": "02e887c616eae694934b39e3a8c93a4eb74cc0ce579b490ebc04a2967d264bee"
+    },
+    {
+      "path": "engine/SceneResidenceSensorDeclaration.cs",
+      "sha256": "022a5039e512bade47ddaf695f793e6999111310d7d979f1717813e12435f7ae"
+    },
+    {
+      "path": "engine/SceneRopeJoint.cs",
+      "sha256": "3300eeb9ab994c7af78e17f1c6749558aa6f1ec1a228d8d426822c1d9e0e5395"
+    },
+    {
+      "path": "engine/SceneRotaryShaft.cs",
+      "sha256": "aaec36f3b3ca7a9715ac8a08f6cf1d1759bb4eead2f4bcec4e58641b50b65449"
+    },
+    {
+      "path": "engine/SceneServoDeclaration.cs",
+      "sha256": "1e735d7246b177bc593958a014f1e71572672a9b55ca06a34b7afc726596dbad"
+    },
+    {
+      "path": "engine/SceneTiltSensorDeclaration.cs",
+      "sha256": "666586601ffcc6f6d06babc990e75ee6eaf055a72652410837dcb911176a67f3"
+    },
+    {
+      "path": "engine/SceneTransmissionJoint.cs",
+      "sha256": "78958c3c65c0b00acf98ffae231f0458322ba8cb79134b2db4e6d492b4e53e49"
+    },
+    {
+      "path": "engine/SlidingBlade.cs",
+      "sha256": "e5d7bbc1900b3160f3e94f54a8d828c444d12bc43bb9afaefe095d95da83b51e"
+    },
+    {
+      "path": "engine/TubeMouth.cs",
+      "sha256": "743b3b7f66f645bd9882faf3906d6a4469140f3b174b8d3de3d582c130f3e1e0"
+    },
+    {
+      "path": "engine/TubeProxy.cs",
+      "sha256": "1fd903ecec759e9e25e5326f16dcac8ed3d94ed5705f9d52af18d1431cbc9ad2"
+    },
+    {
+      "path": "engine/Workbench.cs",
+      "sha256": "3c2214b5fbc60bcfff40628f706a92a51e2c33c01efa336bcefc36a21bb7df8e"
+    },
+    {
+      "path": "engine/WorldGeometry.cs",
+      "sha256": "67d187f1b80afd542e695817e21fd8673b33a583d144e3d46c14bb10755b0d3c"
+    },
+    {
+      "path": "engine/physics/AccelerationSolver.cs",
+      "sha256": "a49cefaaab98ec388af552cc36b8ed1d480966d399cd8d5d6a2ec601546bacb5"
+    },
+    {
+      "path": "engine/physics/AdmissibleImpulseResponse.cs",
+      "sha256": "56baccae97c3056f472eced511e0a558c386a2c134caac8724334f564f21870b"
+    },
+    {
+      "path": "engine/physics/AirDrivenAxialLoad.cs",
+      "sha256": "d6fad03ccb8aac038a311894fc18b4704a46cf241c0462868ddd46943d77500f"
+    },
+    {
+      "path": "engine/physics/AirJetBoundaryPath.cs",
+      "sha256": "725d965869924b90676f6b8ec67779e7aa1373ea01bffbb806aeda03aa64d796"
+    },
+    {
+      "path": "engine/physics/AirJetLoad.cs",
+      "sha256": "0f5e40d5eac77cdb767aa7a4a0c43a2dfface5b461d683277d8640596e27c7bf"
+    },
+    {
+      "path": "engine/physics/AirJetSample.cs",
+      "sha256": "a89d1634e7765ff2b234902bbabe3a564fa53b1f815809b81fbb6c47c8b60c09"
+    },
+    {
+      "path": "engine/physics/AirJetStrength.cs",
+      "sha256": "042a6ec16c89fe29c7b9cd85f0be6d65bc6439f60779b10a8e802571dcfaf5c4"
+    },
+    {
+      "path": "engine/physics/AngularPathMeasure.cs",
+      "sha256": "1a8e086956c3db6ed6d80f40339ea5e1bc30866b950e12880d8d9205c57577b3"
+    },
+    {
+      "path": "engine/physics/AxialDampingLoad.cs",
+      "sha256": "0b3b7d467681a23bf07e50bc34b6558b5f8cb5b2539937b30e0d4bda55f6f7aa"
+    },
+    {
+      "path": "engine/physics/AxialEffortLoad.cs",
+      "sha256": "c663946a4eefe656e9cc65d80e0a5024446f10437f521d403a59fc5dbb4ae02a"
+    },
+    {
+      "path": "engine/physics/AxialElasticLoad.cs",
+      "sha256": "63b77a657b8431c5f397acb9d6a611e50cd80406fb71248a542ba1704211f240"
+    },
+    {
+      "path": "engine/physics/AxialElasticPotential.cs",
+      "sha256": "beac609420ecb75b01c10c6c9006d39923772a11340546d49a1654664eea0767"
+    },
+    {
+      "path": "engine/physics/BilateralConstraintBlock.cs",
+      "sha256": "12ca9e5132969663c7141f0b1fdbc597e552aeba2747a53b1f1cd62feb4bb0cc"
+    },
+    {
+      "path": "engine/physics/BilateralResponseMap.cs",
+      "sha256": "997d9249112cade823e02a7b240fded8de082b09d1e5cd99f917decdf73893ea"
+    },
+    {
+      "path": "engine/physics/BodyBoundsTree.cs",
+      "sha256": "51ec4dfecfb317c6cd3f0ae01756c6f83d44057b6a842bd6b294b2f2a2d4ca0e"
+    },
+    {
+      "path": "engine/physics/BodyDragLoad.cs",
+      "sha256": "900a10597fec7356034c9991bd6491a13ccbb143dafefc3cd3ba018820aa64bf"
+    },
+    {
+      "path": "engine/physics/BodyTrajectory.cs",
+      "sha256": "253b74113cdd5230605c9971bb4036434a70a44e6884098f20391db76a5e1766"
+    },
+    {
+      "path": "engine/physics/BodyWrench.cs",
+      "sha256": "01f2f39be116419581578aef399924699def03c0dd864e0e381629d72cd681a6"
+    },
+    {
+      "path": "engine/physics/CompliantContactLoad.cs",
+      "sha256": "c057207ec592e7e2bd63f6bd4b8d6add5af724e6fecd883fc92d6851d989dc2b"
+    },
+    {
+      "path": "engine/physics/CompliantContactState.cs",
+      "sha256": "080f196e9247d57bd6b62fe35d3a4a6cf2194bbaa7b57b56d5511d312317b81c"
+    },
+    {
+      "path": "engine/physics/CompoundBoundsTree.cs",
+      "sha256": "aee41514adba0d283529f80d89c5e01700b3420c118ad9a7c248ad6d9890dfab"
+    },
+    {
+      "path": "engine/physics/CompoundCollision.cs",
+      "sha256": "f4db0e97292eaf2260a6cf64752df7ea67bf78c1e777385edcb2f855d99b88e9"
+    },
+    {
+      "path": "engine/physics/CompressionSpringPotential.cs",
+      "sha256": "b21fb6d466457bdc378ee03a4e4f87ed485e9176e60e7a30c7c34ee7c38616a4"
+    },
+    {
+      "path": "engine/physics/ConfigurationTrajectory.cs",
+      "sha256": "a100a5b7a3f0267198bea7ded920dc88fe6039c52ea7dde6173df95dc85014db"
+    },
+    {
+      "path": "engine/physics/ConstantAxialEffortLoad.cs",
+      "sha256": "1bc01cfdd10fcc2eab8e7c1a0fe64e3db45da91ee444eca86a88d65c7b065a18"
+    },
+    {
+      "path": "engine/physics/ConstrainedPoweredImpulse.cs",
+      "sha256": "fd3c6b8f3059dd3e262b10c1786d0bc6daaf91e77f415bdfa0de8f6da92dc1f8"
+    },
+    {
+      "path": "engine/physics/ConstraintAcceleration.cs",
+      "sha256": "fbfe19032499c6daba409619d7a9977fe6d012fec5a9fba08d587d1cf67bfbd4"
+    },
+    {
+      "path": "engine/physics/ConstraintGradient.cs",
+      "sha256": "69846996fff57313da8369216c7e5632267d84f119ed234d9bc00f03ecc9ae45"
+    },
+    {
+      "path": "engine/physics/ConstraintMassMatrix.cs",
+      "sha256": "9f3871a689ae024955c4aee0a825aa948ce8095dea3a80ad191e5258e4bca6a3"
+    },
+    {
+      "path": "engine/physics/ContactConstraint.cs",
+      "sha256": "3fdd09c8ec81adcaecfa2ac5cb4bdc8c345cc11559dd6204b38ac32004f7be16"
+    },
+    {
+      "path": "engine/physics/ContactForce.cs",
+      "sha256": "a30ea9294fda5e341381237ae39c2b8e0f54fe71701768907d94b23d16b4ef44"
+    },
+    {
+      "path": "engine/physics/ContactGap.cs",
+      "sha256": "4f548f4cf3d527bf9beeba0cd01c9a80227d8bbfd00b4b3c5a77da9791825c0a"
+    },
+    {
+      "path": "engine/physics/ContactKinematics.cs",
+      "sha256": "9f9a8611ef6e12bacc261078e452cfbb588861843613402e73a320f06b2ce43b"
+    },
+    {
+      "path": "engine/physics/ContactManifold.cs",
+      "sha256": "6e5d61784de80fc0f3f4fa9bf4ef45e019b6019183d3d98ade3ed9d62cdf70e5"
+    },
+    {
+      "path": "engine/physics/ContactPatch.cs",
+      "sha256": "68362b96b1e5b4954e1ac319a241145d479400b55a7c9dec3b5b346ae43883d8"
+    },
+    {
+      "path": "engine/physics/ContactSlipPath.cs",
+      "sha256": "d0f22404f69b49d43b47308daaade345d08b0ee79d79a37adaeef2949db1f98a"
+    },
+    {
+      "path": "engine/physics/ContactSlipSweep.cs",
+      "sha256": "7387299f524248fe9bcce6be9ebe90bdcebe3eaca09b80daf6bcfb4536b98701"
+    },
+    {
+      "path": "engine/physics/ConvexDistance.cs",
+      "sha256": "7f676e7845477eade7db8c3e1c97b743a31ecaa3707b6584777952add520a999"
+    },
+    {
+      "path": "engine/physics/ConvexGeometry.cs",
+      "sha256": "1cebaf4dfa243a1e0a2551cd928f224c94a24451586e793b1b738a691aa8807e"
+    },
+    {
+      "path": "engine/physics/ConvexPenetration.cs",
+      "sha256": "e805a71e1c9fbb9bc986c9c622bfdd4644e74996958925d1fdbb23d6b55b86b3"
+    },
+    {
+      "path": "engine/physics/ConvexRounded.cs",
+      "sha256": "75720569a2bc455c74d4a865888f8bf9f219c6ae08d4b74544de1a80c63a42a2"
+    },
+    {
+      "path": "engine/physics/ConvexSeparation.cs",
+      "sha256": "fbabdaefc6b370c028a666b17ae830102e384623b4ad1939b1595c75f3e56924"
+    },
+    {
+      "path": "engine/physics/ConvexSweep.cs",
+      "sha256": "13f3afe56bb3b08bf9307a2eecac3af2d5579b6c966a25f9c9c41397789d1b5a"
+    },
+    {
+      "path": "engine/physics/CoupledImpulsePair.cs",
+      "sha256": "f48234d834f213c994553868331200f21da7ae80314de7e91d96041d8ae4a46c"
+    },
+    {
+      "path": "engine/physics/CylindricalRegion.cs",
+      "sha256": "402931ce6110263afd60c9615ce0b9073d92513d95a71c7dfe6d2ea733a5e591"
+    },
+    {
+      "path": "engine/physics/DrivenSurface.cs",
+      "sha256": "909cdb0d68cfcf754c105d3df5323109bc53dcc9ac4b7603503207699eb1701e"
+    },
+    {
+      "path": "engine/physics/ForcePrediction.cs",
+      "sha256": "b0e97e5b331bd6bf909728802fbfd0ffcac88fafb909e11f1363ca973580f90e"
+    },
+    {
+      "path": "engine/physics/GuideSupportBoundaryPath.cs",
+      "sha256": "e09582c63a44c3547c81d6c9cad1e15a8997c354b33fa34018f5dc6b71e541b6"
+    },
+    {
+      "path": "engine/physics/HollowGeometry.cs",
+      "sha256": "b37fe466f0e66ea4adc26d1f8d892b983665856039e5ca45c2e9cfb1bfc2cb67"
+    },
+    {
+      "path": "engine/physics/IRigidTrajectory.cs",
+      "sha256": "23d897de36444379fb77149777cb335e6676262d263985f75c9e0caa60dcd253"
+    },
+    {
+      "path": "engine/physics/ImpulseConstraint.cs",
+      "sha256": "637ecc3e7d10a33ec6eb3123f674e8460234f39cb32091ee9ad67519b0d7122d"
+    },
+    {
+      "path": "engine/physics/JointBoundarySweep.cs",
+      "sha256": "460089d443ca48d0691959f60707c49f7f0c37fec676d758c92641ecd7a311eb"
+    },
+    {
+      "path": "engine/physics/JointConstraints.cs",
+      "sha256": "0485e20d17dc2b3f1934747a8d7488e638807e4586533b0ec1a614eb95c2c27f"
+    },
+    {
+      "path": "engine/physics/JointEquations.cs",
+      "sha256": "9ce18b7d23440eb8ff8be2e63a556312b3485dc933b9f85ce69d70fcacd20397"
+    },
+    {
+      "path": "engine/physics/LipschitzBoundarySweep.cs",
+      "sha256": "b0ad71e33cc7da45108f2be4a053fa2a391ebe0ed0d00b676db9b0f288224ee6"
+    },
+    {
+      "path": "engine/physics/MaterialContact.cs",
+      "sha256": "64f0137f399b4b55ba473059bc834aafd46cb26ae999fb42ce7941d9d92268f3"
+    },
+    {
+      "path": "engine/physics/NonlinearIteration.cs",
+      "sha256": "e6d98094565ee4acf75f18e50dd8177ef17356d3511cca82668e2ca583cc6166"
+    },
+    {
+      "path": "engine/physics/PersistentContactPair.cs",
+      "sha256": "7596056efc3557792c7cd85e56528288f5532db3d6adb3a8209ca432af93dd6d"
+    },
+    {
+      "path": "engine/physics/PhysicsBody.cs",
+      "sha256": "6dec2f91af94a782a9d083aa8de619b7bdc293469bc3ada8f41afa70ed904dad"
+    },
+    {
+      "path": "engine/physics/PhysicsColliderUpdate.cs",
+      "sha256": "1f38984062dd7b69b53ed2515896eb036f0b7ed98033e2354dbbc35961269e21"
+    },
+    {
+      "path": "engine/physics/PhysicsContactLoadSensor.cs",
+      "sha256": "86c96fb0f14f6ae0a173cf17f46d1f703ce7056cd0f988ae0c15558c4cb35c7e"
+    },
+    {
+      "path": "engine/physics/PhysicsEnergyStore.cs",
+      "sha256": "ec2a5a5c9a81c5a0f5d35a31632ff1f92af13238de68b2f75edd79c5683ba8f3"
+    },
+    {
+      "path": "engine/physics/PhysicsImpactEffects.cs",
+      "sha256": "b150f0ecdf243dbbc13a39e79a094806f5f6fb18659155d105ca3039fedca0af"
+    },
+    {
+      "path": "engine/physics/PhysicsJoint.cs",
+      "sha256": "270f099a3a63ab5fdaf6eb86a25de2047b6bbac9172df168a60afe5c6099f8f9"
+    },
+    {
+      "path": "engine/physics/PhysicsJointChange.cs",
+      "sha256": "228b22a40ea25cfe0aea063c0623a48c7eba643771ffedca70ef9b87e2a56875"
+    },
+    {
+      "path": "engine/physics/PhysicsLatchedSpring.cs",
+      "sha256": "dea9b649056f81fd325a9345b147e8f0bbac925bc947619a67b03e855433ef0d"
+    },
+    {
+      "path": "engine/physics/PhysicsLoadSet.cs",
+      "sha256": "60762fe24048299c946f4468cd1b97466a72aadb4a1aff6ed07f2aa55a5ef386"
+    },
+    {
+      "path": "engine/physics/PhysicsMotorCommand.cs",
+      "sha256": "0cdedb0fd5303c91da63f9f95d830ee3ca0f2e0d0a0f097a0da1f2acb0b405b7"
+    },
+    {
+      "path": "engine/physics/PhysicsPassageSensor.cs",
+      "sha256": "dd1c9165148ab11766045e67ffcf8a84bbf937e6d3e3918b25bf56077d712110"
+    },
+    {
+      "path": "engine/physics/PhysicsResidenceSensor.cs",
+      "sha256": "9da43ac4f2c17689fdaf76ccde864e8113105ac90478105f5713c85d3bb50555"
+    },
+    {
+      "path": "engine/physics/PhysicsRopeJoint.cs",
+      "sha256": "1e2ab656c75b24f27ff077228d5f11a57704ae873253a6e0567d36b43fbc2776"
+    },
+    {
+      "path": "engine/physics/PhysicsServo.cs",
+      "sha256": "f405afe727104e2e94367c018ff26bacdb3e38bce5dbb560e3bb33610f36c9b4"
+    },
+    {
+      "path": "engine/physics/PhysicsTiltSensor.cs",
+      "sha256": "573481db2e1e6bc74ab96888b72a83995fa248bc9c4cc2c3520ba9aa473499d9"
+    },
+    {
+      "path": "engine/physics/PhysicsTransmissionJoint.cs",
+      "sha256": "42351cc0a35729bf45172a197111ffd78cc2ec1fa54989b795846b1eff30025c"
+    },
+    {
+      "path": "engine/physics/PhysicsWorld.cs",
+      "sha256": "e996ea9467cefc7ddb2d843ed0565d91a5ae86a5579d3ae0d9d365dfec61d437"
+    },
+    {
+      "path": "engine/physics/PhysicsWrenchCommand.cs",
+      "sha256": "c98f279bc90a41c014ee9c7959c7f23389d39d312aee6eb8a69e6b0fa34c4336"
+    },
+    {
+      "path": "engine/physics/PlanarGuideBoundaryPath.cs",
+      "sha256": "3db1b5fd6ecf041e3e708db8a0e1d57952d640c0bdb4e51775d31b0294475d92"
+    },
+    {
+      "path": "engine/physics/PlanarGuideLoad.cs",
+      "sha256": "75028fc0fe5e9cc51f7bb56daf91de6da354aac7de5fd3b9aaa97ce1f62d7457"
+    },
+    {
+      "path": "engine/physics/PositionConstraints.cs",
+      "sha256": "9a32ed20bfc26633fbdee0ead7a510c3fdff4614e53056e44593c9ba7a129dd6"
+    },
+    {
+      "path": "engine/physics/PositionEquation.cs",
+      "sha256": "0cb4523a5616b7500df2950c96086f5a4278f9b34572a64f9c302b76a92ab0db"
+    },
+    {
+      "path": "engine/physics/PositionProjector.cs",
+      "sha256": "1e0526a839766195e91192b85ce2d54d4254f035d7ccb55f51d0bbe05389a78f"
+    },
+    {
+      "path": "engine/physics/PoweredImpulse.cs",
+      "sha256": "c5ed1ccf9bf216d6aa92de999d062a22cf8bec812f2397b2bb8b8099d5212e7d"
+    },
+    {
+      "path": "engine/physics/PrescribedBodyMotion.cs",
+      "sha256": "f4798b073261e5a39a01158e08119c87383ee64966fa29863c4348a9af5e95ef"
+    },
+    {
+      "path": "engine/physics/QuinticRigidTrajectory.cs",
+      "sha256": "92a067e4e97bf28a133d37bb03f4f29d3aa583c0e5ba217b54d057668df097c7"
+    },
+    {
+      "path": "engine/physics/RigidPose.cs",
+      "sha256": "41fb8cc31e665987570060bae7e6b422f4470f91f311ee16f8089681ba022565"
+    },
+    {
+      "path": "engine/physics/RigidRotation.cs",
+      "sha256": "0bdc0a6f5e16f44feccdb7d4f6f2eed4968ab73fe7f73375c8415bb1cdba61a1"
+    },
+    {
+      "path": "engine/physics/ScalarBoundarySweep.cs",
+      "sha256": "c383d431b9ec58565995d03d96889ae7b611d09021b0d19b87c31980c3fe6053"
+    },
+    {
+      "path": "engine/physics/SupportFeature.cs",
+      "sha256": "91c4bd65e295476349c48ed3652b1339e72809db630d59a8579c0c6c50bf8702"
+    },
+    {
+      "path": "engine/physics/SupportFootprint.cs",
+      "sha256": "eab377e0fc660b854eb227824470180f59b408bc36873990f3c195538f0d20fd"
+    },
+    {
+      "path": "engine/physics/TangentQuadratic.cs",
+      "sha256": "24c24b550d5204697257eeae5f94cbc9c383881c045f7a64fe535e7f2b6d7d1b"
+    },
+    {
+      "path": "global.json",
+      "sha256": "a7677f93f4c9367ccee574dc14240116191a317fc9d3b2616806c7c5645a75fa"
+    },
+    {
+      "path": "parts/BallDetectorPart.cs",
+      "sha256": "ca11513b612b542f7d47c42e2d495fc99e5cb3e32785583486fa937c08735163"
+    },
+    {
+      "path": "parts/BallPart.cs",
+      "sha256": "456cedd1a5937235ae9d984a0ca92f66a6d92b032913c5a8cf46f29e1bf1a665"
+    },
+    {
+      "path": "parts/BasketPart.cs",
+      "sha256": "81e139c516cc867dd942b6ec4de5f561985b39636b461ffb481842b99bdef781"
+    },
+    {
+      "path": "parts/BatteryPart.cs",
+      "sha256": "d79504c3e806781fc98f4b9a7196d5ae86014d5f935c7ff2ab91080361a3ee02"
+    },
+    {
+      "path": "parts/BeamCombinerPart.cs",
+      "sha256": "d79a72c4bec0804845c87963f4f8760630a7a99c292fbcf0ca2e430f00c2b0d4"
+    },
+    {
+      "path": "parts/BeamShutterPart.cs",
+      "sha256": "a600d0090b7eec7c4fa39ba533bf8ae6cae2df99afdb0844db779827e72f3bd5"
+    },
+    {
+      "path": "parts/BeamSplitterPart.cs",
+      "sha256": "09e411c0b7b082c82379d9c7a56aaa7313a8b3d0308f5802fd87fae9f368351d"
+    },
+    {
+      "path": "parts/BellPart.cs",
+      "sha256": "67b4f72c24e9a7b541b0530be336bc9b93b2224e78824fe00d39bbf101f03738"
+    },
+    {
+      "path": "parts/BellowsPart.cs",
+      "sha256": "7b02861eab57418ffd0f7cc04dbf5302285f919d97d52805c4790c0ab861817d"
+    },
+    {
+      "path": "parts/BumperPart.cs",
+      "sha256": "1cfffc5aa3eb2f26319018ae5ddd58a46b1e2dca6cbdecda1431b80881cd5204"
+    },
+    {
+      "path": "parts/CannonPart.cs",
+      "sha256": "a117d670018b73f9f0db3fd092387bddb98cdb2999defbac4adc452a769cffb5"
+    },
+    {
+      "path": "parts/ClockPart.cs",
+      "sha256": "53a210d37586cd0862fce9b8a159aafcd97fb5db4372808021679397a17d542e"
+    },
+    {
+      "path": "parts/ClutchPart.cs",
+      "sha256": "3d784991085f79913d7adf7f433843c77d04899fb2d19c8372495714eeb824a2"
+    },
+    {
+      "path": "parts/ColourFilterPart.cs",
+      "sha256": "b577d42f3df40394237d9e0ab0dc69d189e5bc678de5734faeb7b64d113b9a8f"
+    },
+    {
+      "path": "parts/ConveyorPart.cs",
+      "sha256": "61872b27c4e9aa692bda6c2b2cff3aa177334478afff334502bb1ae16b423005"
+    },
+    {
+      "path": "parts/CounterPart.cs",
+      "sha256": "c63dfbdcefe83ab5b9b8ccc506f9b1f006477524713773817009f5215b674043"
+    },
+    {
+      "path": "parts/DelayPart.cs",
+      "sha256": "c63f145be4224e2cb6ba0bebffd8ea0b94315be1dbecbb67a3ed8c200d3012f6"
+    },
+    {
+      "path": "parts/DominoPart.cs",
+      "sha256": "9e3714761849629d5566c08c59624f1a30428e79d64ac360224cc03789eaea07"
+    },
+    {
+      "path": "parts/ElectricalLogicPart.cs",
+      "sha256": "fe8548d7809e50326d23febd3115c60f5ab0c270c6f5566ca441a109410737a2"
+    },
+    {
+      "path": "parts/FanPart.cs",
+      "sha256": "6dfac92db808e9ba70612a6532530b2bc8eea278f150d85e0b3b7d5876a435e9"
+    },
+    {
+      "path": "parts/FlashlightPart.cs",
+      "sha256": "b340e06f80f113f1a1460dcf890615bb72bc1f8236f25e83e378d1189db5be0d"
+    },
+    {
+      "path": "parts/FunnelPart.cs",
+      "sha256": "8d2fdb065b86d978c985a76069477443fc99d370e8eff654f832cc670f968fb2"
+    },
+    {
+      "path": "parts/HoldTimerPart.cs",
+      "sha256": "d570a948c4bde0adbb7ed9f4f5db562c79542ff76c1669cd88ef33943959c525"
+    },
+    {
+      "path": "parts/ImpactLeverPart.cs",
+      "sha256": "51d3cebea1d9bb5a24316d767044e0eff5c1b6508ff3d8e7b9af9731964649c2"
+    },
+    {
+      "path": "parts/LampPart.cs",
+      "sha256": "47693db8879e98048e4a26593f8a828406aaf3545a71bf8443e115663eb8d057"
+    },
+    {
+      "path": "parts/LaserPart.cs",
+      "sha256": "258893d35f0a2ebae8b1d6754cfcd73bca73e3596fdc786df650309c162f093f"
+    },
+    {
+      "path": "parts/LatchPart.cs",
+      "sha256": "424c94c8c2d8d257b8857ff3fbc775526990f841bed7e381e66d78028617fd3f"
+    },
+    {
+      "path": "parts/LightReceiverPart.cs",
+      "sha256": "513c1e1ca97ae488e0422a50fc31c9f96bdb2727d60ce60ec40f930bb7855935"
+    },
+    {
+      "path": "parts/LinearPusherPart.cs",
+      "sha256": "f4bfb3cc7d9df75c8d97f089feec3170aad9592cfd61c7a0dc750bd73a673607"
+    },
+    {
+      "path": "parts/MirrorPart.cs",
+      "sha256": "6c47801f61ef5a43cc725772bb9ef93a6375822905929f262a9f8bdc37e85ac6"
+    },
+    {
+      "path": "parts/MotorPart.cs",
+      "sha256": "1d87fa9aa7aa4a2c818b21bbe7633a0206926fb14b27c273de379bc1f38ddf33"
+    },
+    {
+      "path": "parts/OpticalLogicPart.cs",
+      "sha256": "35d996e2238893fdf098bfdd452c5fd11f5b668c76246ac7d74145e9da4d2c0c"
+    },
+    {
+      "path": "parts/PipeArt.cs",
+      "sha256": "63b9f309b4f5c2966d591491cd9c0ca14fcf48af1c1e2069f050e0fc0d64ab23"
+    },
+    {
+      "path": "parts/PipeBendPart.cs",
+      "sha256": "c57d2cde0672acb8c558ca8a12c959752d60d3748db270c04288608bb83c3063"
+    },
+    {
+      "path": "parts/PipePart.cs",
+      "sha256": "c2a319976de2ff63acc09afa32fdd06b064046b39b787e6812a5774dac3d6345"
+    },
+    {
+      "path": "parts/PoweredGatePart.cs",
+      "sha256": "dce42a5b92cd517d5adecaf352715feb75a528d8673bb779030a7e65cceba8cc"
+    },
+    {
+      "path": "parts/PressurePlatePart.cs",
+      "sha256": "1ed0c65739ece88ada460f4b68cc1da5120a95bd59a671c2af9b4fbac2730b15"
+    },
+    {
+      "path": "parts/PulleyPart.cs",
+      "sha256": "845903e9805c723ceb86cdcd89d6a0af3b27ac471d7ed2ffe2395c3f87b9a300"
+    },
+    {
+      "path": "parts/RampPart.cs",
+      "sha256": "28a0c1af96fa19a36aa75f32dccc15696417432f07475cad260fb62df1ab0a3c"
+    },
+    {
+      "path": "parts/ReverseTransmissionPart.cs",
+      "sha256": "ba899bea999f37bbb427c7d8747b4c9332ef4ca2ed7ce86fdf8fd135698f69fb"
+    },
+    {
+      "path": "parts/RopeAnchorPart.cs",
+      "sha256": "2f718041268dec4c9da33ff7fa88288aeb4b00c22c1b9f1bca1b83ccb962e840"
+    },
+    {
+      "path": "parts/SolarPanelPart.cs",
+      "sha256": "cc270a201b0377e8452d7eefbaa32f836f8eaca80e5c20cbcae4b2075666e3fd"
+    },
+    {
+      "path": "parts/SoundMeterPart.cs",
+      "sha256": "344a94e869a81500e2e7e046f958f2233a0c20aaf0dbf83781659103895513ad"
+    },
+    {
+      "path": "parts/SpeakerPart.cs",
+      "sha256": "5b85bde195f42914b46c53314069cc5fbd1d04adcd5e1c0c0f5085656374d448"
+    },
+    {
+      "path": "parts/SpringPart.cs",
+      "sha256": "d54c74eeeddf68bd2343ca2ad0c1b75752088fce57342d5ddad31d0a5ae79c4e"
+    },
+    {
+      "path": "parts/SwitchPart.cs",
+      "sha256": "a6c37dfdfcc305acb4d9592d70e7ce77346fe7d50175dd69227a51da9f81a1ca"
+    },
+    {
+      "path": "parts/TrampolinePart.cs",
+      "sha256": "2f96b4c008e6286710acdd5cea5e28d22e6f24a180975e8312e06d233a6c145d"
+    },
+    {
+      "path": "parts/WallPart.cs",
+      "sha256": "341446529ec44ba74014d0093fd988f05312d5d1f3a1fe2dcca42d415fe82477"
+    },
+    {
+      "path": "parts/WeightPart.cs",
+      "sha256": "bc9181a35e572cb05b9ed284db8326f92de0d0a09a90a9601c89de61661bbfa9"
+    },
+    {
+      "path": "parts/WindChimesPart.cs",
+      "sha256": "95eb5c3a6b35c90c697fe48f5811756fc76263ebc34eac5e582dc41fa7dd0877"
+    },
+    {
+      "path": "parts/WindmillPart.cs",
+      "sha256": "6244954b94be9c222547cab1b648de76cefc2ba2a31b7c0189f227a5973983c1"
+    },
+    {
+      "path": "parts/WoundSpringPart.cs",
+      "sha256": "d1b9811ec4a600913c75395f6370b352f601c497ed5c825461524b2f68e9fc50"
+    },
+    {
+      "path": "parts/scenes/ball.tscn",
+      "sha256": "13321bde9eb3cc18735aea86c55a86510bbfd68feb2fc011997359e18ffe9917"
+    },
+    {
+      "path": "parts/scenes/ball_detector.tscn",
+      "sha256": "4cbed228898bd87fbba99e93f84db3415c39917e3802469c2a5c864818f683e7"
+    },
+    {
+      "path": "parts/scenes/basket.tscn",
+      "sha256": "1df00f9ed22e6512cdfc61b130e76f06888a5aba354c8a530ff6426449edeff1"
+    },
+    {
+      "path": "parts/scenes/battery.tscn",
+      "sha256": "93477fafa2b6d4f18baec1881a9f85ba7e5d9dd6b12732f09b6812232d6adcec"
+    },
+    {
+      "path": "parts/scenes/beam_combiner.tscn",
+      "sha256": "425867c0eec5c4312e097f85f6e39dce537ded82e9d7fb20ced6fd68ef9ff6bd"
+    },
+    {
+      "path": "parts/scenes/beam_shutter.tscn",
+      "sha256": "c16018a8e42602deec56152a29db70cdc47276f60c7a6f341e6598c5fe5adbd4"
+    },
+    {
+      "path": "parts/scenes/beam_splitter.tscn",
+      "sha256": "0a414c5e4214bd95c43a0a869b08ff85c72cefd5bbe21d219fb406050f149e13"
+    },
+    {
+      "path": "parts/scenes/bell.tscn",
+      "sha256": "e3f4982efa2b4a9138f93775059ea2322d901024ab0904edf0fee9d952d7696b"
+    },
+    {
+      "path": "parts/scenes/bellows.tscn",
+      "sha256": "b0dba3bcb8f5e7de918d204ec9e9c275d831f37071cfd2a9dbcad2e620131c61"
+    },
+    {
+      "path": "parts/scenes/blue_filter.tscn",
+      "sha256": "1d9563e9ed8ce81c6d8eae2d84b2407bd3c0d95f8c675cc530dd0c7677e81e26"
+    },
+    {
+      "path": "parts/scenes/blue_receiver.tscn",
+      "sha256": "4754e96767dfe1e1dff0c45566bc66d760e0be87c473e46e01193a30ae67442e"
+    },
+    {
+      "path": "parts/scenes/both_gate.tscn",
+      "sha256": "6c79055189cb4cc633bdc3b9811d9b1e924ed2ef0a2622acc71303dc4ea89faf"
+    },
+    {
+      "path": "parts/scenes/bumper.tscn",
+      "sha256": "92a06ec418689269207e01772be8ddd2d12ca0ba807ef52272f699884f083faf"
+    },
+    {
+      "path": "parts/scenes/cannon.tscn",
+      "sha256": "34dbde4daf26e13905f2202ba2f73cb1771f3abf3391c672fcea21ad87ef451c"
+    },
+    {
+      "path": "parts/scenes/clock.tscn",
+      "sha256": "a555f1a491413e4e2c4fe15c614f14774cc356ef6f51a211e4d41beb1c287f00"
+    },
+    {
+      "path": "parts/scenes/clutch.tscn",
+      "sha256": "65522d64a668cdd6706431e609ee17d739b243509bf1189328ab847369122c8e"
+    },
+    {
+      "path": "parts/scenes/conveyor.tscn",
+      "sha256": "6fbdc14864fcd3da8b8e28f0738cf5ae02126e94236343ac69905b55a9e0c496"
+    },
+    {
+      "path": "parts/scenes/counter.tscn",
+      "sha256": "b35f55c37c2e5a4a3ba7173eb09aab28e0c9da35735b7a5ba9f0b6baab1dbedb"
+    },
+    {
+      "path": "parts/scenes/cyan_receiver.tscn",
+      "sha256": "a86dcd58bc0e1088815f864e9cb92b7504f2623b02f83a99685e6cde08e9d84d"
+    },
+    {
+      "path": "parts/scenes/delay.tscn",
+      "sha256": "8af9851848d66acf8e62e90da1cca1b1464ce9026cdcbbb691308d442d9898ed"
+    },
+    {
+      "path": "parts/scenes/domino.tscn",
+      "sha256": "b736bec4de6e4e8edf48328153473d287141ef9080ef7ad66c6c0a74db920111"
+    },
+    {
+      "path": "parts/scenes/electrical_nand.tscn",
+      "sha256": "13278fac709ffe0fe491ee40f68125500819cfd887842d9e9b27a6ab0f7935b4"
+    },
+    {
+      "path": "parts/scenes/electrical_nor.tscn",
+      "sha256": "b95ddd98dd800cbc3b083d40f54d7136055ede8081ec39ca317d6383e92f7b50"
+    },
+    {
+      "path": "parts/scenes/electrical_or.tscn",
+      "sha256": "b83960aa60aab82e48db8390942da73165fa84c293c08017e43708adf86a462e"
+    },
+    {
+      "path": "parts/scenes/electrical_xor.tscn",
+      "sha256": "3da5583a8d8c5b4a70519d9323f4eab3f41672192147e617cbadb96d24655903"
+    },
+    {
+      "path": "parts/scenes/fan.tscn",
+      "sha256": "a34f0e3f192ab0c9862ae394f4708f90809915f581476654f36e733d58ea3fb1"
+    },
+    {
+      "path": "parts/scenes/flashlight.tscn",
+      "sha256": "0aa7907437eec6a8088c8cbe1a3573e188f559b39d4b20c51f8b994b3eb4338c"
+    },
+    {
+      "path": "parts/scenes/funnel.tscn",
+      "sha256": "2308c0e17a1c5cbf6cb195d96c71d0a0e6b97cc0ca50dee0230b0f288645e8b0"
+    },
+    {
+      "path": "parts/scenes/goal_light.tscn",
+      "sha256": "a16691a93d8ac76f70e44ee7211fbe11ac9212851210ba8f6bb6aed95e1bd539"
+    },
+    {
+      "path": "parts/scenes/green_filter.tscn",
+      "sha256": "0d92f56f8cf671aca20415ccfadab00cd3ab397b3eab8c2d12af68b82a078e04"
+    },
+    {
+      "path": "parts/scenes/green_receiver.tscn",
+      "sha256": "93b8afa6c10b47c3c92e88e522b9ef41604d49d8af7edf68afb5eef7200b3762"
+    },
+    {
+      "path": "parts/scenes/hold_timer.tscn",
+      "sha256": "df76625a5b23128ae4dbeae938775acb2b0e5e31449c679fc412193ec58c2fcd"
+    },
+    {
+      "path": "parts/scenes/impact_lever.tscn",
+      "sha256": "41b06b6aae1efadfc762b9962afe80641c767b026d146849e1078a7f1e274725"
+    },
+    {
+      "path": "parts/scenes/laser.tscn",
+      "sha256": "4658148932c1e3a7648c9a32c1a380b207bb6d9866dfa431d9e7a4e9ad51cd01"
+    },
+    {
+      "path": "parts/scenes/latch.tscn",
+      "sha256": "a636715026c57d167b733f072f1c5585f2876e0ddf05bf79b804d10e1b12340f"
+    },
+    {
+      "path": "parts/scenes/light_receiver.tscn",
+      "sha256": "11c492273b373d8b201223d49a1de335e4b7de1c5774edf8b43867ed436054b2"
+    },
+    {
+      "path": "parts/scenes/linear_pusher.tscn",
+      "sha256": "66227f14acfde09e1efe83f464d8acbdc11a4e07428bb8cc3377618333217fe9"
+    },
+    {
+      "path": "parts/scenes/magenta_receiver.tscn",
+      "sha256": "906c6d12ffea8c15d8992dd96b0491da6a6c67b2476dc9a3dfce53eb77acb3f2"
+    },
+    {
+      "path": "parts/scenes/mirror.tscn",
+      "sha256": "38e8a9d666861b79c5615ae304d2dd62d1934de32f46015245e26ac2182d9834"
+    },
+    {
+      "path": "parts/scenes/motor.tscn",
+      "sha256": "4ea044af82217cc306f29d925b0d6a7f60ea4d3684b8cf82db2ae120be5ce259"
+    },
+    {
+      "path": "parts/scenes/optical_and.tscn",
+      "sha256": "05379ccc88aa83d4172b003f5082eb5de571aaddd89b180498e332abd6a1c670"
+    },
+    {
+      "path": "parts/scenes/optical_nand.tscn",
+      "sha256": "e9feab011cf263c99ded10b1bdc57528ecdb33a9e3d762ef2a2987373ffbcff7"
+    },
+    {
+      "path": "parts/scenes/optical_nor.tscn",
+      "sha256": "034e949ce9765d38f941411507fcd32ccee5d090a89afdbe29ed0cb8c2b4b72e"
+    },
+    {
+      "path": "parts/scenes/optical_or.tscn",
+      "sha256": "62ef06934c1462907cd33dac53d3ffe82fd6df6320badd8dc5abff43bda1aeb1"
+    },
+    {
+      "path": "parts/scenes/optical_xor.tscn",
+      "sha256": "a9190fce216d2aa241ec0a783487671626edc05b0944563a4237cb136189fecb"
+    },
+    {
+      "path": "parts/scenes/pipe.tscn",
+      "sha256": "a69cd503c4d64d607e727be8f919fed3a91342c409349afb2f3eb338b1304c4e"
+    },
+    {
+      "path": "parts/scenes/pipe_bend_45.tscn",
+      "sha256": "c00d238f003d180f8e5a380277e85c86ce58209489520c793d58ae6b513566cb"
+    },
+    {
+      "path": "parts/scenes/pipe_bend_90.tscn",
+      "sha256": "36cb6ab91df0e3ee945e7a7115339618397dc4b83ebe0d5c4cb5fc777738c4df"
+    },
+    {
+      "path": "parts/scenes/powered_gate.tscn",
+      "sha256": "2ca7ae2ea15fa6e7902ef31b6430190870ec2476c5872e5033e0a5c1dbf977c0"
+    },
+    {
+      "path": "parts/scenes/pressure_plate.tscn",
+      "sha256": "323114ad0377fb4d11e2b4f96bf83393c9fc875ff2a5ee174bbdce50b917fc7d"
+    },
+    {
+      "path": "parts/scenes/pulley.tscn",
+      "sha256": "a2c5b0d9abbf3de2aeceab340da86751ca5cc6cf50515c31af67e35644a61064"
+    },
+    {
+      "path": "parts/scenes/ramp.tscn",
+      "sha256": "c649a18b2c62fac88b3603ae9537db50cd69cf2b61bf3ddf9861dee3d9b5f857"
+    },
+    {
+      "path": "parts/scenes/red_filter.tscn",
+      "sha256": "ec14f22ddbe00b4c874561fc7509bf0df4ac63717ee362173364f87df54d83d9"
+    },
+    {
+      "path": "parts/scenes/red_receiver.tscn",
+      "sha256": "4ba3709af5a7990942abbe0c0745f52963a83ecce2b2eb7517cc40456605f1e8"
+    },
+    {
+      "path": "parts/scenes/reverse_transmission.tscn",
+      "sha256": "d78c05f0317e7004b98ba20e4a911bd5658ba741d2de8a1940e97006122f8ea3"
+    },
+    {
+      "path": "parts/scenes/rope_anchor.tscn",
+      "sha256": "15b258aa38412d65018b32958cf6cb9bcc4c7aa5204cf75af4d0bf4519f2c0a9"
+    },
+    {
+      "path": "parts/scenes/solar_panel.tscn",
+      "sha256": "a268937d230fdac936b01ea87eb6971ab032e1927ba2b3b51a664ef900294fb6"
+    },
+    {
+      "path": "parts/scenes/sound_meter.tscn",
+      "sha256": "940c52f4395e1f23229c077678c7b1682cacc385b725a7158640cea98979426e"
+    },
+    {
+      "path": "parts/scenes/speaker.tscn",
+      "sha256": "1e758d32410c543484737ea3c13b00a54d5c97fe9f0210ab15706e6a9858a7e1"
+    },
+    {
+      "path": "parts/scenes/spring.tscn",
+      "sha256": "bcf1620b536ccb6db78292f0233176ffad047331b930a489f9761c3f289f4f3e"
+    },
+    {
+      "path": "parts/scenes/switch.tscn",
+      "sha256": "34d1d5fac51eaaaca0d160adc46d854d321ba0c6e7d2f0f7bc07e52a0c422d95"
+    },
+    {
+      "path": "parts/scenes/trampoline.tscn",
+      "sha256": "4f9a892b2a463939fe1f3f68210ae29844b598ec9b1619b27b633b21e2459458"
+    },
+    {
+      "path": "parts/scenes/wall.tscn",
+      "sha256": "0672c5347fa260053c0c5ee794281ac96c1b6768e33a469d801413e8f2878217"
+    },
+    {
+      "path": "parts/scenes/weight.tscn",
+      "sha256": "9ced50a61476435d5e09f00b5b9ab242d056ebc86f79957aa44f9584b925d126"
+    },
+    {
+      "path": "parts/scenes/white_receiver.tscn",
+      "sha256": "3fc0ebbb29e19ddf056c6376d078c895ff57c6166556189f9950ea9307e0798a"
+    },
+    {
+      "path": "parts/scenes/wind_chimes.tscn",
+      "sha256": "8b5e8b3a2297296bdebfabc0adc40122c670153aa6cd6c0ea778cacb4333fef3"
+    },
+    {
+      "path": "parts/scenes/windmill.tscn",
+      "sha256": "dcc3e40453dea2c35ed905d422590bbe9baec07f68ba1933e7896e44a36f1bb1"
+    },
+    {
+      "path": "parts/scenes/wound_spring.tscn",
+      "sha256": "1a6033a0a93376c044db0f7336f5c485bfdbc86135a2def3cba539d009b5bb03"
+    },
+    {
+      "path": "parts/scenes/yellow_receiver.tscn",
+      "sha256": "7997f2b1516dfaaaec2ac00cc12ebb27936a35ef5754bd5de51b6780b9c0a052"
+    },
+    {
+      "path": "project.godot",
+      "sha256": "1a10a78e962c33ff2eae3e575b5c03561c3cc06402f0a73f340080772d7e5ed6"
+    },
+    {
+      "path": "scenes/workshop.tscn",
+      "sha256": "7dd88aac736a475357827766373e86adbcfe2c8e5d14f6495503a171fdb7f9c2"
+    },
+    {
+      "path": "tools/Campaign/Campaign.csproj",
+      "sha256": "ca16a758683a23d2fc324a71cb8972fa679121e27fabe0ebb17e6d246cc69e5f"
+    },
+    {
+      "path": "tools/Campaign/Program.cs",
+      "sha256": "71e3a76faa240b71e8ff43c300f8711d2787c8b234497a8afa9fb4cb6e3e65a3"
+    },
+    {
+      "path": "tools/Campaign/TrampolineLesson.cs",
+      "sha256": "24f6991b718d8d59abb2fc69950e8efd4c55b18a6baa54235d1f0f1a04d903de"
+    },
+    {
+      "path": "tools/Campaign/WoundSpringLesson.cs",
+      "sha256": "2cdbf7da0a31df9702274413cd47c1bda08ab74472ea285b86a5a05c025e0859"
+    },
+    {
+      "path": "tools/Performance/Performance.csproj",
+      "sha256": "2df65e171b5d3a994769f189587b2c9f615871061555fc020c5dd58bf5908629"
+    },
+    {
+      "path": "tools/Performance/PerformanceAudit.cs",
+      "sha256": "a637af06a34890b475f64dcd21299b6c785cf910fda99374a90b705f1c8d284e"
+    },
+    {
+      "path": "tools/Performance/Program.cs",
+      "sha256": "e570d01e87c259fe7187b4d63d29ccfb175a780484818dbfa7d278863f85b62b"
+    },
+    {
+      "path": "tools/Playtest/Audit.cs",
+      "sha256": "7fb8f8b9ff10757d64487c8eeb208061e6ac3d0785f8f27f42944f1a4df15b86"
+    },
+    {
+      "path": "tools/Playtest/Playtest.csproj",
+      "sha256": "5613705ad7be20162c8d204e7f4d38723d6797d020410450fc5ec97444fc48fa"
+    },
+    {
+      "path": "tools/Playtest/Program.cs",
+      "sha256": "b684e29f4ad41db90a32eb4266031343707ae3f4f6a7b8987b32d679c1eea5fe"
+    },
+    {
+      "path": "tools/Preview/Preview.csproj",
+      "sha256": "a7642015de2f17faae7716d5fa88dc9f5b916d47a6590e8af311a77e55bd0b1d"
+    },
+    {
+      "path": "tools/Preview/Program.cs",
+      "sha256": "834fe038f3495f7080fa04f62be82546e46774d8f127a6d3519abaee181e9509"
+    },
+    {
+      "path": "tools/anvil/CheckStagedTests.cs",
+      "sha256": "b818ccebcd39be919361b9afeefdf6b6d54c14cc6dd9738f191aa2c1b3864fd9"
+    },
+    {
+      "path": "tools/anvil/VerifyPolicy.cs",
+      "sha256": "3b937a2a40f0becabf5a37ed79acbdb4ab4a55046a797dad149df507b9c1f0fd"
+    },
+    {
+      "path": "ui/ConnectionChoice.cs",
+      "sha256": "8b7d2359acb7898104a4c1510080016fb93218406a5d8fe79438dc85faa8ee7c"
+    },
+    {
+      "path": "ui/LightConeVisual.cs",
+      "sha256": "470acdbda4266c4ab281f9cfd0f01278f7594b5a91dff4c68eb52e1ec219ce15"
+    },
+    {
+      "path": "ui/MechanicalBeltVisual.cs",
+      "sha256": "b99586d27df5a6750b5af81b8b778897f91bb18bd17a40498a9c16c57e724b25"
+    },
+    {
+      "path": "ui/OpticalPathVisual.cs",
+      "sha256": "68ae77fe1cfdd10661f16cb6b87b2bfd0361cd1576aea1dc7ea250e68337f43f"
+    },
+    {
+      "path": "ui/PlacementShadows.cs",
+      "sha256": "6b64cc3b599ad9279c34b6d948a5500b945e12b2b6e6b996891fb3ded4f3b80a"
+    },
+    {
+      "path": "ui/PlaytestDiagnostics.cs",
+      "sha256": "ece13c555e790e4c9b5f5d8caf0887cea6136db2a01f446606a2a6b0b72fd874"
+    },
+    {
+      "path": "ui/PulleyRopeRoute.cs",
+      "sha256": "c5f9b2dc3e8ebe57ecaaf852e2338e27e6b1056bcbe863e7610afc860986b67d"
+    },
+    {
+      "path": "ui/RopeVisual.cs",
+      "sha256": "1e4524c744aea36dde2b587d4849d810c25d5ee364687e7048df5a75193ae44b"
+    },
+    {
+      "path": "ui/RotationGizmo.cs",
+      "sha256": "071305b870a6d6d9f17daeb49e62e0c9e66d3f06fd6cff0c5bb26fc8204820ad"
+    },
+    {
+      "path": "ui/TubePlacementSnap.cs",
+      "sha256": "6caddcfb2f37d37e76bca06589da6479ae2487694b9bc6c7fcf5617656aa7e67"
+    },
+    {
+      "path": "ui/Workshop.cs",
+      "sha256": "102736fb32a4a8bd0cf8c89193003077babc227f27603e5e77c7e320ac1e95a3"
+    },
+    {
+      "path": "ui/WorkshopConnections.cs",
+      "sha256": "4bf42812a4cd1565dee4c6256bf38495deefe5e20eed63494e65d4585a1c4b57"
+    },
+    {
+      "path": "ui/WorkshopGuidance.cs",
+      "sha256": "59819c2248442031dc3005d1e10467e18d233abaefd48d7b16d5be3acba74900"
+    },
+    {
+      "path": "ui/WorkshopIcons.cs",
+      "sha256": "cca1ad3b8840f9b4496070e97bda9d391cf1d040252b2af13c3933678753f6f3"
+    }
+  ]
+}

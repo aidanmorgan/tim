@@ -1,0 +1,123 @@
+COMMAND=["/opt/homebrew/bin/dotnet", "test", "CuriousContraptions.tests", "-c", "Release", "--nologo", "-p:PlaytestDiagnostics=false", "--filter", "FullyQualifiedName~WorkshopTraceTests", "--logger", "console;verbosity=detailed"]
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src
+Test run for /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.43]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.62]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.75]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: NonFinite) [22 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Duplicate) [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Missing) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Overflow) [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Negative) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Disposed) [6 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: DeviceLost) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Fault) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Reset) [< 1 ms]
+[xUnit.net 00:00:00.91]   Finished:    CuriousContraptions.tests (ID = '534df7f9c7ec3602800dd86b6322e8023c5b0acc987055256c0f1f5ab47f23e2')
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: Session) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: UndefinedProfile) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: Projection) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: ProfileMismatch) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.DurationRetentionHasNoRoutineAllocationInNativeExecution [8 ms]
+  Standard Output Messages:
+ Native retention: 7200 calls, 0 allocated bytes, 0.080772 total observed milliseconds including timestamp overhead. Not a WASM timing bound.
+
+
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz240) [12 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz120) [14 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz60) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingOutputFailureCannotEscapeOrContaminateNextRun [< 1 ms]
+
+Test Run Successful.
+Total tests: 18
+     Passed: 18
+ Total time: 1.1184 Seconds
+
+EXIT_CODE=0 ELAPSED_SECONDS=5.681949875004648
+COMMAND=["/opt/homebrew/bin/dotnet", "test", "CuriousContraptions.tests", "-c", "Release", "--nologo", "-p:PlaytestDiagnostics=true", "--filter", "FullyQualifiedName~WorkshopTraceTests", "--logger", "console;verbosity=detailed"]
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/.godot/mono/temp/bin/Release/CuriousContraptions.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll
+Test run for /Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+/Users/aidan/dev/personal/tim/reference/p025-production-isolated-20261004/src/CuriousContraptions.tests/bin/Release/net10.0/CuriousContraptions.tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.29]   Discovering: CuriousContraptions.tests
+[xUnit.net 00:00:00.48]   Discovered:  CuriousContraptions.tests
+[xUnit.net 00:00:00.60]   Starting:    CuriousContraptions.tests
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TerminalSealingPreservesBytesUntilOneFlush(phase: Building) [26 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TerminalSealingPreservesBytesUntilOneFlush(phase: Faulted) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TerminalSealingPreservesBytesUntilOneFlush(phase: Disposed) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidCaptureRemainsSealedUntilStopped(phase: Resetting) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidCaptureRemainsSealedUntilStopped(phase: Starting) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidCaptureRemainsSealedUntilStopped(phase: Running) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: NonFinite) [4 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Duplicate) [9 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Missing) [3 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Overflow) [12 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingDefectsRemainIncompleteAndTheNextRunHasFreshOwnership(defect: Negative) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Disposed) [4 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: DeviceLost) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Fault) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.EarlyTerminalTimingIsIncompleteAndFlushesOnce(terminal: Reset) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: Session) [2 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: UndefinedProfile) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: Projection) [1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidTimingIdentityCannotStartOrContaminateTheNextRun(defect: ProfileMismatch) [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.DurationRetentionHasNoRoutineAllocationInNativeExecution [12 ms]
+  Standard Output Messages:
+ Native retention: 7200 calls, 0 allocated bytes, 0.123004 total observed milliseconds including timestamp overhead. Not a WASM timing bound.
+
+
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.RestartClosesThePreviousPartialCaptureBeforeTheNewSession [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteCapturePreservesSessionConstructionAndEveryOriginalRecord(cadence: Hz60, ticks: 1800, chunks: 15) [8 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteCapturePreservesSessionConstructionAndEveryOriginalRecord(cadence: Hz240, ticks: 7200, chunks: 57) [4 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteCapturePreservesSessionConstructionAndEveryOriginalRecord(cadence: Hz120, ticks: 3600, chunks: 29) [11 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz240) [10 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz120) [15 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.CompleteTimingRetainsEveryOriginalSpanAtTheTerminalBarrier(cadence: Hz60) [2 ms]
+[xUnit.net 00:00:00.84]   Finished:    CuriousContraptions.tests (ID = '534df7f9c7ec3602800dd86b6322e8023c5b0acc987055256c0f1f5ab47f23e2')
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.InvalidSessionCannotStartOrContaminateTheNextRun [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.FailedOutputIsContainedAndCannotContaminateTheNextCapture [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.TimingOutputFailureCannotEscapeOrContaminateNextRun [< 1 ms]
+  Passed CuriousContraptions.Tests.WorkshopTraceTests.MissingOrOutOfOrderRecordsCannotClaimComplete [< 1 ms]
+
+Test Run Successful.
+Total tests: 31
+     Passed: 31
+ Total time: 1.0540 Seconds
+
+EXIT_CODE=0 ELAPSED_SECONDS=3.9697508340032073
+COMMAND=["node", "--experimental-vm-modules", "tools/workshop-observation.test.mjs"]
+{"captureMode":1,"passed":true,"controls":["pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","dispose"]}
+{"captureMode":2,"passed":true,"controls":["pending","staleReceipt","queuedTerminal","activeCommand","matchingReceipt","duplicateReceipt","outputFailure","dispose"]}
+(node:39272) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+EXIT_CODE=0 ELAPSED_SECONDS=0.06018329200014705

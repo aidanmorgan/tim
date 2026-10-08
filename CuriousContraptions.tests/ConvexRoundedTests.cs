@@ -32,11 +32,11 @@ public class ConvexRoundedTests
     public void NestedRoundedShapesUseTheSameDistanceAndPenetrationPipeline()
     {
         var rounded=new ConvexRounded(new ConvexSphere(.3),.2);
-        var a=new ConvexInstance(rounded,Transform3D.Identity);
-        var b=new ConvexInstance(new ConvexSphere(.2),new(Basis.Identity,new(1,0,0)));
+        var a=new ConvexInstance(rounded,AffineTransform.Identity);
+        var b=new ConvexInstance(new ConvexSphere(.2),new(AffineBasis.Identity,new(1,0,0)));
         var distance=ConvexSeparation.Query(a,b);
         Assert.InRange(Math.Abs(distance.UpperBound-.3),0,1e-7);
-        var overlap=new ConvexInstance(new ConvexSphere(.2),new(Basis.Identity,new(.6f,0,0)));
+        var overlap=new ConvexInstance(new ConvexSphere(.2),new(AffineBasis.Identity,new(.6f,0,0)));
         var separation=ConvexSeparation.Query(a,overlap);
         Assert.InRange(Math.Abs(separation.UpperBound+.1),0,1e-6);
         Assert.Equal(.5,rounded.RoundingRadius); Assert.Equal(.5,rounded.InteriorBall.Radius);

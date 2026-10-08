@@ -5,8 +5,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class ImpactLeverObstructionTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class ImpactLeverObstructionTests(NativeSceneFixture godot)
 {
     public enum ObstacleCase { Wall, DepthMiss, Deck }
     private enum Role { Lever, Wall, Driver }
@@ -27,7 +27,7 @@ public class ImpactLeverObstructionTests(HeadlessFixture godot)
             world.AddPart(Spec(Role.Lever,new(0,3,0)));
             world.AddPart(Spec(Role.Wall,new(1,3,0)));
             var before = JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData);
-            Assert.Throws<HingeFixtureOverlapException>(world.Start);
+            Assert.Throws<ScenePhysicsOverlapException>(world.Start);
             Assert.False(world.Running);
             Assert.Equal(before,JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData));
         }
@@ -51,16 +51,19 @@ public class ImpactLeverObstructionTests(HeadlessFixture godot)
             for (var tick = 0; tick < 600; tick++)
             {
                 world.Step();
-                maximum = Math.Max(maximum,lever.Beam.Joint.Angle);
-                Assert.True(double.IsFinite(lever.Beam.Joint.AngularVelocity));
-                Assert.InRange(world.MaximumFlightIterationsThisStep,1,100);
+                maximum = Math.Max(maximum,LeverFixture.Angle(world,lever));
+                Assert.True(double.IsFinite(LeverFixture.Speed(world,lever)));
+                // Free flight may have zero contact events; every shared substep
+                // must still consume its full duration.
+                Assert.InRange(world.LastPhysicsStep.Events,0,100);
+                Assert.Equal((ulong)((tick+1)*MachineWorld.Substeps),world.Physics.StepIndex);
+                Assert.InRange(Math.Abs(world.Physics.Time-(tick+1)*(double)MachineWorld.Tick),0,1e-9);
             }
             Assert.InRange(maximum,.15,.17);
             world.Restore();
             Assert.Equal(before,JsonSerializer.Serialize(world.Snapshot(),MachineJson.Default.MachineData));
             var restored = (ImpactLeverPart)world.FindPart(Spec(Role.Lever,Vector3.Zero).Id)!;
-            Assert.Equal(AngularBlock.None,restored.Beam.Joint.ContactBlock);
-            Assert.Equal(0,restored.Beam.Joint.Angle);
+            Assert.Equal(restored.Transform,restored.BeamTransform);
         }
         finally { world.Free(); }
     }
@@ -83,21 +86,22 @@ public class ImpactLeverObstructionTests(HeadlessFixture godot)
                 wall.SetDimensions(new(.6f,.4f,1.4f));
             }
             world.Start();
-            lever.Beam.Joint.ApplyAngularImpulse(lever.Beam.Joint.Inertia * 3);
+            LeverFixture.Push(world,lever,3);
             for (var tick=0;tick<120;tick++) world.Step();
             if (obstacle == ObstacleCase.DepthMiss)
-                Assert.Equal(ImpactLeverPart.LimitAngle,lever.Beam.Joint.Angle);
+                Assert.InRange(Math.Abs(LeverFixture.Angle(world,lever)-(ImpactLeverPart.LimitAngle)),0,1e-7);
             else
             {
-                Assert.InRange(lever.Beam.Joint.Angle,.05,.4);
-                Assert.Equal(0,lever.Beam.Joint.AngularVelocity);
-                Assert.Equal(0,lever.Beam.Joint.Energy);
-                lever.Beam.Joint.ApplyAngularImpulse(lever.Beam.Joint.Inertia * 5);
-                Assert.Equal(0,lever.Beam.Joint.AngularVelocity);
-                var stopped = lever.Beam.Joint.Angle;
-                lever.Beam.Joint.ApplyAngularImpulse(-lever.Beam.Joint.Inertia);
+                Assert.InRange(LeverFixture.Angle(world,lever),.05,.4);
+                Assert.InRange(Math.Abs(LeverFixture.Speed(world,lever)),0,1e-7);
+                Assert.InRange(LeverFixture.Energy(world,lever),0,1e-10);
+                LeverFixture.Push(world,lever,5);
                 world.Step();
-                Assert.True(lever.Beam.Joint.Angle < stopped);
+                Assert.InRange(Math.Abs(LeverFixture.Speed(world,lever)),0,1e-7);
+                var stopped = LeverFixture.Angle(world,lever);
+                LeverFixture.Push(world,lever,-1);
+                world.Step();
+                Assert.True(LeverFixture.Angle(world,lever) < stopped);
             }
         }
         finally { world.Free(); }

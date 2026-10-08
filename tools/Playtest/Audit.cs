@@ -8,11 +8,28 @@ using System.Text.Json.Nodes;
 // This checks sampled motion, not continuous rendering between samples or target-assignment optimality.
 internal static class Audit
 {
+    // Current diagnostic protocol: 30 Hz through tick 120, then 10 Hz
+    // through the outcome. Historical dense-only records are not upgraded.
+    internal static bool HasCompleteTrajectoryCadence(IEnumerable<int> samples,int finalTick)
+    {
+        if(finalTick<0) return false;
+        var expected=Enumerable.Range(0,checked(finalTick+1))
+            .Where(tick=>tick<=120?tick%4==0:tick%12==0);
+        return samples.SequenceEqual(expected);
+    }
     private static Vector3 Position(JsonNode p) => new(
         p["position"]![0]!.GetValue<float>(), p["position"]![1]!.GetValue<float>(), p["position"]![2]!.GetValue<float>());
-    private static Quaternion Rotation(JsonNode p) => Quaternion.Normalize(new(
-        p["rotation"]![0]!.GetValue<float>(), p["rotation"]![1]!.GetValue<float>(),
-        p["rotation"]![2]!.GetValue<float>(), p["rotation"]![3]!.GetValue<float>()));
+    private static Quaternion Rotation(JsonNode p)
+    {
+        var basis=p["orientation"]?.Deserialize<PartOrientation>()??
+            throw new JsonException("Current observations require a full orientation basis.");
+        // Angular comparisons are presentation metrics. Exact restoration below
+        // compares the complete serialized basis without quaternion reduction.
+        return Quaternion.CreateFromRotationMatrix(new Matrix4x4(
+            basis.X.X,basis.X.Y,basis.X.Z,0,
+            basis.Y.X,basis.Y.Y,basis.Y.Z,0,
+            basis.Z.X,basis.Z.Y,basis.Z.Z,0,0,0,0,1));
+    }
     private static float Angle(Quaternion a, Quaternion b)
     {
         // Relative quaternion avoids acos(dot) precision loss near zero.
@@ -144,6 +161,24 @@ internal static class Audit
             errors.Add(label + " did not preserve part properties.");
     }
 
+    internal static void ValidateOrientations(JsonNode state,List<string> errors)
+    {
+        if(state["parts"] is not JsonArray parts)
+        {
+            errors.Add("Part orientation evidence requires an explicit parts array.");
+            return;
+        }
+        foreach(var part in parts)
+        {
+            try
+            {
+                if(part is not JsonObject fields||fields.ContainsKey("rotation"))throw new JsonException("Obsolete or missing part observation.");
+                _=Rotation(part);
+            }
+            catch(JsonException error){errors.Add("Invalid full-basis observation: "+error.Message);}
+        }
+    }
+
     public static int Run(string root, string[] files)
     {
         var bytes = File.ReadAllBytes(Path.Combine(root, "content/puzzles.json"));
@@ -176,14 +211,14 @@ internal static class Audit
             var level = record["level"]!.GetValue<int>();
             var run = record["run"]!;
             var frames = record["frames"]!.AsArray();
+            ValidateOrientations(run,errors);
+            foreach(var frame in frames)ValidateOrientations(frame!,errors);
             Require(record["errors"]!.AsArray().Count == 0, "Browser errors recorded.");
             Require(run["level"]!.GetValue<int>() == level, "Run level mismatch.");
             Require(MathF.Abs(run["precision"]!.GetValue<float>() - precision) < .0001f, "Run difficulty mismatch.");
-            Require(frames.Count > 1 && frames[0]!["tick"]!.GetValue<int>() == 0, "Missing trajectory start.");
-            var lastRequiredTick = Math.Min(120, record["outcome"]!["tick"]!.GetValue<int>());
-            var expectedTicks = Enumerable.Range(0, lastRequiredTick / 4 + 1).Select(i => i * 4);
-            Require(frames.Select(f => f!["tick"]!.GetValue<int>()).SequenceEqual(expectedTicks),
-                "Missing or unexpected trajectory samples.");
+            Require(frames.Count > 0 && frames[0]!["tick"]!.GetValue<int>() == 0, "Missing trajectory start.");
+            Require(HasCompleteTrajectoryCadence(frames.Select(f=>f!["tick"]!.GetValue<int>()),
+                record["outcome"]!["tick"]!.GetValue<int>()), "Missing or unexpected trajectory samples.");
             var targets = puzzles[level - 1]!["solution"]!.AsArray();
             var checkedParts = 0;
             var previousTick = -1;
@@ -249,6 +284,7 @@ internal static class Audit
             if (reset == null) gaps.Add("Browser Reset evidence missing.");
             else
             {
+                ValidateOrientations(reset,errors);
                 CheckResetConnections(run, reset, errors, gaps);
                 Require(reset["level"]!.GetValue<int>() == level, "Reset level mismatch.");
                 var restored = reset["parts"]!.AsArray();
@@ -264,8 +300,8 @@ internal static class Audit
                             JsonNode.DeepEquals(initial["locked"], part["locked"]) &&
                             JsonNode.DeepEquals(initial["dynamic"], part["dynamic"]),
                             initial["id"] + ": Reset changed part identity or flags.");
-                        Require(Vector3.Distance(Position(initial), Position(part)) < .0001f &&
-                            Angle(Rotation(initial), Rotation(part)) < .002f, initial["id"] + ": Reset did not restore transform.");
+                        Require(JsonNode.DeepEquals(initial["position"],part["position"]) &&
+                            JsonNode.DeepEquals(initial["orientation"],part["orientation"]), initial["id"] + ": Reset did not restore transform exactly.");
                     }
                 }
                 Require(record["resetUi"]?["running"]?.GetValue<bool>() == false, "Reset did not return to build UI.");

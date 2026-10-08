@@ -1,4 +1,5 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System.Collections.Generic;
 
 namespace CuriousContraptions;
@@ -7,14 +8,36 @@ namespace CuriousContraptions;
 /// A ball must clear the upstream side before it can trigger again.</summary>
 public partial class BallDetectorPart : MachinePart, ITubePart
 {
-    public int CrossingCount { get; private set; }
+    public int CrossingCount
+    {
+        get
+        {
+            if(GetParent() is not MachineWorld {HasPhysicsState:true} world)return 0;
+            var frame=world.PhysicsAssembly.Body(new(this,RootBody)).Id;
+            ulong count=0;
+            foreach(var state in world.Physics.PassageStates)
+                if(state.Key.Frame==frame)count=checked(count+state.PassedCount);
+            return checked((int)count);
+        }
+    }
+    public override IReadOnlyList<ScenePassageSensorDeclaration> PhysicsPassageSensors=>
+        [new(new(this,RootBody),PipePart.BoreRadius,.02)];
     public float Pulse { get; private set; }
-    private readonly Dictionary<MachinePart, Vector3> _before = new();
-    private readonly HashSet<MachinePart> _armed = new();
+    private ulong? _observedStep;
+    private RuntimeCheckpoint? _runtimeCheckpoint;
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState =>
+        [_runtimeCheckpoint ??= new(this)];
+    private sealed class RuntimeCheckpoint(BallDetectorPart owner) : SimulationTransactionParticipant
+    {
+        private float _pulse;
+        private ulong? _observedStep;
+        protected override void CaptureCheckpoint() { _pulse=owner.Pulse; _observedStep=owner._observedStep; }
+        protected override void RestoreCheckpoint() { owner.Pulse=_pulse; owner._observedStep=_observedStep; }
+    }
     private StandardMaterial3D _indicator = null!;
     private const float PulseSeconds = .35f;
     public override bool CanSendActivation => true;
-    public override float SurfaceBounce => .15f;
+    public override Physics.ContactMaterial InitialContactMaterial => new(.15f,.1,.3);
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
         [new(SocketId.ActivationOut, ConnectionDomain.Activation, PortDirection.Output, new(0,1.12f,0))];
     public IEnumerable<TubeMouth> Mouths =>
@@ -33,36 +56,24 @@ public partial class BallDetectorPart : MachinePart, ITubePart
         PartArt.Sphere(Visual,.07f,new("#e8b764"),new(0,1.12f,0));
         _indicator = (StandardMaterial3D)PartArt.Sphere(Visual,.075f,new("#556573"),new(0,0,.86f)).MaterialOverride;
     }
-    public override void BeforeStep(MachineWorld world, float delta)
+    public override void ObservePhysics(MachineWorld world, float delta)
     {
-        _before.Clear();
-        var inverse = Transform.AffineInverse();
-        foreach (var body in world.Bodies)
+        var frame=world.PhysicsAssembly.Body(new(this,RootBody)).Id;
+        if(world.Physics.Collider(frame).Declaration.Participation==CollisionParticipation.Disabled)
+            Pulse=0;
+        else if(_observedStep!=world.Physics.StepIndex)
         {
-            if (!body.Visible || body.PhysicsOwner != body) { _armed.Remove(body); continue; }
-            var position = inverse * body.Position;
-            _before.Add(body,position);
-            if (position.X <= -body.Radius - .02f) _armed.Add(body);
+            Pulse=Mathf.Max(0,Pulse-delta/PulseSeconds);
+            foreach(var passage in world.Physics.PassageEvents)
+                if(passage.Key.Frame==frame&&passage.Kind==PhysicsPassageEventKind.Passed)
+                {
+                    Pulse=1;
+                    world.EmitActivation(this);
+                }
         }
-    }
-    public override void AfterStep(MachineWorld world, float delta)
-    {
-        Pulse = Mathf.Max(0,Pulse-delta/PulseSeconds);
-        var inverse = Transform.AffineInverse();
-        foreach (var body in world.Bodies)
-        {
-            if (!body.Visible || !_before.TryGetValue(body,out var before)) continue;
-            var after = inverse * body.Position;
-            if (before.X >= 0 || after.X < 0 || !_armed.Remove(body)) continue;
-            var crossing = before.Lerp(after,-before.X/(after.X-before.X));
-            var clearance = PipePart.BoreRadius-body.Radius;
-            if (clearance < 0 || crossing.Y*crossing.Y+crossing.Z*crossing.Z > clearance*clearance+.00001f) continue;
-            CrossingCount++;
-            Pulse = 1;
-            world.EmitActivation(this);
-        }
-        Active = Pulse > 0;
-        var eased = Pulse*Pulse*(3-2*Pulse);
-        _indicator.AlbedoColor = new Color("#556573").Lerp(new("#f7cb52"),eased);
+        _observedStep=world.Physics.StepIndex;
+        Active=Pulse>0;
+        var eased=Pulse*Pulse*(3-2*Pulse);
+        _indicator.AlbedoColor=new Color("#556573").Lerp(new("#f7cb52"),eased);
     }
 }

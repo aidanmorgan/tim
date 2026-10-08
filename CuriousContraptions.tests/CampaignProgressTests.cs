@@ -5,13 +5,14 @@ using System.Text.Json;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class CampaignProgressTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class CampaignProgressTests(NativeSceneFixture godot)
 {
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
+    [InlineData(3)]
     [InlineData(999)]
     public void OnlyCurrentSaveSchemaIsSupported(int version)
     {

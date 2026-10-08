@@ -21,13 +21,19 @@ public sealed class ContactManifold
         where TA:IConvexFeatureSupport where TB:IConvexFeatureSupport
     {
         if(!double.IsFinite(contactDistance)||contactDistance<0) throw new ArgumentOutOfRangeException(nameof(contactDistance));
-        var separation=ConvexSeparation.Query(a,b,tolerance);
+        // Feature selection and the final world-plane validation are separate
+        // floating-point operations. Reserve half the plane budget for their
+        // reconstruction error. A near-touch witness can be one distance
+        // tolerance behind a penetration plane already one tolerance deep,
+        // so its separation query receives half the feature budget.
+        var featureTolerance=tolerance*.5;
+        var separation=ConvexSeparation.Query(a,b,featureTolerance*.5);
         if(separation.LowerBound>contactDistance) return new(ContactManifoldStatus.Clear,separation.Normal,[]);
         var normal=separation.Normal; var pointA=separation.PointA; var pointB=separation.PointB;
         if(!normal.IsFinite||Math.Abs(normal.Length-1)>1e-10)
             throw new InvalidOperationException("A physical contact requires a defined unit normal.");
-        var featureA=IncludeWitness(a.SupportingFeature(-normal,tolerance),pointA);
-        var featureB=IncludeWitness(b.SupportingFeature(normal,tolerance),pointB);
+        var featureA=IncludeWitness(a.SupportingFeature(-normal,featureTolerance),pointA);
+        var featureB=IncludeWitness(b.SupportingFeature(normal,featureTolerance),pointB);
         var patch=ContactPatch.Clip(featureA,featureB,normal,tolerance);
         if(patch.Points.Length==0) throw new InvalidOperationException("Certified contact features did not intersect.");
         foreach(var contact in patch.Points)

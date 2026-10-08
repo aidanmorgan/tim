@@ -1,13 +1,27 @@
 # Bounded acceleration drives
 
-All numerical physics executes in WGSL f16 under the [canonical game-value contract](gpu-f16-physics.md). Authoring/admission uses typed Half quantities and explicit integer identities/scales; C# owns discrete transactions. These are required models and controls, not implementation or qualification claims. Apply the [delivery stages](delivery-workflow.md#stage-gates) and each named part's source acceptance.
+A drive is declaration data on a hinge or slider constraint record of the single WASM SIMD f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory)); it is solved as a motor row in the same Box2D v3 TGS Soft solver pass as contacts and joints. Motor CAT-042, Conveyor CAT-019, Pusher CAT-039, Gate CAT-051, Shutter CAT-007 and every powered actuator declare drives; none has its own solver, and no catalogue identifier reaches the kernel.
 
-A drive declares a typed identity, generalized velocity gradient J, convective acceleration J-dot v, target generalized acceleration and a finite signed effort interval containing zero. The coupled physical solve chooses effort within that interval together with ideal joint reactions and Coulomb contact forces. Interior effort meets J a + J-dot v = target within the admitted puzzle-scale error contract; saturation permits a target deficit in the corresponding direction.
+## Declaration data
 
-A slider uses metres/second², newtons and its force Jacobian; a hinge uses radians/second² and newton-metres. Row scaling preserves work-conjugate effort. Dynamic participants receive J-transpose times effort, preserving equal/opposite reactions for physical pair rows. Prescribed participants provide their declared acceleration and receive no integrated motion; at least one participant must be dynamic.
+- Joint identity and axis kind: slider (target in m/s², effort in N) or hinge (target in rad/s², effort in N·m).
+- Target generalised acceleration, or a target speed with its time horizon.
+- A finite signed effort interval that contains zero.
+- Source binding: the finite store or supply (battery, wound spring, gas chamber) debited for the work done, with braking/work accounting declared.
+- Participants: at least one dynamic body; a static participant provides its declared motion and receives none.
 
-Candidate evaluation cannot mutate committed bodies, caches or retained declarations. Results include total wrenches, per-drive effort, achieved generalized acceleration and enum-typed limit status in canonical identity order. Unsupported/foreign/duplicate IDs, nonfinite values, reversed effort bounds and bounds that exclude zero reject atomically. There is one coupled contact/constraint authority and no part/catalogue dispatch.
+Admission rejects unsupported, foreign or duplicate IDs, non-finite values, reversed effort bounds and bounds that exclude zero, atomically at compile.
 
-Acceptance: analytical loaded single-axis balance and saturation, two-body momentum, angular inertia, coupled joint/transmission response, obstruction and force reversal at contact, independent competing drives, no-drive controls, undefined/foreign/duplicate rejection, input nonmutation and deterministic same-environment replay.
+## Behaviour for the player
 
-Time advancement additionally requires stage-aware rebinding, target-speed/time and horizon contracts, source power/work limits, signed work and braking accounting, rollback and actual part UI/production proof. No instantaneous drive result authorizes unbudgeted force or closes endpoint/time-integration behavior.
+- The solver chooses effort inside the interval together with joint reactions and Coulomb contact. Interior effort reaches the target within the [envelope](gpu-f16-physics.md#game-grade-envelope); at saturation the drive falls short in that direction.
+- Reactions are equal and opposite on the two participants; an obstruction loads the source and stalls the drive instead of pushing cargo through.
+- Work done is debited from the bound source; supply loss adds no effort and does not erase the momentum of an unpowered ideal hinge. Shaft stops, loads and damping are declared physical data, not cosmetic coast-down.
+- Committed results per drive: effort, achieved acceleration and an enum-typed limit status, in canonical identity order; artwork, reported speed and travel events derive from committed physical motion.
+
+## Chrome-observable acceptance (ELEMENT-n: CAT-005 Battery → CAT-042 Motor → CAT-019 Conveyor)
+
+- A powered conveyor carries cargo; blocked cargo stalls and the belt artwork cannot move it; disconnected or exhausted supply produces no motion.
+- Two competing drives on one shaft and a no-drive control behave differently and predictably; an overloaded drive saturates.
+- Exact Reset and Save/Load after every Run; same construction and inputs give the same outcome.
+- Audits of solver kernel dispatches confirm no element-keyed branching or catalogue identifiers.

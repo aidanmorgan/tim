@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using CuriousContraptions.Gpu;
 namespace CuriousContraptions;
 
 /// <summary>Artwork and immutable visual bindings; shared GPU declarations own both colliders.</summary>
@@ -14,9 +15,10 @@ public partial class SwitchPart : MachinePart
         var button = PartArt.Cylinder(Visual, .38f, .18f, Definition.Color, new(0, .06f, 0));
         PartArt.Sphere(Visual, .09f, new("#ffd899"), new(.45f, 0, .4f));
         var pressed = new Color("#bff5b0");
-        BindVisual(button, WorkshopVisualProperty.LocalY, (Half).06, (Half)(-.02));
-        BindVisual(button, WorkshopVisualProperty.AlbedoRed, (Half)Definition.Color.R, (Half)pressed.R);
-        BindVisual(button, WorkshopVisualProperty.AlbedoGreen, (Half)Definition.Color.G, (Half)pressed.G);
-        BindVisual(button, WorkshopVisualProperty.AlbedoBlue, (Half)Definition.Color.B, (Half)pressed.B);
+        var curve = CosmeticCurves.ImpactSwitch;
+        BindVisual(curve, button, WorkshopVisualProperty.LocalY, (Half).06, (Half)(-.02));
+        BindVisual(curve, button, WorkshopVisualProperty.AlbedoRed, (Half)Definition.Color.R, (Half)pressed.R);
+        BindVisual(curve, button, WorkshopVisualProperty.AlbedoGreen, (Half)Definition.Color.G, (Half)pressed.G);
+        BindVisual(curve, button, WorkshopVisualProperty.AlbedoBlue, (Half)Definition.Color.B, (Half)pressed.B);
     }
 }

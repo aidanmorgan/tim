@@ -1,12 +1,13 @@
 using Godot;
+using CuriousContraptions.Physics;
 using System.Text.Json;
 using twodog.Testing;
 using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class TrampolinePipeTests(HeadlessFixture godot, ITestOutputHelper output)
+[Collection<NativeSceneCollection>]
+public class TrampolinePipeTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
     public enum Route { Aimed, FlatBed, MissedPipe }
     private enum Role { Bed, Pipe, Payload }
@@ -24,7 +25,7 @@ public class TrampolinePipeTests(HeadlessFixture godot, ITestOutputHelper output
             _ => throw new ArgumentOutOfRangeException(nameof(role))
         },
         Position = [position.X, position.Y, position.Z],
-        Rotation = [rotation.X, rotation.Y, rotation.Z]
+        Orientation = PartOrientation.FromEulerDegrees(rotation.X, rotation.Y, rotation.Z)
     };
 
     [Theory]
@@ -53,7 +54,7 @@ public class TrampolinePipeTests(HeadlessFixture godot, ITestOutputHelper output
             for (var tick = 0; tick < 600; tick++)
             {
                 world.Step();
-                Assert.True(payload.Position.IsFinite() && payload.Velocity.IsFinite());
+                Assert.True(payload.Position.IsFinite() && world.PhysicsAssembly.Body(new(payload,MachinePart.RootBody)).LinearVelocity.IsFinite);
                 var at = pipe.ToLocal(payload.Position);
                 var radial = new Vector2(at.Y, at.Z).Length();
                 if (previous.X < -pipe.Length * .5f && at.X >= -pipe.Length * .5f &&
@@ -70,7 +71,7 @@ public class TrampolinePipeTests(HeadlessFixture godot, ITestOutputHelper output
                     exitPosition ??= payload.Position;
                 }
                 var energy = payload.Mass * world.Gravity * payload.Position.Y
-                    + .5f * payload.Mass * payload.Velocity.LengthSquared() + bed.StoredElasticEnergy;
+                    + .5f * payload.Mass * world.PhysicsAssembly.Body(new(payload,MachinePart.RootBody)).LinearVelocity.LengthSquared + bed.StoredElasticEnergy;
                 Assert.True(energy <= initialEnergy * 1.01f);
                 previous = at;
             }

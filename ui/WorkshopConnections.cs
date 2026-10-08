@@ -33,6 +33,7 @@ public partial class Workshop
     {
         ClearConnectionChoices();
         if (_connectionChoices is null || _selected is not { } part) return;
+        AddConfigurationChoices(part);
         foreach (var port in WorkshopPorts.For(part.Definition.WorkshopKind))
         {
             if (port.Direction != WorkshopPortDirection.Output) continue;
@@ -92,7 +93,8 @@ public partial class Workshop
         {
             var source = World.Parts.Single(part => part.AuthoredId == link.Source);
             var target = World.Parts.Single(part => part.AuthoredId == link.Target);
-            var from = WorkshopPorts.LocalPosition(link.Output); var to = WorkshopPorts.LocalPosition(link.Input);
+            var from = WorkshopPorts.LocalPosition(source.Definition.WorkshopKind, link.Output);
+            var to = WorkshopPorts.LocalPosition(target.Definition.WorkshopKind, link.Input);
             var start = source.ToGlobal(new((float)from.X, (float)from.Y, (float)from.Z));
             var end = target.ToGlobal(new((float)to.X, (float)to.Y, (float)to.Z));
             PartArt.Line(_connectionArtwork, start, end, new("#ffd899"), .025f);

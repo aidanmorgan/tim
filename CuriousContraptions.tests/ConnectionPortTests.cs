@@ -4,8 +4,8 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
-public class ConnectionPortTests(HeadlessFixture godot)
+[Collection<NativeSceneCollection>]
+public class ConnectionPortTests(NativeSceneFixture godot)
 {
     private static ConnectionPort Output(ConnectionDomain domain) => new(SocketId.Supply, domain, PortDirection.Output, new(1, 0, 0));
     private static ConnectionPort Input(ConnectionDomain domain) => new(SocketId.PowerIn, domain, PortDirection.Input, new(-1, 0, 0));
@@ -31,11 +31,37 @@ public class ConnectionPortTests(HeadlessFixture godot)
         Assert.False(ConnectionRules.TryResolve(link, [output], [input with { Direction = PortDirection.Output }], out _, out _));
         Assert.False(ConnectionRules.TryResolve(link, [output], [input with { Domain = ConnectionDomain.Activation }], out _, out _));
         Assert.False(ConnectionRules.TryResolve(link, [output, output], [input], out _, out _));
-        link.FromPort = SocketId.Drive;
+        link = link with { FromPort = SocketId.Drive };
         Assert.False(ConnectionRules.TryResolve(link, [output], [input], out _, out _));
-        link.FromPort = null;
-        link.ToPort = null;
+        link = link with { FromPort = null, ToPort = null };
         Assert.False(ConnectionRules.TryResolve(link, [output], [input], out _, out _));
+    }
+
+    [Theory]
+    [InlineData(ConnectionDomain.Unknown)]
+    [InlineData((ConnectionDomain)999)]
+    public void UndefinedDomainsRejectEvenWhenBothPortsClaimTheSameValue(ConnectionDomain domain)
+    {
+        Assert.False(ConnectionRules.TryResolve(Link(domain),[Output(domain)],[Input(domain)],out _,out _));
+    }
+
+    [Fact]
+    public void ConnectionPropertiesAreInitOnlyAndReplacementPreservesOriginalValue()
+    {
+        foreach(var property in typeof(ConnectionSpec).GetProperties())
+            Assert.Contains(typeof(System.Runtime.CompilerServices.IsExternalInit),
+                property.SetMethod!.ReturnParameter.GetRequiredCustomModifiers());
+        var original=Link(ConnectionDomain.Rope);
+        var replacement=original with {RopeLength=2,FromPort=SocketId.Drive};
+        Assert.Equal(1,original.RopeLength);
+        Assert.Equal(SocketId.Supply,original.FromPort);
+        Assert.Equal(2,replacement.RopeLength);
+        Assert.Equal(SocketId.Drive,replacement.FromPort);
+        var copy=MachineCodec.Clone(new(){Connections=[original]});
+        Assert.Equal(original,Assert.Single(copy.Connections));
+        Assert.NotSame(original,copy.Connections[0]);
+        copy.Connections[0]=replacement;
+        Assert.Equal(1,original.RopeLength);
     }
 
     [Fact]
@@ -56,7 +82,8 @@ public class ConnectionPortTests(HeadlessFixture godot)
         Assert.Equal(ConnectionDomain.Electrical, edge.Type);
         Assert.Equal(SocketId.Supply, edge.FromPort);
         Assert.Equal(SocketId.PowerIn, edge.ToPort);
-        edge.FromPort = SocketId.Drive;
+        copy.Connections[0] = edge with { FromPort = SocketId.Drive };
+        Assert.Equal(SocketId.Supply,edge.FromPort);
         Assert.Equal(SocketId.Supply, original.Connections[0].FromPort);
     }
 
@@ -104,7 +131,7 @@ public class ConnectionPortTests(HeadlessFixture godot)
                 });
             }
             MechanicalNetwork.Validate(world.Parts, world.Connections);
-            ElectricalNetwork.Validate(world);
+            _ = new ElectricalNetwork(world);
         }
         finally { world.Free(); }
     }
@@ -149,10 +176,10 @@ public class ConnectionPortTests(HeadlessFixture godot)
             var b = world.AddPart(new() { Id = "target", Kind = "lamp" });
             var foreign = other.AddPart(new() { Id = "source", Kind = "switch" });
             Assert.False(world.Connect(foreign, b));
-            world.Connections.Add(new() { From = "source", To = "target", Type = ConnectionDomain.Activation, FromPort = (SocketId)999, ToPort = SocketId.ActivationIn });
+            Assert.False(world.Connect(a,(SocketId)999,b,SocketId.ActivationIn,ConnectionDomain.Activation));
+            Assert.Empty(world.Connections);
             world.Activate(a);
             Assert.False(b.Active);
-            world.Connections.Clear();
             world.Activate(foreign);
             Assert.False(b.Active);
             world.Start();

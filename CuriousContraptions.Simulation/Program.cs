@@ -55,7 +55,9 @@ public static partial class Program
             WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
 
     [JSImport("publish", "workshopGpu")]
-    private static partial void Publish(byte[] read, bool observationPending);
+    private static partial void Publish(byte[] read, bool observationPending, bool retainOccurrence);
+    [JSImport("reserveOccurrenceRead", "workshopGpu")] private static partial bool ReserveOccurrenceRead();
+    [JSImport("releaseOccurrenceRead", "workshopGpu")] private static partial void ReleaseOccurrenceRead();
 
     [JSImport("acknowledge", "workshopGpu")]
     private static partial void Acknowledge(byte[] response, bool observationPending);
@@ -94,6 +96,10 @@ public static partial class Program
     public static int[] OperationAbi() => [(int)WorkshopGpuOperation.Admit, (int)WorkshopGpuOperation.Advance];
     [JSExport]
     public static int StateBytes() => PhysicsGpuAbi.ByteLength;
+    [JSExport]
+    public static int[] CommandAbi() => [WorkshopWire.CommandHeaderBytes, WorkshopWire.CommandHeaderBytes + WorkshopWire.ConstructionBytes];
+    [JSExport]
+    public static int[] ResponseAbi() => WorkshopWire.ResponseAbi();
 
     [JSExport]
     public static async Task Dispatch(byte[] bytes)
@@ -248,29 +254,37 @@ public static partial class Program
             var due = schedule.World.DueTick(schedule.Settings, now);
             if (Simulation.Committed.Tick.Value >= due.Value)
             { batch = 0; await Task.Delay(1); continue; }
+            if (!ReserveOccurrenceRead()) { await Task.Delay(1); continue; }
+            var previousWork = Simulation.Committed.ContactWorks;
             var tickStarted = ObservationMilliseconds();
-            var result = await Simulation.Advance();
-            if (owner != _loopOwner) return;
-            if (result.Outcome is WorkshopCommandOutcome.Superseded or WorkshopCommandOutcome.Cancelled) continue;
+            WorkshopCommandResult result;
+            try { result = await Simulation.Advance(); }
+            catch { ReleaseOccurrenceRead(); throw; }
+            if (owner != _loopOwner) { ReleaseOccurrenceRead(); return; }
+            if (result.Outcome is WorkshopCommandOutcome.Superseded or WorkshopCommandOutcome.Cancelled)
+            { ReleaseOccurrenceRead(); continue; }
 #if PLAYTEST
             if (result.Outcome == WorkshopCommandOutcome.Applied) Trace.Append(Device.DiagnosticCommitted);
 #endif
             if (result.Outcome != WorkshopCommandOutcome.Applied) Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
-            EmitRead(result);
+            var occurrence = false;
+            for (var i = 0; i < previousWork.Count; i++)
+                occurrence |= Simulation.Committed.ContactWorks[i].OccurrenceCount > previousWork[i].OccurrenceCount;
+            EmitRead(result, occurrence);
             if (result.Outcome == WorkshopCommandOutcome.Applied)
                 Trace.RecordTickDuration(Simulation.Committed.Tick, ObservationMilliseconds() - tickStarted);
             if (result.Outcome != WorkshopCommandOutcome.Applied) return;
             if (++batch == 4) { batch = 0; await Task.Delay(1); }
         }
     }
-    private static void EmitRead(WorkshopCommandResult result)
+    private static void EmitRead(WorkshopCommandResult result, bool retainOccurrence = false)
     {
         if (_publication == ulong.MaxValue) throw new InvalidOperationException("Physical publication identity exhausted.");
         var sequence = new PublicationSequence(_publication + 1);
         var encoded = EncodeResponse(ReadOutput, new WorkshopResponse(default, WorkshopResponseKind.Read, result,
             Simulation.Phase, Simulation.Committed, Peer.Session, sequence));
         _publication++;
-        Publish(encoded, Trace.CanFlush(Simulation.Phase));
+        Publish(encoded, Trace.CanFlush(Simulation.Phase), retainOccurrence);
     }
 
     [JSExport]

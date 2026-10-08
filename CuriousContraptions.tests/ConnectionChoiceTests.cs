@@ -3,7 +3,7 @@ using twodog.Testing.Xunit;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<HeadlessCollection>]
+[Collection<NativeSceneCollection>]
 public class ConnectionChoiceTests
 {
     [Fact]

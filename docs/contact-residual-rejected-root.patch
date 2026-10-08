@@ -1,0 +1,22 @@
+--- a/engine/physics/ContactConstraint.cs
++++ b/engine/physics/ContactConstraint.cs
+@@ -201,13 +201,16 @@
+         if(!double.IsFinite(high)) throw new InvalidOperationException("Friction multiplier exceeds numeric range.");
+         // Positive K ensures ||(K+high I)^-1 rhs|| <= ||rhs||/high.
+         var best=At(high);
+-        for(var i=0;i<96;i++)
++        // Bisect to adjacent representable multipliers. A relative interval
++        // cutoff can leave a friction residual above the caller's solve budget.
++        // 2100 halvings cover the full finite binary64 exponent span.
++        for(var i=0;i<2100;i++)
+         {
+             var mid=low+(high-low)/2;
++            if(mid==low||mid==high)return best;
+             var trial=At(mid); var length=Length(trial.X,trial.Y);
+             if(length>radius) low=mid;
+             else { high=mid; best=trial; }
+-            if(high-low<=1e-14*Math.Max(1,high)) return best;
+         }
+         throw new InvalidOperationException("Friction multiplier did not converge.");
+     }
+

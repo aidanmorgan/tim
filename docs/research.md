@@ -1,6 +1,6 @@
 # TIM research and current game interpretation
 
-This research records reference observations, provenance and unresolved fidelity questions. Current architecture is [WGSL f16 with typed Half game values](gpu-f16-physics.md); intended behavior and current acceptance live in [requirements](planning/requirements.md). Reference algorithms and original-game constants are not instructions to maintain a second solver.
+This research records reference observations, provenance and unresolved fidelity questions. The current architecture compiles the player's construction at Run into one typed state advanced by one generic [WASM SIMD128 f32 solver with typed canonical f32 game values](gpu-f16-physics.md#compilation-model), with a separate animation engine; intended behavior and current acceptance live in [requirements](planning/requirements.md). Reference algorithms and original-game constants are not instructions to maintain a second solver.
 
 ## Adopted light and rope behavior
 
@@ -97,7 +97,7 @@ Ryan's interview appendix describes a fixed-point representation with 1024 repre
 
 knt47's first-hand reverse-engineering notes document TIM2/3 level fields for mass, elasticity, density, friction, gravity, pressure, and connection endpoints. The stored default gravity is 272 and pressure is 67. These are internal values, not SI units. The programmable ball's dialog values are not the stored values: one documented dialog setting (8, 3, 7, 3) maps to mass 201, elasticity 128, density 3000, and friction 16. Several fields remain uncertain, and the default programmable ball itself has values not reproduced exactly by the dialog. Do not copy these numbers into a metres/seconds solver without deriving the conversion and testing trajectories. Credit: knt47. [TIM level-format analysis](https://moddingwiki.shikadi.net/wiki/The_Incredible_Machine_Level_Format).
 
-The new conveyor is an original implementation using finite top-surface contact, bounded traction, local-axis motion, and a power port. Its native tests establish those behaviors, not equivalence to TIM's conveyor speed or friction. Native campaign results are likewise not substitutes for the requested browser playthroughs.
+The conveyor is an original design using finite top-surface contact, bounded traction, local-axis motion and a power port, declared over generic capabilities. It makes no claim of equivalence to TIM's conveyor speed or friction, and native results are not substitutes for the required browser playthroughs.
 
 ## Translation into a new 3D game
 
@@ -105,16 +105,16 @@ Working title: **Curious Contraptions**. Original models, interface, text, and p
 
 - Real XYZ positions, depth-aware collisions, an orbitable camera, and editable work planes. The starter camera should make height and gravity obvious. Use spatial depth in later puzzles; do not quietly implement a flat 2D game with a decorative perspective.
 - Fast edit → run → inspect → restore. Reset reconstructs the entire initial state, including timers, ports, velocities, event history, and consumed objects.
-- Parts are resource-discovered definitions with presentation scenes, typed geometry/sockets and declarations of generic capabilities. Numerical laws execute in the shared WGSL engine and discrete state in the simulation host. Adding an ordinary part must not require a private solver or editing the main game controller.
+- Parts are declaration data: visual, physics and animation behaviours (which generic capabilities they instantiate, parameters, art and animation bindings) consumed by the shared solver and the separate animation engine at Run. Adding an ordinary part changes neither engine and never edits the main game controller.
 - The browser scene hierarchy owns presentation resources; the simulation owns physical objects and typed connection graphs. A belt between parts is not scene parenthood.
 - Store stable IDs, part versions, initial transforms, environment, inventory, connections, goals, and physics profile in level data.
 - Author new teaching puzzles for each mechanic, then combine them. Preserve experimentation, humor, and alternate solutions.
 
 ## Physics, difficulty and browser delivery
 
-Use the single current WGSL physical model with [Forgiving/Balanced/Precise assistance](difficulty.md). Authored precision curves bound automatic placement/orientation correction, receiver regions, activation/timing thresholds and permitted guidance; no user nudge action, global relaxed physics, obstacle bypass or wrong-object acceptance. Run captures the selected settings and changing them requires restart. Test alternative valid solutions and the campaign matrix; greater assistance is not assumed to preserve every outcome without proof.
+Use the single generic WASM SIMD physical model with [Forgiving/Balanced/Precise assistance](difficulty.md). Authored precision curves bound automatic placement/orientation correction, receiver regions, activation/timing thresholds and permitted guidance; no user nudge action, global relaxed physics, obstacle bypass or wrong-object acceptance. Run captures the selected settings and changing them requires restart. Test alternative valid solutions and the campaign matrix; greater assistance is not assumed to preserve every outcome without proof.
 
-Use C# for typed authoring, host/discrete logic, UI and tools, WGSL f16 for numerical physics, and the pinned browser host/build instructions in [README](../README.md). Matching toolchain/editor/export versions and actual Chrome behavior remain required. Cross-device repeatability uses declared physical bounds and exact discrete event identity/order; fixed tick alone is not proof of identical floating arithmetic.
+Use C# for typed authoring, host/discrete logic, UI and tools, WebAssembly SIMD128 for numerical physics, and the pinned browser host/build instructions in [README](../README.md). Matching toolchain/editor/export versions and actual Chrome behavior remain required. Cross-device repeatability uses declared physical bounds and exact discrete event identity/order; fixed tick alone is not proof of identical floating arithmetic.
 
 ## Fidelity evidence still needed
 

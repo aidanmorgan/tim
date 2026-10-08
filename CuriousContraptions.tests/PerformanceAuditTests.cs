@@ -27,6 +27,13 @@ public class PerformanceAuditTests
         Assert.Equal(8,Assert.Single(complete.Counters,c=>c.Metric==PerformanceMetric.PhysicsSteps).Value);
         var peak=Assert.Single(complete.Counters,c=>c.Metric==PerformanceMetric.MaximumPredictionCoordinates);
         Assert.Equal(CounterReduction.Maximum,peak.Reduction);Assert.Equal(36,peak.Value);
+        var correctionPeak=Assert.Single(complete.Counters,c=>c.Metric==PerformanceMetric.MaximumImpulseCorrectionCoordinates);
+        Assert.Equal(CounterReduction.Maximum,correctionPeak.Reduction);Assert.Equal(1,correctionPeak.Value);
+        foreach(var metric in new[]{PerformanceMetric.ImpulseFactorizations,PerformanceMetric.ImpulseCorrectionTrials})
+        {
+            var count=Assert.Single(complete.Counters,c=>c.Metric==metric);
+            Assert.Equal(CounterReduction.Sum,count.Reduction);Assert.Equal(2,count.Value);
+        }
         var stage=Assert.Single(complete.Stages,s=>s.Stage==PerformanceStage.GameplayTick);
         Assert.Equal(2,stage.Milliseconds.Count);Assert.Equal(3,stage.Milliseconds.P95);
     }

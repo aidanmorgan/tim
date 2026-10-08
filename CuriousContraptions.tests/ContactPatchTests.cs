@@ -12,9 +12,8 @@ public class ContactPatchTests
         Feature(new(-half,height,-half),new(half,height,-half),new(half,height,half),new(-half,height,half));
     private static void Near(CollisionVector a,CollisionVector b,double tolerance=1e-8)=>
         Assert.InRange((a-b).Length,0,tolerance);
-    private static ConvexMotion.AtTime At(ConvexGeometry geometry,RigidPose pose)=>
-        new ConvexMotion(new(geometry,Transform3D.Identity),
-            new PhysicsBody(new(0),PhysicsMotionType.Static,pose,default,default).CreateTrajectory(0)).At(0);
+    private static ConvexPose At(ConvexGeometry geometry,RigidPose pose)=>
+        new(new(geometry,AffineTransform.Identity),pose);
     private static SupportFeature Transform(SupportFeature feature,RigidPose pose)=>
         new(feature.Vertices.ToArray().Select(v=>new SupportVertex(v.Id,pose.TransformPoint(v.Point))).ToArray());
 
@@ -55,10 +54,46 @@ public class ContactPatchTests
         Assert.Equal(4,patch.Points.Length);
         var body=new PhysicsBody(new(0),PhysicsMotionType.Dynamic,RigidPose.At(new(0,1,0)),new(0,-3,0),default,1,new InertiaTensor(2.0/3,2.0/3,2.0/3));
         var floor=new PhysicsBody(new(1),PhysicsMotionType.Static,RigidPose.At(new(0,-1,0)),default,default);
-        var constraints=patch.Points.ToArray().Select(p=>new ContactConstraint(body,floor,(p.PointA+p.PointB)*.5,patch.Normal,0,0,.5)).ToArray();
+        var constraints=patch.Points.ToArray().Select(p=>new ContactConstraint(ContactKinematics.AtPoint(body,floor,(p.PointA+p.PointB)*.5,patch.Normal),0,0,.5)).ToArray();
         ImpulseSolver.Solve(constraints);
         Near(default,body.LinearVelocity); Near(default,body.AngularVelocity);
         Assert.All(constraints,c=>Assert.True(c.Normal.AccumulatedImpulse>0));
+    }
+
+    [Theory]
+    [InlineData(.01)]
+    [InlineData(1)]
+    [InlineData(100)]
+    public void NearTouchWitnessesRespectTheCombinedFeaturePlaneBudget(double scale)
+    {
+        var floor=At(new ConvexBox(new CollisionVector(10,.5,10)*scale),RigidPose.At(new(0,-.5*scale,0)));
+        var geometry=new ConvexBox(new CollisionVector(.5,.5,.5)*scale);
+        var tolerance=ConvexDistance.DefaultTolerance*scale;
+        for(var i=1;i<=12;i++)
+        for(var j=1;j<=12;j++)
+        for(var k=0;k<=10;k++)
+        {
+            var rotation=RigidRotation.FromRotationVector(new(-i*ConvexDistance.DefaultTolerance/10,0,j*ConvexDistance.DefaultTolerance/10));
+            var pose=new RigidPose(new(0,.5*scale-k*.1*tolerance,0),rotation);
+            var body=At(geometry,pose);
+            var patch=ContactManifold.Query(body,floor,tolerance,tolerance);
+            Assert.Equal(ContactManifoldStatus.Contact,patch.Status);
+            Assert.NotEmpty(patch.Points.ToArray());
+            foreach(var point in patch.Points)
+            {
+                var local=pose.InverseTransformPoint(point.PointA);
+                Assert.InRange(Math.Abs(local.X),0,.5*scale+tolerance);
+                Assert.InRange(Math.Abs(local.Y),0,.5*scale+tolerance);
+                Assert.InRange(Math.Abs(local.Z),0,.5*scale+tolerance);
+                Assert.InRange(Math.Abs(point.PointB.Y),0,tolerance);
+                Assert.InRange((point.PointA-point.PointB-patch.Normal*point.Separation).Length,0,2*tolerance);
+            }
+            var reverse=ContactManifold.Query(floor,body,tolerance,tolerance);
+            Assert.Equal(ContactManifoldStatus.Contact,reverse.Status);
+            Assert.NotEmpty(reverse.Points.ToArray());
+            var clear=At(geometry,new(pose.Center+Up*(10*tolerance),rotation));
+            Assert.Equal(ContactManifoldStatus.Clear,ContactManifold.Query(clear,floor,tolerance,tolerance).Status);
+        }
     }
 
     [Fact]
@@ -139,8 +174,8 @@ public class ContactPatchTests
     public void FeaturesFollowTheSameCapturedTrajectoryAsSupportQueries()
     {
         var body=new PhysicsBody(new(0),PhysicsMotionType.Kinematic,RigidPose.At(new(2,3,4)),new(1,2,3),new(.3,.4,.5));
-        var path=body.CreateTrajectory(.3);
-        var motion=new ConvexMotion(new(new ConvexBox(new(1,2,3)),new(Basis.Identity,new(.5f,0,0))),path);
+        var path=body.CreateTrajectory(.3,default);
+        var motion=new ConvexMotion(new(new ConvexBox(new(1,2,3)),new(AffineBasis.Identity,new(.5f,0,0))),path);
         var pose=path.At(.2); var direction=pose.Rotation.Apply(Up);
         var feature=motion.At(.2).SupportingFeature(direction,1e-7);
         Assert.Equal(4,feature.Vertices.Length);

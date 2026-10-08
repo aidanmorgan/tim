@@ -32,7 +32,7 @@ internal static class WoundSpringLesson
         float[]? rotation = null) => new()
     {
         Id = WireId(role), Kind = CatalogId(kind), Position = position,
-        Locked = locked, Rotation = rotation ?? [0, 0, 0],
+        Locked = locked, Orientation = PartOrientation.FromEulerDegrees(rotation ?? [0, 0, 0]),
         Difficulty =
         [
             new() { Precision = 0, PositionWindow = .2f, RotationWindow = 5,
@@ -91,7 +91,7 @@ internal static class WoundSpringLesson
         puzzle.Inventory = new() { [CatalogId(CatalogPart.HoldTimer)] = 1 };
         puzzle.Parts.Add(Part(Role.Launcher, CatalogPart.WoundSpring, [0, 3, 0], true, [0, 0, -15]));
         var releaseDelay = Part(Role.ReleaseDelay, CatalogPart.Delay, [3, 6, 2]);
-        releaseDelay.Properties[DelayParameters.Seconds] = 3;
+        releaseDelay.Properties[PartParameterName.Of(DelayParameter.DelaySeconds)] = 3;
         puzzle.Parts.Add(releaseDelay);
         puzzle.Solution = [Part(Role.HoldTimer, CatalogPart.HoldTimer, [-5, 6, 0], false)];
         puzzle.SolutionConnections =

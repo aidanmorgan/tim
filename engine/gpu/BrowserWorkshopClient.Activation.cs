@@ -13,6 +13,7 @@ public sealed partial class BrowserWorkshopClient
     private static AnimationTargetId ActivationTarget(ActivationNodeId node) => new(checked(node.Value + 2));
     private void RetireActivationFeedback()
     {
+        RetireTimerFeedback();
         Array.Clear(_activationRequested); Array.Clear(_activationSamples); Array.Clear(_activationOrdinals);
     }
     private void PumpActivations()
@@ -22,10 +23,11 @@ public sealed partial class BrowserWorkshopClient
         for (var i = 0; i < latest.Read.Activations.Count; i++)
         {
             var activation = latest.Read.Activations[i];
-            if (activation.Phase != ActivationPhase.Latched || _activationRequested[i] is not null) continue;
+            if (activation.Phase != ActivationPhase.Latched || _activationRequested[i] is not null ||
+                !TryCosmeticDeclaration(activation.Owner, AnimationFeedbackSource.Activation, out var declaration)) continue;
             var control = new WorkshopAnimationControl(ActivationTarget(activation.Node), latest.Read.Epoch,
-                checked(_hintSequence + 1), 1, AnimationControlKind.Endpoint, true, (Half)1, (Half)1, (Half)1,
-                AnimationCurve.Linear, activation.EventOrdinal, activation.EventPhase, AnimationProperty.ColourBlend);
+                checked(_hintSequence + 1), 1, AnimationControlKind.Endpoint, true, (Half)1, (Half)1, declaration.Duration,
+                declaration.Curve, activation.EventOrdinal, activation.EventPhase, AnimationProperty.ColourBlend);
             SendAnimation(control, schedule);
             _activationRequested[i] = activation;
             return; // The existing single reliable Animation lease owns this control until its ACK.
@@ -49,19 +51,19 @@ public sealed partial class BrowserWorkshopClient
         }
         _activationSamples[slot] = sample;
     }
-    public bool TryActivationBlend(ulong frame, WorkshopPresentationSample physical, ActivationNodeId node, out Half blend)
+    private bool TryActivationSample(WorkshopPresentationSample physical, ActivationNodeId node, out WorkshopCosmeticSample result)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this); ThrowIfTransportFailed(); PumpActivations();
-        if (AdmitPresentationFrame(frame) && physical.Evidence.WorldEpoch == Epoch && physical.FeedbackCapture is not null)
+        if (physical.Evidence.WorldEpoch == Epoch && physical.FeedbackCapture is not null)
             for (var i = 0; i < physical.Activations.Count; i++)
             {
                 var activation = physical.Activations[i];
                 if (activation.Node != node || _activationFrameTaken[i] || _activationRequested[i] != activation ||
                     _activationSamples[i] is not { } sample || sample.World != Epoch || sample.AppliedAt.Value > _frameMaster.Value)
                     continue;
-                _activationFrameTaken[i] = true; _activationSamples[i] = null;
-                _lastPresentationApplied = _frameMaster; blend = sample.Value; return true;
+                _activationFrameTaken[i] = true;
+                _lastPresentationApplied = _frameMaster;
+                result = new(sample.Value, AnimationTimerPhase.None); return true;
             }
-        blend = default; return false;
+        result = default; return false;
     }
 }

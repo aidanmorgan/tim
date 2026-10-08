@@ -188,13 +188,14 @@ public static partial class PerformanceAudit
     }
     private static CounterReduction Reduction(PerformanceMetric metric)=>metric switch
     {
-        PerformanceMetric.MaximumPredictionCoordinates=>CounterReduction.Maximum,
+        PerformanceMetric.MaximumPredictionCoordinates or PerformanceMetric.MaximumImpulseCorrectionCoordinates=>CounterReduction.Maximum,
         PerformanceMetric.PhysicsSteps or PerformanceMetric.PhysicsSubsteps or PerformanceMetric.PhysicsEvents or
         PerformanceMetric.SweepIterations or PerformanceMetric.VelocityIterations or PerformanceMetric.PositionIterations or
         PerformanceMetric.PredictionCalls or PerformanceMetric.PredictionMidpoints or PerformanceMetric.PredictionNewtonIterations or
         PerformanceMetric.BodyQueries or PerformanceMetric.BodyNodeTests or PerformanceMetric.BodyLeafTests or PerformanceMetric.BodyCandidatePairs or
         PerformanceMetric.CompoundQueries or PerformanceMetric.CompoundNodeTests or PerformanceMetric.CompoundLeafTests or PerformanceMetric.CompoundCandidatePairs or
         PerformanceMetric.PredictionConstraintSolves or PerformanceMetric.PredictionConstraintIterations or PerformanceMetric.PredictionCouplingTests or PerformanceMetric.PredictionCoupledPairs
+        or PerformanceMetric.ImpulseFactorizations or PerformanceMetric.ImpulseCorrectionTrials
             =>CounterReduction.Sum,
         _=>throw new ArgumentOutOfRangeException(nameof(metric))
     };

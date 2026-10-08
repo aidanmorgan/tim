@@ -1,24 +1,38 @@
 using Godot;
+using CuriousContraptions.Physics;
+using System.Linq;
 using System;
 using System.Collections.Generic;
 
 namespace CuriousContraptions;
 
 public enum ClutchPhase { Open, Closing, Engaged, Opening }
-public static class ClutchParameters
-{
-    public const string CloseSeconds="close_seconds";
-}
+public enum ClutchParameter { CloseSeconds }
 
-/// <summary>Electrically engaged, normally open coupling in the ideal speed network.</summary>
+/// <summary>Electrically engaged, normally open coupling between two shared finite-inertia shafts.</summary>
 public partial class ClutchPart : MachinePart
 {
-    public ClutchPhase Phase { get; private set; }
-    public float Closure { get; private set; }
-    public float InputSpeed { get; private set; }
-    public float OutputSpeed { get; private set; }
-    public float InputAngle { get; private set; }
-    public float OutputAngle { get; private set; }
+    protected override PartParameterValues BindParameters(System.Collections.Generic.IReadOnlyDictionary<string,float> fields) =>
+        PartParameterValues.Bind<ClutchParameter>(fields);
+    public static readonly JointSlot InputJoint=new(),OutputJoint=new(),CouplingJoint=new();
+    public static readonly BodySlot InputBody=SceneRotaryShaft.Slot(p=>((ClutchPart)p)._input,.25,.28,.13);
+    public static readonly BodySlot OutputBody=SceneRotaryShaft.Slot(p=>((ClutchPart)p)._output,.25,.28,.13);
+    private TransmissionEngagement Engagement=>Phase==ClutchPhase.Engaged?TransmissionEngagement.Engaged:TransmissionEngagement.Open;
+    public override IReadOnlyList<SceneJointDeclaration> PhysicsJoints=>
+    [
+        SceneRotaryShaft.Guide(this,InputJoint,InputBody,new(-.65f,0,.43f)),
+        SceneRotaryShaft.Guide(this,OutputJoint,OutputBody,new(.65f,0,.43f)),
+        new SceneTransmissionJoint(new(this,CouplingJoint),new(this,InputJoint),new(this,OutputJoint),1,Engagement)
+    ];
+    private readonly record struct ClosureState(ClutchPhase Phase,float Closure);
+    private readonly SimulationState<ClosureState> _state=new(new(ClutchPhase.Open,0));
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState=>[_state];
+    public ClutchPhase Phase=>_state.Value.Phase;
+    public float Closure=>_state.Value.Closure;
+    public float InputSpeed=>(float)-ReadAxialMotion(InputJoint).Speed;
+    public float OutputSpeed=>(float)-ReadAxialMotion(OutputJoint).Speed;
+    public float InputAngle=>(float)-ReadAxialMotion(InputJoint).Coordinate;
+    public float OutputAngle=>(float)-ReadAxialMotion(OutputJoint).Coordinate;
     private Node3D _input=null!,_output=null!,_leftPlate=null!,_rightPlate=null!;
     private StandardMaterial3D _indicator=null!;
     public override IEnumerable<ConnectionPort> ConnectionPorts=>
@@ -27,39 +41,45 @@ public partial class ClutchPart : MachinePart
         new(SocketId.Drive,ConnectionDomain.Mechanical,PortDirection.Output,new(.65f,0,.55f)),
         new(SocketId.PowerIn,ConnectionDomain.Electrical,PortDirection.Input,new(0,-.35f,.5f))
     ];
-    // Disabled routes remain structural edges: an open clutch cannot hide a loop or competing drive.
-    public override IEnumerable<MechanicalRoute> MechanicalRoutes=>[new(SocketId.DriveIn,SocketId.Drive,1,Phase==ClutchPhase.Engaged)];
-    public override void ValidateParameters()
+    public override IReadOnlyList<MechanicalBinding> MechanicalBindings=>[new(SocketId.DriveIn,InputJoint,-1),new(SocketId.Drive,OutputJoint,-1)];
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
-        var seconds=Properties[ClutchParameters.CloseSeconds];
+        var seconds=parameters.Read(ClutchParameter.CloseSeconds);
         if(!float.IsFinite(seconds)||seconds<.05f||seconds>2)throw new ArgumentException("Clutch closing time must be between 0.05 and 2 seconds.");
     }
-    public override void BeforeStep(MachineWorld world,float delta)
+    public override void PreparePhysics(MachineWorld world,float delta)
     {
         var supplied=HasElectricalPower(SocketId.PowerIn);
-        Closure=Mathf.MoveToward(Closure,supplied?1:0,delta/Properties[ClutchParameters.CloseSeconds]);
-        Phase=supplied?(Closure==1?ClutchPhase.Engaged:ClutchPhase.Closing):(Closure==0?ClutchPhase.Open:ClutchPhase.Opening);
+        var closure=Mathf.MoveToward(Closure,supplied?1:0,delta/ReadParameter(ClutchParameter.CloseSeconds));
+        var phase=supplied?(closure==1?ClutchPhase.Engaged:ClutchPhase.Closing):(closure==0?ClutchPhase.Open:ClutchPhase.Opening);
+        _state.Value=new(phase,closure);
         Active=Phase==ClutchPhase.Engaged;
+        var coupling=(PhysicsTransmissionJoint)world.CurrentJoint(new(this,CouplingJoint));
+        if(coupling.Engagement!=Engagement)
+        {
+            var replacement=new PhysicsTransmissionJoint(coupling.Id,
+                (PhysicsFrameJoint)world.CurrentJoint(new(this,InputJoint)),
+                (PhysicsFrameJoint)world.CurrentJoint(new(this,OutputJoint)),1,Engagement);
+            world.Physics.ReplaceJoints(world.Physics.Joints.ToArray().Select(j=>j.Id==coupling.Id?replacement:j));
+        }
         _leftPlate.Position=new(-.09f-.16f*(1-Closure),0,0);
         _rightPlate.Position=new(.09f+.16f*(1-Closure),0,0);
         _indicator.AlbedoColor=Active?new("#f7cb52"):supplied?new("#66b8c9"):new("#556573");
         if(supplied)world.Events.TryAdd(new(MachineEventKind.Powered,Uid),world.Ticks);
     }
-    public override void MechanicalStep(MachineWorld world,float delta)
+    public override void ObservePhysics(MachineWorld world,float delta)
     {
-        InputSpeed=MechanicalSpeed(SocketId.DriveIn);OutputSpeed=MechanicalSpeed(SocketId.Drive);
-        InputAngle=Mathf.PosMod(InputAngle+InputSpeed*delta,Mathf.Tau);
-        OutputAngle=Mathf.PosMod(OutputAngle+OutputSpeed*delta,Mathf.Tau);
-        _input.Rotation=new(0,0,-InputAngle);_output.Rotation=new(0,0,-OutputAngle);
         _leftPlate.Rotation=new(InputAngle,0,0);_rightPlate.Rotation=new(OutputAngle,0,0);
     }
     protected override void Build()
     {
-        PickRadius=1.1f;ClearMechanicalDrive();
+        PickRadius=1.1f;
         AddBox(new(0,-.48f,0),new(1.9f,.16f,1.1f),new("#293954"));
         AddBox(new(-.65f,-.1f,0),new(.35f,.7f,.65f),new("#fff8e9"));
         AddBox(new(.65f,-.1f,0),new(.35f,.7f,.65f),new("#fff8e9"));
         _input=Pulley(-.65f,"InputPulley");_output=Pulley(.65f,"OutputPulley");
+        SceneRotaryShaft.AddCollider(this,InputBody,.28,.13);
+        SceneRotaryShaft.AddCollider(this,OutputBody,.28,.13);
         _leftPlate=Plate(-.25f,"InputPlate");_rightPlate=Plate(.25f,"OutputPlate");
         var axle=PartArt.Cylinder(Visual,.055f,1.3f,new("#293954"));axle.RotationDegrees=new(0,0,90);
         var coil=PartArt.Ring(Visual,.38f,.065f,new("#66b8c9"));coil.RotationDegrees=new(0,0,90);

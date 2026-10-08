@@ -1,6 +1,9 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using CuriousContraptions.Physics;
+using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions;
 
@@ -11,42 +14,108 @@ public enum WoundSpringPhase { Idle, Winding, Armed, Releasing, Blocked }
 /// No ammunition is created. The plunger is a real finite-mass internal physics body.</summary>
 public partial class WoundSpringPart : MachinePart
 {
+    protected override PartParameterValues BindParameters(System.Collections.Generic.IReadOnlyDictionary<string,float> fields) =>
+        PartParameterValues.Bind<WoundSpringParameter>(fields);
+    private RuntimeCheckpoint? _runtimeCheckpoint;
+    public override IReadOnlyList<SimulationTransactionParticipant> RuntimeState =>
+        [_latchReleased,_runtimeCheckpoint ??= new(this)];
+    private sealed class RuntimeCheckpoint(WoundSpringPart owner) : SimulationTransactionParticipant
+    {
+        private bool _savedStarted;
+        private int? _savedTriggerTick;
+        private WoundSpringPhase _savedPhase;
+        protected override void CaptureCheckpoint()
+        {
+            _savedStarted=owner._started;
+            _savedTriggerTick=owner._triggerTick;
+            _savedPhase=owner.Phase;
+        }
+        protected override void RestoreCheckpoint()
+        {
+            owner._started=_savedStarted;
+            owner._triggerTick=_savedTriggerTick;
+            owner.Phase=_savedPhase;
+        }
+    }
     public const string CatalogId = "wound_spring";
     public const float RestHeadY = .9f;
     public const float PlungerRadius = .32f;
     public const float PlungerMass = .5f;
-    private LatchedSpringStore _spring = null!;
     private GuidedPlunger _head = null!;
     private MeshInstance3D _coil = null!, _chargeMarker = null!;
     private Node3D _pulley = null!, _latch = null!;
     private bool _started;
-    private Transform3D _previousPose;
+    private readonly SimulationState<bool> _latchReleased=new(false);
+    public static readonly Bridge.BooleanObservationSlot LatchReleasedOutput=new(0);
+    private static readonly AnimationDefinition LatchTransition=new(0,-.65,.65/8,
+        AnimationCurve.Linear,AnimationRepeat.Once,AnimationClock.Presentation);
+    public override IReadOnlyList<SceneBooleanObservation> BooleanObservations=>
+        [new(LatchReleasedOutput,new(_latchReleased))];
+    public override IReadOnlyList<SceneRotationAnimation> RotationAnimations=>
+        [new(_latch,LatchTransition,AnimationRotationAxis.Z,
+            SceneAnimationSignal.Boolean(new(this,LatchReleasedOutput)),SceneAnimationDrive.Endpoint)];
     private readonly List<MachinePart> _internalBodies = new();
     private int? _triggerTick;
-    private float _shaftAngle;
-    private float _lastHeadY;
     public WoundSpringPhase Phase { get; private set; }
-    public SpringTriggerResult? LastTrigger { get; private set; }
-    public int ReleaseCount { get; private set; }
+    private PhysicsLatchedSpringState? RuntimeSpring=>GetParent() is MachineWorld {HasPhysicsState:true} world?
+        world.Physics.Spring(world.PhysicsAssembly.JointId(new(this,PlungerGuide))):null;
+    public SpringTriggerResult? LastTrigger=>RuntimeSpring?.LastTrigger;
+    public int ReleaseCount=>RuntimeSpring?.ReleaseCount??0;
     public float LatchAngle => _latch.Rotation.Z;
-    public double StoredEnergy => _spring.Energy;
-    public double AcceptedWork => _spring.AcceptedWork;
-    public double ReleasedWork => _spring.ReleasedWork;
-    public float Compression => (float)_spring.Compression;
+    public double StoredEnergy=>RuntimeSpring?.Energy??0;
+    public double AcceptedWork=>RuntimeSpring?.AcceptedWork??0;
+    public double ReleasedWork=>RuntimeSpring?.ReleasedWork??0;
+    public float Compression=>(float)(RuntimeSpring?.Compression??0);
     public MachinePart Plunger => _head;
+    public static readonly JointSlot PlungerGuide=new(),ShaftJoint=new(),WindingJoint=new();
+    public static readonly BodySlot ShaftBody=SceneRotaryShaft.Slot(p=>((WoundSpringPart)p)._pulley,.25,.26,.1);
+    public override IReadOnlyList<SceneLatchedSpringDeclaration> PhysicsSprings=>
+        [new(new(this,PlungerGuide),new(this,WindingJoint),ReadParameter(WoundSpringParameter.Stiffness),ReadParameter(WoundSpringParameter.Stroke))];
+    public override IReadOnlyList<MechanicalBinding> MechanicalBindings=>[new(SocketId.DriveIn,ShaftJoint,-1)];
+    public override IReadOnlyList<SceneJointDeclaration> PhysicsJoints
+    {
+        get
+        {
+            var owner=SceneGeometryAdapter.CaptureRigidPose(Transform);
+            var head=SceneGeometryAdapter.CaptureRigidPose(_head.Transform);
+            // Shared frame joints use local Z as the free axis; this mechanism
+            // declares local Y. The spherical head need not share the owner's basis.
+            var axisFrame=global::CuriousContraptions.Geometry.RigidRotation.FromRotationVector(new(-Math.PI/2,0,0));
+            var coordinate=global::CuriousContraptions.Geometry.CollisionVector.Dot(head.Center-owner.Center,owner.Rotation.Apply(new(0,1,0)));
+            // Both guide anchors describe the same rail point in double precision.
+            // A float scene center is not assumed to lie exactly on the rotated rail.
+            var railPoint=owner.TransformPoint(new(0,coordinate,0));
+            var headAnchor=head.InverseTransformPoint(railPoint);
+            var range=new JointTravelRange(coordinate-ReadParameter(WoundSpringParameter.Stroke),coordinate);
+            return
+            [
+                new SceneFrameJoint(new(this,PlungerGuide),Physics.FrameJointKind.Slider,
+                    new(_head,RootBody),new(headAnchor,head.Rotation.Inverse()*owner.Rotation*axisFrame),
+                    new(this,RootBody),new(default,axisFrame),
+                    Physics.ConnectedBodyCollision.Disabled,range,JointTravelDirection.Negative),
+                SceneRotaryShaft.Guide(this,ShaftJoint,ShaftBody,new(-.62f,-.55f,.5f)),
+                new SceneTransmissionJoint(new(this,WindingJoint),new(this,ShaftJoint),new(this,PlungerGuide),ReadParameter(WoundSpringParameter.WindingLead),
+                    TransmissionEngagement.Engaged)
+            ];
+        }
+    }
     public override IReadOnlyList<MachinePart> InternalBodies => _internalBodies;
     public override IReadOnlyList<InternalBodyRole> InternalBodyRoles => [InternalBodyRole.Plunger];
-    public override IEnumerable<SocketId> MechanicalLoads => [SocketId.DriveIn];
+    public override MachinePart InternalBody(InternalBodyRole role) => role switch
+    {
+        InternalBodyRole.Plunger => _head ?? throw new InvalidOperationException("Plunger has not been constructed."),
+        _ => throw new ArgumentOutOfRangeException(nameof(role))
+    };
     public override IEnumerable<ConnectionPort> ConnectionPorts =>
     [
         new(SocketId.DriveIn, ConnectionDomain.Mechanical, PortDirection.Input, new(-.62f, -.55f, .55f)),
         new(SocketId.ActivationIn, ConnectionDomain.Activation, PortDirection.Input, new(.62f, -.55f, .55f))
     ];
-    public override void ValidateParameters()
+    protected override void ValidateParameters(PartParameterValues parameters)
     {
-        var stiffness = ReadParameter(WoundSpringParameter.Stiffness);
-        var stroke = ReadParameter(WoundSpringParameter.Stroke);
-        var lead = ReadParameter(WoundSpringParameter.WindingLead);
+        var stiffness = parameters.Read(WoundSpringParameter.Stiffness);
+        var stroke = parameters.Read(WoundSpringParameter.Stroke);
+        var lead = parameters.Read(WoundSpringParameter.WindingLead);
         if (!float.IsFinite(stiffness) || stiffness < 40 || stiffness > 240)
             throw new ArgumentException("Wound spring stiffness must be between 40 and 240.");
         if (!float.IsFinite(stroke) || stroke < .2f || stroke > .8f)
@@ -60,103 +129,57 @@ public partial class WoundSpringPart : MachinePart
         _triggerTick ??= world.Ticks;
         return ActivationDisposition.Deferred;
     }
+    protected override void PrepareConstruction()
+    {
+        _head.SetConstructionCoordinate(RestHeadY);
+        _started = true;
+    }
     public override void BeforeNetworks(MachineWorld world)
     {
-        if (!_started) { _head.SetCoordinate(RestHeadY); _previousPose = Transform; }
-        _started = true;
         if (_triggerTick is { } tick && tick < world.Ticks)
         {
             _triggerTick = null;
-            LastTrigger = _spring.Release();
-            if (LastTrigger == SpringTriggerResult.Released)
-            {
-                _head.AtStop = false;
-                ReleaseCount++;
-                Phase = WoundSpringPhase.Releasing;
-            }
+            world.Physics.ReleaseSpring(world.PhysicsAssembly.JointId(new(this,PlungerGuide)));
         }
     }
-    public override void BeforeStep(MachineWorld world, float delta)
+    public override void ObservePhysics(MachineWorld world,float delta)
     {
-        if (Transform != _previousPose)
-        {
-            var local = _previousPose.AffineInverse() * _head.Position;
-            _head.Position = Transform * local;
-            _head.Velocity = Basis * _previousPose.Basis.Inverse() * _head.Velocity;
-            _previousPose = Transform;
-        }
-        _lastHeadY = _head.Coordinate;
-        if (_spring.State != SpringLatchState.Releasing) return;
-        _head.Velocity += _head.Axis * ((float)_spring.Force / PlungerMass * delta);
-        _head.ConstrainVelocity();
+        var state=world.Physics.Spring(world.PhysicsAssembly.JointId(new(this,PlungerGuide)));
+        _latchReleased.Value=state.State==SpringLatchState.Releasing;
+        if(state.State==SpringLatchState.Releasing)
+            Phase=state.Compression<state.BeforeCompression-1e-9?WoundSpringPhase.Releasing:WoundSpringPhase.Blocked;
+        else
+            Phase=state.Compression>state.BeforeCompression+1e-9?WoundSpringPhase.Winding:
+                !state.IsCharged?WoundSpringPhase.Idle:
+                state.Declaration.Stroke-state.Compression>state.StopTolerance&&state.ConstraintObservation.OpposesWinding?
+                    WoundSpringPhase.Blocked:WoundSpringPhase.Armed;
+        Active=Phase is WoundSpringPhase.Winding or WoundSpringPhase.Releasing;
     }
-    public override void MechanicalStep(MachineWorld world, float delta)
-    {
-        var travel = MechanicalSpeed(SocketId.DriveIn) * delta;
-        _shaftAngle = Mathf.PosMod(_shaftAngle + travel, Mathf.Tau);
-        _pulley.Rotation = new(0, 0, -_shaftAngle);
-        if (_spring.State != SpringLatchState.Latched) return;
-        var clearance = ReadParameter(WoundSpringParameter.Stroke);
-        if (travel > 0)
-        {
-            var displacement = -_head.Axis * Mathf.Min(clearance, travel * ReadParameter(WoundSpringParameter.WindingLead));
-            var hit = WorldGeometry.Sweep(world, _head.Position, PlungerRadius, displacement, this);
-            clearance = hit.Status switch
-            {
-                SphereSweepStatus.Clear => displacement.Length(),
-                SphereSweepStatus.Contact => hit.Distance,
-                SphereSweepStatus.Overlapping => 0,
-                _ => throw new InvalidOperationException("Unknown winding clearance.")
-            };
-        }
-        var allowedTorque = MechanicalTorque(SocketId.DriveIn);
-        var torque = (float)Math.Min(float.MaxValue, allowedTorque);
-        if (torque > allowedTorque) torque = MathF.BitDecrement(torque);
-        var winding = _spring.Wind(travel, torque, clearance, MechanicalWorkAvailable(SocketId.DriveIn));
-        ConsumeMechanicalWork(SocketId.DriveIn, winding.Work);
-        _head.SetCoordinate(RestHeadY - Compression);
-        Phase = winding.Status == SpringWindStatus.Blocked ? WoundSpringPhase.Blocked :
-            winding.Status == SpringWindStatus.Wound ? WoundSpringPhase.Winding :
-            Compression > 0 ? WoundSpringPhase.Armed : WoundSpringPhase.Idle;
-        UpdateArt();
-    }
-    public override void AfterStep(MachineWorld world, float delta)
-    {
-        if (_spring.State == SpringLatchState.Releasing)
-        {
-            var travel = Mathf.Max(0, _head.Coordinate - _lastHeadY);
-            _spring.Extend(travel);
-            if (_head.AtStop || _spring.State == SpringLatchState.Spent)
-            {
-                _head.ReachMotionLimit();
-                _spring.Extend(float.MaxValue);
-                _spring.Latch();
-                Phase = WoundSpringPhase.Idle;
-            }
-            else Phase = travel > .000001f ? WoundSpringPhase.Releasing : WoundSpringPhase.Blocked;
-        }
-        Active = Phase is WoundSpringPhase.Winding or WoundSpringPhase.Releasing;
-        UpdateArt();
-    }
+
     public override void _Process(double delta)
     {
         if (!double.IsFinite(delta) || delta < 0) throw new ArgumentOutOfRangeException(nameof(delta));
-        if (!_started) _head.SetCoordinate(RestHeadY);
-        var latchTarget = _spring.State == SpringLatchState.Releasing ? -.65f : 0;
-        _latch.Rotation = new(0, 0, Mathf.MoveToward(LatchAngle, latchTarget, (float)Math.Min(delta * 8, .65)));
-        UpdateArt();
+        if (!_started) _head.SetConstructionCoordinate(RestHeadY);
     }
-    private void UpdateArt()
+    private void InitialiseConstructionArt()
     {
-        var height = _head.Coordinate - PlungerRadius + .8f;
+        var height = RestHeadY - PlungerRadius + .8f;
         _coil.Scale = new(1, Mathf.Max(.1f, height) / 1.38f, 1);
-        _chargeMarker.Position = new(.6f, _head.Coordinate - .1f, .14f);
+        _chargeMarker.Position = new(.6f, RestHeadY - .1f, .14f);
     }
+    private IReadOnlyList<ScenePoseAsset> PlungerPoseAssets=>
+    [
+        new(_coil,RootPoseReference,
+            ScenePoseMap.AxisAffine(PoseReadSpace.Relative,PoseMapAxis.Y,RigidRotation.Identity,
+                new(0,-.8f,0),default,new(1,(.8f-PlungerRadius)/1.38f,1),new(0,1/1.38f,0)),
+            PoseConstructionPolicy.PreserveExact),
+        new(_chargeMarker,RootPoseReference,
+            ScenePoseMap.AxisAffine(PoseReadSpace.Relative,PoseMapAxis.Y,RigidRotation.Identity,
+                new(.6f,-.1f,.14f),new(0,1,0),new(1,1,1),default),PoseConstructionPolicy.PreserveExact)
+    ];
     protected override void Build()
     {
-        ClearMechanicalDrive(); PickRadius = 1.25f;
-        _spring = new(ReadParameter(WoundSpringParameter.Stiffness),
-            ReadParameter(WoundSpringParameter.Stroke), ReadParameter(WoundSpringParameter.WindingLead));
+        PickRadius = 1.25f;
         AddBox(new(0, -1, 0), new(1.55f, .2f, 1.35f), new("#293954"));
         foreach (var x in new[] { -.6f, .6f })
             AddBox(new(x, -.05f, 0), new(.13f, 1.8f, .2f), new("#fff8e9"));
@@ -170,6 +193,7 @@ public partial class WoundSpringPart : MachinePart
         PipeArt.Cylinder(Visual, pose, .9f, .41f, .49f, new Color(.4f, .72f, .79f, .18f), false);
         _coil = PartArt.Mesh(Visual, CoilMesh(), new("#ccd9df"), new(0, -.8f, 0));
         _pulley = new Node3D { Position = new(-.62f, -.55f, .5f) }; Visual.AddChild(_pulley);
+        SceneRotaryShaft.AddCollider(this,ShaftBody,.26,.1);
         var wheel = PartArt.Cylinder(_pulley, .26f, .1f, new("#fff8e9"));
         wheel.RotationDegrees = new(90, 0, 0);
         PartArt.Box(_pulley, new(.42f, .05f, .03f), new("#f7cb52"), new(0, 0, .065f));
@@ -180,9 +204,8 @@ public partial class WoundSpringPart : MachinePart
         _head.Configure(new() { Id = InternalBodyId(InternalBodyRole.Plunger), Kind = CatalogId });
         AddChild(_head);
         _internalBodies.Add(_head);
-        _head.SetCoordinate(RestHeadY);
-        _previousPose = Transform;
-        UpdateArt();
+        _head.SetConstructionCoordinate(RestHeadY);
+        InitialiseConstructionArt();
     }
     private static ImmediateMesh CoilMesh()
     {
@@ -211,34 +234,14 @@ public partial class WoundSpringPart : MachinePart
 
     private partial class GuidedPlunger : MachinePart
     {
+        public override BodyEnvelope CollisionEnvelope=>BodyEnvelope.Sphere;
+        public override BodyDynamics InitialBodyDynamics=>BodyDynamics.SolidSphere(Mass,Radius,
+            SceneGeometryAdapter.CaptureVector(InitialVelocity),default);
         public WoundSpringPart Mechanism { get; init; } = null!;
-        public bool AtStop { get; set; } = true;
         public Vector3 Axis => Mechanism.Basis.Y.Normalized();
-        public float Coordinate => (Position - Mechanism.Position).Dot(Axis);
+        public override IReadOnlyList<ScenePoseAsset> RootPoseAssets=>Mechanism.PlungerPoseAssets;
         public override MachinePart PhysicsOwner => Mechanism;
-        public override bool FreeMotion => Mechanism._spring.State == SpringLatchState.Releasing && !AtStop;
-        public override Vector3 InverseMassResponse(Vector3 direction)
-        {
-            if (!FreeMotion) return Vector3.Zero;
-            var axial = Axis.Dot(direction);
-            // At rest the ratchet absorbs inward impulse: it is an anchored
-            // contact, not a mass that can move backward and then be clamped.
-            if (axial < 0 && Velocity.Dot(Axis) <= 0) return Vector3.Zero;
-            return Axis * (axial / Mass);
-        }
-        public void SetCoordinate(float value) => Position = Mechanism.Position + Axis * value;
-        public override void ConstrainVelocity() => Velocity = FreeMotion ? Axis * Mathf.Max(0, Velocity.Dot(Axis)) : Vector3.Zero;
-        public override float TimeToMotionLimit() => FreeMotion && Velocity.Dot(Axis) > 0 ?
-            Mathf.Max(0, RestHeadY - Coordinate) / Velocity.Dot(Axis) : float.PositiveInfinity;
-        public override void ReachMotionLimit()
-        {
-            SetCoordinate(RestHeadY); Velocity = Vector3.Zero; AtStop = true;
-        }
-        public override void QuantizePhysics()
-        {
-            SetCoordinate(Coordinate);
-            ConstrainVelocity();
-        }
+        public void SetConstructionCoordinate(float value) => Position = Mechanism.Position + Axis * value;
         protected override void Build()
         {
             Dynamic = true; Radius = PlungerRadius; Mass = PlungerMass; Bounce = 0; Drag = 0;

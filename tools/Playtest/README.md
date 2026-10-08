@@ -1,6 +1,12 @@
 # Direct-UI difficulty playtest
 
-## Current schema — forward-only refactor
+**Historical campaign adapter; not the current Basketball UI runner.** This source links the old machine schemas and diagnostic names, which the fixed admitted game no longer ships. The following recipes and captures retain their original identities and future catalogue/campaign obligations. See [current applicability and owner](../../docs/verification/CAT-001-I/tool-applicability.md).
+
+## Schema and evidence status
+
+The owner-confirmed target is **150 levels**; follow the [current execution and evidence rules](../../docs/planning/requirements.md#autonomous-execution). Schema versions, draft counts and captures below include historical checkpoints and must be checked against current source before reuse. They do not establish current-schema compatibility or fresh proof. Active instruction/schema reconciliation remains an open execution-preparation task.
+
+## Forward-only schema checkpoint
 
 Current campaign recipes require explicit `type: activation`, `from_port: activation_out` and `to_port: activation_in` for the implemented activation UI. The implemented battery-to-motor path also accepts `type: electrical`, `from_port: supply`, `to_port: power_in` through the same contextual UI. Mechanical belts accept `type: mechanical`, `from_port: drive`, `to_port: drive_in` through the same Connect action. Ropes use `type: rope`, `from_port: tie`, `to_port: tie` and an explicit authored `rope_length`; the driver clicks the ordinary Connect UI, which measures actual placed socket distance rather than importing that length. Reset auditing compares the observed `ropeLength`. Other socket combinations still require appropriate UI support; unsupported/obsolete recipes are rejected, not silently adapted. C# browser diagnostics use camelCase `fromPort`/`toPort`; the Reset audit requires these identities. Machine/save JSON uses snake_case. Historical captures stay unchanged and are not upgraded or counted as current-schema verification.
 
@@ -33,7 +39,7 @@ Each part has `slot`, `kind`, `position`, `rotation`, optional `offset`, `rotati
 
 ## Required matrix
 
-The revised final target is 75 levels × Forgiving (0), Balanced (0.45), Precise (1) × at least four attempts = **900 planned runs**, plus repeatability probes. The current draft has 58 levels. Historical 40-level/480-case counts below describe the pre-expansion campaign, not completion of the revised target:
+The final target is 150 levels × Forgiving (0), Balanced (0.45), Precise (1) × at least four attempts = **1,800 planned runs**, plus repeatability probes. Earlier 58-level draft and 40-level/480-case counts describe historical checkpoints, not current inventory or completion of the revised target. Defer this exhaustive campaign matrix until component coverage; focused per-part real-UI proof remains mandatory throughout:
 
 1. Reference placement through direct handles.
 2. Small positive placement/orientation error on a chosen part.
@@ -46,7 +52,7 @@ Acceptance requires all matrix cells to have artifacts, author-window/correction
 
 ## Current status
 
-All 40 levels have successful direct-UI Balanced reference runs with reviewed screenshots and no recorded browser errors in those runs. Level 3 uses the post-fix fan timing; level 36 required staging its boundary fan slightly inside and then moving it with the real arrow. There are 54 outcome records (52 wins, two timeouts), including historical/regression records across two campaign hashes. Do not equate artifact count with current-build matrix completion. See [the report](../../docs/browser-playtest.md) for per-level evidence and playability findings.
+All 40 levels have successful direct-UI Balanced reference runs with reviewed screenshots and no recorded browser errors in those runs. Level 3 uses the post-fix fan timing; level 36 required staging its boundary fan slightly inside and then moving it with the real arrow. There are 54 outcome records (52 wins, two timeouts), including historical/regression records across two campaign hashes. Do not equate artifact count with current-build matrix completion. See [the report](../../docs/planning/requirements.md#todo-492) for per-level evidence and playability findings.
 
 The 480-case difficulty matrix and independent bounds/easing/browser-Reset audit remain incomplete. Earlier reference runs that used numeric layers do not satisfy this matrix.
 
@@ -86,13 +92,13 @@ The level-3 Precise reference rerun `L03-precise-reference-direct-snap-reset` wi
 
 Level 4 now has twelve direct-UI/Reset records: nine wins (reference and both small errors at all difficulties) and three outside-window timeouts. All outcome screenshots were reviewed. The spring receives bounded correction on assisted settings, no correction on Precise, and none outside the position window. Small-error Precise wins mean these particular win/loss results do not prove tolerance expansion.
 
-All 40 Reset-equipped records pass the implemented audit. Current outcome artifact total: 94, including historical/repeated runs, not 94 distinct completed current-build matrix cells. Full results and actual spring transforms are in [the browser report](../../docs/browser-playtest.md#level-4-spring-difficulty-matrix). The 480-cell matrix remains incomplete.
+All 40 Reset-equipped records pass the implemented audit. Current outcome artifact total: 94, including historical/repeated runs, not 94 distinct completed current-build matrix cells. Full results and actual spring transforms are in [the browser report](../../docs/planning/requirements.md#todo-492). The 480-cell matrix remains incomplete.
 
 ## Level-5 matrix update
 
 The depth-axis fan puzzle has twelve new UI-only/Reset records: nine wins and three outside-window timeouts, with all screenshots reviewed. Assisted fans correct to the authored position; Precise and distant placements remain unchanged. All small-error Precise runs also win, so this batch does not establish a strict expansion of successful placements.
 
-All 52 Reset-equipped records pass the current audit. The outcome archive contains 106 records including repeats/historical runs. See [level-5 results](../../docs/browser-playtest.md#level-5-depth-axis-fan-matrix). The full 480-case matrix remains incomplete.
+All 52 Reset-equipped records pass the current audit. The outcome archive contains 106 records including repeats/historical runs. See [level-5 results](../../docs/planning/requirements.md#todo-492). The full 480-case matrix remains incomplete.
 
 ## Connection-aware Reset audit (supersedes earlier audit counts)
 
@@ -106,4 +112,4 @@ Current archive: 108 outcomes, 54 Reset records. Of those Reset records, **2 pas
 
 All twelve level-6 variants now have reviewed outcomes: nine wins at tick 127 and three outside-window timeouts at tick 3600. The Forgiving outside-window outcome uses the separately named `L06-forgiving-outside-window-direct-placement-repro.json`; include it explicitly when auditing a `*-reset.json` glob. The initial construction interruption remains an unresolved intermittent finding.
 
-Current archive: 120 outcomes, 66 Reset records. The stronger audit reports 14 passed and 52 incomplete (missing historical connection snapshots), with no violations. All twelve level-6 records pass; all small-error Precise attempts also win, so win/loss alone does not establish tolerance expansion. See [level-6 results](../../docs/browser-playtest.md#level-6-remaining-difficulty-outcomes). The full 480-case matrix remains incomplete.
+Current archive: 120 outcomes, 66 Reset records. The stronger audit reports 14 passed and 52 incomplete (missing historical connection snapshots), with no violations. All twelve level-6 records pass; all small-error Precise attempts also win, so win/loss alone does not establish tolerance expansion. See [level-6 results](../../docs/planning/requirements.md#todo-492). The full 480-case matrix remains incomplete.

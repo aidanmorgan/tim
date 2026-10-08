@@ -26,7 +26,7 @@
     </ItemGroup>
     <!-- One fixed admitted game build. All other engine/part source remains unshipped reference. -->
     <ItemGroup>
-        <Compile Include="engine/gpu/*.cs" />
+        <Compile Include="engine/gpu/*.cs" Exclude="engine/gpu/WorkshopPipe.cs;engine/gpu/AnnularProfile.cs" />
         <Compile Include="engine/MachineWorld.cs" />
         <Compile Include="engine/MachineWorld.Gpu.cs" />
         <Compile Include="engine/MachinePart.cs" />
@@ -35,6 +35,8 @@
         <Compile Include="engine/BasketballMaterialResource.cs" />
         <Compile Include="engine/RampDimensionsResource.cs" />
         <Compile Include="engine/WallDimensionsResource.cs" />
+        <Compile Include="engine/DelayDurationResource.cs" />
+        <Compile Include="engine/BumperWorkResource.cs" />
         <Compile Include="engine/PartRegistry.cs" />
         <Compile Include="engine/PartArt.cs" />
         <Compile Include="engine/Workbench.cs" />
@@ -45,9 +47,12 @@
         <Compile Include="parts/SwitchPart.cs" />
         <Compile Include="parts/LampPart.cs" />
         <Compile Include="parts/WallPart.cs" />
+        <Compile Include="parts/DelayPart.cs" />
+        <Compile Include="parts/BumperPart.cs" />
         <Compile Include="ui/Workshop.cs" />
         <Compile Include="ui/WorkshopGpu.cs" />
         <Compile Include="ui/WorkshopConnections.cs" />
+        <Compile Include="ui/WorkshopConfiguration.cs" />
         <Compile Include="ui/WorkshopPuzzle.cs" />
         <Compile Include="ui/WorkshopGuidance.cs" />
         <Compile Include="ui/WorkshopAnimation.cs" />

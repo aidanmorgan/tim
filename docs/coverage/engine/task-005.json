@@ -79,8 +79,8 @@
       "ProofOwner": "S092",
       "Artifacts": [
         {
-          "Path": "docs/shared-axial-effort.md",
-          "Hash": "b83aad590f57303a056555ba74acc517eb57507a0e5e725e2c5ca728909e8d6b"
+          "Path": "docs/history/checkpoints/shared-axial-effort.md",
+          "Hash": "34ebde17ca1111ba889d39d2851eb48ab4e95be47c8521b47397c5e03be0a1f6"
         }
       ]
     },
@@ -155,8 +155,8 @@
       "ProofOwner": "S093",
       "Artifacts": [
         {
-          "Path": "docs/cannon-shared-actuation.md",
-          "Hash": "cf602d4a75cfaad0cacb0c71d4ecf230623e4df7949a3988846269c311981403"
+          "Path": "docs/history/checkpoints/cannon-shared-actuation.md",
+          "Hash": "579d3a04c032d70da2818a9ff8772bc108270e814c5401bf67971574f8cd9253"
         }
       ]
     },
@@ -231,8 +231,8 @@
       "ProofOwner": "S094",
       "Artifacts": [
         {
-          "Path": "docs/shared-world-powered-impulse.md",
-          "Hash": "e66146c340612859b1b9845cd7579db433e58cce4607e7b49b03fc00f3611595"
+          "Path": "docs/history/checkpoints/shared-world-powered-impulse.md",
+          "Hash": "ce0096ed6f9e27eb6c0fb5c9b1f00c236b4a5aa97b1eb03f8a36578ca0f59128"
         }
       ]
     },
@@ -302,8 +302,8 @@
       "ProofOwner": "S095",
       "Artifacts": [
         {
-          "Path": "docs/world-owned-joint-release.md",
-          "Hash": "ae522993ad533055c0beded8d56fdda5d3d7d07044b66d3f0d33620278a30c0b"
+          "Path": "docs/history/checkpoints/world-owned-joint-release.md",
+          "Hash": "a2c2ff7757470d595de4cac2e44d40f103d3642e109e623ccaf5a38c6e4c53f3"
         }
       ]
     },
@@ -379,8 +379,8 @@
       "ProofOwner": "S096",
       "Artifacts": [
         {
-          "Path": "docs/scene-ownership-fixture-migration.md",
-          "Hash": "4f339954cc87f3d07767d784c823584ffa0b5f319268777541d7b6e172d43cfa"
+          "Path": "docs/history/checkpoints/scene-ownership-fixture-migration.md",
+          "Hash": "74203363ded8648a47e6db10a33089bc5c302225052a210ff214627354b58528"
         }
       ]
     },
@@ -462,8 +462,8 @@
       "ProofOwner": "S097",
       "Artifacts": [
         {
-          "Path": "docs/shared-airflow-integration.md",
-          "Hash": "61711f7ff1b79a5c42922ec6af3bccdf2798dcb251ae98a24efef2fe24d90c7a"
+          "Path": "docs/history/checkpoints/shared-airflow-integration.md",
+          "Hash": "7d3f20f95995a660b49329477b812024cbd98cf82ba7d603a1e1408766a32c81"
         }
       ]
     },
@@ -532,7 +532,7 @@
       "ProofOwner": "S098",
       "Artifacts": [
         {
-          "Path": "docs/shared-airflow-foundation.md",
+          "Path": "docs/history/checkpoints/shared-airflow-foundation.md",
           "Hash": "d90bb674997b8438f16c8f1de9f2b5468efe3dec2a046100324aa7052e7623dc"
         }
       ]
@@ -633,8 +633,8 @@
       "ProofOwner": "S099",
       "Artifacts": [
         {
-          "Path": "docs/shared-sliding-blade-return.md",
-          "Hash": "bb19e2918aef748b75935ba396ae218d5a0cf1b6b50055a1ec3c0ba7d7b4c11c"
+          "Path": "docs/history/checkpoints/shared-sliding-blade-return.md",
+          "Hash": "3500908b0da06047ffa383f04e2f866b6da0c1147aa96cdcf65f370d2c56e70a"
         }
       ]
     },
@@ -704,7 +704,7 @@
       "ProofOwner": "S100",
       "Artifacts": [
         {
-          "Path": "docs/shared-body-mutation-ownership.md",
+          "Path": "docs/history/checkpoints/shared-body-mutation-ownership.md",
           "Hash": "eed19682636c8c5f5d2db1e828396ce35fa081d8c37615d47ded0683feaeb1f2"
         }
       ]
@@ -775,7 +775,7 @@
       "ProofOwner": "S101",
       "Artifacts": [
         {
-          "Path": "docs/shared-compliant-collider-ownership.md",
+          "Path": "docs/history/checkpoints/shared-compliant-collider-ownership.md",
           "Hash": "cd999cabe4d06cf8e0f7335977527fe6d921e1b4e7e555d44c03eb5810688b6f"
         }
       ]
@@ -852,7 +852,7 @@
       "ProofOwner": "S102",
       "Artifacts": [
         {
-          "Path": "docs/shared-basket-guidance.md",
+          "Path": "docs/history/checkpoints/shared-basket-guidance.md",
           "Hash": "717ee6e536a6f466f3d194726c1b143345ea9616f570622bbb1cb41ad6ae85f8"
         }
       ]
@@ -935,7 +935,7 @@
       "ProofOwner": "S103",
       "Artifacts": [
         {
-          "Path": "docs/windmill-shared-resistance.md",
+          "Path": "docs/history/checkpoints/windmill-shared-resistance.md",
           "Hash": "c724d8ab368e5abc9a1df47cc90ad1b22c08bb28e4e7b9d128b619a4d60eb86d"
         }
       ]
@@ -1020,7 +1020,7 @@
       "ProofOwner": "S104",
       "Artifacts": [
         {
-          "Path": "docs/shared-trampoline-compliant-force.md",
+          "Path": "docs/history/checkpoints/shared-trampoline-compliant-force.md",
           "Hash": "2a5b63a87bdbaddbf62f515a10741d1d55412a65fef81de5d6f459cd7fbb8675"
         }
       ]
@@ -1103,7 +1103,7 @@
       "ProofOwner": "S105",
       "Artifacts": [
         {
-          "Path": "docs/shared-body-drag-integration.md",
+          "Path": "docs/history/checkpoints/shared-body-drag-integration.md",
           "Hash": "ab16c5cedc32d98c373dfaad2f58125dea7209d15e5b3b29067644423c3883a2"
         }
       ]
@@ -1174,7 +1174,7 @@
       "ProofOwner": "S106",
       "Artifacts": [
         {
-          "Path": "docs/shared-axial-damping-integration.md",
+          "Path": "docs/history/checkpoints/shared-axial-damping-integration.md",
           "Hash": "1e1b68aa999271ccc78a93bff3b1e13a2c3c4859d7d57eb89aa59caa92b40620"
         }
       ]
@@ -1245,7 +1245,7 @@
       "ProofOwner": "S107",
       "Artifacts": [
         {
-          "Path": "docs/bellows-shared-elastic-return.md",
+          "Path": "docs/history/checkpoints/bellows-shared-elastic-return.md",
           "Hash": "67fa3724256221b58a66bff7ed26d18c1eeaf44169577505bce9407d4d5d1eeb"
         }
       ]
@@ -1293,7 +1293,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/physics/AxialElasticLoad.cs",
@@ -1340,7 +1340,7 @@
       "ProofOwner": "S108",
       "Artifacts": [
         {
-          "Path": "docs/shared-elastic-world-integration.md",
+          "Path": "docs/history/checkpoints/shared-elastic-world-integration.md",
           "Hash": "d95fd8db18d860ede2c0950230ccde5a89849bb4b859cfb45f1f95909e7f187d"
         }
       ]
@@ -1388,7 +1388,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/physics/AxialElasticLoad.cs",
@@ -1435,7 +1435,7 @@
       "ProofOwner": "S109",
       "Artifacts": [
         {
-          "Path": "docs/shared-axial-elastic-potential.md",
+          "Path": "docs/history/checkpoints/shared-axial-elastic-potential.md",
           "Hash": "4c221febb8aa70ef2224ae843508a93d2aa8cb9b36a6d9835974ca9a6f4f61da"
         }
       ]
@@ -1483,7 +1483,7 @@
         {
           "Path": "engine/presentation/AnimationBatch.cs",
           "Symbol": "AnimationBatch",
-          "FileHash": "cabeb088a970e37f461ee9c3eefa0ec2fc5f492092f7e0294f9493bf1b8d1d1f"
+          "FileHash": "30d28b8650102b739f328044c789139737df272f9f7777120d78d94ac1555b10"
         },
         {
           "Path": "engine/physics/AxialElasticLoad.cs",
@@ -1530,7 +1530,7 @@
       "ProofOwner": "S110",
       "Artifacts": [
         {
-          "Path": "docs/passive-spring-energy-regression.md",
+          "Path": "docs/history/checkpoints/passive-spring-energy-regression.md",
           "Hash": "6c4be8083bdd0c592b1a15ca967f82cbf3c743b9b38f39cbaed0112bc2f57e2f"
         }
       ]
@@ -1612,7 +1612,7 @@
       "ProofOwner": "S111",
       "Artifacts": [
         {
-          "Path": "docs/joint-boundary-support-prediction.md",
+          "Path": "docs/history/checkpoints/joint-boundary-support-prediction.md",
           "Hash": "44896d2156bf3835be190b396337d1e7e9478af253b4ead691c84bc6265db0ba"
         }
       ]
@@ -1694,7 +1694,7 @@
       "ProofOwner": "S112",
       "Artifacts": [
         {
-          "Path": "docs/coupled-support-prediction-seed.md",
+          "Path": "docs/history/checkpoints/coupled-support-prediction-seed.md",
           "Hash": "affe683386e00cc171deec92a7ea3fd20d8175dfb831138e429ea9c6ec9eb95a"
         }
       ]
@@ -1764,7 +1764,7 @@
       "ProofOwner": "S113",
       "Artifacts": [
         {
-          "Path": "docs/shared-impact-moving-frame-integration.md",
+          "Path": "docs/history/checkpoints/shared-impact-moving-frame-integration.md",
           "Hash": "2877a9932b3cc80017aff94c48b65a40b628eb2c2de0d8da27b4d64aa9c1bba7"
         }
       ]
@@ -1834,7 +1834,7 @@
       "ProofOwner": "S114",
       "Artifacts": [
         {
-          "Path": "docs/shared-impact-moving-frame.md",
+          "Path": "docs/history/checkpoints/shared-impact-moving-frame.md",
           "Hash": "cb3bf33ea93fe221752e6e87aee974552a5cacc8dad43d77ec3479125553e276"
         }
       ]
@@ -1911,11 +1911,11 @@
       "ProofOwner": "S115",
       "Artifacts": [
         {
-          "Path": "docs/basket-moving-frame-integration.md",
+          "Path": "docs/history/checkpoints/basket-moving-frame-integration.md",
           "Hash": "2541cb3000f18f7b26efd0acea73ada15d069b11ddaae10bb04a6f24d0a7b344"
         },
         {
-          "Path": "docs/moving-trampoline-native-follow-up.md",
+          "Path": "docs/history/checkpoints/moving-trampoline-native-follow-up.md",
           "Hash": "afaae530d3c2ee52190457a2c984fd17e7243586d46cb7dd27dcdb358c8bc498"
         }
       ]
@@ -2000,11 +2000,11 @@
       "ProofOwner": "S116",
       "Artifacts": [
         {
-          "Path": "docs/live-blade-guide-native-result.md",
+          "Path": "docs/history/checkpoints/live-blade-guide-native-result.md",
           "Hash": "f1d54a8babfcf0c8637be986f67b4eef0968a86c7b335019f262484c36658c84"
         },
         {
-          "Path": "docs/moving-trampoline-contact-frame.md",
+          "Path": "docs/history/checkpoints/moving-trampoline-contact-frame.md",
           "Hash": "7b08c655433dc7936ea17c13c6544d22d75b96a286b87e0410075bd4e88e2b2b"
         }
       ]
@@ -2016,7 +2016,7 @@
         "Origin": "Task",
         "Id": "sequence-task-101"
       },
-      "SourceHash": "0ac2bc51f9e4bc63be37ded41c0db89340e45772ad4494af9ee236ea558290be",
+      "SourceHash": "52c78a96e086efd7fbb74642b4f4a40429dcbc4ce429f3ec1e2bd953968be222",
       "Kind": "Engine",
       "Capabilities": [
         "AcousticPropagation",
@@ -2075,7 +2075,7 @@
         "Origin": "Task",
         "Id": "sequence-task-102"
       },
-      "SourceHash": "e42cf51a1aed9f431026487b531db7ac43c79eea265c391b53eb9c39c15d9e3a",
+      "SourceHash": "d5fa51ddbadfd83849106d7e7a10e4c3f8fbccd107ffb34c4dbeb833681cce07",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -2111,7 +2111,7 @@
         "Origin": "Task",
         "Id": "sequence-task-103"
       },
-      "SourceHash": "8af8d28b832ce7e252d6886f2f96e0fe1af4a5d3f55d64ef20300eb9ac00224d",
+      "SourceHash": "091c3aeab6c72a77fabe91c548e7d045fa57689713559f11b23814840b5db6c4",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -2147,7 +2147,7 @@
         "Origin": "Task",
         "Id": "sequence-task-104"
       },
-      "SourceHash": "a1241629def010e4d723eaaf0bcf8468e642e810122cfe9fa1fdcb63699188bc",
+      "SourceHash": "ae1979cf067261f1208760ac16d7f2dfa86cc3839c08a91e13b4832e1555b687",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2175,7 +2175,7 @@
         "Origin": "Task",
         "Id": "sequence-task-105"
       },
-      "SourceHash": "5fd71e34b481498ad8a1fea968236a167c64394e36420687ebd826a8c618de19",
+      "SourceHash": "d6024b9efd9f79480a7039023c30ed408761805fe86226b0abe80194958a3bb1",
       "Kind": "Engine",
       "Capabilities": [
         "DifficultyAssistance",
@@ -2219,7 +2219,7 @@
         "Origin": "Task",
         "Id": "sequence-task-106"
       },
-      "SourceHash": "8ee0300ba64ab58f7dfeaf0e0bcf3188a95f467a473dddb26799e96dfa23d9c3",
+      "SourceHash": "85f50f16cfe348cba2cc0cafa8bfd9546c24189bcc07c6a99a999f41b3fc888e",
       "Kind": "Engine",
       "Capabilities": [
         "AcousticPropagation",
@@ -2278,7 +2278,7 @@
         "Origin": "Task",
         "Id": "sequence-task-107"
       },
-      "SourceHash": "7520db88e676ae5f47d070222791b18888b33d2b76a0dfdb0a927de26f795e41",
+      "SourceHash": "69ae3a4f4f82e97d8a58fcccbb732e008c4e0d5aa181e70292f981f3ce29dc23",
       "Kind": "Engine",
       "Capabilities": [
         "AerodynamicDrag",
@@ -2327,7 +2327,7 @@
         "Origin": "Task",
         "Id": "sequence-task-108"
       },
-      "SourceHash": "74b061a67e584c1c6b931c291179f96d77995e37cfd17788d61f8a9f29e7c8da",
+      "SourceHash": "b80640bbb9d0653ab9396bd1038a182c2b1cbd9e79a5f418d7851579a7388e60",
       "Kind": "Engine",
       "Capabilities": [
         "ElasticStorage",
@@ -2375,7 +2375,7 @@
         "Origin": "Task",
         "Id": "sequence-task-109"
       },
-      "SourceHash": "c7198f60848703963e4b6929131f61d6b7c4e28daab6401d934dc36a6c56d676",
+      "SourceHash": "509ec70460a18e4db413047937c4940c4c92ece04804cf6b07a635ae9df5fce2",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2403,7 +2403,7 @@
         "Origin": "Task",
         "Id": "sequence-task-110"
       },
-      "SourceHash": "bc61f8410bc6209517d971632773de7e344297a6d4c3d454a08bb82eca0e3757",
+      "SourceHash": "5b782d4d3119c9d8d163b22f6b92e09021638fb830b8a71d93cf7c8c258b03ac",
       "Kind": "Engine",
       "Capabilities": [
         "ConstructionCompiler",
@@ -2431,7 +2431,7 @@
         "Origin": "Task",
         "Id": "sequence-task-111"
       },
-      "SourceHash": "50aa896083d4f8f76ef0f3afc6218cde9f287253dc24ad16a83dabe30ebd6e18",
+      "SourceHash": "87d8c7a2e94f8aa9cdc4b32a55c68a36dea3c7291f16c7191d3dde01ce59f8ca",
       "Kind": "Engine",
       "Capabilities": [
         "DifficultyAssistance",
@@ -2475,7 +2475,7 @@
         "Origin": "Task",
         "Id": "sequence-task-112"
       },
-      "SourceHash": "cce56eff955a88aa89c115b94c644888078ceabcf6551e3ef4fd2fc801629730",
+      "SourceHash": "5ea09f5ee7ca6b8daca9f229989c10ee54b2440941b334468f6928864132c1ce",
       "Kind": "Engine",
       "Capabilities": [
         "AcousticPropagation",
@@ -2534,7 +2534,7 @@
         "Origin": "Task",
         "Id": "sequence-task-113"
       },
-      "SourceHash": "8b3ba1dd9e1791a705e96daab56a15e8aee578332ffa9a21161028c27f137482",
+      "SourceHash": "84dbda00d4825aa45d29f1e68ff43a17c16656f0382779d3503510365c038ff2",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -2574,7 +2574,7 @@
         "Origin": "Task",
         "Id": "sequence-task-114"
       },
-      "SourceHash": "861a93a2f0eb26491266e1e426be30a3e4a660133699767d6b1609ba43fcaaaa",
+      "SourceHash": "9ca950419388902980f882e8f8494af4f6f1d315111aa0406649e44c08d36ac8",
       "Kind": "Engine",
       "Capabilities": [
         "AcousticPropagation",
@@ -2633,7 +2633,7 @@
         "Origin": "Task",
         "Id": "sequence-task-115"
       },
-      "SourceHash": "2e4a9e7da91d1899f62186d460189d2224fcf5f0e97bd703b2f9400027febf30",
+      "SourceHash": "13b4ece7d11859eb6e10db7ba79b4d1ff3677dc53a780df0d6d2786e0acf7227",
       "Kind": "Engine",
       "Capabilities": [
         "AerodynamicDrag",
@@ -2669,7 +2669,7 @@
         "Origin": "Task",
         "Id": "sequence-task-116"
       },
-      "SourceHash": "e26a3b2d69a0136037d5da5502fd05b16f8eed8452085ed3b2f6c10a75319367",
+      "SourceHash": "888378258248ba3f6fabfb1e6ef5f960c30cf6e8c6cf6622a4ed5ae88627b4e1",
       "Kind": "Engine",
       "Capabilities": [
         "AerodynamicDrag",
@@ -2705,7 +2705,7 @@
         "Origin": "Task",
         "Id": "sequence-task-117"
       },
-      "SourceHash": "b867d2db692cbdd87b3a34a024437d86523143d01af22dee54f7b4ea844dcecf",
+      "SourceHash": "b73dac502ac38b0b85dcd6c313d172cb7ae077e0237fff4cab7e7c4d58d97efd",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -2745,7 +2745,7 @@
         "Origin": "Task",
         "Id": "sequence-task-118"
       },
-      "SourceHash": "5bc339f2d4209033dd1a98604da95c02ff6a8e636a711fa923571402380e27f6",
+      "SourceHash": "1d9b0f26f842481cdd27fb7055ffb41ddfe6c14f1ca3a88ec2ff29ec3a59a115",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -2785,7 +2785,7 @@
         "Origin": "Task",
         "Id": "sequence-task-119"
       },
-      "SourceHash": "981b8866c516c9f6ec9fd762857dc158a8532938b64d6c507296cde8db008c18",
+      "SourceHash": "9f47319ab643f6dfb3d2d4dd98953363b1314d24adf34d5466c44522931ac949",
       "Kind": "Engine",
       "Capabilities": [
         "AnimationEvaluation",
@@ -2825,7 +2825,7 @@
         "Origin": "Task",
         "Id": "sequence-task-120"
       },
-      "SourceHash": "a488ed69030903db3edc0c6e59e17d6e585d141034438a0ee4626df6a574afc2",
+      "SourceHash": "50c09e24e96573c276d092b27c915ebd12055191a46c3974e98071188daf2563",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -2854,7 +2854,7 @@
         "Origin": "Task",
         "Id": "sequence-task-121"
       },
-      "SourceHash": "afb17c1ec01aaa7b674a73a93afdfee54b7dd0a8e62fa2014d64f0abed86ad2a",
+      "SourceHash": "0b6b4f37d7c2f7e79eed4e1578198dbf2e2ea78897ab61e7d2ccc477a580cb75",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -2883,7 +2883,7 @@
         "Origin": "Task",
         "Id": "sequence-task-122"
       },
-      "SourceHash": "0bd80d13bd02b35b6070e756a399646ec3915c1d4a732db7a392173dc94f4535",
+      "SourceHash": "aa8689f095c765cdbb78d4fa6294e753856f1a72606ee579933e9560b398c5c8",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -2925,7 +2925,7 @@
         "Origin": "Task",
         "Id": "sequence-task-123"
       },
-      "SourceHash": "e6d8f80b74edcdcd63215154916297dee07bd2d001418d333f8e8282d2bb035e",
+      "SourceHash": "57427da2741927433202832cc2649d29d2746efdce5151c39bcba31af9ed69d5",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -2967,7 +2967,7 @@
         "Origin": "Task",
         "Id": "sequence-task-124"
       },
-      "SourceHash": "c807b8e6bf12a9a2884da930ce40aaf0827341ed7b1ba64593f9e23d8e64e0cc",
+      "SourceHash": "044406e9ba6d237a79c08789fcd51e3e85bf23b230cf5d2f505925969005d28d",
       "Kind": "Engine",
       "Capabilities": [
         "DifficultyAssistance",
@@ -3011,7 +3011,7 @@
         "Origin": "Task",
         "Id": "sequence-task-125"
       },
-      "SourceHash": "efb7020482200156e510746e6a09c808c71d6238aa9dbf797ec84757be297dd2",
+      "SourceHash": "3ecb9532255f83df1fa61a71136ccbcb6f5d2e5a09d1453106354fe7990e3a87",
       "Kind": "Engine",
       "Capabilities": [
         "ContactImpulse",
@@ -3049,4 +3049,3 @@
   ],
   "Modes": []
 }
-

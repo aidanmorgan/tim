@@ -1,5 +1,4 @@
 using System;
-using Godot;
 
 namespace CuriousContraptions.Physics;
 
@@ -69,14 +68,14 @@ public static class HollowGeometry
         foreach(var vertex in vertices) center+=vertex/vertices.Length;
         // Centre each child for useful swept bounds. Subtract the exact float
         // boundary value, not its pre-conversion double approximation.
-        var origin=new Vector3((float)center.X,(float)center.Y,(float)center.Z);
-        if(!origin.IsFinite()) throw new ArgumentException("Child pose exceeds the scene transform range.");
-        var offset=CollisionVector.From(origin);
+        var origin=new CollisionVector((float)center.X,(float)center.Y,(float)center.Z);
+        if(!origin.IsFinite) throw new ArgumentException("Child pose exceeds the scene transform range.");
+        var offset=origin;
         var local=new CollisionVector[vertices.Length];
         for(var i=0;i<vertices.Length;i++) local[i]=vertices[i]-offset;
         var hull=new ConvexHull(local);
         ConvexGeometry geometry=rounding==0?hull:new ConvexRounded(hull,rounding);
-        return new(geometry,new(Basis.Identity,origin));
+        return new(geometry,new(AffineBasis.Identity,origin));
     }
     public static HollowGeometryResult Tube(double halfLength,double innerRadius,double outerRadius,HollowGeometrySettings settings)=>
         Frustum(halfLength,innerRadius,innerRadius,outerRadius-innerRadius,settings);

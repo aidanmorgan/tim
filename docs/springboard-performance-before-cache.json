@@ -1,0 +1,716 @@
+{
+  "declaredScenario": "connected_mechanism",
+  "expectedTicks": 3600,
+  "overwrittenSamples": 0,
+  "overwrittenCounters": 0,
+  "runs": [
+    {
+      "run": 1,
+      "coverage": "partial",
+      "observedTicks": 495,
+      "firstTick": 0,
+      "lastTick": 494,
+      "stages": [
+        {
+          "stage": "gameplay_tick",
+          "milliseconds": {
+            "count": 495,
+            "p50": 51.1,
+            "p95": 115.5,
+            "p99": 455.1,
+            "maximum": 514.8,
+            "mean": 69.86585864040404
+          },
+          "allocatedBytes": {
+            "count": 495,
+            "p50": 7335816,
+            "p95": 16779912,
+            "p99": 94409480,
+            "maximum": 105128008,
+            "mean": 10614267.814141411
+          }
+        },
+        {
+          "stage": "networks",
+          "milliseconds": {
+            "count": 495,
+            "p50": 0.099999,
+            "p95": 0.2,
+            "p99": 0.599999,
+            "maximum": 4.200001,
+            "mean": 0.0981818545454548
+          },
+          "allocatedBytes": {
+            "count": 495,
+            "p50": 4128,
+            "p95": 4128,
+            "p99": 4128,
+            "maximum": 10080,
+            "mean": 4142.949494949522
+          }
+        },
+        {
+          "stage": "physics",
+          "milliseconds": {
+            "count": 495,
+            "p50": 50.5,
+            "p95": 114.899999,
+            "p99": 454.299999,
+            "maximum": 514.1,
+            "mean": 69.32787873737374
+          },
+          "allocatedBytes": {
+            "count": 495,
+            "p50": 7316928,
+            "p95": 16761024,
+            "p99": 94388608,
+            "maximum": 105107136,
+            "mean": 10595228.993939413
+          }
+        },
+        {
+          "stage": "presentation",
+          "milliseconds": {
+            "count": 495,
+            "p50": 0.099999,
+            "p95": 0.200001,
+            "p99": 0.3,
+            "maximum": 0.599999,
+            "mean": 0.07030304242424266
+          },
+          "allocatedBytes": {
+            "count": 495,
+            "p50": 0,
+            "p95": 0,
+            "p99": 24,
+            "maximum": 176,
+            "mean": 0.8242424242424242
+          }
+        }
+      ],
+      "counters": [
+        {
+          "metric": "physics_steps",
+          "reduction": "sum",
+          "value": 1980
+        },
+        {
+          "metric": "physics_substeps",
+          "reduction": "sum",
+          "value": 1980
+        },
+        {
+          "metric": "physics_events",
+          "reduction": "sum",
+          "value": 12
+        },
+        {
+          "metric": "sweep_iterations",
+          "reduction": "sum",
+          "value": 8435
+        },
+        {
+          "metric": "velocity_iterations",
+          "reduction": "sum",
+          "value": 4005
+        },
+        {
+          "metric": "position_iterations",
+          "reduction": "sum",
+          "value": 0
+        },
+        {
+          "metric": "prediction_calls",
+          "reduction": "sum",
+          "value": 2003
+        },
+        {
+          "metric": "prediction_midpoints",
+          "reduction": "sum",
+          "value": 66857
+        },
+        {
+          "metric": "prediction_newton_iterations",
+          "reduction": "sum",
+          "value": 2402
+        },
+        {
+          "metric": "maximum_prediction_coordinates",
+          "reduction": "maximum",
+          "value": 12
+        },
+        {
+          "metric": "body_queries",
+          "reduction": "sum",
+          "value": 11969
+        },
+        {
+          "metric": "body_node_tests",
+          "reduction": "sum",
+          "value": 123642
+        },
+        {
+          "metric": "body_leaf_tests",
+          "reduction": "sum",
+          "value": 43826
+        },
+        {
+          "metric": "body_candidate_pairs",
+          "reduction": "sum",
+          "value": 15454
+        },
+        {
+          "metric": "compound_queries",
+          "reduction": "sum",
+          "value": 5466
+        },
+        {
+          "metric": "compound_node_tests",
+          "reduction": "sum",
+          "value": 13284
+        },
+        {
+          "metric": "compound_leaf_tests",
+          "reduction": "sum",
+          "value": 7936
+        },
+        {
+          "metric": "compound_candidate_pairs",
+          "reduction": "sum",
+          "value": 2834
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "coverage": "partial",
+      "observedTicks": 148,
+      "firstTick": 0,
+      "lastTick": 147,
+      "stages": [
+        {
+          "stage": "gameplay_tick",
+          "milliseconds": {
+            "count": 148,
+            "p50": 55.399999,
+            "p95": 454.8,
+            "p99": 460.2,
+            "maximum": 520.8,
+            "mean": 94.3648647635135
+          },
+          "allocatedBytes": {
+            "count": 148,
+            "p50": 6373864,
+            "p95": 94634184,
+            "p99": 94634504,
+            "maximum": 105502912,
+            "mean": 14789827.02702702
+          }
+        },
+        {
+          "stage": "networks",
+          "milliseconds": {
+            "count": 148,
+            "p50": 0.099999,
+            "p95": 0.200001,
+            "p99": 0.8,
+            "maximum": 0.800001,
+            "mean": 0.09729726351351352
+          },
+          "allocatedBytes": {
+            "count": 148,
+            "p50": 4544,
+            "p95": 4544,
+            "p99": 4592,
+            "maximum": 4640,
+            "mean": 4544.972972972956
+          }
+        },
+        {
+          "stage": "physics",
+          "milliseconds": {
+            "count": 148,
+            "p50": 54.799998,
+            "p95": 454.000002,
+            "p99": 458.200001,
+            "maximum": 520,
+            "mean": 93.65810794594594
+          },
+          "allocatedBytes": {
+            "count": 148,
+            "p50": 6350784,
+            "p95": 94611104,
+            "p99": 94611328,
+            "maximum": 105479832,
+            "mean": 14766499.189189177
+          }
+        },
+        {
+          "stage": "presentation",
+          "milliseconds": {
+            "count": 148,
+            "p50": 0,
+            "p95": 0.200001,
+            "p99": 0.3,
+            "maximum": 0.300001,
+            "mean": 0.06486483108108111
+          },
+          "allocatedBytes": {
+            "count": 148,
+            "p50": 0,
+            "p95": 0,
+            "p99": 0,
+            "maximum": 0,
+            "mean": 0
+          }
+        }
+      ],
+      "counters": [
+        {
+          "metric": "physics_steps",
+          "reduction": "sum",
+          "value": 592
+        },
+        {
+          "metric": "physics_substeps",
+          "reduction": "sum",
+          "value": 592
+        },
+        {
+          "metric": "physics_events",
+          "reduction": "sum",
+          "value": 7
+        },
+        {
+          "metric": "sweep_iterations",
+          "reduction": "sum",
+          "value": 2816
+        },
+        {
+          "metric": "velocity_iterations",
+          "reduction": "sum",
+          "value": 1219
+        },
+        {
+          "metric": "position_iterations",
+          "reduction": "sum",
+          "value": 0
+        },
+        {
+          "metric": "prediction_calls",
+          "reduction": "sum",
+          "value": 606
+        },
+        {
+          "metric": "prediction_midpoints",
+          "reduction": "sum",
+          "value": 20235
+        },
+        {
+          "metric": "prediction_newton_iterations",
+          "reduction": "sum",
+          "value": 727
+        },
+        {
+          "metric": "maximum_prediction_coordinates",
+          "reduction": "maximum",
+          "value": 12
+        },
+        {
+          "metric": "body_queries",
+          "reduction": "sum",
+          "value": 3602
+        },
+        {
+          "metric": "body_node_tests",
+          "reduction": "sum",
+          "value": 39099
+        },
+        {
+          "metric": "body_leaf_tests",
+          "reduction": "sum",
+          "value": 11996
+        },
+        {
+          "metric": "body_candidate_pairs",
+          "reduction": "sum",
+          "value": 5644
+        },
+        {
+          "metric": "compound_queries",
+          "reduction": "sum",
+          "value": 2635
+        },
+        {
+          "metric": "compound_node_tests",
+          "reduction": "sum",
+          "value": 11259
+        },
+        {
+          "metric": "compound_leaf_tests",
+          "reduction": "sum",
+          "value": 2446
+        },
+        {
+          "metric": "compound_candidate_pairs",
+          "reduction": "sum",
+          "value": 1584
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "coverage": "partial",
+      "observedTicks": 148,
+      "firstTick": 0,
+      "lastTick": 147,
+      "stages": [
+        {
+          "stage": "gameplay_tick",
+          "milliseconds": {
+            "count": 148,
+            "p50": 56.899999,
+            "p95": 468.099999,
+            "p99": 473.7,
+            "maximum": 530.699999,
+            "mean": 96.2425675608108
+          },
+          "allocatedBytes": {
+            "count": 148,
+            "p50": 6373032,
+            "p95": 94633352,
+            "p99": 94633352,
+            "maximum": 105502080,
+            "mean": 14788865.51351352
+          }
+        },
+        {
+          "stage": "networks",
+          "milliseconds": {
+            "count": 148,
+            "p50": 0.099999,
+            "p95": 0.2,
+            "p99": 0.200001,
+            "maximum": 0.200001,
+            "mean": 0.08918912162162164
+          },
+          "allocatedBytes": {
+            "count": 148,
+            "p50": 4544,
+            "p95": 4544,
+            "p99": 4544,
+            "maximum": 4544,
+            "mean": 4543.999999999983
+          }
+        },
+        {
+          "stage": "physics",
+          "milliseconds": {
+            "count": 148,
+            "p50": 56.2,
+            "p95": 467.400001,
+            "p99": 472.8,
+            "maximum": 529.900001,
+            "mean": 95.50743274324323
+          },
+          "allocatedBytes": {
+            "count": 148,
+            "p50": 6350336,
+            "p95": 94610656,
+            "p99": 94610656,
+            "maximum": 105479384,
+            "mean": 14766150.162162172
+          }
+        },
+        {
+          "stage": "presentation",
+          "milliseconds": {
+            "count": 148,
+            "p50": 0.099999,
+            "p95": 0.200001,
+            "p99": 0.300001,
+            "maximum": 0.499999,
+            "mean": 0.08716210135135136
+          },
+          "allocatedBytes": {
+            "count": 148,
+            "p50": 0,
+            "p95": 0,
+            "p99": 0,
+            "maximum": 0,
+            "mean": 0
+          }
+        }
+      ],
+      "counters": [
+        {
+          "metric": "physics_steps",
+          "reduction": "sum",
+          "value": 592
+        },
+        {
+          "metric": "physics_substeps",
+          "reduction": "sum",
+          "value": 592
+        },
+        {
+          "metric": "physics_events",
+          "reduction": "sum",
+          "value": 7
+        },
+        {
+          "metric": "sweep_iterations",
+          "reduction": "sum",
+          "value": 2816
+        },
+        {
+          "metric": "velocity_iterations",
+          "reduction": "sum",
+          "value": 1219
+        },
+        {
+          "metric": "position_iterations",
+          "reduction": "sum",
+          "value": 0
+        },
+        {
+          "metric": "prediction_calls",
+          "reduction": "sum",
+          "value": 606
+        },
+        {
+          "metric": "prediction_midpoints",
+          "reduction": "sum",
+          "value": 20235
+        },
+        {
+          "metric": "prediction_newton_iterations",
+          "reduction": "sum",
+          "value": 727
+        },
+        {
+          "metric": "maximum_prediction_coordinates",
+          "reduction": "maximum",
+          "value": 12
+        },
+        {
+          "metric": "body_queries",
+          "reduction": "sum",
+          "value": 3602
+        },
+        {
+          "metric": "body_node_tests",
+          "reduction": "sum",
+          "value": 39099
+        },
+        {
+          "metric": "body_leaf_tests",
+          "reduction": "sum",
+          "value": 11996
+        },
+        {
+          "metric": "body_candidate_pairs",
+          "reduction": "sum",
+          "value": 5644
+        },
+        {
+          "metric": "compound_queries",
+          "reduction": "sum",
+          "value": 2635
+        },
+        {
+          "metric": "compound_node_tests",
+          "reduction": "sum",
+          "value": 11259
+        },
+        {
+          "metric": "compound_leaf_tests",
+          "reduction": "sum",
+          "value": 2446
+        },
+        {
+          "metric": "compound_candidate_pairs",
+          "reduction": "sum",
+          "value": 1584
+        }
+      ]
+    },
+    {
+      "run": 4,
+      "coverage": "partial",
+      "observedTicks": 528,
+      "firstTick": 0,
+      "lastTick": 527,
+      "stages": [
+        {
+          "stage": "gameplay_tick",
+          "milliseconds": {
+            "count": 528,
+            "p50": 54.8,
+            "p95": 127.5,
+            "p99": 144.2,
+            "maximum": 145.7,
+            "mean": 62.45094693181821
+          },
+          "allocatedBytes": {
+            "count": 528,
+            "p50": 6938384,
+            "p95": 17365320,
+            "p99": 19679680,
+            "maximum": 19679680,
+            "mean": 8191355.000000001
+          }
+        },
+        {
+          "stage": "networks",
+          "milliseconds": {
+            "count": 528,
+            "p50": 0.099999,
+            "p95": 0.2,
+            "p99": 0.3,
+            "maximum": 3.200001,
+            "mean": 0.08181817803030336
+          },
+          "allocatedBytes": {
+            "count": 528,
+            "p50": 4544,
+            "p95": 4544,
+            "p99": 4544,
+            "maximum": 4760,
+            "mean": 4544.409090909076
+          }
+        },
+        {
+          "stage": "physics",
+          "milliseconds": {
+            "count": 528,
+            "p50": 54.299999,
+            "p95": 126.300001,
+            "p99": 143.600001,
+            "maximum": 144.7,
+            "mean": 61.87575744696972
+          },
+          "allocatedBytes": {
+            "count": 528,
+            "p50": 6914832,
+            "p95": 17341768,
+            "p99": 19656128,
+            "maximum": 19656128,
+            "mean": 8167788.121212089
+          }
+        },
+        {
+          "stage": "presentation",
+          "milliseconds": {
+            "count": 528,
+            "p50": 0,
+            "p95": 0.2,
+            "p99": 0.3,
+            "maximum": 0.399998,
+            "mean": 0.05984853030303054
+          },
+          "allocatedBytes": {
+            "count": 528,
+            "p50": 0,
+            "p95": 0,
+            "p99": 0,
+            "maximum": 0,
+            "mean": 0
+          }
+        }
+      ],
+      "counters": [
+        {
+          "metric": "physics_steps",
+          "reduction": "sum",
+          "value": 2112
+        },
+        {
+          "metric": "physics_substeps",
+          "reduction": "sum",
+          "value": 2112
+        },
+        {
+          "metric": "physics_events",
+          "reduction": "sum",
+          "value": 28
+        },
+        {
+          "metric": "sweep_iterations",
+          "reduction": "sum",
+          "value": 8658
+        },
+        {
+          "metric": "velocity_iterations",
+          "reduction": "sum",
+          "value": 4261
+        },
+        {
+          "metric": "position_iterations",
+          "reduction": "sum",
+          "value": 0
+        },
+        {
+          "metric": "prediction_calls",
+          "reduction": "sum",
+          "value": 2149
+        },
+        {
+          "metric": "prediction_midpoints",
+          "reduction": "sum",
+          "value": 73888
+        },
+        {
+          "metric": "prediction_newton_iterations",
+          "reduction": "sum",
+          "value": 2657
+        },
+        {
+          "metric": "maximum_prediction_coordinates",
+          "reduction": "maximum",
+          "value": 12
+        },
+        {
+          "metric": "body_queries",
+          "reduction": "sum",
+          "value": 12820
+        },
+        {
+          "metric": "body_node_tests",
+          "reduction": "sum",
+          "value": 125990
+        },
+        {
+          "metric": "body_leaf_tests",
+          "reduction": "sum",
+          "value": 21895
+        },
+        {
+          "metric": "body_candidate_pairs",
+          "reduction": "sum",
+          "value": 2155
+        },
+        {
+          "metric": "compound_queries",
+          "reduction": "sum",
+          "value": 2155
+        },
+        {
+          "metric": "compound_node_tests",
+          "reduction": "sum",
+          "value": 6465
+        },
+        {
+          "metric": "compound_leaf_tests",
+          "reduction": "sum",
+          "value": 2155
+        },
+        {
+          "metric": "compound_candidate_pairs",
+          "reduction": "sum",
+          "value": 2155
+        }
+      ]
+    }
+  ]
+}

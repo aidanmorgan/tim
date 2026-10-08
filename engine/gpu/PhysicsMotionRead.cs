@@ -8,41 +8,48 @@ public enum PhysicsMotionKind : uint { FreePolynomial = 1, SupportedQuadratic = 
 /// <summary>Immutable GPU-authored render trajectory for exactly one complete physical commit.</summary>
 public sealed class PhysicsMotionRead
 {
-    public const int Capacity = 72;
+    public const int Capacity = PhysicsBodyReadSet.Capacity * 8;
     public const int PieceBytes = 128;
     public const int HeaderBytes = 16;
     public const int ByteLength = HeaderBytes + Capacity * PieceBytes;
     private readonly byte[] _bytes;
     private readonly SimulationTick _tick;
-    private readonly GpuBodyId? _bodyId;
+    private readonly GpuBodyId[] _bodyIds;
+    private readonly MetreVector[] _localCentresOfMass;
     public ReadOnlySpan<byte> Bytes => _bytes;
     public int Count => checked((int)U32(_bytes, 0));
     public uint Substeps => U32(_bytes, 4);
     public uint FirstOrdinal => U32(_bytes, 8);
     public uint LastOrdinal => U32(_bytes, 12);
-    private PhysicsMotionRead(ReadOnlySpan<byte> bytes, CanonicalBody? body, SimulationTick tick)
+    private PhysicsMotionRead(ReadOnlySpan<byte> bytes, PhysicsBodyReadSet bodies, SimulationTick tick)
     {
         _bytes = bytes.ToArray();
         _tick = tick;
-        _bodyId = body?.Id;
+        _bodyIds = new GpuBodyId[bodies.Count];
+        _localCentresOfMass = new MetreVector[bodies.Count];
+        for (var i = 0; i < bodies.Count; i++)
+        { _bodyIds[i] = bodies[i].Body.Id; _localCentresOfMass[i] = bodies[i].LocalCentreOfMass; }
     }
 
-    public static PhysicsMotionRead Decode(ReadOnlySpan<byte> bytes, CanonicalBody? body, SimulationTick tick)
+    public static PhysicsMotionRead Decode(ReadOnlySpan<byte> bytes, PhysicsBodyReadSet bodies, SimulationTick tick)
     {
-        var motion = new PhysicsMotionRead(bytes, body, tick);
-        Validate(motion._bytes, body, tick);
+        var motion = new PhysicsMotionRead(bytes, bodies, tick);
+        Validate(motion._bytes, bodies, tick);
         return motion;
     }
 
     /// <summary>Rebinds an already validated immutable payload without scanning its bytes again.</summary>
-    public void ValidateBinding(CanonicalBody? body, SimulationTick tick)
+    public void ValidateBinding(PhysicsBodyReadSet bodies, SimulationTick tick)
     {
         // Admission's canonical zero payload has no preceding body trajectory.
-        if (tick != _tick || (tick.Value != 0 && body?.Id != _bodyId))
-            throw new ArgumentException("Motion does not match its owning body and commit.");
+        if (tick != _tick || bodies.Count != _bodyIds.Length)
+            throw new ArgumentException("Motion does not match its owning body set and commit.");
+        for (var i = 0; i < bodies.Count; i++)
+            if (bodies[i].Body.Id != _bodyIds[i] || !HalfBits.Equal(bodies[i].LocalCentreOfMass, _localCentresOfMass[i]))
+                throw new ArgumentException("Motion body identity or centre of mass changed.");
     }
 
-    public static void Validate(ReadOnlySpan<byte> bytes, CanonicalBody? body, SimulationTick tick)
+    public static void Validate(ReadOnlySpan<byte> bytes, PhysicsBodyReadSet bodies, SimulationTick tick)
     {
         if (bytes.Length != ByteLength) throw new ArgumentException("Invalid motion payload width.");
         var count = U32(bytes, 0);
@@ -55,59 +62,58 @@ public sealed class PhysicsMotionRead
         }
         var steps = U32(bytes, 4);
         if (steps is not (2 or 4 or 8) || U32(bytes, 12) != checked(tick.Value * steps) ||
-            U32(bytes, 8) + steps != U32(bytes, 12) || count > steps * 9 ||
-            (body.HasValue ? count == 0 : count != 0))
+            U32(bytes, 8) + steps != U32(bytes, 12) || count != steps * bodies.Count)
             throw new ArgumentException("Motion does not cover its owning commit.");
         double previous = U32(bytes, 8) * 4096.0;
         for (var i = 0; i < count; i++)
         {
+            var owner = bodies[checked((int)(i / steps))].Body;
+            if (i % steps == 0) previous = U32(bytes, 8) * 4096.0;
             var piece = bytes.Slice(HeaderBytes + checked((int)i) * PieceBytes, PieceBytes);
             var kind = (PhysicsMotionKind)U32(piece, 0);
             var start = Time(U32(piece, 4), H(piece, 16));
             var end = Time(U32(piece, 8), H(piece, 18));
             var anchor = Time(U32(piece, 12), H(piece, 20));
-            if (!Enum.IsDefined(kind) || U64(piece, 24) != body!.Value.Id.Value || start != previous ||
-                end <= start || end > U32(bytes, 12) * 4096.0 || anchor > start ||
+            if (!Enum.IsDefined(kind) || U64(piece, 24) != owner.Id.Value || start != previous ||
+                end - start != 4096 || end > U32(bytes, 12) * 4096.0 || anchor > start ||
                 end - anchor > (kind != PhysicsMotionKind.FreePolynomial ? 4096 : PhysicsGpuAbi.PrimarySegmentSteps * 4096) ||
                 !HalfBits.Equal(H(piece, 22), (Half)WorkshopCadenceSettings.PhysicalFrequency) ||
                 !Zero(piece[44..48]) || !Zero(piece[70..72]) || !Zero(piece[78..80]) ||
-                !Zero(piece[86..88]) || !Zero(piece[94..96]) || !Zero(piece[102..104]) || !Zero(piece[110..128]))
+                !Zero(piece[86..88]) || !Zero(piece[94..96]) || !Zero(piece[102..104]) || !Zero(piece[110..112]) ||
+                U32(piece, 120) > 1 || !Zero(piece[118..120]) || !Zero(piece[124..128]) ||
+                (U32(piece, 120) == 0 && !Zero(piece[112..118])))
                 throw new ArgumentException("Invalid motion piece identity, interval or padding.");
-            var launch = new CanonicalBody(body.Value.Id, body.Value.Epoch, body.Value.Tick,
-                Cell(piece), new(H(piece,48),H(piece,50),H(piece,52)),
-                new(H(piece,64),H(piece,66),H(piece,68)));
-            launch.Validate();
+            // COM is an internal point: body origin remains within64m, while a rotated
+            // declared16m-per-axis offset fits an additional32m per coordinate.
+            var centre=Cell(piece);
+            if (Math.Abs((long)centre.X)>1536 || Math.Abs((long)centre.Y)>1536 || Math.Abs((long)centre.Z)>1536)
+                throw new ArgumentException("Motion COM exceeds its declared origin-plus-offset bound.");
+            for (var axis=0; axis<3; axis++)
+                if (!Half.IsFinite(H(piece,48+axis*2)) || H(piece,48+axis*2)<(Half)(-.5) || H(piece,48+axis*2)>=(Half).5)
+                    throw new ArgumentException("Motion COM remainder is not canonical.");
             Norm(piece,64,2); Norm(piece,72,64); Norm(piece,80,16); Norm(piece,88,64); Norm(piece,96,1024);
-            Rotation(piece).Validate();
+            Rotation(piece).ValidateCommitted();
             PhysicsDeclarationBounds.Range(H(piece,54),(Half)0,(Half).125);
             if (kind == PhysicsMotionKind.FreePolynomial && (!Zero(piece[88..94]) || !Zero(piece[96..102])))
                 throw new ArgumentException("Free motion carries constrained acceleration.");
-            if (kind == PhysicsMotionKind.ForceDrivenQuadratic || !Zero(piece[104..110]))
-            {
-                var accelerationError = H(piece,104); var velocityError = H(piece,106); var positionError = H(piece,108);
-                PhysicsDeclarationBounds.Range(accelerationError,(Half)0,(Half)4);
-                PhysicsDeclarationBounds.Range(velocityError,(Half)0,(Half).5);
-                PhysicsDeclarationBounds.Range(positionError,(Half)0,(Half).01);
-                if ((double)velocityError < (double)accelerationError / WorkshopCadenceSettings.PhysicalFrequency ||
-                    (double)positionError < (double)velocityError / (2 * WorkshopCadenceSettings.PhysicalFrequency))
-                    throw new ArgumentException("Force motion omitted its outward error certificate.");
-            }
-            if (kind != PhysicsMotionKind.ForceDrivenQuadratic && !HalfBits.Equal(H(piece,104),(Half)0))
-                throw new ArgumentException("Only force-driven motion carries an acceleration allowance.");
+            Norm(piece,112,64);
             previous = end;
+            if (i % steps == steps - 1 && previous != U32(bytes, 12) * 4096.0)
+                throw new ArgumentException("Motion contains a missing body tail.");
         }
-        if (body.HasValue && previous != U32(bytes, 12) * 4096.0)
-            throw new ArgumentException("Motion contains a missing tail.");
     }
 
     /// <summary>Render-only sampling of the committed coefficient record; never a physical state update.</summary>
-    public bool TrySample(double physicalOrdinal, out PresentedBody pose)
+    public bool TrySample(GpuBodyId body, double physicalOrdinal, out PresentedBody pose)
     {
         if (!double.IsFinite(physicalOrdinal)) throw new ArgumentException("Invalid render sample time.");
+        var bodyIndex = Array.IndexOf(_bodyIds, body);
+        if (bodyIndex < 0) { pose = default; return false; }
         var units = physicalOrdinal * 4096;
         for (var i = 0; i < Count; i++)
         {
             var p = _bytes.AsSpan(HeaderBytes + i * PieceBytes, PieceBytes);
+            if (U64(p,24) != body.Value) continue;
             var begin = Time(U32(p,4),H(p,16)); var end = Time(U32(p,8),H(p,18));
             // Right-continuous impact selection. The last exact endpoint comes from its committed read.
             if (units < begin || units >= end) continue;
@@ -137,10 +143,26 @@ public sealed class PhysicsMotionRead
                 var inverse=1/Math.Sqrt(rx*rx+ry*ry+rz*rz+rw*rw);
                 rotation=new((Half)(rx*inverse),(Half)(ry*inverse),(Half)(rz*inverse),(Half)(rw*inverse));
             }
-            pose = new(new(U64(p,24)),new(px.Cell,py.Cell,pz.Cell),new(px.Local,py.Local,pz.Local),rotation);
+            var centre = _localCentresOfMass[bodyIndex];
+            var qx2 = (double)rotation.X; var qy2 = (double)rotation.Y; var qz2 = (double)rotation.Z; var qw2 = (double)rotation.W;
+            var cx = (double)centre.X; var cy = (double)centre.Y; var cz = (double)centre.Z;
+            var factor = 2 / (qx2*qx2 + qy2*qy2 + qz2*qz2 + qw2*qw2);
+            var tx = factor * (qy2 * cz - qz2 * cy); var ty = factor * (qz2 * cx - qx2 * cz); var tz = factor * (qx2 * cy - qy2 * cx);
+            px = Origin(px, cx + qw2 * tx + qy2 * tz - qz2 * ty);
+            py = Origin(py, cy + qw2 * ty + qz2 * tx - qx2 * tz);
+            pz = Origin(pz, cz + qw2 * tz + qx2 * ty - qy2 * tx);
+            pose = new(body,new(px.Cell,py.Cell,pz.Cell),new(px.Local,py.Local,pz.Local),rotation);
             return true;
         }
         pose=default;return false;
+    }
+    private static (int Cell, Half Local) Origin((int Cell, Half Local) centre, double offset)
+    {
+        var local = (double)centre.Local - offset * 16;
+        var carry = checked((int)Math.Floor(local + .5)); var remainder = (Half)(local - carry);
+        if (remainder >= (Half).5) { carry++; remainder = (Half)(remainder - (Half)1); }
+        if (remainder < (Half)(-.5)) { carry--; remainder = (Half)(remainder + (Half)1); }
+        return (checked(centre.Cell + carry), remainder);
     }
     private static (int Cell, Half Local) Position(ReadOnlySpan<byte> p,int axis,int cell,double elapsed,double k,double polynomial,bool supported)
     {
@@ -154,6 +176,7 @@ public sealed class PhysicsMotionRead
     }
     private static void Norm(ReadOnlySpan<byte> p,int offset,double maximum)
     {
+        if (Zero(p.Slice(offset,6))) return;
         var x=(double)H(p,offset);var y=(double)H(p,offset+2);var z=(double)H(p,offset+4);
         if(!double.IsFinite(x)||!double.IsFinite(y)||!double.IsFinite(z)||x*x+y*y+z*z>maximum*maximum)
             throw new ArgumentException("Motion vector exceeds its declared domain.");
