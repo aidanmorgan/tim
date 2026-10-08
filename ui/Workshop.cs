@@ -40,7 +40,7 @@ public partial class Workshop : Node3D
     private const int FreeWorkshopIndex = 1;
     private const int DelayedSignalIndex = 2;
     private GpuBodyId _nextId = new(1);
-    private Dictionary<WorkshopPartKind, int> _inventory = new();
+    private IReadOnlyDictionary<WorkshopPartKind, PartAllowance> _inventory = new Dictionary<WorkshopPartKind, PartAllowance>();
     private readonly List<WorkshopConstruction> _undo = new();
     private bool _gpuPending = true;
     private bool _workshopUiRemoved;
@@ -177,7 +177,7 @@ public partial class Workshop : Node3D
         var heading = Text("CURIOUS CONTRAPTIONS", 18);
         heading.Position = new(28, 23);
         _canvas.AddChild(heading);
-        _picker = new OptionButton { Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.LevelPicker),
+        _picker = new OptionButton { Name = WorkshopUiControlBoundary.NodeName(WorkshopUiControl.LevelPicker),
             Position = new(470, 24), Size = new(350, 42) };
         _picker.AddThemeFontSizeOverride("font_size", 16);
         _picker.AddThemeColorOverride("font_color", Navy);
@@ -194,7 +194,7 @@ public partial class Workshop : Node3D
             _optionsPanel.Visible = !_optionsPanel.Visible;
             _objectivePanel.Visible = false;
         });
-        _menuButton.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Menu);
+        _menuButton.Name = WorkshopUiControlBoundary.NodeName(WorkshopUiControl.Menu);
         _menuButton.Size = new(44, 44);
         _canvas.AddChild(_menuButton);
         var left = Panel(new(24, 94), new(216, 0));
@@ -228,17 +228,17 @@ public partial class Workshop : Node3D
             if (!_objectivePanel.Visible) HideHint();
             _objectivePanel.Size = new(266, 0);
         });
-        _goalButton.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Goal);
+        _goalButton.Name = WorkshopUiControlBoundary.NodeName(WorkshopUiControl.Goal);
         _goalButton.Size = new(44, 44);
         _canvas.AddChild(_goalButton);
         _task = Paragraph("", 14, Muted, new(230, 0));
         _task.Name = "PuzzleIntroduction";
         objective.AddChild(_task);
         _hintButton = Button("Show hint", ShowHint);
-        _hintButton.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.ShowHint);
+        _hintButton.Name = WorkshopUiControlBoundary.NodeName(WorkshopUiControl.ShowHint);
         objective.AddChild(_hintButton);
         _hint = Paragraph("", 14, Mint, new(230, 0));
-        _hint.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Hint);
+        _hint.Name = WorkshopUiControlBoundary.NodeName(WorkshopUiControl.Hint);
         _hint.Visible = false;
         objective.AddChild(_hint);
         _objectivePanel.Visible = false;
@@ -247,7 +247,7 @@ public partial class Workshop : Node3D
         _mainActions.AddThemeConstantOverride("separation", 8);
         _canvas.AddChild(_mainActions);
         _run = Button("▶  Run machine", ToggleRun, true);
-        _run.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Run);
+        _run.Name = WorkshopUiControlBoundary.NodeName(WorkshopUiControl.Run);
         _run.CustomMinimumSize = new(56, 48);
         _mainActions.AddChild(_run);
         _mainActions.AddChild(Button("↺ Undo", Undo));
@@ -257,8 +257,8 @@ public partial class Workshop : Node3D
         _status.HorizontalAlignment = HorizontalAlignment.Center;
         _status.MouseFilter = Control.MouseFilterEnum.Ignore;
         _canvas.AddChild(_status);
-        _success = Text("SOLVED!", 26, Mint); _success.Name = WorkshopAnimationControlBoundary.NodeName(WorkshopAnimationControl.Solved);
-        _success.Position = new(850, 30); _success.Visible = false; _canvas.AddChild(_success);
+        _success = Text("SOLVED!", 26, Mint); _success.Name = WorkshopUiControlBoundary.NodeName(WorkshopUiControl.Solved);
+        _success.Position = new(850, 30); _canvas.AddChild(_success);
         // Secondary actions live in one scrollable menu, closed by default.
         var options = Panel(new(1020, 90), new(396, 680));
         _optionsPanel = options.GetParent<Control>();
@@ -335,8 +335,9 @@ public partial class Workshop : Node3D
         {
             var definition = World.Registry.Definitions[key];
             var remaining = Remaining(key);
-            var button = Button(definition.Title + "  × " + remaining, () => ChooseTool(key));
-            button.Disabled = remaining <= 0 || !CanEdit;
+            var countText = remaining.Kind == PartAllowanceKind.Unlimited ? "∞" : remaining.Count.ToString();
+            var button = Button(definition.Title + "  × " + countText, () => ChooseTool(key));
+            button.Disabled = remaining.Exhausted || !CanEdit;
             button.TooltipText = ""; // Description already appears in the drawer when chosen.
             button.Icon = WorkshopIcons.Pictogram(definition.Id);
             button.SetMeta("part_kind", definition.Id);
@@ -355,13 +356,14 @@ public partial class Workshop : Node3D
             name.ClipText = true;
             name.MouseFilter = Control.MouseFilterEnum.Ignore;
             row.AddChild(name);
-            var count = Text(remaining.ToString(), 14, Muted);
-            count.MouseFilter = Control.MouseFilterEnum.Ignore;
-            row.AddChild(count);
+            var countLabel = Text(countText, 14, Muted);
+            countLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+            row.AddChild(countLabel);
             _palette.AddChild(button);
         }
     }
-    private int Remaining(WorkshopPartKind kind) => _inventory.GetValueOrDefault(kind) - World.Parts.Count(p => !p.Locked && p.Definition.WorkshopKind == kind);
+    private PartAllowance Remaining(WorkshopPartKind kind) => _inventory.GetValueOrDefault(kind, PartAllowance.None)
+        .Less(World.Parts.Count(p => !p.Locked && p.Definition.WorkshopKind == kind));
     private void ChooseTool(WorkshopPartKind kind)
     {
         if (!CanEdit) return;
@@ -488,7 +490,7 @@ public partial class Workshop : Node3D
         }
         if (_tool is not null)
         {
-            if (Remaining(_tool.Value) <= 0 || WorkPoint(screen, _buildView ? (float)_depth.Value : (float)_placementHeight.Value) is not { } at || !PlacementInside(at)) return;
+            if (Remaining(_tool.Value).Exhausted || WorkPoint(screen, _buildView ? (float)_depth.Value : (float)_placementHeight.Value) is not { } at || !PlacementInside(at)) return;
             if (_nextId.Value == ulong.MaxValue) { _status.Text = "Part identity is exhausted."; return; }
             PushUndo();
             var position = at.Snapped(Vector3.One * .1f);
@@ -723,7 +725,6 @@ public partial class Workshop : Node3D
         {
             ReconcileCommittedUi(); RefreshPalette(); RefreshLayerAppearance();
         }
-        PresentGoalFeedback();
     }
 
     private void ShowHint()

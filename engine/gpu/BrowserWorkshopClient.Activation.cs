@@ -26,7 +26,7 @@ public sealed partial class BrowserWorkshopClient
             if (activation.Phase != ActivationPhase.Latched || _activationRequested[i] is not null ||
                 !TryCosmeticDeclaration(activation.Owner, AnimationFeedbackSource.Activation, out var declaration)) continue;
             var control = new WorkshopAnimationControl(ActivationTarget(activation.Node), latest.Read.Epoch,
-                checked(_hintSequence + 1), 1, AnimationControlKind.Endpoint, true, (Half)1, (Half)1, declaration.Duration,
+                checked(_animationSequence + 1), 1, AnimationControlKind.Endpoint, true, (Half)1, (Half)1, declaration.Duration,
                 declaration.Curve, activation.EventOrdinal, activation.EventPhase, AnimationProperty.ColourBlend);
             SendAnimation(control, schedule);
             _activationRequested[i] = activation;

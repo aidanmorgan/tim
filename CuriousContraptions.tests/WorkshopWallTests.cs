@@ -103,7 +103,8 @@ public sealed class WorkshopWallTests
         Assert.Empty(WorkshopPorts.For(WorkshopPartKind.Wall).ToArray());
         Assert.False(WorkshopPorts.Has(WorkshopPartKind.Wall, WorkshopSocket.ActivationIn,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
-        Assert.Throws<ArgumentException>(() => new WorkshopInstances(wall, wall with { Id = new(3) }).Validate());
+        // Free play has no per-kind wall count; only the compiled table capacities limit the population.
+        new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();
         var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(4), new(5), new((Half)1));
         Assert.Throws<ArgumentException>(() => puzzle.WithInstance(wall).Validate());
         var construction = Saved(WallDimensions.Default).Construction.WithInstance(

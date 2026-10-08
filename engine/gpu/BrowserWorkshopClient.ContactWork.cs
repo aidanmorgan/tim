@@ -81,7 +81,7 @@ public sealed partial class BrowserWorkshopClient
             var occurrence = pulse.Event;
             // Occurrence sequence is the worker's impulse identity; the declared envelope travels unchanged.
             var control = new WorkshopAnimationControl(ContactTarget(pulse.Owner), _contactWorld,
-                checked(_hintSequence + 1), occurrence.Sequence, AnimationControlKind.Impulse, true,
+                checked(_animationSequence + 1), occurrence.Sequence, AnimationControlKind.Impulse, true,
                 (Half)0, (Half)1, declaration.Duration, declaration.Curve,
                 occurrence.EventOrdinal, occurrence.EventPhase, AnimationProperty.ColourBlend,
                 ImpulseCurve: declaration.ImpulseCurve, Overlap: declaration.Overlap);

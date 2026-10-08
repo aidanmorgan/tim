@@ -1,6 +1,6 @@
-// External native boundary for the independently reviewed Chromium154.0.8037.98 Mac profile.
-// Fixed rounded context origin is part of the unknown offset. Conservative error84.1255us;
-// declaration stays100us. Neither the UA-CH identity nor a small increment alone qualifies.
+// External native boundary. Qualification is the live precision witness under cross-origin
+// isolation: no browser identity pin. UA-CH identity, where available, is logged as evidence only.
+// Conservative error 84.1255us; declaration stays 100us. A small increment alone never qualifies.
 export const nativeProfile = 2;
 const Phase = Object.freeze({ fresh: 0, admitting: 1, ready: 2, retired: 3 });
 let phase = Phase.fresh, last = 0, qualifiedAt = 0, witnessDelta = 0, renewals = 0;
@@ -18,7 +18,7 @@ function read() {
 }
 function qualify(start) {
     let previous = start;
-    // Including the caller's anchor, at most4096 native reads. Scheduling gaps do not
+    // Including the caller's anchor, at most 4096 native reads. Scheduling gaps do not
     // prove coarse precision; only a fresh adjacent pair can qualify after any gap.
     for (let i = 1; i < 4096; i++) {
         const current = read();
@@ -33,17 +33,20 @@ function qualify(start) {
     }
     reject('no witness within the finite sampling limit.');
 }
+async function describeSource() {
+    // Evidence only; a browser without UA-CH (Safari, Firefox) or one that refuses the lookup proceeds straight to the witness.
+    try {
+        if (!navigator.userAgentData?.getHighEntropyValues) return 'identity unavailable';
+        const identity = await navigator.userAgentData.getHighEntropyValues(['fullVersionList', 'platform']);
+        const brands = (identity.fullVersionList ?? []).map(value => value.brand + ' ' + value.version).join(', ');
+        return (identity.platform ?? 'unknown platform') + ': ' + (brands || 'no brands');
+    } catch { return 'identity unavailable'; }
+}
 export async function admitNativeClock() {
     if (phase !== Phase.fresh) throw new Error('Native clock admission is not repeatable.');
-    phase = Phase.admitting; // Reserve this generation before the asynchronous external identity lookup.
+    phase = Phase.admitting; // Reserve this generation before the asynchronous evidence lookup.
     try {
-        if (!navigator.userAgentData?.getHighEntropyValues) reject('source identity is unavailable.');
-        const identity = await navigator.userAgentData.getHighEntropyValues(['fullVersionList', 'platform', 'architecture', 'bitness']);
-        if (identity.platform !== 'macOS' || identity.bitness !== '64' ||
-            (identity.architecture !== 'arm' && identity.architecture !== 'x86') ||
-            !identity.fullVersionList?.some(value =>
-                (value.brand === 'Google Chrome' || value.brand === 'Chromium') && value.version === '154.0.8037.98'))
-            reject('this browser/native source profile is not yet proven.');
+        console.info('Native clock source: ' + await describeSource());
         qualify(read());
         phase = Phase.ready;
     } catch (error) { phase = Phase.retired; throw error; }

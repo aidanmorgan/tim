@@ -3,7 +3,8 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
-public enum NativeClockProfile : uint { Chromium154MacIsolated = 2 }
+/// <summary>Profile 2 asserts the witness-qualified isolated performance.now() source, not a pinned browser build.</summary>
+public enum NativeClockProfile : uint { IsolatedWitnessedPerformanceNow = 2 }
 
 /// <summary>Exact native-clock control boundary; no clock timestamp is converted to a JS Number.</summary>
 public static class WorkshopClockWire
@@ -20,7 +21,7 @@ public static class WorkshopClockWire
         if (peer.Uncertainty.Value != 100_000) throw new ArgumentException("Unsupported isolated native clock profile.");
         var bytes = new byte[PeerBytes]; var data = bytes.AsSpan();
         BinaryPrimitives.WriteUInt32LittleEndian(data, Version);
-        BinaryPrimitives.WriteUInt32LittleEndian(data[4..], (uint)NativeClockProfile.Chromium154MacIsolated);
+        BinaryPrimitives.WriteUInt32LittleEndian(data[4..], (uint)NativeClockProfile.IsolatedWitnessedPerformanceNow);
         WorkshopWire.WriteSession(data[8..24], peer.Session);
         BinaryPrimitives.WriteUInt64LittleEndian(data[24..], peer.Generation.Value);
         BinaryPrimitives.WriteInt64LittleEndian(data[32..], peer.MasterOrigin.Value);
@@ -34,7 +35,7 @@ public static class WorkshopClockWire
     public static WorkshopClockPeer DecodePeer(ReadOnlySpan<byte> data)
     {
         if (data.Length != PeerBytes || BinaryPrimitives.ReadUInt32LittleEndian(data) != Version ||
-            (NativeClockProfile)BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != NativeClockProfile.Chromium154MacIsolated ||
+            (NativeClockProfile)BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != NativeClockProfile.IsolatedWitnessedPerformanceNow ||
             (WorkshopRuntimeRole)BinaryPrimitives.ReadUInt32LittleEndian(data[60..]) != WorkshopRuntimeRole.Simulation)
             throw new ArgumentException("Unsupported clock bootstrap.");
         var peer = new WorkshopClockPeer(WorkshopWire.ReadSession(data[8..24]),

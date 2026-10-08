@@ -322,6 +322,190 @@ public sealed class WorkshopActivationAnimationTests
     }
 
     [Fact]
+    public void CaptureDeclarationIsTheReceiversDeclaredCurve()
+    {
+        var curve = CosmeticCurves.Receiver; curve.Validate();
+        Assert.Equal(AnimationFeedbackSource.Capture, curve.Source); Assert.True(curve.IsDeclared);
+        Assert.Equal(curve, WorkshopInput.Receiver(new(2), 0, 1, 0, 0, 0, 0, 1).Cosmetic);
+        Assert.Throws<ArgumentException>(() => (curve with { Duration = (Half)0 }).Validate());
+        Assert.Throws<ArgumentException>(() => (curve with { Duration = (Half)31 }).Validate());
+        Assert.Throws<ArgumentException>(() => (curve with { ImpulseCurve = AnimationImpulseCurve.SineSquaredPulse }).Validate());
+        Assert.Throws<ArgumentException>(() => (curve with { Overlap = AnimationImpulseOverlap.SaturatingSum }).Validate());
+    }
+
+    [Fact]
+    public void CaptureFeedbackOwnsItsSensorSlotAndResetRetiresIt()
+    {
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Receiver(new(2),0,1,0,0,0,0,1)));
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
+        var latch = new CaptureLatch(scene.Sensors[0].Id, CaptureLatchPhase.Latched, 10, (Half)0);
+        var capture = Control with { Target = new((3UL << 32) + 2) };
+        var client = Client(); Set(client, "_readConstruction", construction); Set(client, "_readScene", scene);
+        Field<CaptureLatch?[]>(client, "_captureRequested")[0] = latch;
+        SetPending(client, capture, new(1));
+        client.ReceiveAnimation(Output(capture, new(1), AnimationOutputKind.Acknowledgement, 1));
+        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+        Assert.Equal((Half)1, Field<WorkshopAnimationSample?[]>(client, "_captureSamples")[0]!.Value.Value);
+        client.ReceiveAnimation(Output(capture, new(1), AnimationOutputKind.Sample, 7));
+        Assert.Equal(7ul, Field<ulong[]>(client, "_captureOrdinals")[0]);
+        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(capture, new(1), AnimationOutputKind.Sample, 7)));
+        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(capture with { EventOrdinal = 11 }, new(1), AnimationOutputKind.Sample, 8)));
+        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(capture with { Target = new((3UL << 32) + 9) }, new(1), AnimationOutputKind.Sample, 8)));
+        // A rejected capture control releases its slot so the next pump requests the halo again within the world.
+        SetPending(client, capture, new(1));
+        client.ReceiveAnimation(Output(capture, new(1), AnimationOutputKind.Rejected, 1));
+        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+        Assert.Null(Field<CaptureLatch?[]>(client, "_captureRequested")[0]);
+        Field<CaptureLatch?[]>(client, "_captureRequested")[0] = latch;
+        var reset = Schedule(2, 2); Invoke(client, "ReconcileAnimationSchedule", reset); Set(client, "_schedule", reset);
+        Assert.Null(Field<CaptureLatch?[]>(client, "_captureRequested")[0]);
+        Assert.Null(Field<WorkshopAnimationSample?[]>(client, "_captureSamples")[0]);
+        Assert.Equal(0ul, Field<ulong[]>(client, "_captureOrdinals")[0]);
+    }
+
+    private static WorkshopPresentationSample Presented(CaptureLatch latch) => new(default, null, default, default,
+        new(default, 0, 0, new(1), null, null, null), new([latch]), new(WorkshopClockDomain.SimulationMonotonic, new(1), new(1), new(100_000)));
+    private static void AdmitFrame(BrowserWorkshopClient client, ulong frame)
+    {
+        // The public frame entry points consult the JS transport status, so the admitted-frame state is seeded directly.
+        Set(client, "_hasPresentationFrame", true); Set(client, "_presentationFrame", frame); Set(client, "_frameAdmitted", true);
+        Set(client, "_frameMaster", new MasterTimeNanoseconds(10)); Set(client, "_frameHintTaken", false);
+        Array.Clear(Field<bool[]>(client, "_captureFrameTaken"));
+    }
+    private static bool TrySample(BrowserWorkshopClient client, string method, object[] arguments) =>
+        (bool)typeof(BrowserWorkshopClient).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(client, arguments)!;
+
+    [Fact]
+    public void CaptureSampleAppliesOnceOnAnAdmittedFrameAndAgainOnTheNext()
+    {
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Receiver(new(2),0,1,0,0,0,0,1)));
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
+        var latch = new CaptureLatch(scene.Sensors[0].Id, CaptureLatchPhase.Latched, 10, (Half)0);
+        var client = Client(); Set(client, "_readConstruction", construction); Set(client, "_readScene", scene);
+        Field<CaptureLatch?[]>(client, "_captureRequested")[0] = latch;
+        Field<WorkshopAnimationSample?[]>(client, "_captureSamples")[0] =
+            new WorkshopAnimationSample(new((3UL << 32) + 2), new(1), 1, new(5), new(5), (Half).5, 10, (Half)0, AnimationProperty.ColourBlend);
+        var physical = Presented(latch);
+        AdmitFrame(client, 7);
+        var arguments = new object[] { physical, new GpuBodyId(2), null! };
+        Assert.True(TrySample(client, "TryCaptureSample", arguments));
+        Assert.Equal(new WorkshopCosmeticSample((Half).5, AnimationTimerPhase.None), (WorkshopCosmeticSample)arguments[2]);
+        Assert.False(TrySample(client, "TryCaptureSample", new object[] { physical, new GpuBodyId(2), null! })); // once per frame
+        Assert.False(TrySample(client, "TryCaptureSample", new object[] { physical, new GpuBodyId(9), null! })); // another body owns no capture
+        AdmitFrame(client, 8);
+        Assert.True(TrySample(client, "TryCaptureSample", new object[] { physical, new GpuBodyId(2), null! })); // the retained sample follows the next frame
+    }
+
+    [Fact]
+    public void HintControlSampleAppliesOnceOnAnAdmittedFrameAndNeverWhileHidden()
+    {
+        var client = Client(); Set(client, "_hintGeneration", 1ul);
+        var sample = new WorkshopAnimationSample(UiCurves.Hint.AnimationTarget, default, 1, new(3), new(5), (Half).25, 0, (Half)0, AnimationProperty.Opacity);
+        Set(client, "_hintSample", sample); AdmitFrame(client, 7);
+        var arguments = new object[] { WorkshopUiTarget.Hint, null! };
+        Assert.True(TrySample(client, "TryUiControlSample", arguments));
+        Assert.Equal(new AnimationOpacity((Half).25), (AnimationOpacity)arguments[1]);
+        Assert.False(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Hint, null! })); // consumed for this frame
+        Set(client, "_hintSample", sample); AdmitFrame(client, 8);
+        Assert.False(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Goal, null! })); // the goal is not control-fed
+        Set(client, "_uiControlHidden", true);
+        Assert.False(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Hint, null! })); // hidden: no further samples applied
+        Set(client, "_uiControlHidden", false);
+        Assert.True(TrySample(client, "TryUiControlSample", new object[] { WorkshopUiTarget.Hint, null! }));
+    }
+
+    [Fact]
+    public void CapturePumpSendsOneControlPerReceiverWhenTwoSensorsAreLatched()
+    {
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Receiver(new(2),0,1,0,0,0,0,1), WorkshopInput.Basketball(new(3),1,6,0,0,0,0,1)));
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
+        Assert.Equal(2, scene.Sensors.Length); Assert.All(scene.Sensors.ToArray(), sensor => Assert.Equal(new GpuBodyId(2), sensor.Frame));
+        var first = new CaptureLatch(scene.Sensors[0].Id, CaptureLatchPhase.Latched, 10, (Half)0);
+        var second = new CaptureLatch(scene.Sensors[1].Id, CaptureLatchPhase.Latched, 12, (Half)0);
+        var client = Client(); Set(client, "_readConstruction", construction); Set(client, "_readScene", scene);
+        var read = new WorkshopRead(new(1), new(4), default, Captures: new([first, second]));
+        var response = new WorkshopResponse(new(1), WorkshopResponseKind.Read, new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Running, read);
+        var history = Field<object>(client, "_history");
+        var entries = (Array)history.GetType().GetField("_entries", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(history)!;
+        entries.SetValue(Activator.CreateInstance(entries.GetType().GetElementType()!, response, null), 0);
+        history.GetType().GetField("_latest", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(history, (sbyte)0);
+        // No JS transport exists here: the pump must have leased the first sensor's control before the send faults.
+        var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpCapture"));
+        Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
+        var curve = CosmeticCurves.Receiver;
+        Assert.Equal(new ChannelControl(new((3UL << 32) + 2), new(1), 1, 1, AnimationControlKind.Endpoint, true, (Half)1, (Half)1, curve.Duration, curve.Curve, 10, (Half)0, AnimationProperty.ColourBlend),
+            Field<ChannelControl?>(client, "_animationPending"));
+        Assert.Equal(first, Field<CaptureLatch?[]>(client, "_captureRequested")[0]);
+        Assert.Null(Field<CaptureLatch?[]>(client, "_captureRequested")[1]); // one halo per receiver
+        Set(client, "_animationPending", null);
+        Invoke(client, "PumpCapture"); // the receiver already owns its target: the second sensor sends nothing
+        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+        Assert.Null(Field<CaptureLatch?[]>(client, "_captureRequested")[1]);
+    }
+
+    [Fact]
+    public void QueuedRevealSurvivesAPendingPreparationAndSendsOnceItClears()
+    {
+        var client = Client();
+        var preparationType = typeof(BrowserWorkshopClient).GetNestedType("Preparation", BindingFlags.NonPublic)!;
+        Set(client, "_preparation", Activator.CreateInstance(preparationType, default(ScheduleControlHeader), WorkshopCadenceSettings.Default(), default(WorkshopResponse), ScheduleTransition.Run));
+        client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
+        Assert.Equal(1, Field<System.Collections.ICollection>(client, "_uiQueue").Count);
+        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+        Set(client, "_schedule", null); Invoke(client, "PumpUiControls"); // no schedule yet: still queued, not dropped
+        Assert.Equal(1, Field<System.Collections.ICollection>(client, "_uiQueue").Count);
+        Set(client, "_schedule", Schedule(1, 1)); Set(client, "_preparation", null);
+        var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpUiControls"));
+        Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
+        Assert.Equal(AnimationControlKind.Reveal, Field<ChannelControl?>(client, "_animationPending")!.Value.Kind);
+        Assert.Equal(0, Field<System.Collections.ICollection>(client, "_uiQueue").Count);
+    }
+
+    [Fact]
+    public void FreeWorkshopCaptureSensorMapsToItsReceiverBodyThroughTheCompiledScene()
+    {
+        // Free play compiles one capture sensor per ball (first + 16 + 2i), so the authored-identity sensor is not the compiled one.
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1), WorkshopInput.Receiver(new(2),0,1,0,0,0,0,1)));
+        Assert.Equal(WorkshopPuzzleId.Free, construction.Puzzle.Id);
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(11, 22));
+        var sensor = scene.Sensors[0].Id;
+        Assert.NotEqual(WorkshopPhysicsCompiler.CaptureSensor((WorkshopReceiver)construction.Instances[1]), sensor);
+        var client = Client(); Set(client, "_readConstruction", construction); Set(client, "_readScene", scene);
+        var arguments = new object?[] { sensor, null };
+        var mapped = (bool)typeof(BrowserWorkshopClient).GetMethod("TryCaptureOwner", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(client, arguments)!;
+        Assert.True(mapped); Assert.Equal(new GpuBodyId(2), (GpuBodyId)arguments[1]!);
+        arguments = new object?[] { new GpuSensorId(999), null };
+        Assert.False((bool)typeof(BrowserWorkshopClient).GetMethod("TryCaptureOwner", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(client, arguments)!);
+    }
+
+    [Fact]
+    public void UiControlQueuesBehindTheLeaseAndSendsTheDeclaredHintClipWhenFree()
+    {
+        var client = Client(); SetPending(client, Control, new(1)); Requested(client)[0] = Latch;
+        Assert.Throws<ArgumentException>(() => client.ControlUi(WorkshopUiTarget.Goal, AnimationControlKind.Reveal, true));
+        Assert.Throws<ArgumentException>(() => client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Endpoint, true));
+        // The lease is busy: the hint request queues instead of throwing (deferred-work item 1).
+        client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Visibility, false);
+        client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
+        Assert.Equal(1, Field<System.Collections.ICollection>(client, "_uiQueue").Count); // Reveal supersedes the queued Visibility.
+        Assert.Equal(Control, Field<ChannelControl?>(client, "_animationPending"));
+        client.ReceiveAnimation(Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1));
+        Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
+        // No JS transport exists here: the pump must have leased the declared hint clip before the send faults.
+        var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpUiControls"));
+        Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
+        var hint = UiCurves.Hint;
+        Assert.Equal(new ChannelControl(hint.AnimationTarget, default, 1, 1, AnimationControlKind.Reveal, true, (Half)0, (Half)1, hint.Duration, hint.Curve),
+            Field<ChannelControl?>(client, "_animationPending"));
+        Assert.Equal(0, Field<System.Collections.ICollection>(client, "_uiQueue").Count);
+        Assert.Equal(1ul, Field<ulong>(client, "_hintGeneration"));
+    }
+
+    [Fact]
     public void ContactPumpForwardsTheDeclaredEnvelopeUnchangedBeforeHandingTheLeaseToTransport()
     {
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));

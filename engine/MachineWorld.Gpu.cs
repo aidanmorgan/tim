@@ -1,6 +1,7 @@
 using WorkshopPhase = CuriousContraptions.Gpu.WorkshopSimulationPhase;
 using Godot;
 using CuriousContraptions.Gpu;
+using CuriousContraptions.Presentation;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,21 +40,14 @@ public partial class MachineWorld
     }
     public WorkshopGoalPhase GoalPhase => _workshopClient is null ? WorkshopGoalPhase.NotApplicable :
         WorkshopGoalEvaluator.Evaluate(Construction.Puzzle.Goal, WorkshopRead, _workshopClient.Epoch);
-    public bool TryGoalOpacity(ulong frame, out Half opacity)
-    {
-        opacity = (Half)0;
-        return GoalPhase == WorkshopGoalPhase.Solved && _workshopClient is not null &&
-            _workshopClient.TryGoalOpacity(frame, _workshopPresentation, out opacity);
-    }
     public PartDefinition BasketballDefinition => Registry.Definitions[WorkshopPartKind.Basketball];
 
-    public void ControlHint(AnimationControlKind kind, bool visible) => _workshopClient?.ControlHint(kind, visible);
-    public bool TryHint(out WorkshopHintSample sample)
+    public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) => _workshopClient?.ControlUi(target, kind, visible);
+    public bool TryUiFrame(WorkshopUiTarget target, out AnimationOpacity opacity)
     {
-        if (_workshopClient is null) { sample = default; return false; }
-        return _workshopClient.TryHint(Engine.GetProcessFrames(), out sample);
+        opacity = default;
+        return _workshopClient is not null && _workshopClient.TryUiFrame(Engine.GetProcessFrames(), _workshopPresentation, target, out opacity);
     }
-    public void RecordHintPresentation() => _workshopClient?.RecordHintPresentation(Engine.GetProcessFrames());
     public Task InitializeWorkshop() => InitializeWorkshop(async () => await BrowserWorkshopClient.Create());
 
     internal async Task InitializeWorkshop(Func<Task<IWorkshopClient>> createClient)
@@ -236,9 +230,6 @@ public partial class MachineWorld
                 }
             }
             var frame = Engine.GetProcessFrames();
-            if (Part(WorkshopPartKind.Receiver) is BasketPart receiver &&
-                _workshopClient.TryCaptureOpacity(frame, _workshopPresentation, out var opacity))
-            { receiver.ApplyHalo(opacity); _workshopClient.RecordCapturePresentation(frame); }
             foreach (var part in _parts)
                 if (part.HasCosmeticBindings && _workshopClient.TryCosmeticFrame(frame, _workshopPresentation, part.AuthoredId, out var cosmetic))
                     part.ApplyCosmetic(cosmetic);
@@ -292,7 +283,6 @@ public partial class MachineWorld
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;
             part.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
-            if (part is BasketPart receiver) receiver.ApplyHalo((Half)0);
             if (part.HasCosmeticBindings != instance.Cosmetic.IsDeclared || (part.HasCosmeticBindings && part.Cosmetic != instance.Cosmetic))
                 throw new ArgumentException("Part artwork and its instance must declare the same cosmetic curve.");
             if (part.HasCosmeticBindings) part.ApplyCosmetic(WorkshopCosmeticSample.Neutral);

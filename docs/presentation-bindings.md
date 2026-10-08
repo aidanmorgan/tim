@@ -1,8 +1,8 @@
 # Current presentation bindings
 
-This is the binding contract between the separate animation worker, the physics worker's committed results and the main-thread renderer under [canonical IEEE-754 f32 game values and WASM SIMD physics](gpu-f16-physics.md#compilation-model) and the [engine contracts](engine-contracts.md#general-data-driven-engines). Every presentation property of every element has exactly one declared binding in that element's declaration data: either a committed physical pose/state read directly from physics (descriptors 6–8 below) or an animation sample produced by the shared evaluators in the animation worker from the declared feedback below. There are no per-element animation evaluators or update loops; a new element adds bindings, art and curve values only, and roadmap slice ANIM-1 deletes the remaining legacy evaluators. Descriptor, feedback and event semantics below are binding; revised f32 ABI offsets and byte-length formulas belong to P0-016 before a variant is admitted. Explicit integers, identity tags and approved palette identities retain their correct types. Every numeric value/intermediate must satisfy the current admitted scale/range; platform widening is a declared adapter only.
+This is the binding contract between the separate animation worker, the physics worker's committed results and the main-thread renderer under [canonical IEEE-754 f32 game values and WASM SIMD physics](gpu-f16-physics.md#compilation-model) and the [engine contracts](engine-contracts.md#general-data-driven-engines). Every presentation property of every element has exactly one declared binding in that element's declaration data: either a committed physical pose/state read directly from physics (descriptors 6–8 below) or an animation sample produced by the shared evaluators in the animation worker from the declared feedback below. There are no per-element animation evaluators or update loops; a new element adds bindings, art and curve values only. Slice ANIM-1c deleted the last legacy evaluators (git history is their archive). Descriptor, feedback and event semantics below are binding; revised f32 ABI offsets and byte-length formulas belong to P0-016 before a variant is admitted. Explicit integers, identity tags and approved palette identities retain their correct types. Every numeric value/intermediate must satisfy the current admitted scale/range; platform widening is a declared adapter only.
 
-Registrations select reusable typed evaluator/feedback and final-writer capabilities. Descriptor and instance IDs identify bindings/state; they never select element-specific code. Class names in the feedback table name the legacy consumers whose behaviour each declared kind carries; they are traceability for ANIM-1, not a dispatch permission. Element-specific shapes, curves, colours and resources are declarative inputs to shared evaluators and adapters.
+Registrations select reusable typed evaluator/feedback and final-writer capabilities. Descriptor and instance IDs identify bindings/state; they never select element-specific code. Class names in the feedback table name the retired consumers whose behaviour each declared kind carries; those classes were deleted in ANIM-1c and the names are historical traceability only, never a dispatch permission. Element-specific shapes, curves, colours and resources are declarative inputs to shared evaluators and adapters.
 
 ## Browser-owned sealed descriptor registry
 
@@ -99,7 +99,7 @@ extent. Rotation AngleFrom/AngleTo and their difference must be finite; decreasi
 outputs remain supported. Evaluator endpoints and their difference retain each family’s existing
 finite/output-domain validation. No reversed input range or overflow denominator is accepted.
 Source unit exact; range saturation and SineCycle
-are the current SceneAnimationRun mapping, not behavior inferred from a field label.
+are the retired SceneAnimationRun mapping carried forward as declared data, not behavior inferred from a field label.
 RelativeAngularVelocity projects the authoritative body/reference angular velocities into the
 reference pose's chosen axis and applies the direction sign; cosmetic integrated phase stays A-owned.
 Spectral inputs must be nonnegative GameOpticalPower, a finite total within the admitted f32 optical-power range; active zero total
@@ -118,7 +118,7 @@ are explicitly registered scalar/Boolean observables; their meaning/unit is comp
 not an arbitrary property-name query. Committed scalar/enum mappings apply directly at a coherent
 display sample without becoming independently integrated cosmetic state.
 
-ScenePoseBatch/ScenePoseMap binds descriptor8; all three read spaces and both map kinds are retained.
+Pose batches (the retired ScenePoseBatch/ScenePoseMap behaviour) bind descriptor8; all three read spaces and both map kinds are retained as declared data.
 Clip/follow/impulse/oscillation rotations and translations bind descriptor1 with independent axes;
 scale shares only its cosmetic transform owner. BindColour/FollowingColour/ImpulseColour bind2;
 BindFollowingRgb binds3; opacity binds4 or its permitted independent alpha channel.
@@ -234,19 +234,20 @@ receipt, late scalar sample or late registration result cannot complete or anima
 P0-016/023/024/026 must update codec, feedback, history, browser application and present-once
 consumers together; no target/property-only sample path remains.
 
-## Declared cosmetic curves (ANIM-1b)
+## Declared cosmetic curves (ANIM-1b) and UI bindings (ANIM-1c)
 
 Every currently playable animated part declares its cosmetic curve as typed data next to its physics
 record and nowhere else. `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.cs`) carries
-`Source` (`AnimationFeedbackSource`: None=0, Activation=1, Timer=2, ContactWork=3), `Curve`
+`Source` (`AnimationFeedbackSource`: None=0, Activation=1, Timer=2, ContactWork=3, Capture=4), `Curve`
 (`AnimationCurve`), `Duration` (Half seconds), `ImpulseCurve` (`AnimationImpulseCurve`) and `Overlap`
 (`AnimationImpulseOverlap`). `Validate` rejects unknown members and any field a source does not use.
 The per-part constants live in `CosmeticCurves`: ImpactSwitch and SignalLamp (Activation, SmoothStep,
 0.16 s), Delay (Timer, Linear; the duration is the committed Started..Due interval), PinballBumper
-(ContactWork, 0.32 s, SineSquaredPulse, SaturatingSum). Each `IWorkshopInstance` exposes `Cosmetic`;
-it is never persisted, so the save format and the physics wire are unchanged. Basketball, Receiver,
-Ramp and Wall declare `None`, and a part artwork that binds visuals without a declared curve is
-rejected at construction, as is artwork whose declaration differs from its instance's.
+(ContactWork, 0.32 s, SineSquaredPulse, SaturatingSum) and Receiver (Capture, SmoothStep, 0.5 s: the
+halo albedo blends from `#bdf4bd` to white while the capture sensor is latched). Each `IWorkshopInstance`
+exposes `Cosmetic`; it is never persisted, so the save format and the physics wire are unchanged.
+Basketball, Ramp and Wall declare `None`, and a part artwork that binds visuals without a declared curve
+is rejected at construction, as is artwork whose declaration differs from its instance's.
 
 Evaluation path, in order and with nothing evaluated on the main thread: committed physics read →
 `BrowserWorkshopClient` resolves the owning instance's declaration by body id and sends one
@@ -254,7 +255,35 @@ Evaluation path, in order and with nothing evaluated on the main thread: committ
 the kind is Impulse) → the animation worker evaluates the shared clip or impulse slot → the 60 Hz
 sample returns as a 0..1 blend → `TryCosmeticFrame` hands a `WorkshopCosmeticSample` (blend, timer
 phase) to `MachinePart.ApplyCosmetic`, whose single binding list drives `WorkshopVisualBinding`.
-Activation targets are `node + 2`, timer targets `2^32 + node`, contact targets `2^33 + body`.
+Capture feedback resolves the latched sensor to its owning Receiver through the compiled scene's residence
+sensor declarations (the sensor's frame body; free play compiles one sensor per ball, so the authored id is
+never assumed) and sends a ColourBlend Endpoint that the worker ramps 0→1; one receiver owns one capture
+target per world, and a rejected or re-captured occurrence releases its slot for a fresh request.
+`WorkshopAnimationWire.TargetCapacity` grew to 42 (2·activation + contact + one capture target per sensor + two
+UI targets); that sizes the worker's register table only — the Version 5 byte layout is unchanged.
+
+Animation target identities (all declared, none element-keyed):
+
+| Range | Target | Source |
+| --- | --- | --- |
+| `1` | Hint (`UiCurves.Hint`, Opacity) | player control: Reveal / Hide / Visibility |
+| `node + 2` | activation part | `AnimationFeedbackSource.Activation` |
+| `2^32 + node` | timer part | `AnimationFeedbackSource.Timer` |
+| `2·2^32 + body` | contact owner | `AnimationFeedbackSource.ContactWork` |
+| `3·2^32 + body` | capture receiver | `AnimationFeedbackSource.Capture` |
+| `2^64 − 1` | Goal (`UiCurves.Goal`, Opacity) | committed goal occurrence |
+
+UI bindings (ANIM-1c) use the same worker path as parts. `UiCurveDeclaration` (`engine/gpu/WorkshopUi.cs`)
+declares one `WorkshopUiTarget` (Hint=1, Goal=2), its `WorkshopUiFeedback` (Control or Goal), curve, duration
+and neutral opacity (hint 1, goal 0). `IWorkshopClient.ControlUi` queues a Reveal/Hide/Visibility request
+for a Control-fed target and `PumpUiControls` sends it only when the single animation lease is free (a
+newer Reveal/Hide supersedes anything queued for the target; a Visibility change replaces the queued one),
+so pressing the hint while a Delay or any part control is in flight never throws. `IWorkshopClient.TryUiFrame`
+returns one `AnimationOpacity` per declared UI target per admitted display frame and `WorkshopUiBinding`
+(`engine/WorkshopUiBinding.cs`) is the only Modulate writer; `Workshop.ApplyUiBindings` is the one UI apply
+loop and prints `CCGOAL_SOLVED <epoch>` once per world when the goal binding first samples. The hint's Hide
+registers a neutral (1) clip and hides the label; the worker keeps publishing that neutral every pulse until
+the session ends, as for every registered target.
 
 Animation channel ABI, Version 5 (`WorkshopAnimationWire`; little-endian; both records are 144 bytes):
 
@@ -286,6 +315,15 @@ declared neutral. Bindings are keyed by an optional `AnimationTimerPhase`: a pha
 its declared value whenever the sampled phase matches, so the Delay indicator palette is data, not a
 branch. Reset applies `WorkshopCosmeticSample.Neutral` (blend 0, Ready) to every binding and the
 worker retires old-world slots on commit; non-finite or out-of-range blends keep the last committed
-values. This slice deleted `AnimationPulseSegment`, `AnimationTimerFrame`/`TrySample`, the
+values. ANIM-1b deleted `AnimationPulseSegment`, `AnimationTimerFrame`/`TrySample`, the
 main-thread pulse summation, the three per-channel binding lists and the `BindContactWork`/
-`BindTimer*` entry points.
+`BindTimer*` entry points. ANIM-1c deleted the Receiver `ApplyHalo` lerp and its `WorkshopPartKind.Receiver`
+presentation branch, the per-target `ControlHint`/`TryHint`/`RecordHintPresentation`/`TryGoalOpacity`/
+`TryCaptureOpacity`/`RecordCapturePresentation` client members, `WorkshopHintSample`, the goal label and
+hint `Modulate` writes in `ui/`, and the uncompiled evaluators `engine/presentation/ScalarExtentDefinition`,
+`SceneAnimationRun`, `SceneAnimationAdapter`, `SceneAcousticRun`, `SceneAcousticMotionRun`,
+`SceneAcousticWavefrontRun`, `SceneEnumBinding`, `SceneLightConeRun`, `SceneOccurrenceRun`,
+`SceneOpticalPreviews`, `SceneOscillatorFeedback`, `ScenePoseAsset`, `ScenePoseBatch` and
+`ui/LightConeVisual`, `OpticalPathVisual`, `MechanicalBeltVisual`, `RopeVisual`, `PulleyRopeRoute`,
+`TubePlacementSnap`, `ConnectionChoice`. The six `engine/presentation/Animation*.cs` evaluators remain the
+shared worker core.

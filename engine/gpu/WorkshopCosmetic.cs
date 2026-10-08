@@ -4,7 +4,7 @@ using CuriousContraptions.Presentation;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Committed physics feedback that drives one part's cosmetic blend. Closed set; None means undeclared.</summary>
-public enum AnimationFeedbackSource : uint { None = 0, Activation = 1, Timer = 2, ContactWork = 3 }
+public enum AnimationFeedbackSource : uint { None = 0, Activation = 1, Timer = 2, ContactWork = 3, Capture = 4 }
 
 /// <summary>Sampled 0..1 cosmetic blend plus the committed timer phase that keys phase bindings.</summary>
 public readonly record struct WorkshopCosmeticSample(Half Blend, AnimationTimerPhase Phase)
@@ -28,8 +28,9 @@ public readonly record struct CosmeticCurveDeclaration(AnimationFeedbackSource S
                 if (this != default) throw new ArgumentException("Undeclared cosmetic curve carries data.");
                 return;
             case AnimationFeedbackSource.Activation:
+            case AnimationFeedbackSource.Capture:
                 if (!Half.IsFinite(Duration) || Duration <= (Half)0 || Duration > (Half)30 || ImpulseCurve != default || Overlap != default)
-                    throw new ArgumentException("Activation cosmetic requires a positive duration and no impulse envelope.");
+                    throw new ArgumentException("Activation and capture cosmetics require a positive duration and no impulse envelope.");
                 return;
             case AnimationFeedbackSource.Timer:
                 if (Duration != (Half)0 || ImpulseCurve != default || Overlap != default)
@@ -54,4 +55,5 @@ public static class CosmeticCurves
     public static CosmeticCurveDeclaration Delay => new(AnimationFeedbackSource.Timer, AnimationCurve.Linear, (Half)0, default, default);
     public static CosmeticCurveDeclaration PinballBumper => new(AnimationFeedbackSource.ContactWork, AnimationCurve.Linear, (Half).32,
         AnimationImpulseCurve.SineSquaredPulse, AnimationImpulseOverlap.SaturatingSum);
+    public static CosmeticCurveDeclaration Receiver => new(AnimationFeedbackSource.Capture, AnimationCurve.SmoothStep, (Half).5, default, default);
 }

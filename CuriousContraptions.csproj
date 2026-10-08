@@ -31,6 +31,7 @@
         <Compile Include="engine/MachineWorld.Gpu.cs" />
         <Compile Include="engine/MachinePart.cs" />
         <Compile Include="engine/WorkshopVisualBinding.cs" />
+        <Compile Include="engine/WorkshopUiBinding.cs" />
         <Compile Include="engine/PartDefinition.cs" />
         <Compile Include="engine/BasketballMaterialResource.cs" />
         <Compile Include="engine/RampDimensionsResource.cs" />

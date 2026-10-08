@@ -50,7 +50,7 @@ public static class DelayedSignal
         foreach (var instance in construction.Instances)
         {
             if (instance is WorkshopDelay { Locked: false }) { delays++; continue; }
-            if (instance is WorkshopBall || instance is WorkshopLamp ||
+            if (instance is WorkshopBall || instance is WorkshopLamp lamp && lamp.Id.Value == puzzle.Goal.TargetNode.Value ||
                 instance is WorkshopSwitch trigger && trigger.Id.Value == puzzle.Goal.SourceNode.Value) continue;
             throw new ArgumentException("Unsupported delayed signal inventory.");
         }

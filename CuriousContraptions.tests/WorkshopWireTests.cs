@@ -344,7 +344,7 @@ public sealed class WorkshopWireTests
         var bytes = WorkshopClockWire.EncodePeer(peer);
         Assert.Equal(peer, WorkshopClockWire.DecodePeer(bytes));
         Assert.Equal(3U, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
-        Assert.Equal(NativeClockProfile.Chromium154MacIsolated,
+        Assert.Equal(NativeClockProfile.IsolatedWitnessedPerformanceNow,
             (NativeClockProfile)BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)));
         var oldVersion = (byte[])bytes.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(oldVersion, 1);

@@ -38,7 +38,7 @@ public static class WorkshopPhysicsCompiler
             colliders.Add(new(new(first + 1), ball.Id, material, ColliderShapeKind.Sphere,
                 RigidLocalPose.Identity, ball.Material.Radius, default));
         }
-        if (construction.Receiver is { } receiver)
+        foreach (var receiver in construction.Instances.OfType<WorkshopReceiver>().OrderBy(r => r.Id.Value))
         {
             var first = PartIdentities(receiver.Id); next = Math.Max(next, first + 64);
             var material = new GpuMaterialId(first);

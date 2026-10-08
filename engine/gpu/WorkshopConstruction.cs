@@ -93,7 +93,7 @@ public readonly record struct WorkshopReceiver(
 {
     public ReceiverForceRegion ForceRegion { get; init; } = ReceiverForceRegion.Free;
     public WorkshopPartKind Kind => WorkshopPartKind.Receiver;
-    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.Receiver;
     public void Validate()
     {
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();

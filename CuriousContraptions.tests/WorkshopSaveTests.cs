@@ -176,7 +176,7 @@ public sealed class WorkshopSaveTests
             Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(invalid));
         }
         var excess = saved.Construction.WithInstance(ramp).WithInstance(ramp with { Id = new(5) }).WithInstance(ramp with { Id = new(6) });
-        Assert.Throws<ArgumentException>(excess.Validate);
+        excess.Validate(); // Free play has no per-kind ramp count; WorkbenchCapacityTests cover the compiled table ceilings.
     }
 
     [Theory]

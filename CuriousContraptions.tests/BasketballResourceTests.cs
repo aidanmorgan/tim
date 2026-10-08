@@ -63,6 +63,33 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     }
 
     [Fact]
+    public void ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette()
+    {
+        var registry=new PartRegistry(); registry.Discover();
+        var receiver=(BasketPart)registry.Create(WorkshopPartKind.Receiver);
+        try
+        {
+            godot.Tree.Root.AddChild(receiver);
+            var halo=receiver.Visual.GetChildren().OfType<MeshInstance3D>().Single(mesh=>mesh.Mesh is TorusMesh);
+            var material=(StandardMaterial3D)halo.MaterialOverride;
+            var neutral=new Color("#bdf4bd");
+            Assert.True(receiver.HasCosmeticBindings); Assert.Equal(CosmeticCurves.Receiver,receiver.Cosmetic);
+            Assert.Equal(CosmeticCurves.Receiver,WorkshopInput.Receiver(new(2),0,1,0,0,0,0,1).Cosmetic);
+            receiver.ApplyCosmetic(WorkshopCosmeticSample.Neutral); // construction/Reset restore the declared neutral palette
+            Assert.Equal((float)(Half)neutral.R,material.AlbedoColor.R); Assert.Equal((float)(Half)neutral.G,material.AlbedoColor.G);
+            receiver.ApplyCosmetic(new((Half)1,CuriousContraptions.Presentation.AnimationTimerPhase.None));
+            Assert.Equal(1,material.AlbedoColor.R); Assert.Equal(1,material.AlbedoColor.G); Assert.Equal(1,material.AlbedoColor.B);
+            receiver.ApplyCosmetic(new((Half).5,CuriousContraptions.Presentation.AnimationTimerPhase.None));
+            Assert.InRange(material.AlbedoColor.R,(float)(Half)neutral.R+.01f,.99f);
+            receiver.ApplyCosmetic(new(Half.NaN,CuriousContraptions.Presentation.AnimationTimerPhase.None));
+            Assert.InRange(material.AlbedoColor.R,(float)(Half)neutral.R+.01f,.99f); // game-grade: invalid blends keep the committed value
+            receiver.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
+            Assert.Equal((float)(Half)neutral.R,material.AlbedoColor.R); Assert.Equal((float)(Half)neutral.B,material.AlbedoColor.B);
+        }
+        finally { receiver.GetParent()?.RemoveChild(receiver); receiver.Free(); }
+    }
+
+    [Fact]
     public void BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples()
     {
         var registry=new PartRegistry(); registry.Discover();
@@ -278,14 +305,9 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             return true;
         }
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
-        public void ControlHint(AnimationControlKind kind, bool visible) => throw new InvalidOperationException("Hint control is outside this held read/ACK fixture.");
-        public bool TryHint(ulong frame, out WorkshopHintSample sample) { sample = default; return false; }
-        public bool TryGoalOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity) { opacity = default; return false; }
-        public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
-        { opacity = default; return false; }
+        public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) => throw new InvalidOperationException("UI control is outside this held read/ACK fixture.");
+        public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out CuriousContraptions.Presentation.AnimationOpacity opacity) { opacity = default; return false; }
         public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
-        public void RecordCapturePresentation(ulong frame) => throw new InvalidOperationException("No capture opacity was supplied by this fixture.");
-        public void RecordHintPresentation(ulong frame) => throw new InvalidOperationException("No hint was supplied by this fixture.");
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No cancellable test transport request.");
         public ValueTask DisposeAsync() { _disposed = true; return ValueTask.CompletedTask; }

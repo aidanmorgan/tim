@@ -8,13 +8,6 @@ namespace CuriousContraptions;
 public partial class Workshop
 {
     private Label _success = null!;
-    private SimulationEpoch _solvedPresentationEpoch;
-
-    private void ClearGoalFeedback()
-    {
-        _solvedPresentationEpoch = default;
-        if (_success is not null) _success.Visible = false;
-    }
 
     private async void SelectModeFromPicker(int index)
     {
@@ -61,8 +54,7 @@ public partial class Workshop
         var delayed = World.Construction.Puzzle.Id == WorkshopPuzzleId.DelayedSignal;
         var authored = first || delayed;
         _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : FreeWorkshopIndex);
-        _inventory = authored ? new Dictionary<WorkshopPartKind, int> { [World.Construction.Puzzle.InventoryKind] = checked((int)World.Construction.Puzzle.InventoryCount) }
-            : new Dictionary<WorkshopPartKind, int> { [WorkshopPartKind.Basketball] = 16, [WorkshopPartKind.Receiver] = 1, [WorkshopPartKind.ImpactSwitch] = 2, [WorkshopPartKind.SignalLamp] = 1, [WorkshopPartKind.Wall] = 1, [WorkshopPartKind.Delay] = 1, [WorkshopPartKind.PinballBumper] = 1 };
+        _inventory = authored ? WorkshopInventoryPolicy.Authored(World.Construction.Puzzle) : WorkshopInventoryPolicy.Free;
         _title.Text = first ? "First principles" : delayed ? "Wait for it" : "Free workshop";
         _task.Text = first ? "Guide the orange ball into the green receiver. Place the two ramps to build a path through the air."
             : delayed ? "Light the lamp only after the delay box finishes its countdown."
@@ -100,18 +92,5 @@ public partial class Workshop
                 : "Receiver assistance updated. Ramp placement remains manual.";
         }
         catch (Exception error) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); _status.Text = error.Message; }
-    }
-    private void PresentGoalFeedback()
-    {
-        if (!_inRun || World.GoalPhase != WorkshopGoalPhase.Solved ||
-            !World.TryGoalOpacity(Engine.GetProcessFrames(), out var opacity)) return;
-        // Goal truth is the committed named event; this shared animation sample only schedules visible feedback.
-        if (_solvedPresentationEpoch != World.WorkshopRead.Epoch)
-        {
-            _solvedPresentationEpoch = World.WorkshopRead.Epoch;
-            _success.Text = "SOLVED!"; _success.Visible = true;
-            GD.Print("CCGOAL_SOLVED " + World.WorkshopRead.Epoch.Value);
-        }
-        var color = _success.Modulate; color.A = (float)opacity; _success.Modulate = color;
     }
 }

@@ -84,8 +84,9 @@ public sealed class WorkshopDelayTests
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         Assert.Equal(9,scene.Bodies.Length);
         Assert.True(scene.Colliders.Length <= PhysicsSceneDeclaration.ColliderCapacity);
-        Assert.Throws<ArgumentException>(() => new WorkshopInstances(instances[4],instances[5],
-            WorkshopInput.Switch(new(9),3,1,0,0,0,0,1,ContactTriggerSettings.Default)).Validate());
+        // Free play has no per-kind count: a third switch is admitted within the compiled tables.
+        new WorkshopInstances(instances[4],instances[5],
+            WorkshopInput.Switch(new(9),3,1,0,0,0,0,1,ContactTriggerSettings.Default)).Validate();
         foreach (var edge in new[] {
             new WorkshopConnection(new(8),WorkshopSocket.ActivationIn,new(7),WorkshopSocket.ActivationIn,WorkshopConnectionDomain.Activation),
             new WorkshopConnection(new(5),WorkshopSocket.ActivationOut,new(8),WorkshopSocket.ActivationOut,WorkshopConnectionDomain.Activation),
@@ -98,7 +99,7 @@ public sealed class WorkshopDelayTests
         Assert.True(WorkshopPorts.Has(WorkshopPartKind.Delay, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         Assert.True(WorkshopPorts.Has(WorkshopPartKind.Delay, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
         Assert.False(WorkshopPorts.Has(WorkshopPartKind.Delay, WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
-        Assert.Throws<ArgumentException>(() => new WorkshopInstances(Delay((Half)1), Delay((Half)2) with {Id=new(4)}).Validate());
+        new WorkshopInstances(Delay((Half)1), Delay((Half)2) with {Id=new(4)}).Validate(); // No per-kind delay count in free play.
         var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)0));
         Assert.Throws<ArgumentException>(() => puzzle.WithInstance(Delay((Half)1)).Validate());
     }

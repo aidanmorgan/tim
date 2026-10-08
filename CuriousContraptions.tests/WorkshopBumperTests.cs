@@ -81,7 +81,7 @@ public sealed class WorkshopBumperTests
             Assert.Throws<ArgumentException>(() => BumperWork.FromInput(invalid));
         var construction = Construction((Half)8);
         var bumper = Assert.IsType<WorkshopBumper>(construction.Instances[1]);
-        Assert.Throws<ArgumentException>(() => construction.WithInstance(bumper with { Id = new(3) }).Validate());
+        construction.WithInstance(bumper with { Id = new(3) }).Validate(); // No per-kind bumper count in free play.
         Assert.Throws<ArgumentException>(() => (bumper.Work with { ReferenceMass = new((Half)2) }).Validate());
         Assert.False(WorkshopPorts.Has(WorkshopPartKind.PinballBumper, WorkshopSocket.ActivationOut,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));

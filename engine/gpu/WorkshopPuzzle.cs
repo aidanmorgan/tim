@@ -76,9 +76,16 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
         if (construction.Ball != expectedBall || construction.Receiver != expectedReceiver ||
             Goal.EventSource != WorkshopPhysicsCompiler.CaptureSensor(expectedReceiver))
             throw new ArgumentException("Fixed puzzle declarations changed.");
+        var receivers = 0; var ramps = 0;
         foreach (var instance in construction.Instances)
+        {
             if (instance is not (WorkshopBall or WorkshopReceiver or WorkshopRamp) || instance is WorkshopRamp { Locked: true })
                 throw new ArgumentException("Unsupported puzzle inventory instance.");
+            if (instance is WorkshopReceiver) receivers++;
+            if (instance is WorkshopRamp) ramps++;
+        }
+        if (receivers != 1) throw new ArgumentException("Authored puzzles require their one named Receiver.");
+        if (ramps > InventoryCount) throw new ArgumentException("Ramp inventory exhausted.");
     }
 }
 

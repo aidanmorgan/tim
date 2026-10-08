@@ -2,7 +2,7 @@
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-2-mechanical-cosmetic-bindings.md`
   summary: ControlHint throws "An animation control is pending" when the single animation lease is busy (hint button, guidance visibility).
-  evidence: Code trace Schedule.cs:127-141; pre-existing single-lease design from Story 4.1; reduced by the timer resend fix but not eliminated. Resolve in ANIM-1c or a lease-queue slice.
+  evidence: Code trace Schedule.cs:127-141; pre-existing single-lease design from Story 4.1; reduced by the timer resend fix but not eliminated. RESOLVED by Story 4.3 (ANIM-1c): `BrowserWorkshopClient.ControlUi` queues the request and `PumpUiControls` sends it when the lease is free; unit facts `UiControlQueuesBehindTheLeaseAndSendsTheDeclaredHintClipWhenFree` and `QueuedRevealSurvivesAPendingPreparationAndSendsOnceItClears` (CuriousContraptions.tests/WorkshopActivationAnimationTests.cs).
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-2-mechanical-cosmetic-bindings.md`
   summary: Wire Endpoint controls cannot express a 0→1 ramp (From must equal To), so the worker substitutes 0→1 for ColourBlend endpoints.
   evidence: WorkshopHint.cs Validate and worker Program.cs branch; design wart from 4.1, harmless today.
@@ -36,3 +36,15 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-2-mechanical-cosmetic-bindings.md`
   summary: SendAnimation comment overstates that a failed JS send faults the transport (JS animationControl throws without fail()).
   evidence: Murdoch pass-2 trace: every reachable throw path is already a faulted transport; wording fix or explicit fail() in the JS guard.
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-legacy-presentation-code-retirement.md`
+  summary: A validator-admitted full free-play population (32 parts, 16 dynamic bodies, 16 sensors/guides, 8 triggers) is proven to compile but not to run on the live worker in Chrome.
+  evidence: Murdoch 4.3 F5; belongs to the named stress/qualification gate (playable-first policy).
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-legacy-presentation-code-retirement.md`
+  summary: Free-play Ramp palette row anchor (130,511) in tools/e2e/workshop-driver.ts is unexercised by any Chrome test.
+  evidence: Murdoch 4.3 F4; first free-play Ramp e2e should confirm it.
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-legacy-presentation-code-retirement.md`
+  summary: Capture feedback slots are keyed by position in Read.Captures rather than sensor id (unverified risk if a partial latch list were ever published).
+  evidence: Blind hunter; Murdoch verified latch equality guards; settle by pinning "every compiled sensor is published in id order on every read".
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-3-legacy-presentation-code-retirement.md`
+  summary: Uncompiled parts/, engine/ScenePhysicsAssembly.cs, tools/Ownership and ~45 uncompiled tests still reference the deleted presentation types; WorkshopConstruction.Receiver first-match accessor is ambiguous once multiple receivers are admitted.
+  evidence: Epic 7 purge scope (stories 7-3/7-4); make the accessor single-or-throw or remove it then.

@@ -35,7 +35,7 @@ public sealed partial class BrowserWorkshopClient
             var rate = schedule.Settings.SimulationRate;
             var duration = (Half)Math.Min(30, (timer.DueTick - timer.StartedTick) * (double)rate.Denominator / rate.Numerator);
             var control = new WorkshopAnimationControl(TimerTarget(timer.Node), latest.Read.Epoch,
-                checked(_hintSequence + 1), checked(latest.Read.Tick.Value + 1), AnimationControlKind.TimerObservation,
+                checked(_animationSequence + 1), checked(latest.Read.Tick.Value + 1), AnimationControlKind.TimerObservation,
                 true, (Half)0, (Half)1, duration, declaration.Curve,
                 timer.Input.Time.Ordinal, timer.Input.Time.Phase, AnimationProperty.ColourBlend, observation);
             SendAnimation(control, schedule); _timerRequested[i] = control; _timerRetry[i] = false; return;

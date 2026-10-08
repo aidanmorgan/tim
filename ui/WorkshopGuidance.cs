@@ -265,7 +265,7 @@ public partial class Workshop
 
     public override void _Process(double delta)
     {
-        PresentUiAnimations(delta);
+        ApplyUiBindings(delta);
         PanCamera((float)delta);
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);

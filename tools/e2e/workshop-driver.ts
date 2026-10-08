@@ -85,11 +85,12 @@ const UI_ANCHORS = {
         resume: { x: 1130, y: 240 },
     },
     dock: {
+        // Free workshop lists eight unlimited rows (Ramp appended last), so its part dock sits one row lower than before.
         free_workshop: {
-            move: { x: 60, y: 550 },
-            rotate: { x: 104, y: 550 },
-            resize: { x: 148, y: 550 },
-            delete: { x: 192, y: 550 },
+            move: { x: 60, y: 605 },
+            rotate: { x: 104, y: 605 },
+            resize: { x: 148, y: 605 },
+            delete: { x: 192, y: 605 },
         },
         first_principles: {
             move: { x: 40, y: 275 },
@@ -113,6 +114,11 @@ const UI_ANCHORS = {
         },
         // "ActivationOut → ActivationIn" choice offered after clicking the target part.
         choice: { x: 133, y: 232 },
+    },
+    // "Show hint" lightbulb button inside the objective panel (ui/Workshop.cs ShowHint); the panel height follows the task text.
+    hint: {
+        first_principles: { x: 1186, y: 260 },
+        delayed_signal: { x: 1186, y: 214 },
     }
 } as const;
 
@@ -206,6 +212,9 @@ export class WorkshopDriver {
         if (this.currentLevel === 'delayed_signal' && kind === 'delay') {
             anchor = { x: 130, y: 155 };
         }
+        if (this.currentLevel === 'free_workshop' && kind === 'ramp') {
+            anchor = { x: 130, y: 511 }; // Ramp is the appended eighth free-workshop palette row.
+        }
         if (!anchor) throw new Error(`Unknown tool: ${kind}`);
         await this.clickAt(anchor.x, anchor.y, 200);
     }
@@ -216,6 +225,14 @@ export class WorkshopDriver {
         this.currentLevel = level;
         // Choosing a level disposes the worker client and creates a new one; wait for the same readiness as a fresh page.
         await this.waitForReady();
+    }
+
+    // Toggle the authored puzzle's hint through its real button (reveal on the first press, hide on the next).
+    async showHint(): Promise<void> {
+        const anchor = this.currentLevel === 'first_principles' ? UI_ANCHORS.hint.first_principles
+            : this.currentLevel === 'delayed_signal' ? UI_ANCHORS.hint.delayed_signal : null;
+        if (!anchor) throw new Error(`Level ${this.currentLevel} has no hint button`);
+        await this.clickAt(anchor.x, anchor.y, 300);
     }
 
     async selectPartAt(x: number, y: number): Promise<void> {
@@ -326,7 +343,7 @@ export class WorkshopDriver {
     }
 
     // Lift a freshly placed part and drop a different part kind directly beneath it (free workshop placement plane is y = 3 m).
-    async stackUnderLiftedBall(kind: 'wall' | 'bumper', liftPixels: number = 150, x: number = 720, y: number = 485): Promise<void> {
+    async stackUnderLiftedBall(kind: 'wall' | 'bumper' | 'receiver', liftPixels: number = 150, x: number = 720, y: number = 485): Promise<void> {
         await this.selectPartAt(x, y);
         await this.setPartMode('move');
         await this.liftSelectedPart(liftPixels, x, y);

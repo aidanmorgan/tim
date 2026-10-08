@@ -69,28 +69,16 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
     public WorkshopInstances Without(GpuBodyId id) => new(_items.Where(item => item.Id != id).ToArray());
     public void Validate()
     {
-        if (Count > Capacity) throw new ArgumentException("Construction instance capacity exceeded.");
         var ids = new HashSet<GpuBodyId>();
-        var balls = 0; var receivers = 0; var ramps = 0; var switches = 0; var lamps = 0; var walls = 0; var delays = 0; var bumpers = 0;
         foreach (var item in _items)
         {
-            switch (item)
-            {
-                case WorkshopBall: balls++; break;
-                case WorkshopReceiver: receivers++; break;
-                case WorkshopRamp: ramps++; break;
-                case WorkshopSwitch: switches++; break;
-                case WorkshopLamp: lamps++; break;
-                case WorkshopWall: walls++; break;
-                case WorkshopDelay: delays++; break;
-                case WorkshopBumper: bumpers++; break;
-                default: throw new ArgumentException("Unsupported authored instance declaration.");
-            }
+            if (item is not (WorkshopBall or WorkshopReceiver or WorkshopRamp or WorkshopSwitch or WorkshopLamp or WorkshopWall or WorkshopDelay or WorkshopBumper))
+                throw new ArgumentException("Unsupported authored instance declaration.");
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");
         }
-        if (balls > 16 || receivers > 1 || ramps > 2 || switches > 2 || lamps > 1 || walls > 1 || delays > 1 || bumpers > 1)
-            throw new ArgumentException("Current instance population exceeds admitted capabilities.");
+        // No per-kind population rule: the compiled table capacities are the only ceiling.
+        WorkbenchCapacity.Validate(this);
     }
     public bool Equals(WorkshopInstances? other) => other is not null && _items.SequenceEqual(other._items);
     public override bool Equals(object? obj) => obj is WorkshopInstances other && Equals(other);

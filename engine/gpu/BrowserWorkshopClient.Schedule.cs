@@ -14,22 +14,14 @@ public sealed partial class BrowserWorkshopClient
     private PulseRate _admittedDisplay;
     private PulseOrdinal _lastPresentation;
     private ulong _presentationFrame;
-    private bool _hasPresentationFrame, _frameAdmitted, _framePoseTaken, _frameHintTaken;
+    private bool _hasPresentationFrame, _frameAdmitted, _framePoseTaken;
     private MasterTimeNanoseconds _frameMaster;
     private MonotonicNanoseconds _frameObservedAt;
     private MasterTimeNanoseconds _lastPresentationApplied;
     private ScheduleControlHeader? _awaitingPresented;
-    private ulong _hintGeneration, _hintSequence, _hintAcknowledged;
-    private WorkshopHintSample? _hintSample;
-    private static readonly AnimationTargetId HintTarget = new(1), CaptureTarget = new(2);
-    private WorkshopAnimationSample? _captureSample;
-    private CaptureLatch? _captureRequested;
-    private SimulationEpoch _captureWorld;
-    private ulong _lastCaptureOrdinal;
-    private bool _frameCaptureTaken;
+    private ulong _animationSequence;
     private WorkshopAnimationControl? _animationPending;
     private CadenceRevision _animationPendingCadence;
-    private ulong _lastHintOrdinal;
     private readonly record struct Preparation(ScheduleControlHeader Header, WorkshopCadenceSettings Settings,
         WorkshopResponse Endpoint, ScheduleTransition Transition);
     public WorkshopCadenceSettings Settings => _schedule?.Settings ?? _construction.Settings;
@@ -124,51 +116,21 @@ public sealed partial class BrowserWorkshopClient
         ScheduleResult(_id.Value, result);
     }
 
-    public void ControlHint(AnimationControlKind kind, bool visible)
-    {
-        if (_schedule is not { } schedule || _preparation is not null) return;
-        if (kind == AnimationControlKind.Endpoint) throw new ArgumentException("Hint requires its autonomous control.");
-        var generation = kind is AnimationControlKind.Reveal or AnimationControlKind.Hide ? checked(_hintGeneration + 1) : _hintGeneration;
-        if (generation == 0) return;
-        var control = new WorkshopAnimationControl(HintTarget, default, checked(_hintSequence + 1), generation,
-            kind, visible, kind == AnimationControlKind.Hide ? (Half)1 : (Half)0, (Half)1, (Half).16, AnimationCurve.SmoothStep);
-        SendAnimation(control, schedule);
-        _hintGeneration = generation;
-        if (kind != AnimationControlKind.Visibility) _hintSample = null;
-    }
+    /// <summary>The single animation lease: every pump checks <see cref="_animationPending"/> before building a control.</summary>
     private void SendAnimation(WorkshopAnimationControl control, WorkshopSchedule schedule)
     {
         if (_animationPending is not null) throw new InvalidOperationException("An animation control is pending.");
         var bytes = WorkshopAnimationWire.Control(Peer.Session, Peer.Generation, schedule.Revision, control);
         // The lease is owned once the validated control exists; a failed send faults the transport, never a second lease.
-        _hintSequence = control.Sequence; _animationPending = control; _animationPendingCadence = schedule.Revision;
+        _animationSequence = control.Sequence; _animationPending = control; _animationPendingCadence = schedule.Revision;
         SendAnimationControl(_id.Value, bytes);
-    }
-    private void PumpCapture()
-    {
-        if (_animationPending is not null || _preparation is not null || _schedule is not { } schedule ||
-            _captureRequested is not null || _history.Latest is not { } latest ||
-            latest.Read.Epoch != schedule.World.WorldGeneration || latest.Read.Captures.Count == 0) return;
-        CaptureLatch? selected = null;
-        for (var i = 0; i < latest.Read.Captures.Count; i++)
-        {
-            var item = latest.Read.Captures[i];
-            if (item.Phase == CaptureLatchPhase.Latched &&
-                (selected is not { } prior || item.Sensor.Value < prior.Sensor.Value)) selected = item;
-        }
-        if (selected is not { } capture) return;
-        var control = new WorkshopAnimationControl(CaptureTarget, latest.Read.Epoch, checked(_hintSequence + 1), 1,
-            AnimationControlKind.Endpoint, true, (Half)1, (Half)1, (Half)1, AnimationCurve.Linear,
-            capture.EventOrdinal, capture.EventPhase);
-        SendAnimation(control, schedule);
-        _captureRequested = capture; _captureWorld = latest.Read.Epoch;
     }
     private void ReconcileAnimationSchedule(WorkshopSchedule schedule)
     {
         if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
-        { _captureSample = null; _captureRequested = null; _captureWorld = schedule.World.WorldGeneration; _lastCaptureOrdinal = 0; RetireActivationFeedback(); RetireGoalFeedback(); RetireContactFeedback(schedule.World.WorldGeneration); }
+        { RetireCaptureFeedback(); RetireActivationFeedback(); RetireGoalFeedback(); RetireContactFeedback(schedule.World.WorldGeneration); }
         if (_schedule?.Revision != schedule.Revision)
-        { _lastHintOrdinal = _lastCaptureOrdinal = _goalOrdinal = 0; Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); }
+        { _hintOrdinal = _goalOrdinal = 0; Array.Clear(_captureOrdinals); Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); }
     }
     private void ReceiveAnimation() => ReceiveAnimation(EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
@@ -187,8 +149,8 @@ public sealed partial class BrowserWorkshopClient
                 sample.Timer != command.Timer || !HalfBits.Equal(sample.PulseDuration,
                     command.Kind == AnimationControlKind.Impulse ? command.Duration : (Half)0) || sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
-            _hintAcknowledged = sample.Pulse.Value; _animationPending = null;
-            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); RetryRejectedContact(command); return; }
+            _animationPending = null;
+            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); RetryRejectedCapture(command); RetryRejectedContact(command); return; }
         }
         if (cadence.Value < active.Revision.Value)
         {
@@ -197,67 +159,22 @@ public sealed partial class BrowserWorkshopClient
                 RetryStaleContactAcknowledgement(sample);
             return;
         }
-        if (sample.Target == HintTarget)
-        {
-            if (sample.Property != AnimationProperty.Opacity || sample.World.Value != 0 || sample.EventOrdinal != 0 || sample.EventPhase != (Half)0)
-                throw new ArgumentException("Autonomous output carried a world event.");
-            if (sample.Generation < _hintGeneration) return;
-            if (sample.Generation != _hintGeneration) throw new ArgumentException("Future UI generation.");
-            if (kind == AnimationOutputKind.Sample)
-            {
-                if (sample.Pulse.Value <= _lastHintOrdinal) throw new ArgumentException("Reversed UI publication.");
-                _lastHintOrdinal = sample.Pulse.Value;
-            }
-            _hintSample = new(sample.Generation, sample.Pulse, sample.AppliedAt, sample.Value);
-        }
-        else if (sample.Target == CaptureTarget)
-        {
-            if (sample.World.Value < active.World.WorldGeneration.Value) return;
-            if (sample.Property != AnimationProperty.Opacity || sample.World != _captureWorld || _captureRequested is not { } capture || sample.Generation != 1 ||
-                sample.EventOrdinal != capture.EventOrdinal || !HalfBits.Equal(sample.EventPhase, capture.EventPhase))
-                throw new ArgumentException("World feedback does not own the committed occurrence.");
-            if (kind == AnimationOutputKind.Sample)
-            {
-                if (sample.Pulse.Value <= _lastCaptureOrdinal) throw new ArgumentException("Reversed world publication.");
-                _lastCaptureOrdinal = sample.Pulse.Value;
-            }
-            _captureSample = sample;
-        }
-        else if (sample.Target == GoalTarget) ReceiveGoalSample(sample, kind, active);
+        // Target ranges are declared identities: fixed UI targets, then capture, contact, timer and activation ranges.
+        if (sample.Target == UiCurves.Hint.AnimationTarget) ReceiveHintSample(sample, kind);
+        else if (sample.Target == UiCurves.Goal.AnimationTarget) ReceiveGoalSample(sample, kind, active);
+        else if (IsCaptureTarget(sample.Target)) ReceiveCaptureSample(sample, kind, active);
         else if (sample.PulseDuration > (Half)0) ReceiveContactSample(sample, kind, active);
         else if (sample.Timer.Phase != AnimationTimerPhase.None) ReceiveTimerSample(sample, kind, active);
         else ReceiveActivationSample(sample, kind, active);
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
-    }
-    public bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity)
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this); ThrowIfTransportFailed(); PumpCapture();
-        if (!AdmitPresentationFrame(frame) || _frameCaptureTaken || _captureSample is not { } sample ||
-            sample.World != Epoch || _captureRequested is not { } capture ||
-            physical.Evidence.WorldEpoch != sample.World ||
-            !ContainsCapture(physical.Captures, capture) || physical.FeedbackCapture is null)
-        { opacity = default; return false; }
-        _frameCaptureTaken = true; _captureSample = null; opacity = sample.Value; return true;
-    }
-    private static bool ContainsCapture(PhysicsCaptureRead captures, CaptureLatch requested)
-    {
-        for (var i = 0; i < captures.Count; i++)
-            if (captures[i].Sensor == requested.Sensor) return captures[i] == requested;
-        return false;
-    }
-    public void RecordCapturePresentation(ulong frame)
-    {
-        if (!_hasPresentationFrame || frame != _presentationFrame || !_frameAdmitted || !_frameCaptureTaken)
-            throw new InvalidOperationException("World opacity lacks its admitted display pulse.");
-        _lastPresentationApplied = _frameMaster;
     }
     private bool AdmitPresentationFrame(ulong frame)
     {
         if (_hasPresentationFrame && frame < _presentationFrame) throw new ArgumentException("Display frame identity reversed.");
         if (_hasPresentationFrame && frame == _presentationFrame) return _frameAdmitted;
         _hasPresentationFrame = true; _presentationFrame = frame;
-        _frameAdmitted = _framePoseTaken = _frameHintTaken = _frameCaptureTaken = _frameGoalTaken = false;
-        Array.Clear(_activationFrameTaken);
+        _frameAdmitted = _framePoseTaken = _frameHintTaken = _frameGoalTaken = false;
+        Array.Clear(_activationFrameTaken); Array.Clear(_captureFrameTaken);
         _frameObservedAt = WorkshopNativeClock.FromMilliseconds(NativeMilliseconds());
         if (_preparation is not null || _schedule is not { } schedule ||
             !Clock.TryMasterNow(_frameObservedAt, out var master)) return false;
@@ -267,19 +184,5 @@ public sealed partial class BrowserWorkshopClient
         _frameMaster = WorkshopPulse.Deadline(schedule.Settings.PresentationRate, due);
         _frameAdmitted = true;
         return true;
-    }
-    public bool TryHint(ulong frame, out WorkshopHintSample sample)
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-        ThrowIfTransportFailed();
-        if (!AdmitPresentationFrame(frame) || _frameHintTaken || _hintSample is not { } value || value.AppliedAt.Value > _frameMaster.Value)
-        { sample = default; return false; }
-        _frameHintTaken = true; _hintSample = null; sample = value; return true;
-    }
-    public void RecordHintPresentation(ulong frame)
-    {
-        if (!_hasPresentationFrame || frame != _presentationFrame || !_frameAdmitted || !_frameHintTaken)
-            throw new InvalidOperationException("Hint application lacks its admitted display pulse.");
-        _lastPresentationApplied = _frameMaster;
     }
 }

@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-09-2026 00:48
+last_updated: 10-09-2026 02:40
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -42,14 +42,14 @@ development_status:
   3-1-endpoint-sampled-sensors-dwell-counter: done
   epic-3-retrospective: optional
 
-  epic-4: in-progress
+  epic-4: done
   4-1-dedicated-wasm-animation-worker: done
   4-2-mechanical-cosmetic-bindings: done
-  4-3-legacy-presentation-code-retirement: backlog
+  4-3-legacy-presentation-code-retirement: done
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-dynamic-box-rigid-body-upright-stability: backlog
+  epic-5: in-progress
+  5-1-dynamic-box-rigid-body-upright-stability: ready-for-dev
   5-2-domino-cascade-orientation-threshold-sensor: backlog
   epic-5-retrospective: optional
 

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CuriousContraptions.Presentation;
 
 namespace CuriousContraptions.Gpu;
 
@@ -9,12 +10,10 @@ public enum WorkshopTransportState { Ready, Backpressure, TimedOut, Indeterminat
 internal interface IWorkshopClient : IAsyncDisposable
 {
     WorkshopCadenceSettings Settings { get; }
-    void ControlHint(AnimationControlKind kind, bool visible);
-    bool TryHint(ulong frame, out WorkshopHintSample sample);
-    void RecordHintPresentation(ulong frame);
-    bool TryGoalOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity);
-    bool TryCaptureOpacity(ulong frame, WorkshopPresentationSample physical, out Half opacity);
-    void RecordCapturePresentation(ulong frame);
+    /// <summary>Queue one player control for a Control-fed UI target; it is sent when the single animation lease is free.</summary>
+    void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible);
+    /// <summary>One sampled opacity for a declared UI target, at most once per admitted display frame.</summary>
+    bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out AnimationOpacity opacity);
     /// <summary>One sampled cosmetic blend for the part whose instance declares a cosmetic curve.</summary>
     bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample);
     SimulationEpoch Epoch { get; }

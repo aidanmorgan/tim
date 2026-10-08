@@ -5,7 +5,6 @@ namespace CuriousContraptions.Gpu;
 
 public enum AnimationControlKind : uint { Reveal = 1, Hide = 2, Visibility = 3, Endpoint = 4, TimerObservation = 5, Impulse = 6 }
 public enum AnimationOutputKind : uint { Acknowledgement = 1, Sample = 2, Rejected = 3 }
-public readonly record struct WorkshopHintSample(ulong Generation, PulseOrdinal Pulse, MasterTimeNanoseconds AppliedAt, Half Opacity);
 public readonly record struct WorkshopAnimationControl(AnimationTargetId Target, SimulationEpoch World,
     ulong Sequence, ulong Generation, AnimationControlKind Kind, bool Visible,
     Half From, Half To, Half Duration, AnimationCurve Curve, uint EventOrdinal = 0, Half EventPhase = default, AnimationProperty Property = AnimationProperty.Opacity, AnimationTimerObservation Timer = default,
@@ -15,7 +14,8 @@ public readonly record struct WorkshopAnimationSample(AnimationTargetId Target, 
 public static class WorkshopAnimationWire
 {
     public const ushort Version = 5;
-    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + ContactWorkCapacity + 3;
+    /// <summary>Activation + timer nodes, contact owners, one capture target per sensor and the two declared UI targets.</summary>
+    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + ContactWorkCapacity + PhysicsSceneDeclaration.SensorCapacity + 2;
     /// <summary>Concurrent occurrences one impulse target retains; a declared cooldown keeps real overlap far below it.</summary>
     public const int ImpulseCapacity = 64;
     private const int ContactWorkCapacity = PhysicsSceneDeclaration.ContactWorkCapacity;
