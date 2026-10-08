@@ -71,14 +71,17 @@
         </ItemGroup>
     </Target>
 
-    <!-- Build the independent numerical worker normally; a failed worker export fails the host bundle. -->
+    <!-- Each worker ships as its own trimmed publish bundle; a failed worker publish fails the host bundle.
+         The host's publish-context globals (nested-publish markers, an -o PublishDir and the 2dog WasmAppDir)
+         must not reach a worker, or its bundle would be produced untrimmed or written over the host bundle. -->
+    <PropertyGroup>
+        <_WorkshopWorkerHostGlobals>_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish;WasmAppDir;PublishDir;_CommandLineDefinedOutputPath</_WorkshopWorkerHostGlobals>
+    </PropertyGroup>
     <Target Name="BuildWorkshopWorker" BeforeTargets="_WasmGenerateAppBundle">
         <MSBuild Projects="../CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj"
-                 Targets="Restore" Properties="Configuration=$(Configuration)"
-                 RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish" />
+                 Targets="Restore" Properties="Configuration=$(Configuration)" RemoveProperties="$(_WorkshopWorkerHostGlobals)" />
         <MSBuild Projects="../CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj"
-                 Targets="GetWorkshopWorkerBundle" Properties="Configuration=$(Configuration)"
-                 RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish">
+                 Targets="GetWorkshopWorkerBundle" Properties="Configuration=$(Configuration)" RemoveProperties="$(_WorkshopWorkerHostGlobals)">
             <Output TaskParameter="TargetOutputs" ItemName="_WorkshopWorkerBundle" />
         </MSBuild>
     </Target>
@@ -89,11 +92,9 @@
     </Target>
     <Target Name="BuildWorkshopAnimation" BeforeTargets="_WasmGenerateAppBundle">
         <MSBuild Projects="../CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj"
-                 Targets="Restore" Properties="Configuration=$(Configuration)"
-                 RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish" />
+                 Targets="Restore" Properties="Configuration=$(Configuration)" RemoveProperties="$(_WorkshopWorkerHostGlobals)" />
         <MSBuild Projects="../CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj"
-                 Targets="GetWorkshopAnimationBundle" Properties="Configuration=$(Configuration)"
-                 RemoveProperties="_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish">
+                 Targets="GetWorkshopAnimationBundle" Properties="Configuration=$(Configuration)" RemoveProperties="$(_WorkshopWorkerHostGlobals)">
             <Output TaskParameter="TargetOutputs" ItemName="_WorkshopAnimationBundle" />
         </MSBuild>
     </Target>

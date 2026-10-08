@@ -8,20 +8,40 @@
     <Nullable>enable</Nullable>
     <WasmMainJSPath>wwwroot/worker.js</WasmMainJSPath>
   </PropertyGroup>
+  <!-- The shipped worker is the trimmed Publish bundle only: Build produces no bundle, and the publish carries
+       no symbol map, source maps, debugger metadata or ICU shards. -->
+  <PropertyGroup>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+    <WasmBuildOnlyAfterPublish>true</WasmBuildOnlyAfterPublish>
+    <WasmEnableSIMD>true</WasmEnableSIMD>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
+    <WasmEmitSourceMap>false</WasmEmitSourceMap>
+    <WasmDebugLevel>0</WasmDebugLevel>
+    <DebuggerSupport>false</DebuggerSupport>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
     <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs;../engine/gpu/WorkshopPipe.cs;../engine/gpu/AnnularProfile.cs" Link="Gpu/%(Filename)%(Extension)" />
     <WasmExtraFilesToDeploy Include="wwwroot/**" />
+    <!-- worker.js reaches every [JSExport] entry point by name, so the trimmer keeps the whole worker assembly. -->
+    <TrimmerRootAssembly Include="$(AssemblyName)" />
   </ItemGroup>
-  <Target Name="GetWorkshopAnimationBundle" DependsOnTargets="Build" Returns="@(_WorkshopAnimationBundleFiles)">
-    <Error Condition="'$(WasmAppDir)' == '' Or !Exists('$(WasmAppDir)worker.js')" Text="Current Animation worker bundle is missing." />
+  <!-- Return this project's actual trimmed publish bundle; the WebAssembly SDK writes it to $(OutputPath)AppBundle during Publish. -->
+  <Target Name="GetWorkshopAnimationBundle" DependsOnTargets="Publish" Returns="@(_WorkshopAnimationBundleFiles)">
+    <PropertyGroup>
+      <_WorkshopAnimationBundleDir>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(OutputPath)', 'AppBundle'))</_WorkshopAnimationBundleDir>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_WorkshopAnimationBundleDir)worker.js')" Text="Current trimmed Animation worker publish bundle is missing." />
     <ItemGroup>
-      <_WorkshopAnimationBundleFiles Include="$(WasmAppDir)**/*" />
+      <_WorkshopAnimationBundleFiles Include="$(_WorkshopAnimationBundleDir)**/*" />
     </ItemGroup>
     <ItemGroup>
       <_WorkshopAnimationBundleFiles Update="@(_WorkshopAnimationBundleFiles)">
         <BundleRelativePath>%(_WorkshopAnimationBundleFiles.RecursiveDir)%(_WorkshopAnimationBundleFiles.Filename)%(_WorkshopAnimationBundleFiles.Extension)</BundleRelativePath>
       </_WorkshopAnimationBundleFiles>
     </ItemGroup>
+    <Error Condition="'@(_WorkshopAnimationBundleFiles)' == ''" Text="The current Animation worker bundle is empty." />
   </Target>
 </Project>

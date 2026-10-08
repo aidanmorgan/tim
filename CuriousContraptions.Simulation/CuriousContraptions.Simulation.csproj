@@ -9,17 +9,36 @@
     <DefineConstants Condition="'$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
     <WasmMainJSPath>wwwroot/worker.js</WasmMainJSPath>
   </PropertyGroup>
+  <!-- The shipped worker is the trimmed Publish bundle only: Build produces no bundle, and the publish carries
+       no symbol map, source maps, debugger metadata or ICU shards. SIMD stays on for wasm-simd128 physics. -->
+  <PropertyGroup>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+    <WasmBuildOnlyAfterPublish>true</WasmBuildOnlyAfterPublish>
+    <WasmEnableSIMD>true</WasmEnableSIMD>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
+    <WasmEmitSourceMap>false</WasmEmitSourceMap>
+    <WasmDebugLevel>0</WasmDebugLevel>
+    <DebuggerSupport>false</DebuggerSupport>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
     <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs;../engine/gpu/WorkshopPipe.cs;../engine/gpu/AnnularProfile.cs" Link="Gpu/%(Filename)%(Extension)" />
     <WasmExtraFilesToDeploy Include="wwwroot/**" />
+    <!-- worker.js reaches every [JSExport] entry point by name, so the trimmer keeps the whole worker assembly. -->
+    <TrimmerRootAssembly Include="$(AssemblyName)" />
   </ItemGroup>
-  <!-- Return this project's actual normal build bundle, never an assumed sibling output directory. -->
-  <Target Name="GetWorkshopWorkerBundle" DependsOnTargets="Build" Returns="@(_WorkshopWorkerBundleFiles)">
-    <Error Condition="'$(WasmAppDir)' == '' Or !Exists('$(WasmAppDir)worker.js')"
-           Text="The current normal Workshop worker bundle is missing." />
+  <!-- Return this project's actual trimmed publish bundle, never an assumed sibling output directory.
+       The WebAssembly SDK writes the published bundle to $(OutputPath)AppBundle during Publish. -->
+  <Target Name="GetWorkshopWorkerBundle" DependsOnTargets="Publish" Returns="@(_WorkshopWorkerBundleFiles)">
+    <PropertyGroup>
+      <_WorkshopWorkerBundleDir>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(OutputPath)', 'AppBundle'))</_WorkshopWorkerBundleDir>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_WorkshopWorkerBundleDir)worker.js')"
+           Text="The current trimmed Workshop worker publish bundle is missing." />
     <ItemGroup>
-      <_WorkshopWorkerBundleFiles Include="$(WasmAppDir)**/*" />
+      <_WorkshopWorkerBundleFiles Include="$(_WorkshopWorkerBundleDir)**/*" />
     </ItemGroup>
     <ItemGroup>
       <_WorkshopWorkerBundleFiles Update="@(_WorkshopWorkerBundleFiles)">
