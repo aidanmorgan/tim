@@ -73,17 +73,30 @@ Every single story across all epics must formally satisfy the following mandator
 3. **Epic 3: Decoupled Sensor Evaluation** (ENGINE-CORE-2c) — *[In-Progress]*
 4. **Epic 4: Dedicated WebAssembly Animation Worker** (ANIM-1a, ANIM-1b, ANIM-1c) — *[Backlog]*
 5. **Epic 5: Dynamic Polyhedral Rigid Bodies & Domino Mechanics** (CAT-023a, CAT-023b) — *[Backlog]*
-6. **Epic 6: Core Interactive Catalogue Elements** (CAT-014 Bowling Ball, CAT-015a-b Bumper, CAT-062a-b Springboard, CAT-002 Ball Detector, CAT-048a-b Pipe) — *[Backlog]*
+6. **Epic 6: Core Interactive Catalogue Elements** (CAT-014 Bowling Ball, CAT-015a-b Bumper, CAT-062a-b Springboard, CAT-048a-b Pipe, CAT-002 Ball Detector, CAT-049 45° Pipe Bend, CAT-050 90° Pipe Bend, CAT-030 Funnel) — *[Backlog]*
 7. **Epic 7: Legacy Code Purge & Zero-Remnant Clean Architecture** (LEGACY-0a Historical Archives, LEGACY-0b Probe Tools, LEGACY-0c Dead Tests, LEGACY-0d Legacy CPU Physics & Unshipped Engine Purge) — *[Backlog]*
-8. **Epic 8: Activation, Timing & Discrete Logic Elements** (Pressure Plate, Pulse Counter, System Clock, State Latch, Hold Timer) — *[Backlog]*
-9. **Epic 9: Supplied Electrical Power & Logic Networks** (Battery Power Source, Electrical Logic Gates Nand/Nor/Or/Xor, Dual-Supply Both) — *[Backlog]*
-10. **Epic 10: Constrained Mechanics & Elastic Fixtures** (Trampoline, Impact Lever, Pulley, Counterweight, Rope Anchor) — *[Backlog]*
-11. **Epic 11: Rotary Drive & Mechanical Actuators** (Electric Motor, Conveyor Belt, Mechanical Clutch, Reverse Transmission, Linear Pusher, Powered Gate, Wound Spring Motor, Toy Cannon, Beam Shutter) — *[Backlog]*
-12. **Epic 12: Conserved Airflow, Pneumatics & Buoyancy** (Floating Balloon, Electric Fan, Pneumatic Bellows, Windmill, Tennis Ball) — *[Backlog]*
-13. **Epic 13: Optical Propagation, Routing & Sensing** (Torch, Laser, Flat Mirror, Beam Splitter & Combiner, Spectral Color Filters, Tuned Optical Receivers, Solar Panel, Optical Logic Gates) — *[Backlog]*
-14. **Epic 14: Acoustic Emission & Reception** (Service Bell, Audio Speaker, Sound Level Meter, Wind Chimes) — *[Backlog]*
+8. **Epic 8: Supplied Electrical Power** (Battery Power Source, Powered Gate) — *[Backlog]*
+9. **Epic 9: Activation, Timing & Electrical Logic** (Pressure Plate, Pulse Counter, System Clock, State Latch, Hold Timer, Dual-Supply Both, Electrical Logic Gates Nand/Nor/Or/Xor) — *[Backlog]*
+10. **Epic 10: Constrained Mechanics & Elastic Fixtures** (Solid Cylinder Collider & Inertia, Pulley, Rope Anchor, Impact Lever, Counterweight, Trampoline) — *[Backlog]*
+11. **Epic 11: Rotary Drive & Mechanical Actuators** (Electric Motor, Conveyor Belt, Mechanical Clutch, Reverse Transmission, Linear Pusher, Wound Spring Motor, Toy Cannon) — *[Backlog]*
+12. **Epic 12: Conserved Airflow, Pneumatics & Buoyancy** (Tennis Ball, Floating Balloon, Electric Fan, Windmill, Pneumatic Bellows) — *[Backlog]*
+13. **Epic 13: Optical Propagation, Routing & Sensing** (Torch, Laser, Tuned Optical Receivers, Beam Shutter, Spectral Color Filters, Flat Mirror, Beam Splitter & Combiner, Secondary Receivers, Solar Panel, Optical Logic Gates) — *[Backlog]*
+14. **Epic 14: Acoustic Emission & Reception** (Sound Level Meter, Service Bell, Audio Speaker, Wind Chimes) — *[Backlog]*
 15. **Epic 15: 150 Progressively Taught Campaign Levels** (Stories 15.1–15.15 covering all 150 levels in 10-level batches across Chapters 1 to 5, with verified UI solutions and retry loops) — *[Backlog]*
 16. **Epic 16: Release Qualification, Performance Audits & Production Packaging** (Cross-platform headless/browser performance audit, WebGL2/WebGPU qualification, 60 FPS display pacing, memory leak audits, and release candidate bundle) — *[Backlog]*
+
+Story order follows the owner re-ordering of 9 Oct 2026 (dependencies): each story comes after what it needs, except the open scheduling items listed in epics.md (below). Every moved story carries a "Depends on" line naming its former number. The old-to-new mapping is in [vertical-delivery.md](../../docs/planning/invest/vertical-delivery.md#owner-reordering-dependencies).
+
+### Open scheduling items
+
+These are open owner decisions. They are recorded here, not applied as moves. The Battery acceptance that names the Electric Motor in Story 8.1's acceptance (Motor delivery: Story 11.1) is an acceptance conflict for the owner's case-by-case review, not a scheduling item.
+
+- **(a) RGB lasers (EL-176–178).** Whether they fold in before Story 13.4 (Spectral Color Bandpass Filters, formerly 13.3) is undecided.
+- **(b) Switch electrical mode.** Story 9.7 (Electrical NAND & NOR, formerly 9.3) wires its gates to input power switches, which needs the CAT-063 Switch `PowerIn`→`Supply` mode. No story schedules it. The CAT-013, CAT-026, CAT-027 and CAT-039 specs cite the same need.
+- **(c) Sound meter source.** Story 14.1 (Sound Level Meter, formerly 14.3) comes first because it delivers propagation, but every acoustic source (Bell 14.2, Speaker 14.3, Wind chimes 14.4) now comes after it, and its acceptance uses the Service Bell. The options are a separate acoustic-propagation engine story before the Bell, merging the meter with the Bell, or deferring the meter's source integration until the Bell lands.
+- **(d) Receivers' colour source.** Story 13.2's pure-channel receivers need coloured beams. CAT-056 names the red filter, now Story 13.4, as its pure source (CAT-032 and CAT-012 name the green and blue filters), while the filters use the receivers as observers. That is a loop. Folding the RGB lasers (item a) in before Story 13.2 would break it.
+- **(e) Story 10.1 placement.** The cylinder story sits before the first possible cylinder consumer, the Story 10.2 Pulley wheel (CAT-053 open question 1) or the Story 10.3 Lever fulcrum (CAT-034 open question 2). Its placement depends on the owner's cylinder-fulcrum and wheel choices; if neither is a cylinder, its first definite consumer is Story 11.1 (CAT-042 rotor, CAT-019 roller).
+- **(f) Pulley and Lever loop (found while applying this re-ordering).** Story 10.2 (Pulley, formerly 10.3) uses a Lever as the rope load in its acceptance, but the Lever (Story 10.3, formerly 10.2) now follows it because its end rope sockets need the ropes. The Counterweight body (CAT-067) ships with Story 10.2 per CAT-067 §3, so the Pulley acceptance can use it before 10.4.
 
 ---
 
@@ -415,8 +428,42 @@ So that contraptions can solve `spring_forward`.
 - **And** `engine/LatchedSpringStore.cs` is deleted in favor of declarative preload energy stores.
 - **And** `tools/e2e/cat-062b.test.ts` passes 100% in Chrome serially.
 
-### Story 6.6: Generic Aperture Sensor with Directional Rearm (CAT-002)
+### Story 6.6: Straight Pipe Compound Cylindrical Collider (CAT-048a)
 *Status: Backlog*
+
+*Depends on: the Epic 1 contact core and the delivered Basketball. Moved from Story 6.7 (owner re-ordering, 9 Oct 2026), because the Ball Detector now follows the pipe stories.*
+
+As a player,  
+I want balls to roll smoothly through straight pipes without snagging,  
+So that enclosed ball transport operates reliably.
+
+**Acceptance Criteria:**
+- **Given** a straight pipe collider in the Workshop,
+- **When** an admitted ball rolls into the pipe mouth,
+- **Then** the ball travels through and exits without snagging or falling through walls.
+- **And** an oversized ball stops at the pipe entrance without clipping.
+- **And** `tools/e2e/cat-048a.test.ts` passes 100% in Chrome serially.
+
+### Story 6.7: Hollow Signed-Distance Torus Rim Cap Pipe Collider (CAT-048b)
+*Status: Backlog*
+
+*Depends on: Story 6.6 (straight pipe collider). Moved from Story 6.8 (owner re-ordering, 9 Oct 2026), because the Ball Detector now follows the pipe stories.*
+
+As a player,  
+I want curved and complex pipe paths to guide balls reliably,  
+So that level `clear_pipe` can be solved.
+
+**Acceptance Criteria:**
+- **Given** level `clear_pipe` played in Chrome,
+- **When** the ball enters the mouth at high speed and edge angles,
+- **Then** the ball negotiates the pipe geometry and reaches the receiver.
+- **And** all legacy annular-specific kernel code, `AnnularFeature` enums, and `reference/pipe/` are deleted.
+- **And** `tools/e2e/cat-048b.test.ts` passes 100% in Chrome serially.
+
+### Story 6.8: Generic Aperture Sensor with Directional Rearm (CAT-002)
+*Status: Backlog*
+
+*Depends on: Stories 6.6 and 6.7 (the detector body is a hollow collar that reuses the pipe's annular collider, rim caps and tube mouths; CAT-002 §3). Moved from Story 6.6 (owner re-ordering, 9 Oct 2026).*
 
 As a player,  
 I want a Ball Detector to emit a signal when a ball passes through its aperture,  
@@ -430,39 +477,63 @@ So that crossing events can trigger downstream contraption components.
 - **And** a second forward crossing after complete clearance triggers again.
 - **And** `tools/e2e/cat-002.test.ts` passes 100% in Chrome serially.
 
-### Story 6.7: Straight Pipe Compound Cylindrical Collider (CAT-048a)
+### Story 6.9: 45-Degree Pipe Bend Hollow Torus Segment (CAT-049)
 *Status: Backlog*
 
 As a player,  
-I want balls to roll smoothly through straight pipes without snagging,  
-So that enclosed ball transport operates reliably.
+I want a 45-degree hollow pipe bend that joins straight pipes and other bends,  
+So that level `gentle_bend` can be solved by turning a falling ball through a gentle curve.
 
 **Acceptance Criteria:**
-- **Given** a straight pipe collider in the Workshop,
-- **When** an admitted ball rolls into the pipe mouth,
-- **Then** the ball travels through and exits without snagging or falling through walls.
-- **And** an oversized ball stops at the pipe entrance without clipping.
-- **And** `tools/e2e/cat-048a.test.ts` passes 100% in Chrome serially.
+- **Given** level `gentle_bend` played in Chrome with the 45-degree bend placed through real UI controls,
+- **When** the ball enters the upper mouth and travels the 1.3-unit bore around the fixed-radius curve,
+- **Then** it exits the lower mouth without added speed and reaches the receiver; straight-to-bend and bend-to-bend rotated passages succeed through typed mouth snapping.
+- **And** rim, oversize, sidewall and missed-connection controls deliver nothing, and an actual valid Precise alternative route is proven.
+- **And** the authored assistance controls depend on physical placement nudging, which is not scheduled (owner decision; `docs/planning/invest/vertical-delivery.md` reports physical nudging unsupported in the current playable mode); they are proven when nudging lands, and CAT-049 stays open until then.
+- **And** the bend keeps its own icon, rails and collars; no 90-degree proof substitutes for it.
+- **And** the element is built from its declaration spec `docs/planning/elements/CAT-049-pipe_bend_45.md`, with exact Reset and Save/Load.
+- **And** `tools/e2e/cat-049.test.ts` passes 100% in Chrome serially.
 
-### Story 6.8: Hollow Signed-Distance Torus Rim Cap Pipe Collider (CAT-048b)
+### Story 6.10: 90-Degree Pipe Bend and Joined Pipe Route (CAT-050)
 *Status: Backlog*
 
 As a player,  
-I want curved and complex pipe paths to guide balls reliably,  
-So that level `clear_pipe` can be solved.
+I want a 90-degree hollow pipe bend that joins a straight pipe into one continuous route,  
+So that levels `quarter_bend` and `joined_pipe` can be solved.
 
 **Acceptance Criteria:**
-- **Given** level `clear_pipe` played in Chrome,
-- **When** the ball enters the mouth at high speed and edge angles,
-- **Then** the ball negotiates the pipe geometry and reaches the receiver.
-- **And** all legacy annular-specific kernel code, `AnnularFeature` enums, and `reference/pipe/` are deleted.
-- **And** `tools/e2e/cat-048b.test.ts` passes 100% in Chrome serially.
+- **Given** levels `quarter_bend` and `joined_pipe` played in Chrome through real UI controls,
+- **When** the ball falls into the bend's upper mouth, or through a resized straight pipe snapped to the fixed bend,
+- **Then** it follows the continuous turned passage and reaches the receiver.
+- **And** straight/bend joins succeed, and rotated, oversize, rim and missing-connection controls deliver nothing.
+- **And** the declared depth-error result (Forgiving and Balanced succeed where Precise fails) depends on physical placement nudging, which is not scheduled (owner decision; `docs/planning/invest/vertical-delivery.md` reports physical nudging unsupported in the current playable mode); it is proven when nudging lands, and CAT-050 stays open until then.
+- **And** the bend shares the common bore and typed mouth geometry with matching collars, rails and icon; no 45-degree proof stands in for it.
+- **And** the element is built from its declaration spec `docs/planning/elements/CAT-050-pipe_bend_90.md`, with exact Reset and Save/Load.
+- **And** `tools/e2e/cat-050.test.ts` passes 100% in Chrome serially.
+
+### Story 6.11: Funnel Hollow Frustum Inlet to the Standard Bore (CAT-030)
+*Status: Backlog*
+
+As a player,  
+I want a wide clear funnel that narrows into the standard tube bore,  
+So that loosely aimed balls are gathered into a pipe route by gravity and contact alone.
+
+**Acceptance Criteria:**
+- **Given** a funnel placed through real UI controls with its narrow outlet snapped to a straight pipe or bend,
+- **When** a ball drops into the 2.6-unit mouth, including off-centre, fast and rotated entries,
+- **Then** the physically hollow frustum walls guide it to the 1.3-unit outlet and on into the joined tube, with no attraction or scripted transport.
+- **And** inlet, wall, outlet and rim contacts, oversize payloads and straight/bend joins are qualified, an outside drop is blocked by the solid shell, and mesh and contact geometry match.
+- **And** two integration proofs are owed, and CAT-030 stays open until they pass: the solid shell blocks air at Story 12.2 (Electric Fan), and the clear wall transmits light except at the opaque collar at Story 13.1 (Flashlight and Laser).
+- **And** the element is built from its declaration spec `docs/planning/elements/CAT-030-funnel.md`, with exact Reset and Save/Load.
+- **And** `tools/e2e/cat-030.test.ts` passes 100% in Chrome serially.
 
 ---
 
 ## Epic 7: Legacy Code Purge & Zero-Remnant Clean Architecture
 
 **Goal:** Eradicate all dead reference tarballs, ad-hoc diagnostic probe tools, uncompiled test suites, and superseded CPU physics implementations across four disciplined deletion stages (LEGACY-0a through 0d).
+
+**Entry gate (Stories 7.1–7.4):** no file is deleted until [legacy-disposition.md](../../docs/planning/elements/legacy-disposition.md) has a row for it. The ledger is written by Story 7.0 ([spec](../implementation-artifacts/spec-7-0-element-implementation-readiness.md)).
 
 ### Story 7.1: Reference & Historical Archive Purge (LEGACY-0a)
 *Status: Backlog*
@@ -521,12 +592,51 @@ So that Curious Contraptions contains zero legacy physics code in the active tre
 
 ---
 
-## Epic 8: Activation, Timing & Discrete Logic Elements
+## Epic 8: Supplied Electrical Power
 
-**Goal:** Deliver the full suite of sensor and discrete logic elements (Pressure Plate, Pulse Counter, System Clock, State Latch, Hold Timer) evaluating cleanly at substep endpoints with exact tick accumulation.
+**Goal:** Implement supplied direct-current electrical networks and battery power sources as declarative network graphs with zero continuous circuit simulation overhead. The Powered Gate is the first supplied consumer (owner decision, 9 Oct 2026).
 
-### Story 8.1: Pressure Plate Surface Contact Load Sensor (CAT-052)
+### Story 8.1: Battery DC Power Source & Network Graph (CAT-005)
 *Status: Backlog*
+
+*Depends on: Epic 7 (legacy purge). Moved from Story 9.1 (owner decision, 9 Oct 2026: electrical first, before the activation stories). Its first electrical consumer is the Powered Gate (Story 8.2); the Electric Motor named in its acceptance arrives in Story 11.1 (an acceptance conflict for case-by-case owner review). Its supply-loss control (CAT-005 N19, which uses the Latch supply-switching fixture) is a deferred integration, owed once the Latch (Story 9.4) lands.*
+
+As a player,  
+I want Batteries to supply power to connected electrical elements,  
+So that powered mechanisms like motors and lamps can operate.
+
+**Acceptance Criteria:**
+- **Given** a Battery connected to an Electric Motor via an electrical cable,
+- **When** the simulation runs,
+- **Then** the motor receives continuous 12V supply and spins its axle.
+- **And** disconnecting the cable stops the motor immediately.
+- **And** `tools/e2e/cat-005.test.ts` passes 100% in Chrome serially.
+
+### Story 8.2: Powered Gate Passageway Barrier (CAT-051)
+*Status: Backlog*
+
+*Depends on: Stories 6.4 (prismatic slider), 6.6–6.7 (pipe mouths and routes) and 8.1 (supply). Moved from Story 11.4 (owner decision, 9 Oct 2026: first electrical consumer). It now precedes the Linear Pusher (Story 11.3), so it first builds the bounded slider drive that the pusher reuses. Its "supply interruption mid-stroke" control (CAT-051) is a deferred integration, owed once the Latch fixture (Story 9.4) lands.*
+
+As a player,  
+I want a Powered Gate to open when triggered,  
+So that balls previously blocked can pass through unobstructed.
+
+**Acceptance Criteria:**
+- **Given** a closed Powered Gate blocking a ball in a ramp,
+- **When** an activation pulse is received,
+- **Then** the gate opens fully, allowing the ball to roll past.
+- **And** `tools/e2e/cat-051.test.ts` passes 100% in Chrome serially.
+
+---
+
+## Epic 9: Activation, Timing & Electrical Logic
+
+**Goal:** Deliver the full suite of sensor and discrete logic elements (Pressure Plate, Pulse Counter, System Clock, State Latch, Hold Timer) evaluating cleanly at substep endpoints with exact tick accumulation, then the electrical Boolean logic gates (NAND, NOR, OR, XOR, Both) as declarative network graphs on the Epic 8 supply.
+
+### Story 9.1: Pressure Plate Surface Contact Load Sensor (CAT-052)
+*Status: Backlog*
+
+*Depends on: Stories 8.1 (supplied contact) and 8.2 (supplied consumer). Moved from Story 8.1 (the Battery and Powered Gate now precede this epic).*
 
 As a player,  
 I want to use a Pressure Plate that activates only when a body rests upon it,  
@@ -540,8 +650,10 @@ So that weight-sensitive mechanisms and sustained gates can be triggered.
 - **And** light bouncing impacts without resting weight do NOT produce sustained activation.
 - **And** `tools/e2e/cat-052.test.ts` passes 100% in Chrome serially.
 
-### Story 8.2: Pulse Counter Event Accumulator (CAT-020)
+### Story 9.2: Pulse Counter Event Accumulator (CAT-020)
 *Status: Backlog*
+
+*Depends on: Stories 6.8 (Ball Detector, one event per crossing), 8.1 and 8.2. Moved from Story 8.2.*
 
 As a player,  
 I want a Pulse Counter to emit a signal after receiving $N$ pulses,  
@@ -555,8 +667,10 @@ So that multi-step contraption sequences can be orchestrated.
 - **And** clicking Reset clears the accumulated count back to zero.
 - **And** `tools/e2e/cat-020.test.ts` passes 100% in Chrome serially.
 
-### Story 8.3: System Clock Periodic Pulse Generator (CAT-017)
+### Story 9.3: System Clock Periodic Pulse Generator (CAT-017)
 *Status: Backlog*
+
+*Depends on: Stories 8.1 (power to run), 8.2 and 9.2 (the Counter observes repeated pulses). Moved from Story 8.3.*
 
 As a player,  
 I want a System Clock to emit pulses at regular intervals,  
@@ -569,8 +683,10 @@ So that rhythmic and timed contraption mechanisms can operate.
 - **And** pausing simulation halts clock emission; resetting restores clock phase to 0.
 - **And** `tools/e2e/cat-017.test.ts` passes 100% in Chrome serially.
 
-### Story 8.4: State Latch Bistable Memory (CAT-037)
+### Story 9.4: State Latch Bistable Memory (CAT-037)
 *Status: Backlog*
+
+*Depends on: Stories 8.1 and 8.2 (supplied contact and consumer). Moved from Story 8.4.*
 
 As a player,  
 I want a State Latch to hold memory between Set and Reset pulses,  
@@ -584,8 +700,10 @@ So that machine state can toggle and persist across dynamic events.
 - **And** simultaneous Set and Reset pulses resolve in favor of Reset (Reset dominance).
 - **And** `tools/e2e/cat-037.test.ts` passes 100% in Chrome serially.
 
-### Story 8.5: Hold Timer Pulse Stretcher (CAT-033)
+### Story 9.5: Hold Timer Pulse Stretcher (CAT-033)
 *Status: Backlog*
+
+*Depends on: Stories 8.1 and 8.2 (supplied contact and consumer). Moved from Story 8.5.*
 
 As a player,  
 I want a Hold Timer to keep an output energized for a configured duration after a momentary trigger,  
@@ -598,28 +716,10 @@ So that timed doors and temporary circuits can stay open.
 - **And** re-triggering during the active window does NOT extend the timeout.
 - **And** `tools/e2e/cat-033.test.ts` passes 100% in Chrome serially.
 
----
-
-## Epic 9: Supplied Electrical Power & Logic Networks
-
-**Goal:** Implement supplied direct-current electrical networks, battery power sources, and electrical Boolean logic gates (NAND, NOR, OR, XOR, Both) as declarative network graphs with zero continuous circuit simulation overhead.
-
-### Story 9.1: Battery DC Power Source & Network Graph (CAT-005)
+### Story 9.6: Dual-Supply Both Gate (CAT-013)
 *Status: Backlog*
 
-As a player,  
-I want Batteries to supply power to connected electrical elements,  
-So that powered mechanisms like motors and lamps can operate.
-
-**Acceptance Criteria:**
-- **Given** a Battery connected to an Electric Motor via an electrical cable,
-- **When** the simulation runs,
-- **Then** the motor receives continuous 12V supply and spins its axle.
-- **And** disconnecting the cable stops the motor immediately.
-- **And** `tools/e2e/cat-005.test.ts` passes 100% in Chrome serially.
-
-### Story 9.2: Dual-Supply Both Gate (CAT-013)
-*Status: Backlog*
+*Depends on: Stories 8.1 (supply), 8.2 (supplied consumer) and 9.4 (the Latch supply fixture used by its boundary and integration checks; CAT-013 §5). Moved from Story 9.2 (coordinator decision, 9 Oct 2026: the owner's literal order puts the electrical gates after the activation stories).*
 
 As a player,  
 I want a Dual-Supply Both Gate to conduct power only when both inputs are energized,  
@@ -632,8 +732,10 @@ So that safety interlocks and dual-condition activations are possible.
 - **And** disconnecting either battery extinguishes the lamp.
 - **And** `tools/e2e/cat-013.test.ts` passes 100% in Chrome serially.
 
-### Story 9.3: Electrical Logic Gates NAND & NOR (CAT-024, CAT-025)
+### Story 9.7: Electrical Logic Gates NAND & NOR (CAT-024, CAT-025)
 *Status: Backlog*
+
+*Depends on: Stories 8.1, 8.2 and 9.6 (gate element and sockets); its input power switches need the switch electrical mode (see Open scheduling item b). Moved from Story 9.3.*
 
 As a player,  
 I want Electrical NAND and NOR gates to evaluate Boolean conditions,  
@@ -645,8 +747,10 @@ So that complex electrical logic contraptions can be constructed.
 - **Then** output power states match standard Boolean truth tables with 100% accuracy.
 - **And** `tools/e2e/cat-024-025.test.ts` passes 100% in Chrome serially.
 
-### Story 9.4: Electrical Logic Gates OR & XOR (CAT-026, CAT-027)
+### Story 9.8: Electrical Logic Gates OR & XOR (CAT-026, CAT-027)
 *Status: Backlog*
+
+*Depends on: Stories 8.1, 8.2 and 9.6 (gate element and sockets). Moved from Story 9.4.*
 
 As a player,  
 I want Electrical OR and XOR gates to route and differentiate electrical signals,  
@@ -663,10 +767,82 @@ So that branching circuits and toggle mechanisms can be built.
 
 ## Epic 10: Constrained Mechanics & Elastic Fixtures
 
-**Goal:** Deliver compliant elastic fixtures, pivots, pulleys, ropes, and counterweights using unified TGS Soft constraints without ad-hoc velocity projections or Baumgarte stabilization.
+**Goal:** Deliver the solid cylinder collider and inertia, compliant elastic fixtures, pivots, pulleys, ropes, and counterweights using unified TGS Soft constraints without ad-hoc velocity projections or Baumgarte stabilization.
 
-### Story 10.1: Trampoline Compliant Membrane Dynamics (CAT-065)
+### Story 10.1: Solid Cylinder Collider & Cylinder Inertia (ENGINE-CYLINDER)
 *Status: Backlog*
+
+*Depends on: Stories 1.4 (BVH and SAT narrowphase) and 5.1 (dynamic rigid body and inertia compile). New story (owner decision, 9 Oct 2026), placed before the first possible cylinder consumer: the Story 10.2 Pulley wheel or the Story 10.3 Lever fulcrum. Its first definite consumer is Story 11.1 (see Open scheduling item e). ENGINE-CYLINDER is a roadmap-only ID, not yet in `docs/planning/requirements.md`.*
+
+As a player,  
+I want shaft wheels, rollers and pivot posts to collide and turn as true solid cylinders,  
+So that wheeled and pivoted parts move with their real shape and mass.
+
+**Acceptance Criteria:**
+- **Given** a solid cylinder declared by radius, width and mass, built through real UI controls on its first consuming element or on an explicitly selectable authored qualification fixture,
+- **When** a ball strikes its curved side and its flat end, and a dynamic cylinder falls onto the workbench,
+- **Then** contact follows the true curved side and flat end faces against spheres, boxes and the workbench plane, with no sphere, box or prism-hull stand-in.
+- **And** the dynamic cylinder rolls on its side and rests on an end face without jitter.
+- **And** cylinder inertia is compiled from the declaration: axial $m r^2 / 2$, transverse $m (3 r^2 + w^2) / 12$.
+- **And** the collider shape set gains Cylinder as a closed enum value end-to-end, and a non-positive or non-finite radius, width or mass is rejected atomically before any state changes.
+- **And** this is engine capability only, delivered as an engine slice or through one consuming element's slice; no element identifier appears in the physics solver.
+- **And** it serves the shaft wheels of CAT-042 Motor (`docs/planning/elements/CAT-042-motor.md`), CAT-019 Conveyor (`docs/planning/elements/CAT-019-conveyor.md`), CAT-018 Clutch (`docs/planning/elements/CAT-018-clutch.md`), CAT-057 Reverse transmission (`docs/planning/elements/CAT-057-reverse_transmission.md`) and CAT-071 Wound spring (`docs/planning/elements/CAT-071-wound_spring.md`); and, if the owner selects a cylinder for them, the CAT-053 Pulley wheel (`docs/planning/elements/CAT-053-pulley.md`), CAT-034 Impact lever solid fulcrum (`docs/planning/elements/CAT-034-impact_lever.md`), CAT-067 Weight body (`docs/planning/elements/CAT-067-weight.md`) and CAT-069 Wind chimes tubes (`docs/planning/elements/CAT-069-wind_chimes.md`).
+- **And** the legacy 24-sided prism-hull shaft (`engine/SceneRotaryShaft.cs`) is deleted, or confirmed already purged by Story 7.4; no hull fallback is introduced.
+- **And** exact Reset and Save/Load restore the cylinder poses.
+- **And** `tools/e2e/engine-cylinder.test.ts` passes 100% in Chrome serially.
+
+### Story 10.2: Pulley Wheel & Tensile Rope Dynamics (CAT-053, CAT-058)
+*Status: Backlog*
+
+*Depends on: Story 10.1 (wheel collider, if the owner chooses a cylinder; CAT-053 open question 1). Moved from Story 10.3, ahead of the Lever whose end rope sockets need the ropes; its acceptance uses a Lever as the rope load (see Open scheduling item f). The Counterweight body (CAT-067) ships with Story 10.2 per CAT-067 §3, so the Pulley acceptance can use it before 10.4.*
+
+As a player,  
+I want to route ropes around Pulleys to transmit tensile forces,  
+So that dropping one weight can lift an object in a different part of the workbench.
+
+**Acceptance Criteria:**
+- **Given** a rope routed through two Pulleys between a Counterweight and a Lever,
+- **When** the counterweight falls under gravity,
+- **Then** tensile forces transmit through the rope, lifting the lever arm.
+- **And** slack ropes apply zero force; cutting or releasing tension uncouples the bodies.
+- **And** `tools/e2e/cat-053-058.test.ts` passes 100% in Chrome serially.
+
+### Story 10.3: Balanced Impact Lever & Pivot Fulcrum (CAT-034)
+*Status: Backlog*
+
+*Depends on: Stories 6.2 (Bumper obstacle), 10.1 (solid fulcrum, if the owner chooses a cylinder; CAT-034 open question 2) and 10.2 (ropes for its end rope sockets; CAT-034 §3). Moved from Story 10.2 (owner dependency rule, 9 Oct 2026: after ropes).*
+
+As a player,  
+I want an Impact Lever to pivot smoothly when struck on one arm,  
+So that see-saw mechanisms can fling objects or lift connected ropes.
+
+**Acceptance Criteria:**
+- **Given** an Impact Lever with a payload resting on one arm,
+- **When** a heavy Bowling Ball drops onto the opposing arm,
+- **Then** the lever pivots around its fulcrum, strikes its end stop, and launches the payload upward.
+- **And** an equal load placed on both arms remains balanced indefinitely.
+- **And** `tools/e2e/cat-034.test.ts` passes 100% in Chrome serially.
+
+### Story 10.4: Counterweight & Multi-Body Pendulum Lifting (CAT-067)
+*Status: Backlog*
+
+*Depends on: Story 10.2 (rope anchor and tension-only rope). Number unchanged; the Pulley moved up to Story 10.2 and the Trampoline now follows this story.*
+
+As a player,  
+I want Counterweights to swing as pendulums and balance moving loads,  
+So that gravitational energy can be harnessed smoothly.
+
+**Acceptance Criteria:**
+- **Given** a Counterweight suspended as a 3D pendulum,
+- **When** released from an angle,
+- **Then** it oscillates with natural period $T = 2\pi\sqrt{L/g}$ and damps gradually.
+- **And** exact Reset restores initial angular displacement and zero velocity.
+- **And** `tools/e2e/cat-067.test.ts` passes 100% in Chrome serially.
+
+### Story 10.5: Trampoline Compliant Membrane Dynamics (CAT-065)
+*Status: Backlog*
+
+*Depends on: Stories 6.4 (elastic spring constraint), 6.6–6.7 (pipe for the drop-to-pipe lesson), 10.2 (ropes) and 10.4 (the Weight for the tether controls; CAT-065 §3). Moved from Story 10.1 (owner decision, 9 Oct 2026: after ropes and the Weight).*
 
 As a player,  
 I want dropped objects to bounce high off a Trampoline,  
@@ -680,53 +856,11 @@ So that contraptions can launch payloads across vertical obstacles.
 - **And** total kinetic energy after rebound does not exceed initial potential energy (no artificial gain).
 - **And** `tools/e2e/cat-065.test.ts` passes 100% in Chrome serially.
 
-### Story 10.2: Balanced Impact Lever & Pivot Fulcrum (CAT-034)
-*Status: Backlog*
-
-As a player,  
-I want an Impact Lever to pivot smoothly when struck on one arm,  
-So that see-saw mechanisms can fling objects or lift connected ropes.
-
-**Acceptance Criteria:**
-- **Given** an Impact Lever with a payload resting on one arm,
-- **When** a heavy Bowling Ball drops onto the opposing arm,
-- **Then** the lever pivots around its fulcrum, strikes its end stop, and launches the payload upward.
-- **And** an equal load placed on both arms remains balanced indefinitely.
-- **And** `tools/e2e/cat-034.test.ts` passes 100% in Chrome serially.
-
-### Story 10.3: Pulley Wheel & Tensile Rope Dynamics (CAT-053, CAT-058)
-*Status: Backlog*
-
-As a player,  
-I want to route ropes around Pulleys to transmit tensile forces,  
-So that dropping one weight can lift an object in a different part of the workbench.
-
-**Acceptance Criteria:**
-- **Given** a rope routed through two Pulleys between a Counterweight and a Lever,
-- **When** the counterweight falls under gravity,
-- **Then** tensile forces transmit through the rope, lifting the lever arm.
-- **And** slack ropes apply zero force; cutting or releasing tension uncouples the bodies.
-- **And** `tools/e2e/cat-053-058.test.ts` passes 100% in Chrome serially.
-
-### Story 10.4: Counterweight & Multi-Body Pendulum Lifting (CAT-067)
-*Status: Backlog*
-
-As a player,  
-I want Counterweights to swing as pendulums and balance moving loads,  
-So that gravitational energy can be harnessed smoothly.
-
-**Acceptance Criteria:**
-- **Given** a Counterweight suspended as a 3D pendulum,
-- **When** released from an angle,
-- **Then** it oscillates with natural period $T = 2\pi\sqrt{L/g}$ and damps gradually.
-- **And** exact Reset restores initial angular displacement and zero velocity.
-- **And** `tools/e2e/cat-067.test.ts` passes 100% in Chrome serially.
-
 ---
 
 ## Epic 11: Rotary Drive & Mechanical Actuators
 
-**Goal:** Implement electric motors, conveyors, clutches, reversing transmissions, linear pushers, motorized gates, wound springs, toy cannons, and beam shutters as declarative actuators.
+**Goal:** Implement electric motors, conveyors, clutches, reversing transmissions, linear pushers, wound springs, and toy cannons as declarative actuators.
 
 ### Story 11.1: Electric Motor & Continuous Tangential Conveyor Belt (CAT-042, CAT-019)
 *Status: Backlog*
@@ -769,21 +903,10 @@ So that objects in front of it are forcibly pushed forward.
 - **And** upon reaching maximum stroke, extension halts and holds position.
 - **And** `tools/e2e/cat-039.test.ts` passes 100% in Chrome serially.
 
-### Story 11.4: Powered Gate Passageway Barrier (CAT-051)
+### Story 11.4: Wound Spring Potential Motor & Toy Cannon Launcher (CAT-071, CAT-016)
 *Status: Backlog*
 
-As a player,  
-I want a Powered Gate to open when triggered,  
-So that balls previously blocked can pass through unobstructed.
-
-**Acceptance Criteria:**
-- **Given** a closed Powered Gate blocking a ball in a ramp,
-- **When** an activation pulse is received,
-- **Then** the gate opens fully, allowing the ball to roll past.
-- **And** `tools/e2e/cat-051.test.ts` passes 100% in Chrome serially.
-
-### Story 11.5: Wound Spring Potential Motor & Toy Cannon Launcher (CAT-071, CAT-016)
-*Status: Backlog*
+*Depends on: Stories 6.4–6.7 (slider, preload store and annular colliders), 8.1, 10.1 (shaft cylinder), 11.1 and 11.2 (shaft drive and ratio coupling); the cannon feeder integration also uses Stories 8.2, 9.3 and 9.4. Renumbered from Story 11.5 after the Powered Gate moved to Story 8.2.*
 
 As a player,  
 I want to fire Toy Cannons and wind up Spring Motors,  
@@ -795,18 +918,6 @@ So that high-energy mechanical impulses can launch balls across wide gaps.
 - **Then** the loaded ball launches with high muzzle velocity ($12\text{ m/s}$) along barrel trajectory.
 - **And** uncharged or unloaded cannons fire nothing.
 - **And** `tools/e2e/cat-071-016.test.ts` passes 100% in Chrome serially.
-
-### Story 11.6: Beam Shutter Mechanical Guillotine (CAT-007)
-*Status: Backlog*
-
-As a player,  
-I want a Beam Shutter to block or unblock light paths upon mechanical activation,  
-So that optical circuits can be switched physically.
-
-**Acceptance Criteria:**
-- **Given** a Beam Shutter positioned across a laser path,
-- **When** closed, the laser beam is blocked; when opened by signal or rope, the beam passes through cleanly.
-- **And** `tools/e2e/cat-007.test.ts` passes 100% in Chrome serially.
 
 ---
 
@@ -842,22 +953,10 @@ So that contactless aerial steering can guide balls into goals.
 - **And** heavy Bowling Balls experience negligible deflection (mass-scaled drag).
 - **And** `tools/e2e/cat-028.test.ts` passes 100% in Chrome serially.
 
-### Story 12.3: Pneumatic Bellows Compression Pulse (CAT-010)
+### Story 12.3: Windmill Rotor Aerodynamic Capture & Drive (CAT-070)
 *Status: Backlog*
 
-As a player,  
-I want a Pneumatic Bellows to emit a focused gust of air when compressed,  
-So that impacting bodies can trigger secondary pneumatic launches.
-
-**Acceptance Criteria:**
-- **Given** a Bellows struck by a falling Bowling Ball,
-- **When** the plates compress,
-- **Then** a high-velocity directional air jet discharges from the nozzle, propelling an adjacent balloon or tennis ball.
-- **And** uncompressed bellows discharge zero airflow.
-- **And** `tools/e2e/cat-010.test.ts` passes 100% in Chrome serially.
-
-### Story 12.4: Windmill Rotor Aerodynamic Capture & Drive (CAT-070)
-*Status: Backlog*
+*Depends on: Stories 6.6–6.7 (annular guard collider), 10.3 (hinge), 11.1–11.2 (shaft output and loads) and 12.2 (airflow). Moved from Story 12.4, ahead of the Bellows that needs it.*
 
 As a player,  
 I want a Windmill to spin when struck by fan airflow,  
@@ -870,11 +969,27 @@ So that airflow can be converted into mechanical shaft work.
 - **And** blocking the fan airflow with a wall stops windmill rotation.
 - **And** `tools/e2e/cat-070.test.ts` passes 100% in Chrome serially.
 
+### Story 12.4: Pneumatic Bellows Compression Pulse (CAT-010)
+*Status: Backlog*
+
+*Depends on: Stories 6.4 (slider and return spring), 11.1 (Conveyor), 12.2 (airflow) and 12.3 (Windmill); CAT-010 §3 and §4 fact 5. Moved from Story 12.3 (owner decision, 9 Oct 2026: after Windmill and Conveyor).*
+
+As a player,  
+I want a Pneumatic Bellows to emit a focused gust of air when compressed,  
+So that impacting bodies can trigger secondary pneumatic launches.
+
+**Acceptance Criteria:**
+- **Given** a Bellows struck by a falling Bowling Ball,
+- **When** the plates compress,
+- **Then** a high-velocity directional air jet discharges from the nozzle, propelling an adjacent balloon or tennis ball.
+- **And** uncompressed bellows discharge zero airflow.
+- **And** `tools/e2e/cat-010.test.ts` passes 100% in Chrome serially.
+
 ---
 
 ## Epic 13: Optical Propagation, Routing & Sensing
 
-**Goal:** Implement raymarched optical propagation, planar reflections, spectral color bandpass filtering (RGB), and optical logic gates as a discrete, deterministic optical graph.
+**Goal:** Implement raymarched optical propagation, planar reflections, spectral color bandpass filtering (RGB), and optical logic gates as a discrete, deterministic optical graph. The mechanical Beam Shutter joins this epic after the lasers and receivers it switches.
 
 ### Story 13.1: Flashlight Torch & Collimated Laser Emitters (CAT-029, CAT-036)
 *Status: Backlog*
@@ -890,22 +1005,39 @@ So that optical puzzles have both wide-area and pinpoint illumination sources.
 - **And** opaque obstacles (walls, bodies) cast crisp geometric shadows blocking downstream transmission.
 - **And** `tools/e2e/cat-029-036.test.ts` passes 100% in Chrome serially.
 
-### Story 13.2: Planar Reflection Mirror, Beam Splitter & Beam Combiner (CAT-041, CAT-008, CAT-006)
+### Story 13.2: Broadband & Pure Channel Optical Receivers (CAT-038, CAT-056, CAT-032, CAT-012)
 *Status: Backlog*
+
+*Depends on: Stories 8.1 (switched contact), 8.2 (electrical load) and 13.1 (laser source); its coloured beams are open (see Open scheduling items a and d). Moved from Story 13.4 (owner decision, 9 Oct 2026: receivers before the mirror and filter stories that need them as observers).*
 
 As a player,  
-I want Mirrors to bounce beams and Splitters/Combiners to divide and merge light paths,  
-So that optical rays can be routed around obstacles.
+I want Optical Receivers that respond only to specific colors,  
+So that color-tuned optical triggers can activate designated circuits.
 
 **Acceptance Criteria:**
-- **Given** a laser directed into a $45^\circ$ Flat Mirror,
-- **When** the beam strikes the mirror surface,
-- **Then** it reflects at an exact $90^\circ$ right angle.
-- **And** Beam Splitters divide incident power 50/50; Beam Combiners merge orthogonal beams into one.
-- **And** `tools/e2e/cat-041-008-006.test.ts` passes 100% in Chrome serially.
+- **Given** a Red Receiver illuminated by red, green, and blue beams successively,
+- **Then** only the red beam triggers electrical activation; green and blue produce zero response.
+- **And** Broadband Receivers activate under any light exceeding power threshold.
+- **And** `tools/e2e/cat-receivers-primary.test.ts` passes 100% in Chrome serially.
 
-### Story 13.3: Spectral Color Bandpass Filters (Red, Green, Blue) (CAT-055, CAT-031, CAT-011)
+### Story 13.3: Beam Shutter Mechanical Guillotine (CAT-007)
 *Status: Backlog*
+
+*Depends on: Stories 6.4 (slider), 8.1, 8.2 (bounded slider drive), 10.2 (rope opening), 13.1 (laser) and 13.2 (light receiver); CAT-007 §3. Moved from Story 11.6 (owner decision, 9 Oct 2026: into Epic 13 after the lasers).*
+
+As a player,  
+I want a Beam Shutter to block or unblock light paths upon mechanical activation,  
+So that optical circuits can be switched physically.
+
+**Acceptance Criteria:**
+- **Given** a Beam Shutter positioned across a laser path,
+- **When** closed, the laser beam is blocked; when opened by signal or rope, the beam passes through cleanly.
+- **And** `tools/e2e/cat-007.test.ts` passes 100% in Chrome serially.
+
+### Story 13.4: Spectral Color Bandpass Filters (Red, Green, Blue) (CAT-055, CAT-031, CAT-011)
+*Status: Backlog*
+
+*Depends on: Stories 13.1 (laser source) and 13.2 (pure-channel receivers as observers). Moved from Story 13.3.*
 
 As a player,  
 I want Color Filters to filter out non-matching wavelengths,  
@@ -918,21 +1050,26 @@ So that multi-chromatic light beams can be separated into pure primary colors.
 - **And** passing the red beam into a Green Filter completely extinguishes the beam (zero transmission).
 - **And** `tools/e2e/cat-filters.test.ts` passes 100% in Chrome serially.
 
-### Story 13.4: Broadband & Pure Channel Optical Receivers (CAT-038, CAT-056, CAT-032, CAT-012)
+### Story 13.5: Planar Reflection Mirror, Beam Splitter & Beam Combiner (CAT-041, CAT-008, CAT-006)
 *Status: Backlog*
+
+*Depends on: Stories 13.1 (laser), 13.2 (receivers as observers) and 13.4 (filters make the distinct channels the Combiner merges; CAT-006 §3). Moved from Story 13.2.*
 
 As a player,  
-I want Optical Receivers that respond only to specific colors,  
-So that color-tuned optical triggers can activate designated circuits.
+I want Mirrors to bounce beams and Splitters/Combiners to divide and merge light paths,  
+So that optical rays can be routed around obstacles.
 
 **Acceptance Criteria:**
-- **Given** a Red Receiver illuminated by red, green, and blue beams successively,
-- **Then** only the red beam triggers electrical activation; green and blue produce zero response.
-- **And** Broadband Receivers activate under any light exceeding power threshold.
-- **And** `tools/e2e/cat-receivers-primary.test.ts` passes 100% in Chrome serially.
+- **Given** a laser directed into a $45^\circ$ Flat Mirror,
+- **When** the beam strikes the mirror surface,
+- **Then** it reflects at an exact $90^\circ$ right angle.
+- **And** Beam Splitters divide incident power 50/50; Beam Combiners merge orthogonal beams into one.
+- **And** `tools/e2e/cat-041-008-006.test.ts` passes 100% in Chrome serially.
 
-### Story 13.5: Secondary Spectral Receivers (Cyan, Magenta, Yellow, White) (CAT-021, CAT-040, CAT-072, CAT-068)
+### Story 13.6: Secondary Spectral Receivers (Cyan, Magenta, Yellow, White) (CAT-021, CAT-040, CAT-072, CAT-068)
 *Status: Backlog*
+
+*Depends on: Stories 13.1, 13.2 (single-channel reception), 13.4 (filters) and 13.5 (Combiner mixing). Renumbered from Story 13.5.*
 
 As a player,  
 I want Cyan, Magenta, Yellow, and White receivers that require mixed spectral combinations,  
@@ -945,8 +1082,10 @@ So that advanced color-combining puzzles can be constructed.
 - **And** White Receiver requires all three primary colors simultaneously.
 - **And** `tools/e2e/cat-receivers-secondary.test.ts` passes 100% in Chrome serially.
 
-### Story 13.6: Photovoltaic Solar Panel Energy Conversion (CAT-059)
+### Story 13.7: Photovoltaic Solar Panel Energy Conversion (CAT-059)
 *Status: Backlog*
+
+*Depends on: Stories 8.1 (network), 11.1 (Motor load) and 13.1 (Flashlight). Renumbered from Story 13.6.*
 
 As a player,  
 I want Solar Panels to generate electrical power from incident light,  
@@ -959,8 +1098,10 @@ So that optical beams can remotely power electrical motors and circuits.
 - **And** blocking the light beam immediately cuts motor power.
 - **And** `tools/e2e/cat-059.test.ts` passes 100% in Chrome serially.
 
-### Story 13.7: Optical Logic Gates (AND, NAND, NOR, OR, XOR) (CAT-043 through CAT-047)
+### Story 13.8: Optical Logic Gates (AND, NAND, NOR, OR, XOR) (CAT-043 through CAT-047)
 *Status: Backlog*
+
+*Depends on: Stories 13.1 (lasers), 13.2 (output observer) and 13.5 (optical routing). Renumbered from Story 13.7.*
 
 As a player,  
 I want Optical Logic Gates to perform contactless optical computations,  
@@ -978,8 +1119,26 @@ So that speed-of-light logic contraptions can operate without electrical wires.
 
 **Goal:** Implement acoustic percussion, directional sound waves, and acoustic resonance sensors as discrete wave occurrences without audio thread blocking.
 
-### Story 14.1: Service Bell Percussion & Resonant Ringing (CAT-009)
+### Story 14.1: Sound Level Meter Threshold Sensor (CAT-060)
 *Status: Backlog*
+
+*Depends on: Stories 8.1 (supplied contact) and 8.2 (a supplied load); its acceptance source, the Service Bell, now follows it (see Open scheduling item c). Moved from Story 14.3 (owner decision, 9 Oct 2026: propagation, delivered with the meter, comes before the Bell and Speaker).*
+
+As a player,  
+I want a Sound Level Meter to trigger an electrical contact when sound volume exceeds threshold,  
+So that bells and speakers can activate remote circuits without physical wires.
+
+**Acceptance Criteria:**
+- **Given** a Sound Level Meter facing a Service Bell,
+- **When** the bell rings,
+- **Then** the sound meter closes its electrical contact and illuminates a connected lamp.
+- **And** placing a solid Wall between bell and meter occludes the acoustic wave, preventing activation.
+- **And** `tools/e2e/cat-060.test.ts` passes 100% in Chrome serially.
+
+### Story 14.2: Service Bell Percussion & Resonant Ringing (CAT-009)
+*Status: Backlog*
+
+*Depends on: Story 14.1 (acoustic propagation, occlusion and reception; CAT-009 §3). Moved from Story 14.1 (owner decision, 9 Oct 2026: after propagation).*
 
 As a player,  
 I want Service Bells to ring with a crisp chime when struck,  
@@ -992,8 +1151,10 @@ So that physical impacts can produce audible confirmation and trigger acoustic m
 - **And** sub-threshold nudges produce no ring.
 - **And** `tools/e2e/cat-009.test.ts` passes 100% in Chrome serially.
 
-### Story 14.2: Audio Speaker Directional Pulse Emission (CAT-061)
+### Story 14.3: Audio Speaker Directional Pulse Emission (CAT-061)
 *Status: Backlog*
+
+*Depends on: Stories 8.1 (supply), 9.3 (System Clock trigger) and 14.1 (propagation and reception; CAT-061 §3). Moved from Story 14.2 (owner decision, 9 Oct 2026: after propagation).*
 
 As a player,  
 I want an Audio Speaker to emit directional acoustic pressure waves upon signal activation,  
@@ -1004,20 +1165,6 @@ So that electrical pulses can be broadcast acoustically.
 - **When** energized,
 - **Then** directional acoustic pressure waves radiate forward in a $35^\circ$ cone.
 - **And** `tools/e2e/cat-061.test.ts` passes 100% in Chrome serially.
-
-### Story 14.3: Sound Level Meter Threshold Sensor (CAT-060)
-*Status: Backlog*
-
-As a player,  
-I want a Sound Level Meter to trigger an electrical contact when sound volume exceeds threshold,  
-So that bells and speakers can activate remote circuits without physical wires.
-
-**Acceptance Criteria:**
-- **Given** a Sound Level Meter facing a Service Bell,
-- **When** the bell rings,
-- **Then** the sound meter closes its electrical contact and illuminates a connected lamp.
-- **And** placing a solid Wall between bell and meter occludes the acoustic wave, preventing activation.
-- **And** `tools/e2e/cat-060.test.ts` passes 100% in Chrome serially.
 
 ### Story 14.4: Resonant Wind Chimes Airflow Percussion (CAT-069)
 *Status: Backlog*

@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-09-2026 11:52
+last_updated: 10-09-2026 20:05
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -21,6 +21,12 @@ story_location: "_bmad-output/planning-artifacts/epics.md"
 #   - in-progress: Developer actively working on implementation
 #   - review: Implementation complete, ready for adversarial review
 #   - done: Story completed and verified
+
+# Owner re-ordering 9 Oct 2026 (dependencies): Battery first, then the Powered gate as the first
+# electrical consumer (Epic 8), then the activation stories and the electrical gates (Epic 9), in the
+# owner's literal order. Every story follows what it needs, except the open scheduling items in epics.md.
+# Keys renumbered to match; statuses unchanged. Old-to-new mapping:
+# docs/planning/invest/vertical-delivery.md (owner-reordering-dependencies).
 
 development_status:
   epic-1: done
@@ -62,12 +68,23 @@ development_status:
   6-3-bumper-multi-angle-contacts: backlog
   6-4-prismatic-slider-tgs-soft-spring: backlog
   6-5-preload-energy-store-springboard-launch: backlog
-  6-6-generic-aperture-sensor-directional-rearm: backlog
-  6-7-straight-pipe-compound-cylinder: backlog
-  6-8-hollow-sdf-torus-cap-clear-pipe: backlog
+  6-6-straight-pipe-compound-cylinder: backlog
+  6-7-hollow-sdf-torus-cap-clear-pipe: backlog
+  6-8-generic-aperture-sensor-directional-rearm: backlog
+  6-9-pipe-bend-45-hollow-torus-segment: backlog
+  6-10-pipe-bend-90-joined-pipe-route: backlog
+  6-11-funnel-hollow-frustum-inlet: backlog
   epic-6-retrospective: optional
 
-  epic-7: backlog
+  # Owner decision 9 Oct 2026: Epic 7 (legacy purge) runs after 6-1d and before 6-2.
+  # Order 7-0, 7-1, 7-2, 7-3, 7-4. 7-0 (owner, 9 Oct 2026) prepares all 72 catalogue elements and
+  # accounts for every deleted legacy file before any purge story deletes anything.
+  # Inventory: research-epic-7-legacy-inventory.md
+  # 7-0: all 348 specs and closing deliverables independently reviewed in review-7-0-resumed.md.
+  # Frozen proof plus narrowly reviewed status/owner-decision corrections; local commit, no push.
+  # Entry gate for 7-1..7-4: no file is deleted until docs/planning/elements/legacy-disposition.md has a row for it.
+  epic-7: in-progress
+  7-0-element-implementation-readiness: review
   7-1-reference-historical-archive-purge: backlog
   7-2-diagnostics-legacy-probe-tools-purge: backlog
   7-3-uncompiled-legacy-test-purge: backlog
@@ -75,57 +92,58 @@ development_status:
   epic-7-retrospective: optional
 
   epic-8: backlog
-  8-1-pressure-plate-surface-contact-load-sensor: backlog
-  8-2-pulse-counter-event-accumulator: backlog
-  8-3-system-clock-periodic-pulse-generator: backlog
-  8-4-state-latch-bistable-memory: backlog
-  8-5-hold-timer-pulse-stretcher: backlog
+  8-1-battery-dc-power-source-network-graph: backlog
+  8-2-powered-gate-passageway-barrier: backlog
   epic-8-retrospective: optional
 
   epic-9: backlog
-  9-1-battery-dc-power-source-network-graph: backlog
-  9-2-dual-supply-both-gate: backlog
-  9-3-electrical-logic-gates-nand-nor: backlog
-  9-4-electrical-logic-gates-or-xor: backlog
+  9-1-pressure-plate-surface-contact-load-sensor: backlog
+  9-2-pulse-counter-event-accumulator: backlog
+  9-3-system-clock-periodic-pulse-generator: backlog
+  9-4-state-latch-bistable-memory: backlog
+  9-5-hold-timer-pulse-stretcher: backlog
+  9-6-dual-supply-both-gate: backlog
+  9-7-electrical-logic-gates-nand-nor: backlog
+  9-8-electrical-logic-gates-or-xor: backlog
   epic-9-retrospective: optional
 
   epic-10: backlog
-  10-1-trampoline-compliant-membrane-dynamics: backlog
-  10-2-balanced-impact-lever-pivot-fulcrum: backlog
-  10-3-pulley-wheel-tensile-rope-dynamics: backlog
+  10-1-solid-cylinder-collider-and-inertia: backlog
+  10-2-pulley-wheel-tensile-rope-dynamics: backlog
+  10-3-balanced-impact-lever-pivot-fulcrum: backlog
   10-4-counterweight-multibody-pendulum-lifting: backlog
+  10-5-trampoline-compliant-membrane-dynamics: backlog
   epic-10-retrospective: optional
 
   epic-11: backlog
   11-1-electric-motor-tangential-conveyor-belt: backlog
   11-2-mechanical-clutch-reverse-transmission: backlog
   11-3-linear-pusher-telescopic-actuator: backlog
-  11-4-powered-gate-passageway-barrier: backlog
-  11-5-wound-spring-motor-toy-cannon-launcher: backlog
-  11-6-beam-shutter-mechanical-guillotine: backlog
+  11-4-wound-spring-motor-toy-cannon-launcher: backlog
   epic-11-retrospective: optional
 
   epic-12: backlog
   12-1-lightweight-tennis-ball-floating-balloon: backlog
   12-2-electric-fan-aerodynamic-airflow-jet: backlog
-  12-3-pneumatic-bellows-compression-pulse: backlog
-  12-4-windmill-rotor-aerodynamic-capture-drive: backlog
+  12-3-windmill-rotor-aerodynamic-capture-drive: backlog
+  12-4-pneumatic-bellows-compression-pulse: backlog
   epic-12-retrospective: optional
 
   epic-13: backlog
   13-1-flashlight-torch-collimated-laser-emitters: backlog
-  13-2-planar-reflection-mirror-beam-splitter-combiner: backlog
-  13-3-spectral-color-bandpass-filters-rgb: backlog
-  13-4-broadband-pure-channel-optical-receivers: backlog
-  13-5-secondary-spectral-receivers-cmyw: backlog
-  13-6-photovoltaic-solar-panel-energy-conversion: backlog
-  13-7-optical-logic-gates-boolean-crystals: backlog
+  13-2-broadband-pure-channel-optical-receivers: backlog
+  13-3-beam-shutter-mechanical-guillotine: backlog
+  13-4-spectral-color-bandpass-filters-rgb: backlog
+  13-5-planar-reflection-mirror-beam-splitter-combiner: backlog
+  13-6-secondary-spectral-receivers-cmyw: backlog
+  13-7-photovoltaic-solar-panel-energy-conversion: backlog
+  13-8-optical-logic-gates-boolean-crystals: backlog
   epic-13-retrospective: optional
 
   epic-14: backlog
-  14-1-service-bell-percussion-resonant-ringing: backlog
-  14-2-audio-speaker-directional-pulse-emission: backlog
-  14-3-sound-level-meter-threshold-sensor: backlog
+  14-1-sound-level-meter-threshold-sensor: backlog
+  14-2-service-bell-percussion-resonant-ringing: backlog
+  14-3-audio-speaker-directional-pulse-emission: backlog
   14-4-resonant-wind-chimes-airflow-percussion: backlog
   epic-14-retrospective: optional
 

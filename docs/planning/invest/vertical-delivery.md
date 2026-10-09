@@ -144,11 +144,49 @@ Method: [Bill Wake's INVEST guidance](https://xp123.com/invest-in-good-stories-a
 | LEGACY-0a | Reference & historical archive purge | None; deletion only | Obsolete historical archives, dead tarballs, and benchmark dumps in reference/ | Repository file count drops by ~4,000 files; active build/tests unaffected; reference/ contains only active Markdown documentation |
 | LEGACY-0b | Diagnostics & legacy probe tools purge | None; deletion only | Obsolete probe tools and ad-hoc legacy harnesses in tools/p0-*, tools/P0-007-*, and diagnostics/ | Repository file count drops by ~2,000 files; remaining tools compile and pass cleanly |
 | LEGACY-0c | Uncompiled legacy test purge | None; deletion only | Uncompiled legacy test files, obsolete native test harnesses, dead fixtures in CuriousContraptions.tests/ | All test projects compile cleanly; 100% of remaining automated tests pass |
-| LEGACY-0d | Legacy CPU physics & unshipped engine purge | Element catalogue knowledge captured as declaration specs per element in named-elements.md | Remaining legacy physics files in engine/physics/, retired classes in engine/presentation/, dead parts/*.cs | git ls-files contains no file that is not compiled, shipped, content, docs or CI; build passes with zero warnings; no legacy physics namespace remains; closes P0-030/031 audits |
+| LEGACY-0d | Legacy CPU physics & unshipped engine purge | Element catalogue knowledge captured as declaration specs per element in [docs/planning/elements/](../elements/README.md), linked from named-elements.md | Remaining legacy physics files in engine/physics/, retired classes in engine/presentation/, dead parts/*.cs | git ls-files contains no file that is not compiled, shipped, content, docs or CI; build passes with zero warnings; no legacy physics namespace remains; closes P0-030/031 audits |
 | ELEMENT-n | One remaining named element per slice in chapter order ([chapter 1 "On a Roll"](../requirements.md#campaign-plan) first), e.g. CAT-065 Trampoline, CAT-034 Impact lever, CAT-049/050 bends, CAT-005 Battery → CAT-042 Motor → CAT-019 Conveyor, then activation, supply, rotary, airflow, optical and acoustic families under the [existing-element order](#existing-element-order) | One element by declaration plus at most one generic capability it first needs | That element's legacy part file | One authored level made solvable through UI with its control, Reset and Save/Load; no element identifier in the physics solver or the evaluator selection; timing telemetry non-gating |
 | CAMPAIGN-n | Free-play workshop always available; levels 1..150 authored progressively, in focused 2–3 level batches per slice (e.g. CAMPAIGN-01 = Levels 1–3, CAMPAIGN-02 = Levels 4–6, etc.) | None; authored content and teaching order only | The content/puzzles.json entries and docs/playtest-results records that each authored level replaces, named per slice | Each slice's 2–3 levels playable end-to-end in Chrome with Solved/Reset; prior levels unchanged |
 
 **Scheduled follow-ups from CAT-014 (9 Oct 2026):** ENGINE-DRAG — apply the declared LinearDrag in the physics worker so struck balls come to rest; required before CAT-014's "balls rest" acceptance holds; next after CAT-014. Implemented in Story 6.1b (`spec-6-1b-engine-drag-application.md`, pending independent review): declared linear drag per substep plus a declared ball rolling-resistance coefficient (material record +14) applied at every sphere contact (owner decision 9 Oct 2026, with the 0.28 m Bowling ball); legacy deleted: the unread +66 drag lane and the "drag not yet applied" contract text. CAT-023c — Domino offset centre of mass (declared COM offset in the box body, pips follow the mass frame), a CAT-023 follow-up; before the next Domino-dependent level. ENGINE-F32-VELOCITY (Story 6.1c, owner decision 9 Oct 2026) — committed body velocity (and angular velocity) stored as f32 in the body record and motion pieces instead of binary16, so small declared decrements such as ball drag 0.04 survive at 60/120/240 Hz; legacy deleted: the binary16 velocity lanes and their host bounds; after 6.1b, before CAT-015a. Implemented in Story 6.1c (`spec-6-1c-f32-committed-velocity-precision.md`, pending independent review): f32 m/s and rad/s in the body record (+48/+60), motion piece (+64/+76) and the 64-byte `PhysicsBodyWire`; legacy deleted: the binary16 velocity lanes, the ×32 velocity scale, `CellVelocity` and the 1/512 Half clamp headroom. Owner decisions recorded with 6.1b: rolling resistance at every sphere contact; Bowling ball radius 0.28 m, mass 4 kg.
+
+**Owner re-ordering (9 Oct 2026):** LEGACY-0a through LEGACY-0d (Epic 7, Stories 7.1–7.4) run after Story 6.1d and before CAT-015a (Story 6.2), so the tree carries no dead legacy before more elements land. Their acceptance is unchanged. Owner choices for the purge: untracked reference bundles are archived outside the repository before deletion; LEGACY-0d is a full purge that first preserves element knowledge in declaration specs linked from named-elements.md for all 43 uncompiled part scripts, then deletes the scripts, scenes and catalogue entries (elements stay in the plan as declarations); tools/Campaign and tools/Playtest are deleted. Before any of them deletes a file, Story 7.0 (owner, 9 Oct 2026) writes an implementation-readiness declaration spec for every one of the 72 catalogue elements and 276 named puzzle-element identities in [docs/planning/elements/](../elements/README.md), harvesting the legacy with pinned citations, and a disposition ledger accounting for every deleted file ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Inventory: [research-epic-7-legacy-inventory](../../../_bmad-output/implementation-artifacts/research-epic-7-legacy-inventory.md).
+
+<a id="owner-reordering-dependencies"></a>
+**Owner re-ordering (9 Oct 2026, dependencies):** Following the [Story 7.0 owner decisions](../../../_bmad-output/implementation-artifacts/story-7-0-owner-questions.md), every story in [epics.md](../../../_bmad-output/planning-artifacts/epics.md) now comes after what it needs, except the open scheduling items listed in epics.md. This order refines the ELEMENT-n example order above; the existing-element phases below remain capability groupings. Story acceptance text is unchanged. The new order is:
+
+- **Epic 6:** the Ball detector follows the two pipe stories.
+- **Epic 8, supplied electrical power:** 8.1 Battery (CAT-005); 8.2 Powered gate (CAT-051), the first electrical consumer.
+- **Epic 9, activation, timing and electrical logic:** 9.1 Pressure plate; 9.2 Counter; 9.3 Clock; 9.4 Latch; 9.5 Hold timer; 9.6 Both, after the Latch whose supply fixture it uses (CAT-013 §5); 9.7 NAND and NOR; 9.8 OR and XOR.
+- **Epic 10:** 10.1 solid cylinder collider and inertia (ENGINE-CYLINDER, new and roadmap-only, before the first possible cylinder consumer); 10.2 Pulley and Rope anchor; 10.3 Impact lever, after ropes for its rope sockets; 10.4 Weight; 10.5 Trampoline, after ropes and the Weight for its tether controls.
+- **Epic 11:** 11.1 Motor and Conveyor; 11.2 Clutch and Reverse transmission; 11.3 Linear pusher; 11.4 Wound spring and Cannon.
+- **Epic 12:** 12.1 Tennis ball and Balloon; 12.2 Fan; 12.3 Windmill; 12.4 Bellows, after Windmill and Conveyor.
+- **Epic 13:** 13.1 Torch and Laser; 13.2 broadband and pure-channel receivers; 13.3 Beam shutter; 13.4 RGB filters; 13.5 Mirror, Splitter and Combiner; 13.6 secondary receivers; 13.7 Solar panel; 13.8 optical gates.
+- **Epic 14:** 14.1 Sound meter, which delivers propagation; 14.2 Bell; 14.3 Speaker; 14.4 Wind chimes.
+
+The supply-loss controls of the Battery (CAT-005 N19) and the Powered gate ("supply interruption mid-stroke", CAT-051) are deferred integrations, owed once the Latch fixture (Story 9.4) lands.
+
+The old-to-new story numbers are:
+
+- 6.6→6.8, 6.7→6.6, 6.8→6.7.
+- 8.1→9.1, 8.2→9.2, 8.3→9.3, 8.4→9.4, 8.5→9.5.
+- 9.1→8.1, 9.2→9.6, 9.3→9.7, 9.4→9.8.
+- 10.1→10.5, 10.2→10.3, 10.3→10.2; 10.4 keeps its number.
+- 11.4→8.2, 11.5→11.4, 11.6→13.3.
+- 12.3→12.4, 12.4→12.3.
+- 13.2→13.5, 13.3→13.4, 13.4→13.2, 13.5→13.6, 13.6→13.7, 13.7→13.8.
+- 14.1→14.2, 14.2→14.3, 14.3→14.1.
+
+Story 10.1 is new. The numbers of 6.1–6.5, 6.9–6.11, 10.4, 11.1–11.3, 12.1, 12.2, 13.1, 14.4 and Epics 15–16 are unchanged. These owner decisions stay open; they are detailed under "Open scheduling items" in epics.md:
+
+- (a) whether the RGB lasers come before the filters (Story 13.4);
+- (b) the switch electrical mode needed by Story 9.7;
+- (c) the Sound meter's source, now that every acoustic source follows Story 14.1: a separate propagation engine story before the Bell, merging the meter with the Bell, or deferring the meter's integration;
+- (d) the receivers' colour source at Story 13.2: CAT-056 names the red filter, now Story 13.4, as its pure source, which makes a loop that the RGB lasers would break;
+- (e) Story 10.1's placement, which depends on the cylinder-fulcrum and wheel choices;
+- (f) the Pulley story (10.2) using a Lever, now Story 10.3, as its rope load; the Counterweight body (CAT-067) ships with Story 10.2 per CAT-067 §3, so the Pulley acceptance can use it before 10.4.
+
+The Battery acceptance that names the Motor stays an acceptance conflict for case-by-case owner review.
 
 **Definition of done for the programme:** 150 progressively taught levels plus unlimited free play; one generic WASM SIMD128 f32 physics solver advancing the compiled initial state and a separate animation engine compiled from the same element data, both driven only by element data plus the player's initial state, in separate workers at independent rates with one-way physics → animation data flow; a renderer on the browser main thread at 30–60 FPS consuming both systems, physics always faster than rendering; new puzzle elements can be added in the future without changes to the physics or animation systems, because an element is defined by its visual, physics and animation behaviours (declaration data) that the solvers use when the simulation runs; zero legacy physics or animation code in the tree.
 
