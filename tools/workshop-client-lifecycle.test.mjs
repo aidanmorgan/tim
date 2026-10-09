@@ -48,7 +48,7 @@ async function clientHarness(loadRuntimes = true, failAnimationConstructor = fal
     view.setBigUint64(24, 1n, true); view.setBigUint64(40, 1n, true); view.setBigUint64(48, 100000n, true);
     view.setUint32(56, 1, true); view.setUint32(60, 2, true);
     const service = () => { calls++; probes.push(publishedId); api.probe(publishedId, new Uint8Array([1])); };
-    const creation = api.create(Object.values(state), session, [2, 2, 64, 72, 96, 160, 1, 2], [23952, 40, 56], 1, false,
+    const creation = api.create(Object.values(state), session, [2, 2, 64, 72, 96, 160, 1, 2], [24080, 40, 56], 1, false,
         () => {}, () => {}, () => {}, () => { outputCalls++; outputCallback?.(); }, service, () => {}, () => {}, () => {});
     creation.catch(() => {});
     await workerCreated;

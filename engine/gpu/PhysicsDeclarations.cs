@@ -19,7 +19,15 @@ public readonly record struct LinearSpeed(Half Value);
 public readonly record struct DurationSeconds(Half Value);
 public readonly record struct MetreVector(Half X, Half Y, Half Z);
 public readonly record struct AccelerationVector(Half X, Half Y, Half Z);
-public readonly record struct AngularVelocity(Half X, Half Y, Half Z);
+/// <summary>Committed angular velocity in radians per second as IEEE-754 f32, bounded by the game-grade 128 rad/s envelope.</summary>
+public readonly record struct AngularVelocity(float X, float Y, float Z)
+{
+    public const double MaximumSpeed = 128;
+    public void Validate() => PhysicsDeclarationBounds.Magnitude(X, Y, Z, MaximumSpeed);
+    public bool IsPositiveZero => F32Bits.IsPositiveZero(X, Y, Z);
+    public bool HasSameBits(AngularVelocity other) =>
+        F32Bits.Equal(X, other.X) && F32Bits.Equal(Y, other.Y) && F32Bits.Equal(Z, other.Z);
+}
 public readonly record struct RigidLocalPose(MetreVector Translation, CanonicalRotation Rotation)
 {
     public static RigidLocalPose Identity => new(default, CanonicalRotation.Identity);
@@ -48,7 +56,7 @@ public readonly record struct ContactMaterialDeclaration(
 /// <summary>Initial primary state and force parameters; the GPU owns all motion and force evaluation.</summary>
 public readonly record struct RigidBodyDeclaration(
     GpuBodyId Id, RigidMotionKind Motion, CellOrigin Cell, LocalPosition Local,
-    CanonicalRotation Rotation, CellVelocity Velocity, AngularVelocity AngularVelocity,
+    CanonicalRotation Rotation, LinearVelocity Velocity, AngularVelocity AngularVelocity,
     Kilograms Mass, AccelerationVector Gravity, InverseSeconds LinearDrag)
 {
     public void Validate()
@@ -56,13 +64,12 @@ public readonly record struct RigidBodyDeclaration(
         if (!Enum.IsDefined(Motion)) throw new ArgumentException("Undefined rigid motion.");
         new CanonicalBody(Id, 0, 0, Cell, Local, Velocity).Validate();
         Rotation.Validate();
-        PhysicsDeclarationBounds.Vector(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z, (Half)128);
+        AngularVelocity.Validate();
         PhysicsDeclarationBounds.Vector(Gravity.X, Gravity.Y, Gravity.Z, (Half)16);
         PhysicsDeclarationBounds.Range(LinearDrag.Value, (Half)0, (Half)0.125);
         if (Motion == RigidMotionKind.Static)
         {
-            if (!PhysicsDeclarationBounds.Zero(Mass.Value) || !HalfBits.IsPositiveZero(Velocity) ||
-                !PhysicsDeclarationBounds.Zero(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z) ||
+            if (!PhysicsDeclarationBounds.Zero(Mass.Value) || !Velocity.IsPositiveZero || !AngularVelocity.IsPositiveZero ||
                 !PhysicsDeclarationBounds.Zero(Gravity.X, Gravity.Y, Gravity.Z) ||
                 !PhysicsDeclarationBounds.Zero(LinearDrag.Value))
                 throw new ArgumentException("Static bodies require zero motion, mass and forces.");
@@ -70,10 +77,8 @@ public readonly record struct RigidBodyDeclaration(
         }
         PhysicsDeclarationBounds.Range(Mass.Value, (Half)(1.0 / 1024), (Half)1024);
         // Wide arithmetic is admission-only: it rejects an out-of-domain declaration, never integrates it.
-        if (Squared(Velocity.X, Velocity.Y, Velocity.Z) > 4 ||
-            Squared(Gravity.X, Gravity.Y, Gravity.Z) > 256 ||
-            Squared(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z) > 16384)
-            throw new ArgumentException("Linear motion, angular motion or gravity exceeds the admitted vector magnitude.");
+        if (Squared(Gravity.X, Gravity.Y, Gravity.Z) > 256)
+            throw new ArgumentException("Gravity exceeds the admitted vector magnitude.");
     }
 
     private static double Squared(Half x, Half y, Half z) =>
@@ -312,6 +317,13 @@ internal static class PhysicsDeclarationBounds
         Range(x, (Half)(-magnitude), magnitude);
         Range(y, (Half)(-magnitude), magnitude);
         Range(z, (Half)(-magnitude), magnitude);
+    }
+    /// <summary>Rejects a non-finite f32 vector or one whose magnitude exceeds the bound (wide arithmetic, admission only).</summary>
+    internal static void Magnitude(float x, float y, float z, double maximum)
+    {
+        if (!float.IsFinite(x) || !float.IsFinite(y) || !float.IsFinite(z) ||
+            (double)x * x + (double)y * y + (double)z * z > maximum * maximum)
+            throw new ArgumentException("Physical vector is non-finite or exceeds its admitted magnitude.");
     }
     internal static bool Zero(Half value) => BitConverter.HalfToUInt16Bits(value) == 0;
     internal static bool Zero(Half x, Half y, Half z) => Zero(x) && Zero(y) && Zero(z);

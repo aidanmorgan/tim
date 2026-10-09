@@ -22,7 +22,7 @@ const BASKETBALL_R = .34, BOWLING_R = .28;   // BallMaterial.For radii: the Bowl
 async function loadWorker() {
     let imports;
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [23952, 40, 56], OperationAbi: () => [0, 1],
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [24080, 40, 56], OperationAbi: () => [0, 1],
         StateBytes: () => STATE_BYTES, ScheduleRoles: () => [1, 2], CaptureMode: () => 1
     };
     const runtime = {
@@ -75,6 +75,8 @@ function halfValue(u16) {
 }
 const H = (view, offset, value) => view.setUint16(offset, halfBits(value), true);
 const RH = (view, offset) => halfValue(view.getUint16(offset, true));
+const F = (view, offset, value) => view.setFloat32(offset, value, true);
+const RF = (view, offset) => view.getFloat32(offset, true);
 function position(metres) {
     const cells = metres * 16; let cell = Math.floor(cells + 0.5); let local = cells - cell;
     if (local === 0.5) { cell++; local = -0.5; }
@@ -90,7 +92,8 @@ function principal(view, offset, value) {
 }
 
 // Scene builder mirroring PhysicsGpuAbi.Admission for bodies, colliders, materials and orientation sensors only. Declared linear
-// drag sits at body record +66 and rolling resistance at material record +14; both default to zero like a static declaration.
+// drag sits at body record +74 and rolling resistance at material record +14; both default to zero like a static declaration.
+// Committed linear (m/s) and angular (rad/s) velocity are f32 at body record +48 and +60; mass +72, gravity +76, COM +82.
 function scene(spec, sensors = [], cadence = 2) {
     const bytes = new Uint8Array(STATE_BYTES); const view = new DataView(bytes.buffer);
     view.setUint32(0, 8, true);
@@ -119,9 +122,9 @@ function scene(spec, sensors = [], cadence = 2) {
         if (b.motion !== 1) return;
         dynamicCount++;
         const v = b.velocity ?? [0, 0, 0]; const w = b.angular ?? [0, 0, 0];
-        H(view, r + 48, v[0] / 32); H(view, r + 50, v[1] / 32); H(view, r + 52, v[2] / 32);
-        H(view, r + 56, w[0]); H(view, r + 58, w[1]); H(view, r + 60, w[2]);
-        H(view, r + 64, b.mass); H(view, r + 66, b.drag ?? 0); H(view, r + 70, b.gravity ?? -9.81);
+        F(view, r + 48, v[0]); F(view, r + 52, v[1]); F(view, r + 56, v[2]);
+        F(view, r + 60, w[0]); F(view, r + 64, w[1]); F(view, r + 68, w[2]);
+        H(view, r + 72, b.mass); H(view, r + 74, b.drag ?? 0); H(view, r + 78, b.gravity ?? -9.81);
         H(view, r + 94, 1);
         let moments;
         if (b.moments) moments = b.moments;
@@ -158,8 +161,8 @@ function readBody(bytes, slot) {
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); const r = BODIES + slot * 128;
     const p = [(view.getInt32(r + 16, true) + RH(view, r + 32)) / 16, (view.getInt32(r + 20, true) + RH(view, r + 34)) / 16, (view.getInt32(r + 24, true) + RH(view, r + 36)) / 16];
     const q = [RH(view, r + 40), RH(view, r + 42), RH(view, r + 44), RH(view, r + 46)];
-    const v = [RH(view, r + 48) * 32, RH(view, r + 50) * 32, RH(view, r + 52) * 32];
-    const w = [RH(view, r + 56), RH(view, r + 58), RH(view, r + 60)];
+    const v = [RF(view, r + 48), RF(view, r + 52), RF(view, r + 56)];
+    const w = [RF(view, r + 60), RF(view, r + 64), RF(view, r + 68)];
     // Tilt of the body's local +Y axis from world up, in degrees.
     const upY = 1 - 2 * (q[0] * q[0] + q[2] * q[2]);
     return { p, q, v, w, tilt: Math.acos(Math.max(-1, Math.min(1, upY))) * 180 / Math.PI, speed: Math.hypot(...v), spin: Math.hypot(...w) };
@@ -388,7 +391,8 @@ test('orientation sensor: a tile placed 10 deg off upright rocks back and never 
     const tile = tiltedTile(10);
     const sensors = [sensorOn(2, tile.rotation)];
     let everFired = false;
-    const final = await run(scene([tile], sensors), 2 * TICKS_PER_SECOND, (tick, bytes) => { if (readSensor(bytes, 0).fired) everFired = true; });
+    // The tile rocks about its bottom edges with a slowly decaying ±3° swing for about 3 s, so the upright check samples at 4 s.
+    const final = await run(scene([tile], sensors), 4 * TICKS_PER_SECOND, (tick, bytes) => { if (readSensor(bytes, 0).fired) everFired = true; });
     const s = readSensor(final, 0);
     assert.equal(everFired, false, 'never fired');
     assert.deepEqual([s.fired, s.ordinal, s.phase, s.padding], [0, 0, 0, true], 'armed state holds no event');
@@ -507,15 +511,15 @@ test('bowling ball: dropped from 3 m each ball rebounds to e²·h of its declare
     assert.ok(Math.abs(bowling.final.p[1] - (BENCH_Y + BOWLING_R)) < .001 && bowling.final.speed < .02, `rests at radius height ${bowling.final.p[1].toFixed(4)} m, speed ${bowling.final.speed.toFixed(4)}`);
 });
 
-// ENGINE-DRAG: declared linear drag (body record +66, applied per substep after gravity) and declared rolling resistance (material
+// ENGINE-DRAG: declared linear drag (body record +74, applied per substep after gravity) and declared rolling resistance (material
 // record +14, an angular impulse opposing rolling at a sphere's contacts) are the only decelerating data; nothing names a ball.
 test('drag: a free-flying sphere slows as exp(-drag·t) at 60/120/240 Hz and its free-flight spin is never damped', async () => {
     for (const cadence of [1, 2, 3]) {
         const rate = TICKS_AT[cadence], expected = 2 * Math.exp(-.125 * 2);
         const flying = basketball([0, 1, 0], { gravity: 0, drag: .125, velocity: [2, 0, 0], angular: [0, 5, 0] });
         const final = readBody(await run(scene([flying], [], cadence), 2 * rate), 1);
-        // Half commits resolve about 2^-11 of the speed per tick, so the per-tick decay (0.05 % at 240 Hz) is kept within a few percent.
-        assert.ok(Math.abs(final.v[0] - expected) < .03 * expected, `${rate} Hz: ${final.v[0].toFixed(4)} m/s after 2 s vs ${expected.toFixed(4)}`);
+        // f32 commits resolve about 2^-24 of the speed per tick, so the per-tick decay (0.05 % at 240 Hz) survives every commit.
+        assert.ok(Math.abs(final.v[0] - expected) < .01 * expected, `${rate} Hz: ${final.v[0].toFixed(4)} m/s after 2 s vs ${expected.toFixed(4)}`);
         assert.equal(final.w[1], 5, `${rate} Hz: free-flight spin is untouched (rolling resistance acts only at contacts)`);
         const control = readBody(await run(scene([resistanceFree(flying)], [], cadence), 2 * rate), 1);
         assert.equal(control.v[0], 2, `${rate} Hz: zero declared drag keeps the speed exactly`);
@@ -533,8 +537,9 @@ test('rolling resistance: each ball rolling at 0.7 m/s decelerates at (5/7)·(Cr
         const rest = states.findIndex(b => b.speed < .02);
         assert.ok(rest >= 0 && rest < 5 * TICKS_PER_SECOND, `${label} rests at ${((rest + 1) / TICKS_PER_SECOND).toFixed(2)} s`);
         const backward = Math.min(...states.map(b => b.v[0])), counterSpin = Math.max(...states.map(b => b.w[2]));
-        // The row targets zero relative rolling, so neither the speed nor the spin ever crosses zero (a bang-bang impulse would).
-        assert.ok(backward >= 0 && counterSpin <= 0, `${label} never reverses (min v ${backward} m/s, max omega_z ${counterSpin} rad/s)`);
+        // The row targets zero relative rolling, so neither the speed nor the spin ever crosses zero (a bang-bang impulse would, by
+        // about 3e-4 rad/s). f32 commits keep solver residue near 1e-24 at rest, so "crossing" means beyond 1e-6.
+        assert.ok(backward >= -1e-6 && counterSpin <= 1e-6, `${label} never reverses (min v ${backward} m/s, max omega_z ${counterSpin} rad/s)`);
         const tail = states.slice(-TICKS_PER_SECOND);
         const drift = Math.max(...tail.map(b => Math.hypot(...b.p.map((c, k) => c - tail[0].p[k]))));
         assert.ok(drift < .001 && Math.max(...tail.map(b => b.speed)) < .02, `${label} holds still over the final second (${(drift * 1000).toFixed(3)} mm)`);
@@ -557,11 +562,11 @@ test('rolling resistance: at 60/120/240 Hz a ball of either kind struck to 1 m/s
             const rest = forward.findIndex(v => v < .02);
             assert.ok(rest > 0, `${label} ${rate} Hz: the ball comes to rest`);
             stops[rate] = (rest + 1) / rate;
-            // A decrement below half a Half ulp would round back to the previous committed speed every tick and the ball would roll forever.
+            // A decrement below half an ulp of the committed format would round back to the previous speed every tick (binary16 did above ~3 m/s).
             for (let i = 1; i < rest; i++) assert.ok(forward[i] < forward[i - 1], `${label} ${rate} Hz tick ${i + 1}: ${forward[i]} m/s is not below ${forward[i - 1]}`);
         }
         assert.ok(stops[120] < 5, `${label} stops within 5 s (${stops[120].toFixed(2)} s at 120 Hz)`);
-        // Per-tick Half rounding of v and omega shifts the stop by a few percent between cadences; it never removes the deceleration.
+        // The cadence changes only how often the committed f32 state is sampled; the stop time agrees within 10%.
         for (const rate of [60, 240]) assert.ok(Math.abs(stops[rate] - stops[120]) < .1 * stops[120], `${label} ${rate} Hz stops at ${stops[rate].toFixed(2)} s vs ${stops[120].toFixed(2)} s`);
     }
 });
@@ -644,4 +649,40 @@ test('rolling resistance: a rolling Bowling ball pushing a resting Basketball (t
     assert.ok(states.every(([w, b]) => w.v[0] >= -.005 && b.v[0] >= -.005 && Math.abs(w.p[2]) < .005 && Math.abs(b.p[2]) < .005), 'neither reverses nor leaves the line');
     const [w, b] = states.at(-1);
     assert.ok(Math.abs(b.p[0] - w.p[0] - (BOWLING_R + BASKETBALL_R)) < .005, `they rest in contact, Basketball ahead (gap ${(b.p[0] - w.p[0]).toFixed(4)} m)`);
+});
+
+// ENGINE-F32-VELOCITY (Story 6.1c): committed velocity and angular velocity are f32, so per-tick decrements far below a binary16 step survive.
+test('f32 velocity: the balls\' declared drag 0.04 slows a free-flying ball as 2·exp(-0.04·t) on every committed tick at 60/120/240 Hz', async () => {
+    for (const cadence of [1, 2, 3]) {
+        const rate = TICKS_AT[cadence], forward = [], spins = [];
+        const flying = basketball([0, 1, 0], { gravity: 0, velocity: [2, 0, 0], angular: [0, 5, 0] });
+        await run(scene([flying], [], cadence), 2 * rate, (tick, bytes) => { const b = readBody(bytes, 1); forward.push(b.v[0]); spins.push(b.w[1]); });
+        let previous = 2;
+        forward.forEach((v, i) => {
+            const expected = 2 * Math.exp(-BALL_DRAG * (i + 1) / rate);
+            assert.ok(v < previous, `${rate} Hz tick ${i + 1}: ${v} m/s is not below ${previous}`);
+            assert.ok(Math.abs(v - expected) < .01 * expected, `${rate} Hz tick ${i + 1}: ${v} m/s vs ${expected}`);
+            previous = v;
+        });
+        assert.ok(spins.every(w => w === 5), `${rate} Hz: free-flight spin stays exactly 5 rad/s`);
+    }
+});
+
+test('f32 velocity: a Basketball rolling at 5 m/s at 240 Hz decelerates on every committed tick at (5/7)·(Crr·g + drag·v) and comes to rest', async () => {
+    const rate = TICKS_AT[3], states = [];
+    await run(scene([rollingAt(basketball([-30, BENCH_Y + BASKETBALL_R, 0]), 5)], [], 3), 18 * rate, (tick, bytes) => states.push(readBody(bytes, 1)));
+    const rest = states.findIndex(b => b.speed < .02);
+    // Closed form for a = (5/7)·(Crr·g + drag·v) from 5 m/s: about 16.1 s.
+    assert.ok(rest > 0 && rest < 17.5 * rate, `rests at ${((rest + 1) / rate).toFixed(2)} s`);
+    let previous = 5;
+    for (let i = 0; i < rest; i++) {
+        assert.ok(states[i].v[0] < previous, `tick ${i + 1}: ${states[i].v[0]} m/s is not below ${previous}`);
+        previous = states[i].v[0];
+    }
+    const early = states[rate - 1], later = states[3 * rate - 1];
+    const measured = (early.v[0] - later.v[0]) / 2, predicted = (5 / 7) * (BASKETBALL_ROLLING * 9.81 + BALL_DRAG * (early.v[0] + later.v[0]) / 2);
+    assert.ok(Math.abs(measured - predicted) < .1 * predicted, `decelerates ${measured.toFixed(4)} m/s² at ~4.5 m/s vs ${predicted.toFixed(4)}`);
+    assert.ok(Math.min(...states.map(b => b.v[0])) >= 0, 'never reverses');
+    const last = states.at(-1);
+    assert.ok(Math.abs(last.p[1] - (BENCH_Y + BASKETBALL_R)) < .001 && last.p[0] < 30, `rests on the bench at (${last.p[0].toFixed(2)}, ${last.p[1].toFixed(4)})`);
 });

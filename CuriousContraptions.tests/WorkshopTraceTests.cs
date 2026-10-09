@@ -23,7 +23,7 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
         var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
         for (var index = 0; index < values.Length; index++)
             Assert.Equal(BitConverter.HalfToUInt16Bits(values[index]),
-                BinaryPrimitives.ReadUInt16LittleEndian(record.AsSpan(80 + index * 2)));
+                BinaryPrimitives.ReadUInt16LittleEndian(record.AsSpan(WorkshopTraceRecord.HeaderBytes + 26 + index * 2)));
     }
 
     private static byte[] Record(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile)

@@ -243,6 +243,12 @@ public static class HalfBits
     public static bool Equal(Half a, Half b) => BitConverter.HalfToUInt16Bits(a) == BitConverter.HalfToUInt16Bits(b);
     public static bool Equal(LocalPosition a, LocalPosition b) => Equal(a.X, b.X) && Equal(a.Y, b.Y) && Equal(a.Z, b.Z);
     public static bool Equal(MetreVector a, MetreVector b) => Equal(a.X, b.X) && Equal(a.Y, b.Y) && Equal(a.Z, b.Z);
-    public static bool IsPositiveZero(CellVelocity value) => BitConverter.HalfToUInt16Bits(value.X) == 0 &&
-        BitConverter.HalfToUInt16Bits(value.Y) == 0 && BitConverter.HalfToUInt16Bits(value.Z) == 0;
+}
+
+/// <summary>Canonical f32 bit identity, including signed zero; positive zero is the all-zero bit pattern.</summary>
+public static class F32Bits
+{
+    public static bool Equal(float a, float b) => BitConverter.SingleToUInt32Bits(a) == BitConverter.SingleToUInt32Bits(b);
+    public static bool IsPositiveZero(float x, float y, float z) =>
+        (BitConverter.SingleToUInt32Bits(x) | BitConverter.SingleToUInt32Bits(y) | BitConverter.SingleToUInt32Bits(z)) == 0;
 }

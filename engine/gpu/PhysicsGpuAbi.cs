@@ -19,6 +19,15 @@ public static partial class PhysicsGpuAbi
 {
     public const int HeaderBytes = 128;
     public const int BodyBytes = 128;
+    // Body record: id 0..8, motion 8..12, cell 16..28, local remainder (Half) 32..38, rotation (Half) 40..48, committed linear
+    // velocity m/s (f32) 48..60 and angular velocity rad/s (f32) 60..72 (the mutable range 16..72); immutable declarations after:
+    // mass 72, linear drag 74, gravity 76..82, local centre of mass 82..88 (Half), principal frame 88, inertia 96/104/112, collider slot 120.
+    public const int BodyVelocityOffset = 48;
+    public const int BodyAngularVelocityOffset = 60;
+    public const int BodyMassOffset = 72;
+    public const int BodyDragOffset = 74;
+    public const int BodyGravityOffset = 76;
+    public const int BodyCentreOfMassOffset = 82;
     public const int ColliderBytes = 96;
     public const int MaterialBytes = 32;
     public const int SensorBytes = 128;
@@ -64,10 +73,10 @@ public static partial class PhysicsGpuAbi
             var body = scene.Bodies[i]; var record = data.Slice(BodiesOffset + i * BodyBytes, BodyBytes);
             U64(record, 0, body.Id.Value); U32(record, 8, (uint)body.Motion);
             Cell(record, 16, body.Cell); Local(record, 32, body.Local); Rotation(record, 40, body.Rotation);
-            Vector(record, 48, body.Velocity.X, body.Velocity.Y, body.Velocity.Z);
-            Vector(record, 56, body.AngularVelocity.X, body.AngularVelocity.Y, body.AngularVelocity.Z);
-            H(record, 64, body.Mass.Value); H(record, 66, body.LinearDrag.Value);
-            Vector(record, 68, body.Gravity.X, body.Gravity.Y, body.Gravity.Z);
+            F32Vector(record, BodyVelocityOffset, body.Velocity.X, body.Velocity.Y, body.Velocity.Z);
+            F32Vector(record, BodyAngularVelocityOffset, body.AngularVelocity.X, body.AngularVelocity.Y, body.AngularVelocity.Z);
+            H(record, BodyMassOffset, body.Mass.Value); H(record, BodyDragOffset, body.LinearDrag.Value);
+            Vector(record, BodyGravityOffset, body.Gravity.X, body.Gravity.Y, body.Gravity.Z);
             if (body.Motion == RigidMotionKind.Dynamic)
             {
                 U32(data,28,R32(data,28)+1);
@@ -75,7 +84,7 @@ public static partial class PhysicsGpuAbi
                     if (scene.Colliders[collider].Body==body.Id)
                     {
                         var properties=RigidMassProperties.Compile(body,scene.Colliders[collider]);
-                        Vector(record,80,properties.LocalCentreOfMass.X,properties.LocalCentreOfMass.Y,properties.LocalCentreOfMass.Z);
+                        Vector(record,BodyCentreOfMassOffset,properties.LocalCentreOfMass.X,properties.LocalCentreOfMass.Y,properties.LocalCentreOfMass.Z);
                         Rotation(record,88,properties.PrincipalFrame);
                         Principal(record,96,properties.X); Principal(record,104,properties.Y); Principal(record,112,properties.Z);
                         U32(record,120,(uint)collider);
@@ -204,15 +213,13 @@ public static partial class PhysicsGpuAbi
             if (!Enum.IsDefined(motion)) throw new ArgumentException("Undefined rigid motion.");
             if (motion == RigidMotionKind.Static) continue;
             if (count == values.Length) throw new ArgumentException("Dynamic body capacity exceeded.");
+            // The read set validates every value: non-finite or out-of-envelope f32 velocity (|v| > 64 m/s, |w| > 128 rad/s) rejects the read.
             var body = new CanonicalBody(new(R64(record, 0)), epoch, tick,
                 ReadCell(record, 16), ReadLocal(record, 32),
-                new(RH(record, 48), RH(record, 50), RH(record, 52)));
-            if ((double)body.Velocity.X * (double)body.Velocity.X +
-                (double)body.Velocity.Y * (double)body.Velocity.Y +
-                (double)body.Velocity.Z * (double)body.Velocity.Z > 4)
-                throw new ArgumentException("Committed velocity exceeds the vector bound.");
+                new(RF(record, BodyVelocityOffset), RF(record, BodyVelocityOffset + 4), RF(record, BodyVelocityOffset + 8)));
             values[count++] = new(body, ReadRotation(record, 40),
-                new(RH(record, 56), RH(record, 58), RH(record, 60)), new(RH(record,80),RH(record,82),RH(record,84)));
+                new(RF(record, BodyAngularVelocityOffset), RF(record, BodyAngularVelocityOffset + 4), RF(record, BodyAngularVelocityOffset + 8)),
+                ReadCentreOfMass(record));
         }
         var result = new PhysicsBodyReadSet(values[..count]);
         result.ValidateTime(new(epoch), new(tick)); return result;
@@ -329,8 +336,8 @@ public static partial class PhysicsGpuAbi
             }
             if (motion!=RigidMotionKind.Dynamic) throw new ArgumentException("Undefined rigid motion.");
             dynamicCount++;
-            if (!actual[..16].SequenceEqual(previous[..16]) || !actual[64..].SequenceEqual(previous[64..]) ||
-                !AllZero(actual[28..32]) || !AllZero(actual[38..40]) || !AllZero(actual[54..56]) || !AllZero(actual[62..64]))
+            if (!actual[..16].SequenceEqual(previous[..16]) || !actual[BodyMassOffset..].SequenceEqual(previous[BodyMassOffset..]) ||
+                !AllZero(actual[28..32]) || !AllZero(actual[38..40]))
                 throw new ArgumentException("Dynamic immutable declaration or padding changed.");
             ReadMassProperties(actual).Validate();
         }
@@ -421,8 +428,10 @@ public static partial class PhysicsGpuAbi
         BinaryPrimitives.WriteInt32LittleEndian(bytes[(offset+4)..],value.Exponent);
     }
     private static RigidMassProperties ReadMassProperties(ReadOnlySpan<byte> record) =>
-        new(new(RH(record,80),RH(record,82),RH(record,84)),ReadRotation(record,88),
+        new(ReadCentreOfMass(record),ReadRotation(record,88),
             ReadPrincipal(record,96),ReadPrincipal(record,104),ReadPrincipal(record,112));
+    private static MetreVector ReadCentreOfMass(ReadOnlySpan<byte> record) =>
+        new(RH(record,BodyCentreOfMassOffset),RH(record,BodyCentreOfMassOffset+2),RH(record,BodyCentreOfMassOffset+4));
     private static PrincipalInertia ReadPrincipal(ReadOnlySpan<byte> record,int offset)
     {
         if (!AllZero(record.Slice(offset+2,2))) throw new ArgumentException("Nonzero inertia padding.");
@@ -569,6 +578,13 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
     {
         H(bytes, offset, x); H(bytes, offset + 2, y); H(bytes, offset + 4, z);
     }
+    private static void F32Vector(Span<byte> bytes, int offset, float x, float y, float z)
+    {
+        BinaryPrimitives.WriteSingleLittleEndian(bytes[offset..], x);
+        BinaryPrimitives.WriteSingleLittleEndian(bytes[(offset + 4)..], y);
+        BinaryPrimitives.WriteSingleLittleEndian(bytes[(offset + 8)..], z);
+    }
+    private static float RF(ReadOnlySpan<byte> bytes, int offset) => BinaryPrimitives.ReadSingleLittleEndian(bytes[offset..]);
     private static void H(Span<byte> bytes, int offset, Half value) =>
         BinaryPrimitives.WriteUInt16LittleEndian(bytes[offset..], BitConverter.HalfToUInt16Bits(value));
     private static Half RH(ReadOnlySpan<byte> bytes, int offset) =>

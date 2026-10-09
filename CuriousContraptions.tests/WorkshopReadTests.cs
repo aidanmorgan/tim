@@ -67,7 +67,8 @@ public sealed class WorkshopReadTests
         var body = new CanonicalBody(new(1), 2, 15, default, default, default);
         var bytes = MotionBytes(body);
         var piece = PhysicsMotionRead.HeaderBytes;
-        for (var i = 0; i < 4; i++) H(bytes, piece + i * PhysicsMotionRead.PieceBytes + 64, (Half)(1.0 / 32));
+        for (var i = 0; i < 4; i++)
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + i * PhysicsMotionRead.PieceBytes + PhysicsMotionRead.VelocityOffset), 1f);
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(15));
         Assert.True(motion.TrySample(body.Id, 58, out var pose));
         Assert.Equal(2, pose.Cell.X);

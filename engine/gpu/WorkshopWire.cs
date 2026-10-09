@@ -365,7 +365,7 @@ public static class WorkshopWire
             var locked = BinaryPrimitives.ReadUInt32LittleEndian(slot[4..]);
             if (locked > 1 || !Zero(slot[8..16])) throw new ArgumentException("Invalid authored instance flags.");
             var body = CanonicalBody.Decode(slot[16..96]);
-            if (body.Epoch != 0 || body.Tick != 0 || !HalfBits.IsPositiveZero(body.Velocity))
+            if (body.Epoch != 0 || body.Tick != 0 || !body.Velocity.IsPositiveZero)
                 throw new ArgumentException("Construction contains live simulation state.");
             var rotation = new CanonicalRotation(Read(slot[96..]), Read(slot[98..]), Read(slot[100..]), Read(slot[102..]));
             instances[i] = kind switch

@@ -118,6 +118,19 @@ public sealed class WorkshopBowlingTests
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(swappedBack));
         var padding = (byte[])bytes.Clone(); padding[bowlingOffset + 114] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
+        // Each instance's canonical body velocity lane (slot bytes 80..96; f32 m/s since Story 6.1c, binary16 before) is all-zero bits,
+        // so saves written before the f32 change hold the same bytes and load unchanged; any live velocity, even -0, is rejected.
+        for (var instance = 0; instance < decoded.Construction.Instances.Count; instance++)
+        {
+            var slot = 24 + WorkshopWire.ConstructionHeaderBytes + instance * WorkshopWire.InstanceBytes;
+            Assert.True(bytes.AsSpan(slot + 80, 16).IndexOfAnyExcept((byte)0) < 0);
+        }
+        foreach (var bits in new[] { BitConverter.SingleToUInt32Bits(1f), 0x80000000u, BitConverter.SingleToUInt32Bits(float.NaN) })
+        {
+            var live = (byte[])bytes.Clone();
+            BinaryPrimitives.WriteUInt32LittleEndian(live.AsSpan(bowlingOffset + 84), bits);
+            Assert.ThrowsAny<ArgumentException>(() => WorkshopSaveCodec.Decode(live));
+        }
         Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)));
     }
 
@@ -127,11 +140,12 @@ public sealed class WorkshopBowlingTests
         var scene = WorkshopPhysicsCompiler.Compile(TwoLanes(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var bodies = scene.Bodies.ToArray(); var colliders = scene.Colliders.ToArray(); var materials = scene.Materials.ToArray();
-        // Body record +66 carries the declared linear drag; material record +14 the rolling-resistance coefficient (Domino tiles: zero).
+        // Body record +74 carries the declared linear drag; material record +14 the rolling-resistance coefficient (Domino tiles: zero).
         foreach (var (id, drag, rolling) in new[] { (3UL, (ushort)10527, (ushort)10363), (4UL, (ushort)10527, (ushort)10158), (1UL, (ushort)0, (ushort)0), (2UL, (ushort)0, (ushort)0) })
         {
             var slot = Array.FindIndex(bodies, b => b.Id == new GpuBodyId(id));
-            Assert.Equal(drag, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes + 66)));
+            Assert.Equal(drag, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes + PhysicsGpuAbi.BodyDragOffset)));
+            Assert.Equal(74, PhysicsGpuAbi.BodyDragOffset);
             var collider = Assert.Single(colliders, c => c.Body == new GpuBodyId(id));
             var material = Array.FindIndex(materials, m => m.Id == collider.Material);
             Assert.Equal(rolling, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(PhysicsGpuAbi.MaterialsOffset + material * PhysicsGpuAbi.MaterialBytes + 14)));

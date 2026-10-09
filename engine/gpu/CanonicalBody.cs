@@ -10,11 +10,20 @@ public enum TimeScale : int { Seconds = -9 }
 public readonly record struct GpuBodyId(ulong Value);
 public readonly record struct CellOrigin(int X, int Y, int Z);
 public readonly record struct LocalPosition(Half X, Half Y, Half Z);
-public readonly record struct CellVelocity(Half X, Half Y, Half Z);
+
+/// <summary>Committed linear velocity in metres per second as IEEE-754 f32, bounded by the game-grade 64 m/s envelope.</summary>
+public readonly record struct LinearVelocity(float X, float Y, float Z)
+{
+    public const double MaximumSpeed = 64;
+    public void Validate() => PhysicsDeclarationBounds.Magnitude(X, Y, Z, MaximumSpeed);
+    public bool IsPositiveZero => F32Bits.IsPositiveZero(X, Y, Z);
+    public bool HasSameBits(LinearVelocity other) =>
+        F32Bits.Equal(X, other.X) && F32Bits.Equal(Y, other.Y) && F32Bits.Equal(Z, other.Z);
+}
 
 /// <summary>Canonical construction/readback. No host integration or correction.</summary>
 public readonly record struct CanonicalBody(
-    GpuBodyId Id, ulong Epoch, ulong Tick, CellOrigin Cell, LocalPosition Local, CellVelocity Velocity)
+    GpuBodyId Id, ulong Epoch, ulong Tick, CellOrigin Cell, LocalPosition Local, LinearVelocity Velocity)
 {
     public const int ByteLength = 80;
     public const int MaximumCell = 1024;
@@ -41,7 +50,9 @@ public readonly record struct CanonicalBody(
         BinaryPrimitives.WriteInt32LittleEndian(data[36..], Cell.Y);
         BinaryPrimitives.WriteInt32LittleEndian(data[40..], Cell.Z);
         WriteHalf(data[56..], Local.X); WriteHalf(data[58..], Local.Y); WriteHalf(data[60..], Local.Z);
-        WriteHalf(data[64..], Velocity.X); WriteHalf(data[66..], Velocity.Y); WriteHalf(data[68..], Velocity.Z);
+        BinaryPrimitives.WriteSingleLittleEndian(data[64..], Velocity.X);
+        BinaryPrimitives.WriteSingleLittleEndian(data[68..], Velocity.Y);
+        BinaryPrimitives.WriteSingleLittleEndian(data[72..], Velocity.Z);
     }
 
     public static CanonicalBody Decode(ReadOnlySpan<byte> data)
@@ -53,8 +64,7 @@ public readonly record struct CanonicalBody(
             BinaryPrimitives.ReadInt32LittleEndian(data[52..]) != (int)TimeScale.Seconds ||
             BinaryPrimitives.ReadUInt32LittleEndian(data[44..]) != 0 ||
             BinaryPrimitives.ReadUInt16LittleEndian(data[62..]) != 0 ||
-            BinaryPrimitives.ReadUInt16LittleEndian(data[70..]) != 0 ||
-            BinaryPrimitives.ReadUInt64LittleEndian(data[72..]) != 0)
+            BinaryPrimitives.ReadUInt32LittleEndian(data[76..]) != 0)
             throw new ArgumentException("Unsupported canonical body record.");
         var body = new CanonicalBody(
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[24..])),
@@ -62,7 +72,8 @@ public readonly record struct CanonicalBody(
             BinaryPrimitives.ReadUInt64LittleEndian(data[16..]),
             new(BinaryPrimitives.ReadInt32LittleEndian(data[32..]), BinaryPrimitives.ReadInt32LittleEndian(data[36..]), BinaryPrimitives.ReadInt32LittleEndian(data[40..])),
             new(ReadHalf(data[56..]), ReadHalf(data[58..]), ReadHalf(data[60..])),
-            new(ReadHalf(data[64..]), ReadHalf(data[66..]), ReadHalf(data[68..])));
+            new(BinaryPrimitives.ReadSingleLittleEndian(data[64..]), BinaryPrimitives.ReadSingleLittleEndian(data[68..]),
+                BinaryPrimitives.ReadSingleLittleEndian(data[72..])));
         body.Validate();
         return body;
     }
@@ -70,16 +81,16 @@ public readonly record struct CanonicalBody(
     public void Validate()
     {
         if (Id.Value == 0) throw new ArgumentException("Body identity must be nonzero.");
-        ValidateAxis(Cell.X, Local.X, Velocity.X);
-        ValidateAxis(Cell.Y, Local.Y, Velocity.Y);
-        ValidateAxis(Cell.Z, Local.Z, Velocity.Z);
+        ValidateAxis(Cell.X, Local.X);
+        ValidateAxis(Cell.Y, Local.Y);
+        ValidateAxis(Cell.Z, Local.Z);
+        Velocity.Validate();
     }
 
-    private static void ValidateAxis(int cell, Half local, Half velocity)
+    private static void ValidateAxis(int cell, Half local)
     {
-        if (!Half.IsFinite(local) || !Half.IsFinite(velocity) ||
+        if (!Half.IsFinite(local) ||
             local < (Half)(-0.5) || local >= (Half)0.5 ||
-            velocity < (Half)(-2) || velocity > (Half)2 ||
             cell < -MaximumCell || cell > MaximumCell ||
             (cell == MaximumCell && local > (Half)0) ||
             (cell == -MaximumCell && local < (Half)0))

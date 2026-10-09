@@ -43,13 +43,13 @@ public class WorkshopPoseRingTests
 
         var body1 = new CanonicalBody(new GpuBodyId(101), 1, 10, new CellOrigin(16, 32, 0),
             new LocalPosition((Half)0.25, (Half)(-0.125), (Half)0.0),
-            new CellVelocity((Half)0.5, (Half)(-0.25), (Half)0.0));
+            new LinearVelocity(16.0001f, -8f, 0f));
         var rot1 = CanonicalRotation.Identity;
         var read1 = new PhysicsBodyRead(body1, rot1, default, default);
 
         var body2 = new CanonicalBody(new GpuBodyId(102), 1, 10, new CellOrigin(-16, 0, 16),
             new LocalPosition((Half)(-0.25), (Half)0.125, (Half)0.0),
-            new CellVelocity((Half)(-0.5), (Half)0.25, (Half)0.0));
+            new LinearVelocity(-16f, 8f, 0f));
         var rot2 = new CanonicalRotation((Half)0.0, (Half)0.7071, (Half)0.0, (Half)0.7071);
         var read2 = new PhysicsBodyRead(body2, rot2, default, default);
 
@@ -74,7 +74,9 @@ public class WorkshopPoseRingTests
         Assert.Equal(0.0f, bodies[0].Pz, precision: 4);
         Assert.Equal(0.0f, bodies[0].Qx, precision: 4);
         Assert.Equal(1.0f, bodies[0].Qw, precision: 4);
-        Assert.Equal(0.5f * 32.0f, bodies[0].Vx, precision: 4);
+        // The committed f32 m/s value passes to the ring unscaled and bit-exact.
+        Assert.Equal(16.0001f, bodies[0].Vx);
+        Assert.Equal(-8f, bodies[0].Vy);
         Assert.Equal(1u, bodies[0].Flags);
 
         // Verify body 2
@@ -84,7 +86,7 @@ public class WorkshopPoseRingTests
         Assert.Equal((16 + 0.0f) / 16.0f, bodies[1].Pz, precision: 4);
         Assert.Equal(0.7071f, bodies[1].Qy, precision: 3);
         Assert.Equal(0.7071f, bodies[1].Qw, precision: 3);
-        Assert.Equal(-0.5f * 32.0f, bodies[1].Vx, precision: 4);
+        Assert.Equal(-16f, bodies[1].Vx);
         Assert.Equal(1u, bodies[1].Flags);
     }
 

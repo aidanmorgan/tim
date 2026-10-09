@@ -210,8 +210,15 @@ const CONTACT_SLOP = 0.0002;          // allowed resting penetration; with the s
 const SPECULATIVE_SLOP = 0.004;       // manifold admission margin added to the relative-speed term
 const MAX_LINEAR_SPEED = 64;          // m/s limit before position integration
 const MAX_ANGULAR_SPEED = 128;        // rad/s limit before orientation integration
-const SPEED_CLAMP = MAX_LINEAR_SPEED * (1 - 1 / 512);   // leaves room for Half rounding of the components below the host bound
-const SPIN_CLAMP = MAX_ANGULAR_SPEED * (1 - 1 / 512);
+// Committed velocities are f32: rounding each component moves the magnitude by at most 2^-24 relative, so 2^-20 keeps the host bound.
+const SPEED_CLAMP = MAX_LINEAR_SPEED * (1 - 2 ** -20);
+const SPIN_CLAMP = MAX_ANGULAR_SPEED * (1 - 2 ** -20);
+function clampVelocity(b) {
+    const speed = Math.hypot(b.vx, b.vy, b.vz);
+    if (speed > SPEED_CLAMP) { const k = SPEED_CLAMP / speed; b.vx *= k; b.vy *= k; b.vz *= k; }
+    const spin = Math.hypot(b.wx, b.wy, b.wz);
+    if (spin > SPIN_CLAMP) { const k = SPIN_CLAMP / spin; b.wx *= k; b.wy *= k; b.wz *= k; }
+}
 const CONTACT_HERTZ = 60;             // Box2D v3 soft contact stiffness (<= substep rate / 4)
 const CONTACT_DAMPING_RATIO = 10;
 const MAX_PUSHOUT_SPEED = 3;          // m/s cap on the soft position-correction bias
@@ -990,18 +997,19 @@ function advanceCandidate(source, candidate) {
         const qy = getF16(view, bodyOffset + 42);
         const qz = getF16(view, bodyOffset + 44);
         const qw = getF16(view, bodyOffset + 46);
-        const vx = getF16(view, bodyOffset + 48) * 32.0;
-        const vy = getF16(view, bodyOffset + 50) * 32.0;
-        const vz = getF16(view, bodyOffset + 52) * 32.0;
-        const wx = getF16(view, bodyOffset + 56);
-        const wy = getF16(view, bodyOffset + 58);
-        const wz = getF16(view, bodyOffset + 60);
-        const mass = getF16(view, bodyOffset + 64);
-        const gx = getF16(view, bodyOffset + 68);
-        const gy = getF16(view, bodyOffset + 70);
-        const gz = getF16(view, bodyOffset + 72);
-        const drag = getF16(view, bodyOffset + 66);
-        const comLocal = [getF16(view, bodyOffset + 80), getF16(view, bodyOffset + 82), getF16(view, bodyOffset + 84)];
+        // Committed linear (m/s) and angular (rad/s) velocity are f32; the declarations after them stay binary16.
+        const vx = view.getFloat32(bodyOffset + 48, true);
+        const vy = view.getFloat32(bodyOffset + 52, true);
+        const vz = view.getFloat32(bodyOffset + 56, true);
+        const wx = view.getFloat32(bodyOffset + 60, true);
+        const wy = view.getFloat32(bodyOffset + 64, true);
+        const wz = view.getFloat32(bodyOffset + 68, true);
+        const mass = getF16(view, bodyOffset + 72);
+        const drag = getF16(view, bodyOffset + 74);
+        const gx = getF16(view, bodyOffset + 76);
+        const gy = getF16(view, bodyOffset + 78);
+        const gz = getF16(view, bodyOffset + 80);
+        const comLocal = [getF16(view, bodyOffset + 82), getF16(view, bodyOffset + 84), getF16(view, bodyOffset + 86)];
         const principal = [getF16(view, bodyOffset + 88), getF16(view, bodyOffset + 90), getF16(view, bodyOffset + 92), getF16(view, bodyOffset + 94)];
         const inertia = [readPrincipalInertia(view, bodyOffset + 96), readPrincipalInertia(view, bodyOffset + 104), readPrincipalInertia(view, bodyOffset + 112)];
 
@@ -1260,7 +1268,7 @@ function advanceCandidate(source, candidate) {
             }
         }
 
-        // 2. Symplectic Euler gravity integration about the centre of mass, then the declared linear drag (body record +66) as an
+        // 2. Symplectic Euler gravity integration about the centre of mass, then the declared linear drag (body record +74) as an
         //    exact exponential decay of the linear velocity; angular velocity is never damped here.
         for (let b of dynamicBodies) {
             b.vx += b.gx * dt;
@@ -1293,10 +1301,7 @@ function advanceCandidate(source, candidate) {
         for (let iteration = 0; iteration < SOLVER_ITERATIONS; iteration++) sweepManifolds(manifolds, true, soft, dt);
 
         for (let b of dynamicBodies) {
-            const speed = Math.hypot(b.vx, b.vy, b.vz);
-            if (speed > SPEED_CLAMP) { const k = SPEED_CLAMP / speed; b.vx *= k; b.vy *= k; b.vz *= k; }
-            const spin = Math.hypot(b.wx, b.wy, b.wz);
-            if (spin > SPIN_CLAMP) { const k = SPIN_CLAMP / spin; b.wx *= k; b.wy *= k; b.wz *= k; }
+            clampVelocity(b);
 
             const before = { cellX: b.cellX, cellY: b.cellY, cellZ: b.cellZ, localX: b.localX, localY: b.localY, localZ: b.localZ,
                 qx: b.qx, qy: b.qy, qz: b.qz, qw: b.qw };
@@ -1344,9 +1349,11 @@ function advanceCandidate(source, candidate) {
 
         for (let iteration = 0; iteration < RELAX_ITERATIONS; iteration++) sweepManifolds(manifolds, false, soft, dt);
         for (const c of contacts) applyRestitution(c);
-        // Game-grade: a non-finite velocity produced by the final sweeps drops the motion; the finite pose stands.
+        // Game-grade: a non-finite velocity produced by the final sweeps drops the motion; the finite pose stands. A finite one
+        // is clamped again so the relax and restitution passes cannot commit a speed beyond the envelope.
         for (let b of dynamicBodies)
             if (!Number.isFinite(b.vx + b.vy + b.vz + b.wx + b.wy + b.wz)) b.vx = b.vy = b.vz = b.wx = b.wy = b.wz = 0;
+            else clampVelocity(b);
 
         // Persist accumulated impulses by pair and feature for the next substep's warm start.
         contactCache.clear();
@@ -1404,15 +1411,15 @@ function advanceCandidate(source, candidate) {
             setF16(pieceView, 58, b.qy);
             setF16(pieceView, 60, b.qz);
             setF16(pieceView, 62, b.qw);
-            setF16(pieceView, 64, b.vx / 32.0);
-            setF16(pieceView, 66, b.vy / 32.0);
-            setF16(pieceView, 68, b.vz / 32.0);
-            setF16(pieceView, 72, b.wx);
-            setF16(pieceView, 74, b.wy);
-            setF16(pieceView, 76, b.wz);
-            setF16(pieceView, 80, b.gx);
-            setF16(pieceView, 82, b.gy);
-            setF16(pieceView, 84, b.gz);
+            pieceView.setFloat32(64, b.vx, true);
+            pieceView.setFloat32(68, b.vy, true);
+            pieceView.setFloat32(72, b.vz, true);
+            pieceView.setFloat32(76, b.wx, true);
+            pieceView.setFloat32(80, b.wy, true);
+            pieceView.setFloat32(84, b.wz, true);
+            setF16(pieceView, 88, b.gx);
+            setF16(pieceView, 90, b.gy);
+            setF16(pieceView, 92, b.gz);
         }
     }
 
@@ -1529,12 +1536,12 @@ function advanceCandidate(source, candidate) {
         setF16(view, b.bodyOffset + 42, b.qy);
         setF16(view, b.bodyOffset + 44, b.qz);
         setF16(view, b.bodyOffset + 46, b.qw);
-        setF16(view, b.bodyOffset + 48, b.vx / 32.0);
-        setF16(view, b.bodyOffset + 50, b.vy / 32.0);
-        setF16(view, b.bodyOffset + 52, b.vz / 32.0);
-        setF16(view, b.bodyOffset + 56, b.wx);
-        setF16(view, b.bodyOffset + 58, b.wy);
-        setF16(view, b.bodyOffset + 60, b.wz);
+        view.setFloat32(b.bodyOffset + 48, b.vx, true);
+        view.setFloat32(b.bodyOffset + 52, b.vy, true);
+        view.setFloat32(b.bodyOffset + 56, b.vz, true);
+        view.setFloat32(b.bodyOffset + 60, b.wx, true);
+        view.setFloat32(b.bodyOffset + 64, b.wy, true);
+        view.setFloat32(b.bodyOffset + 68, b.wz, true);
     }
 }
 
@@ -1558,8 +1565,9 @@ function writePoseRing(bytes) {
 
     for (let i = 0; i < 16; i++) {
         const b = bodyFloatOffset + i * 12;
-        if (i < bodyCount && 128 + (i + 1) * 56 <= bytes.length) {
-            const src = 128 + i * 56;
+        // PhysicsBodyWire (64 B): cell 8..20, local 20..26 and rotation 26..34 (Half), linear velocity m/s 40..52 (f32).
+        if (i < bodyCount && 128 + (i + 1) * 64 <= bytes.length) {
+            const src = 128 + i * 64;
             const bodyId = view.getUint32(src, true);
             const cellX = view.getInt32(src + 8, true);
             const cellY = view.getInt32(src + 12, true);
@@ -1567,13 +1575,13 @@ function writePoseRing(bytes) {
             const localX = getF16(view, src + 20);
             const localY = getF16(view, src + 22);
             const localZ = getF16(view, src + 24);
-            const velX = getF16(view, src + 26);
-            const velY = getF16(view, src + 28);
-            const velZ = getF16(view, src + 30);
-            const qx = getF16(view, src + 32);
-            const qy = getF16(view, src + 34);
-            const qz = getF16(view, src + 36);
-            const qw = getF16(view, src + 38);
+            const qx = getF16(view, src + 26);
+            const qy = getF16(view, src + 28);
+            const qz = getF16(view, src + 30);
+            const qw = getF16(view, src + 32);
+            const velX = view.getFloat32(src + 40, true);
+            const velY = view.getFloat32(src + 44, true);
+            const velZ = view.getFloat32(src + 48, true);
 
             poseFloatView[b + 0] = (cellX + localX) / 16;
             poseFloatView[b + 1] = (cellY + localY) / 16;
@@ -1583,9 +1591,9 @@ function writePoseRing(bytes) {
             poseFloatView[b + 5] = qy;
             poseFloatView[b + 6] = qz;
             poseFloatView[b + 7] = qw;
-            poseFloatView[b + 8] = velX * 32;
-            poseFloatView[b + 9] = velY * 32;
-            poseFloatView[b + 10] = velZ * 32;
+            poseFloatView[b + 8] = velX;
+            poseFloatView[b + 9] = velY;
+            poseFloatView[b + 10] = velZ;
             poseDataView.setUint32((b + 11) * 4, 1, true);
         } else {
             poseFloatView[b + 0] = 0;

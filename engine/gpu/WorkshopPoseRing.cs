@@ -78,9 +78,9 @@ public static class WorkshopPoseRing
             BinaryPrimitives.WriteSingleLittleEndian(dest[28..], (float)read.Rotation.W);
 
             // Vector 2: vx, vy, vz, flags
-            BinaryPrimitives.WriteSingleLittleEndian(dest[32..], (float)read.Body.Velocity.X * 32.0f);
-            BinaryPrimitives.WriteSingleLittleEndian(dest[36..], (float)read.Body.Velocity.Y * 32.0f);
-            BinaryPrimitives.WriteSingleLittleEndian(dest[40..], (float)read.Body.Velocity.Z * 32.0f);
+            BinaryPrimitives.WriteSingleLittleEndian(dest[32..], read.Body.Velocity.X);
+            BinaryPrimitives.WriteSingleLittleEndian(dest[36..], read.Body.Velocity.Y);
+            BinaryPrimitives.WriteSingleLittleEndian(dest[40..], read.Body.Velocity.Z);
             BinaryPrimitives.WriteUInt32LittleEndian(dest[44..], 1u); // active flag
         }
     }

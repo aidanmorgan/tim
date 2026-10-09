@@ -107,9 +107,10 @@ public sealed class PhysicsBodyReadSetTests
     public void EqualityRetainsSignedZeroAndNonselectedBodyBits()
     {
         var a = Read(1); var b = Read(2);
-        var negativeZero = BitConverter.UInt16BitsToHalf(0x8000);
-        var changed = b with { AngularVelocity = new(negativeZero, (Half)0, (Half)0) };
+        var changed = b with { AngularVelocity = new(-0f, 0f, 0f) };
         Assert.False(new PhysicsBodyReadSet([a, b]).HasSameBits(new([a, changed])));
+        var slower = b with { Body = b.Body with { Velocity = new(BitConverter.UInt32BitsToSingle(1), 0f, 0f) } };
+        Assert.False(new PhysicsBodyReadSet([a, b]).HasSameBits(new([a, slower])));
         Assert.Throws<ArgumentException>(() => new PhysicsBodyReadSet([a,
             b with { LocalCentreOfMass = new(Half.NaN, (Half)0, (Half)0) }]));
     }
@@ -118,11 +119,23 @@ public sealed class PhysicsBodyReadSetTests
     public void AngularMagnitudeRejectsComponentValidButVectorInvalidInput()
     {
         var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Dynamic, default, default,
-            CanonicalRotation.Identity, default, new((Half)128, (Half)0, (Half)0), new((Half)1), default, default);
+            CanonicalRotation.Identity, default, new(128f, 0f, 0f), new((Half)1), default, default);
         body.Validate();
-        Assert.Throws<ArgumentException>(() => (body with { AngularVelocity = new((Half)128, (Half)128, (Half)0) }).Validate());
+        Assert.Throws<ArgumentException>(() => (body with { AngularVelocity = new(128f, 128f, 0f) }).Validate());
         (Read(1) with { AngularVelocity = body.AngularVelocity }).Validate();
-        Assert.Throws<ArgumentException>(() => (Read(1) with { AngularVelocity = new((Half)128, (Half)128, (Half)0) }).Validate());
+        Assert.Throws<ArgumentException>(() => (Read(1) with { AngularVelocity = new(128f, 128f, 0f) }).Validate());
+        Assert.Throws<ArgumentException>(() => (Read(1) with { AngularVelocity = new(float.NaN, 0f, 0f) }).Validate());
+        Assert.Throws<ArgumentException>(() => (Read(1) with { AngularVelocity = new(0f, float.NegativeInfinity, 0f) }).Validate());
+    }
+
+    [Fact]
+    public void StaticDeclarationsRequireAllZeroF32VelocityBits()
+    {
+        var body = new RigidBodyDeclaration(new(1), RigidMotionKind.Static, default, default,
+            CanonicalRotation.Identity, default, default, new((Half)0), default, default);
+        body.Validate();
+        Assert.Throws<ArgumentException>(() => (body with { Velocity = new(0f, -0f, 0f) }).Validate());
+        Assert.Throws<ArgumentException>(() => (body with { AngularVelocity = new(0f, 0f, -0f) }).Validate());
     }
 
     [Fact]

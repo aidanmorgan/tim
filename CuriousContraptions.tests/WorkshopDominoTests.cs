@@ -20,8 +20,8 @@ public sealed class WorkshopDominoTests
         Assert.Equal(new Kilograms((Half).4), body.Mass);
         Assert.Equal(new AccelerationVector((Half)0, (Half)(-9.81), (Half)0), body.Gravity);
         Assert.Equal(new InverseSeconds((Half)0), body.LinearDrag);
-        Assert.True(HalfBits.IsPositiveZero(body.Velocity));
-        Assert.Equal(default, body.AngularVelocity);
+        Assert.True(body.Velocity.IsPositiveZero);
+        Assert.True(body.AngularVelocity.IsPositiveZero);
         var box = Assert.Single(scene.Colliders.ToArray(), c => c.Body == body.Id);
         Assert.Equal(ColliderShapeKind.Box, box.Shape);
         Assert.Equal(RigidLocalPose.Identity, box.Pose);

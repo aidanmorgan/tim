@@ -7,25 +7,17 @@ public readonly record struct PhysicsBodyRead(CanonicalBody Body, CanonicalRotat
 {
     public void Validate()
     {
-        Body.Validate(); Rotation.ValidateCommitted();
-        PhysicsDeclarationBounds.Vector(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z, (Half)128);
-        var w = AngularVelocity;
-        if ((double)w.X * (double)w.X + (double)w.Y * (double)w.Y + (double)w.Z * (double)w.Z > 16384)
-            throw new ArgumentException("Angular velocity exceeds the admitted vector magnitude.");
+        Body.Validate(); Rotation.ValidateCommitted(); AngularVelocity.Validate();
         PhysicsDeclarationBounds.Vector(LocalCentreOfMass.X, LocalCentreOfMass.Y, LocalCentreOfMass.Z, (Half)16);
     }
 
     public bool HasSameBits(PhysicsBodyRead other) =>
         Body.Id == other.Body.Id && Body.Epoch == other.Body.Epoch && Body.Tick == other.Body.Tick &&
         Body.Cell == other.Body.Cell && HalfBits.Equal(Body.Local, other.Body.Local) &&
-        HalfBits.Equal(Body.Velocity.X, other.Body.Velocity.X) &&
-        HalfBits.Equal(Body.Velocity.Y, other.Body.Velocity.Y) &&
-        HalfBits.Equal(Body.Velocity.Z, other.Body.Velocity.Z) &&
+        Body.Velocity.HasSameBits(other.Body.Velocity) &&
         HalfBits.Equal(Rotation.X, other.Rotation.X) && HalfBits.Equal(Rotation.Y, other.Rotation.Y) &&
         HalfBits.Equal(Rotation.Z, other.Rotation.Z) && HalfBits.Equal(Rotation.W, other.Rotation.W) &&
-        HalfBits.Equal(AngularVelocity.X, other.AngularVelocity.X) &&
-        HalfBits.Equal(AngularVelocity.Y, other.AngularVelocity.Y) &&
-        HalfBits.Equal(AngularVelocity.Z, other.AngularVelocity.Z) &&
+        AngularVelocity.HasSameBits(other.AngularVelocity) &&
         HalfBits.Equal(LocalCentreOfMass.X, other.LocalCentreOfMass.X) &&
         HalfBits.Equal(LocalCentreOfMass.Y, other.LocalCentreOfMass.Y) &&
         HalfBits.Equal(LocalCentreOfMass.Z, other.LocalCentreOfMass.Z);
@@ -92,16 +84,12 @@ public readonly struct PhysicsBodyReadSet
                 throw new ArgumentException("Committed centre of mass differs from declaration.");
             if (tick.Value == 0 && (value.Body.Cell != declared.Cell ||
                 !HalfBits.Equal(value.Body.Local, declared.Local) ||
-                !HalfBits.Equal(value.Body.Velocity.X, declared.Velocity.X) ||
-                !HalfBits.Equal(value.Body.Velocity.Y, declared.Velocity.Y) ||
-                !HalfBits.Equal(value.Body.Velocity.Z, declared.Velocity.Z) ||
+                !value.Body.Velocity.HasSameBits(declared.Velocity) ||
                 !HalfBits.Equal(value.Rotation.X, declared.Rotation.X) ||
                 !HalfBits.Equal(value.Rotation.Y, declared.Rotation.Y) ||
                 !HalfBits.Equal(value.Rotation.Z, declared.Rotation.Z) ||
                 !HalfBits.Equal(value.Rotation.W, declared.Rotation.W) ||
-                !HalfBits.Equal(value.AngularVelocity.X, declared.AngularVelocity.X) ||
-                !HalfBits.Equal(value.AngularVelocity.Y, declared.AngularVelocity.Y) ||
-                !HalfBits.Equal(value.AngularVelocity.Z, declared.AngularVelocity.Z)))
+                !value.AngularVelocity.HasSameBits(declared.AngularVelocity)))
                 throw new ArgumentException("Admission changed a canonical body.");
         }
         if (index != Count) throw new ArgumentException($"Read contains a foreign dynamic body: expected {index}, received {Count}, scene bodies {scene.Bodies.Length}, epoch {epoch.Value}, tick {tick.Value}.");

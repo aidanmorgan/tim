@@ -298,7 +298,7 @@ public sealed class WorkshopSimulationTests
         var initialGeneration = simulation.Epoch;
         var advance = simulation.Advance().AsTask();
         device.CompleteAdvance(0, read => ChangeOnlyBody(read, value => value with { Body = value.Body with
-            { Cell = new(0, 48, 0), Local = new((Half)0, (Half)0.25, (Half)0), Velocity = new((Half)0, (Half)(-0.1), (Half)0) } }));
+            { Cell = new(0, 48, 0), Local = new((Half)0, (Half)0.25, (Half)0), Velocity = new(0f, -3.2f, 0f) } }));
         await advance;
         Assert.NotEqual(construction.Instances.ToArray().OfType<WorkshopBall>().Single().Cell, simulation.Committed.Bodies[0].Body.Cell);
         var reset = simulation.Reset().AsTask();
@@ -371,7 +371,7 @@ public sealed class WorkshopSimulationTests
         {
             var body = read.Bodies[0].Body;
             body = body with { Local = new((Half).25, body.Local.Y, (Half)(-.25)),
-                Velocity = new((Half).03125, (Half)0, (Half)(-.03125)) };
+                Velocity = new(1f, 0f, -1f) };
             return change switch
             {
                 AdvancedIdentityChange.None => ChangeOnlyBody(read, value => value with { Body = body }),
@@ -390,8 +390,8 @@ public sealed class WorkshopSimulationTests
         {
             Assert.Equal((Half).25, simulation.Committed.Bodies[0].Body.Local.X);
             Assert.Equal((Half)(-.25), simulation.Committed.Bodies[0].Body.Local.Z);
-            Assert.Equal((Half).03125, simulation.Committed.Bodies[0].Body.Velocity.X);
-            Assert.Equal((Half)(-.03125), simulation.Committed.Bodies[0].Body.Velocity.Z);
+            Assert.Equal(1f, simulation.Committed.Bodies[0].Body.Velocity.X);
+            Assert.Equal(-1f, simulation.Committed.Bodies[0].Body.Velocity.Z);
         }
     }
 

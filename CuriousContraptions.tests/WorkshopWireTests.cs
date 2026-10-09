@@ -305,8 +305,10 @@ public sealed class WorkshopWireTests
                 H(piece,22,(Half)WorkshopCadenceSettings.PhysicalFrequency); H(piece,48,body.Local.X); H(piece,50,body.Local.Y); H(piece,52,body.Local.Z);
                 var q = value.Rotation;
                 H(piece,56,q.X); H(piece,58,q.Y); H(piece,60,q.Z); H(piece,62,q.W);
-                H(piece,64,body.Velocity.X); H(piece,66,body.Velocity.Y); H(piece,68,body.Velocity.Z);
-                H(piece,72,value.AngularVelocity.X); H(piece,74,value.AngularVelocity.Y); H(piece,76,value.AngularVelocity.Z);
+                static void F(Span<byte> target, int offset, float number) => BinaryPrimitives.WriteSingleLittleEndian(target[offset..], number);
+                const int v = PhysicsMotionRead.VelocityOffset, w = PhysicsMotionRead.AngularVelocityOffset;
+                F(piece,v,body.Velocity.X); F(piece,v+4,body.Velocity.Y); F(piece,v+8,body.Velocity.Z);
+                F(piece,w,value.AngularVelocity.X); F(piece,w+4,value.AngularVelocity.Y); F(piece,w+8,value.AngularVelocity.Z);
             }
         }
         return read with { Motion = PhysicsMotionRead.Decode(bytes, read.Bodies, read.Tick) };
@@ -317,14 +319,31 @@ public sealed class WorkshopWireTests
     {
         // The worker clamps |omega| below 128 rad/s; the piece decode must admit 100 rad/s and reject (100,100,0) ≈ 141 rad/s.
         var body = new CanonicalBody(new(1), 1, 1, new(0, 9, 0), default, default);
-        var read = new WorkshopRead(new(1), new(1), new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, new((Half)100, (Half)0, (Half)0), default) }));
+        var read = new WorkshopRead(new(1), new(1), new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, new(100f, 0f, 0f), default) }));
         var described = Described(read);
         Assert.Equal((int)Profile.Substeps, described.Motion!.Count);
         var bytes = described.Motion.Bytes.ToArray();
         for (var i = 0; i < Profile.Substeps; i++)
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes + 74),
-                BitConverter.HalfToUInt16Bits((Half)100));
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes +
+                PhysicsMotionRead.AngularVelocityOffset + 4), 100f);
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, read.Bodies, read.Tick));
+    }
+
+    [Theory]
+    [InlineData(PhysicsMotionRead.VelocityOffset, 64f, true)]
+    [InlineData(PhysicsMotionRead.VelocityOffset, 64.0001f, false)]
+    [InlineData(PhysicsMotionRead.VelocityOffset, float.NaN, false)]
+    [InlineData(PhysicsMotionRead.AngularVelocityOffset, 128f, true)]
+    [InlineData(PhysicsMotionRead.AngularVelocityOffset, float.PositiveInfinity, false)]
+    public void MotionPieceVelocityIsF32AtItsEnvelope(int offset, float value, bool accepted)
+    {
+        var body = new CanonicalBody(new(1), 1, 1, new(0, 9, 0), default, default);
+        var read = new WorkshopRead(new(1), new(1), new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default) }));
+        var bytes = Described(read).Motion!.Bytes.ToArray();
+        for (var i = 0; i < Profile.Substeps; i++)
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes + offset), value);
+        if (accepted) PhysicsMotionRead.Decode(bytes, read.Bodies, read.Tick);
+        else Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(bytes, read.Bodies, read.Tick));
     }
 
     private static PhysicsBodyReadSet Bodies(CanonicalBody body) =>
@@ -603,7 +622,8 @@ public sealed class WorkshopWireTests
         var response = new WorkshopResponse(new(1), WorkshopResponseKind.Acknowledgement,
             new(WorkshopCommandOutcome.Applied, WorkshopRejection.None), WorkshopSimulationPhase.Building, Stamped(new(new(3), new(0), default, new(ulong.MaxValue))), Session, Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(response);
-        Assert.Equal(23952, bytes.Length);
+        Assert.Equal(24080, bytes.Length);
+        Assert.Equal(64, PhysicsBodyWire.ByteLength);
         Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
         bytes[112] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
@@ -683,6 +703,8 @@ public sealed class WorkshopWireTests
     }
     private static void WriteHalf(byte[] bytes, int offset, Half value) =>
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), BitConverter.HalfToUInt16Bits(value));
+    private static void WriteSingle(byte[] bytes, int offset, float value) =>
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset), value);
 
     [Fact]
     public void CurrentGenericDescriptorPreservesConstructionAndRejectsRetiredShapes()
@@ -802,16 +824,28 @@ public sealed class WorkshopWireTests
     public void GenericCandidateBindsImmutableDeclarationsAndVectorDomain()
     {
         var source = GenericAdmission();
-        foreach (var offset in new[] { DynamicOffset(source), DynamicOffset(source) + 64,
+        foreach (var offset in new[] { DynamicOffset(source), DynamicOffset(source) + PhysicsGpuAbi.BodyMassOffset,
+            DynamicOffset(source) + PhysicsGpuAbi.BodyDragOffset, DynamicOffset(source) + PhysicsGpuAbi.BodyGravityOffset,
+            DynamicOffset(source) + PhysicsGpuAbi.BodyCentreOfMassOffset + 5, DynamicOffset(source) + 28, DynamicOffset(source) + 38,
             PhysicsGpuAbi.CollidersOffset + 40, PhysicsGpuAbi.MaterialsOffset + 8 })
         {
             var changed = (byte[])source.Clone(); changed[offset] ^= 1;
             Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, source, new(0)));
         }
-        var velocity = (byte[])source.Clone();
-        WriteHalf(velocity, DynamicOffset(source) + 48, (Half)2);
-        WriteHalf(velocity, DynamicOffset(source) + 50, (Half)2);
-        Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(velocity, source, new(0)));
+        // Committed velocity is f32 m/s: inside the envelope it commits, beyond 64 m/s (vector), 128 rad/s or non-finite it is rejected.
+        var vOffset = DynamicOffset(source) + PhysicsGpuAbi.BodyVelocityOffset; var wOffset = DynamicOffset(source) + PhysicsGpuAbi.BodyAngularVelocityOffset;
+        var admitted = (byte[])source.Clone();
+        WriteSingle(admitted, vOffset, 45f); WriteSingle(admitted, vOffset + 4, 45f); WriteSingle(admitted, wOffset + 8, -128f);
+        var admittedBody = NamedBody(admitted, new(1));
+        Assert.Equal(new LinearVelocity(45f, 45f, 0f), admittedBody.Body.Velocity);
+        Assert.Equal(new AngularVelocity(0f, 0f, -128f), admittedBody.AngularVelocity);
+        foreach (var (offset, value) in new[] { (vOffset, 50f), (vOffset + 8, float.NaN), (wOffset, 128.0001f), (wOffset + 4, float.NegativeInfinity) })
+        {
+            var velocity = (byte[])source.Clone();
+            if (offset == vOffset) WriteSingle(velocity, vOffset + 4, 50f);
+            WriteSingle(velocity, offset, value);
+            Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(velocity, source, new(0)));
+        }
         var segment = (byte[])source.Clone();
         WriteHalf(segment, DynamicOffset(source) + 104, (Half)2);
         WriteHalf(segment, DynamicOffset(source) + 106, (Half)2);
@@ -874,7 +908,7 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public void ForceDrivenMotionSamplesQuadraticAndAcceptsGameGradeResiduals()
+    public void ForceDrivenMotionSamplesQuadraticAndBoundsItsAccelerations()
     {
         var state = GenericEndpoint(1, 0, (Half)0);
         var body = NamedBody(state, new(1)).Body;
@@ -889,10 +923,8 @@ public sealed class WorkshopWireTests
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 4), (uint)index);
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 8), (uint)index + 1);
             BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset + 12), (uint)index);
-            WriteHalf(bytes, offset + 88, (Half)32);
-            WriteHalf(bytes, offset + 104, (Half).5);
-            WriteHalf(bytes, offset + 106, (Half).002);
-            WriteHalf(bytes, offset + 108, (Half).00006103515625);
+            WriteHalf(bytes, offset + PhysicsMotionRead.SupportedAccelerationOffset, (Half)32);
+            WriteHalf(bytes, offset + PhysicsMotionRead.AngularAccelerationOffset + 4, (Half).5);
         }
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
         Assert.True(motion.TrySample(body.Id, .5, out var pose));
@@ -900,6 +932,11 @@ public sealed class WorkshopWireTests
         Assert.Equal((Half)(16 * .5 * 32 * Math.Pow(.5 / 480, 2)), pose.Local.X);
         var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(unknown.AsSpan(PhysicsMotionRead.HeaderBytes), 4);
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(unknown, Bodies(body), new(1)));
+        var spinning = (byte[])bytes.Clone();
+        WriteHalf(spinning, PhysicsMotionRead.HeaderBytes + PhysicsMotionRead.AngularAccelerationOffset, (Half)2048);
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(spinning, Bodies(body), new(1)));
+        var free = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(free.AsSpan(PhysicsMotionRead.HeaderBytes), (uint)PhysicsMotionKind.FreePolynomial);
+        Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(free, Bodies(body), new(1)));
     }
 
     [Fact]
