@@ -67,6 +67,7 @@
         <Compile Include="WorkshopGpuDeviceTests.cs" />
         <Compile Include="WorkshopTraceTests.cs" />
         <Compile Include="WorkshopPoseRingTests.cs" />
+        <Compile Include="WorkerAbiTests.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopTrace.cs" Link="WorkshopTrace.cs" />
         <Compile Include="../CuriousContraptions.Simulation/WorkshopGpuDevice.cs" Link="WorkshopGpuDevice.cs" />
     </ItemGroup>

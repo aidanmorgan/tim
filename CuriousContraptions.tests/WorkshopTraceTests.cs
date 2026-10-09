@@ -26,6 +26,20 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
                 BinaryPrimitives.ReadUInt16LittleEndian(record.AsSpan(WorkshopTraceRecord.HeaderBytes + 26 + index * 2)));
     }
 
+    [Theory]
+    [InlineData(0u)]
+    [InlineData(2u)] // the retired schema whose bodies were 56-byte binary16-velocity records
+    [InlineData(4u)]
+    public void RecordsOfAnyOtherTraceVersionReject(uint version)
+    {
+        var record = Record(Construction, new(9), Profile);
+        Assert.Equal((uint)WorkshopTraceVersion.CompleteBodySetF32Velocity, BinaryPrimitives.ReadUInt32LittleEndian(record));
+        Assert.Equal(WorkshopTraceRecord.HeaderBytes + PhysicsBodyWire.ByteLength, record.Length);
+        Assert.Equal(Profile, WorkshopTraceRecord.ReadProfile(record));
+        BinaryPrimitives.WriteUInt32LittleEndian(record, version);
+        Assert.Throws<ArgumentException>(() => WorkshopTraceRecord.ReadProfile(record));
+    }
+
     private static byte[] Record(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile)
     {
         var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(construction, new(101,207)), epoch, profile);

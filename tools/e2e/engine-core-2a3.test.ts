@@ -3,6 +3,10 @@
 // Dynamic AABB BVH with velocity fattening, branchless SAT narrowphase for Box-Sphere
 // and Box-Box, local-axis Wall resizing, first_principles 2-ramp solve in Chrome,
 // and exact Reset / Save/Load restoration.
+// Shared recipes (owner decision 9 Oct 2026, Story 6.1d): test 4 is the one two-ramp solve and also carries the proof of
+// ENGINE-CORE-2b1 #2, ENGINE-CORE-2b2 #2 and ENGINE-CORE-2b3 #2; test 5 is the one Reset + Save/Load recipe and also carries
+// ENGINE-CORE-2b1 #3, ENGINE-CORE-2b2 #3, ENGINE-CORE-2b3 #3, ENGINE-CORE-2b4 #3 and ENGINE-CORE-2c #3. Each asserts the union of
+// its copies' checks.
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
@@ -19,7 +23,6 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
     });
 
     test('1. Ramp contact & rolling: Ball contacts inclined ramp and rolls along surface', { timeout: 120000 }, async () => {
-        await driver.reload();
         await driver.selectLevel('first_principles');
 
         // Ramp 1 target: [-3.4, 4.3, 0] -> screen canvas: (498, 404)
@@ -30,7 +33,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         // In first_principles, the ball is fixed at [-4, 6.5, 0].
         // Run simulation: ball falls under gravity, strikes the inclined ramp surface,
         // and rolls down the ramp towards the right (px increases, py decreases along incline).
-        await driver.toggleRun(0);
+        await driver.run();
 
         // Sample trajectory over 2500 ms
         let contactedRamp = false;
@@ -53,7 +56,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         }
 
         // Reset to return to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset();
 
         assert.ok(contactedRamp, 'Ball must contact the ramp surface at elevation ~4.3 m');
         assert.ok(rolledRight, 'Ball must roll down along the inclined ramp towards the right');
@@ -76,7 +79,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         await driver.placeOnCanvas(720, 485);
 
         // Start simulation: ball drops from py ~ 4.7 m, strikes top face of wall (y ~ 4.0 m) and rebounds via TGS Soft
-        await driver.toggleRun(0);
+        await driver.run();
 
         let reboundObserved = false;
         let minPyDuringImpact = Infinity;
@@ -102,7 +105,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         }
 
         // Reset to return to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset();
 
         assert.ok(
             minPyDuringImpact > 3.0,
@@ -129,7 +132,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         await driver.liftSelectedPart(100, 840, 521);
 
         // Run control for 2000 ms: ball falls past unresized wall down to the floor
-        await driver.toggleRun(2000);
+        await driver.run(2000);
         const controlPose = await driver.readLatestPose();
         assert.ok(controlPose && controlPose.bodies.length > 0, 'Pose must be readable');
         assert.ok(
@@ -138,7 +141,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         );
 
         // Reset to Build Mode
-        await driver.toggleRun(500);
+        await driver.reset();
 
         // Select the Wall at (720, 485)
         await driver.selectPartAt(720, 485);
@@ -150,7 +153,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         await driver.resizeSelectedWall(70, 720, 485);
 
         // Run second time: with widened wall bounds (span extends to x = 2.57), ball collides with the resized wall
-        await driver.toggleRun(0);
+        await driver.run();
 
         let resizedCollision = false;
         let minPyResized = Infinity;
@@ -171,7 +174,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         }
 
         // Reset to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset();
 
         assert.ok(
             minPyResized > 3.0,
@@ -180,7 +183,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         assert.ok(resizedCollision, 'Ball must collide with and rebound off the resized wall at extended bounds');
     });
 
-    test('4. First principles 2-ramp solve: Ball rolls down both ramps into Receiver and achieves captured', { timeout: 120000 }, async () => {
+    test('4. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3] First principles 2-ramp solve: Ball rolls down both ramps into Receiver and achieves captured (direct pose ring publishing, pure TGS Soft compliance, speculative contacts without analytic interval sweeps)', { timeout: 120000 }, async () => {
         await driver.reload();
         await driver.selectLevel('first_principles');
 
@@ -195,22 +198,16 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         await driver.tiltSelectedRamp(674, 509, -20);
 
         // Start simulation
-        await driver.toggleRun(0);
+        await driver.run();
 
         // Monitor for goal capture event
-        let captured = 0;
-        const solveStartTime = Date.now();
-        while (Date.now() - solveStartTime < 8000) {
-            captured = await driver.readCaptured();
-            if (captured > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
+        const captured = await driver.waitForGoalSolved(8000);
 
         const solvedPose = await driver.readLatestPose();
         assert.ok(solvedPose && solvedPose.bodies.length > 0, 'Pose must be readable');
 
         // Reset simulation
-        await driver.toggleRun(300);
+        await driver.reset();
 
         assert.ok(captured > 0, `Receiver must capture ball and solve level (captured count=${captured})`);
         // Ball must have reached the receiver near [2.5, 0.9, 0]
@@ -224,7 +221,7 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         );
     });
 
-    test('5. Exact Reset and Save/Load restoration', { timeout: 150000 }, async () => {
+    test('5. [ENGINE-CORE-2a3, ENGINE-CORE-2b1, ENGINE-CORE-2b2, ENGINE-CORE-2b3, ENGINE-CORE-2b4, ENGINE-CORE-2c] Exact Reset and Save/Load persistence roundtrip in Chrome', { timeout: 150000 }, async () => {
         await driver.reload();
         await driver.selectLevel('first_principles');
 
@@ -242,44 +239,37 @@ describe('ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic Physics C
         await driver.save();
 
         // Run simulation until solved
-        await driver.toggleRun(0);
-        const runStartTime = Date.now();
-        while (Date.now() - runStartTime < 6000) {
-            if (await driver.readCaptured() > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
+        await driver.run();
+        assert.ok(await driver.waitForGoalSolved(6000) > 0, 'The saved construction solves before Reset');
 
         // Reset simulation: ball must return to starting elevation py ~ 6.5
-        await driver.toggleRun(500);
+        await driver.reset();
 
         // Run briefly to verify reset starting state
-        await driver.toggleRun(100);
+        await driver.run(100);
         const resetPose = await driver.readLatestPose();
         assert.ok(resetPose && resetPose.bodies.length > 0, 'Pose slot must be readable');
         assert.ok(
             resetPose.bodies[0].py > 5.5,
             `Reset must restore ball to starting elevation py > 5.5 m (got py=${resetPose.bodies[0].py.toFixed(3)})`
         );
-        await driver.toggleRun(300);
+        await driver.reset();
 
         // Reload page to start with blank First Principles state
         await driver.reload();
         await driver.selectLevel('first_principles');
 
+        // Verify captured count is reset cleanly to 0 (ENGINE-CORE-2c #3)
+        assert.equal(await driver.readCaptured(), 0, 'Captured count must be 0 after page reload');
+
         // Load saved construction
         await driver.load();
 
         // Run loaded construction: verify it is fully functional and solves the level
-        await driver.toggleRun(0);
-        let loadedCaptured = 0;
-        const loadRunStartTime = Date.now();
-        while (Date.now() - loadRunStartTime < 8000) {
-            loadedCaptured = await driver.readCaptured();
-            if (loadedCaptured > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
+        await driver.run();
+        const loadedCaptured = await driver.waitForGoalSolved(8000);
 
-        await driver.toggleRun(300);
+        await driver.reset();
 
         assert.ok(
             loadedCaptured > 0,

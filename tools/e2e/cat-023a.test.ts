@@ -87,11 +87,9 @@ describe('CAT-023a: Dynamic box rigid body & upright stability (Domino)', () => 
     });
 
     test('1. Negative control: an upright Domino alone on the bench stands still for 3 s within the rest tolerances', { timeout: 120000 }, async () => {
-        await driver.reload();
-        await driver.selectLevel('free_workshop');
         await placeDominoOnBench(driver);
 
-        await driver.toggleRun(0);
+        await driver.run();
         const first = await sampleUntil(driver, DOMINO_ID, () => true, 5000);
         assert.ok(first, 'The Domino publishes through the pose ring once Run starts');
         assert.ok(first.py < 0.3 && first.py > BENCH_Y + HALF_HEIGHT - 0.01, `Domino starts just above the bench (got py=${first.py.toFixed(3)})`);
@@ -100,19 +98,18 @@ describe('CAT-023a: Dynamic box rigid body & upright stability (Domino)', () => 
         await assertUprightRest(driver, 'after 3 s');
         const pose = await driver.readLatestPose();
         assert.equal(pose!.bodies.length, 1, 'No other body is published: nothing can tilt the tile');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('2. Struck by a Basketball dropped onto its upper third the Domino topples past 60 deg and settles flat without jitter', { timeout: 150000 }, async () => {
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await placeDominoOnBench(driver);
         await driver.selectTool('basketball');
         await driver.placeOnCanvas(BALL_SCREEN.x, BALL_SCREEN.y);
         await driver.save();
 
-        await driver.toggleRun(0);
+        await driver.run();
         const ball = await body(driver, BALL_ID);
         assert.ok(Math.abs(ball.px - 0.4) < 0.06 && ball.py > 2.0, `Ball starts beside the tile at x≈0.4 m, 3 m up (got ${ball.px.toFixed(2)}, ${ball.py.toFixed(2)})`);
         const toppling = await sampleUntil(driver, DOMINO_ID, b => tiltDegrees(b) > 60, 4000);
@@ -134,20 +131,19 @@ describe('CAT-023a: Dynamic box rigid body & upright stability (Domino)', () => 
         for (let i = 1; i < samples.length; i++) maxDelta = Math.max(maxDelta, quaternionDelta(samples[i - 1], samples[i]));
         assert.ok(samples.length >= 10, `Sampled the settled second (${samples.length} reads)`);
         assert.ok(maxDelta < 0.002, `Frame-to-frame orientation change ${maxDelta.toExponential(2)} stays below the jitter bound for 1 s`);
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('3. Reset restores the placed upright pose exactly and the next Run topples the tile again', { timeout: 150000 }, async () => {
         // Self-contained: a fresh page loads the construction saved in test 2 (Domino on the bench, ball above its upper corner).
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await driver.load();
-        await driver.toggleRun(0);
+        await driver.run();
         const toppledFirst = await sampleUntil(driver, DOMINO_ID, b => tiltDegrees(b) > 60, 4000);
         assert.ok(toppledFirst, 'The loaded tile topples on the first Run');
-        await driver.toggleRun(800); // Reset
-        await driver.toggleRun(0);   // Run the restored construction
+        await driver.reset(); // Reset
+        await driver.run();   // Run the restored construction
         const restored = await sampleUntil(driver, DOMINO_ID, () => true, 5000);
         assert.ok(restored, 'The reset construction publishes again on Run');
         assert.deepEqual([restored.qx, restored.qy, restored.qz, restored.qw], [0, 0, 0, 1], 'Reset restores the identity orientation bit-for-bit');
@@ -155,15 +151,14 @@ describe('CAT-023a: Dynamic box rigid body & upright stability (Domino)', () => 
         assert.ok(restored.py > BENCH_Y + HALF_HEIGHT - 0.01 && restored.py < 0.3, `Reset restores the placed height (got py=${restored.py.toFixed(3)})`);
         const toppled = await sampleUntil(driver, DOMINO_ID, b => tiltDegrees(b) > 60, 4000);
         assert.ok(toppled, 'The restored tile topples again when struck');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('4. Save / reload / Load restores the Domino kind and pose and the loaded construction topples the same way', { timeout: 150000 }, async () => {
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await driver.load();
-        await driver.toggleRun(0);
+        await driver.run();
         const loaded = await sampleUntil(driver, DOMINO_ID, () => true, 5000);
         assert.ok(loaded, 'The loaded Domino publishes on Run');
         const pose = await driver.readLatestPose();
@@ -176,7 +171,7 @@ describe('CAT-023a: Dynamic box rigid body & upright stability (Domino)', () => 
         await driver.page.waitForTimeout(2500);
         const final = await body(driver, DOMINO_ID);
         assert.ok(Math.abs(tiltDegrees(final) - 90) < 5, `Loaded tile settles near 90 deg (got ${tiltDegrees(final).toFixed(2)})`);
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

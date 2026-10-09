@@ -5,8 +5,11 @@
 // 1. Qualified Receiver Capture with Dwell at <= 1.5 m/s: ball settles in Receiver, accumulates dwell, and triggers capture
 // 2. Fast Through-Pass Rejection (> 1.5 m/s): high-speed transit through receiver region without dwell does NOT trigger capture
 // 3. Exact Reset and Save/Load persistence roundtrip in Chrome
+// Test 3 is proven by the shared recipe engine-core-2a3.test.ts test 5, which carries ENGINE-CORE-2c in its name and also asserts
+// the captured count is 0 after the reload (owner decision 9 Oct 2026, Story 6.1d); this suite keeps tests 1 and 2.
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
+import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
 
 describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupled Sensor Evaluation)', () => {
@@ -21,12 +24,11 @@ describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupl
     });
 
     test('1. Qualified Receiver Capture with Dwell at <= 1.5 m/s: ball settles in Receiver and triggers capture with visual halo', { timeout: 120000 }, async () => {
-        await driver.reload();
         await driver.selectLevel('first_principles');
 
         // Listen for any solver, sensor root-finding, or transport errors in console
         const errors: string[] = [];
-        const errorHandler = (msg: any) => {
+        const errorHandler = (msg: ConsoleMessage) => {
             const text = msg.text();
             if (
                 text.includes('CCGPU_TRANSPORT_FAILURE') ||
@@ -52,7 +54,7 @@ describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupl
         await driver.tiltSelectedRamp(674, 509, -20);
 
         // Start simulation: ball rolls down ramps and enters Receiver
-        await driver.toggleRun(0);
+        await driver.run();
 
         let captured = 0;
         let settledInReceiver = false;
@@ -81,7 +83,7 @@ describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupl
         assert.ok(solvedPose && solvedPose.bodies.length > 0, 'Pose slot must be readable');
 
         // Reset simulation back to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset(300);
 
         driver.page.off('console', errorHandler);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
@@ -115,7 +117,7 @@ describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupl
         await driver.liftSelectedPart(50, 674, 509);
 
         // Start simulation: ball speeds over/through Receiver region
-        await driver.toggleRun(0);
+        await driver.run();
 
         let highSpeedPassObserved = false;
         let minSpeedDuringTransit = Infinity;
@@ -142,7 +144,7 @@ describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupl
         const captured = await driver.readCaptured();
 
         // Reset to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset();
 
         assert.ok(
             highSpeedPassObserved,
@@ -152,72 +154,6 @@ describe('ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupl
             captured,
             0,
             `Fast through-pass (> 1.5 m/s) must NOT trigger capture (captured count=${captured})`
-        );
-    });
-
-    test('3. Exact Reset and Save/Load persistence roundtrip in Chrome', { timeout: 150000 }, async () => {
-        await driver.reload();
-        await driver.selectLevel('first_principles');
-
-        // Place Ramp 1
-        await driver.selectTool('ramp');
-        await driver.placeOnCanvas(498, 404);
-        await driver.tiltSelectedRamp(498, 404, -20);
-
-        // Place Ramp 2
-        await driver.selectTool('ramp');
-        await driver.placeOnCanvas(674, 509);
-        await driver.tiltSelectedRamp(674, 509, -20);
-
-        // Save construction
-        await driver.save();
-
-        // Run simulation until solved
-        await driver.toggleRun(0);
-        const runStartTime = Date.now();
-        while (Date.now() - runStartTime < 6000) {
-            if (await driver.readCaptured() > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
-
-        // Reset simulation: ball must return to starting elevation py ~ 6.5
-        await driver.toggleRun(500);
-
-        // Run briefly to verify reset starting state
-        await driver.toggleRun(100);
-        const resetPose = await driver.readLatestPose();
-        assert.ok(resetPose && resetPose.bodies.length > 0, 'Pose slot must be readable after reset');
-        assert.ok(
-            resetPose.bodies[0].py > 5.5,
-            `Reset must restore ball to starting elevation py > 5.5 m (got py=${resetPose.bodies[0].py.toFixed(3)})`
-        );
-        await driver.toggleRun(300);
-
-        // Reload page to start with blank First Principles state
-        await driver.reload();
-        await driver.selectLevel('first_principles');
-
-        // Verify captured count is reset cleanly to 0
-        assert.equal(await driver.readCaptured(), 0, 'Captured count must be 0 after page reload');
-
-        // Load saved construction
-        await driver.load();
-
-        // Run loaded construction: verify it solves the level and captures the ball
-        await driver.toggleRun(0);
-        let loadedCaptured = 0;
-        const loadRunStartTime = Date.now();
-        while (Date.now() - loadRunStartTime < 8000) {
-            loadedCaptured = await driver.readCaptured();
-            if (loadedCaptured > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
-
-        await driver.toggleRun(300);
-
-        assert.ok(
-            loadedCaptured > 0,
-            `Loaded construction must solve level and capture ball in receiver (got captured=${loadedCaptured})`
         );
     });
 });

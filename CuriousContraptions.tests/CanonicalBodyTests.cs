@@ -66,6 +66,19 @@ public sealed class CanonicalBodyTests
     }
 
     [Theory]
+    [InlineData(0u)]
+    [InlineData(1u)]
+    [InlineData(3u)]
+    public void OnlyTheHalfPoseF32VelocitySchemaDecodes(uint version)
+    {
+        var bytes = Body.Encode();
+        Assert.Equal((uint)BodyRecordVersion.HalfPoseF32Velocity, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        Assert.Equal(2u, (uint)BodyRecordVersion.HalfPoseF32Velocity); // persisted constructions and saves keep their bytes
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes, version);
+        Assert.Throws<ArgumentException>(() => CanonicalBody.Decode(bytes));
+    }
+
+    [Theory]
     [InlineData(0)]
     [InlineData(64)]
     [InlineData(79)]

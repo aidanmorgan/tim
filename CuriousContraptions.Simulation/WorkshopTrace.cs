@@ -131,7 +131,7 @@ internal sealed class WorkshopTrace
             var chunks = (_count + ChunkRecords - 1) / ChunkRecords;
             var poseReason = _poseEnd ?? reason;
             // Closed discriminants are serialized numerically at this console boundary.
-            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {(uint)WorkshopTraceVersion.CompleteBodySet} {_recordBytes} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
+            Console.WriteLine($"CCGPU_TRACE_BEGIN {_identity} {_epoch.Value} {(uint)WorkshopTraceVersion.CompleteBodySetF32Velocity} {_recordBytes} {_count} {chunks} {(int)poseReason} {Convert.ToBase64String(_construction)}");
             for (var ordinal = 0; ordinal < chunks; ordinal++)
             {
                 var first = ordinal * ChunkRecords;

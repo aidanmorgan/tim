@@ -18,8 +18,8 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
 
     test('1. Clean boot: cross-origin isolation and WorkshopPoseRing initialized', { timeout: 120000 }, async () => {
         const title: string = await driver.page.title();
-        const crossOriginIsolated: boolean = await driver.page.evaluate(() => (window as any).crossOriginIsolated);
-        const hasPoseRing: boolean = await driver.page.evaluate(() => (globalThis as any).WorkshopPoseRing.hasPoseRing(1));
+        const crossOriginIsolated: boolean = await driver.page.evaluate(() => globalThis.crossOriginIsolated);
+        const hasPoseRing: boolean = await driver.page.evaluate(() => globalThis.WorkshopPoseRing?.hasPoseRing(1) === true);
 
         assert.equal(title, 'Curious Contraptions');
         assert.equal(crossOriginIsolated, true, 'Page must be cross-origin isolated');
@@ -32,7 +32,7 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         assert.equal(initialPose.bodyCount, 0, 'Clean Free Workshop must start with 0 bodies');
 
         // Start simulation
-        await driver.toggleRun(1000);
+        await driver.run(1000);
 
         const runningPose = await driver.readLatestPose();
         assert.ok(runningPose, 'Pose ring slot must be readable while running');
@@ -40,7 +40,7 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         assert.ok(BigInt(runningPose.sequence) > BigInt(initialPose.sequence), 'Sequence must advance during Run');
 
         // Reset simulation
-        await driver.toggleRun(500);
+        await driver.reset();
 
         const resetPose = await driver.readLatestPose();
         assert.ok(resetPose, 'Pose ring slot must be readable after Reset');
@@ -54,10 +54,10 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         await driver.selectTool('basketball');
 
         // Click workbench canvas at (720, 485) -> places ball near (0, 3, 0)
-        await driver.placeOnCanvas(720, 485, 400);
+        await driver.placeOnCanvas(720, 485);
 
         // Start simulation
-        await driver.toggleRun(1000);
+        await driver.run(1000);
 
         const runningPose = await driver.readLatestPose();
         assert.ok(runningPose, 'Pose ring slot must be readable during single-ball Run');
@@ -66,17 +66,17 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         assert.ok(runningPose.bodies[0].py < 3.0, 'Ball must have fallen under gravity (py < 3.0)');
 
         // Reset simulation
-        await driver.toggleRun(500);
+        await driver.reset();
 
         // Run second time: verify exact Reset restoration (ball restarts from elevation py ~ 3.0)
-        await driver.toggleRun(100);
+        await driver.run(100);
         const secondRunPose = await driver.readLatestPose();
         assert.ok(secondRunPose, 'Pose ring slot must be readable during second Run');
         assert.equal(secondRunPose.bodyCount, 1, 'Body count must remain 1 after Reset');
         assert.ok(secondRunPose.bodies[0].py > 1.8, 'Ball must restart from initial elevation after Reset (py > 1.8)');
 
         // Reset to return to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset();
     });
 
     test('4. Dual-sphere multi-body simulation: Place 2 Basketballs, Run observes independent trajectories', { timeout: 120000 }, async () => {
@@ -84,14 +84,14 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
 
         // Place Basketball 1 at left [666, 468] (~ x = -1, y = 3, z = 0)
         await driver.selectTool('basketball');
-        await driver.placeOnCanvas(666, 468, 400);
+        await driver.placeOnCanvas(666, 468);
 
         // Place Basketball 2 at right [774, 502] (~ x = 1, y = 3, z = 0)
         await driver.selectTool('basketball');
-        await driver.placeOnCanvas(774, 502, 400);
+        await driver.placeOnCanvas(774, 502);
 
         // Start simulation
-        await driver.toggleRun(1000);
+        await driver.run(1000);
 
         const runningPose = await driver.readLatestPose();
         assert.ok(runningPose, 'Pose ring slot must be readable during dual-sphere Run');
@@ -106,10 +106,10 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         assert.ok((BigInt(runningPose.sequence) & 1n) === 0n, 'Pose ring sequence must be even (committed)');
 
         // Reset simulation
-        await driver.toggleRun(500);
+        await driver.reset();
 
         // Run second time: verify both bodies restored to initial arrangement
-        await driver.toggleRun(100);
+        await driver.run(100);
         const secondRunPose = await driver.readLatestPose();
         assert.ok(secondRunPose, 'Pose ring slot must be readable during second Run');
         assert.equal(secondRunPose.bodyCount, 2, 'Pose ring must report both bodies after Reset');
@@ -117,7 +117,7 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         assert.ok(secondRunPose.bodies[1].py > 1.8, 'Body 2 restarted from initial elevation (py > 1.8)');
 
         // Reset to return to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset();
     });
 
     test('5. Save & Load persistence roundtrip: Save via driver, reload page, Load restores both balls', { timeout: 120000 }, async () => {
@@ -125,11 +125,11 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
 
         // Place Basketball 1 at left [666, 468]
         await driver.selectTool('basketball');
-        await driver.placeOnCanvas(666, 468, 400);
+        await driver.placeOnCanvas(666, 468);
 
         // Place Basketball 2 at right [774, 502]
         await driver.selectTool('basketball');
-        await driver.placeOnCanvas(774, 502, 400);
+        await driver.placeOnCanvas(774, 502);
 
         // Save via driver
         await driver.save();
@@ -144,7 +144,7 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         await driver.load();
 
         // Start simulation
-        await driver.toggleRun(1000);
+        await driver.run(1000);
 
         const restoredPose = await driver.readLatestPose();
         assert.ok(restoredPose, 'Pose ring slot must be readable after Load and Run');
@@ -155,6 +155,6 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         assert.ok(r1.px < 0 && r2.px > 0, 'Restored bodies must be at original left and right coordinates');
 
         // Reset simulation
-        await driver.toggleRun(500);
+        await driver.reset();
     });
 });

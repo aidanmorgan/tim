@@ -25,7 +25,7 @@ public static partial class Program
     public static int[] StateAbi() => [(int)FixtureState.Ready, (int)FixtureState.Running, (int)FixtureState.Complete, (int)FixtureState.Reset, (int)FixtureState.Rejected, (int)FixtureState.Unsupported, (int)FixtureState.Fault];
     [JSExport]
     public static string ShaderAbi() => FormattableString.Invariant(
-        $"const RECORD_VERSION: u32 = {(uint)BodyRecordVersion.CanonicalHalf}u; const COMMITTED: u32 = {(uint)BodyCandidateStatus.Committed}u; const INVALID_RECORD: u32 = {(uint)BodyCandidateStatus.InvalidRecord}u; const OUT_OF_RANGE: u32 = {(uint)BodyCandidateStatus.OutOfRange}u; const CELL_SCALE: i32 = {(int)CellScale.Metres}; const TIME_SCALE: i32 = {(int)TimeScale.Seconds};");
+        $"const RECORD_VERSION: u32 = {(uint)BodyRecordVersion.HalfPoseF32Velocity}u; const COMMITTED: u32 = {(uint)BodyCandidateStatus.Committed}u; const INVALID_RECORD: u32 = {(uint)BodyCandidateStatus.InvalidRecord}u; const OUT_OF_RANGE: u32 = {(uint)BodyCandidateStatus.OutOfRange}u; const CELL_SCALE: i32 = {(int)CellScale.Metres}; const TIME_SCALE: i32 = {(int)TimeScale.Seconds};");
 
 
     [JSImport("initialize", "gpu")]

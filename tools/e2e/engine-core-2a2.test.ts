@@ -18,16 +18,14 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
     });
 
     test('1. Stable resting contact: Basketball settles on workbench without bounce jitter or position projection', { timeout: 120000 }, async () => {
-        await driver.reload();
-
         // Select Basketball tool via typed driver method
         await driver.selectTool('basketball');
 
         // Click workbench canvas at (720, 485) -> places ball near (0, 3, 0)
-        await driver.placeOnCanvas(720, 485, 400);
+        await driver.placeOnCanvas(720, 485);
 
         // Run simulation for 4200 ms to allow ball to bounce, dissipate, and settle
-        await driver.toggleRun(4200);
+        await driver.run(4200);
 
         const settledPose1 = await driver.readLatestPose();
         assert.ok(settledPose1, 'Pose ring slot must be readable after settling');
@@ -64,7 +62,7 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
         );
 
         // Reset to return to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset();
     });
 
     test('2. Dissipative bounce restitution dynamics: Successive bounce peaks decay strictly (h2 < h1)', { timeout: 120000 }, async () => {
@@ -72,10 +70,10 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
 
         // Place Basketball at (720, 485)
         await driver.selectTool('basketball');
-        await driver.placeOnCanvas(720, 485, 400);
+        await driver.placeOnCanvas(720, 485);
 
         // Start simulation
-        await driver.toggleRun(0);
+        await driver.run();
 
         // Sample poses at ~40ms intervals over 3500 ms to capture trajectory
         const samples: { t: number; py: number; vy: number }[] = [];
@@ -94,7 +92,7 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
         }
 
         // Stop simulation
-        await driver.toggleRun(300);
+        await driver.reset();
 
         assert.ok(samples.length > 40, `Must have collected sufficient trajectory samples (got ${samples.length})`);
 
@@ -146,10 +144,10 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
 
         // Place Basketball at (720, 485)
         await driver.selectTool('basketball');
-        await driver.placeOnCanvas(720, 485, 400);
+        await driver.placeOnCanvas(720, 485);
 
         // Run for 2500 ms (dissipating through bounces)
-        await driver.toggleRun(2500);
+        await driver.run(2500);
 
         const runningPose = await driver.readLatestPose();
         assert.ok(runningPose, 'Pose ring slot must be readable during run');
@@ -159,10 +157,10 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
         );
 
         // Reset simulation back to Build Mode
-        await driver.toggleRun(500);
+        await driver.reset();
 
         // Run second time: inspect initial frame elevation
-        await driver.toggleRun(100);
+        await driver.run(100);
         const secondRunPose = await driver.readLatestPose();
         assert.ok(secondRunPose, 'Pose ring slot must be readable during second Run');
         assert.equal(secondRunPose.bodyCount, 1, 'Body count must remain 1 after Reset');
@@ -172,7 +170,7 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
         );
 
         // Reset to return to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset();
     });
 
     test('4. Save & Load persistence roundtrip: Ball preserves placed location and settles on workbench after load', { timeout: 120000 }, async () => {
@@ -180,7 +178,7 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
 
         // Place Basketball at (720, 485)
         await driver.selectTool('basketball');
-        await driver.placeOnCanvas(720, 485, 400);
+        await driver.placeOnCanvas(720, 485);
 
         // Save construction
         await driver.save();
@@ -195,7 +193,7 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
         await driver.load();
 
         // Run simulation for 4200 ms to settle
-        await driver.toggleRun(4200);
+        await driver.run(4200);
 
         const loadedPose = await driver.readLatestPose();
         assert.ok(loadedPose, 'Pose ring slot must be readable after Load and Run');
@@ -212,6 +210,6 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
         );
 
         // Reset simulation
-        await driver.toggleRun(300);
+        await driver.reset();
     });
 });

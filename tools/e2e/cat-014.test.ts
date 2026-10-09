@@ -185,11 +185,9 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
     });
 
     test('1. Two lanes in one Run: the Bowling ball topples its Domino past 60 deg, the identically released Basketball leaves its Domino below 20 deg, and both balls come to rest', { timeout: 150000 }, async () => {
-        await driver.reload();
-        await driver.selectLevel('free_workshop');
         await buildTwoLanes(driver);
 
-        await driver.toggleRun(0);
+        await driver.run();
         const runStarted = Date.now();
         const first = await bodies(driver);
         assert.deepEqual([...first.keys()].sort((a, b) => a - b), [TILE_A, TILE_B, BASKETBALL, BOWLING], 'Two tiles and two balls are published');
@@ -202,20 +200,19 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         const outcome = await watchLanes(driver, 4000);
         assertLaneOutcome(outcome, await bodies(driver), 'first Run');
         await assertBallsRest(driver, runStarted, 'first Run');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('2. Dropped from the placement plane the Bowling ball barely rebounds and rests at its 0.28 m radius; the Basketball rebounds high; Reset replays both worlds bit-for-bit', { timeout: 150000 }, async () => {
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         const a = screen(0, LANE_Z.basketball), b = screen(0, LANE_Z.bowling);
         await driver.selectTool('basketball');
         await driver.placeOnCanvas(a.x, a.y);
         await driver.selectTool('bowling');
         await driver.placeOnCanvas(b.x, b.y);
 
-        await driver.toggleRun(0);
+        await driver.run();
         const first = await bodies(driver);
         assert.deepEqual([...first.keys()].sort((a, b) => a - b), [1, 2], 'Both balls are published');
         assert.ok(first.get(1)!.py > 2 && first.get(2)!.py > 2, 'Both balls start high above the bench');
@@ -245,8 +242,8 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
 
         // Exact Reset for both kinds: identity rotation and admitted x/z, and the restored free fall reproduces the original committed
         // py and velocity bit-for-bit.
-        await driver.toggleRun(800);                                                     // Reset
-        await driver.toggleRun(0);                                                       // Run the restored construction
+        await driver.reset();                                                     // Reset
+        await driver.run();                                                       // Run the restored construction
         const restored = await bodies(driver);
         const restoredFall = await recordStates(driver, FREE_FALL_MS);
         for (const [id, label] of [[1, 'reset Basketball'], [2, 'reset Bowling ball']] as const) {
@@ -257,19 +254,18 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
             assertReplaysExactly(originalFall.get(id) ?? [], restoredFall.get(id) ?? [], label);
         }
         assert.ok(await waitFor(async () => Math.abs((await bodies(driver)).get(2)!.py - (BENCH_Y + BOWLING_R)) < 0.005, 6000), 'The restored Bowling ball lands and rests again');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('3. A Bowling ball dropped into a placed Receiver is captured and the declared capture halo animates', { timeout: 150000 }, async () => {
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await driver.selectTool('bowling');
         await driver.placeOnCanvas(720, 485);
         await driver.stackUnderLiftedBall('receiver', 150);
         assert.equal(await driver.readLastAnimationSample(RECEIVER_HALO_TARGET), null, 'No capture sample before Run');
 
-        await driver.toggleRun(0);
+        await driver.run();
         const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
         assert.ok(captured, 'The Receiver capture target ramps to Half 1.0 once the Bowling ball settles in it');
         const ball = (await bodies(driver)).get(1)!;
@@ -278,20 +274,18 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         const halo = await driver.readAnimationSamplesForTarget(RECEIVER_HALO_TARGET);
         for (let i = 1; i < halo.length; i++) assert.ok(halo[i].value >= halo[i - 1].value, 'The capture halo ramps once');
         assert.equal(await driver.readCaptured(), 0, 'Free workshop announces no goal');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('4. Save / reload / Load restores both kinds; after Reset the second Run topples the Bowling lane again and leaves the Basketball lane standing', { timeout: 150000 }, async () => {
         // Self-contained: build and save the two-lane construction, then reload the page and Load it.
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await buildTwoLanes(driver);
         await driver.save();
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await driver.load();
-        await driver.toggleRun(0);
+        await driver.run();
         const loadedRunStarted = Date.now();
         const loaded = await bodies(driver);
         assert.deepEqual([...loaded.keys()].sort((a, b) => a - b), [TILE_A, TILE_B, BASKETBALL, BOWLING], 'Load restores two tiles and two balls');
@@ -302,8 +296,8 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         assertLaneOutcome(await watchLanes(driver, 4000), await bodies(driver), 'loaded Run');   // the kinds restored: rest heights 0.34 / 0.28
         await assertBallsRest(driver, loadedRunStarted, 'loaded Run');                     // the loaded kinds carry their declared rolling resistance
 
-        await driver.toggleRun(800);                                                     // Reset
-        await driver.toggleRun(0);                                                       // Run the restored construction
+        await driver.reset();                                                     // Reset
+        await driver.run();                                                       // Run the restored construction
         const restored = await bodies(driver);
         // The toppled tile stands again and both balls are back beside their tiles (the strike may already have begun by this read, as above).
         assertTileInLane(restored.get(TILE_A)!, LANE_Z.basketball, 'reset Basketball lane tile');
@@ -311,7 +305,7 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         assertReleasedBall(restored.get(BASKETBALL)!, LANE_Z.basketball, !unstruck(restored.get(TILE_A)!), 'reset Basketball');
         assertReleasedBall(restored.get(BOWLING)!, LANE_Z.bowling, !unstruck(restored.get(TILE_B)!), 'reset Bowling ball');
         assertLaneOutcome(await watchLanes(driver, 4000), await bodies(driver), 'second Run');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

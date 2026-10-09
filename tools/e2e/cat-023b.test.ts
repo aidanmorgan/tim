@@ -113,14 +113,13 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
     });
 
     test('1. Four dominoes wired end → lamp topple in sequence, the lamp lights and CCGOAL_SOLVED prints exactly once', { timeout: 150000 }, async () => {
-        await driver.reload();
         await driver.selectLevel('domino_effect');
         await placeChain(driver, CHAIN_X);
         await driver.connectActivation({ ...END_SCREEN, panel: 'locked' }, LAMP_SCREEN);
         await driver.save();
         assert.equal(await driver.readLastAnimationSample(LAMP_TARGET), null, 'No lamp sample before Run');
 
-        await driver.toggleRun(0);
+        await driver.run();
         const first = await bodies(driver);
         assert.deepEqual([...first.keys()].sort((a, b) => a - b), [BALL_ID, END_ID, ...TILE_IDS], 'Ball, end Domino and four tiles are published');
         TILE_IDS.forEach((id, i) => assertUprightPlacement(first.get(id)!, CHAIN_X[i], `tile ${id}`));
@@ -148,7 +147,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assert.equal(lampHistory[lampHistory.length - 1], 1, 'The lamp holds full glow');
         const end = (await bodies(driver)).get(END_ID)!;
         assert.ok(tiltDegrees(end) > 60, `The end Domino lies toppled (${tiltDegrees(end).toFixed(1)} deg)`);
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -159,7 +158,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         await placeChain(driver, threeChain);
         await driver.connectActivation({ ...END_SCREEN, panel: 'locked' }, LAMP_SCREEN);
 
-        await driver.toggleRun(0);
+        await driver.run();
         const placedIds = [4, 5, 6];
         const first = await bodies(driver);
         placedIds.forEach((id, i) => assertUprightPlacement(first.get(id)!, threeChain[i], `tile ${id}`));
@@ -171,13 +170,12 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assert.ok(tiltDegrees(all.get(END_ID)!) < 2, `The end Domino stays upright (${tiltDegrees(all.get(END_ID)!).toFixed(2)} deg)`);
         assert.equal(await driver.readLastAnimationSample(LAMP_TARGET), null, 'The lamp never samples: no orientation occurrence');
         assert.equal(await driver.readCaptured(), 0, 'The goal stays unsolved');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting', { timeout: 150000 }, async () => {
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await driver.selectTool('domino');
         await driver.placeOnCanvas(FREE_DOMINO_SCREEN.x, FREE_DOMINO_SCREEN.y);
         await driver.selectTool('lamp');
@@ -188,7 +186,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         await driver.tiltSelectedByFineRotate(2);                        // 2 × 5° about Z
         await driver.connectActivation({ ...LOWERED_DOMINO_SCREEN, panel: 'domino' }, FREE_LAMP_SCREEN);
 
-        await driver.toggleRun(0);
+        await driver.run();
         const first = (await bodies(driver)).get(1)!;
         assert.ok(Math.abs(tiltDegrees(first) - 10) < 1, `The tile starts 10 deg off upright (got ${tiltDegrees(first).toFixed(2)} deg)`);
         let maxFromInitial = 0;
@@ -203,7 +201,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assert.ok(tiltDegrees(final) < 2, `The tile settles upright (${tiltDegrees(final).toFixed(2)} deg)`);
         assert.equal(await driver.readLastAnimationSample('3'), null, 'The wired lamp (node 2 + 2 → target 3) never samples');
         assert.equal((await driver.readAllAnimationSamples()).length, 0, 'No cosmetic target samples at all');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -212,7 +210,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         await driver.reload();
         await driver.selectLevel('domino_effect');
         await driver.load();
-        await driver.toggleRun(0);
+        await driver.run();
         const loaded = await bodies(driver);
         assert.deepEqual([...loaded.keys()].sort((a, b) => a - b), [BALL_ID, END_ID, ...TILE_IDS], 'Load restores the ball, the end Domino and the four tiles');
         TILE_IDS.forEach((id, i) => assertUprightPlacement(loaded.get(id)!, CHAIN_X[i], `loaded tile ${id}`));
@@ -221,15 +219,15 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The loaded lamp lights');
         const litSamples = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
 
-        await driver.toggleRun(800);                                     // Reset
-        await driver.toggleRun(0);                                       // Run the restored construction
+        await driver.reset(800);                                  // Reset; drain the retired world's in-flight lamp pulses
+        await driver.run();                                       // Run the restored construction
         const restored = await bodies(driver);
         TILE_IDS.forEach((id, i) => assertUprightPlacement(restored.get(id)!, CHAIN_X[i], `reset tile ${id}`));
         assertEndDominoExact(restored.get(END_ID)!, 'reset end Domino');
         assert.ok(await waitFor(async () => (await driver.readCaptured()) === 2, 10000), 'The second Run solves again: the sensor was rearmed by Reset');
         assert.ok((await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length > litSamples, 'The lamp lights again in the new world');
         assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The lamp reaches full glow again');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

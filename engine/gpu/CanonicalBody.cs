@@ -4,7 +4,9 @@ using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
 public enum BodyCandidateStatus : uint { Committed = 0, InvalidRecord = 1, OutOfRange = 2 }
-public enum BodyRecordVersion : uint { CanonicalHalf = 2 }
+/// <summary>Canonical body record schema: binary16 pose remainder with f32 velocity (m/s). The value stays 2 because the 80-byte construction
+/// and save bytes are unchanged (an admitted construction carries all-zero velocity, the same bits in both formats); any other value rejects.</summary>
+public enum BodyRecordVersion : uint { HalfPoseF32Velocity = 2 }
 public enum CellScale : int { Metres = -4 }
 public enum TimeScale : int { Seconds = -9 }
 public readonly record struct GpuBodyId(ulong Value);
@@ -40,7 +42,7 @@ public readonly record struct CanonicalBody(
         Validate();
         if (data.Length != ByteLength) throw new ArgumentException("Invalid canonical destination length.");
         data.Clear();
-        BinaryPrimitives.WriteUInt32LittleEndian(data, (uint)BodyRecordVersion.CanonicalHalf);
+        BinaryPrimitives.WriteUInt32LittleEndian(data, (uint)BodyRecordVersion.HalfPoseF32Velocity);
         BinaryPrimitives.WriteUInt64LittleEndian(data[8..], Epoch);
         BinaryPrimitives.WriteUInt64LittleEndian(data[16..], Tick);
         BinaryPrimitives.WriteUInt64LittleEndian(data[24..], Id.Value);
@@ -58,7 +60,7 @@ public readonly record struct CanonicalBody(
     public static CanonicalBody Decode(ReadOnlySpan<byte> data)
     {
         if (data.Length != ByteLength ||
-            BinaryPrimitives.ReadUInt32LittleEndian(data) != (uint)BodyRecordVersion.CanonicalHalf ||
+            BinaryPrimitives.ReadUInt32LittleEndian(data) != (uint)BodyRecordVersion.HalfPoseF32Velocity ||
             BinaryPrimitives.ReadUInt32LittleEndian(data[4..]) != (uint)BodyCandidateStatus.Committed ||
             BinaryPrimitives.ReadInt32LittleEndian(data[48..]) != (int)CellScale.Metres ||
             BinaryPrimitives.ReadInt32LittleEndian(data[52..]) != (int)TimeScale.Seconds ||

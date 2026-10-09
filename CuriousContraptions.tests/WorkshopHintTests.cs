@@ -317,6 +317,28 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
         finally { _client.LeaseBusy = false; Release(scene); }
     }
 
+    [Fact]
+    public void ClickingTheLevelPickerLeavesKeyboardFocusWithTheWorkshopShortcuts()
+    {
+        // A focused OptionButton consumes Space (ui_accept) before Workshop._UnhandledInput, so Run/Reset would never fire.
+        var scene = Scene();
+        try
+        {
+            var picker = Control<OptionButton>(scene, WorkshopUiControl.LevelPicker);
+            var viewport = picker.GetViewport();
+            // Pointer events arrive in window pixels; the headless window is stretched onto the 1440x900 viewport.
+            var centre = viewport.GetFinalTransform() * picker.GetGlobalRect().GetCenter();
+            foreach (var pressed in new[] { true, false })
+                viewport.PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed, Position = centre, GlobalPosition = centre });
+            godot.Engine.Iteration();
+            Assert.True(picker.GetPopup().Visible, "the click reached the picker and opened its list");
+            picker.GetPopup().Hide();
+            godot.Engine.Iteration();
+            Assert.NotSame(picker, viewport.GuiGetFocusOwner());
+        }
+        finally { Release(scene); }
+    }
+
     private static void InvokeScene(Workshop scene, string method) => typeof(Workshop).GetMethod(method,
         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(scene, null);
     private static void SetSceneField<T>(Workshop scene, string field, T value) => typeof(Workshop).GetField(field,

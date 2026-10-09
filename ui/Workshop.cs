@@ -179,8 +179,9 @@ public partial class Workshop : Node3D
         var heading = Text("CURIOUS CONTRAPTIONS", 18);
         heading.Position = new(28, 23);
         _canvas.AddChild(heading);
+        // Pointer-only: a focused picker would consume Space (ui_accept) before the Run/Reset shortcut reaches _UnhandledInput.
         _picker = new OptionButton { Name = WorkshopUiControlBoundary.NodeName(WorkshopUiControl.LevelPicker),
-            Position = new(470, 24), Size = new(350, 42) };
+            Position = new(470, 24), Size = new(350, 42), FocusMode = Control.FocusModeEnum.None };
         _picker.AddThemeFontSizeOverride("font_size", 16);
         _picker.AddThemeColorOverride("font_color", Navy);
         _picker.AddThemeColorOverride("font_hover_color", Navy);

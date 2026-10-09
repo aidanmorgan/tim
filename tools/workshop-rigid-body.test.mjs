@@ -47,7 +47,7 @@ async function loadWorker() {
     });
     await module.evaluate();
     await imports.initialize(new Uint8Array(0));
-    return imports;
+    return { imports, kernels: module.namespace };
 }
 
 // Round to nearest even like .NET (Half) so the admission records carry the same bits the compiler would write.
@@ -125,6 +125,8 @@ function scene(spec, sensors = [], cadence = 2) {
         F(view, r + 48, v[0]); F(view, r + 52, v[1]); F(view, r + 56, v[2]);
         F(view, r + 60, w[0]); F(view, r + 64, w[1]); F(view, r + 68, w[2]);
         H(view, r + 72, b.mass); H(view, r + 74, b.drag ?? 0); H(view, r + 78, b.gravity ?? -9.81);
+        const com = b.com ?? [0, 0, 0];
+        H(view, r + 82, com[0]); H(view, r + 84, com[1]); H(view, r + 86, com[2]);
         H(view, r + 94, 1);
         let moments;
         if (b.moments) moments = b.moments;
@@ -184,7 +186,7 @@ function assertCanonicalRemainders(bytes, tick) {
 
 const tickTimes = [];
 async function run(bytes, ticks, observe) {
-    const imports = await loadWorker();
+    const { imports } = await loadWorker();
     await imports.stage(bytes, 0); imports.commit();
     let latest = null;
     tickTimes.length = 0;
@@ -316,12 +318,23 @@ test('rigid-body: a sphere dropped onto a standing box topples it past 60 deg an
     assert.ok(slowest < 8, `slowest tick ${slowest.toFixed(2)} ms must fit the 120 Hz budget`);
 });
 
-test('rigid-body: speeds beyond the game-grade envelope clamp to 64 m/s and 128 rad/s and the tick continues', async () => {
-    // |v| = 72.1 m/s and |omega| = 141.4 rad/s start outside both clamps.
-    const b = readBody(await run(scene([domino([0, 20, 0], { velocity: [0, -60, 40], angular: [100, 100, 0] })]), 1), 1);
-    assert.ok(b.speed <= 64.01 && b.speed > 60, `speed ${b.speed.toFixed(2)} clamped to the envelope`);
-    assert.ok(b.spin <= 128.01 && b.spin > 120, `spin ${b.spin.toFixed(2)} clamped to the envelope`);
-    assert.ok([...b.p, ...b.q, ...b.v, ...b.w].every(Number.isFinite), 'finite state');
+// Exact host bound: PhysicsDeclarationBounds.Magnitude sums the squares of the committed f32 components in double, left to right.
+const squared = v => v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+const sphereDirections = count => Array.from({ length: count }, (_, i) => {
+    const z = 1 - (2 * i + 1) / count, r = Math.sqrt(1 - z * z), a = i * 2.399963229728653;
+    return [r * Math.cos(a), z, r * Math.sin(a)];
+});
+test('rigid-body: speeds beyond the game-grade envelope clamp inside the exact host bound (64 m/s, 128 rad/s) in every direction and the tick continues', async () => {
+    // |v| = 72 m/s and |omega| = 144 rad/s start outside both clamps along 16 directions; f32 rounding of a vector clamped to exactly
+    // the bound commits a squared magnitude above 64² (and 128²) in 6 of these 16, so only the 2^-20 headroom keeps every commit admissible.
+    const directions = sphereDirections(16);
+    for (const [k, d] of directions.entries()) {
+        const e = directions[(k + 5) % directions.length];
+        const b = readBody(await run(scene([domino([0, 20, 0], { gravity: 0, velocity: d.map(c => 72 * c), angular: e.map(c => 144 * c) })]), 1), 1);
+        assert.ok(squared(b.v) <= 64 * 64 && b.speed > 63.99, `direction ${k}: committed |v|² ${squared(b.v)} vs 4096 (speed ${b.speed})`);
+        assert.ok(squared(b.w) <= 128 * 128 && b.spin > 127.99, `direction ${k}: committed |omega|² ${squared(b.w)} vs 16384 (spin ${b.spin})`);
+        assert.ok([...b.p, ...b.q, ...b.v, ...b.w].every(Number.isFinite), `direction ${k}: finite state`);
+    }
 });
 
 test('rigid-body: zero restitution never rebounds and zero friction never spins up (declared values, no fallback)', async () => {
@@ -674,15 +687,110 @@ test('f32 velocity: a Basketball rolling at 5 m/s at 240 Hz decelerates on every
     const rest = states.findIndex(b => b.speed < .02);
     // Closed form for a = (5/7)·(Crr·g + drag·v) from 5 m/s: about 16.1 s.
     assert.ok(rest > 0 && rest < 17.5 * rate, `rests at ${((rest + 1) / rate).toFixed(2)} s`);
-    let previous = 5;
+    // The spin shares every decelerating impulse with the speed, so it also falls on every committed tick until rest.
+    let previous = 5, previousSpin = 5 / BASKETBALL_R;
     for (let i = 0; i < rest; i++) {
         assert.ok(states[i].v[0] < previous, `tick ${i + 1}: ${states[i].v[0]} m/s is not below ${previous}`);
-        previous = states[i].v[0];
+        assert.ok(states[i].spin < previousSpin, `tick ${i + 1}: spin ${states[i].spin} rad/s is not below ${previousSpin}`);
+        previous = states[i].v[0]; previousSpin = states[i].spin;
     }
     const early = states[rate - 1], later = states[3 * rate - 1];
     const measured = (early.v[0] - later.v[0]) / 2, predicted = (5 / 7) * (BASKETBALL_ROLLING * 9.81 + BALL_DRAG * (early.v[0] + later.v[0]) / 2);
     assert.ok(Math.abs(measured - predicted) < .1 * predicted, `decelerates ${measured.toFixed(4)} m/s² at ~4.5 m/s vs ${predicted.toFixed(4)}`);
-    assert.ok(Math.min(...states.map(b => b.v[0])) >= 0, 'never reverses');
+    // Same tolerance as the 0.7 m/s fact: f32 commits keep solver residue near 1e-24 at rest, so "crossing" means beyond 1e-6.
+    const backward = Math.min(...states.map(b => b.v[0])), counterSpin = Math.max(...states.map(b => b.w[2]));
+    assert.ok(backward >= -1e-6 && counterSpin <= 1e-6, `never reverses (min v ${backward} m/s, max omega_z ${counterSpin} rad/s)`);
     const last = states.at(-1);
     assert.ok(Math.abs(last.p[1] - (BENCH_Y + BASKETBALL_R)) < .001 && last.p[0] < 30, `rests on the bench at (${last.p[0].toFixed(2)}, ${last.p[1].toFixed(4)})`);
+});
+
+// Story 6.1d (velocity hardening): boundary facts for the committed-velocity envelope and the motion-piece drag lane.
+const MOTION = 20768, MOTION_HEADER = 16, MOTION_PIECE = 128;   // PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.HeaderBytes / PieceBytes
+
+test('f32 velocity: a body whose centre of mass sits off its origin (body record +82) spins about that centre in free flight', async () => {
+    // Local COM 0.1 m along +X, spinning at 2 rad/s about Z with no gravity: the centre stays at (0.1, 1, 0) and the origin circles it at 0.1 m.
+    const spinner = resistanceFree(basketball([0, 1, 0], { radius: .2, gravity: 0, com: [.1, 0, 0], angular: [0, 0, 2] }));
+    let worst = 0, reach = 0;
+    await run(scene([spinner]), 2 * TICKS_PER_SECOND, (tick, bytes) => {
+        const b = readBody(bytes, 1);
+        worst = Math.max(worst, Math.abs(Math.hypot(b.p[0] - .1, b.p[1] - 1, b.p[2]) - .1));
+        reach = Math.max(reach, Math.hypot(b.p[0], b.p[1] - 1, b.p[2]));
+    });
+    // Committed binary16 rotations re-place the centre by up to about 1e-4 m per tick; reading the COM from the wrong lanes misses by > 0.04 m.
+    assert.ok(worst < 3e-3, `the origin stays 0.1 m from the declared centre of mass (worst deviation ${worst.toExponential(2)} m)`);
+    assert.ok(reach > .19, `the origin really circles the centre (farthest ${reach.toFixed(4)} m from its start)`);
+});
+
+test('f32 velocity: a heavy body striking a light one at the envelope cannot commit a struck speed beyond 64 m/s (the clamp after restitution)', async () => {
+    // A 100 kg sphere at 64 m/s reaches a resting 1 kg sphere in the last substep of the first tick; restitution 1 would send the light
+    // sphere off at about 127 m/s, so only the clamp after the relax and restitution passes keeps the committed speed admissible.
+    const struck = { id: 5, motion: 1, position: [0, 5, 0], shape: 0, radius: .3, mass: 1, gravity: 0, material: { restitution: 1, threshold: .1, friction: 0 } };
+    const striker = { ...struck, id: 6, position: [-1.07, 5, 0], mass: 100, velocity: [64, 0, 0] };
+    const first = await run(scene([struck, striker]), 1);
+    const light = readBody(first, 1), heavy = readBody(first, 2);
+    assert.ok(squared(light.v) <= 64 * 64 && light.v[0] > 63.99, `struck sphere commits ${light.v[0]} m/s (|v|² ${squared(light.v)} vs 4096)`);
+    assert.ok(squared(heavy.v) <= 64 * 64 && heavy.v[0] < 63.9, `striker commits ${heavy.v[0]} m/s after the impact`);
+});
+
+test('f32 velocity: the end-of-substep guard clamps a finite velocity of any size and drops only a non-finite one', async () => {
+    const { kernels } = await loadWorker();
+    const committed = b => ({ v: [b.vx, b.vy, b.vz].map(Math.fround), w: [b.wx, b.wy, b.wz].map(Math.fround) });
+    // Components near the f64 maximum: their sum and the length of the spin overflow, yet the vectors are finite and must clamp, not zero.
+    const huge = { vx: 1e308, vy: 1e308, vz: -1e308, wx: 1.5e308, wy: -1.5e308, wz: 1e308 };
+    kernels.settleVelocity(huge);
+    const h = committed(huge);
+    assert.ok(squared(h.v) <= 64 * 64 && squared(h.v) > 63.99 ** 2, `huge velocity clamps to the envelope (|v|² ${squared(h.v)})`);
+    assert.ok(squared(h.w) <= 128 * 128 && squared(h.w) > 127.99 ** 2, `huge spin clamps to the envelope (|omega|² ${squared(h.w)})`);
+    assert.ok(huge.vx === huge.vy && huge.vx === -huge.vz && huge.wx === -huge.wy && huge.wz > 0, 'and keeps its direction');
+    const fast = { vx: 0, vy: -100, vz: 0, wx: 0, wy: 0, wz: 200 };
+    kernels.settleVelocity(fast);
+    assert.ok(squared(committed(fast).v) <= 64 * 64 && fast.vy < -63.99 && fast.wz > 127.99, `an ordinary overshoot clamps (${fast.vy} m/s, ${fast.wz} rad/s)`);
+    const inside = { vx: 3, vy: -4, vz: 12, wx: 1, wy: 2, wz: -3 };
+    kernels.settleVelocity(inside);
+    assert.deepEqual(inside, { vx: 3, vy: -4, vz: 12, wx: 1, wy: 2, wz: -3 }, 'an in-envelope velocity is untouched');
+    for (const lane of ['vx', 'wz']) {
+        const broken = { vx: 1, vy: 2, vz: 3, wx: 4, wy: 5, wz: 6, [lane]: NaN };
+        kernels.settleVelocity(broken);
+        assert.deepEqual(broken, { vx: 0, vy: 0, vz: 0, wx: 0, wy: 0, wz: 0 }, `a non-finite ${lane} drops the whole motion`);
+    }
+});
+
+test('f32 velocity: every motion piece carries its body\'s declared drag rate (+54), so between-tick poses decay like the committed physics', async () => {
+    const bytes = await run(scene([basketball([0, 1, 0], { gravity: 0, velocity: [2, 0, 0] }),
+        bowlingBall([0, 1, 2], { gravity: 0, drag: .125, velocity: [2, 0, 0] }), resistanceFree(basketball([0, 1, -2], { id: 7, gravity: 0 }))]), 1);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const declared = { 3: halfBits(BALL_DRAG), 4: halfBits(.125), 7: 0 };
+    const count = view.getUint32(MOTION, true);
+    assert.equal(count, 12, 'three dynamic bodies contribute four pieces each');
+    for (let i = 0; i < count; i++) {
+        const piece = MOTION + MOTION_HEADER + i * MOTION_PIECE;
+        const id = Number(view.getBigUint64(piece + 24, true));
+        assert.equal(view.getUint16(piece + 54, true), declared[id], `piece ${i} (body ${id}) drag rate bits`);
+    }
+});
+
+test('f32 velocity: at the envelope boundary declared drag still slows a ball flying at 63.9 m/s on every committed tick at 240 Hz', async () => {
+    const rate = TICKS_AT[3], speeds = [];
+    await run(scene([basketball([-40, 1, 0], { gravity: 0, velocity: [63.9, 0, 0] })], [], 3), rate / 2, (tick, bytes) => speeds.push(readBody(bytes, 1).v[0]));
+    let previous = 63.9;
+    speeds.forEach((v, i) => {
+        const expected = 63.9 * Math.exp(-BALL_DRAG * (i + 1) / rate);
+        assert.ok(v < previous && Math.abs(v - expected) < 1e-3 * expected, `tick ${i + 1}: ${v} m/s vs ${expected} (previous ${previous})`);
+        previous = v;
+    });
+});
+
+test('f32 velocity: a Basketball rolling at 20 m/s at 240 Hz decelerates at (5/7)·(Crr·g + drag·v) over a second, its spin never rises and it never reverses', async () => {
+    // Above about 5 m/s the contact rows act intermittently on a fast-spinning sphere (deferred-work, Story 6.1d): the ball skids for a few
+    // ticks with only drag acting, then friction re-couples it. Precision is not the limit (an f32 step at 20 m/s is 2e-6 m/s); the
+    // per-tick claim is pinned at 5 m/s above and the rate claim here.
+    const rate = TICKS_AT[3], states = [];
+    await run(scene([rollingAt(basketball([-60, BENCH_Y + BASKETBALL_R, 0]), 20)], [], 3), rate, (tick, bytes) => states.push(readBody(bytes, 1)));
+    const risen = states.findIndex((b, i) => b.spin > (i === 0 ? 20 / BASKETBALL_R : states[i - 1].spin));
+    assert.equal(risen, -1, `spin never rises (first rise at tick ${risen + 1})`);
+    assert.ok(Math.min(...states.map(b => b.v[0])) > 0 && Math.max(...states.map(b => b.w[2])) < 0, 'never reverses');
+    const last = states.at(-1), predicted = (5 / 7) * (BASKETBALL_ROLLING * 9.81 + BALL_DRAG * (20 + last.v[0]) / 2);
+    assert.ok(Math.abs(20 - last.v[0] - predicted) < .1 * predicted, `decelerates ${(20 - last.v[0]).toFixed(4)} m/s² vs ${predicted.toFixed(4)}`);
+    assert.ok(Math.abs(last.w[2] + last.v[0] / BASKETBALL_R) < .01 * last.v[0] / BASKETBALL_R && Math.abs(last.p[1] - (BENCH_Y + BASKETBALL_R)) < .002,
+        `still rolling on the bench (omega_z ${last.w[2].toFixed(2)}, y ${last.p[1].toFixed(4)})`);
 });

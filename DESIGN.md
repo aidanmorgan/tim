@@ -309,7 +309,7 @@ Simulation is fixed at 120 Hz with 480 Hz substeps; its cadence does not establi
 The visual language is approved; unfinished behaviour is not frozen by this document.
 
 - Mobile/touch-first gestures, safe-area layouts and real-device testing remain TODO.
-- Keyboard-only manipulation, screen-reader semantics, contrast and colour-vision accessibility are not comprehensively verified. Internal action metadata alone is not an accessibility guarantee. Preserve labels and affordances while improving this.
+- Keyboard-only manipulation, screen-reader semantics, contrast and colour-vision accessibility are not comprehensively verified. Internal action metadata alone is not an accessibility guarantee. Preserve labels and affordances while improving this. The level picker is pointer-only (it never takes keyboard focus) so Space always reaches Run/Reset (owner decision, 9 Oct 2026); keyboard level selection needs its own accessible control when keyboard-only play is in scope.
 - Dense scenes can obscure deeper parts; scrolled palette rows can clip. Improve these without adding opaque walls or persistent control clutter.
 - All cosmetic feedback must follow the independent animation lifecycle and finish or cancel coherently at success, Reset and generation changes.
 - Apply the approved palette, simple geometry and icon language to batteries, switched wires, motors, belt-driven conveyors, reverse transmissions, weights, pulleys, anchors, ropes, flashlights and solar panels. Chain mechanisms, rope cutting and moving-block pulleys retain their separate source obligations; distinguish connection types through shape as well as colour.

@@ -59,11 +59,10 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
     });
 
     test('1. Switch depression ramps to 1 on the declared curve while the unconnected lamp stays neutral', { timeout: 120000 }, async () => {
-        await driver.reload();
         await driver.selectLevel('delayed_signal');
         assert.equal(await driver.isAnimationQualified(), true, 'Animation worker must be qualified');
 
-        await driver.toggleRun(0);
+        await driver.run();
         const pressed = await waitFor(async () => (await driver.readLastAnimationSample(SWITCH_TARGET))?.valBits === 15360, 8000);
         assert.ok(pressed, 'Switch target sample must reach Half 1.0 after the locked ball lands on it');
 
@@ -78,7 +77,7 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         assert.equal(await driver.readLastAnimationSample(LAMP_TARGET), null, 'Unconnected lamp must emit no sample (negative control)');
         assert.equal(await driver.readLastAnimationSample(DELAY_TARGET), null, 'No Delay is placed, so no timer target may sample');
 
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -92,7 +91,7 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         await driver.connectActivation({ ...DELAY_SCREEN, panel: 'delay' }, LAMP_SCREEN);
         await driver.save();
 
-        await driver.toggleRun(0);
+        await driver.run();
         const lit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === 15360, 10000);
         assert.ok(lit, 'Lamp must light once the wired Delay finishes its countdown');
 
@@ -109,7 +108,7 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         assert.ok(lampHistory[0].timestamp - progress[0].timestamp >= 800, 'Lamp waits roughly the declared one-second countdown');
 
         // Reset: once the retired world's last in-flight pulse lands, no cosmetic target publishes again.
-        await driver.toggleRun(900);
+        await driver.reset(900);
         const switchAtReset = (await driver.readAnimationSamplesForTarget(SWITCH_TARGET)).length;
         const delayAtReset = (await driver.readAnimationSamplesForTarget(DELAY_TARGET)).length;
         const lampAtReset = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
@@ -122,22 +121,21 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         await driver.reload();
         await driver.selectLevel('delayed_signal');
         await driver.load();
-        await driver.toggleRun(0);
+        await driver.run();
         const relit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === 15360, 10000);
         assert.ok(relit, 'Loaded construction must re-animate switch → delay → lamp');
         const reloadedProgress = (await driver.readAnimationSamplesForTarget(DELAY_TARGET)).map((s: AnimationSampleRecord) => s.value);
         assert.ok(reloadedProgress.length >= 10 && monotonic(reloadedProgress), 'Loaded Delay fills again from its declared curve');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
     test('3. Bumper squash pulse rises and returns to neutral when struck; an un-struck bumper emits nothing', { timeout: 150000 }, async () => {
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await driver.selectTool('basketball');
         await driver.placeOnCanvas(720, 485);
         await driver.stackUnderLiftedBall('bumper', 150);
-        await driver.toggleRun(0);
+        await driver.run();
 
         const struck = await waitFor(async () => {
             for (const history of (await bumperSamples(driver)).values())
@@ -155,14 +153,13 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         assert.ok(values[0] < peak && values[values.length - 1] === 0, 'Pulse rises from its first sample and settles back to 0');
         assert.ok(history.every((s: AnimationSampleRecord) => s.property === 5), 'Bumper samples are ColourBlend blends');
 
-        await driver.toggleRun(900);
+        await driver.reset(900);
         const settled = (await driver.readAnimationSamplesForTarget(target)).length;
         await driver.page.waitForTimeout(600);
         assert.equal((await driver.readAnimationSamplesForTarget(target)).length, settled, 'Reset stops bumper samples');
 
         // Negative control: the same ball drop beside an un-struck bumper emits no pulse.
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         await driver.selectTool('basketball');
         await driver.placeOnCanvas(720, 485);
         await driver.selectPartAt(720, 485);
@@ -170,10 +167,10 @@ describe('ANIM-1b: Mechanical cosmetic bindings and procedural curves', () => {
         await driver.liftSelectedPart(150, 720, 485);
         await driver.selectTool('bumper');
         await driver.placeOnCanvas(1000, 600);
-        await driver.toggleRun(0);
+        await driver.run();
         await driver.page.waitForTimeout(3000);
         assert.equal((await bumperSamples(driver)).size, 0, 'Un-struck bumper emits no sample');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

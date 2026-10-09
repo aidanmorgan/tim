@@ -629,6 +629,40 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
     }
 
+    public enum BodyWireLane { Linear, Angular }
+
+    [Theory]
+    [InlineData(BodyWireLane.Linear)]
+    [InlineData(BodyWireLane.Angular)]
+    public void BodyWireAdmitsEachVelocityBoundAndRejectsTheNextF32Above(BodyWireLane lane)
+    {
+        var offset = lane == BodyWireLane.Linear ? PhysicsBodyWire.VelocityOffset : PhysicsBodyWire.AngularVelocityOffset;
+        var bound = (float)(lane == BodyWireLane.Linear ? LinearVelocity.MaximumSpeed : AngularVelocity.MaximumSpeed);
+        var bytes = new byte[PhysicsBodyWire.ByteLength];
+        PhysicsBodyWire.Write(new(new CanonicalBody(new(1), 3, 8, default, default, default), CanonicalRotation.Identity, default, default), bytes);
+        float Lane(PhysicsBodyRead read, int axis) => lane == BodyWireLane.Linear
+            ? axis switch { 0 => read.Body.Velocity.X, 4 => read.Body.Velocity.Y, _ => read.Body.Velocity.Z }
+            : axis switch { 0 => read.AngularVelocity.X, 4 => read.AngularVelocity.Y, _ => read.AngularVelocity.Z };
+        foreach (var axis in new[] { 0, 4, 8 })
+        {
+            var edge = (byte[])bytes.Clone();
+            WriteSingle(edge, offset + axis, -bound);
+            Assert.Equal(-bound, Lane(PhysicsBodyWire.Read(edge, new(3), new(8)), axis));
+            WriteSingle(edge, offset + axis, -MathF.BitIncrement(bound));
+            Assert.Throws<ArgumentException>(() => PhysicsBodyWire.Read(edge, new(3), new(8)));
+        }
+        // The bound is on the vector: the largest equal pair of components inside it reads, the next f32 pair above it rejects.
+        var component = MathF.BitDecrement(MathF.BitDecrement((float)(bound / Math.Sqrt(2))));
+        Assert.True(2.0 * component * component <= (double)bound * bound);
+        while (2.0 * component * component <= (double)bound * bound) component = MathF.BitIncrement(component);
+        var inside = (byte[])bytes.Clone();
+        WriteSingle(inside, offset, MathF.BitDecrement(component)); WriteSingle(inside, offset + 4, MathF.BitDecrement(component));
+        Assert.Equal(MathF.BitDecrement(component), Lane(PhysicsBodyWire.Read(inside, new(3), new(8)), 4));
+        var outside = (byte[])bytes.Clone();
+        WriteSingle(outside, offset, component); WriteSingle(outside, offset + 4, component);
+        Assert.Throws<ArgumentException>(() => PhysicsBodyWire.Read(outside, new(3), new(8)));
+    }
+
     [Fact]
     public void CancelWireRetainsExactOriginalIdentityAndRejectsMissingTarget()
     {
@@ -839,6 +873,13 @@ public sealed class WorkshopWireTests
         var admittedBody = NamedBody(admitted, new(1));
         Assert.Equal(new LinearVelocity(45f, 45f, 0f), admittedBody.Body.Velocity);
         Assert.Equal(new AngularVelocity(0f, 0f, -128f), admittedBody.AngularVelocity);
+        // The commit path itself accepts in-envelope f32 velocity and binds the exact committed bits, up to the bounds themselves.
+        Assert.True(PhysicsGpuAbi.ValidateCandidate(admitted, source, new(0)).Bodies.TryGet(new(1), out var committed));
+        Assert.True(committed.Body.Velocity.HasSameBits(new(45f, 45f, 0f)) && committed.AngularVelocity.HasSameBits(new(0f, 0f, -128f)));
+        var edge = (byte[])source.Clone();
+        WriteSingle(edge, vOffset + 8, -64f); WriteSingle(edge, wOffset, 128f);
+        Assert.True(PhysicsGpuAbi.ValidateCandidate(edge, source, new(0)).Bodies.TryGet(new(1), out var bound));
+        Assert.True(bound.Body.Velocity.HasSameBits(new(0f, 0f, -64f)) && bound.AngularVelocity.HasSameBits(new(128f, 0f, 0f)));
         foreach (var (offset, value) in new[] { (vOffset, 50f), (vOffset + 8, float.NaN), (wOffset, 128.0001f), (wOffset + 4, float.NegativeInfinity) })
         {
             var velocity = (byte[])source.Clone();

@@ -65,7 +65,6 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
     });
 
     test('1. Capture halo and goal label animate through declared bindings; Reset retires them and Save/Load re-animates', { timeout: 150000 }, async () => {
-        await driver.reload();
         await driver.selectLevel('first_principles');
         assert.equal(await driver.isAnimationQualified(), true, 'Animation worker must be qualified');
         await placeFirstPrinciplesRamps(driver);
@@ -75,7 +74,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         assert.equal(await driver.readLastAnimationSample(RECEIVER_HALO_TARGET), null, 'No capture sample before Run');
         assert.equal(await driver.readLastAnimationSample(GOAL_TARGET), null, 'No goal sample before Run');
 
-        await driver.toggleRun(0);
+        await driver.run();
         const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
         assert.ok(captured, 'Capture target sample must ramp to Half 1.0 once the ball is captured');
         const halo = await driver.readAnimationSamplesForTarget(RECEIVER_HALO_TARGET);
@@ -95,7 +94,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
             'Hint target never leaves its neutral opacity while unpressed');
 
         // Reset: the retired world's targets stop publishing.
-        await driver.toggleRun(900);
+        await driver.reset(900);
         const haloAtReset = (await driver.readAnimationSamplesForTarget(RECEIVER_HALO_TARGET)).length;
         const goalAtReset = (await driver.readAnimationSamplesForTarget(GOAL_TARGET)).length;
         await driver.page.waitForTimeout(700);
@@ -107,11 +106,11 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         await driver.reload();
         await driver.selectLevel('first_principles');
         await driver.load();
-        await driver.toggleRun(0);
+        await driver.run();
         const recaptured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
         assert.ok(recaptured, 'Loaded construction must re-animate the capture halo to Half 1.0');
         assert.equal(await driver.readCaptured(), 1, 'Loaded construction solves the level once');
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -126,7 +125,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         assert.ok((await driver.readAnimationSamplesForTarget(HINT_TARGET)).every((s: AnimationSampleRecord) => s.value === 1),
             'No hint reveal before the button is pressed');
 
-        await driver.toggleRun(0);
+        await driver.run();
         const counting = await waitFor(async () => (await driver.readAnimationSamplesForTarget(DELAY_TARGET)).length >= 2, 10000);
         assert.ok(counting, 'The wired Delay must start counting after the ball lands on the switch');
         const fillBefore = (await driver.readAnimationSamplesForTarget(DELAY_TARGET)).length;
@@ -160,7 +159,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         assert.ok(afterHide.length > 0 && afterHide.every((s: AnimationSampleRecord) => s.value === 1),
             `A hidden hint holds its neutral opacity (got ${afterHide.map(s => s.value).join(',')})`);
 
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -188,14 +187,13 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
 
     test('4. Free workshop: a dropped ball captured by a placed Receiver animates the same declared capture target with no goal', { timeout: 120000 }, async () => {
         await driver.reload();
-        await driver.selectLevel('free_workshop');
         // Free play authors the Basketball as body 1 and the Receiver as body 2; its compiled capture sensor is first+16, not the authored id.
         await driver.selectTool('basketball');
         await driver.placeOnCanvas(720, 485);
         await driver.stackUnderLiftedBall('receiver', 150);
         assert.equal(await driver.readLastAnimationSample(RECEIVER_HALO_TARGET), null, 'No capture sample before Run');
 
-        await driver.toggleRun(0);
+        await driver.run();
         const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
         assert.ok(captured, 'Free-workshop Receiver capture target must ramp to Half 1.0 when the dropped ball settles in it');
         const halo = await driver.readAnimationSamplesForTarget(RECEIVER_HALO_TARGET);
@@ -204,7 +202,7 @@ describe('ANIM-1c: Legacy presentation code retirement', () => {
         assert.equal(await driver.readLastAnimationSample(GOAL_TARGET), null, 'Free workshop has no goal, so the goal target stays silent');
         assert.equal(await driver.readCaptured(), 0, 'No CCGOAL_SOLVED in free workshop');
 
-        await driver.toggleRun(500);
+        await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 });

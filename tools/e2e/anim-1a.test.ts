@@ -37,7 +37,6 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
     });
 
     test('1. Animation worker qualification & Receiver capture halo ramp upon goal solve', { timeout: 120000 }, async () => {
-        await driver.reload();
         await driver.selectLevel('first_principles');
 
         // Verify dedicated WebAssembly animation worker is bootstrapped and clock-qualified
@@ -70,7 +69,7 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
         await driver.tiltSelectedRamp(674, 509, -20);
 
         // Start simulation: ball rolls down ramps into Receiver
-        await driver.toggleRun(0);
+        await driver.run();
 
         let captured = 0;
         let settledInReceiver = false;
@@ -161,10 +160,9 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
 
         // Resume simulation
         await driver.resumeSimulation();
-        await driver.page.waitForTimeout(300);
 
         // Reset back to Build Mode to leave clean state
-        await driver.toggleRun(500);
+        await driver.reset();
     });
 
     test('3. Exact Reset and Save/Load persistence roundtrip with clean animation re-activation', { timeout: 120000 }, async () => {
@@ -185,12 +183,8 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
         await driver.save();
 
         // Run simulation until solved
-        await driver.toggleRun(0);
-        const runStartTime = Date.now();
-        while (Date.now() - runStartTime < 6000) {
-            if (await driver.readCaptured() > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
+        await driver.run();
+        assert.ok(await driver.waitForGoalSolved(6000) > 0, 'The saved construction solves before Reset');
 
         // Verify halo capture sample is active from animation worker and completes its declared ramp before Reset
         const initialHalo = await driver.readLastAnimationSample(RECEIVER_HALO_TARGET);
@@ -199,17 +193,17 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
             'Receiver halo must reach full blend before Reset');
 
         // Reset simulation: ball must return to starting elevation py ~ 6.5
-        await driver.toggleRun(500);
+        await driver.reset();
 
         // Run briefly to verify reset starting state
-        await driver.toggleRun(100);
+        await driver.run(100);
         const resetPose = await driver.readLatestPose();
         assert.ok(resetPose && resetPose.bodies.length > 0, 'Pose slot must be readable after reset');
         assert.ok(
             resetPose.bodies[0].py > 5.5,
             `Reset must restore ball to starting elevation py > 5.5 m (got py=${resetPose.bodies[0].py.toFixed(3)})`
         );
-        await driver.toggleRun(300);
+        await driver.reset();
 
         // Reload page to start with blank First Principles state
         await driver.reload();
@@ -222,14 +216,8 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
         await driver.load();
 
         // Run loaded construction: verify it solves the level and captures the ball
-        await driver.toggleRun(0);
-        let loadedCaptured = 0;
-        const loadRunStartTime = Date.now();
-        while (Date.now() - loadRunStartTime < 8000) {
-            loadedCaptured = await driver.readCaptured();
-            if (loadedCaptured > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
+        await driver.run();
+        const loadedCaptured = await driver.waitForGoalSolved(8000);
 
         assert.ok(
             loadedCaptured > 0,
@@ -239,7 +227,7 @@ describe('ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core 
         // Verify animation samples continue delivering on re-solve
         assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 3000),
             'Receiver halo capture animation must re-activate after Load roundtrip');
-        await driver.toggleRun(300);
+        await driver.reset();
         const reHaloSample = await driver.readLastAnimationSample(RECEIVER_HALO_TARGET);
         assert.ok(reHaloSample !== null, 'Receiver halo capture animation must re-activate after Load roundtrip');
         assert.equal(reHaloSample.valBits, HALF_ONE, 'Re-activated halo sample must reach full blend');

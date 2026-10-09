@@ -14,6 +14,8 @@ public sealed class PhysicsMotionRead
     // Piece: kind 0, start/end/anchor ordinals 4..16, phases and rate (Half) 16..24, body id 24..32, COM cell 32..44, COM remainder
     // (Half) 48..54, drag rate (Half) 54..56, rotation (Half) 56..64, linear velocity m/s (f32) 64..76, angular velocity rad/s (f32)
     // 76..88, gravity 88..94, supported acceleration 96..102, angular acceleration 104..110, bounded lane 112..118 with flag 120 (Half).
+    // The drag rate is the body's declared linear drag (1/s), so a free piece samples the same exponential decay the solver applies.
+    public const int DragRateOffset = 54;
     public const int VelocityOffset = 64;
     public const int AngularVelocityOffset = 76;
     public const int GravityOffset = 88;
@@ -101,7 +103,7 @@ public sealed class PhysicsMotionRead
             F32Norm(piece,VelocityOffset,LinearVelocity.MaximumSpeed); F32Norm(piece,AngularVelocityOffset,AngularVelocity.MaximumSpeed);
             Norm(piece,GravityOffset,16); Norm(piece,SupportedAccelerationOffset,64); Norm(piece,AngularAccelerationOffset,1024);
             Rotation(piece).ValidateCommitted();
-            PhysicsDeclarationBounds.Range(H(piece,54),(Half)0,(Half).125);
+            PhysicsDeclarationBounds.Range(H(piece,DragRateOffset),(Half)0,(Half).125);
             if (kind == PhysicsMotionKind.FreePolynomial &&
                 (!Zero(piece[SupportedAccelerationOffset..(SupportedAccelerationOffset+6)]) ||
                  !Zero(piece[AngularAccelerationOffset..(AngularAccelerationOffset+6)])))
@@ -129,7 +131,7 @@ public sealed class PhysicsMotionRead
             if (units < begin || units >= end) continue;
             var elapsed = (physicalOrdinal - U32(p,12) - (double)H(p,20) / 4096) / (double)H(p,22);
             var supported = (PhysicsMotionKind)U32(p,0) != PhysicsMotionKind.FreePolynomial;
-            var k = (double)H(p,54); var x = supported ? 0 : k * elapsed;
+            var k = (double)H(p,DragRateOffset); var x = supported ? 0 : k * elapsed;
             var polynomial = .5 + x * ((double)(Half)(-1.0/6) + x * ((double)(Half)(1.0/24) +
                 x * ((double)(Half)(-1.0/120) + x * (double)(Half)(1.0/720))));
             var cell = Cell(p);

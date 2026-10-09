@@ -5,8 +5,11 @@
 // 1. first_principles level with receiver assistance knots evaluated as declared spatial acceleration fields (smooth entrance without moving collider walls)
 // 2. Multi-body ramp rolling and assistance knot interaction under pure spatial force regions
 // 3. Exact Reset and Save/Load persistence roundtrip in Chrome
+// Test 3 is proven by the shared recipe engine-core-2a3.test.ts test 5, which carries ENGINE-CORE-2b4 in its name
+// (owner decision 9 Oct 2026, Story 6.1d); this suite keeps tests 1 and 2.
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
+import type { ConsoleMessage } from 'playwright';
 import { WorkshopDriver } from './workshop-driver.ts';
 
 describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarative Spatial Force Regions)', () => {
@@ -21,12 +24,11 @@ describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarat
     });
 
     test('1. First principles receiver assistance knots evaluated as declared spatial acceleration fields (smooth entrance without moving collider walls)', { timeout: 120000 }, async () => {
-        await driver.reload();
         await driver.selectLevel('first_principles');
 
         // Listen for any solver, guide predictor, or transport errors in console
         const errors: string[] = [];
-        const errorHandler = (msg: any) => {
+        const errorHandler = (msg: ConsoleMessage) => {
             const text = msg.text();
             if (
                 text.includes('CCGPU_TRANSPORT_FAILURE') ||
@@ -53,7 +55,7 @@ describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarat
         await driver.tiltSelectedRamp(674, 509, -20);
 
         // Start simulation: ball rolls down ramps and enters Receiver assistance field
-        await driver.toggleRun(0);
+        await driver.run();
 
         let captured = 0;
         let enteredAssistanceRegion = false;
@@ -76,7 +78,7 @@ describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarat
         assert.ok(solvedPose && solvedPose.bodies.length > 0, 'Pose slot must be readable');
 
         // Reset simulation back to Build Mode
-        await driver.toggleRun(300);
+        await driver.reset(300);
 
         driver.page.off('console', errorHandler);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
@@ -107,7 +109,7 @@ describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarat
         await driver.tiltSelectedRamp(674, 509, -20);
 
         // Start simulation
-        await driver.toggleRun(0);
+        await driver.run();
 
         let contactedRamp1 = false;
         let rolledToRamp2 = false;
@@ -134,74 +136,11 @@ describe('ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarat
             await driver.page.waitForTimeout(50);
         }
 
-        await driver.toggleRun(300);
+        await driver.reset();
 
         assert.ok(contactedRamp1, 'Ball must contact Ramp 1');
         assert.ok(rolledToRamp2, 'Ball must transition smoothly to Ramp 2');
         assert.ok(guidedIntoReceiver, 'Ball must be guided into Receiver via spatial acceleration field');
         assert.ok(captured > 0, `Ball must be captured in Receiver (captured count=${captured})`);
-    });
-
-    test('3. Exact Reset and Save/Load persistence roundtrip in Chrome', { timeout: 150000 }, async () => {
-        await driver.reload();
-        await driver.selectLevel('first_principles');
-
-        // Place Ramp 1
-        await driver.selectTool('ramp');
-        await driver.placeOnCanvas(498, 404);
-        await driver.tiltSelectedRamp(498, 404, -20);
-
-        // Place Ramp 2
-        await driver.selectTool('ramp');
-        await driver.placeOnCanvas(674, 509);
-        await driver.tiltSelectedRamp(674, 509, -20);
-
-        // Save construction
-        await driver.save();
-
-        // Run simulation until solved
-        await driver.toggleRun(0);
-        const runStartTime = Date.now();
-        while (Date.now() - runStartTime < 6000) {
-            if (await driver.readCaptured() > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
-
-        // Reset simulation: ball must return to starting elevation py ~ 6.5
-        await driver.toggleRun(500);
-
-        // Run briefly to verify reset starting state
-        await driver.toggleRun(100);
-        const resetPose = await driver.readLatestPose();
-        assert.ok(resetPose && resetPose.bodies.length > 0, 'Pose slot must be readable after reset');
-        assert.ok(
-            resetPose.bodies[0].py > 5.5,
-            `Reset must restore ball to starting elevation py > 5.5 m (got py=${resetPose.bodies[0].py.toFixed(3)})`
-        );
-        await driver.toggleRun(300);
-
-        // Reload page to start with blank First Principles state
-        await driver.reload();
-        await driver.selectLevel('first_principles');
-
-        // Load saved construction
-        await driver.load();
-
-        // Run loaded construction: verify it solves the level
-        await driver.toggleRun(0);
-        let loadedCaptured = 0;
-        const loadRunStartTime = Date.now();
-        while (Date.now() - loadRunStartTime < 8000) {
-            loadedCaptured = await driver.readCaptured();
-            if (loadedCaptured > 0) break;
-            await driver.page.waitForTimeout(300);
-        }
-
-        await driver.toggleRun(300);
-
-        assert.ok(
-            loadedCaptured > 0,
-            `Loaded construction must solve level and capture ball in receiver (got captured=${loadedCaptured})`
-        );
     });
 });

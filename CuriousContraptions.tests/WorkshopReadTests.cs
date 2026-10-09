@@ -87,6 +87,37 @@ public sealed class WorkshopReadTests
     }
 
     [Fact]
+    public void FreeMotionSampledBetweenTicksFollowsTheDragDecayedTrajectory()
+    {
+        // A free piece carrying drag k and gravity g samples x = v0(1 - e^-kt)/k and y = (g/k)(t - (1 - e^-kt)/k), the exact solution
+        // of the exponential decay the solver applies; the same piece without its drag lane overshoots by the decay it omits.
+        // The pieces keep their primary anchor at ordinal 0, so the sample at ordinal 58 extrapolates t = 58/480 s.
+        var body = new CanonicalBody(new(1), 2, 15, default, default, default);
+        var k = (Half).125; var g = (Half)(-9.81); const float v0 = 8f;
+        byte[] Pieces(Half drag)
+        {
+            var bytes = MotionBytes(body);
+            for (var i = 0; i < 4; i++)
+            {
+                var piece = PhysicsMotionRead.HeaderBytes + i * PhysicsMotionRead.PieceBytes;
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + PhysicsMotionRead.VelocityOffset), v0);
+                H(bytes, piece + PhysicsMotionRead.GravityOffset + 2, g);
+                H(bytes, piece + PhysicsMotionRead.DragRateOffset, drag);
+            }
+            return bytes;
+        }
+        static double Metres(PresentedBody pose, int axis) => axis == 0
+            ? (pose.Cell.X + (double)pose.Local.X) / 16 : (pose.Cell.Y + (double)pose.Local.Y) / 16;
+        var t = 58.0 / WorkshopCadenceSettings.PhysicalFrequency; var rate = (double)k; var gravity = (double)g;
+        var decay = (1 - Math.Exp(-rate * t)) / rate;
+        Assert.True(PhysicsMotionRead.Decode(Pieces(k), Bodies(body), new(15)).TrySample(body.Id, 58, out var dragged));
+        Assert.InRange(Metres(dragged, 0) - v0 * decay, -1e-4, 1e-4);
+        Assert.InRange(Metres(dragged, 1) - gravity / rate * (t - decay), -1e-4, 1e-4);
+        Assert.True(PhysicsMotionRead.Decode(Pieces((Half)0), Bodies(body), new(15)).TrySample(body.Id, 58, out var undamped));
+        Assert.True(Metres(undamped, 0) - Metres(dragged, 0) > 5e-3);
+    }
+
+    [Fact]
     public void DecodedMotionOwnsValidatedBytesAndPreservesWireContent()
     {
         var body = new CanonicalBody(new(1), 2, 1, default, default, default);

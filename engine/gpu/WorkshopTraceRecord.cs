@@ -2,7 +2,9 @@ using System;
 using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopTraceVersion : uint { CompleteBodySet = 2 }
+/// <summary>Trace schema. 3: every committed body as the 64-byte <see cref="PhysicsBodyWire"/> with f32 velocity and angular velocity
+/// (Story 6.1c); the 56-byte binary16-velocity schema 2 is rejected like any unknown version.</summary>
+public enum WorkshopTraceVersion : uint { CompleteBodySetF32Velocity = 3 }
 
 /// <summary>Bounded observational projection of every committed body and capture latch.</summary>
 public static class WorkshopTraceRecord
@@ -23,7 +25,7 @@ public static class WorkshopTraceRecord
             throw new ArgumentException("Unsupported diagnostic time.");
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
         var b = new byte[ByteLength(read.Bodies.Count, read.Captures.Count)];
-        U32(b,0,(uint)WorkshopTraceVersion.CompleteBodySet); U32(b,4,(uint)profile.Cadence);
+        U32(b,0,(uint)WorkshopTraceVersion.CompleteBodySetF32Velocity); U32(b,4,(uint)profile.Cadence);
         U64(b,8,profile.Revision.Value); U64(b,16,read.Epoch.Value); U64(b,24,read.Tick.Value);
         U32(b,32,(uint)profile.Physical); b[36]=read.Bodies.Count; b[37]=read.Captures.Count;
         for (var i=0; i<read.Bodies.Count; i++)
@@ -41,7 +43,7 @@ public static class WorkshopTraceRecord
 
     public static WorkshopGpuProfile ReadProfile(ReadOnlySpan<byte> b)
     {
-        if(b.Length<HeaderBytes || BinaryPrimitives.ReadUInt32LittleEndian(b)!=(uint)WorkshopTraceVersion.CompleteBodySet ||
+        if(b.Length<HeaderBytes || BinaryPrimitives.ReadUInt32LittleEndian(b)!=(uint)WorkshopTraceVersion.CompleteBodySetF32Velocity ||
             b.Length!=ByteLength(b[36],b[37]) || b[38..HeaderBytes].IndexOfAnyExcept((byte)0)>=0)
             throw new ArgumentException("Unsupported diagnostic record.");
         var p=new WorkshopGpuProfile((SimulationCadence)BinaryPrimitives.ReadUInt32LittleEndian(b[4..]),

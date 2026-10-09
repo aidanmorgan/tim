@@ -2,18 +2,42 @@
 
 **Goal:** 150 progressively taught challenge levels, unlimited free-play Workshop, and the complete engine/catalogue requirements through their named release gates.
 
-**Candidate:** this root workspace is authoritative. The forward Tri-Graph architecture is authoritative: C# Logical Machine Graph (main thread) compiles at Run to flat SIMD-aligned Structure-of-Arrays (SoA) Physics Graph executed on a dedicated WebAssembly SIMD Web Worker (`wasm-simd128`), publishing poses via a zero-copy lock-free `SharedArrayBuffer` triple pose ring to the universal instanced Rendering Graph (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU). Strictly zero external dependencies for physics (no Box2D, no Jolt, no Rapier, all algorithms custom in-engine C# and TypeScript code) incorporating modern best practices (Quad-BVH SIMD vectorization, Speculative Contacts for CCD, 4-point area-maximizing manifold reduction, unified compliant soft constraints, deterministic pair sorting). Legacy compute shader pipelines, GPU readback stalls, and CPU fallback paths are permanently removed.
+**Candidate:** this root workspace is authoritative. The forward Tri-Graph architecture is authoritative:
+- **Machine graph:** the C# Logical Machine Graph runs on the main thread and compiles at Run to a flat SIMD-aligned Structure-of-Arrays (SoA) Physics Graph.
+- **Physics graph:** it executes on a dedicated WebAssembly SIMD Web Worker (`wasm-simd128`). It publishes poses through a zero-copy, lock-free `SharedArrayBuffer` triple pose ring.
+- **Rendering graph:** the universal instanced Rendering Graph draws with `gl.drawElementsInstanced` in WebGL 2 and `renderPass.drawIndexed` in WebGPU.
+- **Dependencies:** physics has strictly zero external dependencies. There is no Box2D, Jolt or Rapier; all algorithms are custom in-engine C# and TypeScript code.
+- **Practices:** Quad-BVH SIMD vectorization, Speculative Contacts for CCD, 4-point area-maximizing manifold reduction, unified compliant soft constraints and deterministic pair sorting.
+- **Removed:** legacy compute shader pipelines, GPU readback stalls and CPU fallback paths are permanently removed.
 
-**Current slice:** ENGINE-F32-VELOCITY (Story 6.1c): committed body velocity and angular velocity stored as f32 instead of binary16 so declared drag (0.04) and rolling-resistance decrements survive at 60/120/240 Hz and at all speeds.
+**Current slice:** Story 7.0 element implementation readiness ([spec](_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)), owner decision of 9 Oct 2026. It produces, in `docs/planning/elements/`:
+- full specs for all 72 catalogue elements;
+- full specs for all 275 named puzzle-element identities;
+- a disposition ledger for every legacy file Epic 7 deletes.
 
-**Delivered:** every verified slice to date (ENGINE-CORE-1 through ENGINE-DRAG; Epics 1–5 complete, Epic 6 in progress) is recorded in [docs/planning/delivered-slices.md](docs/planning/delivered-slices.md).
+It runs as 15 batches, each with an independent reviewer. Owner decisions surfaced by the batches are collected in [story-7-0-owner-questions](_bmad-output/implementation-artifacts/story-7-0-owner-questions.md).
 
-**Current result / blocker / owner:** ENGINE-F32-VELOCITY (Story 6.1c) terminal scoped Pass (Murdoch; record in [spec 6.1c](_bmad-output/implementation-artifacts/spec-6-1c-f32-committed-velocity-precision.md) Review Triage Log): harness 38/38 with mutation-sensitive drag-0.04 and 5 m/s roll facts, 632/632, cumulative Chrome 15 suites / 54 tests; committed locally. Non-blocking review findings go to Story 6.1d (velocity hardening). ENGINE-DRAG (Story 6.1b) terminal scoped Pass (Murdoch, three passes; record in [spec 6.1b](_bmad-output/implementation-artifacts/spec-6-1b-engine-drag-application.md) Review Triage Log): harness 36/36, 622/622, `cat-014` 4/4 with a Chrome negative control, cumulative 15 suites / 54 tests. CAT-014 (Story 6.1) holds its terminal scoped Pass for the original 0.38 m Bowling ball (Murdoch, record in [spec 6.1](_bmad-output/implementation-artifacts/spec-6-1-bowling-ball-dynamic-sphere.md)); the 0.28 m re-tune is covered by the 6.1b review; its "both balls rest" row is now asserted by 6.1b. Committed locally as 520f778 (not pushed); commits are now cut after every story passes independent verification (owner rule, 9 Oct 2026). Owner decisions of 9 Oct 2026 applied in 6.1b: rolling resistance at every sphere contact and a 0.28 m / 4 kg Bowling ball; f32 committed velocity moves to Story 6.1c. Earlier slice summaries: [delivered-slices](docs/planning/delivered-slices.md). Deferred findings: [deferred-work](_bmad-output/implementation-artifacts/deferred-work.md); follow-up research: [e2e speed](_bmad-output/implementation-artifacts/research-e2e-speed.md), [WASM load time](_bmad-output/implementation-artifacts/research-wasm-load-time.md).
+**Delivered:** every verified slice to date is recorded in [docs/planning/delivered-slices.md](docs/planning/delivered-slices.md). That covers ENGINE-CORE-1 through Story 6.1d velocity hardening; Epics 1–5 are complete and Epic 6 is in progress.
 
-**Deferred follow-up:** e2e wall-clock reduction options are recorded in [research-e2e-speed](_bmad-output/implementation-artifacts/research-e2e-speed.md); not scheduled.
+**Current result / blocker / owner:**
+- **Story 6.1d velocity hardening:** terminal scoped Pass (Murdoch, two passes; record in the [spec 6.1d](_bmad-output/implementation-artifacts/spec-6-1d-velocity-hardening.md) Review Triage Log). Committed locally, not pushed. The folded e2e speed-up and the duplicate-test merge (54 → 45 tests) cut the cumulative serial Chrome run from 731.5 s to 368 s.
+- **Story 7.0 batches:**
+  - B and D are in independent review.
+  - C failed review on two misread extents and missed details; it is back with its implementer.
+  - A and E–O are still writing.
+- Commits are cut after every story passes independent verification (owner rule, 9 Oct 2026).
+- Deferred findings: [deferred-work](_bmad-output/implementation-artifacts/deferred-work.md).
+- Research: [e2e speed](_bmad-output/implementation-artifacts/research-e2e-speed.md), [WASM load time](_bmad-output/implementation-artifacts/research-wasm-load-time.md), [Epic 7 inventory](_bmad-output/implementation-artifacts/research-epic-7-legacy-inventory.md).
 
-**Next acceptance check:** independent review of Story 6.1c — declared drag 0.04 slows a flying ball at 60/120/240 Hz; a 5 m/s rolling ball decelerates every tick at 240 Hz and rests; host validation and pose ring read f32 velocity; all prior suites pass serially in Chrome.
+**Next acceptance check:** each Story 7.0 batch passes its independent review. The checks are:
+- six sections per spec;
+- every requirements variant covered;
+- sampled citations state their facts;
+- the riskiest legacy files fully harvested;
+- no unsourced value presented as sourced.
 
-**Next:** Story 6.1d (velocity hardening: exact clamp bound, motion-piece drag lane, trace version, offset checks), then Story 6.2 (CAT-015a Bumper radial impulse) in the [roadmap](docs/planning/invest/vertical-delivery.md#rolling-playable-roadmap). Unrelated root changes and parked Pipe remain preserved; Pipe is unadmitted.
+The closing pass then completes the ledger and the index.
+
+**Next:** Story 7.0, then the legacy purge (Stories 7.1–7.4, LEGACY-0a..0d), then Story 6.2 (CAT-015a Bumper radial impulse) in the [roadmap](docs/planning/invest/vertical-delivery.md#rolling-playable-roadmap). This order is the owner re-ordering of 9 Oct 2026. Unrelated root changes and parked Pipe remain preserved; Pipe is unadmitted.
 
 **Authority:** [AGENTS](AGENTS.md), [game-grade envelope](docs/gpu-f32-physics.md#game-grade-envelope), [requirements](docs/planning/requirements.md). Detailed performance, worker/fault/device matrices and global qualification remain at their named later gates.
