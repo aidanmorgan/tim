@@ -2,6 +2,8 @@
 
 This inventory was taken read-only while Story 6.1d was uncommitted. Counts are given as on disk / tracked. Re-verify every count at the start of each story.
 
+**Superseding archive-location decision (10 Oct 2026):** the owner requires “keep everything inside the tim directory”. Story 7.1 retains the verified archive, manifest and recovery under ignored `archives/story-7-1-20261009/`, excluded from game import/export. The original external-location decision below is historical; all recovery and preservation checks still apply.
+
 ## Owner decisions (9 Oct 2026)
 
 1. **Order:** Epic 7 runs after Story 6.1d and before Story 6.2.

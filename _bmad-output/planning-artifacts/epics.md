@@ -458,6 +458,7 @@ So that level `clear_pipe` can be solved.
 - **When** the ball enters the mouth at high speed and edge angles,
 - **Then** the ball negotiates the pipe geometry and reaches the receiver.
 - **And** all legacy annular-specific kernel code, `AnnularFeature` enums, and `reference/pipe/` are deleted.
+  - Reference-only clause discharged by Story 7.1 (10 Oct 2026); annular kernel cleanup remains this story's acceptance.
 - **And** `tools/e2e/cat-048b.test.ts` passes 100% in Chrome serially.
 
 ### Story 6.8: Generic Aperture Sensor with Directional Rearm (CAT-002)
@@ -536,7 +537,7 @@ So that loosely aimed balls are gathered into a pipe route by gravity and contac
 **Entry gate (Stories 7.1–7.4):** no file is deleted until [legacy-disposition.md](../../docs/planning/elements/legacy-disposition.md) has a row for it. The ledger is written by Story 7.0 ([spec](../implementation-artifacts/spec-7-0-element-implementation-readiness.md)).
 
 ### Story 7.1: Reference & Historical Archive Purge (LEGACY-0a)
-*Status: Backlog*
+*Status: Review — archive recovery and reference deletion verified; builds, unit and all 45 Chrome cases passed; final scoped commit verification pending*
 
 As an engine maintainer,  
 I want obsolete tarballs and benchmark dumps in `reference/` purged,  

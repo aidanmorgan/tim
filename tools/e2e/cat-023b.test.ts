@@ -8,6 +8,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
+import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type AnimationSampleRecord, type WorkshopBodyPose } from './workshop-driver.ts';
 
 // domino_effect authored identities: ball 1, end Domino 2, lamp 3; placed tiles receive 4..7 in placement order.
@@ -102,8 +103,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         driver = await WorkshopDriver.launch();
         driver.page.on('console', (msg: ConsoleMessage) => {
             const text = msg.text();
-            if (text.includes('CCGPU_TRANSPORT_FAILURE') || text.includes('CCGPU_STARTUP_EXCEPTION') ||
-                text.includes('Unhandled exception') || text.includes('NaN')) errors.push(text);
+            if (isWorkshopConsoleFailure(msg.type(), text)) errors.push(text);
         });
         driver.page.on('pageerror', (error: Error) => errors.push(error.message));
     });

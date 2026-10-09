@@ -21,3 +21,6 @@ plans/
 
 # Versioned pre-commit policy and its verification fixtures.
 !tools/anvil/
+
+# Owner-retained Story 7.1 recovery archive; never a publication input.
+/archives/story-7-1-20261009/

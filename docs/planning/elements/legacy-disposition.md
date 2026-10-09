@@ -52,6 +52,8 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 ## 7.1 LEGACY-0a: `reference/`
 
+**Deletion receipt (10 Oct 2026, regression checks passed; final commit verification pending):** all 392 tracked paths in the 26 rows below and 4,290 untracked/ignored outputs were removed after exact source-drift and archive recovery checks; the historical rows remain. Owner superseded external storage: the 2,474 untracked app-bundle files remain recoverable from ignored `archives/story-7-1-20261009/p025-appbundles.tar.gz` inside tim (208,369,673 bytes; SHA-256 `5267bbe9fda12ee295b0b044fdc05bf14295e687eaddd740a3545356b13a1d0a`). Manifest SHA-256 `9ae5e8efcfee451939d05604744cbdd91dbd511ba98f061cb36f4cc1bbf3c13b`; recovered tree retained alongside it. Exact original deletion inventory: `.anvil/story-7-1-deletions.json`, SHA-256 `61ebcb39ba02962de6b1aed1db143e3684414c9c850be81125f8dff43a387d9b`. [Story 7.1](../../../_bmad-output/implementation-artifacts/spec-7-1-reference-historical-archive-purge.md) records the scoped checks; build/unit/Node and all 45 Chrome cases passed; final scoped approval and committed-tree verification remain.
+
 | Folder or file | Tracked files | Harvested into | Notes |
 | --- | --- | --- | --- |
 | `reference/.gdignore` | 1 | — | N-BUILD |

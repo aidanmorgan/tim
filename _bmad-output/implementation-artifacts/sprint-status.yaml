@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-09-2026 20:05
+last_updated: 10-10-2026 08:15
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -84,8 +84,8 @@ development_status:
   # Frozen proof plus narrowly reviewed status/owner-decision corrections; local commit, no push.
   # Entry gate for 7-1..7-4: no file is deleted until docs/planning/elements/legacy-disposition.md has a row for it.
   epic-7: in-progress
-  7-0-element-implementation-readiness: review
-  7-1-reference-historical-archive-purge: backlog
+  7-0-element-implementation-readiness: done
+  7-1-reference-historical-archive-purge: review
   7-2-diagnostics-legacy-probe-tools-purge: backlog
   7-3-uncompiled-legacy-test-purge: backlog
   7-4-legacy-cpu-physics-unshipped-engine-purge: backlog
