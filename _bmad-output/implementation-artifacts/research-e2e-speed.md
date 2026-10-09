@@ -1,55 +1,71 @@
-# Research: making the Playwright/Chrome e2e suites faster without weakening the proof
+# Research: faster Playwright/Chrome e2e suites without weakening proof
 
-Date: 2026-10-09. Read-only investigation; no repo file changed. Sources: `tools/e2e/*.test.ts`, `tools/e2e/workshop-driver.ts`, `tools/Preview/Program.cs`, `CuriousContraptions.web/wwwroot/workshop-client.js`, `CuriousContraptions.Simulation/wwwroot/worker.js`, the reviewer's logs `scratchpad/murdoch/e2e-all.log`, `murdoch2/e2e-all.log`, `murdoch/e2e-2c-rerun.log`, `murdoch2/e2e-anim-1b.log`, and `research-wasm-load-time.md`. Machine: Apple M4 Max, 16 cores, 64 GB. No suite was run for this report.
+Date: 2026-10-09 (rewrite). Read-only; no suite, publish or Chrome was run. Evidence: per-test `duration_ms` in reviewer logs `scratchpad/murdoch9/f-all-e2e.log` (709 s), `murdoch10` (718 s), `murdoch11` (732 s), `murdoch12/cumulative.log` (731 s; 15 suites, 54 tests, all pass); `tools/e2e/*.test.ts`, `workshop-driver.ts`, `workshop-client.js`, `ui/WorkshopPuzzle.cs`, `tools/Preview/Program.cs`, `project.godot`, Playwright 1.64 `coreBundle.js`. Machine: 16 cores, 64 GB, Chrome 154, Node 26.11.
 
-## 1. Where the ~2000 s goes
+## 1. Where the 731 s goes now
 
-Two full runs: 2020 s (8 Oct, 2c failed "browser closed" under contention) and 2024 s (murdoch2). 11 suites, 38 tests. Code inventory: 47 `driver.reload()` + 11 launches = **58 cold page loads**; 29 `selectLevel()` (each disposes and recreates both workers); 11 save/load tests with two reloads each.
+The trimmed workers removed the load stall. Runs are now deterministic: suite totals vary < 2% across four runs, and CAT-014 takes 75.4 s standalone and inside the full run. Time is sleep- and physics-bound, not load-bound.
 
-Per-test durations separate cleanly by reload count: tests without a reload take 3 ms–1.7 s (2a1 #1/#2); one reload ≈ 35–43 s; two reloads ≈ 67–80 s. Suite totals exceed test sums by ≈ 325 s, i.e. ≈ 30 s per `before()` launch+load. So **one cold load costs ≈ 30 s in these runs**, yet the same operation sometimes completes in ≈ 3 s: 2b3 #2 (reload + `selectLevel`) took 9.4 s and 11.1 s inside the same full runs, and anim-1b #1 took 4.7 s standalone versus 36–40 s cumulatively. The 30 s is a stall mode, not intrinsic cost. `research-wasm-load-time.md` §4 attributes it to the 368 per-assembly worker requests (175 assemblies per untrimmed worker) queuing on six HTTP/1.1 connections to Kestrel, with 3.5 s TTFB on 5 KB files; clock qualification itself is bounded to 5 s and measured at ≈ 0.3 s. The bundle served on :8060 right now is still untrimmed (`AppBundle/simulation/_framework/dotnet.boot.js`, 8 Oct 23:56, lists 175 assemblies); the trimmed worker csproj settings are in the working tree only.
+Calibration from the code and log: suite minus test sum is 4.6 s for every suite (launch, first load, close). 2b1 #1 and 2a1 #3–#5 give one `reload()` ≈ 1.25 s (≈ 0.85 s load + fixed 400 ms). 2a3 #1 gives `selectLevel` ≈ 1.15 s, of which 1.12 s is fixed sleep. 2a1 #2 measures exactly its two `toggleRun` sleeps (1.65 s).
 
-| Bucket | Estimate | Share | Nature |
+Static inventory: 15 launches, 65 reloads, 47 `selectLevel`, 156 `toggleRun` sites (232 executed with the two 20-iteration CCD loops), ≈ 370 `clickAt`, 53 drags, 31 save/load menu sequences.
+
+| Bucket | Seconds | Share | Nature |
 |---|---|---|---|
-| 58 cold page loads at ≈ 28–30 s (Godot 47 MB wasm + main `_framework` + 2 × 26.5 MB worker runtimes, 416 requests, ≈ 128 MB, no caching) | ≈ 1650 s | 82% | Stall mode; best case 3.5 s untrimmed, ≈ 1.4 s trimmed |
-| Real-time physics Runs (ball drops 1–4.2 s, 2 × 20 CCD iterations × 1.4 s, solve loops ≤ 8 s, settle 4.2 s × 3, negative controls 0.6–3 s) | ≈ 200 s | 10% | Irreducible while physics is wall-clock paced |
-| Fixed UI settles (`clickAt` 60 ms + 200–800 ms × ≈ 570 clicks, `waitForReady` +400 ms × 87, Escape +200/300 ms, 29 `selectLevel` worker recreations) | ≈ 130 s | 6% | Replaceable by condition waits |
-| Node/Playwright overhead, browser launch/close × 11 | ≈ 40 s | 2% | Negligible |
+| Real-time physics: solve waits, sampling windows, negative-control holds, 40 × 1.2 s CCD windows, CAT-014 rest windows | ≈ 300 | 41% | Floor, except duplicated and reach-a-state windows |
+| Fixed UI settles: `waitForReady` +400 ms × 127; `clickAt` 60 ms hold + 200–800 ms × ≈ 370; drags 0.6 s × 53; Escape 200/300 ms | ≈ 250 | 34% | Replaceable by condition waits |
+| `toggleRun` Reset/Run settles ≤ 900 ms, plus 70 ms key delay × 232 | ≈ 58 | 8% | Replaceable by pose-ring conditions |
+| Browser launch, first load, close (15 × 4.6 s, measured) | 69 | 9% | Structural |
+| Page reloads (65 × ≈ 0.85 s) | 55 | 8% | 15 are persistence criteria |
 
-Per full run the Preview server ships ≈ 7.4 GB over loopback.
+Findings that change the earlier plan:
+- **Level selection does not recreate the worker.** `SelectModeFromPicker` submits a new construction to the existing worker (`ui/WorkshopPuzzle.cs:12–55`), and `create()` refuses a second worker without a reload (`workshop-client.js:80`). The driver comment at `workshop-driver.ts:257` is therefore wrong. After `selectLevel`, the `waitForReady` predicate is already true, so only the fixed 400 ms covers the level submission. That is a latent race.
+- **Redundant calls.** 14 suites call `reload()` as the first action of test 1, right after `launch()` loaded a fresh page in a fresh profile. 13 `selectLevel('free_workshop')` calls follow a reload that already lands on the free workshop.
+- **Identical recipes across suites.** The "Exact Reset and Save/Load" action sequence is byte-identical apart from assertions in 2a3 #5, 2b1 #3, 2b2 #3, 2b3 #3, 2b4 #3 and 2c #3 (≈ 19.6 s each). The two-ramp solve is identical in 2a3 #4 and 2b1/2b2/2b3 #2 (9.5 s each). The 20-iteration CCD test is identical in 2a4 #2 and 2b3 #1 (36.7 s each).
+- **Server.** The server sends no `Cache-Control` and strips conditional headers. Subresources carry `Last-Modified`, so on a normal reload Chrome probably serves them from heuristic-fresh cache (with the wasm code cache). This is unverified. At ≈ 0.85 s per reload there is little left to gain.
 
-## 2. Ranked changes
+## 2. Headless Chrome
 
-| # | Change | Est. saving (serial) | Proof-validity risk | Where |
+- `channel: 'chrome', headless: true` on Chrome 154 is already the new headless mode (full Chrome; the old headless shell left the Chrome binary in M132).
+- Playwright already passes `--disable-background-timer-throttling`, `--disable-backgrounding-occluded-windows`, `--disable-renderer-backgrounding` and `--enable-unsafe-swiftshader`. The driver's extra arguments repeat them and are harmless.
+- **Do not add** `--disable-frame-rate-limit` or `--disable-gpu-vsync`. `admitDisplayRate` rejects a rAF cadence above 240 Hz (`workshop-client.js:55–76`), and an uncapped renderer would take CPU from the physics worker.
+- **Unknown:** whether headless WebGL on this Mac runs on Metal/ANGLE or on SwiftShader. Measure it once with `WEBGL_debug_renderer_info` before raising concurrency; SwiftShader would make rendering the main CPU cost per suite.
+- **Render resolution:** `project.godot` uses `stretch/mode="canvas_items"` on a 1440×900 base with `canvasResizePolicy: 2`. `deviceScaleFactor: 0.5` with an unchanged 1440×900 CSS viewport should keep every CSS anchor valid while quartering the pixel fill. It does not reduce serial time (rendering is not on the critical path); it only frees headroom for concurrency. Verify Godot's DPR and input mapping with one A/B probe.
+
+## 3. Ranked changes
+
+| # | Change | Est. serial saving | Proof risk | Type |
 |---|---|---|---|---|
-| 1 | **Remove the load stall.** (a) Publish the trimmed workers already configured in the working tree (`PublishTrimmed`/`TrimMode=full`, `InvariantGlobalization`, no symbols, `WasmDebugLevel 0`): ≈ 25 requests per worker instead of 184. (b) Fix `tools/Preview/Program.cs`: stop stripping `If-None-Match`/`If-Modified-Since` so reloads get 304s, add `Cache-Control: no-cache` (revalidate, never stale), serve the existing `.br` siblings with `Content-Encoding`. | 58 × (30 → ≈ 2–3 s) ≈ **1550 s** | None: production build unchanged; Preview headers are dev-loop only. Publication proof still runs against the deployed origin. Caveat: the stall cause was measured under contention; confirm with one uncontended timing after (a). | app-side build config (already in tree) + tools/Preview |
-| 2 | **Parallel suites.** Run `node --test --test-concurrency=3 tools/e2e/*.test.ts`. Each suite already owns its own Chrome instance (own user-data-dir, so IndexedDB `constructionDatabase` and the isolation service worker are per-browser); one preview server serves all. Headroom: a suite is ≈ 3 busy threads (Godot main, physics worker, animation worker) and ≈ 1.5 GB; three suites fit the 12 performance cores with margin. Observed load average was 5.8 with one suite plus tooling; the earlier "browser closed" 2c failure coincided with the research measurement running a second headless Chrome, so do not exceed 3–4. Docs (`architecture.md`, `autonomous-development-guide.md`, `prd.md`) say "serially" and need the same edit. | Wall time ÷ ≈ 2.5 on the non-load part | Medium: physics is wall-clock paced (REQ-03 ratio 0.99–1.01); CPU starvation turns real-time asserts flaky. Add a driver guard that asserts pose-ring tick advance ≈ 120 Hz over each sampled window, so contention fails loudly rather than silently. | test-only (invocation + docs) |
-| 3 | **Condition waits in the driver.** `waitForReady` +400 ms → wait two `requestAnimationFrame`s (Godot's first UI frame after overlay removal). `clickAt` 200–800 ms → one or two rAF (Godot consumes input per frame, ≈ 16 ms). `toggleRun(N)` after Run → wait until pose sequence advances and the sampled predicate holds; after Reset → wait until the ring stops advancing. Goal loops → resolve from the `CCGOAL_SOLVED` console listener instead of 300 ms polls. `readLatestPose` retry stays. | ≈ 100–130 s | Low: all waits are replaced by the signal they already approximate; the pose-ring parity (even = committed) remains the commit proof. Keep one extra frame of margin on level picker and connection panel (their rebuild spans frames). | driver-only |
-| 4 | **Drop `reload()` from non-persistence tests.** 36 of 47 reloads only produce a blank workbench; `selectLevel` already disposes/recreates the client and worker world. Keep both reloads in the 11 save/load tests (persistence across page lifetime is the criterion) and one explicit reload lifecycle check per suite. | ≈ 36 × (2–3 s) ≈ 80 s after #1 (≈ 1000 s today) | Low–medium: cross-test leakage of `capturedCount`, selection or dock state must be reset by the driver; verify `selectLevel` yields `bodyCount 0`. | test + driver |
-| 5 | **Early exit from fixed sampling windows** (`while (Date.now()-start < 2500)` loops, 2a2's `toggleRun(4200)` settle): exit once every predicate is satisfied; keep windows whose assertion is a min/max over the whole window (`minPy > 3.0`, "no sample for 600 ms"). | ≈ 20–30 s | None where the assertion is reach-a-state; keep whole-window assertions. | test-only |
-| 6 | Move `godot.wasm`/`.pck` `<link rel=preload>` behind isolation so the pre-isolation navigation does not fetch 47 MB twice (`research-wasm-load-time.md` #4). | ≈ 0.1 s × 58 loopback | None | app-side `index.html` |
-| 7 | Share one browser across suites via `--test-isolation=none` (Node 26 supports it). | ≈ 10 s | Conflicts with #2 (needs separate browsers) | not recommended |
+| 1 | Condition waits. `waitForReady`: drop the +400 ms and wait two rAF. After `selectLevel`, also wait for the pose ring to show the new construction. `clickAt`: one-frame hold, then two rAF. Placement: wait until the ring body count changes. Save: poll the `curious-contraptions-workshop` IndexedDB slot (a read-only observer). `toggleRun`: after Run, wait for an even sequence advance; after Reset, wait for the restored body set. Goal loops: resolve from the `CCGOAL_SOLVED` listener instead of 300 ms polling. | 150–200 s | Low. Each wait becomes the signal it approximated, and it also closes the `selectLevel` race. First confirm that Build mode publishes poses (2a1 #2 reads a zero-body slot, which suggests it does). | driver-only |
+| 2 | Consolidate the identical recipes into one test each that carries every slice ID and the union of assertions. | ≈ 160 s | Low technically: the same bundle running the same recipe adds only flake sampling. Needs an owner decision on per-ID traceability (preserve IDs and criteria). | test-only |
+| 3 | Delete the 14 first-test reloads and the 13 redundant free-workshop selections. | ≈ 30 s (≈ 20 s after #1) | None | test-only |
+| 4 | Early exit from reach-a-state windows: CCD iterations stop once the rebound is seen (the trough is already sampled); 2a2 settle stops after 300 ms in band with \|vy\| < 0.05. Keep whole-window assertions: "no sample for N s", rest drift, "never lights", through-pass. | 15–25 s | None/low | test-only |
+| 5 | `--test-concurrency=3`, with a driver guard that fails when committed-tick rate deviates from 120 Hz beyond REQ-03's 0.99–1.01 during any sampled window. Each suite already has its own browser profile, so IndexedDB is isolated. Spec 5.1 notes a host tick of ≈ 6 ms of 8.33 ms (≈ 0.7 core per physics worker); the earlier "browser closed" failure happened under contention. | Wall ÷ ≈ 2.7 (≈ 250 s today) | Medium. Mitigate with the guard, the renderer measurement, optionally #7, and no more than 3 suites at once. | harness config |
+| 6 | One Chrome via `launchServer`, each suite connecting with its own `newContext()` (storage, cache and service worker stay per suite). | 15–30 s | Low | harness + driver |
+| 7 | `deviceScaleFactor: 0.5` | ≈ 0 serial; headroom for #5 | Low–medium (screenshot resolution, DPR mapping) | driver-only |
+| 8 | Preview `Cache-Control: no-cache` with conditional requests allowed | ≈ 0, possibly slower | None; improves bundle-identity exactness if a republish happens mid-run | server |
+| — | Replace test-start reloads with `selectLevel` | ≈ 45 s | Medium. Body IDs grow across tests (`_nextId`), so asserted IDs (`id === 1`, `TILE_A`) shift, and the fresh-session start per test is lost. | not recommended |
 
-## 3. Simulation pacing
+## 4. Not allowed
 
-Not available and not allowed. `worker.js` steps at a fixed `dt = 1/480` driven by the qualified native clock (`performance.now`), and the UI exposes Run/Reset, Pause/Resume only. `docs/planning/requirements.md` §93: "Wall time is not simulated time. Do not change the timeout, disable goals, inject state or add a hidden benchmark mode"; REQ-03 treats synthetic cadence as proof of independence only; REQ-11 forbids setters. A fast-forward would be a hidden benchmark mode and would stop the evidence being actual real-time Chrome behaviour. What is allowed: waiting on the real event instead of a fixed horizon (#3, #5), and reading telemetry globals (`WorkshopPoseRing`, `WorkshopAnimation`), which are observers, not setters. The ≈ 200 s of real-time Runs is therefore the floor.
+- Fast-forwarding or accelerating physics: `requirements.md` §93 says "Wall time is not simulated time… do not add a hidden benchmark mode", and REQ-03 requires real-time pacing.
+- Setters, imported solutions or numeric placement menus (REQ-11, AGENTS.md).
+- Skipping UI construction or Save/Load through the real menu.
+- Mocking or replacing the worker, or using fake pages as primary proof.
+- Removing the 15 mid-test persistence reloads or the negative-control holds.
 
-## 4. Bundle and page load
+Reading `WorkshopPoseRing`, `WorkshopAnimation`, IndexedDB or the console is observation, not control, so condition waits are allowed.
 
-Cold load currently ≈ 28–30 s × 58 = ≈ 82% of the run. Measured best case on this origin is 3.5 s untrimmed (1.97 s download, 0.75 s Godot/.NET start, 0.3 s qualification); the trimmed-worker working tree is reported at ≈ 1.4 s. The Preview server sends no `Cache-Control`, strips conditional headers and never serves `.br`, so every reload re-downloads ≈ 128 MB: with 304s that is ≈ 2 s × 58 ≈ 115 s saved at best case and, more importantly, the request-queue stall class disappears. GitHub Pages (`max-age=600`, gzip only) is unaffected.
+## 5. Recommended first slice and target
 
-## 5. Flakiness-only waits and their deterministic replacement
+**Slice 1 (driver + trivial test edits):** #1 plus #3, and fix the stale `selectLevel` comment. Acceptance:
+- Two consecutive serial full runs, 54/54 pass each.
+- A per-test before/after duration table.
+- Existing reviewer mutants (`murdoch12/mut-zdrag.js`, `mut-minradius.js`) still fail their target suites.
+- One recorded headless renderer string.
 
-| Wait | Absorbs | Replace with |
-|---|---|---|
-| `waitForReady` +400 ms | Godot's first rendered frame after the overlay is removed | 2 × rAF, or first pose-ring slot readable |
-| `clickAt` post-delay 200–800 ms, Escape +200/300 ms | Godot input → UI tree rebuild (dock, picker, connection rows) | rAF wait; for the picker, `waitForReady` already follows |
-| `toggleRun(500)` after Reset | Worker retire + new world publish | Ring sequence stops advancing / `bodyCount` restored |
-| `toggleRun(100)` "second run" | First committed tick after Run | Sequence > previous, even parity |
-| `readLatestPose` 5 × 10 ms retries | Ring null right after worker recreation | Keep (already conditional) |
-| anim `waitForTimeout(600/700/3000)` | "no sample appears" negative controls | Inherently time-bounded; bound to the declared curve length |
+Expected: ≈ 731 → ≈ 520 s.
 
-A small telemetry-only app addition (read-only `WorkshopUi` global: current level, run state, selected part, part mode) would make every UI wait deterministic without touching REQ-11, since it exposes state and sets nothing.
+**Then:** #2 after the owner decides on traceability (→ ≈ 380 s), #4 (→ ≈ 365 s), then #5 with the cadence guard.
 
-## 6. Recommended target
-
-Serial after #1 and #3: ≈ 58 × 3 s + 29 × 1.5 s + 200 s physics + ≈ 30 s settles + 40 s overhead ≈ **8 min**; with #4 and #5 ≈ 6.5 min; with `--test-concurrency=3` **≈ 3–4 min wall**. Order: #1 first (it is already half done and removes 75% of the time with zero proof risk), then #3, then #2 with the cadence guard, then #4/#5. Re-time one suite uncontended after each step; the `murdoch2/e2e-anim-1b.log` standalone numbers (4.7 s for a reload + level + Run test) show the floor is already reachable on this machine.
+**Target:** under 6.5 min serial (≤ 8.5 min without consolidation), and under 2.5 min wall at `--test-concurrency=3`. The irreducible floor is the deduplicated real-time physics (≈ 190 s) plus loads (≈ 100 s).
