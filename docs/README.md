@@ -6,7 +6,7 @@ Start with [TODO](../TODO.md) for the current outcome, blocker and next acceptan
 
 | Authority | What it fixes |
 | --- | --- |
-| [Physics Architecture](gpu-f16-physics.md) | Canonical IEEE-754 f32 game values, the Tri-Graph architecture, dedicated WASM SIMD128 physics solver, the generic capability inventory, the solver model and the game-grade envelope |
+| [Physics Architecture](gpu-f32-physics.md) | Canonical IEEE-754 f32 game values, the Tri-Graph architecture, dedicated WASM SIMD128 physics solver, the generic capability inventory, the solver model and the game-grade envelope |
 | [Engine contracts](engine-contracts.md) | Ownership of the physics worker, the animation worker and the main-thread renderer; identity, protocol, lifecycle and clock rules |
 | [Delivery workflow](delivery-workflow.md) | Standing requirements REQ-01–14, playable-first precedence, paired independent review, stage gates and the release checklist |
 | [Ordered roadmap](planning/invest/vertical-delivery.md#rolling-playable-roadmap) | The programme: ENGINE-CORE-1, ENGINE-CORE-2, one element per slice, ANIM-1, LEGACY-0, ELEMENT-n, CAMPAIGN |
@@ -23,7 +23,7 @@ Start with [TODO](../TODO.md) for the current outcome, blocker and next acceptan
 | Controllers, sensors and presentation events (Delay, Hold timer, Clock, Counter, Latch, Basket, detectors) | [Simulation controls](simulation-controls.md) |
 | Release performance checklist and measurement protocol (P0-034) | [Performance checklist](browser-physics-performance.md) |
 | Forgiving/Balanced/Precise profiles and bounded author assistance | [Difficulty](difficulty.md) |
-| Generic contact/constraint geometry | [Solver model](gpu-f16-physics.md#solver-model), [hollow geometry](hollow-geometry-design.md) |
+| Generic contact/constraint geometry | [Solver model](gpu-f32-physics.md#solver-model), [hollow geometry](hollow-geometry-design.md) |
 | How the general engines execute each capability family | [Execution design](general-engine-design.md), [source composition map](planning/general-engine-element-map.md), [capability requirements](general-physics-capability-audit.md) |
 | Every stable requirement, named element/mode and teaching outcome | [Requirements](planning/requirements.md) |
 | One bounded executable scope and genuine prerequisites | [INVEST index](planning/invest-index.md), [named elements](planning/invest/named-elements.md), [roadmap](planning/invest/vertical-delivery.md) |

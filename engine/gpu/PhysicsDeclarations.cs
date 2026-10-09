@@ -12,6 +12,9 @@ public readonly record struct GpuMaterialId(ulong Value);
 public readonly record struct GpuSensorId(ulong Value);
 public readonly record struct GpuForceId(ulong Value);
 public readonly record struct FrictionCoefficient(Half Value);
+/// <summary>Dimensionless rolling-resistance coefficient Crr: at every sphere contact the solver opposes the relative rolling with an
+/// angular impulse of at most Crr · normal impulse · sphere radius, equal and opposite on both bodies.</summary>
+public readonly record struct RollingResistance(Half Value);
 public readonly record struct LinearSpeed(Half Value);
 public readonly record struct DurationSeconds(Half Value);
 public readonly record struct MetreVector(Half X, Half Y, Half Z);
@@ -29,7 +32,8 @@ public readonly record struct RigidLocalPose(MetreVector Translation, CanonicalR
 
 /// <summary>Canonical physical parameters. No catalogue identity selects a material law.</summary>
 public readonly record struct ContactMaterialDeclaration(
-    GpuMaterialId Id, Restitution Restitution, LinearSpeed BounceThreshold, FrictionCoefficient Friction)
+    GpuMaterialId Id, Restitution Restitution, LinearSpeed BounceThreshold, FrictionCoefficient Friction,
+    RollingResistance RollingResistance)
 {
     public void Validate()
     {
@@ -37,6 +41,7 @@ public readonly record struct ContactMaterialDeclaration(
         PhysicsDeclarationBounds.Range(Restitution.Value, (Half)0, (Half)1);
         PhysicsDeclarationBounds.Range(BounceThreshold.Value, (Half)0, (Half)64);
         PhysicsDeclarationBounds.Range(Friction.Value, (Half)0, (Half)1);
+        PhysicsDeclarationBounds.Range(RollingResistance.Value, (Half)0, (Half)0.1);
     }
 }
 

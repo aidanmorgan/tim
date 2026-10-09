@@ -52,6 +52,7 @@
         <Compile Include="WorkshopDelayTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />
         <Compile Include="WorkshopDominoTests.cs" />
+        <Compile Include="WorkshopBowlingTests.cs" />
         <Compile Include="OrientationSensorTests.cs" />
         <Compile Include="DominoEffectTests.cs" />
         <Compile Include="WorkbenchCapacityTests.cs" />

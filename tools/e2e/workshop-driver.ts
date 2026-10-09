@@ -70,6 +70,7 @@ const UI_ANCHORS = {
         delay: { x: 130, y: 390 },
         bumper: { x: 130, y: 450 },
         domino: { x: 130, y: 562 },
+        bowling: { x: 130, y: 612 },
         ramp: { x: 130, y: 155 },
     },
     picker: {
@@ -87,12 +88,12 @@ const UI_ANCHORS = {
         resume: { x: 1130, y: 240 },
     },
     dock: {
-        // Free workshop lists nine unlimited rows (Ramp, then Domino appended last), so its part dock sits one row lower than the eight-row layout.
+        // Free workshop lists ten unlimited rows (Ramp, Domino, then Bowling ball appended last), so its part dock sits one row (51 px) lower than the nine-row layout.
         free_workshop: {
-            move: { x: 60, y: 656 },
-            rotate: { x: 104, y: 656 },
-            resize: { x: 148, y: 656 },
-            delete: { x: 192, y: 656 },
+            move: { x: 60, y: 707 },
+            rotate: { x: 104, y: 707 },
+            resize: { x: 148, y: 707 },
+            delete: { x: 192, y: 707 },
         },
         first_principles: {
             move: { x: 40, y: 275 },
@@ -118,16 +119,16 @@ const UI_ANCHORS = {
     // Activation wiring buttons rendered by ui/WorkshopConnections.cs inside the parts panel (Godot canvas).
     connections: {
         // "Connect ActivationOut" row: a locked level part shows no configuration rows above it; a Delay shows its duration row first;
-        // a Domino in the nine-row free workshop lists it under the palette.
+        // a Domino in the ten-row free workshop lists it under the palette.
         connect: {
             locked: { x: 133, y: 236 },
             delay: { x: 133, y: 277 },
-            domino: { x: 133, y: 644 },
+            domino: { x: 133, y: 695 },
         },
         // "ActivationOut → ActivationIn" choice offered after clicking the target part: the row takes the connect row's place.
         choice: {
             authored: { x: 133, y: 232 },
-            free_workshop: { x: 133, y: 644 },
+            free_workshop: { x: 133, y: 695 },
         },
     },
     // "Show hint" lightbulb button inside the objective panel (ui/Workshop.cs ShowHint); the panel height follows the task text.
@@ -234,7 +235,9 @@ export class WorkshopDriver {
     }
 
     // High-level UI operations (encapsulating all UI button locations)
-    async selectTool(kind: 'basketball' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver' | 'domino'): Promise<void> {
+    async selectTool(kind: 'basketball' | 'bowling' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver' | 'domino'): Promise<void> {
+        // The Bowling ball row exists only in the free-workshop palette; no authored level offers it.
+        if (kind === 'bowling' && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer the Bowling ball`);
         let anchor: { x: number; y: number } = UI_ANCHORS.palette[kind];
         if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino')) {
             anchor = { x: 130, y: 155 }; // the authored inventory's single palette row

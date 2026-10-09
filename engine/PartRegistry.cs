@@ -11,11 +11,8 @@ public sealed class PartRegistry
     public void Discover()
     {
         // Named content boundary: unsupported scene scripts are neither loaded nor shipped.
-        var ball = ResourceLoader.Load<PartDefinition>("res://parts/catalog/ball.tres");
-        if (ball is null || ball.Scene is null || ball.WorkshopKind != WorkshopPartKind.Basketball ||
-            ball.Basketball is null || ball.Parameters.Count != 0)
-            throw new ArgumentException("Canonical Basketball resource is invalid.");
-        ball.Basketball.Capture();
+        var ball = LoadBall("res://parts/catalog/ball.tres", WorkshopPartKind.Basketball);
+        var bowling = LoadBall("res://parts/catalog/bowling.tres", WorkshopPartKind.BowlingBall);
         var receiver = ResourceLoader.Load<PartDefinition>("res://parts/catalog/basket.tres");
         if (receiver is null || receiver.Scene is null || receiver.WorkshopKind != WorkshopPartKind.Receiver || receiver.Parameters.Count != 0)
             throw new ArgumentException("Canonical Receiver resource is invalid.");
@@ -54,10 +51,20 @@ public sealed class PartRegistry
         _definitions.Add(WorkshopPartKind.Delay, delay);
         _definitions.Add(WorkshopPartKind.PinballBumper, bumper);
         _definitions.Add(WorkshopPartKind.Domino, domino);
+        _definitions.Add(WorkshopPartKind.BowlingBall, bowling);
+    }
+    /// <summary>Every ball kind ships as the same typed material resource; its bits must equal the declared material of that kind.</summary>
+    private static PartDefinition LoadBall(string path, WorkshopPartKind kind)
+    {
+        var definition = ResourceLoader.Load<PartDefinition>(path);
+        if (definition is null || definition.Scene is null || definition.WorkshopKind != kind || definition.Ball is null || definition.Parameters.Count != 0)
+            throw new ArgumentException("Canonical ball resource is invalid.");
+        definition.Ball.Capture(kind);
+        return definition;
     }
     public MachinePart Create(WorkshopPartKind kind)
     {
-        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino) || !_definitions.TryGetValue(kind, out var definition))
+        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino) || !_definitions.TryGetValue(kind, out var definition))
             throw new ArgumentException("This catalogue part is not supported by the current GPU Workshop.");
         var part = definition.Scene.Instantiate<MachinePart>();
         try { part.Configure(definition); return part; }

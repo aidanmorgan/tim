@@ -1,6 +1,6 @@
 # TIM research and current game interpretation
 
-This research records reference observations, provenance and unresolved fidelity questions. The current architecture compiles the player's construction at Run into one typed state advanced by one generic [WASM SIMD128 f32 solver with typed canonical f32 game values](gpu-f16-physics.md#compilation-model), with a separate animation engine; intended behavior and current acceptance live in [requirements](planning/requirements.md). Reference algorithms and original-game constants are not instructions to maintain a second solver.
+This research records reference observations, provenance and unresolved fidelity questions. The current architecture compiles the player's construction at Run into one typed state advanced by one generic [WASM SIMD128 f32 solver with typed canonical f32 game values](gpu-f32-physics.md#compilation-model), with a separate animation engine; intended behavior and current acceptance live in [requirements](planning/requirements.md). Reference algorithms and original-game constants are not instructions to maintain a second solver.
 
 ## Adopted light and rope behavior
 

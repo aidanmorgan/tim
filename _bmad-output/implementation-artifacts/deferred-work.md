@@ -2,7 +2,7 @@
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-5-1-dynamic-box-rigid-body-upright-stability.md`
   summary: Apply the declared LinearDrag (body record byte 66) in the physics worker (own slice); balls currently roll without decay because the 0.95 resting-damping hack was deleted and the worker never read the drag.
-  evidence: worker.js reads mass/gravity/COM/inertia but not offset 66; Basketball declares drag .04 1/s; ENGINE-CORE/ANIM suites pass without it (cumulative 46/46).
+  evidence: worker.js reads mass/gravity/COM/inertia but not offset 66; Basketball declares drag .04 1/s; ENGINE-CORE/ANIM suites pass without it (cumulative 46/46). RESOLVED by Story 6.1b (ENGINE-DRAG, `spec-6-1b-engine-drag-application.md`): the worker applies body record +66 as an exact per-substep decay after gravity, and declared ball rolling resistance (material record +14) stops rolling at every sphere contact.
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-2-mechanical-cosmetic-bindings.md`
   summary: ControlHint throws "An animation control is pending" when the single animation lease is busy (hint button, guidance visibility).
@@ -76,3 +76,25 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-5-2-domino-cascade-orientation-threshold-sensor.md`
   summary: worker.js supportContact resolves exactly parallel support edges to an endpoint; node-cost rule duplicated in WorkshopActivationCompiler and WorkbenchCapacity.ValidateConnected; per-sensor linear body search per substep; clip-id uniqueness has no observing test.
   evidence: Murdoch F2 (finite, non-launching), blind hunter, verification-gap; quality/performance gate items.
+- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-bowling-ball-dynamic-sphere.md`
+  summary: Apply the declared LinearDrag (body record byte 66, Basketball and Bowling ball 0.04 1/s) in the physics worker. Required before CAT-014's "both balls rest without jitter" acceptance can hold; today struck balls keep rolling (the two-lane e2e asserts vertical rest and lane containment, not a stop).
+  evidence: harness two-lane fact shows both balls rolling at 0.6–0.8 m/s after 5 s; Story 6.1 Never: drag application. destination: roadmap slice ENGINE-DRAG (vertical-delivery ordered-roadmap note), immediately after CAT-014. RESOLVED by Story 6.1b (ENGINE-DRAG): linear drag plus declared rolling resistance (Basketball 0.035, Bowling ball 0.03); the harness two-lane fact and `cat-014` tests 1 and 4 assert both balls below 0.02 m/s from 6 s and under 1 mm of movement over the following second.
+- source_spec: `_bmad-output/implementation-artifacts/spec-6-1b-engine-drag-application.md`
+  summary: Rolling resistance is scoped to static supports (a dynamic body against a static one) to preserve the marginal CAT-014 Domino outcome. A ball rolling across a dynamic body (for example a lying Domino) is not decelerated by its coefficient while on it.
+  evidence: in the two-lane strike the Bowling ball rolls over the tile's top edge for about 0.26 s; with the row applied between the two dynamic bodies, that support phase alone (not the impact substeps) turns the marginal Bowling-lane topple (90°) into a rock (about 11°; harness sweep 10.6°). RESOLVED by the owner decision of 9 Oct 2026 (spec 6.1b Spec Change Log): rolling resistance acts at every sphere contact with the reaction on the partner, the Bowling ball became 0.28 m / 4 kg, and the unchanged two-lane geometry still separates the kinds (Basketball lane 3.5–9°, Bowling lane 90° for release centres 0.8–1.4 m; harness fact "ball rolling on a dynamic box slab" pins the every-contact row).
+- source_spec: `_bmad-output/implementation-artifacts/spec-6-1b-engine-drag-application.md`
+  summary: Declared linear drag 0.04 1/s alone is below the committed binary16 velocity resolution in free flight: its per-tick decrement (0.017% at 240 Hz) rounds back at 240 Hz and at most magnitudes at 120 Hz, so a flying ball keeps its horizontal speed. On the bench the rolling-resistance decrement carries it.
+  evidence: harness drag fact needs the 0.125 1/s bound to survive every cadence (0.05% per 240 Hz tick); docs/gpu-f32-physics.md game-grade envelope "Committed Velocity Resolution". destination: Story 6.1c ENGINE-F32-VELOCITY (f32 committed velocity; owner decision 9 Oct 2026).
+- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-bowling-ball-dynamic-sphere.md`
+  summary: CAT-014 "Domino/lever loading against a matched Basketball control" — the lever half is unproven because the Impact lever is not admitted.
+  evidence: requirements CAT-014; Story 6.1 proves only Domino loading. destination: the ELEMENT-n slice for CAT-034 Impact lever (vertical-delivery ordered roadmap), which must add the Bowling vs Basketball lever-loading control.
+- source_spec: `_bmad-output/implementation-artifacts/spec-6-1-bowling-ball-dynamic-sphere.md`
+  summary: Domino offset centre of mass (CAT-023 requirement) re-deferred explicitly as a Domino item; CAT-014 ships homogeneous spheres only.
+  evidence: Story 6.1 Never: offset centre of mass; requirements CAT-023 delivery notes. destination: roadmap slice CAT-023c (vertical-delivery ordered-roadmap note), a CAT-023 follow-up row.
+- source_spec: `_bmad-output/implementation-artifacts/spec-6-1b-engine-drag-application.md`
+  summary: Rolling-resistance details unpinned or approximate: larger-of-pair radius and Crr rules have no mutation-killing test; per-axis diagonal angular masses (no 2x2 block) against anisotropic dynamic boxes; row order vs normal rows unobservable; rolling torque on speculative (not yet touching) contacts; no re-clamp after the restitution pass; worker has no guard for negative/NaN Crr (host admission validates); e2e rest window measured by wall clock not committed ticks.
+  evidence: Murdoch pass 3 L1; verification-gap, edge-case and blind-hunter pass 2. destination: physics quality pass with Story 6.1c or the Epic 16 qualification gate.
+- source_spec: `_bmad-output/implementation-artifacts/spec-6-1b-engine-drag-application.md`
+  summary: docs/gpu-f32-physics.md:12 says in the present tense that the solver is implemented in C# compiled to WebAssembly.
+  evidence: Murdoch pass 3 L3 (pre-existing). destination: Story 6.1c docs update.
+

@@ -1,6 +1,6 @@
 # Corrected aggregate and uncertainty scopes
 
-This is a current clarification under existing owner IDs, not a new work queue. The [roadmap](vertical-delivery.md#rolling-playable-roadmap) supplies the order; [TODO](../../../TODO.md) owns live status. Every decision below is settled by building the named construction in Chrome through real controls and observing the player-visible outcome at puzzle scale within the [game-grade envelope](../../gpu-f16-physics.md#game-grade-envelope); it stops with the adopted rule or an explicit unresolved result, which is not a runtime Pass. The named next implementation adds declaration data plus at most one generic capability to the single solver or the separate animation model ([engine contracts](../../engine-contracts.md#general-data-driven-engines)), inherits its source's positive/control/boundary proof, exact Reset/save and production build, and names the legacy it deletes. No conditional candidate becomes mandatory by appearing here.
+This is a current clarification under existing owner IDs, not a new work queue. The [roadmap](vertical-delivery.md#rolling-playable-roadmap) supplies the order; [TODO](../../../TODO.md) owns live status. Every decision below is settled by building the named construction in Chrome through real controls and observing the player-visible outcome at puzzle scale within the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope); it stops with the adopted rule or an explicit unresolved result, which is not a runtime Pass. The named next implementation adds declaration data plus at most one generic capability to the single solver or the separate animation model ([engine contracts](../../engine-contracts.md#general-data-driven-engines)), inherits its source's positive/control/boundary proof, exact Reset/save and production build, and names the legacy it deletes. No conditional candidate becomes mandatory by appearing here.
 
 <a id="s347"></a>
 ### S347 · Design decision before gear implementation
@@ -75,7 +75,7 @@ Children: S652 perception/pursuit and S653 avoidance, with the S635 controller q
 <a id="engine-ledger"></a>
 ### ENGINE-LEDGER · Aggregate supporting invariants
 
-No free energy is the player-observable ledger: a resting body never starts moving, each bounce is lower, a paid element never fires unpaid ([envelope](../../gpu-f16-physics.md#game-grade-envelope)). Remaining finite dimensions (granular count S639, reaction species S554, latent enthalpy S547/S548, stored/supplied work at their law owners) arrive with the element that first needs them; no all-ledger prerequisite.
+No free energy is the player-observable ledger: a resting body never starts moving, each bounce is lower, a paid element never fires unpaid ([envelope](../../gpu-f32-physics.md#game-grade-envelope)). Remaining finite dimensions (granular count S639, reaction species S554, latent enthalpy S547/S548, stored/supplied work at their law owners) arrive with the element that first needs them; no all-ledger prerequisite.
 
 <a id="engine-topology"></a>
 ### ENGINE-TOPOLOGY · Aggregate supporting invariants

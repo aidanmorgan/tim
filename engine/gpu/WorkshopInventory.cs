@@ -46,7 +46,7 @@ public sealed class PartInventory : IReadOnlyDictionary<WorkshopPartKind, PartAl
 /// <summary>Palette inventory per mode, in palette row order. Free play lists every playable kind without a count.</summary>
 public static class WorkshopInventoryPolicy
 {
-    // Row order is part of the UI contract (e2e palette anchors): existing rows keep their place and Ramp is the appended last row.
+    // Row order is part of the UI contract (e2e palette anchors): existing rows keep their place; each new kind is appended as the last row.
     public static IReadOnlyDictionary<WorkshopPartKind, PartAllowance> Free { get; } = new PartInventory(
         (WorkshopPartKind.Basketball, PartAllowance.Unlimited),
         (WorkshopPartKind.Receiver, PartAllowance.Unlimited),
@@ -56,7 +56,8 @@ public static class WorkshopInventoryPolicy
         (WorkshopPartKind.Delay, PartAllowance.Unlimited),
         (WorkshopPartKind.PinballBumper, PartAllowance.Unlimited),
         (WorkshopPartKind.Ramp, PartAllowance.Unlimited),
-        (WorkshopPartKind.Domino, PartAllowance.Unlimited));
+        (WorkshopPartKind.Domino, PartAllowance.Unlimited),
+        (WorkshopPartKind.BowlingBall, PartAllowance.Unlimited));
 
     public static IReadOnlyDictionary<WorkshopPartKind, PartAllowance> Authored(WorkshopPuzzle puzzle)
     {

@@ -21,7 +21,7 @@ public static class WorkshopPorts
         WorkshopPartKind.SignalLamp => LampPorts,
         WorkshopPartKind.Delay => DelayPorts,
         WorkshopPartKind.Domino => DominoPorts,
-        WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall or WorkshopPartKind.PinballBumper => [],
+        WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall or WorkshopPartKind.PinballBumper => [],
         _ => throw new ArgumentException("Unsupported port owner.")
     };
     // A Domino signals only; it declares no activation input, so wiring into one is rejected at the port check.

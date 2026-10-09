@@ -24,7 +24,8 @@ public static class WorkshopPhysicsCompiler
         var height = WorkshopInput.Position((double)WorkshopConstruction.WorkbenchSurface.Value);
         bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0),
             new((Half)0, height.Local, (Half)0), CanonicalRotation.Identity, default, default, new((Half)0), default, new((Half)0)));
-        materials.Add(new(planeMaterial, new((Half)1), new((Half).1), new((Half).3)));
+        // Static surfaces and boxes declare zero rolling resistance; only a ball material carries a coefficient.
+        materials.Add(new(planeMaterial, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
         colliders.Add(new(new(InternalIdentityBase + 2), plane, planeMaterial,
             ColliderShapeKind.Plane, RigidLocalPose.Identity, new((Half)0), default));
         var next = InternalIdentityBase + 3;
@@ -35,7 +36,7 @@ public static class WorkshopPhysicsCompiler
             bodies.Add(new(ball.Id, RigidMotionKind.Dynamic, ball.Cell, ball.Local, ball.Rotation,
                 default, default, ball.Material.Mass,
                 new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), ball.Material.Drag));
-            materials.Add(new(material, ball.Material.Bounce, new((Half).1), new((Half).3)));
+            materials.Add(new(material, ball.Material.Bounce, ball.Material.BounceThreshold, ball.Material.Friction, ball.Material.Rolling));
             colliders.Add(new(new(first + 1), ball.Id, material, ColliderShapeKind.Sphere,
                 RigidLocalPose.Identity, ball.Material.Radius, default));
         }
@@ -46,7 +47,7 @@ public static class WorkshopPhysicsCompiler
             bodies.Add(new(domino.Id, RigidMotionKind.Dynamic, domino.Cell, domino.Local, domino.Rotation,
                 default, default, domino.Material.Mass,
                 new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new((Half)0)));
-            materials.Add(new(material, domino.Material.Bounce, DominoMaterial.BounceThreshold, domino.Material.Friction));
+            materials.Add(new(material, domino.Material.Bounce, DominoMaterial.BounceThreshold, domino.Material.Friction, new((Half)0)));
             colliders.Add(new(new(first + 1), domino.Id, material, ColliderShapeKind.Box,
                 RigidLocalPose.Identity, new((Half)0), domino.Material.HalfExtents));
             // The sensor exists only for a wired tile; its initial pose is the admitted placement, so Reset rearms it.
@@ -59,7 +60,7 @@ public static class WorkshopPhysicsCompiler
             var material = new GpuMaterialId(first);
             bodies.Add(new(receiver.Id, RigidMotionKind.Static, receiver.Cell, receiver.Local, receiver.Rotation,
                 default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half).12), new((Half).1), new((Half).3)));
+            materials.Add(new(material, new((Half).12), new((Half).1), new((Half).3), new((Half)0)));
             var walls = ReceiverGeometry.Walls;
             for (var i = 0; i < walls.Length; i++) AddBox(first + 1 + (ulong)i, walls[i].Centre, walls[i].HalfExtents);
             var targetIndex = 0UL;
@@ -86,7 +87,7 @@ public static class WorkshopPhysicsCompiler
             var material = new GpuMaterialId(first);
             bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
                 default, default, new((Half)0), default, new((Half)0)));
-            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3)));
+            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
             var halfExtents = instance switch
             {
                 WorkshopRamp ramp => new MetreVector((Half)(ramp.Dimensions.Length.Value * (Half).5),
@@ -106,7 +107,7 @@ public static class WorkshopPhysicsCompiler
             bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
                 default, default, new((Half)0), default, new((Half)0)));
             // Source MachinePart.InitialContactMaterial: all these static surfaces use (1,.1,.3).
-            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3)));
+            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
             if (instance is WorkshopSwitch trigger)
             {
                 AddStaticBox(first + 1, new((Half)0, (Half)(-.15), (Half)0), new((Half).55, (Half).125, (Half).5));

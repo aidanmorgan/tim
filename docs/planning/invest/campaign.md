@@ -1,7 +1,7 @@
 # 150 level scopes and 1800 retained placement cells
 
 Navigation and preservation ledger only: every LEVEL/MATRIX identity, level name and reservation is kept; the entries do not define the system.
-Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f16-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
+Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
 Where an entry's wording prescribes an obsolete mechanism, ordering or tolerance, those authorities govern; the level ID, acceptance and evidence links remain required.
 
 Current staging: each LEVEL freezes only its own chapter/reservations, typed brief and genuinely taught/implemented prerequisites before its playable change, in the roadmap's CAMPAIGN slices (10 levels each) after LEGACY-0 and required component coverage; P0-035 is the release-checklist gate enforced there, not a per-level prerequisite. S793/S794/S797 are final all150 conjunctions, not prerequisites to every individual level. No code is authorized by this plan. Exact reservations and human teaching/150×3×4 qualification remain unchanged.

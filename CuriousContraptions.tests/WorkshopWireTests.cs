@@ -329,7 +329,7 @@ public sealed class WorkshopWireTests
 
     private static PhysicsBodyReadSet Bodies(CanonicalBody body) =>
         new(new[] { new PhysicsBodyRead(body, CanonicalRotation.Identity, default, default) });
-    private static WorkshopBall OnlyBasketball(WorkshopConstruction construction) =>
+    private static WorkshopBall OnlyBall(WorkshopConstruction construction) =>
         construction.Instances.OfType<WorkshopBall>().Single();
     private static PhysicsBodyRead NamedBody(byte[] bytes, GpuBodyId id)
     {
@@ -514,8 +514,8 @@ public sealed class WorkshopWireTests
     public void RejectedConstructionReadValidatesAgainstCurrentAdmittedPose()
     {
         // This is an admitted-world check; the shared codec fixture deliberately uses a wider ID domain.
-        var current = Construction with { Instances = new(OnlyBasketball(Construction) with { Id = new(1) }) };
-        var ball = OnlyBasketball(current);
+        var current = Construction with { Instances = new(OnlyBall(Construction) with { Id = new(1) }) };
+        var ball = OnlyBall(current);
         var read = Stamped(new(new(1), new(0), Bodies(new CanonicalBody(ball.Id, 1, 0, ball.Cell, ball.Local, default))));
         var proposed = current.WithInstance(ball with { Cell = new(32, 64, 0) }) with { Revision = new(3) };
         var currentScene = WorkshopPhysicsCompiler.Compile(current, new(Session.Low, Session.High));
@@ -634,13 +634,13 @@ public sealed class WorkshopWireTests
     [Fact]
     public void CanonicalConstructionWireRetainsEveryBitAndWideIdentity()
     {
-        var ball = OnlyBasketball(Construction) with
+        var ball = OnlyBall(Construction) with
         {
             Local = new(BitConverter.UInt16BitsToHalf(0x8000), (Half)0.25, (Half)0),
             Rotation = new(BitConverter.UInt16BitsToHalf(0x8000), (Half)0, (Half)0, (Half)1)
         };
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
-            new(0x30000000000001), new(1), Construction.WithoutInstance(OnlyBasketball(Construction).Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
+            new(0x30000000000001), new(1), Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(command);
         Assert.Equal(bytes, WorkshopWire.Encode(WorkshopWire.DecodeCommand(bytes)));
     }
@@ -660,14 +660,14 @@ public sealed class WorkshopWireTests
 
 
     private static PhysicsSceneDeclaration GenericScene => WorkshopPhysicsCompiler.Compile(
-        Construction.WithoutInstance(OnlyBasketball(Construction).Id).WithInstance(OnlyBasketball(Construction) with { Id = new(1) }), new(101, 206));
+        Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(OnlyBall(Construction) with { Id = new(1) }), new(101, 206));
     [Fact]
     public void AuthoredCompilerRejectsWideBodyIdentityWithoutChangingWireIdentityDomain()
     {
         Assert.Throws<ArgumentException>(() => WorkshopPhysicsCompiler.Compile(Construction, new(101, 206)));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Construction, Session: Session, Cadence: new(1), Projection: new(1));
-        Assert.Equal(OnlyBasketball(Construction).Id, OnlyBasketball(WorkshopWire.DecodeCommand(WorkshopWire.Encode(command)).Construction!.Value).Id);
+        Assert.Equal(OnlyBall(Construction).Id, OnlyBall(WorkshopWire.DecodeCommand(WorkshopWire.Encode(command)).Construction!.Value).Id);
     }
 
     private static byte[] GenericAdmission() => PhysicsGpuAbi.Admission(GenericScene, new(2), Profile);
@@ -690,8 +690,8 @@ public sealed class WorkshopWireTests
         var bytes = GenericAdmission();
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
         var body = NamedBody(bytes, new(1));
-        Assert.Equal(OnlyBasketball(Construction).Cell, body.Body.Cell);
-        Assert.Equal(OnlyBasketball(Construction).Rotation, body.Rotation);
+        Assert.Equal(OnlyBall(Construction).Cell, body.Body.Cell);
+        Assert.Equal(OnlyBall(Construction).Rotation, body.Rotation);
         Assert.Equal(Profile, PhysicsGpuAbi.ReadProfile(bytes));
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(bytes));
         Assert.Equal(0, PhysicsMotionRead.Decode(bytes.AsSpan(PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.ByteLength), new(new[] { body }), new(0)).Count);
@@ -996,7 +996,7 @@ public sealed class WorkshopWireTests
         Assert.Same(first, duplicate);
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(command with { Kind = WorkshopCommandKind.Run, Construction = null })));
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(command with { Epoch = new(2) })));
-        var different = command with { Construction = Construction.WithoutInstance(OnlyBasketball(Construction).Id) };
+        var different = command with { Construction = Construction.WithoutInstance(OnlyBall(Construction).Id) };
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(WorkshopWire.Encode(different)));
         bytes[16] ^= 1; // caller cannot change the retained identity after admission.
         await Assert.ThrowsAsync<ArgumentException>(() => router.Dispatch(bytes));

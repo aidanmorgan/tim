@@ -1,6 +1,6 @@
 # Heat capability family
 
-Heat is one capability family inside the generic WASM SIMD128 f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory), [general data-driven engines](engine-contracts.md#general-data-driven-engines)). It is added as generic records in the slice that first needs it; every one of the [37 thermal elements](planning/requirements.md#thermal-elements) (TH-01–TH-37) is declaration data over those records, the [43 generic interaction processes](planning/requirements.md#generic-interaction-register) are its laws, and the [14 interaction scenarios](planning/requirements.md#thermal-interaction-scenarios) and [campaign allocation](planning/requirements.md#thermal-campaign-allocation) are its teaching content. No source/target catalogue pair owns a physics rule: fire heating water, freezing water, focused-light ignition, steam driving a piston, a fan changing heat exchange and a bimetal strip closing a contact are all compositions of the same records.
+Heat is one capability family inside the generic WASM SIMD128 f32 solver ([capability inventory](gpu-f32-physics.md#capability-inventory), [general data-driven engines](engine-contracts.md#general-data-driven-engines)). It is added as generic records in the slice that first needs it; every one of the [37 thermal elements](planning/requirements.md#thermal-elements) (TH-01–TH-37) is declaration data over those records, the [43 generic interaction processes](planning/requirements.md#generic-interaction-register) are its laws, and the [14 interaction scenarios](planning/requirements.md#thermal-interaction-scenarios) and [campaign allocation](planning/requirements.md#thermal-campaign-allocation) are its teaching content. No source/target catalogue pair owns a physics rule: fire heating water, freezing water, focused-light ignition, steam driving a piston, a fan changing heat exchange and a bimetal strip closing a contact are all compositions of the same records.
 
 ## Capability family
 
@@ -17,7 +17,7 @@ Heat is one capability family inside the generic WASM SIMD128 f32 solver ([capab
 
 ### Laws at puzzle scale
 
-Each law is a shared process over declared records; the numbered sources below are evidence for the principle, not game constants. Values are clamp-or-continue under the [game-grade envelope](gpu-f16-physics.md#game-grade-envelope): a rounding residual in heat flow or phase fraction never faults a tick and never creates energy.
+Each law is a shared process over declared records; the numbered sources below are evidence for the principle, not game constants. Values are clamp-or-continue under the [game-grade envelope](gpu-f32-physics.md#game-grade-envelope): a rounding residual in heat flow or phase fraction never faults a tick and never creates energy.
 
 <a id="th-s01"></a>
 

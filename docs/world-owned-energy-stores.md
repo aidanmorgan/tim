@@ -1,6 +1,6 @@
 # Finite energy stores and latched springs
 
-Stores are the finite-store/source capability of the generic WASM SIMD128 f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory)): declared capacity, charge/discharge law and depletion, with no free energy ([envelope](gpu-f16-physics.md#game-grade-envelope)). Battery CAT-005, Cannon CAT-016, Wound spring CAT-071 and every paid element declare a store; shared allocation considers all consumers of one store together. Design owners S019/S020; delivered as ELEMENT-n roadmap slices.
+Stores are the finite-store/source capability of the generic WASM SIMD128 f32 solver ([capability inventory](gpu-f32-physics.md#capability-inventory)): declared capacity, charge/discharge law and depletion, with no free energy ([envelope](gpu-f32-physics.md#game-grade-envelope)). Battery CAT-005, Cannon CAT-016, Wound spring CAT-071 and every paid element declare a store; shared allocation considers all consumers of one store together. Design owners S019/S020; delivered as ELEMENT-n roadmap slices.
 
 ## Reservoir declaration and behaviour
 

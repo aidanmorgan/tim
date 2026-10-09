@@ -62,8 +62,14 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
             if (this != default) throw new ArgumentException("Free Workshop has no authored puzzle settings.");
             return;
         }
+        // Authored puzzles name the Basketball kind explicitly; no other ball kind is offered or admitted.
         var ballCount = 0;
-        foreach (var instance in construction.Instances) if (instance is WorkshopBall) ballCount++;
+        foreach (var instance in construction.Instances)
+        {
+            if (instance is not WorkshopBall ball) continue;
+            if (ball.Kind != WorkshopPartKind.Basketball) throw new ArgumentException("Authored puzzles admit only their named Basketball.");
+            ballCount++;
+        }
         if (ballCount != 1) throw new ArgumentException("Authored puzzles require their one named Basketball.");
         Goal.Validate();
         if (Id == WorkshopPuzzleId.DelayedSignal) { DelayedSignal.Validate(this, construction); return; }

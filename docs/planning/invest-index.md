@@ -1,6 +1,6 @@
 # Execute the stack as small INVEST scopes
 
-**Current architecture:** [canonical IEEE-754 f32 game values and WASM SIMD physics](../gpu-f16-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](../../TODO.md).
+**Current architecture:** [canonical IEEE-754 f32 game values and WASM SIMD physics](../gpu-f32-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](../../TODO.md).
 
 Use this index to select the next bounded outcome. It does not mark game work complete or replace source acceptance. Search one canonical ID; read its card, exact source body and relevant technical predecessors. Do not load every appendix.
 

@@ -1,6 +1,6 @@
 # Visual design contract
 
-**Current architecture:** [Canonical IEEE-754 f32 game values and WASM SIMD physics](docs/gpu-f16-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](TODO.md).
+**Current architecture:** [Canonical IEEE-754 f32 game values and WASM SIMD physics](docs/gpu-f32-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](TODO.md).
 
 This is the intended **Curious Contraptions** visual and interaction contract, including the owner's **Monument Valley-inspired art direction**. Preserve the approved palette, readable mechanisms and contextual construction controls. The art direction takes precedence over older implementation form, while source-specific behavior and physical truth remain mandatory.
 
@@ -10,7 +10,7 @@ Use the [focused engineering rules](docs/delivery-workflow.md#focused-agentic-en
 
 ## Presentation and performance architecture — required target
 
-This is the required design, not a claim that the current implementation or browser performance is qualified. Three systems execute concurrently: the physics worker, the animation worker and the main-thread renderer, as fixed by the [compilation model](docs/gpu-f16-physics.md#compilation-model) and delivered in the [ordered roadmap](docs/planning/invest/vertical-delivery.md#rolling-playable-roadmap). The [simulation–presentation bridge](docs/simulation-presentation-bridge.md) defines ownership and transport; the [performance checklist](docs/browser-physics-performance.md) defines the release-checklist budgets. The mechanism requirements below describe intended presentation. Each admitted part requires current qualification.
+This is the required design, not a claim that the current implementation or browser performance is qualified. Three systems execute concurrently: the physics worker, the animation worker and the main-thread renderer, as fixed by the [compilation model](docs/gpu-f32-physics.md#compilation-model) and delivered in the [ordered roadmap](docs/planning/invest/vertical-delivery.md#rolling-playable-roadmap). The [simulation–presentation bridge](docs/simulation-presentation-bridge.md) defines ownership and transport; the [performance checklist](docs/browser-physics-performance.md) defines the release-checklist budgets. The mechanism requirements below describe intended presentation. Each admitted part requires current qualification.
 
 | Execution context | Exclusive responsibility | Clock |
 | --- | --- | --- |
@@ -265,7 +265,7 @@ Motion explains what the contraption does. Preserve fluid mechanical readability
 
 Required mechanism presentation:
 
-Physical algorithms and model coverage come from the named [source requirements](docs/planning/requirements.md) under [canonical IEEE-754 f32 and WASM SIMD authority](docs/gpu-f16-physics.md).
+Physical algorithms and model coverage come from the named [source requirements](docs/planning/requirements.md) under [canonical IEEE-754 f32 and WASM SIMD authority](docs/gpu-f32-physics.md).
 
 | Element | Required behaviour |
 | --- | --- |

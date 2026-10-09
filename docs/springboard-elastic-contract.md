@@ -1,6 +1,6 @@
 # Springboard (CAT-062 · EL-194)
 
-The Springboard is declaration data over the generic capabilities of the single WASM SIMD128 f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory)); the roadmap slice [CAT-062](planning/invest/vertical-delivery.md#rolling-playable-roadmap) adds the generic elastic spring constraint it first needs (also serving Trampoline CAT-065) and deletes parts/SpringPart.cs physics. PERF-24 applies: no catalogue-specific solver, no target-velocity launch and no impact-energy injection. The Trampoline's massless contact patches are a different declaration.
+The Springboard is declaration data over the generic capabilities of the single WASM SIMD128 f32 solver ([capability inventory](gpu-f32-physics.md#capability-inventory)); the roadmap slice [CAT-062](planning/invest/vertical-delivery.md#rolling-playable-roadmap) adds the generic elastic spring constraint it first needs (also serving Trampoline CAT-065) and deletes parts/SpringPart.cs physics. PERF-24 applies: no catalogue-specific solver, no target-velocity launch and no impact-energy injection. The Trampoline's massless contact patches are a different declaration.
 
 ## Declaration data
 
@@ -21,7 +21,7 @@ Units are SI (m, kg, s, N, J). The removed strength field and any out-of-range o
 - A payload loads an uncharged plate through contact and is returned its stored energy on rebound; damping and inelastic contact/stops dissipate energy. No powered recharge and no automatic launch.
 - A compressed empty plate may move but cannot transfer work to a payload that misses it.
 - The collider and the visible plate share one pose; decorative recoil never moves the functional plate. Authored construction assistance may do external work and is part of the energy balance.
-- No free energy ([envelope](gpu-f16-physics.md#game-grade-envelope)): a zero-gravity, zero-preload stationary assembly stays stationary; a second bounce apex is lower than the first.
+- No free energy ([envelope](gpu-f32-physics.md#game-grade-envelope)): a zero-gravity, zero-preload stationary assembly stays stationary; a second bounce apex is lower than the first.
 
 ## Chrome-observable acceptance (CAT-062)
 

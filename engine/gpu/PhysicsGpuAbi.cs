@@ -95,6 +95,7 @@ public static partial class PhysicsGpuAbi
             var material = scene.Materials[i]; var record = data.Slice(MaterialsOffset + i * MaterialBytes, MaterialBytes);
             U64(record, 0, material.Id.Value); H(record, 8, material.Restitution.Value);
             H(record, 10, material.BounceThreshold.Value); H(record, 12, material.Friction.Value);
+            H(record, 14, material.RollingResistance.Value);
         }
         for (var i = 0; i < scene.Sensors.Length; i++)
         {

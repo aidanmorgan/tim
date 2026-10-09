@@ -1,6 +1,6 @@
 # Current presentation bindings
 
-This is the binding contract between the separate animation worker, the physics worker's committed results and the main-thread renderer under [canonical IEEE-754 f32 game values and WASM SIMD physics](gpu-f16-physics.md#compilation-model) and the [engine contracts](engine-contracts.md#general-data-driven-engines). Every presentation property of every element has exactly one declared binding in that element's declaration data: either a committed physical pose/state read directly from physics (descriptors 6–8 below) or an animation sample produced by the shared evaluators in the animation worker from the declared feedback below. There are no per-element animation evaluators or update loops; a new element adds bindings, art and curve values only. Slice ANIM-1c deleted the last legacy evaluators (git history is their archive). Descriptor, feedback and event semantics below are binding; revised f32 ABI offsets and byte-length formulas belong to P0-016 before a variant is admitted. Explicit integers, identity tags and approved palette identities retain their correct types. Every numeric value/intermediate must satisfy the current admitted scale/range; platform widening is a declared adapter only.
+This is the binding contract between the separate animation worker, the physics worker's committed results and the main-thread renderer under [canonical IEEE-754 f32 game values and WASM SIMD physics](gpu-f32-physics.md#compilation-model) and the [engine contracts](engine-contracts.md#general-data-driven-engines). Every presentation property of every element has exactly one declared binding in that element's declaration data: either a committed physical pose/state read directly from physics (descriptors 6–8 below) or an animation sample produced by the shared evaluators in the animation worker from the declared feedback below. There are no per-element animation evaluators or update loops; a new element adds bindings, art and curve values only. Slice ANIM-1c deleted the last legacy evaluators (git history is their archive). Descriptor, feedback and event semantics below are binding; revised f32 ABI offsets and byte-length formulas belong to P0-016 before a variant is admitted. Explicit integers, identity tags and approved palette identities retain their correct types. Every numeric value/intermediate must satisfy the current admitted scale/range; platform widening is a declared adapter only.
 
 Registrations select reusable typed evaluator/feedback and final-writer capabilities. Descriptor and instance IDs identify bindings/state; they never select element-specific code. Class names in the feedback table name the retired consumers whose behaviour each declared kind carries; those classes were deleted in ANIM-1c and the names are historical traceability only, never a dispatch permission. Element-specific shapes, curves, colours and resources are declarative inputs to shared evaluators and adapters.
 
@@ -239,7 +239,7 @@ consumers together; no target/property-only sample path remains.
 Every currently playable animated part declares its cosmetic curve as typed data next to its physics
 record and nowhere else. `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.cs`) carries
 `Source` (`AnimationFeedbackSource`: None=0, Activation=1, Timer=2, ContactWork=3, Capture=4), `Curve`
-(`AnimationCurve`), `Duration` (Half seconds), `ImpulseCurve` (`AnimationImpulseCurve`) and `Overlap`
+(`AnimationCurve`), `Duration` (seconds; f32 contract, binary16 storage until migrated), `ImpulseCurve` (`AnimationImpulseCurve`) and `Overlap`
 (`AnimationImpulseOverlap`). `Validate` rejects unknown members and any field a source does not use.
 The per-part constants live in `CosmeticCurves`: ImpactSwitch and SignalLamp (Activation, SmoothStep,
 0.16 s), Delay (Timer, Linear; the duration is the committed Started..Due interval), PinballBumper
@@ -304,6 +304,8 @@ Animation channel ABI, Version 5 (`WorkshopAnimationWire`; little-endian; both r
 | 132–143 | zero padding U16 (132), U16 (134), U64 (136) | PulseDuration Half (132, impulse only), zero padding U16 (134), U64 (136) |
 
 Readers reject any non-zero padding, a wrong Version, undefined enum members, an impulse envelope on a non-impulse control, and a PulseDuration outside (0, 30] or carried without a ColourBlend world target or alongside a timer observation.
+
+The `Half` lanes above record the current binary16 implementation layout, not the numeric contract: these values are f32 game values and the layout changes when they migrate ([f32 migration status](gpu-f32-physics.md#f32-migration-status)).
 
 Impulse overlap is worker-owned: the first Impulse control for a target registers one
 `AnimationImpulseDefinition` from the declared envelope (`WorkshopAnimationWire.ImpulseCapacity`

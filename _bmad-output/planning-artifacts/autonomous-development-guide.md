@@ -126,7 +126,7 @@ sequenceDiagram
 4. Update story status to `in-progress`.
 
 ### Phase 2: Architectural Contract & Deletion Manifest
-1. Review `_bmad-output/planning-artifacts/architecture.md` and `docs/gpu-f16-physics.md`.
+1. Review `_bmad-output/planning-artifacts/architecture.md` and `docs/gpu-f32-physics.md`.
 2. Formulate the mathematical and architectural invariants for this slice:
    - What data declaration is being added?
    - What equation or constraint formulation is being added/updated?

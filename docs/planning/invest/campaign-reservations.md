@@ -1,7 +1,7 @@
 # Chapter and exact-slot decision inputs
 
 Navigation and preservation ledger only: chapter and slot reservations are kept exactly; they do not define the system.
-Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f16-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
+Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
 Levels are authored in the roadmap's CAMPAIGN slices toward 150 progressively taught levels plus an unlimited free-play workshop; a reservation never prescribes a mechanism inside the solver or the animation engine.
 
 This is a navigation view of existing authoritative reservations, not a new allocation or proof of teachability. Proposed, optional and conditional wording remains unchanged; a numeric mention does not silently adopt an optional mode. Natural-language chapter references are not converted to level numbers. Each LEVEL chooses within its linked chapter and exact named reservations; no reserved child silently disappears. A reservation range is a bounded allocation problem, not a claim that every listed part is taught in every slot.

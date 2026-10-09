@@ -1,10 +1,10 @@
 # Explicit refinements of broad obligations
 
 Navigation and preservation ledger only: refinements keep their owner IDs and criteria; they do not define the system.
-Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f16-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
+Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
 Where a refinement's wording prescribes an obsolete mechanism, ordering or tolerance, those authorities govern; the owner ID, acceptance and evidence links remain required.
 
-**Current architecture:** [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f16-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](../../../TODO.md).
+**Current architecture:** [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md) define the numerical model. Current design/acceptance is self-contained; implementation and qualification status are in [TODO](../../../TODO.md).
 
 Each heading retains its canonical work-ID owner. Labels below are bounded review scopes inside that owner; they are not new work IDs, successors or design-only paperwork. Complete one behavior with its necessary current callers, content, tests and required proof before the next. The original [requirement bodies](../requirements.md) and technical prerequisites/acceptance remain mandatory. A conjunction/audit bullet is a closure check over identifiable child scopes, never a feature claimed small or ready. A decision bullet must stop with one recorded choice/rejection and the named implementation outcome; it cannot become indefinite research.
 

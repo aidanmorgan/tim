@@ -40,7 +40,6 @@ public partial class MachineWorld
     }
     public WorkshopGoalPhase GoalPhase => _workshopClient is null ? WorkshopGoalPhase.NotApplicable :
         WorkshopGoalEvaluator.Evaluate(Construction.Puzzle.Goal, WorkshopRead, _workshopClient.Epoch);
-    public PartDefinition BasketballDefinition => Registry.Definitions[WorkshopPartKind.Basketball];
 
     public void ControlUi(WorkshopUiTarget target, AnimationControlKind kind, bool visible) => _workshopClient?.ControlUi(target, kind, visible);
     public bool TryUiFrame(WorkshopUiTarget target, out AnimationOpacity opacity)
@@ -70,12 +69,15 @@ public partial class MachineWorld
         }
     }
 
-    public WorkshopBall CaptureBasketball(GpuBodyId id, Vector3 position, Quaternion rotation)
+    /// <summary>Any ball kind: the catalogue resource's bits are captured and must equal the kind's declared material.</summary>
+    public WorkshopBall CaptureBall(WorkshopPartKind kind, GpuBodyId id, Vector3 position, Quaternion rotation)
     {
-        var material = BasketballDefinition.Basketball?.Capture()
-            ?? throw new ArgumentException("Basketball requires canonical resource values.");
+        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall) || !Registry.Definitions.TryGetValue(kind, out var definition))
+            throw new ArgumentException("Unsupported ball kind.");
+        var material = definition.Ball?.Capture(kind)
+            ?? throw new ArgumentException("A ball requires canonical resource values.");
         var q = rotation.Normalized(); // Named Godot input boundary, before canonical quantization.
-        return WorkshopInput.Basketball(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W)
+        return WorkshopInput.Ball(kind, id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W)
             with { Material = material };
     }
 
@@ -90,7 +92,7 @@ public partial class MachineWorld
         var q = rotation.Normalized();
         return kind switch
         {
-            WorkshopPartKind.Basketball => CaptureBasketball(id, position, q),
+            WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall => CaptureBall(kind, id, position, q),
             WorkshopPartKind.Receiver => CaptureReceiver(id, position, q),
             WorkshopPartKind.Ramp => WorkshopInput.Ramp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 rampDimensions ?? Registry.Definitions[WorkshopPartKind.Ramp].Ramp!.Capture()),
@@ -109,8 +111,6 @@ public partial class MachineWorld
             _ => throw new ArgumentException("Unsupported instance kind.")
         };
     }
-
-    private MachinePart? Part(WorkshopPartKind kind) => _parts.FirstOrDefault(p => p.Definition.WorkshopKind == kind);
 
     public async Task<WorkshopCompletion> ReplaceConstruction(WorkshopConstruction proposed)
     {
@@ -234,8 +234,11 @@ public partial class MachineWorld
             foreach (var part in _parts)
                 if (part.HasCosmeticBindings && _workshopClient.TryCosmeticFrame(frame, _workshopPresentation, part.AuthoredId, out var cosmetic))
                     part.ApplyCosmetic(cosmetic);
-            var position = Part(WorkshopPartKind.Basketball)?.Position ?? Vector3.Zero;
-            var rotation = Part(WorkshopPartKind.Basketball)?.Quaternion ?? Quaternion.Identity;
+            // Telemetry follows the lowest-identity ball of either kind; zero only while the construction has no ball.
+            var ballId = Construction.Instances.OfType<WorkshopBall>().Select(b => b.Id).OrderBy(id => id.Value).FirstOrDefault();
+            var ball = _parts.FirstOrDefault(part => part.AuthoredId == ballId);
+            var position = ball?.Position ?? Vector3.Zero;
+            var rotation = ball?.Quaternion ?? Quaternion.Identity;
             _workshopClient.RecordPresentation(presentation, selected, new(frame,
                 frame == _workshopWriteFrame ? _workshopPositionWrites : (byte)0, checked((byte)_parts.Count), DisplaySimulationTime,
                 position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z, rotation.W));

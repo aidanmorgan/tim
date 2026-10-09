@@ -1,6 +1,6 @@
 # General data-driven engine design
 
-Required architecture for the whole game, not a claim that every model is implemented. It applies the [general-engine requirement](engine-contracts.md#general-data-driven-engines) under the [compilation model](gpu-f16-physics.md#compilation-model), [capability inventory](gpu-f16-physics.md#capability-inventory), [solver model](gpu-f16-physics.md#solver-model) and [game-grade envelope](gpu-f16-physics.md#game-grade-envelope). The [element map](planning/general-engine-element-map.md) keeps all 72 CAT, 216 EL, 37 TH, 22 RAD and 18 GAP identities and the 302 authored fixtures mapped to candidate capability compositions and owners; a mapping is traceability, not qualification.
+Required architecture for the whole game, not a claim that every model is implemented. It applies the [general-engine requirement](engine-contracts.md#general-data-driven-engines) under the [compilation model](gpu-f32-physics.md#compilation-model), [capability inventory](gpu-f32-physics.md#capability-inventory), [solver model](gpu-f32-physics.md#solver-model) and [game-grade envelope](gpu-f32-physics.md#game-grade-envelope). The [element map](planning/general-engine-element-map.md) keeps all 72 CAT, 216 EL, 37 TH, 22 RAD and 18 GAP identities and the 302 authored fixtures mapped to candidate capability compositions and owners; a mapping is traceability, not qualification.
 
 Three states stay visible for every capability: **architectural route** (the records below can express it), **frozen model** (law, parameters, discrete semantics and Chrome-observable acceptance passed their design stage) and **qualified support** (implemented, proven in Chrome through real controls with Reset and Save/Load, legacy deleted). A table row establishes neither of the latter two. An unresolved route or model rejects admission at compile; it never authorises element-owned solver code.
 
@@ -57,7 +57,7 @@ All floating game data is canonical IEEE-754 f32 (single precision); IDs, enum t
 
 ## Compile at Run
 
-1. Decode the complete current construction, definitions, mode values, ports and resource references. Validate enum variants, finite canonical values, units, admission-only bounds ([envelope](gpu-f16-physics.md#game-grade-envelope)), identities and required fields before any mutation.
+1. Decode the complete current construction, definitions, mode values, ports and resource references. Validate enum variants, finite canonical values, units, admission-only bounds ([envelope](gpu-f32-physics.md#game-grade-envelope)), identities and required fields before any mutation.
 2. Expand assembly members deterministically and allocate typed identities. Resolve geometry, materials, joints, stores, sensor regions, controller inputs and animation targets. Reject dangling/foreign references, incompatible ports, duplicate ownership or conflicting property writers.
 3. Build the transitive capability closure, including declared possible transitions (a heater may require heat, phase and changed contact; an actuator may require supply, work accounting, constraints and contact).
 4. Pack the admitted capabilities into typed GPU buffers for immutable definitions/topology, committed state, candidate state and results, and C# discrete state separately. Instance-ID-to-storage mappings are stable; packing order cannot alter physical ordering.
@@ -70,7 +70,7 @@ The compiler decides structure and admission only. It never computes a physical 
 
 ## Advance Physical Time: Staged Multi-Domain Solver Pipeline
 
-Each 120 Hz tick advances through four 480 Hz substeps under the [solver model](gpu-f16-physics.md#solver-model). The physics engine executes the following staged pipeline on the dedicated WASM SIMD Web Worker:
+Each 120 Hz tick advances through four 480 Hz substeps under the [solver model](gpu-f32-physics.md#solver-model). The physics engine executes the following staged pipeline on the dedicated WASM SIMD Web Worker:
 
 1. **Multi-Domain Network Execution:**
    - **Electrical Domain:** Solves circuit topologies using Modified Nodal Analysis (MNA), updating node potentials, branch currents, and logic gate states.
@@ -78,7 +78,7 @@ Each 120 Hz tick advances through four 480 Hz substeps under the [solver model](
    - **Acoustic and Pneumatic Fields:** Evaluates pressure distributions, duct flow continuity, acoustic cone projections, and nozzle momentum transfer.
    - **Thermodynamic Accounting:** Proportional power allocation debiting finite energy stores with strict conservation: kinetic energy gain cannot exceed stored potential ($\Delta K \le E_{\text{store}}$). No free energy.
 2. **External Forces and Velocity Integration:**
-   - Integrates gravitational acceleration and declared force regions (conveyor drag, airflow jets, buoyancy) into linear velocity using 128-bit SIMD vector instructions (`wasm_f32x4`); angular velocity changes only through contact impulses. Rotation uses the compiled principal inertia of each body record (sphere and box alike); the solver carries no shape-specific inertia constants. The declared `LinearDrag` coefficient is compiled into the record but not yet applied by the worker (deferred work).
+   - Integrates gravitational acceleration and declared force regions (conveyor drag, airflow jets, buoyancy) into linear velocity using 128-bit SIMD vector instructions (`wasm_f32x4`); angular velocity changes only through contact impulses. Rotation uses the compiled principal inertia of each body record (sphere and box alike); the solver carries no shape-specific inertia constants. Right after gravity each sub-step applies the body's declared `LinearDrag` $c$ (body record +66) as the exact decay $\mathbf{v} \leftarrow \mathbf{v}\,e^{-c\,\Delta t}$; there is no angular drag, so free-flight spin is never damped.
 3. **Broadphase Collision Detection:**
    - Queries the Dynamic AABB Bounding Volume Hierarchy (BVH). Leaf nodes use speculative velocity fattening ($|\mathbf{v}|\Delta t + \text{slop}$) and surface-area-heuristic incremental tree rotations.
    - Eliminates 85–95% of tree updates during steady motion, pruning non-colliding pairs in $O(N \log N)$ time.
@@ -90,7 +90,7 @@ Each 120 Hz tick advances through four 480 Hz substeps under the [solver model](
    - Partitions contacting bodies and joint constraints into independent kinematic islands using Disjoint Set Union (DSU / Union-Find with path compression).
    - Inactive or settled islands are put to sleep, reducing active solver workload to 0 ms for at-rest assemblies.
 6. **Box2D v3 Temporal Gauss-Seidel (TGS) Soft Constraint Solve:**
-   - Solves contact normal non-penetration, Coulomb friction, and bilateral joint constraints across sub-steps with warm starting.
+   - Solves contact normal non-penetration, Coulomb friction and bilateral joint constraints across sub-steps with warm starting, then a rolling-resistance row that is not warm-started (its impulse restarts from zero every sub-step). Rolling resistance is one angular row per manifold at every sphere contact (static or dynamic partner, equal and opposite on both), solved after the normal rows of each sweep: it opposes the relative rolling with at most $C_{rr}\,\lambda_N\,r$ per sub-step, where $C_{rr}$ is the larger declared material coefficient (material record +14; balls declare it, boxes, planes and walls declare zero) and $r$ the larger sphere radius, and it targets zero rolling so it stops a ball on a static support without reversing it (against a dynamic anisotropic box the per-axis diagonal effective masses are an approximation). A rolling solid sphere therefore decelerates at $\tfrac{5}{7}(C_{rr}\,g + c\,v)$. A struck body such as a Domino receives the reaction, so its outcome includes the ball's resistance (owner decision 9 Oct 2026).
    - Erin Catto's TGS Soft formulation mathematically unifies spring compliance, damping, restitution, and penetration slop directly into effective constraint mass:
      $\Delta \lambda = -M_{\text{eff}} \left( J \mathbf{v} + \frac{\beta}{h} C + \frac{\gamma}{h^2} \lambda \right)$.
    - Eliminates separate Baumgarte position projection and constraint explosion bugs.

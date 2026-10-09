@@ -370,8 +370,11 @@ public static class WorkshopWire
             var rotation = new CanonicalRotation(Read(slot[96..]), Read(slot[98..]), Read(slot[100..]), Read(slot[102..]));
             instances[i] = kind switch
             {
-                WorkshopPartKind.Basketball when Zero(slot[114..]) => new WorkshopBall(body.Id, body.Cell, body.Local, rotation,
-                    new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])), new(Read(slot[110..])), new(Read(slot[112..]))), locked == 1),
+                // Both ball kinds share the slot layout; the persisted bits must equal the kind's declared material, whose friction, bounce
+                // threshold and rolling resistance are kind data rather than persisted fields.
+                WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall when Zero(slot[114..]) => new WorkshopBall(body.Id, kind, body.Cell, body.Local, rotation,
+                    BallMaterial.For(kind) with { Radius = new(Read(slot[104..])), Mass = new(Read(slot[106..])), Bounce = new(Read(slot[108..])),
+                        Drag = new(Read(slot[110..])), Buoyancy = new(Read(slot[112..])) }, locked == 1),
                 WorkshopPartKind.Receiver when Zero(slot[110..112]) && Zero(slot[134..]) => new WorkshopReceiver(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])),
                         (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[112..])), locked == 1)

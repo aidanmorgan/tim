@@ -286,7 +286,7 @@ public partial class Workshop : Node3D
         _optionsContents.AddChild(Text("Forgiving                         Precise", 12, Muted));
         _friction = new CheckButton { Text = "More surface friction" };
         _friction.AddThemeColorOverride("font_color", Navy);
-        _friction.Toggled += _ => _status.Text = "The current GPU Workshop uses the Basketball’s canonical material.";
+        _friction.Toggled += _ => _status.Text = "The current GPU Workshop uses each ball’s declared material.";
         _optionsContents.AddChild(_friction);
         _depthText = Text("", 13, Muted);
         _depthText.Visible = false;

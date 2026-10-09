@@ -711,6 +711,58 @@ function solveFriction(c) {
     applyImpulse(c.b, -px, -py, -pz, c.rBx, c.rBy, c.rBz);
 }
 
+// Rolling resistance row at every contact manifold, static or dynamic partner: one angular impulse opposing the two bodies'
+// relative rolling about the tangent axes, applied equal and opposite to both (Box2D v3 coefficient mixing, but not warm-started:
+// the accumulated impulse restarts from zero every substep). The larger declared coefficient of the pair (material record +14)
+// times the larger sphere radius times the manifold's normal impulse bounds it, and the row targets zero relative rolling, so it
+// brings rolling to rest and never reverses it. Boxes, planes and walls declare zero and have no radius, so a pair without a
+// sphere carries none; spin about the normal and free flight are untouched.
+function prepareRolling(m) {
+    const c = m.points[0];
+    const radiusA = c.colA.shapeKind === 0 ? c.colA.radius : 0, radiusB = c.colB.shapeKind === 0 ? c.colB.radius : 0;
+    m.rolling = Math.max(c.colA.rollingResistance, c.colB.rollingResistance) * Math.max(radiusA, radiusB);
+    m.rollingMass1 = m.rolling > 0 ? angularMass(c, c.t1) : 0;
+    m.rollingMass2 = m.rolling > 0 ? angularMass(c, c.t2) : 0;
+    m.lambdaR1 = 0; m.lambdaR2 = 0;
+}
+
+function angularMass(c, t) {
+    let k = 0;
+    for (const b of [c.a, c.b]) {
+        if (b.motion !== 1) continue;
+        const w = applyInvInertia(b, t[0], t[1], t[2]);
+        k += t[0] * w[0] + t[1] * w[1] + t[2] * w[2];
+    }
+    return k > 0 ? 1 / k : 0;
+}
+
+function solveRolling(m) {
+    if (m.rollingMass1 === 0 && m.rollingMass2 === 0) return;
+    const c = m.points[0];
+    let normal = 0;
+    for (const p of m.points) normal += p.lambdaN;
+    const wx = c.a.wx - c.b.wx, wy = c.a.wy - c.b.wy, wz = c.a.wz - c.b.wz;
+    let n1 = m.lambdaR1 - m.rollingMass1 * (wx * c.t1[0] + wy * c.t1[1] + wz * c.t1[2]);
+    let n2 = m.lambdaR2 - m.rollingMass2 * (wx * c.t2[0] + wy * c.t2[1] + wz * c.t2[2]);
+    const maxRolling = m.rolling * normal;
+    const length = Math.hypot(n1, n2);
+    if (length > maxRolling) {
+        const scale = length > 0 ? maxRolling / length : 0;
+        n1 *= scale; n2 *= scale;
+    }
+    const d1 = n1 - m.lambdaR1, d2 = n2 - m.lambdaR2;
+    m.lambdaR1 = n1; m.lambdaR2 = n2;
+    const tx = d1 * c.t1[0] + d2 * c.t2[0], ty = d1 * c.t1[1] + d2 * c.t2[1], tz = d1 * c.t1[2] + d2 * c.t2[2];
+    applyAngularImpulse(c.a, tx, ty, tz);
+    applyAngularImpulse(c.b, -tx, -ty, -tz);
+}
+
+function applyAngularImpulse(b, x, y, z) {
+    if (b.motion !== 1) return;
+    const dw = applyInvInertia(b, x, y, z);
+    b.wx += dw[0]; b.wy += dw[1]; b.wz += dw[2];
+}
+
 // Soft normal row with a speculative target velocity when separated (projected, one point).
 function solveNormalRow(c, useBias, soft, h) {
     const v = relativeVelocity(c);
@@ -815,11 +867,12 @@ function solveNormalBlock(group, useBias, soft, h) {
     }
 }
 
-// One sweep: per manifold, friction rows then the joint normal solve.
-function sweepManifolds(groups, useBias, soft, h) {
-    for (const group of groups) {
-        for (const c of group) solveFriction(c);
-        solveNormalBlock(group, useBias, soft, h);
+// One sweep: per manifold, friction rows, the joint normal solve, then the rolling-resistance row bounded by the updated normal impulse.
+function sweepManifolds(manifolds, useBias, soft, h) {
+    for (const m of manifolds) {
+        for (const c of m.points) solveFriction(c);
+        solveNormalBlock(m.points, useBias, soft, h);
+        solveRolling(m);
     }
 }
 
@@ -947,6 +1000,7 @@ function advanceCandidate(source, candidate) {
         const gx = getF16(view, bodyOffset + 68);
         const gy = getF16(view, bodyOffset + 70);
         const gz = getF16(view, bodyOffset + 72);
+        const drag = getF16(view, bodyOffset + 66);
         const comLocal = [getF16(view, bodyOffset + 80), getF16(view, bodyOffset + 82), getF16(view, bodyOffset + 84)];
         const principal = [getF16(view, bodyOffset + 88), getF16(view, bodyOffset + 90), getF16(view, bodyOffset + 92), getF16(view, bodyOffset + 94)];
         const inertia = [readPrincipalInertia(view, bodyOffset + 96), readPrincipalInertia(view, bodyOffset + 104), readPrincipalInertia(view, bodyOffset + 112)];
@@ -968,7 +1022,7 @@ function advanceCandidate(source, candidate) {
             vx, vy, vz,
             wx, wy, wz,
             mass, invMass: 1.0 / mass,
-            gx, gy, gz,
+            gx, gy, gz, drag,
             comLocal, principal,
             // A zero or non-finite declared moment reads as infinite inertia (no rotation) rather than an infinite inverse.
             invI: inertia.map(moment => Number.isFinite(moment) && moment > 0 ? 1.0 / moment : 0),
@@ -1009,6 +1063,7 @@ function advanceCandidate(source, candidate) {
         const restitution = getF16(view, matOffset + 8);
         const bounceThreshold = getF16(view, matOffset + 10);
         const friction = getF16(view, matOffset + 12);
+        const rollingResistance = getF16(view, matOffset + 14);
 
         const body = allBodies.get(bodySlot);
         if (!body) continue;
@@ -1028,7 +1083,8 @@ function advanceCandidate(source, candidate) {
             hx, hy, hz,
             restitution,
             bounceThreshold,
-            friction
+            friction,
+            rollingResistance
         };
         refreshCollider(collider);
         colliders.push(collider);
@@ -1204,11 +1260,14 @@ function advanceCandidate(source, candidate) {
             }
         }
 
-        // 2. Symplectic Euler gravity integration about the centre of mass
+        // 2. Symplectic Euler gravity integration about the centre of mass, then the declared linear drag (body record +66) as an
+        //    exact exponential decay of the linear velocity; angular velocity is never damped here.
         for (let b of dynamicBodies) {
             b.vx += b.gx * dt;
             b.vy += b.gy * dt;
             b.vz += b.gz * dt;
+            const decay = Math.exp(-b.drag * dt);
+            b.vx *= decay; b.vy *= decay; b.vz *= decay;
         }
 
         // 3. Narrowphase: one manifold per candidate pair from the current poses, up to four points each
@@ -1223,9 +1282,10 @@ function advanceCandidate(source, candidate) {
                 Math.hypot(bA.wx, bA.wy, bA.wz) * colliderExtent(colA) + Math.hypot(bB.wx, bB.wy, bB.wz) * colliderExtent(colB);
             const first = contacts.length;
             generateManifold(colA, colB, SPECULATIVE_SLOP + relSpeed * dt, contacts);
-            if (contacts.length > first) manifolds.push(contacts.slice(first));
+            if (contacts.length > first) manifolds.push({ points: contacts.slice(first) });
         }
         for (const c of contacts) prepareContact(c, contactCache);
+        for (const m of manifolds) prepareRolling(m);
         for (let b of dynamicBodies) { b.cm0 = [b.cmx, b.cmy, b.cmz]; b.q0 = [b.qx, b.qy, b.qz, b.qw]; }
 
         // 4. TGS Soft: warm start, biased solve, position integration, relax, restitution

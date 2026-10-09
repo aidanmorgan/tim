@@ -30,6 +30,7 @@ public sealed class WorkshopDominoTests
         Assert.Equal(new Restitution((Half).05), material.Restitution);
         Assert.Equal(new LinearSpeed((Half).1), material.BounceThreshold);
         Assert.Equal(new FrictionCoefficient((Half).6), material.Friction);
+        Assert.Equal(new RollingResistance((Half)0), material.RollingResistance); // a box declares no rolling resistance
         Assert.Equal(2, scene.Bodies.ToArray().Count(b => b.Motion == RigidMotionKind.Dynamic));
         Assert.Empty(scene.Sensors.ToArray()); Assert.Empty(scene.Triggers.ToArray()); Assert.Empty(scene.ContactWorks.ToArray());
     }

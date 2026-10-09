@@ -6,7 +6,7 @@ stepsCompleted:
   - create-stories
   - final-validation
 inputDocuments:
-  - 'docs/gpu-f16-physics.md'
+  - 'docs/gpu-f32-physics.md'
   - 'docs/planning/invest/vertical-delivery.md'
   - 'docs/planning/invest/named-elements.md'
   - 'docs/planning/invest/campaign.md'

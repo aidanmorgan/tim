@@ -14,6 +14,10 @@ const BODIES = 128, COLLIDERS = 4352, MATERIALS = 10496;
 const ORIENTATION_SENSORS = 19744; // PhysicsGpuAbi.OrientationSensorsOffset (64-byte records, count at header byte 116)
 const BENCH_Y = -0.46;
 const TICKS_PER_SECOND = 120;      // cadence 2 => 4 substeps of 1/480 s per tick
+// Declared ball data as BallMaterial.For compiles it (parts/catalog/ball.tres, bowling.tres): linear drag 0.04 1/s on the body
+// record and the rolling-resistance coefficient on the material record.
+const BALL_DRAG = .04, BASKETBALL_ROLLING = .035, BOWLING_ROLLING = .03;
+const BASKETBALL_R = .34, BOWLING_R = .28;   // BallMaterial.For radii: the Bowling ball is smaller and heavier (owner decision 9 Oct 2026)
 
 async function loadWorker() {
     let imports;
@@ -85,11 +89,12 @@ function principal(view, offset, value) {
     H(view, offset, mantissa); view.setInt32(offset + 4, exponent, true);
 }
 
-// Scene builder mirroring PhysicsGpuAbi.Admission for bodies, colliders, materials and orientation sensors only.
-function scene(spec, sensors = []) {
+// Scene builder mirroring PhysicsGpuAbi.Admission for bodies, colliders, materials and orientation sensors only. Declared linear
+// drag sits at body record +66 and rolling resistance at material record +14; both default to zero like a static declaration.
+function scene(spec, sensors = [], cadence = 2) {
     const bytes = new Uint8Array(STATE_BYTES); const view = new DataView(bytes.buffer);
     view.setUint32(0, 8, true);
-    view.setBigUint64(32, 1n, true); view.setUint32(48, 2, true); view.setUint32(52, 1, true);
+    view.setBigUint64(32, 1n, true); view.setUint32(48, cadence, true); view.setUint32(52, 1, true);
     view.setBigUint64(56, 1n, true); view.setBigUint64(64, 1n, true); view.setBigUint64(72, 2n, true); view.setBigUint64(80, 4096n, true);
     const bodies = [{ id: 1, motion: 0, position: [0, BENCH_Y, 0], shape: 2, material: { restitution: 1, threshold: .1, friction: .3 } }, ...spec];
     view.setUint32(12, bodies.length, true); view.setUint32(16, bodies.length, true); view.setUint32(20, bodies.length, true);
@@ -110,12 +115,13 @@ function scene(spec, sensors = []) {
         const m = MATERIALS + slot * 32;
         view.setBigUint64(m, BigInt(200 + slot), true);
         H(view, m + 8, b.material.restitution); H(view, m + 10, b.material.threshold); H(view, m + 12, b.material.friction);
+        H(view, m + 14, b.material.rolling ?? 0);
         if (b.motion !== 1) return;
         dynamicCount++;
         const v = b.velocity ?? [0, 0, 0]; const w = b.angular ?? [0, 0, 0];
         H(view, r + 48, v[0] / 32); H(view, r + 50, v[1] / 32); H(view, r + 52, v[2] / 32);
         H(view, r + 56, w[0]); H(view, r + 58, w[1]); H(view, r + 60, w[2]);
-        H(view, r + 64, b.mass); H(view, r + 70, b.gravity ?? -9.81);
+        H(view, r + 64, b.mass); H(view, r + 66, b.drag ?? 0); H(view, r + 70, b.gravity ?? -9.81);
         H(view, r + 94, 1);
         let moments;
         if (b.moments) moments = b.moments;
@@ -193,7 +199,16 @@ async function run(bytes, ticks, observe) {
 const domino = (position, extra = {}) => ({ id: 2, motion: 1, position, shape: 1, half: [.125, .55, .325], mass: .4,
     material: { restitution: .05, threshold: .1, friction: .6 }, ...extra });
 const basketball = (position, extra = {}) => ({ id: 3, motion: 1, position, shape: 0, radius: .34, mass: 1,
-    material: { restitution: .55, threshold: .1, friction: .3 }, ...extra });
+    drag: BALL_DRAG, material: { restitution: .55, threshold: .1, friction: .3, rolling: BASKETBALL_ROLLING }, ...extra });
+// The Bowling ball (CAT-014) is the same sphere kernel reading another declared material: 4 kg, 0.28 m, bounce .14.
+const bowlingBall = (position, extra = {}) => ({ id: 4, motion: 1, position, shape: 0, radius: BOWLING_R, mass: 4,
+    drag: BALL_DRAG, material: { restitution: .14, threshold: .1, friction: .3, rolling: BOWLING_ROLLING }, ...extra });
+// The same ball with zero declared drag and rolling resistance: the control for facts about ideal contact (rolling without slipping,
+// declared moments, momentum transfer at a known impact speed) that deceleration would otherwise blur.
+const resistanceFree = ball => ({ ...ball, drag: 0, material: { ...ball.material, rolling: 0 } });
+// Pure rolling on the bench along +X: omega_z = -v / r.
+const rollingAt = (ball, speed) => ({ ...ball, velocity: [speed, 0, 0], angular: [0, 0, -speed / ball.radius] });
+const TICKS_AT = { 1: 60, 2: 120, 3: 240 };   // header cadence -> committed ticks per second (8, 4, 2 substeps of 1/480 s)
 
 test('rigid-body: an upright box set 1 cm above the bench settles on its face and stands within the rest tolerances', async () => {
     const start = [0, BENCH_Y + .55 + .01, 0];
@@ -237,7 +252,7 @@ test('rigid-body: a sphere dropped onto the bench bounces dissipatively and come
 });
 
 test('rigid-body: friction on the bench turns a sliding sphere into a rolling one through the declared inertia', async () => {
-    const final = readBody(await run(scene([basketball([0, BENCH_Y + .34, 0], { velocity: [3, 0, 0] })]), TICKS_PER_SECOND), 1);
+    const final = readBody(await run(scene([resistanceFree(basketball([0, BENCH_Y + .34, 0], { velocity: [3, 0, 0] }))]), TICKS_PER_SECOND), 1);
     assert.ok(final.v[0] > 1.5 && final.v[0] < 3, `forward speed ${final.v[0].toFixed(3)} m/s`);
     // Rolling without slipping on +X about -Z: omega_z = -v/r.
     assert.ok(Math.abs(final.w[2] + final.v[0] / .34) < .3, `omega ${final.w[2].toFixed(3)} vs ${(-final.v[0] / .34).toFixed(3)}`);
@@ -316,7 +331,7 @@ test('rigid-body: zero restitution never rebounds and zero friction never spins 
     });
     assert.ok(landed, 'the ball reaches the bench');
     assert.ok(rebound < 0.05, `restitution 0 gives no rebound (max upward ${rebound.toFixed(3)} m/s)`);
-    const slick = basketball([0, BENCH_Y + .34, 0], { velocity: [3, 0, 0], material: { restitution: .55, threshold: .1, friction: 0 } });
+    const slick = resistanceFree(basketball([0, BENCH_Y + .34, 0], { velocity: [3, 0, 0], material: { restitution: .55, threshold: .1, friction: 0 } }));
     const final = readBody(await run(scene([slick]), TICKS_PER_SECOND), 1);
     assert.ok(final.spin < 0.05, `friction 0 (geometric mean with the bench) never spins the ball (${final.spin.toFixed(3)} rad/s)`);
     assert.ok(final.v[0] > 2.9, `and never slows it (${final.v[0].toFixed(3)} m/s)`);
@@ -325,8 +340,8 @@ test('rigid-body: zero restitution never rebounds and zero friction never spins 
 test('rigid-body: rolling speed follows the declared principal moments, not a shape formula (solid vs hollow sphere)', async () => {
     // Sliding at 3 m/s and settling into pure rolling: v = v0 / (1 + I / (m r^2)) -> 2.14 m/s solid (I = 2/5), 1.80 m/s hollow (I = 2/3).
     const hollow = (2 / 3) * 1 * .34 * .34;
-    const solid = readBody(await run(scene([basketball([0, BENCH_Y + .34, 0], { velocity: [3, 0, 0] })]), TICKS_PER_SECOND), 1);
-    const shell = readBody(await run(scene([basketball([0, BENCH_Y + .34, 0], { velocity: [3, 0, 0], moments: [hollow, hollow, hollow] })]), TICKS_PER_SECOND), 1);
+    const solid = readBody(await run(scene([resistanceFree(basketball([0, BENCH_Y + .34, 0], { velocity: [3, 0, 0] }))]), TICKS_PER_SECOND), 1);
+    const shell = readBody(await run(scene([resistanceFree(basketball([0, BENCH_Y + .34, 0], { velocity: [3, 0, 0], moments: [hollow, hollow, hollow] }))]), TICKS_PER_SECOND), 1);
     assert.ok(Math.abs(solid.v[0] - 2.143) < 0.08, `solid sphere rolls at ${solid.v[0].toFixed(3)} m/s`);
     assert.ok(Math.abs(shell.v[0] - 1.8) < 0.08, `hollow sphere (record moments) rolls at ${shell.v[0].toFixed(3)} m/s`);
 });
@@ -335,7 +350,7 @@ test('rigid-body: a remainder that rounds to Half 0.5 carries into the next cell
     // From rest at cell 49 / local -2020/4096 under g = -9.875 one tick moves -0.0068576 cells: the double remainder after the
     // integer carry is 0.4999784, which rounds to Half 0.5 unless the carry uses the rounded value.
     const y0 = (49 - 2020 / 4096) / 16;
-    const bytes = await run(scene([basketball([0, y0, 0], { gravity: -9.875 })]), 1);
+    const bytes = await run(scene([resistanceFree(basketball([0, y0, 0], { gravity: -9.875 }))]), 1);
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); const r = BODIES + 128;
     const cell = view.getInt32(r + 20, true), local = RH(view, r + 34);
     assert.ok(local >= -0.5 && local < 0.5, `committed remainder ${local} is canonical`);
@@ -351,8 +366,9 @@ test('rigid-body: a zero declared moment reads as infinite inertia and the body 
 });
 
 test('rigid-body: the worker source names no element, hard-coded inertia or material fallback', () => {
-    assert.doesNotMatch(source, /\b(domino|basketball|bumper|ramp|wall|switch|lamp|receiver)\b/i);
-    assert.doesNotMatch(source, /3\.5 \* |2\.5 \/ |\|\| 0\.34|\|\| 0\.75|\|\| 0\.1\b|\|\| 0\.3\b|\|\| 1\.0\b|\|\| 8\.0/);
+    assert.doesNotMatch(source, /\b(domino|basketball|bowling|bumper|ramp|wall|switch|lamp|receiver)\b/i);
+    // Ball constants (Bowling radius 0.28, bounce 0.14, rolling resistance 0.03 / 0.035) must arrive as declared data, never as literals in the worker.
+    assert.doesNotMatch(source, /3\.5 \* |2\.5 \/ |\|\| 0\.34|\|\| 0\.75|\|\| 0\.1\b|\|\| 0\.3\b|\|\| 1\.0\b|\|\| 8\.0|(?<![\d.])0?\.(28|38|14|035|03)(?!\d)/);
 });
 
 test('rigid-body: the motion description is written at the offset the host declares after the orientation sensor table', async () => {
@@ -423,4 +439,209 @@ test('orientation sensor: the threshold is declared data, not a constant of the 
     await run(scene([tile], [sensorOn(2, [0, 0, 0, 1], 80)]), TICKS_PER_SECOND, (tick, bytes) => { if (wide === null && readSensor(bytes, 0).fired) wide = tick; });
     assert.ok(narrow !== null && wide !== null && narrow < wide, `20 deg fires at tick ${narrow}, 80 deg at tick ${wide}`);
     assert.doesNotMatch(source, /0\.92388|cos\(Math\.PI \/ 8\)|45 \*/, 'no 45-degree constant in the worker');
+});
+
+// Bowling ball (CAT-014): the shipped sphere kernel reads another declared material from the body and material records; nothing names the kind.
+test('bowling ball: a rolling 0.7 m/s strike (zero declared resistance, so 0.7 m/s at impact) topples a stock Domino that the Basketball only rocks, and the declared mass alone decides it', async () => {
+    let bowlingMax = 0, basketballMax = 0;
+    const bowlingFinal = await run(scene([domino([0, BENCH_Y + .56, 0]), resistanceFree(bowlingBall([-1.5, BENCH_Y + BOWLING_R, 0], { velocity: [.7, 0, 0] }))]), 4 * TICKS_PER_SECOND,
+        (tick, bytes) => { bowlingMax = Math.max(bowlingMax, readBody(bytes, 1).tilt); });
+    const basketballFinal = await run(scene([domino([0, BENCH_Y + .56, 0]), resistanceFree(basketball([-1.5, BENCH_Y + .34, 0], { velocity: [.7, 0, 0] }))]), 4 * TICKS_PER_SECOND,
+        (tick, bytes) => { basketballMax = Math.max(basketballMax, readBody(bytes, 1).tilt); });
+    assert.ok(bowlingMax > 60 && Math.abs(readBody(bowlingFinal, 1).tilt - 90) < 5, `the bowling lane tile passes 60 deg and lies flat (max ${bowlingMax.toFixed(1)} deg)`);
+    assert.ok(basketballMax < 20 && readBody(basketballFinal, 1).tilt < 2, `the basketball lane tile only rocks (max ${basketballMax.toFixed(1)} deg) and stands again`);
+    // Mass-isolation controls: the same strike with only the mass swapped (inertia follows the declared mass). 4 kg at the Basketball
+    // radius and bounce topples the tile; 1 kg at the Bowling radius and bounce only rocks it.
+    let heavyMax = 0, lightMax = 0;
+    await run(scene([domino([0, BENCH_Y + .56, 0]), resistanceFree(basketball([-1.5, BENCH_Y + .34, 0], { mass: 4, velocity: [.7, 0, 0] }))]), 4 * TICKS_PER_SECOND,
+        (tick, bytes) => { heavyMax = Math.max(heavyMax, readBody(bytes, 1).tilt); });
+    await run(scene([domino([0, BENCH_Y + .56, 0]), resistanceFree(bowlingBall([-1.5, BENCH_Y + BOWLING_R, 0], { mass: 1, velocity: [.7, 0, 0] }))]), 4 * TICKS_PER_SECOND,
+        (tick, bytes) => { lightMax = Math.max(lightMax, readBody(bytes, 1).tilt); });
+    assert.ok(heavyMax > 60, `4 kg at the Basketball radius topples the tile (max ${heavyMax.toFixed(1)} deg)`);
+    assert.ok(lightMax < 20, `1 kg at the Bowling radius only rocks the tile (max ${lightMax.toFixed(1)} deg)`);
+});
+
+test('bowling ball: the two-lane e2e setup (both balls at x = 0.3 and centre 1.05 m, lanes z = -1.5 / +1.5) separates the kinds with a clear margin and both struck balls come to rest', async () => {
+    const peak = { basketball: 0, bowling: 0 };
+    const settled = { 3: [], 4: [] };   // ball states over the second after 6 s
+    const final = await run(scene([domino([0, BENCH_Y + .56, -1.5]), domino([0, BENCH_Y + .56, 1.5], { id: 5 }),
+        basketball([.3, 1.05, -1.5]), bowlingBall([.3, 1.05, 1.5])]), 7 * TICKS_PER_SECOND, (tick, bytes) => {
+        peak.basketball = Math.max(peak.basketball, readBody(bytes, 1).tilt); peak.bowling = Math.max(peak.bowling, readBody(bytes, 2).tilt);
+        if (tick >= 6 * TICKS_PER_SECOND) for (const slot of [3, 4]) settled[slot].push(readBody(bytes, slot));
+    });
+    assert.ok(peak.basketball < 20, `Basketball lane tilt ${peak.basketball.toFixed(1)} deg stays below 20`);
+    assert.ok(peak.bowling > 60, `Bowling lane tilt ${peak.bowling.toFixed(1)} deg passes 60`);
+    const [tileA, tileB, ballA, ballB] = [1, 2, 3, 4].map(slot => readBody(final, slot));
+    assert.ok(tileA.tilt < 2 && Math.abs(tileB.tilt - 90) < 5, `tiles end upright (${tileA.tilt.toFixed(1)} deg) and flat (${tileB.tilt.toFixed(1)} deg)`);
+    assert.ok([tileA, ballA].every(b => Math.abs(b.p[2] + 1.5) < .01) && [tileB, ballB].every(b => Math.abs(b.p[2] - 1.5) < .01), 'the lanes never interact');
+    assert.ok(Math.abs(ballA.p[1] - (BENCH_Y + BASKETBALL_R)) < .005 && Math.abs(ballB.p[1] - (BENCH_Y + BOWLING_R)) < .005, `bench heights ${ballA.p[1].toFixed(3)} / ${ballB.p[1].toFixed(3)}`);
+    // ENGINE-DRAG: the declared drag and rolling resistance bring both struck balls to rest: below 0.02 m/s from 6 s on and no
+    // position change of 1 mm over the following second (no jitter).
+    for (const [slot, label] of [[3, 'Basketball'], [4, 'Bowling ball']]) {
+        const states = settled[slot];
+        const fastest = Math.max(...states.map(b => b.speed));
+        const drift = Math.max(...states.map(b => Math.hypot(...b.p.map((c, k) => c - states[0].p[k]))));
+        assert.ok(fastest < .02, `${label} speed stays below 0.02 m/s from 6 s (max ${fastest.toFixed(4)})`);
+        assert.ok(drift < .001, `${label} moves ${(drift * 1000).toFixed(3)} mm over the following second`);
+    }
+});
+
+test('bowling ball: dropped from 3 m each ball rebounds to e²·h of its declared bounce (Bowling low, Basketball high) and the Bowling ball rests at its 0.28 m radius', async () => {
+    const drop = async (ball, radius) => {
+        let landed = false, rebounded = false, peak = -Infinity;
+        const final = readBody(await run(scene([ball]), 6 * TICKS_PER_SECOND, (tick, bytes) => {
+            const b = readBody(bytes, 1);
+            if (b.v[1] < -1) landed = true;
+            if (landed && b.v[1] > .05) rebounded = true;
+            if (rebounded) peak = Math.max(peak, b.p[1]);
+        }), 1);
+        return { rebounded, apex: peak - (BENCH_Y + radius), final };
+    };
+    const bowling = await drop(bowlingBall([0, 3, 0]), BOWLING_R);
+    const orange = await drop(basketball([0, 3, 0]), .34);
+    // Restitution e scales the rebound height to e²·h, where h is the fall of the centre from 3 m to rest height.
+    const expected = (e, radius) => e * e * (3 - (BENCH_Y + radius));
+    for (const [label, ball, e, radius] of [['bowling', bowling, .14, BOWLING_R], ['basketball', orange, .55, BASKETBALL_R]])
+        assert.ok(ball.rebounded && Math.abs(ball.apex - expected(e, radius)) <= .15 * expected(e, radius),
+            `${label} rebound apex ${ball.apex.toFixed(3)} m is within 15% of e²·h = ${expected(e, radius).toFixed(3)} m`);
+    assert.ok(Math.abs(bowling.final.p[1] - (BENCH_Y + BOWLING_R)) < .001 && bowling.final.speed < .02, `rests at radius height ${bowling.final.p[1].toFixed(4)} m, speed ${bowling.final.speed.toFixed(4)}`);
+});
+
+// ENGINE-DRAG: declared linear drag (body record +66, applied per substep after gravity) and declared rolling resistance (material
+// record +14, an angular impulse opposing rolling at a sphere's contacts) are the only decelerating data; nothing names a ball.
+test('drag: a free-flying sphere slows as exp(-drag·t) at 60/120/240 Hz and its free-flight spin is never damped', async () => {
+    for (const cadence of [1, 2, 3]) {
+        const rate = TICKS_AT[cadence], expected = 2 * Math.exp(-.125 * 2);
+        const flying = basketball([0, 1, 0], { gravity: 0, drag: .125, velocity: [2, 0, 0], angular: [0, 5, 0] });
+        const final = readBody(await run(scene([flying], [], cadence), 2 * rate), 1);
+        // Half commits resolve about 2^-11 of the speed per tick, so the per-tick decay (0.05 % at 240 Hz) is kept within a few percent.
+        assert.ok(Math.abs(final.v[0] - expected) < .03 * expected, `${rate} Hz: ${final.v[0].toFixed(4)} m/s after 2 s vs ${expected.toFixed(4)}`);
+        assert.equal(final.w[1], 5, `${rate} Hz: free-flight spin is untouched (rolling resistance acts only at contacts)`);
+        const control = readBody(await run(scene([resistanceFree(flying)], [], cadence), 2 * rate), 1);
+        assert.equal(control.v[0], 2, `${rate} Hz: zero declared drag keeps the speed exactly`);
+    }
+});
+
+test('rolling resistance: each ball rolling at 0.7 m/s decelerates at (5/7)·(Crr·g + drag·v), rests within 5 s at its radius height and never reverses', async () => {
+    for (const [label, ball, crr, radius] of [['Basketball', basketball([0, BENCH_Y + BASKETBALL_R, 0]), BASKETBALL_ROLLING, BASKETBALL_R], ['Bowling ball', bowlingBall([0, BENCH_Y + BOWLING_R, 0]), BOWLING_ROLLING, BOWLING_R]]) {
+        const states = [];
+        await run(scene([rollingAt(ball, .7)]), 6 * TICKS_PER_SECOND, (tick, bytes) => states.push(readBody(bytes, 1)));
+        // Rolling without slipping shares every decelerating impulse with the spin: a = (5/7)·(Crr·g + drag·v) for a solid sphere.
+        const early = states[TICKS_PER_SECOND / 4 - 1], later = states[5 * TICKS_PER_SECOND / 4 - 1];
+        const measured = early.v[0] - later.v[0], predicted = (5 / 7) * (crr * 9.81 + BALL_DRAG * (early.v[0] + later.v[0]) / 2);
+        assert.ok(Math.abs(measured - predicted) < .1 * predicted, `${label} decelerates ${measured.toFixed(4)} m/s² vs ${predicted.toFixed(4)}`);
+        const rest = states.findIndex(b => b.speed < .02);
+        assert.ok(rest >= 0 && rest < 5 * TICKS_PER_SECOND, `${label} rests at ${((rest + 1) / TICKS_PER_SECOND).toFixed(2)} s`);
+        const backward = Math.min(...states.map(b => b.v[0])), counterSpin = Math.max(...states.map(b => b.w[2]));
+        // The row targets zero relative rolling, so neither the speed nor the spin ever crosses zero (a bang-bang impulse would).
+        assert.ok(backward >= 0 && counterSpin <= 0, `${label} never reverses (min v ${backward} m/s, max omega_z ${counterSpin} rad/s)`);
+        const tail = states.slice(-TICKS_PER_SECOND);
+        const drift = Math.max(...tail.map(b => Math.hypot(...b.p.map((c, k) => c - tail[0].p[k]))));
+        assert.ok(drift < .001 && Math.max(...tail.map(b => b.speed)) < .02, `${label} holds still over the final second (${(drift * 1000).toFixed(3)} mm)`);
+        assert.ok(Math.abs(tail.at(-1).p[1] - (BENCH_Y + radius)) < .001, `${label} rests at its radius height (${tail.at(-1).p[1].toFixed(4)})`);
+    }
+});
+
+test('rolling resistance: with zero declared drag and coefficient a rolling ball keeps its speed (control)', async () => {
+    const final = readBody(await run(scene([resistanceFree(rollingAt(basketball([0, BENCH_Y + .34, 0]), .7))]), 3 * TICKS_PER_SECOND), 1);
+    assert.ok(Math.abs(final.v[0] - .7) < .005, `still ${final.v[0].toFixed(4)} m/s after 3 s`);
+    assert.ok(Math.abs(final.w[2] + final.v[0] / .34) < .02, `still rolling (omega_z ${final.w[2].toFixed(3)})`);
+});
+
+test('rolling resistance: at 60/120/240 Hz a ball of either kind struck to 1 m/s stops at the same time and no committed tick erases its decrement', async () => {
+    for (const [label, make, radius] of [['Basketball', basketball, BASKETBALL_R], ['Bowling ball', bowlingBall, BOWLING_R]]) {
+        const stops = {};
+        for (const cadence of [1, 2, 3]) {
+            const rate = TICKS_AT[cadence], forward = [];
+            await run(scene([rollingAt(make([0, BENCH_Y + radius, 0]), 1)], [], cadence), 6 * rate, (tick, bytes) => forward.push(readBody(bytes, 1).v[0]));
+            const rest = forward.findIndex(v => v < .02);
+            assert.ok(rest > 0, `${label} ${rate} Hz: the ball comes to rest`);
+            stops[rate] = (rest + 1) / rate;
+            // A decrement below half a Half ulp would round back to the previous committed speed every tick and the ball would roll forever.
+            for (let i = 1; i < rest; i++) assert.ok(forward[i] < forward[i - 1], `${label} ${rate} Hz tick ${i + 1}: ${forward[i]} m/s is not below ${forward[i - 1]}`);
+        }
+        assert.ok(stops[120] < 5, `${label} stops within 5 s (${stops[120].toFixed(2)} s at 120 Hz)`);
+        // Per-tick Half rounding of v and omega shifts the stop by a few percent between cadences; it never removes the deceleration.
+        for (const rate of [60, 240]) assert.ok(Math.abs(stops[rate] - stops[120]) < .1 * stops[120], `${label} ${rate} Hz stops at ${stops[rate].toFixed(2)} s vs ${stops[120].toFixed(2)} s`);
+    }
+});
+
+// The rolling row covers both tangent axes, static and dynamic supports of any shape, and no spin about the contact normal.
+const settles = async (bodies, slot, seconds = 6) => {
+    const states = [];
+    await run(scene(bodies), seconds * TICKS_PER_SECOND, (tick, bytes) => states.push(readBody(bytes, slot)));
+    return { states, rest: states.findIndex(b => b.speed < .02), tail: states.slice(-TICKS_PER_SECOND) };
+};
+const spread = tail => Math.max(...tail.map(b => Math.hypot(...b.p.map((c, k) => c - tail[0].p[k]))));
+
+test('rolling resistance: a ball rolling along +Z (spin about X, the second tangent axis) also comes to rest', async () => {
+    const ball = basketball([0, BENCH_Y + BASKETBALL_R, 0], { velocity: [0, 0, .7], angular: [.7 / BASKETBALL_R, 0, 0] });
+    const { states, rest, tail } = await settles([ball], 1);
+    assert.ok(rest >= 0 && rest < 5 * TICKS_PER_SECOND, `rests at ${((rest + 1) / TICKS_PER_SECOND).toFixed(2)} s`);
+    assert.ok(Math.min(...states.map(b => b.v[2])) >= 0 && spread(tail) < .001, `never reverses and holds still (${(spread(tail) * 1000).toFixed(3)} mm)`);
+});
+
+test('rolling resistance: a ball rolling on a static box slab (not the bench plane) comes to rest within 5 s', async () => {
+    const top = BENCH_Y + 1.1;
+    const slab = { id: 6, motion: 0, position: [0, BENCH_Y + 1, 0], shape: 1, half: [2.5, .1, 1], material: { restitution: 1, threshold: .1, friction: .3 } };
+    const ball = rollingAt(basketball([-1, top + BASKETBALL_R, 0]), .7);
+    const { rest, tail } = await settles([ball, slab], 1);
+    assert.ok(rest >= 0 && rest < 5 * TICKS_PER_SECOND, `rests on the slab at ${((rest + 1) / TICKS_PER_SECOND).toFixed(2)} s`);
+    const last = tail.at(-1);
+    assert.ok(Math.abs(last.p[1] - (top + BASKETBALL_R)) < .002 && Math.abs(last.p[0]) < 2.5 && spread(tail) < .001, `still on the slab at (${last.p[0].toFixed(3)}, ${last.p[1].toFixed(4)})`);
+});
+
+test('rolling resistance: a ball rolling on a dynamic box slab also comes to rest (every contact, reaction on the partner)', async () => {
+    // Owner decision 9 Oct 2026: the row acts at every sphere contact, so a heavy dynamic slab resting on the bench is a support too.
+    const top = BENCH_Y + .2;
+    const slab = { id: 6, motion: 1, position: [0, BENCH_Y + .1 + .0005, 0], shape: 1, half: [2.5, .1, 1], mass: 20, material: { restitution: .05, threshold: .1, friction: .6 } };
+    const ball = rollingAt(basketball([-1, top + BASKETBALL_R, 0]), .7);
+    const { rest, tail } = await settles([ball, slab], 1);
+    assert.ok(rest >= 0 && rest < 5 * TICKS_PER_SECOND, `rests on the dynamic slab at ${((rest + 1) / TICKS_PER_SECOND).toFixed(2)} s`);
+    const last = tail.at(-1);
+    assert.ok(Math.abs(last.p[1] - (top + BASKETBALL_R)) < .003 && spread(tail) < .001, `still on the slab at (${last.p[0].toFixed(3)}, ${last.p[1].toFixed(4)})`);
+});
+
+test('drag: a free-flying sphere moving diagonally slows along both X and Z as exp(-drag·t)', async () => {
+    const final = readBody(await run(scene([basketball([0, 1, 0], { gravity: 0, drag: .125, velocity: [2, 0, 2] })]), 2 * TICKS_PER_SECOND), 1);
+    const expected = 2 * Math.exp(-.125 * 2);
+    for (const k of [0, 2]) assert.ok(Math.abs(final.v[k] - expected) < .03 * expected, `axis ${k}: ${final.v[k].toFixed(4)} m/s vs ${expected.toFixed(4)}`);
+});
+
+test('rolling resistance: a ball resting on the bench spinning about the contact normal keeps its spin (two tangent axes only)', async () => {
+    const final = readBody(await run(scene([basketball([0, BENCH_Y + BASKETBALL_R, 0], { angular: [0, 5, 0] })]), 2 * TICKS_PER_SECOND), 1);
+    assert.equal(final.w[1], 5, `omega_y ${final.w[1]} rad/s after 2 s`);
+});
+
+test('rolling resistance: a free partner ball receives the equal and opposite angular impulse (zero gravity, tangential spin at impact)', async () => {
+    // A Basketball spinning about Z strikes a resting free Basketball along X, so the spin is tangential at the contact. Each run is
+    // compared with the same strike at zero declared resistance, which isolates the rolling row from friction.
+    const strike = async spin => {
+        const A = basketball([-1, 1, 0], { gravity: 0, velocity: [2, 0, 0], angular: [0, 0, spin] });
+        const B = basketball([0, 1, 0], { id: 5, gravity: 0 });
+        const [f, g] = [await run(scene([A, B]), TICKS_PER_SECOND), await run(scene([resistanceFree(A), resistanceFree(B)]), TICKS_PER_SECOND)];
+        return { a: readBody(f, 1), b: readBody(f, 2), a0: readBody(g, 1), b0: readBody(g, 2) };
+    };
+    // 0.3 rad/s lies within the row's budget: using both inertias it zeroes the pair's relative rolling and spins the partner up.
+    const small = await strike(.3);
+    assert.ok(Math.abs(small.a.w[2] - small.b.w[2]) < .005, `relative rolling zeroed (${small.a.w[2].toFixed(4)} vs ${small.b.w[2].toFixed(4)} rad/s)`);
+    assert.ok(small.b.w[2] - small.b0.w[2] > .1, `the partner gains spin from the row (${(small.b.w[2] - small.b0.w[2]).toFixed(4)} rad/s)`);
+    // 10 rad/s saturates the budget: what the striker loses to the row, the equal partner gains.
+    const large = await strike(10);
+    const dA = large.a.w[2] - large.a0.w[2], dB = large.b.w[2] - large.b0.w[2];
+    assert.ok(dB > .15 && Math.abs(dA + dB) < .05, `equal and opposite (striker ${dA.toFixed(4)}, partner ${dB.toFixed(4)} rad/s)`);
+});
+
+test('rolling resistance: a rolling Bowling ball pushing a resting Basketball (the larger radius as the second collider) brings both to rest together', async () => {
+    // Slot order makes the Bowling ball collider A and the 0.34 m Basketball collider B; their contact rolls with unequal radii.
+    const states = [];
+    await run(scene([rollingAt(bowlingBall([-1, BENCH_Y + BOWLING_R, 0]), .7), basketball([0, BENCH_Y + BASKETBALL_R, 0])]), 6 * TICKS_PER_SECOND,
+        (tick, bytes) => states.push([readBody(bytes, 1), readBody(bytes, 2)]));
+    const pushed = Math.max(...states.map(([, b]) => b.v[0]));
+    assert.ok(pushed > .3, `the Basketball is driven forward (peak ${pushed.toFixed(3)} m/s)`);
+    const rest = Math.max(...[0, 1].map(k => states.findLastIndex(s => s[k].speed >= .02) + 1));
+    assert.ok(rest < 5 * TICKS_PER_SECOND, `both rest by ${(rest / TICKS_PER_SECOND).toFixed(2)} s`);
+    assert.ok(states.every(([w, b]) => w.v[0] >= -.005 && b.v[0] >= -.005 && Math.abs(w.p[2]) < .005 && Math.abs(b.p[2]) < .005), 'neither reverses nor leaves the line');
+    const [w, b] = states.at(-1);
+    assert.ok(Math.abs(b.p[0] - w.p[0] - (BOWLING_R + BASKETBALL_R)) < .005, `they rest in contact, Basketball ahead (gap ${(b.p[0] - w.p[0]).toFixed(4)} m)`);
 });

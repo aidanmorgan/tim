@@ -11,22 +11,36 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Domino },
+        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall },
             registry.Definitions.Keys.OrderBy(kind => kind));
         var definition = registry.Definitions[WorkshopPartKind.Basketball];
         Assert.Empty(definition.Parameters);
-        var material = definition.Basketball!.Capture();
+        var material = definition.Ball!.Capture(WorkshopPartKind.Basketball);
         Assert.Equal((ushort)13681, BitConverter.HalfToUInt16Bits(material.Radius.Value));
         Assert.Equal((ushort)14438, BitConverter.HalfToUInt16Bits(material.Bounce.Value));
+        Assert.Equal((ushort)10363, BitConverter.HalfToUInt16Bits(material.Rolling.Value));
+        Assert.Equal(BallMaterial.For(WorkshopPartKind.Basketball), material);
+        Assert.Throws<ArgumentException>(() => definition.Ball!.Capture(WorkshopPartKind.BowlingBall)); // Basketball bits are not a Bowling ball
+        var bowlingDefinition = registry.Definitions[WorkshopPartKind.BowlingBall];
+        Assert.Empty(bowlingDefinition.Parameters);
+        var bowlingMaterial = bowlingDefinition.Ball!.Capture(WorkshopPartKind.BowlingBall);
+        Assert.Equal(BallMaterial.For(WorkshopPartKind.BowlingBall), bowlingMaterial);
+        Assert.Equal((ushort)13435, BitConverter.HalfToUInt16Bits(bowlingMaterial.Radius.Value));
+        Assert.Equal((ushort)17408, BitConverter.HalfToUInt16Bits(bowlingMaterial.Mass.Value));
+        Assert.Equal((ushort)12411, BitConverter.HalfToUInt16Bits(bowlingMaterial.Bounce.Value));
+        Assert.Equal((ushort)10158, BitConverter.HalfToUInt16Bits(bowlingMaterial.Rolling.Value));
         var ball = registry.Create(WorkshopPartKind.Basketball);
+        var bowling = registry.Create(WorkshopPartKind.BowlingBall);
         try
         {
-            godot.Tree.Root.AddChild(ball);
-            var sphere = ball.Visual.GetChildren().OfType<MeshInstance3D>()
-                .Select(n => n.Mesh).OfType<SphereMesh>().Single();
-            Assert.Equal((float)material.Radius.Value, sphere.Radius);
+            godot.Tree.Root.AddChild(ball); godot.Tree.Root.AddChild(bowling);
+            static float Radius(MachinePart part) => part.Visual.GetChildren().OfType<MeshInstance3D>()
+                .Select(n => n.Mesh).OfType<SphereMesh>().Single().Radius;
+            Assert.Equal((float)material.Radius.Value, Radius(ball));
+            Assert.Equal((float)bowlingMaterial.Radius.Value, Radius(bowling)); // visible art size equals the declared collision radius
+            Assert.Equal(new Color(0.27f, 0.39f, 0.61f), bowling.Definition.Color);
         }
-        finally { ball.GetParent()?.RemoveChild(ball); ball.Free(); }
+        finally { ball.GetParent()?.RemoveChild(ball); ball.Free(); bowling.GetParent()?.RemoveChild(bowling); bowling.Free(); }
     }
 
     [Fact]

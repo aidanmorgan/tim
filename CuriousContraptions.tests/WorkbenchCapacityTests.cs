@@ -11,6 +11,7 @@ public sealed class WorkbenchCapacityTests
     private static IWorkshopInstance Make(WorkshopPartKind kind, int i) => kind switch
     {
         WorkshopPartKind.Basketball => WorkshopInput.Basketball(Id(), X(i), 5, 0, 0, 0, 0, 1),
+        WorkshopPartKind.BowlingBall => WorkshopInput.Ball(WorkshopPartKind.BowlingBall, Id(), X(i), 5, 0, 0, 0, 0, 1),
         WorkshopPartKind.Receiver => WorkshopInput.Receiver(Id(), X(i), 1, 2, 0, 0, 0, 1),
         WorkshopPartKind.Ramp => WorkshopInput.Ramp(Id(), X(i), 2, -2, 0, 0, 0, 1, RampDimensions.Default),
         WorkshopPartKind.Wall => WorkshopInput.Wall(Id(), X(i), 2, 4, 0, 0, 0, 1, WallDimensions.Default),
@@ -68,9 +69,12 @@ public sealed class WorkbenchCapacityTests
     [InlineData(WorkbenchTable.Instances, WorkshopPartKind.Wall, 33, WorkshopPartKind.Wall, 0)]
     [InlineData(WorkbenchTable.DynamicBodies, WorkshopPartKind.Basketball, 17, WorkshopPartKind.Wall, 0)]
     [InlineData(WorkbenchTable.DynamicBodies, WorkshopPartKind.Domino, 9, WorkshopPartKind.Basketball, 8)]
+    [InlineData(WorkbenchTable.DynamicBodies, WorkshopPartKind.BowlingBall, 9, WorkshopPartKind.Basketball, 8)]
     [InlineData(WorkbenchTable.Colliders, WorkshopPartKind.Receiver, 12, WorkshopPartKind.ImpactSwitch, 3)]
     [InlineData(WorkbenchTable.Sensors, WorkshopPartKind.Receiver, 2, WorkshopPartKind.Basketball, 9)]
+    [InlineData(WorkbenchTable.Sensors, WorkshopPartKind.Receiver, 2, WorkshopPartKind.BowlingBall, 9)]
     [InlineData(WorkbenchTable.Guides, WorkshopPartKind.Receiver, 2, WorkshopPartKind.Basketball, 1)]
+    [InlineData(WorkbenchTable.Guides, WorkshopPartKind.Receiver, 2, WorkshopPartKind.BowlingBall, 1)]
     [InlineData(WorkbenchTable.Triggers, WorkshopPartKind.ImpactSwitch, 9, WorkshopPartKind.Wall, 0)]
     [InlineData(WorkbenchTable.ContactWork, WorkshopPartKind.PinballBumper, 9, WorkshopPartKind.Wall, 0)]
     [InlineData(WorkbenchTable.ActivationNodes, WorkshopPartKind.SignalLamp, 5, WorkshopPartKind.Delay, 4)]
@@ -95,6 +99,7 @@ public sealed class WorkbenchCapacityTests
     [InlineData(WorkshopPartKind.Delay)]
     [InlineData(WorkshopPartKind.PinballBumper)]
     [InlineData(WorkshopPartKind.Domino)]
+    [InlineData(WorkshopPartKind.BowlingBall)]
     public void DeclaredFootprintMatchesWhatTheCompilersEmit(WorkshopPartKind kind)
     {
         var construction = Free(Population((kind, 1)));
@@ -142,7 +147,7 @@ public sealed class WorkbenchCapacityTests
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
         WorkshopPartKind[] rows = [WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp,
-            WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Ramp, WorkshopPartKind.Domino];
+            WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Ramp, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall];
         Assert.Equal(rows, WorkshopInventoryPolicy.Free.Keys.ToArray());
         Assert.All(WorkshopInventoryPolicy.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(Enum.GetValues<WorkshopPartKind>().Count(kind => kind != WorkshopPartKind.Unsupported), WorkshopInventoryPolicy.Free.Count);

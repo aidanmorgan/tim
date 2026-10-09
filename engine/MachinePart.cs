@@ -34,15 +34,15 @@ public partial class MachinePart : Node3D
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino) ||
-            (definition.WorkshopKind == WorkshopPartKind.Basketball && definition.Basketball is null) ||
+        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino) ||
+            (definition.WorkshopKind is WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall && definition.Ball is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Ramp && definition.Ramp is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Wall && definition.Wall is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Delay && definition.Delay is null) ||
             (definition.WorkshopKind == WorkshopPartKind.PinballBumper && definition.Bumper is null) ||
             definition.Parameters.Count != 0)
             throw new ArgumentException("Unsupported canonical part declaration.");
-        if (definition.WorkshopKind == WorkshopPartKind.Basketball) definition.Basketball!.Capture();
+        if (definition.WorkshopKind is WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall) definition.Ball!.Capture(definition.WorkshopKind);
         if (definition.WorkshopKind == WorkshopPartKind.Ramp) definition.Ramp!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.Wall) definition.Wall!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.Delay) definition.Delay!.Capture();

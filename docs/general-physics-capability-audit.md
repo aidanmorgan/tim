@@ -1,6 +1,6 @@
 # General physics capability requirements
 
-Stub. The general-engine contract is [engine-contracts.md#general-data-driven-engines](engine-contracts.md#general-data-driven-engines); the numeric, compilation and envelope authority is [gpu-f16-physics.md](gpu-f16-physics.md); execution order is the [rolling playable roadmap](planning/invest/vertical-delivery.md#rolling-playable-roadmap). This file keeps only the one surviving requirement that was defined here.
+Stub. The general-engine contract is [engine-contracts.md#general-data-driven-engines](engine-contracts.md#general-data-driven-engines); the numeric, compilation and envelope authority is [gpu-f32-physics.md](gpu-f32-physics.md); execution order is the [rolling playable roadmap](planning/invest/vertical-delivery.md#rolling-playable-roadmap). This file keeps only the one surviving requirement that was defined here.
 
 **PERF-23 — element-to-capability coverage manifest.** A compiler-checked manifest and a report generated from it resolve every catalogue entry, fixture, element, named variant and research candidate to a stable typed identity (enum-typed capabilities/statuses, strongly typed IDs; duplicates and references recorded explicitly, never dropped or double-counted). Each element/mode row records:
 

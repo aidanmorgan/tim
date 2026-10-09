@@ -9,14 +9,15 @@ public partial class PartDefinition : Resource
     [Export] public string Id
     {
         get => _id;
-        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, "wall" => WorkshopPartKind.Wall, "delay" => WorkshopPartKind.Delay, "bumper" => WorkshopPartKind.PinballBumper, "domino" => WorkshopPartKind.Domino, _ => WorkshopPartKind.Unsupported }; }
+        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "bowling" => WorkshopPartKind.BowlingBall, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, "wall" => WorkshopPartKind.Wall, "delay" => WorkshopPartKind.Delay, "bumper" => WorkshopPartKind.PinballBumper, "domino" => WorkshopPartKind.Domino, _ => WorkshopPartKind.Unsupported }; }
     }
     public WorkshopPartKind WorkshopKind { get; private set; }
     [Export] public BumperWorkResource? Bumper { get; set; }
     [Export] public DelayDurationResource? Delay { get; set; }
     [Export] public WallDimensionsResource? Wall { get; set; }
     [Export] public RampDimensionsResource? Ramp { get; set; }
-    [Export] public BasketballMaterialResource? Basketball { get; set; }
+    /// <summary>Declared material of a dynamic sphere; required for every ball kind.</summary>
+    [Export] public BallMaterialResource? Ball { get; set; }
     [Export] public string Title { get; set; } = "";
     [Export] public string Category { get; set; } = "Structure";
     [Export(PropertyHint.MultilineText)] public string Description { get; set; } = "";

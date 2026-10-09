@@ -15,7 +15,7 @@ binds:
   - 'CAT-001..072'
   - 'CAMPAIGN-01..50'
 sources:
-  - 'docs/gpu-f16-physics.md'
+  - 'docs/gpu-f32-physics.md'
   - 'docs/planning/invest/vertical-delivery.md'
   - 'docs/delivery-workflow.md'
   - 'docs/engine-contracts.md'
@@ -252,7 +252,7 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 ├── CuriousContraptions.Animation.Worker/# Dedicated 60 Hz animation Web Worker
 ├── CuriousContraptions.tests/          # C# unit and regression test suite (557+ tests)
 ├── docs/                               # Project documentation and engineering specifications
-│   ├── gpu-f16-physics.md             # Canonical physics architecture specification
+│   ├── gpu-f32-physics.md             # Canonical physics architecture specification
 │   ├── delivery-workflow.md           # Engineering rules, standing requirements, gates
 │   └── planning/invest/               # INVEST roadmap and named element specifications
 └── tools/

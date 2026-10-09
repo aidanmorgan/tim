@@ -35,31 +35,42 @@ public readonly record struct CanonicalRotation(Half X, Half Y, Half Z, Half W)
     }
 }
 
-/// <summary>The immutable admitted default Basketball declaration. Render adapters widen these values.</summary>
-public readonly record struct BasketballMaterial(
-    Metres Radius, Kilograms Mass, Restitution Bounce, InverseSeconds Drag, Acceleration Buoyancy)
+/// <summary>The immutable declared material of one ball kind: every dynamic sphere is this record plus a kind. Friction, the bounce
+/// threshold and the rolling-resistance coefficient are declared here, never compiler or solver constants. Render adapters widen these
+/// values.</summary>
+public readonly record struct BallMaterial(
+    Metres Radius, Kilograms Mass, Restitution Bounce, InverseSeconds Drag, Acceleration Buoyancy,
+    FrictionCoefficient Friction, LinearSpeed BounceThreshold, RollingResistance Rolling)
 {
-    public static BasketballMaterial Default => new(new((Half)0.34), new((Half)1),
-        new((Half)0.55), new((Half)0.04), new((Half)0));
-    public void Validate()
+    /// <summary>Game-scale declarations (parts/catalog/*.tres carry the same bits): Basketball 0.34 m / 1 kg / bounce 0.55 / rolling
+    /// resistance 0.035 (an inflated shell); Bowling ball 0.28 m / 4 kg / bounce 0.14 / rolling resistance 0.03 (a smaller, heavier hard shell). Both share
+    /// drag 0.04 1/s, no buoyancy, friction 0.3 and a 0.1 m/s bounce threshold. A ball struck to 1 m/s on the bench rests within 4.5 s.</summary>
+    public static BallMaterial For(WorkshopPartKind kind) => kind switch
     {
-        var expected = Default;
+        WorkshopPartKind.Basketball => new(new((Half)0.34), new((Half)1), new((Half)0.55), new((Half)0.04), new((Half)0), new((Half).3), new((Half).1), new((Half).035)),
+        WorkshopPartKind.BowlingBall => new(new((Half)0.28), new((Half)4), new((Half)0.14), new((Half)0.04), new((Half)0), new((Half).3), new((Half).1), new((Half).03)),
+        _ => throw new ArgumentException("Unsupported ball kind.")
+    };
+    public void Validate(WorkshopPartKind kind)
+    {
+        var expected = For(kind);
         if (!HalfBits.Equal(Radius.Value, expected.Radius.Value) || !HalfBits.Equal(Mass.Value, expected.Mass.Value) ||
             !HalfBits.Equal(Bounce.Value, expected.Bounce.Value) || !HalfBits.Equal(Drag.Value, expected.Drag.Value) ||
-            !HalfBits.Equal(Buoyancy.Value, expected.Buoyancy.Value))
-            throw new ArgumentException("Only the default Basketball material is admitted.");
+            !HalfBits.Equal(Buoyancy.Value, expected.Buoyancy.Value) || !HalfBits.Equal(Friction.Value, expected.Friction.Value) ||
+            !HalfBits.Equal(BounceThreshold.Value, expected.BounceThreshold.Value) || !HalfBits.Equal(Rolling.Value, expected.Rolling.Value))
+            throw new ArgumentException("Only the declared material of this ball kind is admitted.");
     }
 }
 
-/// <summary>Durable construction uses canonical bits and identities, never a live Godot transform.</summary>
+/// <summary>One record for every dynamic sphere; the kind names its declared material. Durable construction uses canonical bits and
+/// identities, never a live Godot transform.</summary>
 public readonly record struct WorkshopBall(
-    GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, BasketballMaterial Material, bool Locked = false) : IWorkshopInstance
+    GpuBodyId Id, WorkshopPartKind Kind, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, BallMaterial Material, bool Locked = false) : IWorkshopInstance
 {
-    public WorkshopPartKind Kind => WorkshopPartKind.Basketball;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {
-        Material.Validate();
+        Material.Validate(Kind);
         Rotation.Validate();
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
     }
@@ -124,16 +135,19 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
 /// <summary>Only UI/resource boundary code may convert wider external numbers into game values.</summary>
 public static class WorkshopInput
 {
-    public static WorkshopBall Basketball(GpuBodyId id, double x, double y, double z,
+    public static WorkshopBall Ball(WorkshopPartKind kind, GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var rotation = new CanonicalRotation(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw));
-        var result = new WorkshopBall(id, new(px.Cell, py.Cell, pz.Cell),
-            new(px.Local, py.Local, pz.Local), rotation, BasketballMaterial.Default);
+        var result = new WorkshopBall(id, kind, new(px.Cell, py.Cell, pz.Cell),
+            new(px.Local, py.Local, pz.Local), rotation, BallMaterial.For(kind));
         result.Validate();
         return result;
     }
+    /// <summary>Authored puzzles name this kind explicitly.</summary>
+    public static WorkshopBall Basketball(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw) => Ball(WorkshopPartKind.Basketball, id, x, y, z, qx, qy, qz, qw);
 
     public static WorkshopReceiver Receiver(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw)

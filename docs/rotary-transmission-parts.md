@@ -1,6 +1,6 @@
 # Rotary transmission and source shafts
 
-Shafts, gearboxes, clutches, belts, motors and windmills are declaration data over the rigid-body, hinge-constraint and drive capabilities of the generic WASM SIMD128 f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory)). The ratio and engagement rows are solved in the shared Box2D v3 TGS Soft constraint pass; no part owns a solver. Delivered as ELEMENT-n roadmap slices (Reverse transmission CAT-057, Clutch CAT-018, Motor CAT-042, Conveyor CAT-019, Windmill CAT-070, Wound spring CAT-071; register S184).
+Shafts, gearboxes, clutches, belts, motors and windmills are declaration data over the rigid-body, hinge-constraint and drive capabilities of the generic WASM SIMD128 f32 solver ([capability inventory](gpu-f32-physics.md#capability-inventory)). The ratio and engagement rows are solved in the shared Box2D v3 TGS Soft constraint pass; no part owns a solver. Delivered as ELEMENT-n roadmap slices (Reverse transmission CAT-057, Clutch CAT-018, Motor CAT-042, Conveyor CAT-019, Windmill CAT-070, Wound spring CAT-071; register S184).
 
 ## Declaration data
 
@@ -17,7 +17,7 @@ Admission rejects undefined engagement, missing/foreign/duplicate ownership and 
 
 - Coupled shafts share motion through the ratio row; a clutch closure cannot create energy (equal-inertia closure shares speed without gain); opening preserves existing output momentum, and a later input impulse cannot affect an uncoupled output.
 - A motor supplies bounded effort and work; supply loss adds none and keeps an ideal hinge's momentum. Reported speed, travel events and artwork derive from committed physical motion, never from inferred engagement, copied downstream speed or independent angle integration.
-- Low torque against inertia accelerates slowly; energy never exceeds supplied work ([envelope](gpu-f16-physics.md#game-grade-envelope)).
+- Low torque against inertia accelerates slowly; energy never exceeds supplied work ([envelope](gpu-f32-physics.md#game-grade-envelope)).
 
 ## Chrome-observable acceptance
 

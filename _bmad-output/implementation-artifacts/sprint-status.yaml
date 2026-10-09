@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-09-2026 07:15
+last_updated: 10-09-2026 11:52
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -54,7 +54,9 @@ development_status:
   epic-5-retrospective: optional
 
   epic-6: in-progress
-  6-1-bowling-ball-dynamic-sphere: ready-for-dev
+  6-1-bowling-ball-dynamic-sphere: done
+  6-1b-engine-drag-application: done
+  6-1c-f32-committed-velocity-precision: in-progress
   6-2-bumper-radial-impulse-work-store: backlog
   6-3-bumper-multi-angle-contacts: backlog
   6-4-prismatic-slider-tgs-soft-spring: backlog

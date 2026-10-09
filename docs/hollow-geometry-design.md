@@ -1,6 +1,6 @@
 # Hollow geometry
 
-Hollow passages (Clear pipe CAT-048, Funnel CAT-030, bends CAT-049/050 and collars) are declared hollow/compound colliders evaluated in the shared shape-pair table of the single WASM SIMD f32 solver ([capability inventory](gpu-f16-physics.md#capability-inventory)). There is no annular-specific kernel and no AnnularFeature enum; the roadmap slice [CAT-048](planning/invest/vertical-delivery.md#rolling-playable-roadmap) deletes that legacy and makes radii authored data.
+Hollow passages (Clear pipe CAT-048, Funnel CAT-030, bends CAT-049/050 and collars) are declared hollow/compound colliders evaluated in the shared shape-pair table of the single WASM SIMD f32 solver ([capability inventory](gpu-f32-physics.md#capability-inventory)). There is no annular-specific kernel and no AnnularFeature enum; the roadmap slice [CAT-048](planning/invest/vertical-delivery.md#rolling-playable-roadmap) deletes that legacy and makes radii authored data.
 
 ## Declaration data
 
@@ -11,7 +11,7 @@ Hollow passages (Clear pipe CAT-048, Funnel CAT-030, bends CAT-049/050 and colla
 
 ## Behaviour
 
-A payload contacts the outer shell, the bore wall and the end rims through the same speculative-contact pass as every other shape (margin |v|·dt + slop, [envelope](gpu-f16-physics.md#game-grade-envelope)): a ball rolls or falls through a tube, follows a bend, jams when its diameter exceeds the bore and is deflected by a rim it strikes. Tube/frustum/bend junctions are continuous. A wall at least 1 cell thick is never tunnelled at up to 64 m/s. Moving hollow bodies use swept bounds covering full angular displacement. Resting penetration stays within contact slop; it never faults a tick.
+A payload contacts the outer shell, the bore wall and the end rims through the same speculative-contact pass as every other shape (margin |v|·dt + slop, [envelope](gpu-f32-physics.md#game-grade-envelope)): a ball rolls or falls through a tube, follows a bend, jams when its diameter exceeds the bore and is deflected by a rim it strikes. Tube/frustum/bend junctions are continuous. A wall at least 1 cell thick is never tunnelled at up to 64 m/s. Moving hollow bodies use swept bounds covering full angular displacement. Resting penetration stays within contact slop; it never faults a tick.
 
 ## Chrome-observable acceptance (CAT-048)
 

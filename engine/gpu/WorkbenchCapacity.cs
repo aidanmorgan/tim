@@ -33,7 +33,7 @@ public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, 
     public static WorkbenchFootprint Plane => new(1, 0, 1, 0, 0, 0);
     public static WorkbenchFootprint Of(WorkshopPartKind kind) => kind switch
     {
-        WorkshopPartKind.Basketball or WorkshopPartKind.Domino => new(1, 1, 1, 0, 0, 0),
+        WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Domino => new(1, 1, 1, 0, 0, 0),
         WorkshopPartKind.Receiver => new(1, 0, ReceiverGeometry.Walls.Length, 0, 0, 0),
         WorkshopPartKind.Ramp or WorkshopPartKind.Wall => new(1, 0, 1, 0, 0, 0),
         WorkshopPartKind.ImpactSwitch => new(1, 0, 2, 1, 0, 1),
@@ -57,7 +57,7 @@ public static class WorkbenchCapacity
         foreach (var instance in instances)
         {
             total += WorkbenchFootprint.Of(instance.Kind);
-            if (instance.Kind == WorkshopPartKind.Basketball) balls++;
+            if (instance is WorkshopBall) balls++;
             else if (instance.Kind == WorkshopPartKind.Receiver) receivers++;
         }
         // One contact material per body, so MaterialCapacity is covered by BodyCapacity.

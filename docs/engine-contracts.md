@@ -1,6 +1,6 @@
 # Current engine boundaries and protocol requirements
 
-This contract is used with [canonical IEEE-754 f32 game values and WASM SIMD physics](gpu-f16-physics.md), the [simulation–presentation bridge](simulation-presentation-bridge.md), [performance budgets](browser-physics-performance.md) and [current source acceptance](planning/requirements.md). It states the current target directly. [TODO](../TODO.md) owns implementation status. A frozen work-order approval or design fixture does not qualify the current runtime.
+This contract is used with [canonical IEEE-754 f32 game values and WASM SIMD physics](gpu-f32-physics.md), the [simulation–presentation bridge](simulation-presentation-bridge.md), [performance budgets](browser-physics-performance.md) and [current source acceptance](planning/requirements.md). It states the current target directly. [TODO](../TODO.md) owns implementation status. A frozen work-order approval or design fixture does not qualify the current runtime.
 
 ## Ownership and assemblies
 
@@ -45,7 +45,7 @@ Construction includes document/registry/allocator/puzzle identity, precision/mod
 
 Maximum construction is 1 MiB with 4096 entities, 8192 connections, 256 goals and 4096 placement targets; stricter admitted workload budgets may reject explicitly, never drop content. Generic qualification fixtures are not limited by an unrelated Workshop UI cap. Exact field layouts and new protocol/content version numbers are required reviewed P0-008/P0-016 decisions before a variant is admitted; the retired F64 byte layouts are not a current schema.
 
-Parameter declarations retain every named field/unit and mode: ball radius/mass/restitution/buoyancy/drag; wall dimensions; ramp dimensions; pipe length; receiver threshold; clock interval; counter integer target; pressure minimum mass; Hold/Delay duration; weight mass; spring stiffness/damping/precompression; trampoline tension/damping; clutch close duration; cannon capacity/charge power; motor speed/torque; wound-spring stiffness/stroke/lead; battery enabled; pusher stroke/speed/acceleration/force; conveyor dimensions/surface-per-radian; bumper strength; fan supply/force/reach/width; bellows force/reach/width; windmill response; lever mass/initial angle. Their current named model/source criteria own ranges. Logic And/Or/Xor/Nor/Nand, all eight optical colours, three tone bands and both 45°/90° bends remain distinct modes.
+Parameter declarations retain every named field/unit and mode: ball radius/mass/restitution/buoyancy/drag/rolling resistance; wall dimensions; ramp dimensions; pipe length; receiver threshold; clock interval; counter integer target; pressure minimum mass; Hold/Delay duration; weight mass; spring stiffness/damping/precompression; trampoline tension/damping; clutch close duration; cannon capacity/charge power; motor speed/torque; wound-spring stiffness/stroke/lead; battery enabled; pusher stroke/speed/acceleration/force; conveyor dimensions/surface-per-radian; bumper strength; fan supply/force/reach/width; bellows force/reach/width; windmill response; lever mass/initial angle. Their current named model/source criteria own ranges. Logic And/Or/Xor/Nor/Nand, all eight optical colours, three tone bands and both 45°/90° bends remain distinct modes.
 
 ## Wire and admission
 

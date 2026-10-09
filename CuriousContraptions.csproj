@@ -33,7 +33,7 @@
         <Compile Include="engine/WorkshopVisualBinding.cs" />
         <Compile Include="engine/WorkshopUiBinding.cs" />
         <Compile Include="engine/PartDefinition.cs" />
-        <Compile Include="engine/BasketballMaterialResource.cs" />
+        <Compile Include="engine/BallMaterialResource.cs" />
         <Compile Include="engine/RampDimensionsResource.cs" />
         <Compile Include="engine/WallDimensionsResource.cs" />
         <Compile Include="engine/DelayDurationResource.cs" />
