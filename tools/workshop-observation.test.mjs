@@ -42,7 +42,7 @@ for (const captureMode of [1, 2]) {
     let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
     const stallStates = [];
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [24080, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 19088, ScheduleRoles: () => [1, 2],
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 151472, ScheduleRoles: () => [1, 2],
         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
         PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
         ClockReply: () => new Uint8Array(144),
@@ -61,7 +61,7 @@ for (const captureMode of [1, 2]) {
     releasePreparation();
     await preparing;
     function publication(identity) {
-        const bytes = new Uint8Array(24080);
+        const bytes = new Uint8Array(24336);
         bytes.fill(7, 40, 56);
         new DataView(bytes.buffer).setBigUint64(56, identity, true);
         return bytes;
@@ -106,7 +106,7 @@ for (const captureMode of [1, 2]) {
     throwOutput = false;
     const reset = self.onmessage({ data: { bytes: new Uint8Array(72) } });
     await Promise.resolve();
-    imports.acknowledge(new Uint8Array(24080), true);
+    imports.acknowledge(new Uint8Array(24336), true);
     assert.equal(flushes, 2);
     release();
     await reset;
@@ -163,7 +163,7 @@ for (const control of Object.values(StartupControl)) {
         destroy: () => { deviceDestroyed = true; }
     };
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [24080, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 19088, ScheduleRoles: () => [1, 2],
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 151472, ScheduleRoles: () => [1, 2],
         CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
         PrepareGpu: () => control === StartupControl.EarlyLoss
             ? boundary.imports.initialize('fixture preamble')
@@ -196,7 +196,7 @@ for (const control of Object.values(StartupControl)) {
 {
     let dispatched = 0;
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [24080, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 19600,
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 151472,
         ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; }
     };
     const { self, messages } = await loadWorker(host);

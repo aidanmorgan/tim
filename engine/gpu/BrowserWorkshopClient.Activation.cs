@@ -13,7 +13,7 @@ public sealed partial class BrowserWorkshopClient
     private static AnimationTargetId ActivationTarget(ActivationNodeId node) => new(checked(node.Value + 2));
     private void RetireActivationFeedback()
     {
-        RetireTimerFeedback();
+        RetireTimerFeedback(); RetireElectricalFeedback();
         Array.Clear(_activationRequested); Array.Clear(_activationSamples); Array.Clear(_activationOrdinals);
     }
     private void PumpActivations()

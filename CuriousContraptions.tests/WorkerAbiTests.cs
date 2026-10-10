@@ -10,6 +10,11 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
 {
     private static readonly IReadOnlyDictionary<string, int> Owned = new Dictionary<string, int>
     {
+        ["ELECTRICAL_SOURCES_OFFSET"] = PhysicsGpuAbi.ElectricalSourcesOffset,
+        ["ELECTRICAL_SOURCE_BYTES"] = PhysicsGpuAbi.ElectricalSourceBytes,
+        ["ELECTRICAL_BINDINGS_OFFSET"] = PhysicsGpuAbi.ElectricalBindingsOffset,
+        ["ELECTRICAL_BINDING_BYTES"] = PhysicsGpuAbi.ElectricalBindingBytes,
+        ["CONTACT_WORKS_OFFSET"] = PhysicsGpuAbi.ContactWorksOffset,
         ["BODIES_OFFSET"] = PhysicsGpuAbi.BodiesOffset,
         ["BODY_BYTES"] = PhysicsGpuAbi.BodyBytes,
         ["BODY_VELOCITY"] = PhysicsGpuAbi.BodyVelocityOffset,

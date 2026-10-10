@@ -15,17 +15,28 @@ public sealed partial class BrowserWorkshopClient
     private readonly List<ContactPulse> _contactPulses = new();
     private PhysicsContactWorkRead _contactObserved;
     private SimulationEpoch _contactWorld;
+    private SimulationTick _contactObservedTick;
+    private PhysicsElectricalRead _contactElectricalObserved;
+    private bool _contactObservationValid;
     private static AnimationTargetId ContactTarget(GpuBodyId owner) => new(checked((2UL << 32) + owner.Value));
 
     private void RetireContactFeedback(SimulationEpoch epoch)
     {
-        _contactPulses.Clear(); _contactObserved = default; _contactWorld = epoch;
+        _contactPulses.Clear(); _contactObserved = default; _contactObservedTick = default; _contactElectricalObserved = default; _contactObservationValid = false; _contactWorld = epoch;
     }
     private void ObserveContactFeedback(WorkshopRead read)
     {
         if (_contactWorld != read.Epoch) throw new ArgumentException("Contact feedback epoch was not installed.");
         if (_readScene is null) throw new ArgumentException("Contact feedback lacks its installed scene.");
         read.ContactWorks.ValidateScene(_readScene,read.Bodies);
+        // Pause/cadence endpoints may repeat an already observed commit. Its per-commit credit is not a second transfer.
+        if (_contactObservationValid && read.Tick.Value <= _contactObservedTick.Value)
+        {
+            if (read.Tick != _contactObservedTick || !_contactObserved.HasSameBits(read.ContactWorks) ||
+                !_contactElectricalObserved.HasSameBits(read.Electrical))
+                throw new ArgumentException("Repeated physical observation changed or reversed work state.");
+            return;
+        }
         if (_contactObserved.Count == 0)
         {
             Span<ContactWorkRead> stores=stackalloc ContactWorkRead[PhysicsSceneDeclaration.ContactWorkCapacity];
@@ -54,9 +65,10 @@ public sealed partial class BrowserWorkshopClient
                 throw new ArgumentException("Contact feedback violated its target cooldown.");
         }
         var additional = 0;
-        for (var owner = 0; owner < read.ContactWorks.Count; owner++)
-            additional = checked(additional + checked((int)(read.ContactWorks[owner].OccurrenceCount -
-                _contactObserved[owner].OccurrenceCount)));
+        for (var i = 0; i < read.ContactWorks.OccurrenceCount; i++)
+            if (read.ContactWorks.Occurrence(i).Sequence != _contactObserved.Occurrence(i).Sequence &&
+                read.ContactWorks.Occurrence(i).Effect == ContactWorkEffect.Paid)
+                additional++;
         if (additional > PhysicsSceneDeclaration.ContactWorkCapacity * ContactWorkRead.MaximumOccurrences - _contactPulses.Count)
             throw new InvalidOperationException("Contact feedback history exhausted.");
         // Owner sequences order simultaneous targets independently of target identity order.
@@ -65,10 +77,13 @@ public sealed partial class BrowserWorkshopClient
                 for (var i=0; i<read.ContactWorks.OccurrenceCount; i++)
                 {
                     var current=read.ContactWorks.Occurrence(i);
-                    if (current.Work.Value==owner && current.Sequence==sequence)
+                    if (current.Work.Value==owner && current.Sequence==sequence && current.Effect==ContactWorkEffect.Paid)
                         _contactPulses.Add(new() { Event=current, Owner=read.ContactWorks[owner].Owner });
                 }
         _contactObserved = read.ContactWorks;
+        _contactObservedTick = read.Tick;
+        _contactElectricalObserved = read.Electrical;
+        _contactObservationValid = true;
     }
     private void PumpContactFeedback()
     {

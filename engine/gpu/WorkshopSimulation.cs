@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CuriousContraptions.Gpu;
@@ -8,7 +9,7 @@ public enum WorkshopCommandOutcome { Applied, Rejected, Superseded, Faulted, Can
 public enum WorkshopRejection { None, Busy, InvalidConstruction, WrongRevision, WrongPhase, GpuAdmission, DeviceLost, InvalidRead, IdentityExhausted, StaleGeneration, Cancelled, AlreadyCommitted, Capacity, ReliableStalled, Transport }
 public readonly record struct WorkshopCommandResult(WorkshopCommandOutcome Outcome, WorkshopRejection Reason);
 public readonly partial record struct WorkshopRead(SimulationEpoch Epoch, SimulationTick Tick, PhysicsBodyReadSet Bodies, AuthorityRevision Revision = default, WorkshopClockStamp? Capture = null,
-    PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default);
+    PhysicsCaptureRead Captures = default, PhysicsMotionRead? Motion = null, PhysicsActivationRead Activations = default, PhysicsTimerRead Timers = default, PhysicsContactWorkRead ContactWorks = default, PhysicsElectricalRead Electrical = default);
 public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, WorkshopRead Read);
 
 /// <summary>Implemented only by the simulation worker's WebGPU adapter. No numerical host alternative.</summary>
@@ -43,6 +44,23 @@ public interface IWorkshopInstallation
 
 public sealed class WorkshopSimulation : IAsyncDisposable
 {
+    private readonly Dictionary<GpuBodyId, ElectricalEnable> _electricalControls = new();
+    public ElectricalEnable ElectricalState(GpuBodyId owner, ElectricalEnable previous) =>
+        _electricalControls.TryGetValue(owner, out var state) ? state : previous;
+    public WorkshopCommandResult ConfigureElectrical(WorkshopElectricalControl control)
+    {
+        control.Validate();
+        if (_pending != 0) return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.Busy);
+        if (Phase is not (WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused))
+            return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.WrongPhase);
+        foreach (var instance in Construction.Instances)
+            if (instance is WorkshopBattery battery && battery.Id == control.Owner && !battery.Locked)
+            {
+                _electricalControls[control.Owner] = control.Enabled;
+                return new(WorkshopCommandOutcome.Applied, WorkshopRejection.None);
+            }
+        return new(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction);
+    }
     private readonly IWorkshopGpuDevice _device;
     private readonly IWorkshopCaptureClock _clock;
     private readonly IWorkshopInstallation _installation;
@@ -132,7 +150,9 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             await _installation.Prepare(new(owner), read, candidate, Profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
+            _electricalControls.Clear();
             Construction = candidate;
+            _electricalControls.Clear();
             Committed = read;
             _epoch = epoch.Value;
             Phase = WorkshopSimulationPhase.Building;
@@ -171,6 +191,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             var read = Committed with { Revision = new(Revision.Value + 1) };
             await _installation.Prepare(new(owner), read, Construction, Profile, target);
             if (!Owns(owner)) return Superseded(owner);
+            if (expected == WorkshopSimulationPhase.Building) _electricalControls.Clear();
             Committed = read; Phase = target;
             return Applied();
         }
@@ -198,6 +219,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             await _installation.Prepare(new(owner), read, construction, profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
+            _electricalControls.Clear();
             Construction = construction; Profile = profile; Committed = read; Phase = WorkshopSimulationPhase.Building;
             return Applied();
         }
@@ -371,7 +393,16 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         {
             var work = physics.ContactWorks[i];
             var expected = new ContactWorkRead(work.Id, work.Owner, 0, work.InitialEnergy);
-            if (read.ContactWorks[i] != expected || !HalfBits.Equal(read.ContactWorks[i].RemainingEnergy.Value,expected.RemainingEnergy.Value)) throw new ArgumentException("Admission retained spent contact work.");
+            if (read.ContactWorks[i] != expected || !read.ContactWorks[i].RemainingEnergy.HasSameBits(expected.RemainingEnergy)) throw new ArgumentException("Admission retained spent contact work.");
+        }
+        if (read.Electrical.Count != physics.Electrical.Sources.Length)
+            throw new ArgumentException("Admission source population changed.");
+        for (var i = 0; i < read.Electrical.Count; i++)
+        {
+            var source = physics.Electrical.Sources[i]; var actual = read.Electrical[i];
+            if (actual.Id != source.Id || actual.Owner != source.Owner || actual.Enabled != source.Enabled ||
+                !actual.Remaining.HasSameBits(source.InitialEnergy) || actual.Debit.Value != 0)
+                throw new ArgumentException("Admission retained source work.");
         }
         read.ContactWorks.ValidateScene(physics,read.Bodies);
         for (var i=0; i<read.ContactWorks.OccurrenceCount; i++)
@@ -393,7 +424,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
         read.Bodies.ValidateScene(physics, epoch, read.Tick);
     }
 
-    private static void ValidateAdvancedRead(WorkshopRead source, WorkshopRead read)
+    private void ValidateAdvancedRead(WorkshopRead source, WorkshopRead read)
     {
         if (source.Tick.Value == ulong.MaxValue || read.Epoch != source.Epoch ||
             read.Tick.Value != source.Tick.Value + 1 || read.Bodies.Count != source.Bodies.Count)
@@ -402,6 +433,16 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             read.Activations.Count != source.Activations.Count || read.Timers.Count != source.Timers.Count || read.ContactWorks.Count != source.ContactWorks.Count)
             throw new ArgumentException("Physical read population changed.");
         read.ContactWorks.ValidateAdvance(source.ContactWorks);
+        read.Electrical.ValidateAdvance(source.Electrical);
+        if (read.Motion is { } motion)
+        {
+            var hasPhase = (motion.LastOrdinal + 3) / 4 > (motion.FirstOrdinal + 3) / 4;
+            for (var i = 0; i < read.Electrical.Count; i++)
+            {
+                var expected = hasPhase ? ElectricalState(source.Electrical[i].Owner, source.Electrical[i].Enabled) : source.Electrical[i].Enabled;
+                if (read.Electrical[i].Enabled != expected) throw new ArgumentException("Electrical phase did not apply the authorised enable state.");
+            }
+        }
         read.Bodies.ValidateTime(read.Epoch, read.Tick);
         for (var i = 0; i < read.Captures.Count; i++)
             if (read.Captures[i].Sensor != source.Captures[i].Sensor ||

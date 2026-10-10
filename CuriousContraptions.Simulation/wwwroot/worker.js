@@ -30,6 +30,11 @@ const MOTION_DRAG_RATE = 54;            // PhysicsMotionRead.DragRateOffset (Hal
 const MOTION_VELOCITY = 64;             // PhysicsMotionRead.VelocityOffset (f32 m/s)
 const MOTION_ANGULAR_VELOCITY = 76;     // PhysicsMotionRead.AngularVelocityOffset (f32 rad/s)
 const MOTION_GRAVITY = 88;              // PhysicsMotionRead.GravityOffset (Half m/s² x3)
+const ELECTRICAL_SOURCES_OFFSET = 150832; // PhysicsGpuAbi.ElectricalSourcesOffset
+const ELECTRICAL_SOURCE_BYTES = 64;
+const ELECTRICAL_BINDINGS_OFFSET = 151344; // PhysicsGpuAbi.ElectricalBindingsOffset
+const ELECTRICAL_BINDING_BYTES = 16;
+const CONTACT_WORKS_OFFSET = 15136; // PhysicsGpuAbi.ContactWorksOffset
 const READ_BODIES_OFFSET = 128;         // WorkshopWire.ReadBodiesOffset
 const BODY_WIRE_BYTES = 64;             // PhysicsBodyWire.ByteLength
 const BODY_WIRE_VELOCITY = 40;          // PhysicsBodyWire.VelocityOffset (f32 m/s)
@@ -708,6 +713,16 @@ function effectiveMass(c, dx, dy, dz) {
     return k > 0 ? 1 / k : 0;
 }
 
+// The paid response runs after pose integration, so its arms and inertia must belong to that state.
+export function contactWorkFrame(contact) {
+    const c = { ...contact,
+        rAx: contact.px - contact.a.cmx, rAy: contact.py - contact.a.cmy, rAz: contact.pz - contact.a.cmz,
+        rBx: contact.px - contact.b.cmx, rBy: contact.py - contact.b.cmy, rBz: contact.pz - contact.b.cmz };
+    const relative = relativeVelocity(c);
+    return { contact: c, inverseMass: 1 / effectiveMass(c, c.nx, c.ny, c.nz),
+        speed: relative[0] * c.nx + relative[1] * c.ny + relative[2] * c.nz };
+}
+
 function warmStartContact(c) {
     const px = c.lambdaN * c.nx + c.lambdaT1 * c.t1[0] + c.lambdaT2 * c.t2[0];
     const py = c.lambdaN * c.ny + c.lambdaT1 * c.t1[1] + c.lambdaT2 * c.t2[1];
@@ -958,6 +973,10 @@ function advanceCandidate(source, candidate) {
     view.setBigUint64(40, currentTick + 1n, true);
 
     const sourceOrdinal = view.getUint32(88, true);
+    for (let work = 0; work < view.getUint32(104, true); work++)
+        view.setFloat32(CONTACT_WORKS_OFFSET + work * 64 + 52, 0, true);
+    for (let supply = 0; supply < view.getUint32(120, true); supply++)
+        view.setFloat32(ELECTRICAL_SOURCES_OFFSET + supply * ELECTRICAL_SOURCE_BYTES + 40, 0, true);
     const cadence = view.getUint32(48, true);
     const steps = cadence === 1 ? 8 : (cadence === 2 ? 4 : 2);
     const nextOrdinal = sourceOrdinal + steps;
@@ -1190,7 +1209,7 @@ function advanceCandidate(source, candidate) {
     });
 
     // Declared contact triggers and finite contact-work stores on a static owner respond to any dynamic body.
-    const emitContactEvents = (colStatic, bDyn, approach, normalTowardDyn, s) => {
+    const emitContactEvents = (colStatic, bDyn, approach, normalTowardDyn, contact, s) => {
         const bStatic = colStatic.body;
         const triggerCount = view.getUint32(100, true);
         for (let t = 0; t < triggerCount; t++) {
@@ -1222,7 +1241,7 @@ function advanceCandidate(source, candidate) {
             const kind = view.getUint32(wOffset + 12, true);
             const named = view.getUint32(wOffset + 28, true);
             if (kind === 1 && named !== bDyn.bodySlot) continue;
-            const threshold = getF16(view, wOffset + 20);
+            const threshold = view.getFloat32(wOffset + 20, true);
             if (approach < threshold) continue;
             for (let o = 0; o < workOccCount; o++) {
                 const oOffset = 15648 + o * 32;
@@ -1235,23 +1254,30 @@ function advanceCandidate(source, candidate) {
                 const cooldown = view.getUint32(wOffset + 24, true);
                 const curOrd = sourceOrdinal + s + 1;
                 const curCount = view.getUint32(wOffset + 32, true);
-                const sourceWorkCount = new DataView(source.buffer, source.byteOffset, source.byteLength).getUint32(wOffset + 32, true);
-                if (curCount === sourceWorkCount && (prevSeq === 0 || curOrd >= prevOrd + cooldown)) {
+                const previousInCommit = prevOrd > sourceOrdinal;
+                if (!previousInCommit && (prevSeq === 0 || curOrd >= prevOrd + cooldown)) {
                     const newCount = curCount + 1;
                     view.setUint32(wOffset + 32, newCount, true);
                     view.setUint16(oOffset + 2, colStatic.index, true);
                     view.setUint32(oOffset + 12, newCount, true);
                     view.setUint32(oOffset + 16, curOrd, true);
                     setF16(view, oOffset + 20, 0);
-                    setF16(view, oOffset + 22, approach);
-                    setF16(view, oOffset + 24, 0);
-                    view.setUint8(oOffset + 26, 0);
-                    new Uint8Array(candidate.buffer, candidate.byteOffset + oOffset + 27, 5).fill(0);
-
-                    const targetSpeed = getF16(view, wOffset + 16);
-                    bDyn.vx = normalTowardDyn[0] * targetSpeed;
-                    bDyn.vy = normalTowardDyn[1] * targetSpeed;
-                    bDyn.vz = normalTowardDyn[2] * targetSpeed;
+                    view.setFloat32(oOffset + 22, approach, true);
+                    const workFrame = contactWorkFrame(contact);
+                    const speed = workFrame.speed;
+                    const response = host.PaidContactImpulse(speed, view.getFloat32(wOffset + 16, true),
+                        workFrame.inverseMass, view.getFloat32(wOffset + 48, true),
+                        normalTowardDyn[0], normalTowardDyn[1], normalTowardDyn[2]);
+                    view.setFloat32(wOffset + 48, response[0], true);
+                    view.setFloat32(oOffset + 26, response[1], true);
+                    view.setUint8(oOffset + 30, response[1] > 0 ? 1 : 0);
+                    new Uint8Array(candidate.buffer, candidate.byteOffset + oOffset + 31, 1).fill(0);
+                    const isA = contact.a === bDyn;
+                    applyImpulse(bDyn, response[2], response[3], response[4],
+                        isA ? workFrame.contact.rAx : workFrame.contact.rBx,
+                        isA ? workFrame.contact.rAy : workFrame.contact.rBy,
+                        isA ? workFrame.contact.rAz : workFrame.contact.rBz);
+                    settleVelocity(bDyn);
                 }
                 break;
             }
@@ -1259,6 +1285,30 @@ function advanceCandidate(source, candidate) {
     };
 
     for (let s = 0; s < steps; s++) {
+        if ((sourceOrdinal + s) % 4 === 0) {
+            for (let supply = 0; supply < view.getUint32(120, true); supply++) {
+                const record = ELECTRICAL_SOURCES_OFFSET + supply * ELECTRICAL_SOURCE_BYTES;
+                const ownerOffset = BODIES_OFFSET + view.getUint32(record + 8, true) * BODY_BYTES;
+                view.setUint32(record + 36, host.ElectricalState(view.getInt32(ownerOffset, true),
+                    view.getInt32(ownerOffset + 4, true), view.getUint32(record + 36, true)), true);
+                const stores = [], balances = [], capacities = [], credits = [];
+                for (let route = 0; route < view.getUint32(124, true); route++) {
+                    const binding = ELECTRICAL_BINDINGS_OFFSET + route * ELECTRICAL_BINDING_BYTES;
+                    if (view.getUint32(binding, true) !== supply) continue;
+                    const store = CONTACT_WORKS_OFFSET + view.getUint32(binding + 4, true) * 64;
+                    stores.push(store); balances.push(view.getFloat32(store + 48, true));
+                    capacities.push(view.getFloat32(store + 36, true)); credits.push(view.getFloat32(store + 52, true));
+                }
+                const paid = host.AllocateElectrical(view.getUint32(record + 36, true),
+                    view.getFloat32(record + 32, true), view.getFloat32(record + 20, true),
+                    view.getFloat32(record + 40, true), balances, capacities, credits);
+                view.setFloat32(record + 32, paid[0], true); view.setFloat32(record + 40, paid[1], true);
+                for (let load = 0; load < stores.length; load++) {
+                    view.setFloat32(stores[load] + 48, paid[2 + load * 2], true);
+                    view.setFloat32(stores[load] + 52, paid[3 + load * 2], true);
+                }
+            }
+        }
         // 1. Guides Force Evaluation
         const guideCount = view.getUint32(96, true);
         for (let g = 0; g < guideCount; g++) {
@@ -1396,8 +1446,8 @@ function advanceCandidate(source, candidate) {
         // Declared static-owner responses to a qualifying approach (first touching point per manifold wins).
         for (const c of contacts) {
             if (c.maxImpulse <= 0 || currentSeparation(c) > 0) continue;
-            if (c.a.motion === 1 && c.b.motion === 0) emitContactEvents(c.colB, c.a, -c.relVel, [c.nx, c.ny, c.nz], s);
-            else if (c.b.motion === 1 && c.a.motion === 0) emitContactEvents(c.colA, c.b, -c.relVel, [-c.nx, -c.ny, -c.nz], s);
+            if (c.a.motion === 1 && c.b.motion === 0) emitContactEvents(c.colB, c.a, -c.relVel, [c.nx, c.ny, c.nz], c, s);
+            else if (c.b.motion === 1 && c.a.motion === 0) emitContactEvents(c.colA, c.b, -c.relVel, [-c.nx, -c.ny, -c.nz], c, s);
         }
 
         // Declared orientation-threshold sensors sample the substep endpoint: |<q, q0>| at or below the declared cosine

@@ -185,6 +185,7 @@ const UI_ANCHORS = {
         bumper: { x: 130, y: 450 },
         domino: { x: 130, y: 562 },
         bowling: { x: 130, y: 612 },
+        battery: { x: 130, y: 664 },
         ramp: { x: 130, y: 155 },
     },
     picker: {
@@ -193,6 +194,7 @@ const UI_ANCHORS = {
         free_workshop: { x: 600, y: 125 },
         delayed_signal: { x: 600, y: 155 },
         domino_effect: { x: 600, y: 172 },
+        bumper_sidekick: { x: 600, y: 195 },
     },
     menu: {
         button: { x: 1394, y: 46 },
@@ -202,12 +204,12 @@ const UI_ANCHORS = {
         resume: { x: 1130, y: 240 },
     },
     dock: {
-        // Free workshop lists ten unlimited rows (Ramp, Domino, then Bowling ball appended last), so its part dock sits one row (51 px) lower than the nine-row layout.
+        // Free workshop lists eleven unlimited rows; Battery follows Bowling ball, shifting the unconstrained part dock down one row (51 px).
         free_workshop: {
-            move: { x: 60, y: 707 },
-            rotate: { x: 104, y: 707 },
-            resize: { x: 148, y: 707 },
-            delete: { x: 192, y: 707 },
+            move: { x: 60, y: 758 },
+            rotate: { x: 104, y: 758 },
+            resize: { x: 148, y: 758 },
+            delete: { x: 192, y: 758 },
         },
         first_principles: {
             move: { x: 40, y: 275 },
@@ -237,12 +239,12 @@ const UI_ANCHORS = {
         connect: {
             locked: { x: 133, y: 236 },
             delay: { x: 133, y: 277 },
-            domino: { x: 133, y: 695 },
+            domino: { x: 133, y: 746 },
         },
         // "ActivationOut → ActivationIn" choice offered after clicking the target part: the row takes the connect row's place.
         choice: {
             authored: { x: 133, y: 232 },
-            free_workshop: { x: 133, y: 695 },
+            free_workshop: { x: 133, y: 746 },
         },
     },
     // "Show hint" lightbulb button inside the objective panel (ui/Workshop.cs ShowHint); the panel height follows the task text.
@@ -260,7 +262,7 @@ const UI_ANCHORS = {
     }
 } as const;
 
-export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect';
+export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect' | 'bumper_sidekick';
 
 export class WorkshopDriver {
     readonly browser: Browser;
@@ -448,11 +450,11 @@ export class WorkshopDriver {
     }
 
     // High-level UI operations (encapsulating all UI button locations)
-    async selectTool(kind: 'basketball' | 'bowling' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver' | 'domino'): Promise<void> {
+    async selectTool(kind: 'basketball' | 'bowling' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver' | 'domino' | 'battery'): Promise<void> {
         // The Bowling ball row exists only in the free-workshop palette; no authored level offers it.
-        if (kind === 'bowling' && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer the Bowling ball`);
+        if ((kind === 'bowling' || kind === 'battery') && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer this free-workshop part`);
         let anchor: { x: number; y: number } = UI_ANCHORS.palette[kind];
-        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino')) {
+        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino') || (this.currentLevel === 'bumper_sidekick' && kind === 'bumper')) {
             anchor = { x: 130, y: 155 }; // the authored inventory's single palette row
         }
         if (this.currentLevel === 'free_workshop' && kind === 'ramp') {

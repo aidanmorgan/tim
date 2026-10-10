@@ -3,26 +3,33 @@ using System;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Explicit authoring calibration; the shared kernel receives speed and finite joules.</summary>
-public readonly record struct BumperWork(LinearSpeed Strength, Kilograms ReferenceMass, Joules Preload)
+public readonly record struct BumperWork(ContactSpeed Strength, WorkMass ReferenceMass, Joules Preload)
 {
-    public static BumperWork Default => FromCanonicalStrength((Half)8);
-    public static BumperWork FromCanonicalStrength(Half strength)
+    public static BumperWork FromCalibration(ContactWorkCalibration calibration)
     {
-        PhysicsDeclarationBounds.Range(strength, (Half)0, (Half)20);
-        var referenceMass = new Kilograms((Half)1);
-        var energy = (Half)((Half)((Half).5 * referenceMass.Value) * (Half)(strength * strength));
+        calibration.Validate();
+        var work = new BumperWork(calibration.TargetSpeed, calibration.ReferenceMass, calibration.InitialEnergy);
+        work.Validate();
+        return work;
+    }
+    public static BumperWork Default => FromCanonicalStrength(8f);
+    public static BumperWork FromCanonicalStrength(float strength)
+    {
+        new ContactSpeed(strength).Validate(20f);
+        var referenceMass = new WorkMass(1f);
+        var energy = .5f * (float)referenceMass.Value * (float)strength * (float)strength;
         return new(new(strength), referenceMass, new(energy));
     }
     public static BumperWork FromInput(double strength)
     {
         if (!double.IsFinite(strength) || strength < 0 || strength > 20)
             throw new ArgumentException("Bumper strength is outside its authored range.");
-        return FromCanonicalStrength((Half)strength);
+        return FromCanonicalStrength((float)strength);
     }
     public void Validate()
     {
-        PhysicsDeclarationBounds.Range(Strength.Value, (Half)0, (Half)20);
-        if (ReferenceMass.Value != (Half)1 || Preload != FromCanonicalStrength(Strength.Value).Preload)
+        Strength.Validate(20f);
+        if (ReferenceMass.Value != 1f || Preload != FromCanonicalStrength(Strength.Value).Preload)
             throw new ArgumentException("Bumper preload differs from its declared reference-mass calibration.");
     }
 }

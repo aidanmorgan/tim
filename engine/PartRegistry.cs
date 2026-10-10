@@ -35,12 +35,17 @@ public sealed class PartRegistry
         delay.Delay.Capture();
         var bumper = ResourceLoader.Load<PartDefinition>("res://parts/catalog/bumper.tres");
         if (bumper is null || bumper.Scene is null || bumper.WorkshopKind != WorkshopPartKind.PinballBumper ||
-            bumper.Bumper is null || bumper.Parameters.Count != 0)
+            bumper.ContactWork is null || bumper.Parameters.Count != 0)
             throw new ArgumentException("Canonical Pinball bumper resource is invalid.");
-        bumper.Bumper.Capture();
+        Gpu.BumperWork.FromCalibration(bumper.ContactWork.Capture());
         var domino = ResourceLoader.Load<PartDefinition>("res://parts/catalog/domino.tres");
         if (domino is null || domino.Scene is null || domino.WorkshopKind != WorkshopPartKind.Domino || domino.Parameters.Count != 0)
             throw new ArgumentException("Canonical Domino resource is invalid.");
+        var battery = ResourceLoader.Load<PartDefinition>("res://parts/catalog/battery.tres");
+        if (battery is null || battery.Scene is null || battery.WorkshopKind != WorkshopPartKind.Battery ||
+            battery.ElectricalSource is null || battery.Parameters.Count != 0)
+            throw new ArgumentException("Canonical Battery resource is invalid.");
+        battery.ElectricalSource.Capture();
         _definitions.Clear();
         _definitions.Add(WorkshopPartKind.Basketball, ball);
         _definitions.Add(WorkshopPartKind.Receiver, receiver);
@@ -52,6 +57,7 @@ public sealed class PartRegistry
         _definitions.Add(WorkshopPartKind.PinballBumper, bumper);
         _definitions.Add(WorkshopPartKind.Domino, domino);
         _definitions.Add(WorkshopPartKind.BowlingBall, bowling);
+        _definitions.Add(WorkshopPartKind.Battery, battery);
     }
     /// <summary>Every ball kind ships as the same typed material resource; its bits must equal the declared material of that kind.</summary>
     private static PartDefinition LoadBall(string path, WorkshopPartKind kind)
@@ -64,7 +70,7 @@ public sealed class PartRegistry
     }
     public MachinePart Create(WorkshopPartKind kind)
     {
-        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino) || !_definitions.TryGetValue(kind, out var definition))
+        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino or WorkshopPartKind.Battery) || !_definitions.TryGetValue(kind, out var definition))
             throw new ArgumentException("This catalogue part is not supported by the current GPU Workshop.");
         var part = definition.Scene.Instantiate<MachinePart>();
         try { part.Configure(definition); return part; }

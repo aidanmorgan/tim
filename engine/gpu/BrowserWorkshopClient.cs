@@ -147,7 +147,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         }
     }
 
-    public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null)
+    public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null, WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         if (_memoryRequest is not null) throw new InvalidOperationException("A stopped memory observation owns this client.");
@@ -157,10 +157,10 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (_sequence == ulong.MaxValue) throw new InvalidOperationException("Workshop command sequence is exhausted.");
         var sequence = new CommandSequence(_sequence + 1);
         // Pause targets the current drained endpoint; physical commits may advance after B sends it.
-        var revisionKind = kind is WorkshopCommandKind.Pause or WorkshopCommandKind.Reset or WorkshopCommandKind.Cancel or WorkshopCommandKind.Dispose
+        var revisionKind = kind is WorkshopCommandKind.Pause or WorkshopCommandKind.Reset or WorkshopCommandKind.Cancel or WorkshopCommandKind.Dispose or WorkshopCommandKind.ConfigureElectrical
             ? ExpectedRevisionKind.Any : ExpectedRevisionKind.Exact;
         var command = new WorkshopCommand(sequence, kind, Epoch,
-            revisionKind == ExpectedRevisionKind.Any ? default : Revision, construction, target, revisionKind, Peer.Session, _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, settings);
+            revisionKind == ExpectedRevisionKind.Any ? default : Revision, construction, target, revisionKind, Peer.Session, _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, settings, electrical);
         var bytes = WorkshopWire.Encode(command);
         _sequence = sequence.Value;
         _pending++;

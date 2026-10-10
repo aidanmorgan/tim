@@ -40,6 +40,7 @@ public partial class Workshop : Node3D
     private const int FreeWorkshopIndex = 1;
     private const int DelayedSignalIndex = 2;
     private const int DominoEffectIndex = 3;
+    private const int BumperSidekickIndex = 4;
     private GpuBodyId _nextId = new(1);
     private IReadOnlyDictionary<WorkshopPartKind, PartAllowance> _inventory = new Dictionary<WorkshopPartKind, PartAllowance>();
     private readonly List<WorkshopConstruction> _undo = new();
@@ -59,6 +60,7 @@ public partial class Workshop : Node3D
         _picker.AddItem("Free workshop");
         _picker.AddItem("Wait for it");
         _picker.AddItem("The domino effect");
+        _picker.AddItem("A little sidekick");
         PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
@@ -418,6 +420,7 @@ public partial class Workshop : Node3D
             {
                 if (!mouse.Pressed) _dragging = _lifting = false;
                 else if (CanEdit) Click(mouse.Position);
+                else if (_inRun && !_gpuPending) Select(Pick(mouse.Position));
             }
         }
         else if (input is InputEventMouseMotion motion)
@@ -698,6 +701,7 @@ public partial class Workshop : Node3D
     }
     public override void _PhysicsProcess(double delta)
     {
+        RefreshBatteryObservation();
         _time.Text = $"{World.Ticks / (double)World.Construction.Settings.SimulationRate.Numerator:00.00} s";
         var transport = World.TransportState;
         var transportChanged = transport != _displayedTransportState;
@@ -732,7 +736,9 @@ public partial class Workshop : Node3D
 
     private void ShowHint()
     {
-        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples
+        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperSidekick
+            ? "Put the bumper just left of the falling ball to send it toward the receiver."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples
             ? "Start with a gentle slope below the ball. Use the second ramp to continue the journey toward the receiver."
             : World.Construction.Puzzle.Id == WorkshopPuzzleId.DelayedSignal
                 ? "Connect switch → delay → lamp. A trigger starts the one-second countdown; further triggers are ignored until Reset."

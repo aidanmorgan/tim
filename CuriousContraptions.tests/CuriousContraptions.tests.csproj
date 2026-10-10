@@ -51,6 +51,7 @@
         <Compile Include="WorkshopWallTests.cs" />
         <Compile Include="WorkshopDelayTests.cs" />
         <Compile Include="WorkshopBumperTests.cs" />
+        <Compile Include="ElectricalSupplyTests.cs" />
         <Compile Include="WorkshopDominoTests.cs" />
         <Compile Include="WorkshopBowlingTests.cs" />
         <Compile Include="OrientationSensorTests.cs" />

@@ -274,7 +274,7 @@ public static partial class Program
             {
                 from = control.From;
                 to = control.To;
-                start = control.Kind == AnimationControlKind.Reveal;
+                start = control.Kind is AnimationControlKind.Reveal or AnimationControlKind.Transition;
             }
             var duration = control.Kind == AnimationControlKind.TimerObservation && control.Timer.Phase == AnimationTimerPhase.Counting
                 ? (Half)Math.Max(0.01, (control.Timer.Due - control.Timer.Observed) * (double)schedule.Settings.SimulationRate.Denominator / schedule.Settings.SimulationRate.Numerator)

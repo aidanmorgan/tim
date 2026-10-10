@@ -18,7 +18,7 @@
 | Body and shape | One static body with one static sphere collider, radius 0.65 m `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L119-L126`; full pose `engine/gpu/WorkshopBumper.cs@a6c914e:L29-L39`. |
 | Material | restitution 1, bounce threshold 0.1 m/s, friction 0.3 `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L107-L110`. |
 | Constraints and joints | none (static head). |
-| Sockets and ports | none today `engine/gpu/WorkshopConnections.cs@a6c914e:L18-L26`. Owner decision (9 Oct 2026): add a typed recharge connection in Story 6.2. Source, port mapping and recharge rate remain unspecified pending the source decision (§6); this is required new work, not a claim that baseline ports exist. |
+| Sockets and ports | none at the pinned baseline `engine/gpu/WorkshopConnections.cs@a6c914e:L18-L26`. Owner decision (9 Oct 2026): add a typed recharge connection in Story 6.2. Current integration declares electrical PowerIn supplied by Battery Supply, with one supplier per store and bounded source fan-out. Default source limit is120 W at120 Hz; default store capacity32 J. This is new work, not a claim that baseline ports existed. |
 | Sensors and activation | Contact qualified by approach speed ≥ 0.05 m/s `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L123-L125`. |
 | Work and energy stores | One finite `ContactWorkDeclaration` per bumper: target speed = strength, initial energy = preload, threshold 0.05 m/s, per-target cooldown 72 physical steps (0.15 s at 480 Hz); one reservoir shared by all targets; occurrences Passive or Paid `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L19-L49`. Owner decision (9 Oct 2026): when remaining energy cannot pay the full requested boost, apply only the affordable partial boost and debit its actual positive work; zero energy leaves ordinary contact bounce. A connected source may recharge the finite store only by supplying accounted work. |
 | Parameters | strength 0–20 m/s, default 8; reference mass fixed 1 kg; preload = ½ · 1 kg · strength² (default 32 J) `engine/gpu/WorkshopBumper.cs@a6c914e:L5-L28`; resource bits `engine/BumperWorkResource.cs@a6c914e:L8-L21`. |
@@ -39,11 +39,11 @@ Families from the [element map row](../general-engine-element-map.md): Animation
 
 | Missing | Story that builds it |
 | --- | --- |
-| Admitted radial-impulse and energy model decision; generic finite work store replacing `engine/BumperWorkResource.cs` | Story 6.2 |
+| Root integration and sidekick acceptance of the independently reviewed paid radial impulse/generic finite store | Story 6.2; isolated model and recharge prerequisite passed, integrated proof pending |
 | Glancing/multi-angle qualification; bumper_depth and wall_and_bumper | Story 6.3 |
 | SignalPropagation / JointConstraint memberships (no declared mode uses them yet) | owner decision (§6) |
 | Physical placement nudging (authored placement correction that moves the bumper's collider; legacy fact 5) | not scheduled, owner decision: the roadmap reports physical nudging unsupported in the current playable mode ([first_principles](../invest/vertical-delivery.md#first-principles)) |
-| f32 declarations: `BumperWork` strength, reference mass and preload (`Joules`), contact-work speeds and debits, the sphere radius, pose, the cosmetic envelope and the `BumperWorkResource` `*Bits` fields are still binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)) |
+| Remaining sphere geometry, pose and cosmetic lanes retain inherited binary16 precision. Current integration migrates strength, reference mass, preload, contact speeds/debits and resource authoring to f32; `BumperWorkResource` is retired for generic `ContactWorkResource`. | Remaining shared lanes: Epic16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)); affected contact-work integration proof: Story6.2 |
 
 Dependencies: a dynamic body; Wall (CAT-066) for wall_return and wall_and_bumper.
 
@@ -82,10 +82,10 @@ Acceptance: [CAT-015](../requirements.md#current-cat-015) and [retained behaviou
 - **Boundaries.** Strength 0 and 20; per-ball cooldown edge.
 - **Run/Reset, Save/Load.** Store, cooldowns and rings reset; strength persists.
 - **Integrations.** Contact and cargo connection audit [sequence-task-285](../requirements.md#sequence-task-285) (bumper); wall and bumper teaching [sequence-task-304](../requirements.md#sequence-task-304) and [todo-163](../requirements.md#todo-163); [IX-01 contact impulse](../requirements.md#interaction-01); campaign first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (physical presets row). Partners: Wall (CAT-066) in wall_and_bumper and wall_return, Receiver (CAT-004).
-- **Remaining (unmet now).** Stories 6.2 and 6.3 in full; the model/energy decision precedes admission; the "isolated authored assistance" control (fact 5) needs physical placement nudging, which is not scheduled.
+- **Remaining (unmet now).** Stories 6.2 and 6.3 in full; the model/energy decision is resolved and the isolated model has scoped Pass; the "isolated authored assistance" control (fact 5) needs physical placement nudging, which is not scheduled.
 
 ## 6. Open questions
 
-- The requirement's "declared finite spring/work storage" and Story 6.2's "only when powered or charged": owner decided on 9 Oct 2026 to add a recharge connection now in Story 6.2. Its source, typed port mapping, charge rate and whether it also satisfies EL-195's separately required Supplied mode remain unspecified — owner decision; do not invent a Battery default.
-- Reservoir sizing: the current default pays 32 J shared by all targets (one full-speed launch of a 1 kg reference mass). Owner resolved insufficient energy: affordable partial boost, and at zero energy ordinary bounce. Recharge capacity/rate and source tuning remain unspecified — owner decision.
+- The requirement's "declared finite spring/work storage" and Story 6.2's "only when powered or charged": owner decided on 9 Oct 2026 to add a recharge connection now in Story 6.2. The reviewed direct-source prerequisite uses Battery Supply→Bumper PowerIn, one supplier per store, bounded fan-out and finite120 Hz transfers. It supplies the same finite store rather than introducing an alternate actuator path; full named-element acceptance remains unclaimed. Owner approved Battery defaults on 10 Oct 2026: 3,600 J, 120 W, initially full/enabled, energy/power model; isolated recharge implementation has scoped Pass; root integration proof remains pending.
+- Reservoir sizing: the current default pays 32 J shared by all targets (one full-speed launch of a 1 kg reference mass). Owner resolved insufficient energy: affordable partial boost, and at zero energy ordinary bounce. Current integration retains strength-derived store capacity (32 J at8 m/s) and approved source defaults3600 J/120 W. Realized finite source debit funds bounded credits; these choices are resolved.
 - Physical placement nudging: not scheduled, owner decision. The requirement keeps "isolated authored assistance" as a bumper control, but the roadmap reports physical nudging unsupported; which story builds it, or whether the control is proven another way, is unspecified.

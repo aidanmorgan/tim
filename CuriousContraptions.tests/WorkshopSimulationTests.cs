@@ -642,7 +642,7 @@ public sealed class WorkshopSimulationTests
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
             WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var admission = simulation.Construct(construction).AsTask(); device.CompleteAdmission(0); await admission;
         await simulation.Run(); await simulation.Pause();
         var before = simulation.Committed; var commits = device.Commits;
@@ -650,10 +650,10 @@ public sealed class WorkshopSimulationTests
         var collider = scene.Colliders.ToArray().First(value=>value.Body==new GpuBodyId(2)).Id;
         WorkshopRead Paid(WorkshopRead read) => read with {
             ContactWorks = new(new[] { read.ContactWorks[0] with {
-                OccurrenceCount=1, RemainingEnergy=new((Half)16) } },
+                OccurrenceCount=1, RemainingEnergy=new(16) } },
                 new[] { new ContactWorkOccurrence(new(0),
                     new(checked((ushort)Array.FindIndex(scene.Colliders.ToArray(), value => value.Id == collider))),
-                    new(1), 1, 1, (Half)0, new((Half)4), new((Half)16), ContactWorkEffect.Paid) }) };
+                    new(1), 1, 1, (Half)0, new((float)4), new(16), ContactWorkEffect.Paid) }) };
         installation.HoldNext = true;
         var rejected = simulation.Step().AsTask(); device.CompleteAdvance(0,Paid);
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
@@ -662,14 +662,14 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(before,simulation.Committed); Assert.Equal(commits,device.Commits);
         var accepted = simulation.Step().AsTask(); device.CompleteAdvance(1,Paid); await accepted;
         Assert.Equal(1u,simulation.Committed.ContactWorks[0].OccurrenceCount);
-        Assert.Equal((Half)16,simulation.Committed.ContactWorks[0].RemainingEnergy.Value);
+        Assert.Equal(16,simulation.Committed.ContactWorks[0].RemainingEnergy.Value);
         var spent = simulation.Committed;
         var pending = simulation.Step().AsTask();
         var reset = simulation.Reset().AsTask(); device.CompleteAdmission(1); await reset;
         var restored = simulation.Committed;
         Assert.Equal(0u,restored.ContactWorks[0].OccurrenceCount);
-        Assert.Equal((Half)32,restored.ContactWorks[0].RemainingEnergy.Value);
-        Assert.Equal((Half)0,restored.ContactWorks.Occurrence(0).Debit.Value);
+        Assert.Equal(32,restored.ContactWorks[0].RemainingEnergy.Value);
+        Assert.Equal(0,restored.ContactWorks.Occurrence(0).Debit.Value);
         Assert.Equal(0ul,restored.Tick.Value); Assert.NotEqual(spent.Epoch,restored.Epoch);
         device.CompleteAdvance(2); Assert.Equal(WorkshopCommandOutcome.Superseded,(await pending).Outcome);
         Assert.Equal(restored,simulation.Committed);

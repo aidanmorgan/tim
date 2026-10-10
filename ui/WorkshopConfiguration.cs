@@ -9,6 +9,7 @@ public partial class Workshop
 {
     private void AddConfigurationChoices(MachinePart part)
     {
+        if (part is BatteryPart battery) { AddBatteryConfiguration(battery); return; }
         if (part is BumperPart bumper) { AddBumperConfiguration(bumper); return; }
         if (part is not DelayPart delay) return;
         var owner=part.AuthoredId;

@@ -47,7 +47,8 @@ public readonly struct PhysicsContactWorkRead
         for (var i=0; i<Count; i++)
             if (_values![i].Id != other._values![i].Id || _values![i].Owner != other._values![i].Owner ||
                 _values![i].OccurrenceCount != other._values![i].OccurrenceCount ||
-                !HalfBits.Equal(_values![i].RemainingEnergy.Value, other._values![i].RemainingEnergy.Value)) return false;
+                !_values![i].RemainingEnergy.HasSameBits(other._values![i].RemainingEnergy) ||
+                !_values![i].SuppliedEnergy.HasSameBits(other._values![i].SuppliedEnergy)) return false;
         for (var i=0; i<OccurrenceCount; i++) if (!_occurrences![i].HasSameBits(other._occurrences![i])) return false;
         return true;
     }
@@ -61,7 +62,7 @@ public readonly struct PhysicsContactWorkRead
         {
             var before=previous[owner]; var after=this[owner];
             if (before.Id != after.Id || before.Owner != after.Owner ||
-                after.OccurrenceCount < before.OccurrenceCount || after.RemainingEnergy.Value > before.RemainingEnergy.Value)
+                after.OccurrenceCount < before.OccurrenceCount)
                 throw new ArgumentException("Work owner state reversed or changed identity.");
             uint changed=0; double debit=0;
             for (var i=0; i<OccurrenceCount; i++)
@@ -84,10 +85,14 @@ public readonly struct PhysicsContactWorkRead
             // Unique event sequences plus this cardinality prove the complete contiguous owner interval.
             if (after.OccurrenceCount-before.OccurrenceCount != changed)
                 throw new ArgumentException("Committed contact occurrences were lost.");
-            var removed=(double)before.RemainingEnergy.Value-(double)after.RemainingEnergy.Value;
-            // Each stored event debit is the Half projection of an actual quantized reservoir decrease.
-            if ((debit>0 && removed<=0) || Math.Abs(removed-debit)>debit/1024+changed*Math.ScaleB(1,-25) ||
-                (debit==0 && !HalfBits.Equal(before.RemainingEnergy.Value,after.RemainingEnergy.Value)))
+            var removed=(double)before.RemainingEnergy.Value + after.SuppliedEnergy.Value - (double)after.RemainingEnergy.Value;
+            // Recharge and impacts are separate finite transfers in the same commit.
+            var tolerance = after.SuppliedEnergy.Value > 0
+                ? PhysicsElectricalRead.Residual(before.RemainingEnergy.Value) + PhysicsElectricalRead.Residual(after.RemainingEnergy.Value) +
+                    PhysicsElectricalRead.Residual(after.SuppliedEnergy.Value) + debit / 8388608
+                : debit / 8388608 + changed * Math.ScaleB(1, -149);
+            if (Math.Abs(removed-debit)>tolerance ||
+                (debit==0 && after.SuppliedEnergy.Value==0 && !before.RemainingEnergy.HasSameBits(after.RemainingEnergy)))
                 throw new ArgumentException("Shared reservoir does not account for every emitted debit.");
         }
     }

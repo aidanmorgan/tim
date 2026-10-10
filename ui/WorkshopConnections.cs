@@ -20,12 +20,13 @@ public partial class Workshop
     {
         WorkshopSocket.ActivationOut => "ActivationOut",
         WorkshopSocket.ActivationIn => "ActivationIn",
-        WorkshopSocket.PowerIn => "PowerIn (unsupported)",
-        WorkshopSocket.Supply => "Supply (unsupported)",
+        WorkshopSocket.PowerIn => "PowerIn",
+        WorkshopSocket.Supply => "Supply",
         _ => throw new ArgumentException("Unknown socket.")
     };
     private void ClearConnectionChoices()
     {
+        _batteryCharge = null; _batteryToggle = null;
         if (_connectionChoices is null) return;
         foreach (var child in _connectionChoices.GetChildren()) { _connectionChoices.RemoveChild(child); child.QueueFree(); }
     }
@@ -34,6 +35,7 @@ public partial class Workshop
         ClearConnectionChoices();
         if (_connectionChoices is null || _selected is not { } part) return;
         AddConfigurationChoices(part);
+        if (!CanEdit) return;
         foreach (var port in WorkshopPorts.For(part.Definition.WorkshopKind))
         {
             if (port.Direction != WorkshopPortDirection.Output) continue;
@@ -43,14 +45,14 @@ public partial class Workshop
                 if (!CanEdit) return;
                 EndGizmo(false); _tool = null; ClearPreview(); _dragging = _lifting = false;
                 _linkSource = (owner, port); ClearConnectionChoices();
-                _status.Text = "Click a part with an ActivationIn socket. Escape cancels.";
+                _status.Text = port.Domain == WorkshopConnectionDomain.Electrical ? "Click a part with a PowerIn socket. Escape cancels." : "Click a part with an ActivationIn socket. Escape cancels.";
             });
             button.Icon = null; button.Disabled = !CanEdit; _connectionChoices.AddChild(button);
         }
         foreach (var link in World.Construction.Connections)
         {
             if (link.Source != part.AuthoredId && link.Target != part.AuthoredId) continue;
-            var button = SignalButton("Disconnect signal", () => ChangeConnection(link, false));
+            var button = SignalButton(link.Domain == WorkshopConnectionDomain.Electrical ? "Disconnect supply" : "Disconnect signal", () => ChangeConnection(link, false));
             button.Icon = null; button.Disabled = !CanEdit; _connectionChoices.AddChild(button);
         }
     }
@@ -68,8 +70,8 @@ public partial class Workshop
             var button = SignalButton(SocketLabel(source.Port.Socket) + " → " + SocketLabel(port.Socket), () => ChangeConnection(link, true));
             button.Icon = null; _connectionChoices.AddChild(button); choices++;
         }
-        _status.Text = choices == 0 ? "These parts have no matching activation sockets. Choose another part."
-            : "Connect the selected activation sockets.";
+        _status.Text = choices == 0 ? "These parts have no matching sockets. Choose another part."
+            : "Connect the selected sockets.";
     }
     private async void ChangeConnection(WorkshopConnection link, bool add)
     {
@@ -81,14 +83,16 @@ public partial class Workshop
             if (!await SubmitConstruction(next)) { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
             if (_workshopUiRemoved) return;
             _linkSource = null; RefreshConnectionChoices(); RefreshConnectionArtwork();
-            _status.Text = add ? "Activation connected." : "Activation disconnected.";
+            _status.Text = link.Domain == WorkshopConnectionDomain.Electrical
+                ? (add ? "Supply connected." : "Supply disconnected.")
+                : (add ? "Activation connected." : "Activation disconnected.");
         }
         catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
     }
     private void RefreshConnectionArtwork()
     {
         if (_connectionArtwork is { } previous) { RemoveChild(previous); previous.Free(); }
-        _connectionArtwork = new Node3D { Name = "ActivationConnections" }; AddChild(_connectionArtwork);
+        _connectionArtwork = new Node3D { Name = "WorkshopConnections" }; AddChild(_connectionArtwork);
         foreach (var link in World.Construction.Connections)
         {
             var source = World.Parts.Single(part => part.AuthoredId == link.Source);
@@ -97,7 +101,9 @@ public partial class Workshop
             var to = WorkshopPorts.LocalPosition(target.Definition.WorkshopKind, link.Input);
             var start = source.ToGlobal(new((float)from.X, (float)from.Y, (float)from.Z));
             var end = target.ToGlobal(new((float)to.X, (float)to.Y, (float)to.Z));
-            PartArt.Line(_connectionArtwork, start, end, new("#ffd899"), .025f);
+            PartArt.Line(_connectionArtwork, start, end,
+                link.Domain == WorkshopConnectionDomain.Electrical ? new("#293954") : new("#ffd899"),
+                link.Domain == WorkshopConnectionDomain.Electrical ? .035f : .025f);
         }
     }
 }

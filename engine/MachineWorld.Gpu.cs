@@ -103,9 +103,12 @@ public partial class MachineWorld
             WorkshopPartKind.Delay => WorkshopInput.Delay(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopDelay timer ? timer.Duration :
                     Registry.Definitions[WorkshopPartKind.Delay].Delay!.Capture()),
+            WorkshopPartKind.Battery => WorkshopInput.Battery(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopBattery battery ? battery.Settings :
+                    Registry.Definitions[WorkshopPartKind.Battery].ElectricalSource!.Capture()),
             WorkshopPartKind.PinballBumper => WorkshopInput.Bumper(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopBumper bumper ? bumper.Work :
-                    Registry.Definitions[WorkshopPartKind.PinballBumper].Bumper!.Capture()),
+                    BumperWork.FromCalibration(Registry.Definitions[WorkshopPartKind.PinballBumper].ContactWork!.Capture())),
             WorkshopPartKind.SignalLamp => WorkshopInput.Lamp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             WorkshopPartKind.Domino => WorkshopInput.Domino(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
             _ => throw new ArgumentException("Unsupported instance kind.")
@@ -131,6 +134,12 @@ public partial class MachineWorld
         return new(delivery.Response.Result, delivery.Applicable);
     }
 
+    public async Task<WorkshopCompletion> ConfigureElectrical(GpuBodyId owner, ElectricalEnable enabled)
+    {
+        var delivery = await ExecuteWorkshop(WorkshopCommandKind.ConfigureElectrical, electrical: new(owner, enabled));
+        return new(delivery.Response.Result, delivery.Applicable);
+    }
+
     public async Task<WorkshopCompletion> PlaybackWorkshop(WorkshopCommandKind kind)
     {
         if (kind is not (WorkshopCommandKind.Pause or WorkshopCommandKind.Resume or WorkshopCommandKind.Step))
@@ -151,7 +160,7 @@ public partial class MachineWorld
         return new(response.Result, delivery.Applicable);
     }
 
-    private async Task<WorkshopDelivery> ExecuteWorkshop(WorkshopCommandKind kind, WorkshopConstruction? next = null)
+    private async Task<WorkshopDelivery> ExecuteWorkshop(WorkshopCommandKind kind, WorkshopConstruction? next = null, WorkshopElectricalControl? electrical = null)
     {
         var client = _workshopClient ?? throw new InvalidOperationException("GPU worker is not ready.");
         if (_workshopPending) throw new InvalidOperationException("A Workshop command is pending.");
@@ -163,12 +172,12 @@ public partial class MachineWorld
             WorkshopCommandKind.Construct => WorkshopPhase.Admitting,
             WorkshopCommandKind.Run => WorkshopPhase.Starting,
             WorkshopCommandKind.Reset => WorkshopPhase.Resetting,
-            WorkshopCommandKind.Pause or WorkshopCommandKind.Resume or WorkshopCommandKind.Step or WorkshopCommandKind.Save => previous,
+            WorkshopCommandKind.Pause or WorkshopCommandKind.Resume or WorkshopCommandKind.Step or WorkshopCommandKind.Save or WorkshopCommandKind.ConfigureElectrical => previous,
             _ => throw new ArgumentException("Unsupported scene command.")
         };
         try
         {
-            var delivery = await client.Execute(kind, next);
+            var delivery = await client.Execute(kind, next, electrical: electrical);
             var response = delivery.Response;
             if (_workshopRemoved || operation != _workshopOperation) return new(response, false);
             LogWorkshop(response); // Original command truth is independent of presentation admission.
@@ -234,6 +243,9 @@ public partial class MachineWorld
             foreach (var part in _parts)
                 if (part.HasCosmeticBindings && _workshopClient.TryCosmeticFrame(frame, _workshopPresentation, part.AuthoredId, out var cosmetic))
                     part.ApplyCosmetic(cosmetic);
+            foreach (var part in _parts)
+                if (part.HasElectricalBindings && _workshopClient.TryElectricalFrame(frame, _workshopPresentation, part.AuthoredId, out var electrical))
+                    part.ApplyElectrical(electrical);
             // Telemetry follows the lowest-identity ball of either kind; zero only while the construction has no ball.
             var ballId = Construction.Instances.OfType<WorkshopBall>().Select(b => b.Id).OrderBy(id => id.Value).FirstOrDefault();
             var ball = _parts.FirstOrDefault(part => part.AuthoredId == ballId);
@@ -282,6 +294,14 @@ public partial class MachineWorld
             if (instance is WorkshopRamp ramp && part is RampPart rampPart) rampPart.ApplyDimensions(ramp.Dimensions);
             if (instance is WorkshopWall wall && part is WallPart wallPart) wallPart.ApplyDimensions(wall.Dimensions);
             if (instance is WorkshopDelay delay && part is DelayPart delayPart) delayPart.ApplyDuration(delay.Duration);
+            if (instance is WorkshopBattery battery && part is BatteryPart batteryPart)
+            {
+                batteryPart.ApplySource(battery.Settings);
+                var fraction = battery.Settings.InitialFraction;
+                var supply = battery.Settings.Enabled == ElectricalEnable.Enabled && fraction > 0 ? 1f : 0f;
+                batteryPart.ApplyElectrical(new(supply, fraction >= .25f ? 1f : 0f, fraction >= .5f ? 1f : 0f,
+                    fraction >= .75f ? 1f : 0f, fraction >= 1f ? 1f : 0f));
+            }
             if (instance is WorkshopBumper bumper && part is BumperPart bumperPart) bumperPart.ApplyWork(bumper.Work);
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);

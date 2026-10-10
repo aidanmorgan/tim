@@ -179,6 +179,7 @@ public sealed class PhysicsSceneDeclaration
     private readonly ContactTriggerDeclaration[] _triggers;
     private readonly ContactWorkDeclaration[] _contactWorks;
     private readonly OrientationSensorDeclaration[] _orientationSensors;
+    public ElectricalSupplyPlan Electrical { get; }
     public PhysicsDocumentId Document { get; }
     public ulong NextIdentity { get; }
     public ReadOnlySpan<RigidBodyDeclaration> Bodies => _bodies;
@@ -194,7 +195,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<RigidBodyDeclaration> bodies, ReadOnlySpan<ColliderDeclaration> colliders,
         ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
         ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default,
-        ReadOnlySpan<ContactWorkDeclaration> contactWorks = default, ReadOnlySpan<OrientationSensorDeclaration> orientationSensors = default)
+        ReadOnlySpan<ContactWorkDeclaration> contactWorks = default, ReadOnlySpan<OrientationSensorDeclaration> orientationSensors = default,
+        ReadOnlySpan<ElectricalSourceDeclaration> electricalSources = default, ReadOnlySpan<ElectricalStorageBinding> electricalBindings = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
             bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
@@ -284,6 +286,8 @@ public sealed class PhysicsSceneDeclaration
             // "Angle from the admitted pose" is a document invariant, not a compiler courtesy.
             if (body.Rotation != sensor.Initial) throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
         }
+        foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
+        Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();

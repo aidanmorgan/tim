@@ -64,7 +64,7 @@ development_status:
   6-1b-engine-drag-application: done
   6-1c-f32-committed-velocity-precision: done
   6-1d-velocity-hardening: done
-  6-2-bumper-radial-impulse-work-store: backlog
+  6-2-bumper-radial-impulse-work-store: review
   6-3-bumper-multi-angle-contacts: backlog
   6-4-prismatic-slider-tgs-soft-spring: backlog
   6-5-preload-energy-store-springboard-launch: backlog

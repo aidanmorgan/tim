@@ -7,11 +7,68 @@ namespace CuriousContraptions.Tests;
 public sealed class BasketballResourceTests(NativeSceneFixture godot)
 {
     [Fact]
+    public void RejectedContactCalibrationDoesNotConfigureOrConstructThePart()
+    {
+        using var resource = new ContactWorkResource { TargetSpeed=8f, ReferenceMass=2f, InitialEnergy=32f };
+        using var definition = new PartDefinition { Id="bumper", ContactWork=resource };
+        var part = new BumperPart();
+        var originalName = part.Name;
+        try
+        {
+            Assert.Throws<ArgumentException>(() => part.Configure(definition));
+            Assert.Null(part.Definition);
+            Assert.Equal(originalName, part.Name);
+            Assert.Equal(0, part.GetChildCount());
+            resource.ReferenceMass=1f;
+            resource.InitialEnergy=31f;
+            Assert.Throws<ArgumentException>(() => part.Configure(definition));
+            Assert.Null(part.Definition);
+            Assert.Equal(0, part.GetChildCount());
+            resource.InitialEnergy=32f;
+            part.Configure(definition);
+            Assert.Same(definition, part.Definition);
+            Assert.Equal(0, part.GetChildCount());
+        }
+        finally { part.Free(); }
+    }
+
+    [Fact]
+    public void GenericContactWorkResourcePreservesF32AndRejectsMissingOrInvalidDeclarations()
+    {
+        using var resource = new ContactWorkResource { TargetSpeed=8.000001f, ReferenceMass=1f,
+            InitialEnergy=.5f*8.000001f*8.000001f };
+        var captured = resource.Capture();
+        Assert.Equal(8.000001f, captured.TargetSpeed.Value);
+        Assert.NotEqual((float)(Half)resource.TargetSpeed, captured.TargetSpeed.Value);
+        var work = new BumperWork(captured.TargetSpeed,captured.ReferenceMass,captured.InitialEnergy);
+        work.Validate();
+        var declared = BumperWork.FromCanonicalStrength(8.000001f);
+        Assert.Equal(declared, work);
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1),
+            WorkshopInput.Bumper(new(2), 0, 4, 0, 0, 0, 0, 1, BumperWork.FromCalibration(captured))));
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var admitted = PhysicsGpuAbi.Admission(scene, new(1),
+            new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        Assert.Equal(8.000001f, System.Buffers.Binary.BinaryPrimitives.ReadSingleLittleEndian(
+            admitted.AsSpan(PhysicsGpuAbi.ContactWorksOffset + 16)));
+        var saved = new WorkshopSavedConstruction(construction, new(3));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+        resource.ReferenceMass=0;
+        Assert.Throws<ArgumentException>(() => resource.Capture());
+        resource.ReferenceMass=1f;
+        resource.TargetSpeed=float.NaN;
+        Assert.Throws<ArgumentException>(() => resource.Capture());
+        using var missing = new ContactWorkResource();
+        Assert.Throws<ArgumentException>(() => missing.Capture());
+    }
+
+    [Fact]
     public void ActualResourceAndSceneUseCanonicalMaterialBits()
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall },
+        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall, WorkshopPartKind.Battery },
             registry.Definitions.Keys.OrderBy(kind => kind));
         var definition = registry.Definitions[WorkshopPartKind.Basketball];
         Assert.Empty(definition.Parameters);
@@ -285,7 +342,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
         public WorkshopTransportState TransportState => WorkshopTransportState.Ready;
         public async Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null)
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
         {
             var command = new WorkshopCommand(new(++_sequence), kind, Epoch, Revision, construction, target, Session: Session, Cadence: new(1), Projection: new(1));
             var dispatched = _cursor.ReadOrder;
@@ -323,6 +380,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         public bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out CuriousContraptions.Presentation.AnimationOpacity opacity) { opacity = default; return false; }
         public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
+        public bool TryElectricalFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out ElectricalIndicatorSample sample) { sample = default; return false; }
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No cancellable test transport request.");
         public ValueTask DisposeAsync() { _disposed = true; return ValueTask.CompletedTask; }
     }

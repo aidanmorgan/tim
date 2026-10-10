@@ -10,8 +10,8 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Type | Electrical |
 | Anchor | [requirements.md#element-196](../requirements.md#element-196); existing record [campaign-element-coverage](../requirements.md#campaign-element-coverage) ("Battery, wire, switch, motor …", first use 11–20); [named-elements entry](../invest/named-elements.md#element-196); owner S302 |
 | Related | Refines [CAT-005 Battery](CAT-005-battery.md) ([current-cat-005](../requirements.md#current-cat-005), retained behaviour [todo-146](../requirements.md#todo-146)). Connected by [EL-197 wire](EL-197-electrical-wire.md); switched by [EL-198](EL-198-switch.md); first consumer [CAT-042 Motor](CAT-042-motor.md). |
-| Roadmap story | 8.1 "Battery DC Power Source & Network Graph" (Epic 8); the finite store waits on CAT-005 open question 1 |
-| Status | not started |
+| Roadmap story | 8.1 "Battery DC Power Source & Network Graph" (Epic 8); finite-store defaults approved 10 Oct 2026; direct Battery→Bumper prerequisite passed in isolation, root integration in Story6.2 pending |
+| Status | direct finite-source prerequisite implemented; full Motor/network/named-element acceptance remains incomplete |
 
 ## 2. Declaration
 
@@ -23,7 +23,7 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Typed ports | `Supply` (Electrical, Output) at (0, 0.62, 0) (`parts/BatteryPart.cs@a6c914e:L16-L17`); `WorkshopSocket.Supply` already exists (`engine/gpu/WorkshopConnections.cs@a6c914e:L9-L9`). No activation input: activation cannot create supply (CAT-005 B6). |
 | Sensors and activation | none. |
 | Work and energy stores | One finite electrical store (FiniteLedger): charge Q (J), 0 ≤ Q ≤ `capacity`, starting at `initial_charge` × `capacity`. Each committed tick the network's supplied loads declare their power demand; the battery delivers P = min(Σ demand, `power_limit`, Q/dt) and debits P·dt; when Σ demand exceeds what it can deliver, every load's share is scaled by the same α = P/Σ demand (the envelope's proportional rule, [thermodynamic row](../../gpu-f32-physics.md#game-grade-envelope)). Availability at `Supply` = enabled ∧ Q > 0; at Q = 0 every downstream input becomes unavailable on that tick. No recharge source in this identity. Shared consumers never each spend the same balance ([finite stores](../../world-owned-energy-stores.md#reservoir-declaration-and-behaviour)). |
-| Parameters | `enabled`: closed enum `BatteryEnable { Disabled, Enabled }`, default Enabled — legacy float `enabled` > 0.5, default 1.0, required (`parts/BatteryPart.cs@a6c914e:L12-L15`, `parts/catalog/battery.tres@a6c914e:L14-L14`), carried as an enum (CAT-005 B2). `capacity`: f32 60–14 400 J, default 3 600 J **proposed** (30 s of the default Motor's 120 W — longer than any ordinary lesson run, so only a deliberately small battery depletes; the upper bound is the Fan's 14 400 J construction reservoir, [finite-gas-foundation](../../finite-gas-foundation.md#sealed-gas)). `power_limit`: f32 10–480 W, default 120 W **proposed** (exactly the default Motor's 20 N·m × 6 rad/s, `parts/catalog/motor.tres@a6c914e:L14-L14`, so one motor runs at full speed and two share). `initial_charge`: f32 fraction 0–1, default 1 **proposed** (full by default; 0 gives the "depleted" control without a new part). |
+| Parameters | `enabled`: closed enum `BatteryEnable { Disabled, Enabled }`, default Enabled — legacy float `enabled` > 0.5, default 1.0, required (`parts/BatteryPart.cs@a6c914e:L12-L15`, `parts/catalog/battery.tres@a6c914e:L14-L14`), carried as an enum (CAT-005 B2). `capacity`: f32 60–14 400 J, default 3 600 J **owner-approved 10 Oct 2026**; range remains **proposed** (30 s of the default Motor's 120 W — longer than any ordinary lesson run, so only a deliberately small battery depletes; the upper bound is the Fan's 14 400 J construction reservoir, [finite-gas-foundation](../../finite-gas-foundation.md#sealed-gas)). `power_limit`: f32 10–480 W, default 120 W **owner-approved 10 Oct 2026**; range remains **proposed** (exactly the default Motor's 20 N·m × 6 rad/s, `parts/catalog/motor.tres@a6c914e:L14-L14`, so one motor runs at full speed and two share). `initial_charge`: f32 fraction 0–1, default 1 **owner-approved 10 Oct 2026** (full by default; 0 gives the "depleted" control without a new part). |
 | Cosmetic curves and UI bindings | Charge gauge: four slate `#556573` → gold `#f7cb52` marks on the cream band, mark i lit while Q ≥ (i + 1)/4 × capacity, 0.1 s SmoothStep — the Solar panel's four-mark meter pattern (`parts/SolarPanelPart.cs@a6c914e:L47-L53`) **proposed** (answers CAT-005's "show committed supply state"; readable without text). |
 | Art | Body in catalogue colour `#de7059`; cream `#fff8e9` band 0.87 × 0.25 × 0.77 at y 0.3; gold `#f7cb52` terminal cylinder r 0.16, h 0.14 at y 0.59; navy `#293954` plus sign on the front (`parts/BatteryPart.cs@a6c914e:L24-L28`); selection ring 0.8 (`parts/BatteryPart.cs@a6c914e:L23-L23`). Toolbox icon `ui/WorkshopIcons.cs@a6c914e:L47-L47`. [DESIGN.md Motion and state feedback](../../../DESIGN.md#motion-and-state-feedback) battery paragraph. |
 | Catalogue / inventory | Id `battery`, Title "Battery", Category Power, colour (0.87, 0.44, 0.35), Parameters `{"enabled": 1.0}`; Description "Supplies electricity through a wire; activation signals cannot replace a battery." (`parts/catalog/battery.tres@a6c914e:L6-L14`). Inventory: `battery_motor` grants 1; 12 levels place a locked battery (CAT-005 L4). |
@@ -44,7 +44,7 @@ Families ([element map row](../general-engine-element-map.md); [binding](../../c
 
 **Missing**
 - Binary supplied network — Story 8.1 ([CAT-005 §3](CAT-005-battery.md#3-engine-capabilities)).
-- FiniteLedger electrical store with per-load power demand and proportional scaling — owner decision (CAT-005 open question 1), then a story; design owners S019/S020 ([finite stores](../../world-owned-energy-stores.md)).
+- FiniteLedger electrical store with per-load power demand and proportional scaling — defaults approved 10 Oct 2026; source prerequisite in preparation;  design owners S019/S020 ([finite stores](../../world-owned-energy-stores.md)).
 - Charge-gauge cosmetic source (committed scalar thresholds) — new.
 - Typed power role and capacities — [S257](../invest/decisions.md#s257) electrical-port ("a full-capacity attempt refuses the extra wire").
 
@@ -71,6 +71,6 @@ Acceptance authority: [element-196](../requirements.md#element-196), [current-ca
 
 ## 6. Open questions
 
-1. **Finite store values.** Capacity, power limit and initial-charge defaults are proposals answering CAT-005 open question 1: owner decision.
-2. **Voltage label.** Story 8.1 says "12V"; the model is energy and power, not voltage (CAT-005 open question 3).
+1. **Finite store defaults — resolved 10 Oct 2026.** Owner approved 3,600 J capacity, 120 W power limit, initially full and enabled. Configurable range proposals remain distinct from these approved defaults.
+2. **Voltage label — resolved 10 Oct 2026.** Owner approved the energy/power model; the old Story 8.1 "12V" wording does not impose a voltage simulation.
 3. **Recharge.** Whether a battery can be recharged (e.g. by a generator or solar panel, EL-211) in a later identity: owner decision.

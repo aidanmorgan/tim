@@ -121,9 +121,9 @@ public sealed class ActivationTimerTests
                 new(WorkshopClockDomain.SimulationMonotonic,new(1),new(100000000),new(100000)),
                 Motion:PhysicsMotionRead.Decode(bytes,bodies,new(tick)),
                 Activations:logical.Activations,Timers:logical.Timers,
-                ContactWorks:withContact ? new(new[]{new ContactWorkRead(new(99),new(8),1,new((Half)20))},
+                ContactWorks:withContact ? new(new[]{new ContactWorkRead(new(99),new(8),1,new(20))},
                     new[]{new ContactWorkOccurrence(new(0),new(17),new(1),1,8,(Half)512,
-                        new((Half)4),new((Half)12),ContactWorkEffect.Paid)}) : default);
+                        new((float)4),new(12),ContactWorkEffect.Paid)}) : default);
             var response=new WorkshopResponse(default,WorkshopResponseKind.Read,new(WorkshopCommandOutcome.Applied,WorkshopRejection.None),
                 WorkshopSimulationPhase.Running,read,new(1,2),new(1),new(1),new(1),new(1),new(tick));
             var encoded=WorkshopWire.Encode(response);

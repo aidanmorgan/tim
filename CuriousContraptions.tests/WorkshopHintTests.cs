@@ -373,8 +373,9 @@ public sealed class WorkshopHintTests(NativeSceneFixture godot)
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
         public Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null) =>
+            WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null) =>
             throw new InvalidOperationException("Gameplay is outside this hint read-consumer fixture.");
+        public bool TryElectricalFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out ElectricalIndicatorSample sample) { sample = default; return false; }
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No command is pending.");
         public ValueTask DisposeAsync() { Disposed = true; Next = null; return ValueTask.CompletedTask; }
     }

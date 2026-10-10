@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 8 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 10 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
@@ -50,7 +50,7 @@ public static partial class PhysicsGpuAbi
     public const int CacheOffset = MotionOffset + PhysicsMotionRead.ByteLength;
     public const int CacheCapacity = 888 * 4;
     public const int CacheBytes = 32;
-    public const int ByteLength = CacheOffset + CacheCapacity * CacheBytes;
+    public const int ByteLength = ElectricalBindingsOffset + WorkshopConnections.Capacity * ElectricalBindingBytes;
     public const uint NoBody = uint.MaxValue;
     // A binary eighth-second primary segment bounds elapsed-value quantization.
     public const uint PrimarySegmentSteps = WorkshopCadenceSettings.PhysicalFrequency / 8;
@@ -138,8 +138,8 @@ public static partial class PhysicsGpuAbi
             var work = scene.ContactWorks[i]; var record = data.Slice(ContactWorksOffset + i * ContactWorkBytes, ContactWorkBytes);
             U64(record, 0, work.Id.Value); U32(record, 8, BodySlot(scene, work.Owner)); U32(record,12,(uint)work.Targets.Kind);
             U32(record,28,work.Targets.Kind==BodyTargetKind.NamedBody ? BodySlot(scene,work.Targets.Body) : NoBody);
-            H(record, 16, work.TargetSpeed.Value); H(record, 18, work.InitialEnergy.Value); H(record, 20, work.Threshold.Value);
-            U32(record, 24, work.CooldownPhysicalSteps); H(record, 48, work.InitialEnergy.Value);
+            BinaryPrimitives.WriteSingleLittleEndian(record[16..], work.TargetSpeed.Value); BinaryPrimitives.WriteSingleLittleEndian(record[36..], work.InitialEnergy.Value); BinaryPrimitives.WriteSingleLittleEndian(record[20..], work.Threshold.Value);
+            U32(record, 24, work.CooldownPhysicalSteps); BinaryPrimitives.WriteSingleLittleEndian(record[48..], work.InitialEnergy.Value);
         }
         for (var i = 0; i < scene.OrientationSensors.Length; i++)
         {
@@ -176,6 +176,7 @@ public static partial class PhysicsGpuAbi
                 }
             }
         U32(data,112,(uint)pair);
+        WriteElectricalAdmission(data, scene);
         return bytes;
     }
 
@@ -321,7 +322,7 @@ public static partial class PhysicsGpuAbi
             !candidate[..4].SequenceEqual(source[..4]) ||
             !candidate[12..40].SequenceEqual(source[12..40]) ||
             !candidate[48..88].SequenceEqual(source[48..88]) ||
-            !candidate[96..120].SequenceEqual(source[96..120]))
+            !candidate[96..128].SequenceEqual(source[96..128]))
             throw new ArgumentException("Candidate identity, scene counts or physical profile changed.");
         var bodyCount=checked((int)R32(source,12)); var dynamicCount=0;
         for (var i=0; i<bodyCount; i++)
@@ -418,6 +419,7 @@ public static partial class PhysicsGpuAbi
             R32(candidate, MotionOffset + 12) != R32(candidate, 88)))
             throw new ArgumentException("Motion profile differs from its committed world.");
         ValidateCache(candidate,source);
+        ValidateElectricalCandidate(candidate,source);
         return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(MotionOffset,PhysicsMotionRead.ByteLength), bodies, expectedTick));
     }
 
@@ -464,7 +466,7 @@ public static partial class PhysicsGpuAbi
             PhysicsDeclarationBounds.Vector(RH(after,10),RH(after,12),(Half)0,(Half)8192);
             PhysicsDeclarationBounds.Vector(RH(after,16),RH(after,18),RH(after,20),(Half)1);
         }
-        if (!AllZero(candidate[(CacheOffset+count*CacheBytes)..])) throw new ArgumentException("Unused cache changed.");
+        if (!AllZero(candidate[(CacheOffset+count*CacheBytes)..ElectricalSourcesOffset])) throw new ArgumentException("Unused cache changed.");
     }
 
     private static bool ValidFeature(ColliderShapeKind shape, uint feature)
@@ -535,7 +537,7 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             R32(data, 104) > PhysicsSceneDeclaration.ContactWorkCapacity ||
             (R64(data, 64) == 0 && R64(data, 72) == 0) || R64(data, 80) == 0 ||
             R32(data,28)>PhysicsBodyReadSet.Capacity || R32(data,108)>PhysicsContactWorkRead.OccurrenceCapacity ||
-            R32(data,112)>CacheCapacity || R32(data,116)>PhysicsSceneDeclaration.OrientationSensorCapacity || !AllZero(data[120..128]))
+            R32(data,112)>CacheCapacity || R32(data,116)>PhysicsSceneDeclaration.OrientationSensorCapacity || R32(data,120)>ElectricalSupplyPlan.SourceCapacity || R32(data,124)>WorkshopConnections.Capacity)
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;

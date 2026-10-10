@@ -21,9 +21,19 @@ public static class WorkshopPorts
         WorkshopPartKind.SignalLamp => LampPorts,
         WorkshopPartKind.Delay => DelayPorts,
         WorkshopPartKind.Domino => DominoPorts,
-        WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall or WorkshopPartKind.PinballBumper => [],
+        WorkshopPartKind.Battery => BatteryPorts,
+        WorkshopPartKind.PinballBumper => StoragePorts,
+        WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall => [],
         _ => throw new ArgumentException("Unsupported port owner.")
     };
+    private static readonly WorkshopPort[] BatteryPorts =
+    [
+        new(WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output)
+    ];
+    private static readonly WorkshopPort[] StoragePorts =
+    [
+        new(WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Input)
+    ];
     // A Domino signals only; it declares no activation input, so wiring into one is rejected at the port check.
     private static readonly WorkshopPort[] DominoPorts =
     [
@@ -48,6 +58,8 @@ public static class WorkshopPorts
     {
         (WorkshopPartKind.ImpactSwitch, WorkshopSocket.ActivationOut) => new((Half).45, (Half)0, (Half).4),
         (WorkshopPartKind.SignalLamp, WorkshopSocket.ActivationIn) => default,
+        (WorkshopPartKind.Battery, WorkshopSocket.Supply) => new((Half)0, (Half).62f, (Half)0),
+        (WorkshopPartKind.PinballBumper, WorkshopSocket.PowerIn) => new((Half)0, (Half)0, (Half).65f),
         (WorkshopPartKind.Delay, WorkshopSocket.ActivationIn) => new((Half)(-.72),(Half)0,(Half)0),
         (WorkshopPartKind.Delay, WorkshopSocket.ActivationOut) => new((Half).72,(Half)0,(Half)0),
         (WorkshopPartKind.Domino, WorkshopSocket.ActivationOut) => new((Half)0, (Half).55, (Half)0),
@@ -88,7 +100,7 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
         {
             if (link.Source.Value == 0 || link.Target.Value == 0 || link.Source == link.Target ||
                 !Enum.IsDefined(link.Output) || !Enum.IsDefined(link.Input) ||
-                link.Domain != WorkshopConnectionDomain.Activation || !seen.Add(link))
+                !Enum.IsDefined(link.Domain) || !seen.Add(link))
                 throw new ArgumentException("Unsupported or duplicate connection.");
             var source = instances.FirstOrDefault(part => part.Id == link.Source);
             var target = instances.FirstOrDefault(part => part.Id == link.Target);
@@ -96,6 +108,11 @@ public sealed class WorkshopConnections : IReadOnlyList<WorkshopConnection>, IEq
                 !WorkshopPorts.Has(source.Kind, link.Output, link.Domain, WorkshopPortDirection.Output) ||
                 !WorkshopPorts.Has(target.Kind, link.Input, link.Domain, WorkshopPortDirection.Input))
                 throw new ArgumentException("Connection does not own matching declared ports.");
+            if (link.Domain == WorkshopConnectionDomain.Electrical)
+                foreach (var previous in seen)
+                    if (previous != link && previous.Target == link.Target && previous.Input == link.Input &&
+                        previous.Domain == WorkshopConnectionDomain.Electrical)
+                        throw new ArgumentException("This power input already has a supplier.");
         }
     }
     public bool Equals(WorkshopConnections? other) => other is not null && _items.SequenceEqual(other._items);

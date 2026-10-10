@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 using CuriousContraptions.Presentation;
 namespace CuriousContraptions.Gpu;
 
-public enum AnimationControlKind : uint { Reveal = 1, Hide = 2, Visibility = 3, Endpoint = 4, TimerObservation = 5, Impulse = 6 }
+public enum AnimationControlKind : uint { Reveal = 1, Hide = 2, Visibility = 3, Endpoint = 4, TimerObservation = 5, Impulse = 6, Transition = 7 }
 public enum AnimationOutputKind : uint { Acknowledgement = 1, Sample = 2, Rejected = 3 }
 public readonly record struct WorkshopAnimationControl(AnimationTargetId Target, SimulationEpoch World,
     ulong Sequence, ulong Generation, AnimationControlKind Kind, bool Visible,
@@ -15,7 +15,7 @@ public static class WorkshopAnimationWire
 {
     public const ushort Version = 5;
     /// <summary>Activation + timer nodes, contact owners, one capture target per sensor and the two declared UI targets.</summary>
-    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + ContactWorkCapacity + PhysicsSceneDeclaration.SensorCapacity + 2;
+    public const int TargetCapacity = 2 * ActivationNetwork.Capacity + ContactWorkCapacity + PhysicsSceneDeclaration.SensorCapacity + 2 + ElectricalSupplyPlan.SourceCapacity * 5;
     /// <summary>Concurrent occurrences one impulse target retains; a declared cooldown keeps real overlap far below it.</summary>
     public const int ImpulseCapacity = 64;
     private const int ContactWorkCapacity = PhysicsSceneDeclaration.ContactWorkCapacity;
@@ -66,6 +66,8 @@ public static class WorkshopAnimationWire
     private static void Validate(WorkshopAnimationControl value)
     {
         value.Timer.Validate();
+        if (value.Kind == AnimationControlKind.Transition && (value.World.Value == 0 || value.Property != AnimationProperty.ColourBlend))
+            throw new ArgumentException("Transition requires a committed world colour channel.");
         if ((value.Kind == AnimationControlKind.TimerObservation) != (value.Timer.Phase != AnimationTimerPhase.None) ||
             (value.Kind == AnimationControlKind.TimerObservation && (value.World.Value == 0 || value.Property != AnimationProperty.ColourBlend)))
             throw new ArgumentException("Timer observation requires its committed world channel.");

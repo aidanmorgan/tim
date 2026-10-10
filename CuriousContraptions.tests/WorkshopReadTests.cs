@@ -5,6 +5,22 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopReadTests
 {
+    [Fact]
+    public void PerCommitEnergyAndEnableChangesCannotBeCoalesced()
+    {
+        var baseline = new WorkshopRead(new(1), new(1), default, new(1),
+            ContactWorks: new([new(new(2), new(3), 0, new(20f))], []),
+            Electrical: new([new(new(4), new(5), new(100f), default, ElectricalEnable.Enabled)]));
+        Assert.False(baseline.RequiresReliableRead(baseline));
+        var credit = baseline with { ContactWorks = new([new(new(2), new(3), 0, new(21f), new(1f))], []) };
+        Assert.True(credit.RequiresReliableRead(baseline));
+        var debit = baseline with { Electrical = new([new(new(4), new(5), new(99f), new(1f), ElectricalEnable.Enabled)]) };
+        Assert.True(debit.RequiresReliableRead(baseline));
+        var disabled = baseline with { Electrical = new([new(new(4), new(5), new(100f), default, ElectricalEnable.Disabled)]) };
+        Assert.True(disabled.RequiresReliableRead(baseline));
+        Assert.False(disabled.RequiresReliableRead(disabled));
+    }
+
     [Theory]
     [InlineData(false, false)]
     [InlineData(true, false)]
@@ -129,7 +145,7 @@ public sealed class WorkshopReadTests
         Assert.True(motion.Bytes.SequenceEqual(expected));
         var read = MotionRead(body, motion);
         var encoded = WorkshopWire.Encode(Response(read));
-        Assert.True(encoded.AsSpan(WorkshopWire.ReadMotionOffset).SequenceEqual(expected));
+        Assert.True(encoded.AsSpan(WorkshopWire.ReadMotionOffset, expected.Length).SequenceEqual(expected));
         Assert.Equal(encoded, WorkshopWire.Encode(WorkshopWire.DecodeResponse(encoded)));
     }
 
@@ -178,7 +194,7 @@ public sealed class WorkshopReadTests
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,23));
         var declaration = scene.ContactWorks[0];
         var colliders = scene.Colliders.ToArray();
@@ -186,9 +202,9 @@ public sealed class WorkshopReadTests
         var foreign = new ColliderSlot(checked((ushort)Array.FindIndex(colliders, c => c.Body == new GpuBodyId(1))));
         var body = new CanonicalBody(new(1),2,1,default,default,default);
         var motion = PhysicsMotionRead.Decode(MotionBytes(body),Bodies(body),new(1));
-        var store = new ContactWorkRead(declaration.Id,declaration.Owner,1,new((Half)20));
+        var store = new ContactWorkRead(declaration.Id,declaration.Owner,1,new(20));
         var hit = new ContactWorkOccurrence(new(0),owned,new(1),1,1,(Half)0,
-            declaration.Threshold,new((Half)12),ContactWorkEffect.Paid);
+            declaration.Threshold,new(12),ContactWorkEffect.Paid);
         WorkshopResponse Wire(ContactWorkOccurrence occurrence) => WorkshopWire.DecodeResponse(WorkshopWire.Encode(
             Response(MotionRead(body,motion) with { ContactWorks=new(new[] {store}, new[] {occurrence}) })));
         Wire(hit).Read.ContactWorks.ValidateScene(scene, Wire(hit).Read.Bodies);

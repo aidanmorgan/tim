@@ -130,7 +130,7 @@ public sealed partial class BrowserWorkshopClient
         if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
         { RetireCaptureFeedback(); RetireActivationFeedback(); RetireGoalFeedback(); RetireContactFeedback(schedule.World.WorldGeneration); }
         if (_schedule?.Revision != schedule.Revision)
-        { _hintOrdinal = _goalOrdinal = 0; Array.Clear(_captureOrdinals); Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); }
+        { _hintOrdinal = _goalOrdinal = 0; Array.Clear(_captureOrdinals); Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); Array.Clear(_electricalOrdinals); }
     }
     private void ReceiveAnimation() => ReceiveAnimation(EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
@@ -150,7 +150,7 @@ public sealed partial class BrowserWorkshopClient
                     command.Kind == AnimationControlKind.Impulse ? command.Duration : (Half)0) || sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _animationPending = null;
-            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); RetryRejectedCapture(command); RetryRejectedContact(command); return; }
+            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); RetryRejectedCapture(command); RetryRejectedContact(command); RetryElectricalFeedback(command); return; }
         }
         if (cadence.Value < active.Revision.Value)
         {
@@ -162,6 +162,7 @@ public sealed partial class BrowserWorkshopClient
         // Target ranges are declared identities: fixed UI targets, then capture, contact, timer and activation ranges.
         if (sample.Target == UiCurves.Hint.AnimationTarget) ReceiveHintSample(sample, kind);
         else if (sample.Target == UiCurves.Goal.AnimationTarget) ReceiveGoalSample(sample, kind, active);
+        else if (IsElectricalTarget(sample.Target)) ReceiveElectricalSample(sample, kind, active);
         else if (IsCaptureTarget(sample.Target)) ReceiveCaptureSample(sample, kind, active);
         else if (sample.PulseDuration > (Half)0) ReceiveContactSample(sample, kind, active);
         else if (sample.Timer.Phase != AnimationTimerPhase.None) ReceiveTimerSample(sample, kind, active);

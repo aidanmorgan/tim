@@ -18,6 +18,7 @@ public static class WorkshopPhysicsCompiler
         var guides = new List<PlanarGuideDeclaration>();
         var triggers = new List<ContactTriggerDeclaration>();
         var contactWorks = new List<ContactWorkDeclaration>();
+        var electricalSources = new List<ElectricalSourceDeclaration>();
         var orientationSensors = new List<OrientationSensorDeclaration>();
         var plane = new GpuBodyId(InternalIdentityBase);
         var planeMaterial = new GpuMaterialId(InternalIdentityBase + 1);
@@ -101,14 +102,20 @@ public static class WorkshopPhysicsCompiler
         }
         foreach (var instance in construction.Instances)
         {
-            if (instance is not (WorkshopSwitch or WorkshopLamp or WorkshopDelay or WorkshopBumper)) continue;
+            if (instance is not (WorkshopSwitch or WorkshopLamp or WorkshopDelay or WorkshopBumper or WorkshopBattery)) continue;
             var first = PartIdentities(instance.Id); next = Math.Max(next, first + 64);
             var material = new GpuMaterialId(first);
             bodies.Add(new(instance.Id, RigidMotionKind.Static, instance.Cell, instance.Local, instance.Rotation,
                 default, default, new((Half)0), default, new((Half)0)));
             // Source MachinePart.InitialContactMaterial: all these static surfaces use (1,.1,.3).
             materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
-            if (instance is WorkshopSwitch trigger)
+            if (instance is WorkshopBattery battery)
+            {
+                AddStaticBox(first + 1, default, new((Half).425f, (Half).525f, (Half).375f));
+                electricalSources.Add(new(ElectricalSource(battery.Id), battery.Id, battery.Settings.Capacity,
+                    battery.Settings.MaximumPower, battery.Settings.InitialFraction, battery.Settings.Enabled));
+            }
+            else if (instance is WorkshopSwitch trigger)
             {
                 AddStaticBox(first + 1, new((Half)0, (Half)(-.15), (Half)0), new((Half).55, (Half).125, (Half).5));
                 // Source AddBox(draw:false) suppresses art, not this second physical box.
@@ -122,7 +129,7 @@ public static class WorkshopPhysicsCompiler
                     RigidLocalPose.Identity, new((Half).65), default));
                 if (construction.Puzzle.Id == WorkshopPuzzleId.Free || construction.Ball.HasValue)
                     contactWorks.Add(new(ContactWork(bumper.Id), bumper.Id, Targets(construction),
-                        bumper.Work.Strength, bumper.Work.Preload, new((Half).05), 72));
+                        bumper.Work.Strength, bumper.Work.Preload, new(.05f), 72));
             }
             else if (instance is WorkshopDelay)
                 AddStaticBox(first + 1, new((Half)0, (Half)(-.7), (Half)0), new((Half).675, (Half).075, (Half).4));
@@ -131,8 +138,12 @@ public static class WorkshopPhysicsCompiler
                 colliders.Add(new(new(id), instance.Id, material, ColliderShapeKind.Box,
                     new(position, CanonicalRotation.Identity), new((Half)0), half));
         }
-        return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray());
+        return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
+            construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical)
+                .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray());
     }
+    public static ElectricalSourceId ElectricalSource(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
+
     public static GpuSensorId CaptureSensor(WorkshopReceiver receiver) => new(checked(PartIdentities(receiver.Id) + 6));
 
     public static GpuContactTriggerId ContactTrigger(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));

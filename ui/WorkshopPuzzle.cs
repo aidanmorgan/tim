@@ -18,6 +18,7 @@ public partial class Workshop
                 WorkshopPuzzleId.FirstPrinciples => 0,
                 WorkshopPuzzleId.DelayedSignal => DelayedSignalIndex,
                 WorkshopPuzzleId.DominoEffect => DominoEffectIndex,
+                WorkshopPuzzleId.BumperSidekick => BumperSidekickIndex,
                 _ => FreeWorkshopIndex
             });
             return;
@@ -34,6 +35,12 @@ public partial class Workshop
                 candidate = FirstPrinciples.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
+            else if (index == BumperSidekickIndex)
+            {
+                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                candidate = BumperSidekick.Create(World.Construction.Revision, World.Construction.Settings,
+                    first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
+            }
             else if (index == DelayedSignalIndex)
             {
                 if (first.Value >= ulong.MaxValue - 2) throw new ArgumentException("Part identity is exhausted.");
@@ -48,7 +55,7 @@ public partial class Workshop
             }
             else throw new ArgumentException("Unsupported Workshop puzzle.");
             if (!await SubmitConstruction(candidate)) { PresentMode(); return; }
-            if (index == 0) _nextId = new(first.Value + 2);
+            if (index is 0 or BumperSidekickIndex) _nextId = new(first.Value + 2);
             else if (index is DelayedSignalIndex or DominoEffectIndex) _nextId = new(first.Value + 3);
             Select(null); _tool = null; ClearPreview(); _undo.Clear();
             ResetUiAnimations(); PresentMode();
@@ -60,11 +67,13 @@ public partial class Workshop
         var first = World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples;
         var delayed = World.Construction.Puzzle.Id == WorkshopPuzzleId.DelayedSignal;
         var dominoes = World.Construction.Puzzle.Id == WorkshopPuzzleId.DominoEffect;
-        var authored = first || delayed || dominoes;
-        _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : dominoes ? DominoEffectIndex : FreeWorkshopIndex);
+        var sidekick = World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperSidekick;
+        var authored = first || delayed || dominoes || sidekick;
+        _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : dominoes ? DominoEffectIndex : sidekick ? BumperSidekickIndex : FreeWorkshopIndex);
         _inventory = authored ? WorkshopInventoryPolicy.Authored(World.Construction.Puzzle) : WorkshopInventoryPolicy.Free;
-        _title.Text = first ? "First principles" : delayed ? "Wait for it" : dominoes ? "The domino effect" : "Free workshop";
+        _title.Text = first ? "First principles" : delayed ? "Wait for it" : dominoes ? "The domino effect" : sidekick ? "A little sidekick" : "Free workshop";
         _task.Text = first ? "Guide the orange ball into the green receiver. Place the two ramps to build a path through the air."
+            : sidekick ? "Use the pinball bumper to bounce the orange ball into the receiver."
             : delayed ? "Light the lamp only after the delay box finishes its countdown."
             : dominoes ? "Make the fixed end domino fall and light the lamp. Fill the gap with four dominoes and connect the end domino to the lamp."
             : "Place parts and connect activation sockets. Run tries the machine; Reset restores its starting arrangement.";
@@ -76,6 +85,7 @@ public partial class Workshop
         _placementHeight = new((Half)3); SetBuildView(authored);
         if (delayed) _status.Text = "Place the Delay and connect its activation sockets. Run tests the signal; Reset lets you retry.";
         if (dominoes) _status.Text = "Stand the four dominoes between the ball and the end domino, then connect the end domino to the lamp.";
+        if (sidekick) _status.Text = "Place the bumper just left of the falling ball. Run tests the rebound; Reset lets you retry.";
         if (first) _status.Text = "Place and rotate both ramps. Manual placement; physical nudging is not yet supported.";
     }
     private async void ChangePrecision(double value)
@@ -94,6 +104,7 @@ public partial class Workshop
                 WorkshopPuzzleId.FirstPrinciples => FirstPrinciples.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.DelayedSignal => DelayedSignal.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.DominoEffect => DominoEffect.WithPrecision(World.Construction, precision),
+                WorkshopPuzzleId.BumperSidekick => BumperSidekick.WithPrecision(World.Construction, precision),
                 _ => throw new ArgumentException("Unsupported authored assistance.")
             };
             if (!await SubmitConstruction(candidate)) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); return; }
@@ -102,6 +113,7 @@ public partial class Workshop
             {
                 WorkshopPuzzleId.DelayedSignal => "Switch sensitivity updated. Delay placement remains manual.",
                 WorkshopPuzzleId.DominoEffect => "Difficulty recorded. Domino placement remains manual.",
+                WorkshopPuzzleId.BumperSidekick => "Receiver assistance updated. Bumper placement remains manual.",
                 _ => "Receiver assistance updated. Ramp placement remains manual."
             };
         }

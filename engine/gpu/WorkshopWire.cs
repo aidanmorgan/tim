@@ -3,12 +3,12 @@ using System.Buffers.Binary;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save }
+public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 16 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 18 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
-    CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null);
+    CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null, WorkshopElectricalControl? Electrical = null);
 public readonly record struct WorkshopCommandIdentity(CommandSequence Sequence, SimulationEpoch Epoch, AuthorityRevision Revision, CadenceRevision Cadence, ProjectionEpoch Projection);
 public readonly record struct WorkshopResponse(CommandSequence Sequence, WorkshopResponseKind Kind,
     WorkshopCommandResult Result, WorkshopSimulationPhase Phase, WorkshopRead Read, RuntimeSessionId Session = default, PublicationSequence Publication = default,
@@ -35,7 +35,8 @@ public static class WorkshopWire
     public const int ReadTimersOffset = ReadActivationsOffset + WorkshopActivationWire.ByteLength;
     public const int ReadContactWorkOffset = ReadTimersOffset + WorkshopTimerWire.ByteLength;
     public const int ReadMotionOffset = ReadContactWorkOffset + WorkshopContactWorkWire.ByteLength;
-    public const int ResponseBytes = ReadMotionOffset + PhysicsMotionRead.ByteLength;
+    public const int ReadElectricalOffset = ReadMotionOffset + PhysicsMotionRead.ByteLength;
+    public const int ResponseBytes = ReadElectricalOffset + WorkshopElectricalWire.ByteLength;
     public static bool Matches(WorkshopCommand command, SimulationEpoch epoch, AuthorityRevision revision,
         RuntimeSessionId session, CadenceRevision cadence, ProjectionEpoch projection) =>
         command.Session == session && command.Epoch == epoch && command.Cadence == cadence && command.Projection == projection &&
@@ -46,10 +47,12 @@ public static class WorkshopWire
         command.Session.Validate();
         var hasSettings = command.Kind is WorkshopCommandKind.Initialize or WorkshopCommandKind.ConfigureCadence;
         command.Settings?.Validate();
+        command.Electrical?.Validate();
         if (!Enum.IsDefined(command.Kind) || !Enum.IsDefined(command.RevisionKind) ||
             (command.RevisionKind == ExpectedRevisionKind.Any && command.Revision.Value != 0) ||
             (command.Kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && command.RevisionKind != ExpectedRevisionKind.Exact) ||
             command.Sequence.Value == 0 || hasSettings != command.Settings.HasValue ||
+            (command.Kind == WorkshopCommandKind.ConfigureElectrical) != command.Electrical.HasValue ||
             (command.Kind == WorkshopCommandKind.Initialize
                 ? command.Cadence.Value != 0 || command.Projection.Value != 0
                 : command.Cadence.Value == 0 || command.Projection.Value == 0) ||
@@ -57,7 +60,7 @@ public static class WorkshopWire
             (command.Kind == WorkshopCommandKind.Cancel) != command.Target.HasValue ||
             (command.Target is { } target && (target.Sequence.Value == 0 || target.Epoch.Value == 0 || target.Cadence.Value == 0 || target.Projection.Value == 0)))
             throw new ArgumentException("Unsupported Workshop command.");
-        var bytes = new byte[CommandHeaderBytes + (command.Construction.HasValue ? ConstructionBytes : command.Target.HasValue ? 40 : hasSettings ? WorkshopCadenceWire.ByteLength : 0)];
+        var bytes = new byte[CommandHeaderBytes + (command.Construction.HasValue ? ConstructionBytes : command.Target.HasValue ? 40 : command.Electrical.HasValue ? 16 : hasSettings ? WorkshopCadenceWire.ByteLength : 0)];
         var data = bytes.AsSpan();
         BinaryPrimitives.WriteUInt64LittleEndian(data, command.Sequence.Value);
         BinaryPrimitives.WriteUInt32LittleEndian(data[8..], (uint)command.Kind);
@@ -68,6 +71,7 @@ public static class WorkshopWire
         WriteSession(data[40..56], command.Session);
         BinaryPrimitives.WriteUInt64LittleEndian(data[56..], command.Cadence.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(data[64..], command.Projection.Value);
+        if (command.Electrical is { } electrical) electrical.Write(data[CommandHeaderBytes..]);
         if (command.Settings is { } settings) WorkshopCadenceWire.Write(settings, data[CommandHeaderBytes..]);
         if (command.Construction is { } construction) WriteConstruction(data[CommandHeaderBytes..], construction);
         if (command.Target is { } identity)
@@ -98,12 +102,13 @@ public static class WorkshopWire
         if ((kind == WorkshopCommandKind.Initialize ? cadence.Value != 0 || projection.Value != 0 : cadence.Value == 0 || projection.Value == 0) ||
             !Enum.IsDefined(kind) || sequence.Value == 0 ||
             (kind is WorkshopCommandKind.Construct or WorkshopCommandKind.Save && revisionKind != ExpectedRevisionKind.Exact) ||
-            data.Length != CommandHeaderBytes + (kind == WorkshopCommandKind.Construct ? ConstructionBytes : kind == WorkshopCommandKind.Cancel ? 40 : hasSettings ? WorkshopCadenceWire.ByteLength : 0))
+            data.Length != CommandHeaderBytes + (kind == WorkshopCommandKind.Construct ? ConstructionBytes : kind == WorkshopCommandKind.Cancel ? 40 : kind == WorkshopCommandKind.ConfigureElectrical ? 16 : hasSettings ? WorkshopCadenceWire.ByteLength : 0))
             throw new ArgumentException("Unsupported Workshop command shape.");
         return new(sequence, kind, new(BinaryPrimitives.ReadUInt64LittleEndian(data[16..])),
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[24..])), kind == WorkshopCommandKind.Construct ? ReadConstruction(data[CommandHeaderBytes..]) : null,
             kind == WorkshopCommandKind.Cancel ? ReadTarget(data[CommandHeaderBytes..]) : null, revisionKind, ReadSession(data[40..56]), cadence, projection,
-            hasSettings ? WorkshopCadenceWire.Read(data[CommandHeaderBytes..]) : null);
+            hasSettings ? WorkshopCadenceWire.Read(data[CommandHeaderBytes..]) : null,
+            kind == WorkshopCommandKind.ConfigureElectrical ? WorkshopElectricalControl.Read(data[CommandHeaderBytes..]) : null);
     }
 
     private static WorkshopCommandIdentity ReadTarget(ReadOnlySpan<byte> data)
@@ -157,6 +162,8 @@ public static class WorkshopWire
         BinaryPrimitives.WriteUInt64LittleEndian(data[96..],response.Projection.Value);
         data[104]=response.Read.Bodies.Count; data[105]=response.Read.Captures.Count;
         data[106]=response.Read.Activations.Count; data[107]=response.Read.Timers.Count;
+        data[112]=response.Read.Electrical.Count;
+        WorkshopElectricalWire.Write(response.Read.Electrical,data[ReadElectricalOffset..]);
         data[108]=response.Read.ContactWorks.Count; data[109]=response.Read.ContactWorks.OccurrenceCount;
         for (var i=0; i<response.Read.Bodies.Count; i++)
             PhysicsBodyWire.Write(response.Read.Bodies[i],data.Slice(ReadBodiesOffset+i*PhysicsBodyWire.ByteLength,PhysicsBodyWire.ByteLength));
@@ -171,12 +178,12 @@ public static class WorkshopWire
         WorkshopActivationWire.Write(response.Read.Activations,data[ReadActivationsOffset..ReadTimersOffset]);
         WorkshopTimerWire.Write(response.Read.Timers,data[ReadTimersOffset..ReadContactWorkOffset]);
         WorkshopContactWorkWire.Write(response.Read.ContactWorks,data[ReadContactWorkOffset..ReadMotionOffset]);
-        if (response.Read.Motion is { } motion) motion.Bytes.CopyTo(data[ReadMotionOffset..]);
+        if (response.Read.Motion is { } motion) motion.Bytes.CopyTo(data[ReadMotionOffset..ReadElectricalOffset]);
     }
 
     public static WorkshopResponse DecodeResponse(ReadOnlySpan<byte> data)
     {
-        if (data.Length != ResponseBytes || !Zero(data[112..128]) ||
+        if (data.Length != ResponseBytes || !Zero(data[113..128]) ||
             BinaryPrimitives.ReadUInt32LittleEndian(data[12..]) != (uint)WorkshopWireVersion.GenericMechanical)
             throw new ArgumentException("Unsupported Workshop response shape.");
         var sequence=new CommandSequence(BinaryPrimitives.ReadUInt64LittleEndian(data));
@@ -215,10 +222,11 @@ public static class WorkshopWire
                 BinaryPrimitives.ReadUInt32LittleEndian(slot[12..]),Read(slot[16..]));
         }
         var read=new WorkshopRead(epoch,tick,bodies,new(BinaryPrimitives.ReadUInt64LittleEndian(data[32..])),capture,
-            new(latches[..captureCount]),PhysicsMotionRead.Decode(data[ReadMotionOffset..],bodies,tick),
+            new(latches[..captureCount]),PhysicsMotionRead.Decode(data[ReadMotionOffset..ReadElectricalOffset],bodies,tick),
             WorkshopActivationWire.Read(data[ReadActivationsOffset..ReadTimersOffset],data[106]),
             WorkshopTimerWire.Read(data[ReadTimersOffset..ReadContactWorkOffset],data[107]),
-            WorkshopContactWorkWire.Read(data[ReadContactWorkOffset..ReadMotionOffset],data[108],data[109]));
+            WorkshopContactWorkWire.Read(data[ReadContactWorkOffset..ReadMotionOffset],data[108],data[109]),
+            WorkshopElectricalWire.Read(data[ReadElectricalOffset..],data[112]));
         ValidatePhysicalRead(read); ValidateCapture(read);
         var response=new WorkshopResponse(sequence,kind,new(outcome,reason),phase,read,session,publication,
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[88..])),master,
@@ -267,7 +275,7 @@ public static class WorkshopWire
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0 || read.Electrical.Count != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 
@@ -326,9 +334,14 @@ public static class WorkshopWire
                     Write(slot[104..], trigger.Trigger.Threshold.Value); break;
                 case WorkshopDelay delay:
                     Write(slot[104..], delay.Duration.Seconds.Value); break;
+                case WorkshopBattery battery:
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[104..], battery.Settings.Capacity.Value);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[108..], battery.Settings.MaximumPower.Value);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], battery.Settings.InitialFraction);
+                    slot[116] = (byte)battery.Settings.Enabled; break;
                 case WorkshopBumper bumper:
-                    Write(slot[104..], bumper.Work.Strength.Value); Write(slot[106..], bumper.Work.ReferenceMass.Value);
-                    Write(slot[108..], bumper.Work.Preload.Value); break;
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[104..], bumper.Work.Strength.Value); BinaryPrimitives.WriteSingleLittleEndian(slot[108..], bumper.Work.ReferenceMass.Value);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], bumper.Work.Preload.Value); break;
                 case WorkshopDomino domino:
                     Write(slot[104..], domino.Material.HalfExtents.X); Write(slot[106..], domino.Material.HalfExtents.Y);
                     Write(slot[108..], domino.Material.HalfExtents.Z); Write(slot[110..], domino.Material.Mass.Value);
@@ -389,8 +402,11 @@ public static class WorkshopWire
                     new(new(Read(slot[104..]))), locked == 1),
                 WorkshopPartKind.Delay when Zero(slot[106..]) => new WorkshopDelay(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..]))), locked == 1),
-                WorkshopPartKind.PinballBumper when Zero(slot[110..]) => new WorkshopBumper(body.Id, body.Cell, body.Local, rotation,
-                    new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..]))), locked == 1),
+                WorkshopPartKind.Battery when Zero(slot[117..]) => new WorkshopBattery(body.Id, body.Cell, body.Local, rotation,
+                    new(new(BinaryPrimitives.ReadSingleLittleEndian(slot[104..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[108..])),
+                        BinaryPrimitives.ReadSingleLittleEndian(slot[112..]), (ElectricalEnable)slot[116]), locked == 1),
+                WorkshopPartKind.PinballBumper when Zero(slot[116..]) => new WorkshopBumper(body.Id, body.Cell, body.Local, rotation,
+                    new(new(BinaryPrimitives.ReadSingleLittleEndian(slot[104..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[108..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[112..]))), locked == 1),
                 WorkshopPartKind.Domino when Zero(slot[116..]) => new WorkshopDomino(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..]), Read(slot[106..]), Read(slot[108..])), new(Read(slot[110..])), new(Read(slot[112..])), new(Read(slot[114..]))), locked == 1),
                 WorkshopPartKind.SignalLamp when Zero(slot[104..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),

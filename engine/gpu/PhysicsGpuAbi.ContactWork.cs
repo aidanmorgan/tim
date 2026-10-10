@@ -18,24 +18,25 @@ public static partial class PhysicsGpuAbi
             if (owner>=R32(data,12) || (RigidMotionKind)R32(data,BodiesOffset+(int)owner*BodyBytes+8)!=RigidMotionKind.Static ||
                 !Enum.IsDefined(policy) || (policy==BodyTargetKind.AllDynamic ? target!=NoBody :
                     target>=R32(data,12) || (RigidMotionKind)R32(data,BodiesOffset+(int)target*BodyBytes+8)!=RigidMotionKind.Dynamic) ||
-                R32(record,24) is <9 or >14400 || !AllZero(record[22..24]) ||
-                !AllZero(record[36..48]) || !AllZero(record[50..]))
+                R32(record,24) is <9 or >14400 ||
+                !AllZero(record[40..48]) || !AllZero(record[56..]))
                 throw new ArgumentException("Invalid contact-work declaration or padding.");
-            PhysicsDeclarationBounds.Range(RH(record,16),(Half)0,(Half)20);
-            PhysicsDeclarationBounds.Range(RH(record,18),(Half)0,(Half)200);
-            PhysicsDeclarationBounds.Range(RH(record,20),(Half)0,(Half)64);
-            PhysicsDeclarationBounds.Range(RH(record,48),(Half)0,RH(record,18));
-            stores[i]=new(new(R64(record,0)),new(R64(data,BodiesOffset+(int)owner*BodyBytes)),R32(record,32),new(RH(record,48)));
-            if (stores[i].OccurrenceCount==0 && !record[18..20].SequenceEqual(record[48..50]))
+            new ContactSpeed(RF(record,16)).Validate(20f);
+            new Joules(RF(record,36)).Validate();
+            new ContactSpeed(RF(record,20)).Validate(64f);
+            new Joules(RF(record,48)).Validate();
+            if (RF(record,48) > RF(record,36)) throw new ArgumentException("Work store exceeds preload.");
+            stores[i]=new(new(R64(record,0)),new(R64(data,BodiesOffset+(int)owner*BodyBytes)),R32(record,32),new(RF(record,48)),new(RF(record,52)));
+            if (stores[i].OccurrenceCount==0 && !record[36..40].SequenceEqual(record[48..52]))
                 throw new ArgumentException("Unused work owner spent its reservoir.");
         }
         for (var i=0; i<eventCount; i++)
         {
             var record=data.Slice(WorkOccurrencesOffset+i*WorkOccurrenceBytes,WorkOccurrenceBytes);
-            if (!AllZero(record[27..])) throw new ArgumentException("Nonzero work occurrence padding.");
+            if (!AllZero(record[31..])) throw new ArgumentException("Nonzero work occurrence padding.");
             var value=new ContactWorkOccurrence(new(BinaryPrimitives.ReadUInt16LittleEndian(record)),
                 new(BinaryPrimitives.ReadUInt16LittleEndian(record[2..])),new(R64(record,4)),R32(record,12),
-                R32(record,16),RH(record,20),new(RH(record,22)),new(RH(record,24)),(ContactWorkEffect)record[26]);
+                R32(record,16),RH(record,20),new(RF(record,22)),new(RF(record,26)),(ContactWorkEffect)record[30]);
             value.Validate();
             if (value.Work.Value>=count) throw new ArgumentException("Occurrence has no owner.");
             var declaration=data.Slice(ContactWorksOffset+value.Work.Value*ContactWorkBytes,ContactWorkBytes);
@@ -47,7 +48,7 @@ public static partial class PhysicsGpuAbi
                     found=true;
             if (!found || (value.Sequence!=0 && (value.Collider.Value>=R32(data,16) ||
                 R32(data,CollidersOffset+value.Collider.Value*ColliderBytes+8)!=R32(declaration,8) ||
-                !AdmittedTime(value.EventOrdinal,value.EventPhase,R32(data,88)) || value.ApproachSpeed.Value<RH(declaration,20))))
+                !AdmittedTime(value.EventOrdinal,value.EventPhase,R32(data,88)) || value.ApproachSpeed.Value<RF(declaration,20))))
                 throw new ArgumentException("Occurrence does not bind its dynamic target, collider or time.");
             events[i]=value;
         }
@@ -64,7 +65,8 @@ public static partial class PhysicsGpuAbi
         for (var i=0; i<before.Count; i++)
         {
             var offset=ContactWorksOffset+i*ContactWorkBytes;
-            if (!source.Slice(offset,32).SequenceEqual(candidate.Slice(offset,32)))
+            if (!source.Slice(offset,32).SequenceEqual(candidate.Slice(offset,32)) ||
+                !source.Slice(offset+36,4).SequenceEqual(candidate.Slice(offset+36,4)))
                 throw new ArgumentException("Contact-work declaration changed.");
         }
         for (var i=0; i<after.OccurrenceCount; i++)

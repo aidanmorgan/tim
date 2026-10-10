@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Compiled tables an authored population can exhaust. Closed set; display text lives at the exception boundary.</summary>
-public enum WorkbenchTable : uint { Instances, Bodies, DynamicBodies, Colliders, Sensors, Guides, Triggers, ContactWork, ActivationNodes }
+public enum WorkbenchTable : uint { Instances, Bodies, DynamicBodies, Colliders, Sensors, Guides, Triggers, ContactWork, ActivationNodes, ElectricalSources }
 
 /// <summary>Explicit rejection when a construction needs more rows than the fixed physics tables hold. Never a fault.</summary>
 public sealed class WorkbenchFullException : ArgumentException
@@ -22,12 +22,13 @@ public sealed class WorkbenchFullException : ArgumentException
         WorkbenchTable.Triggers => "impact trigger table",
         WorkbenchTable.ContactWork => "bumper work table",
         WorkbenchTable.ActivationNodes => "activation table",
+        WorkbenchTable.ElectricalSources => "electrical supply table",
         _ => throw new ArgumentException("Undefined workbench table.")
     };
 }
 
 /// <summary>Rows one authored part adds to each compiled table; mirrors WorkshopPhysicsCompiler and WorkshopActivationCompiler.</summary>
-public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, int Colliders, int Triggers, int ContactWorks, int ActivationNodes)
+public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, int Colliders, int Triggers, int ContactWorks, int ActivationNodes, int ElectricalSources = 0)
 {
     /// <summary>The compiled workbench plane itself.</summary>
     public static WorkbenchFootprint Plane => new(1, 0, 1, 0, 0, 0);
@@ -35,6 +36,7 @@ public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, 
     {
         WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Domino => new(1, 1, 1, 0, 0, 0),
         WorkshopPartKind.Receiver => new(1, 0, ReceiverGeometry.Walls.Length, 0, 0, 0),
+        WorkshopPartKind.Battery => new(1, 0, 1, 0, 0, 0, 1),
         WorkshopPartKind.Ramp or WorkshopPartKind.Wall => new(1, 0, 1, 0, 0, 0),
         WorkshopPartKind.ImpactSwitch => new(1, 0, 2, 1, 0, 1),
         WorkshopPartKind.SignalLamp or WorkshopPartKind.Delay => new(1, 0, 1, 0, 0, 1),
@@ -43,7 +45,7 @@ public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, 
     };
     public static WorkbenchFootprint operator +(WorkbenchFootprint a, WorkbenchFootprint b) =>
         new(a.Bodies + b.Bodies, a.DynamicBodies + b.DynamicBodies, a.Colliders + b.Colliders,
-            a.Triggers + b.Triggers, a.ContactWorks + b.ContactWorks, a.ActivationNodes + b.ActivationNodes);
+            a.Triggers + b.Triggers, a.ContactWorks + b.ContactWorks, a.ActivationNodes + b.ActivationNodes, a.ElectricalSources + b.ElectricalSources);
 }
 
 /// <summary>The only population limit: fixed compiled table capacities. No per-kind count applies.</summary>
@@ -70,6 +72,7 @@ public static class WorkbenchCapacity
         if (perBallRows > PhysicsSceneDeclaration.SensorCapacity) throw new WorkbenchFullException(WorkbenchTable.Sensors);
         if (perBallRows > PhysicsSceneDeclaration.GuideCapacity) throw new WorkbenchFullException(WorkbenchTable.Guides);
         if (receivers > 1 && balls > 0) throw new WorkbenchFullException(WorkbenchTable.Guides);
+        if (total.ElectricalSources > ElectricalSupplyPlan.SourceCapacity) throw new WorkbenchFullException(WorkbenchTable.ElectricalSources);
         if (total.Triggers > PhysicsSceneDeclaration.TriggerCapacity) throw new WorkbenchFullException(WorkbenchTable.Triggers);
         if (total.ContactWorks > PhysicsSceneDeclaration.ContactWorkCapacity) throw new WorkbenchFullException(WorkbenchTable.ContactWork);
         if (total.ActivationNodes > ActivationNetwork.Capacity) throw new WorkbenchFullException(WorkbenchTable.ActivationNodes);

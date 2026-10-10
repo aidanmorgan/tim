@@ -16,12 +16,13 @@ internal interface IWorkshopClient : IAsyncDisposable
     bool TryUiFrame(ulong frame, WorkshopPresentationSample physical, WorkshopUiTarget target, out AnimationOpacity opacity);
     /// <summary>One sampled cosmetic blend for the part whose instance declares a cosmetic curve.</summary>
     bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample);
+    bool TryElectricalFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out ElectricalIndicatorSample sample);
     SimulationEpoch Epoch { get; }
     AuthorityRevision Revision { get; }
     WorkshopCommandIdentity? Pending { get; }
     WorkshopTransportState TransportState { get; }
     Task<WorkshopDelivery> Execute(WorkshopCommandKind kind, WorkshopConstruction? construction = null,
-        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null);
+        WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null);
     Task<WorkshopDelivery> CancelPending();
     bool TryRead(out WorkshopResponse response);
     bool TryPresent(ulong frame, out WorkshopPresentationSample sample);

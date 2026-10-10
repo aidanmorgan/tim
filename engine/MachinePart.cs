@@ -34,19 +34,21 @@ public partial class MachinePart : Node3D
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino) ||
+        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino or WorkshopPartKind.Battery) ||
             (definition.WorkshopKind is WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall && definition.Ball is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Ramp && definition.Ramp is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Wall && definition.Wall is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Delay && definition.Delay is null) ||
-            (definition.WorkshopKind == WorkshopPartKind.PinballBumper && definition.Bumper is null) ||
+            (definition.WorkshopKind == WorkshopPartKind.PinballBumper && definition.ContactWork is null) ||
+            (definition.WorkshopKind == WorkshopPartKind.Battery && definition.ElectricalSource is null) ||
             definition.Parameters.Count != 0)
             throw new ArgumentException("Unsupported canonical part declaration.");
         if (definition.WorkshopKind is WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall) definition.Ball!.Capture(definition.WorkshopKind);
         if (definition.WorkshopKind == WorkshopPartKind.Ramp) definition.Ramp!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.Wall) definition.Wall!.Capture();
+        if (definition.WorkshopKind == WorkshopPartKind.Battery) definition.ElectricalSource!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.Delay) definition.Delay!.Capture();
-        if (definition.WorkshopKind == WorkshopPartKind.PinballBumper) definition.Bumper!.Capture();
+        if (definition.WorkshopKind == WorkshopPartKind.PinballBumper) BumperWork.FromCalibration(definition.ContactWork!.Capture());
         Definition = definition;
         Name = definition.Id; // Godot resource/node-name boundary only.
     }
@@ -93,6 +95,19 @@ public partial class MachinePart : Node3D
         foreach (var (binding, phase) in _bindings)
             if (phase == AnimationTimerPhase.None) binding.Apply(new(sample.Blend));
             else if (phase == sample.Phase) binding.Apply(new((Half)1));
+    }
+    private readonly List<(ElectricalIndicator Indicator, WorkshopVisualBinding Binding)> _electricalBindings = new();
+    internal bool HasElectricalBindings => _electricalBindings.Count != 0;
+    protected void BindElectricalIndicator(Node3D target, ElectricalIndicator indicator)
+    {
+        if (!Enum.IsDefined(indicator)) throw new ArgumentException("Unknown electrical indicator binding.");
+        _electricalBindings.Add((indicator, new(target, WorkshopVisualProperty.AlbedoRed, (Half)(85f / 255f), (Half)(247f / 255f))));
+        _electricalBindings.Add((indicator, new(target, WorkshopVisualProperty.AlbedoGreen, (Half)(101f / 255f), (Half)(203f / 255f))));
+        _electricalBindings.Add((indicator, new(target, WorkshopVisualProperty.AlbedoBlue, (Half)(115f / 255f), (Half)(82f / 255f))));
+    }
+    internal void ApplyElectrical(ElectricalIndicatorSample sample)
+    {
+        foreach (var (indicator, binding) in _electricalBindings) binding.Apply(new((Half)sample[indicator]));
     }
     protected virtual void Build() { }
     public void SetSelected(bool selected)

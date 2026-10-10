@@ -20,7 +20,7 @@ public sealed partial class BrowserWorkshopClient
     private bool TryCosmeticDeclaration(GpuBodyId owner, AnimationFeedbackSource source, out CosmeticCurveDeclaration declaration) =>
         TryCosmeticDeclaration(owner, out declaration) && declaration.Source == source;
     /// <summary>UI and one-shot occurrence pumps precede the per-tick timer pump so a counting Delay cannot starve them of the lease.</summary>
-    private void PumpCosmetics() { PumpUi(); PumpCapture(); PumpActivations(); PumpContactFeedback(); PumpTimers(); }
+    private void PumpCosmetics() { PumpUi(); PumpCapture(); PumpActivations(); PumpContactFeedback(); PumpElectricalFeedback(); PumpTimers(); }
     public bool TryCosmeticFrame(ulong frame, WorkshopPresentationSample physical, GpuBodyId owner, out WorkshopCosmeticSample sample)
     {
         ObjectDisposedException.ThrowIf(_disposed, this); ThrowIfTransportFailed(); PumpCosmetics();

@@ -18,7 +18,8 @@ internal static class WorkshopContactWorkWire
         {
             var value=read[i]; value.Validate(); var slot=bytes.Slice(i*StoreBytes,StoreBytes);
             U64(slot,0,value.Id.Value); U64(slot,8,value.Owner.Value);
-            U32(slot,16,value.OccurrenceCount); H(slot,20,value.RemainingEnergy.Value);
+            U32(slot,16,value.OccurrenceCount); BinaryPrimitives.WriteSingleLittleEndian(slot[20..],value.RemainingEnergy.Value);
+            BinaryPrimitives.WriteSingleLittleEndian(slot[24..],value.SuppliedEnergy.Value);
         }
         for (var i=0; i<read.OccurrenceCount; i++)
         {
@@ -27,8 +28,8 @@ internal static class WorkshopContactWorkWire
             BinaryPrimitives.WriteUInt16LittleEndian(slot,value.Work.Value);
             BinaryPrimitives.WriteUInt16LittleEndian(slot[2..],value.Collider.Value);
             U64(slot,4,value.Target.Value); U32(slot,12,value.Sequence); U32(slot,16,value.EventOrdinal);
-            H(slot,20,value.EventPhase); H(slot,22,value.ApproachSpeed.Value); H(slot,24,value.Debit.Value);
-            slot[26]=checked((byte)value.Effect);
+            H(slot,20,value.EventPhase); BinaryPrimitives.WriteSingleLittleEndian(slot[22..],value.ApproachSpeed.Value); BinaryPrimitives.WriteSingleLittleEndian(slot[26..],value.Debit.Value);
+            slot[30]=checked((byte)value.Effect);
         }
     }
     internal static PhysicsContactWorkRead Read(ReadOnlySpan<byte> bytes, byte count, byte occurrences)
@@ -43,15 +44,15 @@ internal static class WorkshopContactWorkWire
         for (var i=0; i<count; i++)
         {
             var slot=bytes.Slice(i*StoreBytes,StoreBytes);
-            if (slot[22..].IndexOfAnyExcept((byte)0)>=0) throw new ArgumentException("Invalid work-store padding.");
-            values[i]=new(new(R64(slot,0)),new(R64(slot,8)),R32(slot,16),new(RH(slot,20)));
+            if (slot[28..].IndexOfAnyExcept((byte)0)>=0) throw new ArgumentException("Invalid work-store padding.");
+            values[i]=new(new(R64(slot,0)),new(R64(slot,8)),R32(slot,16),new(BinaryPrimitives.ReadSingleLittleEndian(slot[20..])),new(BinaryPrimitives.ReadSingleLittleEndian(slot[24..])));
         }
         for (var i=0; i<occurrences; i++)
         {
             var slot=bytes.Slice(StoresByteLength+i*OccurrenceBytes,OccurrenceBytes);
-            if (slot[27..].IndexOfAnyExcept((byte)0)>=0) throw new ArgumentException("Invalid work-occurrence padding.");
+            if (slot[31..].IndexOfAnyExcept((byte)0)>=0) throw new ArgumentException("Invalid work-occurrence padding.");
             events[i]=new(new(BinaryPrimitives.ReadUInt16LittleEndian(slot)),new(BinaryPrimitives.ReadUInt16LittleEndian(slot[2..])),
-                new(R64(slot,4)),R32(slot,12),R32(slot,16),RH(slot,20),new(RH(slot,22)),new(RH(slot,24)),(ContactWorkEffect)slot[26]);
+                new(R64(slot,4)),R32(slot,12),R32(slot,16),RH(slot,20),new(BinaryPrimitives.ReadSingleLittleEndian(slot[22..])),new(BinaryPrimitives.ReadSingleLittleEndian(slot[26..])),(ContactWorkEffect)slot[30]);
         }
         return new(values[..count],events[..occurrences]);
     }

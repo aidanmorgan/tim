@@ -9,7 +9,7 @@ import { MessagePort } from 'node:worker_threads';
 
 const source = await readFile(process.env.WORKER_SOURCE ?? 'CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
 
-const STATE_BYTES = 150832;        // PhysicsGpuAbi.ByteLength
+const STATE_BYTES = 151472;        // PhysicsGpuAbi.ByteLength
 const BODIES = 128, COLLIDERS = 4352, MATERIALS = 10496;
 const ORIENTATION_SENSORS = 19744; // PhysicsGpuAbi.OrientationSensorsOffset (64-byte records, count at header byte 116)
 const BENCH_Y = -0.46;
@@ -19,11 +19,11 @@ const TICKS_PER_SECOND = 120;      // cadence 2 => 4 substeps of 1/480 s per tic
 const BALL_DRAG = .04, BASKETBALL_ROLLING = .035, BOWLING_ROLLING = .03;
 const BASKETBALL_R = .34, BOWLING_R = .28;   // BallMaterial.For radii: the Bowling ball is smaller and heavier (owner decision 9 Oct 2026)
 
-async function loadWorker() {
+async function loadWorker(overrides = {}) {
     let imports;
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [24080, 40, 56], OperationAbi: () => [0, 1],
-        StateBytes: () => STATE_BYTES, ScheduleRoles: () => [1, 2], CaptureMode: () => 1
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1],
+        StateBytes: () => STATE_BYTES, ScheduleRoles: () => [1, 2], CaptureMode: () => 1, ...overrides
     };
     const runtime = {
         setModuleImports: (_, methods) => { imports = methods; },
@@ -96,7 +96,7 @@ function principal(view, offset, value) {
 // Committed linear (m/s) and angular (rad/s) velocity are f32 at body record +48 and +60; mass +72, gravity +76, COM +82.
 function scene(spec, sensors = [], cadence = 2) {
     const bytes = new Uint8Array(STATE_BYTES); const view = new DataView(bytes.buffer);
-    view.setUint32(0, 8, true);
+    view.setUint32(0, 10, true);
     view.setBigUint64(32, 1n, true); view.setUint32(48, cadence, true); view.setUint32(52, 1, true);
     view.setBigUint64(56, 1n, true); view.setBigUint64(64, 1n, true); view.setBigUint64(72, 2n, true); view.setBigUint64(80, 4096n, true);
     const bodies = [{ id: 1, motion: 0, position: [0, BENCH_Y, 0], shape: 2, material: { restitution: 1, threshold: .1, friction: .3 } }, ...spec];
@@ -793,4 +793,54 @@ test('f32 velocity: a Basketball rolling at 20 m/s at 240 Hz decelerates at (5/7
     assert.ok(Math.abs(20 - last.v[0] - predicted) < .1 * predicted, `decelerates ${(20 - last.v[0]).toFixed(4)} m/s² vs ${predicted.toFixed(4)}`);
     assert.ok(Math.abs(last.w[2] + last.v[0] / BASKETBALL_R) < .01 * last.v[0] / BASKETBALL_R && Math.abs(last.p[1] - (BENCH_Y + BASKETBALL_R)) < .002,
         `still rolling on the bench (omega_z ${last.w[2].toFixed(2)}, y ${last.p[1].toFixed(4)})`);
+});
+
+test('paid contact frame uses current anisotropic inertia and contact arms after pose integration', async () => {
+    const { kernels } = await loadWorker();
+    const angle = .2, sine = Math.sin(angle), cosine = Math.cos(angle);
+    const izz = 4 * sine * sine + cosine * cosine;
+    const iyz = 3 * sine * cosine;
+    const dynamic = { motion: 1, invMass: 1, cmx: 0, cmy: 0, cmz: 0,
+        vx: 0, vy: 4, vz: 0, wx: 96, wy: 0, wz: 0,
+        invIWorld: [1, 0, 0, 0, 4 * cosine * cosine + sine * sine, iyz, 0, iyz, izz] };
+    const fixed = { motion: 0, cmx: 0, cmy: 0, cmz: 0 };
+    const contact = { a: dynamic, b: fixed, px: 1, py: 0, pz: 0,
+        nx: 0, ny: 1, nz: 0, rAx: 9, rAy: 9, rAz: 9, normalMass: .5 };
+    const frame = kernels.contactWorkFrame(contact);
+    assert.ok(Math.abs(frame.inverseMass - (1 + izz)) < 1e-12);
+    assert.ok(frame.inverseMass > 2.118 && frame.inverseMass < 2.119);
+    assert.equal(frame.speed, 4);
+    assert.equal(frame.contact.rAx, 1);
+    assert.equal(frame.contact.rAy, 0);
+    assert.equal(frame.contact.rAz, 0);
+    assert.equal(contact.rAx, 9, 'contact preparation must not mutate the solver manifold');
+    const correctImpulse = (8 - frame.speed) / frame.inverseMass;
+    const work = frame.speed * correctImpulse + .5 * frame.inverseMass * correctImpulse ** 2;
+    assert.ok(work < 12, 'current inertia must lower the impulse/work needed for this target');
+    const staleWork = frame.speed * 2 + .5 * frame.inverseMass * 2 ** 2;
+    assert.ok(staleWork > 12.23, 'the stale 2-unit impulse would spend undeclared work');
+});
+
+test('electrical phase routes exactly120 observations per physical second at every publication cadence', async () => {
+    // Scheduling test only: the arithmetic host deliberately performs no transfer.
+    for (const [cadence, rate] of [[1, 60], [2, 120], [3, 240]]) {
+        let phases = 0, enabledObservations = 0;
+        const { imports } = await loadWorker({
+            ElectricalState: (low, high, previous) => { assert.equal(low, 1); assert.equal(high, 0); enabledObservations++; return previous; },
+            AllocateElectrical: (enabled, balance, power, debit, balances, capacities, credits) => {
+                assert.equal(enabled, 1); assert.equal(balance, 3600); assert.equal(power, 120);
+                assert.equal(debit, 0); assert.equal(balances.length, 0); assert.equal(capacities.length, 0); assert.equal(credits.length, 0);
+                phases++; return [balance, 0];
+            }
+        });
+        const bytes = scene([], [], cadence), view = new DataView(bytes.buffer);
+        view.setUint32(120, 1, true);
+        const source = 150832;
+        view.setBigUint64(source, 2n, true); view.setUint32(source + 12, 1, true);
+        view.setFloat32(source + 16, 3600, true); view.setFloat32(source + 20, 120, true);
+        view.setFloat32(source + 24, 3600, true); view.setFloat32(source + 32, 3600, true); view.setUint32(source + 36, 1, true);
+        await imports.stage(bytes, 0); imports.commit();
+        for (let tick = 0; tick < rate; tick++) { await imports.stage(new Uint8Array(0), 1); imports.commit(); }
+        assert.equal(phases, 120); assert.equal(enabledObservations, 120);
+    }
 });

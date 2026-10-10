@@ -391,7 +391,8 @@ public static class WorkshopActivationCompiler
             else if (instance is WorkshopDomino domino && construction.Connections.HasSource(domino.Id))
                 nodes.Add(new(new(domino.Id.Value), domino.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(domino.Id)));
         }
-        foreach (var link in construction.Connections) edges.Add(new(new(link.Source.Value), new(link.Target.Value)));
+        foreach (var link in construction.Connections)
+            if (link.Domain == WorkshopConnectionDomain.Activation) edges.Add(new(new(link.Source.Value), new(link.Target.Value)));
         return new(nodes.ToArray(), edges.ToArray(), new WorkshopGpuProfile(construction.Settings.Simulation,
             construction.Settings.Physical, new(1)).Substeps);
     }

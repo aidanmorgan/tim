@@ -12,7 +12,7 @@ public partial class BumperPart : MachinePart
 
     protected override void Build()
     {
-        ApplyWork(Definition.Bumper!.Capture());
+        ApplyWork(BumperWork.FromCalibration(Definition.ContactWork!.Capture()));
         const float radius = .65f;
         PickRadius = .8f;
         var head = PartArt.Sphere(Visual, radius, Definition.Color);

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/battery.tscn" id="2"]
+
+[ext_resource type="Script" path="res://engine/ElectricalSourceResource.cs" id="3"]
+
+[sub_resource type="Resource" id="ElectricalSource"]
+script = ExtResource("3")
+Capacity = 3600.0
+MaximumPower = 120.0
+InitialFraction = 1.0
+Enabled = 1
+
+[resource]
+script = ExtResource("1")
+Id = "battery"
+Title = "Battery"
+Category = "Power"
+Description = "Supplies electricity through a wire; activation signals cannot replace a battery."
+Scene = ExtResource("2")
+Color = Color(0.87, 0.44, 0.35, 1)
+ElectricalSource = SubResource("ElectricalSource")

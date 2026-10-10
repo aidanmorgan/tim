@@ -14,6 +14,18 @@ public sealed class WorkshopActivationAnimationTests
     private static ChannelControl Control => new(new(4), new(1), 1, 1, AnimationControlKind.Endpoint,
         true, (Half)1, (Half)1, (Half)1, AnimationCurve.Linear, 10, (Half)0, AnimationProperty.ColourBlend);
 
+    [Theory]
+    [InlineData(0f, 1f)]
+    [InlineData(1f, 0f)]
+    public void CommittedTransitionAdmitsBothDirectionsAndRejectsForeignChannel(float from, float to)
+    {
+        var control = Control with { Kind = AnimationControlKind.Transition, From = (Half)from, To = (Half)to };
+        var bytes = WorkshopAnimationWire.Control(Session, new(1), new(1), control);
+        Assert.Equal(control, WorkshopAnimationWire.ReadControl(bytes, Session, new(1), new(1)));
+        Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Control(Session, new(1), new(1), control with { World = default }));
+        Assert.Throws<ArgumentException>(() => WorkshopAnimationWire.Control(Session, new(1), new(1), control with { Property = AnimationProperty.Opacity }));
+    }
+
     [Fact]
     public void TypedAnimationChannelRejectsRetiredSchemaUnknownPropertyAndForeignIdentity()
     {
@@ -65,6 +77,23 @@ public sealed class WorkshopActivationAnimationTests
         Assert.Equal(0ul, Field<ulong[]>(client, "_activationOrdinals")[0]);
         client.ReceiveAnimation(Output(Control, new(2), AnimationOutputKind.Sample, 1));
         Assert.NotNull(Samples(client)[0]);
+    }
+
+    [Fact]
+    public void ElectricalCadenceBoundaryRestartsOrdinalsButRetainsControlAndRejectsReplay()
+    {
+        var client = Client();
+        var control = Control with { Target = new(4UL << 32) };
+        Field<ChannelControl?[]>(client, "_electricalRequested")[0] = control;
+        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 100));
+        var schedule = Schedule(1, 2);
+        Invoke(client, "ReconcileAnimationSchedule", schedule); Set(client, "_schedule", schedule);
+        Assert.Equal(control, Field<ChannelControl?[]>(client, "_electricalRequested")[0]);
+        client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Sample, 1));
+        Assert.Equal(1ul, Field<ulong[]>(client, "_electricalOrdinals")[0]);
+        Assert.Throws<ArgumentException>(() => client.ReceiveAnimation(Output(control, new(2), AnimationOutputKind.Sample, 1)));
+        client.ReceiveAnimation(Output(control, new(1), AnimationOutputKind.Sample, 200));
+        Assert.Equal(1ul, Field<ulong[]>(client, "_electricalOrdinals")[0]);
     }
 
     [Fact]
@@ -166,7 +195,7 @@ public sealed class WorkshopActivationAnimationTests
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
         Set(client, "_readScene", scene);
         var declaration = scene.ContactWorks[0];
@@ -176,14 +205,14 @@ public sealed class WorkshopActivationAnimationTests
             default, default, ContactWorkEffect.Passive);
         var bodies = new PhysicsBodyReadSet(new[] { new PhysicsBodyRead(
             new(target, 1, 4, default, default, default), CanonicalRotation.Identity, default, default) });
-        WorkshopRead Read(ContactWorkRead store, ContactWorkOccurrence occurrence) => new(new(1), new(4), bodies,
+        WorkshopRead Read(ContactWorkRead store, ContactWorkOccurrence occurrence) => new(new(1), new(4 + store.OccurrenceCount), bodies,
             ContactWorks: new(new[] { store }, new[] { occurrence }));
         Invoke(client, "ObserveContactFeedback", Read(initial, clear));
-        var paidStore = initial with { OccurrenceCount = 1, RemainingEnergy = new((Half)20) };
+        var paidStore = initial with { OccurrenceCount = 1, RemainingEnergy = new(20) };
         var collider = new ColliderSlot(checked((ushort)Array.FindIndex(scene.Colliders.ToArray(), c => c.Body == declaration.Owner)));
         var hit = clear with { Sequence = 1, Collider = collider, EventOrdinal = 16,
-            EventPhase = (Half)(-1024), ApproachSpeed = new((Half)4),
-            Debit = new((Half)12), Effect = ContactWorkEffect.Paid };
+            EventPhase = (Half)(-1024), ApproachSpeed = new((float)4),
+            Debit = new(12), Effect = ContactWorkEffect.Paid };
         Invoke(client, "ObserveContactFeedback", Read(paidStore, hit));
         Invoke(client, "ObserveContactFeedback", Read(paidStore, hit));
         var pulses = Field<System.Collections.IList>(client, "_contactPulses");
@@ -192,17 +221,17 @@ public sealed class WorkshopActivationAnimationTests
             Invoke(client, "ObserveContactFeedback", Read(paidStore with { OccurrenceCount = 3 },
                 hit with { Sequence = 3 }))).InnerException);
         var passiveStore = paidStore with { OccurrenceCount = 2 };
-        var second = hit with { Sequence = 2, EventOrdinal = 88, Debit = new((Half)0), Effect = ContactWorkEffect.Passive };
+        var second = hit with { Sequence = 2, EventOrdinal = 88, Debit = new(0), Effect = ContactWorkEffect.Passive };
         foreach (var malformed in new[] {
-            (Store: passiveStore with { RemainingEnergy = new((Half)21) }, Event: second),
-            (Store: passiveStore, Event: second with { Debit = new((Half)1), Effect = ContactWorkEffect.Paid }),
+            (Store: passiveStore with { RemainingEnergy = new(21) }, Event: second),
+            (Store: passiveStore, Event: second with { Debit = new(1), Effect = ContactWorkEffect.Paid }),
             (Store: passiveStore, Event: second with { EventPhase = (Half)(-1025) }) })
             Assert.IsType<ArgumentException>(Assert.Throws<TargetInvocationException>(() =>
                 Invoke(client, "ObserveContactFeedback", Read(malformed.Store, malformed.Event))).InnerException);
         Assert.Single(pulses.Cast<object>());
         Invoke(client, "ObserveContactFeedback", Read(passiveStore, second));
         Invoke(client, "ObserveContactFeedback", Read(passiveStore, second));
-        Assert.Equal(2,pulses.Count);
+        Assert.Single(pulses.Cast<object>()); // The unpaid occurrence cannot create a powered ring.
         var control = Control with { Target = new((2UL << 32) + 2), Kind = AnimationControlKind.Impulse,
             From = (Half)0, To = (Half)1, Duration = CosmeticCurves.PinballBumper.Duration, EventOrdinal = hit.EventOrdinal, EventPhase = hit.EventPhase,
             ImpulseCurve = CosmeticCurves.PinballBumper.ImpulseCurve, Overlap = CosmeticCurves.PinballBumper.Overlap };
@@ -236,7 +265,7 @@ public sealed class WorkshopActivationAnimationTests
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
             WorkshopInput.Basketball(new(2),2,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(3),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+            WorkshopInput.Bumper(new(3),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(11,22));
         Set(client, "_readScene", scene);
         var declaration = scene.ContactWorks[0];
@@ -245,13 +274,20 @@ public sealed class WorkshopActivationAnimationTests
             new(new(1),1,22,default,default,default), CanonicalRotation.Identity,default,default),
             new PhysicsBodyRead(new(new(2),1,22,default,default,default),CanonicalRotation.Identity,default,default) });
         var first = new ContactWorkOccurrence(new(0),collider,new(1),1,16,(Half)0,
-            new((Half)4),default,ContactWorkEffect.Passive);
+            new(4f),new(1f),ContactWorkEffect.Paid);
         var clear = new ContactWorkOccurrence(new(0),default,new(2),0,0,(Half)0,
             default,default,ContactWorkEffect.Passive);
         WorkshopRead Read(uint sequence, ContactWorkOccurrence a, ContactWorkOccurrence b) =>
-            new(new(1),new(22),bodies,ContactWorks:new(
-                new[] { new ContactWorkRead(declaration.Id,declaration.Owner,sequence,declaration.InitialEnergy) },
+            new(new(1),new(22 + sequence),bodies,ContactWorks:new(
+                new[] { new ContactWorkRead(declaration.Id,declaration.Owner,sequence,new(declaration.InitialEnergy.Value-sequence)) },
                 new[] { a,b }));
+        var passive = Read(1,first with { Debit=default,Effect=ContactWorkEffect.Passive },clear);
+        passive = passive with { ContactWorks = new(
+            new[] { new ContactWorkRead(declaration.Id,declaration.Owner,1,declaration.InitialEnergy) },
+            new[] { passive.ContactWorks.Occurrence(0),clear }) };
+        Invoke(client,"ObserveContactFeedback",passive);
+        Assert.Empty(Field<System.Collections.IList>(client,"_contactPulses").Cast<object>());
+        Invoke(client,"RetireContactFeedback",new SimulationEpoch(1));
         var initial = Read(1,first,clear);
         Invoke(client,"ObserveContactFeedback",initial);
         var pulses = Field<System.Collections.IList>(client,"_contactPulses");
@@ -260,7 +296,7 @@ public sealed class WorkshopActivationAnimationTests
         while (pulses.Count < capacity - 1) pulses.Add(pulses[0]);
         Invoke(client,"ObserveContactFeedback",initial);
         Assert.Equal(capacity - 1,pulses.Count);
-        var second = clear with { Collider=collider,Sequence=2,EventOrdinal=16,ApproachSpeed=new((Half)4) };
+        var second = clear with { Collider=collider,Sequence=2,EventOrdinal=16,ApproachSpeed=new(4f),Debit=new(1f),Effect=ContactWorkEffect.Paid };
         var fitting = Read(2,first,second);
         Invoke(client,"ObserveContactFeedback",fitting);
         Assert.Equal(capacity,pulses.Count);
@@ -506,12 +542,43 @@ public sealed class WorkshopActivationAnimationTests
     }
 
     [Fact]
+    public void RepeatedCommitDoesNotApplyRechargeTwiceButNextTickStillRequiresAccounting()
+    {
+        var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
+            WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength(8f))));
+        var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
+        Set(client, "_readScene", scene); Set(client, "_readConstruction", construction);
+        var declaration = scene.ContactWorks[0];
+        var initial = new ContactWorkRead(declaration.Id,declaration.Owner,0,declaration.InitialEnergy);
+        var clear = new ContactWorkOccurrence(new(0),default,new(1),0,0,(Half)0,default,default,ContactWorkEffect.Passive);
+        var bodies = new PhysicsBodyReadSet([new(new(new(1),1,0,default,default,default),CanonicalRotation.Identity,default,default)]);
+        var collider = new ColliderSlot(checked((ushort)Array.FindIndex(scene.Colliders.ToArray(), c=>c.Body==declaration.Owner)));
+        var hit = clear with { Sequence=1,Collider=collider,EventOrdinal=1,ApproachSpeed=new(4f),Debit=new(12f),Effect=ContactWorkEffect.Paid };
+        Invoke(client,"ObserveContactFeedback",new WorkshopRead(new(1),new(0),bodies,ContactWorks:new([initial],[clear])));
+        var spent = initial with { OccurrenceCount=1,RemainingEnergy=new(20f) };
+        Invoke(client,"ObserveContactFeedback",new WorkshopRead(new(1),new(1),bodies,ContactWorks:new([spent],[hit])));
+        var charged = new WorkshopRead(new(1),new(2),bodies,ContactWorks:new([spent with { RemainingEnergy=new(20.5f),SuppliedEnergy=new(.5f) }],[hit]));
+        Invoke(client,"ObserveContactFeedback",charged);
+        Invoke(client,"ObserveContactFeedback",charged);
+        foreach (var invalid in new[] {
+            charged with { Tick=new(1) },
+            charged with { ContactWorks=new PhysicsContactWorkRead([spent with { RemainingEnergy=new(21f),SuppliedEnergy=new(1f) }],[hit]) },
+            charged with { Electrical=new PhysicsElectricalRead([new(new(9),new(3),new(59f),new(1f),ElectricalEnable.Enabled)]) } })
+            Assert.IsType<ArgumentException>(Assert.Throws<TargetInvocationException>(() => Invoke(client,"ObserveContactFeedback",invalid)).InnerException);
+        Assert.Single(Field<System.Collections.IList>(client,"_contactPulses").Cast<object>());
+        Assert.IsType<ArgumentException>(Assert.Throws<TargetInvocationException>(() =>
+            Invoke(client,"ObserveContactFeedback",charged with { Tick=new(3) })).InnerException);
+    }
+
+    [Fact]
     public void ContactPumpForwardsTheDeclaredEnvelopeUnchangedBeforeHandingTheLeaseToTransport()
     {
         var client = Client(); Invoke(client, "RetireContactFeedback", new SimulationEpoch(1));
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
-            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((Half)8))));
+            WorkshopInput.Bumper(new(2),0,4,0,0,0,0,1,BumperWork.FromCanonicalStrength((float)8))));
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(11,22));
         Set(client, "_readScene", scene); Set(client, "_readConstruction", construction);
         var declaration = scene.ContactWorks[0];
@@ -521,10 +588,10 @@ public sealed class WorkshopActivationAnimationTests
             new(new(1), 1, 4, default, default, default), CanonicalRotation.Identity, default, default) });
         var collider = new ColliderSlot(checked((ushort)Array.FindIndex(scene.Colliders.ToArray(), c => c.Body == declaration.Owner)));
         var hit = clear with { Sequence = 1, Collider = collider, EventOrdinal = 16, EventPhase = (Half)(-1024),
-            ApproachSpeed = new((Half)4), Debit = new((Half)12), Effect = ContactWorkEffect.Paid };
+            ApproachSpeed = new((float)4), Debit = new(12), Effect = ContactWorkEffect.Paid };
         Invoke(client, "ObserveContactFeedback", new WorkshopRead(new(1), new(4), bodies, ContactWorks: new(new[] { initial }, new[] { clear })));
-        Invoke(client, "ObserveContactFeedback", new WorkshopRead(new(1), new(4), bodies,
-            ContactWorks: new(new[] { initial with { OccurrenceCount = 1, RemainingEnergy = new((Half)20) } }, new[] { hit })));
+        Invoke(client, "ObserveContactFeedback", new WorkshopRead(new(1), new(5), bodies,
+            ContactWorks: new(new[] { initial with { OccurrenceCount = 1, RemainingEnergy = new(20) } }, new[] { hit })));
         // No JS transport exists here: the pump must have built and leased the declared control before the send faults.
         var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpContactFeedback"));
         Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
