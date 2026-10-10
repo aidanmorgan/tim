@@ -116,8 +116,8 @@ public readonly struct PhysicsContactWorkRead
                     throw new ArgumentException("Contact target population differs from declaration.");
                 var value=_occurrences![occurrence++];
                 if (value.Sequence != 0 && (value.Collider.Value >= scene.Colliders.Length ||
-                    scene.Colliders[value.Collider.Value].Body != declared.Owner))
-                    throw new ArgumentException("Contact occurrence collider does not belong to its owner.");
+                    scene.Colliders[value.Collider.Value].Body != declared.Owner || value.ApproachSpeed.Value < declared.Threshold.Value))
+                    throw new ArgumentException("Contact occurrence collider or approach speed violates its declaration.");
             }
         }
         if (occurrence != OccurrenceCount) throw new ArgumentException("Contact read contains a foreign target.");

@@ -1,0 +1,957 @@
+{
+  "schema": "scoped-merge-candidate",
+  "firstParent": "a9b4d3bcccb3c103bb830676cfe919259bf87531",
+  "secondParent": "6416b4c9ffbc9686b64526da638a9f2744bb2a19",
+  "commonAncestor": "7c19ef720e4d8f8610c4e4d02b5b286b1eba5214",
+  "priorSnapshot": "snapshot-6-2-bumper-battery-corrections.json",
+  "priorSnapshotSha256": "8dcfc6d8a698f46c056a25ac637c371be7585cf16878986a2e7cfe011cf500b0",
+  "delta": [
+    {
+      "path": "CuriousContraptions.tests/WorkshopReadTests.cs",
+      "sha256": "c5446fdc5f9b65536509190c466b978c9e5be72c6d61b8ee5a4df1e2cb695817"
+    },
+    {
+      "path": "TODO.md",
+      "sha256": "c081fe9775c027275533acc44df18a3fb2982f7e268066f4d487ad81ec3df2aa"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-6-2-bumper-battery-integration.md",
+      "sha256": "461684d8cb4fda78260e345f579bbbf086f3fb7392bdd4a3b56707b0a03a8ea5"
+    },
+    {
+      "path": "engine/gpu/PhysicsContactWorkRead.cs",
+      "sha256": "c531b26dba20252cef33b374e01f41b4b13204190faea38c962579bafdae4eb9"
+    }
+  ],
+  "productionDirectory": "CuriousContraptions.web/AppBundle",
+  "productionCommand": "dotnet publish CuriousContraptions.web/CuriousContraptions.web.csproj -c Release -m:1 -p:NuGetAudit=false -p:RestoreSources=/Users/aidan/.nuget/packages -v quiet",
+  "productionResult": "53875/663f9b exit0",
+  "productionFiles": [
+    {
+      "path": ".stamp",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "404.html",
+      "sha256": "203665008980c85bb038aaee6b5224568ffe531e21cdbafd43b9591939e8f7a9"
+    },
+    {
+      "path": "CuriousContraptions.web.runtimeconfig.json",
+      "sha256": "62f5ab8307fc3d3687946be6f0cf52382f6cf379aaf91e5b56c8267857db00c0"
+    },
+    {
+      "path": "_framework/CuriousContraptions.Animation.wasm",
+      "sha256": "689f2053afbc8d6a6552186fe77c0c70fa50824cc26909873886c62f931d3303"
+    },
+    {
+      "path": "_framework/CuriousContraptions.Animation.wasm.br",
+      "sha256": "c23e433d3a1ea82a8ba356c1d7d09c275d24b355f5e6540f2518eee699d45d12"
+    },
+    {
+      "path": "_framework/CuriousContraptions.Animation.wasm.gz",
+      "sha256": "0688c461cef9cd1a3df84b834f06b891ccb462d8151f24f6b9e0bfd3c3e22867"
+    },
+    {
+      "path": "_framework/CuriousContraptions.wasm",
+      "sha256": "34e7b36a99c8ce71f4bc0a0e91924ddb5b142abef7fc5223b8be270881703572"
+    },
+    {
+      "path": "_framework/CuriousContraptions.wasm.br",
+      "sha256": "b53ec1d355626bc7471f1f2ef6b2b17ece2a510f6cb2f4333862bc85e18e2f16"
+    },
+    {
+      "path": "_framework/CuriousContraptions.wasm.gz",
+      "sha256": "68cc9de2c420da3fc4f2608badf63f11c6c1d077d919ff9491ef60b3d097f02d"
+    },
+    {
+      "path": "_framework/CuriousContraptions.web.wasm",
+      "sha256": "289aaa67a40929e63a5939d4d90198ccc6c4b7a1b616fb5f7ba3913301a28e14"
+    },
+    {
+      "path": "_framework/CuriousContraptions.web.wasm.br",
+      "sha256": "79754c92d79165d9ef1e027d42809a2fb8083873c5a20ebcaeb4649c1c91fc33"
+    },
+    {
+      "path": "_framework/CuriousContraptions.web.wasm.gz",
+      "sha256": "413e8c30ae4ef5f1e3c522e03f72d513efe1cf761133ca90e529f17ca60cc57e"
+    },
+    {
+      "path": "_framework/GodotSharp.wasm",
+      "sha256": "68a570c3500b4bc90fd1080c44f55ce12556c09d13a95df41b96bf8b34b0f2ab"
+    },
+    {
+      "path": "_framework/GodotSharp.wasm.br",
+      "sha256": "e1f1cde92376cb4ff2d2d49145df878ead83cf1810e4b3a5e477430ddbd34cdb"
+    },
+    {
+      "path": "_framework/GodotSharp.wasm.gz",
+      "sha256": "6991c8ceca6ca6f26c9318f09823b063c4e97bfe57c910ef34ec3a81aad7073b"
+    },
+    {
+      "path": "_framework/System.Collections.Concurrent.wasm",
+      "sha256": "fc371a622243f5d0565bc4f18b4b29ece09a31efd4a0c00d9d7490aa34601781"
+    },
+    {
+      "path": "_framework/System.Collections.Concurrent.wasm.br",
+      "sha256": "4a248ff53c325c5de6ecfcf4fc5376181c574c516b01cc9d55b3253c31652082"
+    },
+    {
+      "path": "_framework/System.Collections.Concurrent.wasm.gz",
+      "sha256": "b4d14677b7ab61d6b4b133a0e1f88d63c9d39877f8d37fe4aaecb34ecca04242"
+    },
+    {
+      "path": "_framework/System.Collections.Immutable.wasm",
+      "sha256": "fccc24c8475a8e3e96f583a14435f361db0846da040fe92614ac550519666202"
+    },
+    {
+      "path": "_framework/System.Collections.Immutable.wasm.br",
+      "sha256": "d3a4b3d7d0ebcd90c5f936e16c4e6d62fa915769f554ec009010750577fcb720"
+    },
+    {
+      "path": "_framework/System.Collections.Immutable.wasm.gz",
+      "sha256": "73dca3be905482cda25cc24e8021dbfb745b701f2739b3f2da96077326ac983a"
+    },
+    {
+      "path": "_framework/System.Collections.wasm",
+      "sha256": "9c95dad0b97dbd3d5ab84661f9476155547d0383e8785e675d7d2a1d87bf3498"
+    },
+    {
+      "path": "_framework/System.Collections.wasm.br",
+      "sha256": "40b1b984a78155e26d10c93f8ab7af5f1bd6c1eb17080c664305fe0b77d9caf9"
+    },
+    {
+      "path": "_framework/System.Collections.wasm.gz",
+      "sha256": "c5460d8203c471ed5b3060f6aea57b9352f6b78f98dd5adc07d6d5d8afe84a1a"
+    },
+    {
+      "path": "_framework/System.Console.wasm",
+      "sha256": "28b855fb96d3a3f5821def71685d0e012ad1bceb53513b3822121ce27ddf2111"
+    },
+    {
+      "path": "_framework/System.Console.wasm.br",
+      "sha256": "9eaac77536e15fbb98d882ab3545b9ade8c76e9d8e3c0ca4e217a4ec2a90e68b"
+    },
+    {
+      "path": "_framework/System.Console.wasm.gz",
+      "sha256": "830922a6891b053a98696cb915254b384115e9942ac9cd416960981b75ef25ae"
+    },
+    {
+      "path": "_framework/System.Diagnostics.StackTrace.wasm",
+      "sha256": "4201a4a57a430936d0bb0433b688a0b8a32ef95d2d1cc2ae6a1a2f433e3b8129"
+    },
+    {
+      "path": "_framework/System.Diagnostics.StackTrace.wasm.br",
+      "sha256": "0a5ccf2cdfaa6d36164e5f02aa5d2a1ab68faed4f9e4069a111adcec0c265c4c"
+    },
+    {
+      "path": "_framework/System.Diagnostics.StackTrace.wasm.gz",
+      "sha256": "54936ad724fd93a9efdf82cd05acf942b571587550822962af1980002ccd78e3"
+    },
+    {
+      "path": "_framework/System.Diagnostics.TraceSource.wasm",
+      "sha256": "b7dcf381d8142a546994ace912c19349b75a8689ca6a6edb57bf5a74fda72cf5"
+    },
+    {
+      "path": "_framework/System.Diagnostics.TraceSource.wasm.br",
+      "sha256": "3fdd56a962ec8f61f627841982ae604ac123924595ecde39eb42967dd590c0f5"
+    },
+    {
+      "path": "_framework/System.Diagnostics.TraceSource.wasm.gz",
+      "sha256": "a5472652b46c77f42fa16a31929734365f077ec7f291e7d70f6cc6cc6da4376c"
+    },
+    {
+      "path": "_framework/System.Linq.wasm",
+      "sha256": "1f22da1a926f48efaea1cc5e22af52e64bff666aba8abf5f394fedbc01c4bd3c"
+    },
+    {
+      "path": "_framework/System.Linq.wasm.br",
+      "sha256": "064d65de7dfe3b9643c93bab425f5e985a0b554a7a7f62f725f16d1b256d819c"
+    },
+    {
+      "path": "_framework/System.Linq.wasm.gz",
+      "sha256": "6c0a3e502b599db2747de0733fe4e4b0b431b7a10afaab2b947fbcf47c089316"
+    },
+    {
+      "path": "_framework/System.Memory.wasm",
+      "sha256": "3886781f002ac31da82e228e62b33b81eb1022c96a05a876eb1e3dba5b5415ec"
+    },
+    {
+      "path": "_framework/System.Memory.wasm.br",
+      "sha256": "0997fe572f87bee273642bef4f25aa7db2181e6861e13743ae5fbaa70554318f"
+    },
+    {
+      "path": "_framework/System.Memory.wasm.gz",
+      "sha256": "39869381245317044a46e282b49be31730afe899c46d8830e7a8bb1cddb8bf21"
+    },
+    {
+      "path": "_framework/System.Private.CoreLib.wasm",
+      "sha256": "b6e2b20ab93f2c0ec3ecafb4af89e69fe5846cc970e2ef820a619b2b4edb3836"
+    },
+    {
+      "path": "_framework/System.Private.CoreLib.wasm.br",
+      "sha256": "afad5131362455e2dbf10abfa99e8171b85936fcaf5685687425d3533245bd26"
+    },
+    {
+      "path": "_framework/System.Private.CoreLib.wasm.gz",
+      "sha256": "28d11ee14da73e4babe9bfeecf239e702a2c47e89e38a2363120603340b66cbe"
+    },
+    {
+      "path": "_framework/System.Private.Uri.wasm",
+      "sha256": "48a3b917f0abb4865be83ead525081adac0eb97972de89cac61fcc5f4cb1cbd8"
+    },
+    {
+      "path": "_framework/System.Private.Uri.wasm.br",
+      "sha256": "f1aa6fc4a1e573cef0e57dfce015f6088f834b34687519c5a4b815948c61176c"
+    },
+    {
+      "path": "_framework/System.Private.Uri.wasm.gz",
+      "sha256": "91851667c3313fccbc2f45213cd806873d52ff7311d2109a8e321fb428cc0dac"
+    },
+    {
+      "path": "_framework/System.Runtime.InteropServices.JavaScript.wasm",
+      "sha256": "d770db00198a249324af84be5c5a67c3811136e9bee325c2d7915cd490a2de03"
+    },
+    {
+      "path": "_framework/System.Runtime.InteropServices.JavaScript.wasm.br",
+      "sha256": "105d94eb92aa5e274d19403281e67052e99a8158ff2bbad351af5f0244dc07a9"
+    },
+    {
+      "path": "_framework/System.Runtime.InteropServices.JavaScript.wasm.gz",
+      "sha256": "00b76a0edac6449c2054366f60aa37598dfc6e7dddfdad4dcc8f670e1186483c"
+    },
+    {
+      "path": "_framework/System.Runtime.InteropServices.wasm",
+      "sha256": "788802f860bbe8e51e3129d5c832feb2592c189d967c046ffcc139f2af4f5545"
+    },
+    {
+      "path": "_framework/System.Runtime.InteropServices.wasm.br",
+      "sha256": "ef67a2de6445eafb8859aacf422e60d79625d533cec0f3ec4661af3b20900e1b"
+    },
+    {
+      "path": "_framework/System.Runtime.InteropServices.wasm.gz",
+      "sha256": "2214747e5c7cc118b0bc0979b0bbbf292350978a22aad1cf47d23d0a2aa792f1"
+    },
+    {
+      "path": "_framework/System.Runtime.Intrinsics.wasm",
+      "sha256": "5942e9756ee686ad61e93623a6c797ddf38f5f1994b7d4e783ec5d8758e0e9a0"
+    },
+    {
+      "path": "_framework/System.Runtime.Intrinsics.wasm.br",
+      "sha256": "bd2ce096856b732f9a28ebce1f88dbdc966245272f5b08b2a366be3a8326d3fd"
+    },
+    {
+      "path": "_framework/System.Runtime.Intrinsics.wasm.gz",
+      "sha256": "37197b880b362abf906d1294f1e371d11b6cfe550ff8c06d9918394c200fdab0"
+    },
+    {
+      "path": "_framework/System.Runtime.Loader.wasm",
+      "sha256": "51a4c5fec047c77890a50f683ce45ddb32c8ff4b2a5963072eb795ecd279a117"
+    },
+    {
+      "path": "_framework/System.Runtime.Loader.wasm.br",
+      "sha256": "0d98672b0cd55abfd8738add1005fe866780d7b31b22a0eff98c731db9da344c"
+    },
+    {
+      "path": "_framework/System.Runtime.Loader.wasm.gz",
+      "sha256": "6ba5e3f8fb8c8232aa8fa5d84820fffafb26b3d53cb9ec035511a830f4dce7ba"
+    },
+    {
+      "path": "_framework/System.Runtime.wasm",
+      "sha256": "186b5bc669b137e410c74344061d8ccc61e12fc6d7639d141d0e906ed2453c97"
+    },
+    {
+      "path": "_framework/System.Runtime.wasm.br",
+      "sha256": "5247f9eb9ece213d6092c279c8c7b10b9e0e0ae15e424c7cb7da0791bbbe475b"
+    },
+    {
+      "path": "_framework/System.Runtime.wasm.gz",
+      "sha256": "925a49df7bb2c3a8094a35fc9d8711d8de02b127ac7643f59fe5a5730987960e"
+    },
+    {
+      "path": "_framework/System.Security.Cryptography.wasm",
+      "sha256": "76c88adbd878f5c4f7fd320a3c8e09371b2d38582afa51ce2ebc192693645478"
+    },
+    {
+      "path": "_framework/System.Security.Cryptography.wasm.br",
+      "sha256": "64e93fdd0daf111689894eb08a2cbba773cf3ff3e9e7729257179de489ff1654"
+    },
+    {
+      "path": "_framework/System.Security.Cryptography.wasm.gz",
+      "sha256": "650c063c4c1e3b75b401d44c15ae418d5b4ed623c9cdf718e294a28c29114e5d"
+    },
+    {
+      "path": "_framework/System.Text.RegularExpressions.wasm",
+      "sha256": "b741daff696d5cfaeb2a202156c63c08dfdfe8574605c2d6e111e90d4eb14432"
+    },
+    {
+      "path": "_framework/System.Text.RegularExpressions.wasm.br",
+      "sha256": "cec43aad41092b58983b2ac65338ea5df58bb3fdd6f90558c5a7af726394f91a"
+    },
+    {
+      "path": "_framework/System.Text.RegularExpressions.wasm.gz",
+      "sha256": "1328456f0c28f36210c7483ca2802cc6ce12b1631337aa781754141c89cc9c0a"
+    },
+    {
+      "path": "_framework/System.Threading.wasm",
+      "sha256": "170c837199f178ca81296847c51cbce4e771a6bf6837d159a69065180eac6471"
+    },
+    {
+      "path": "_framework/System.Threading.wasm.br",
+      "sha256": "ed159b6d57ad5cd57ae068154f352c1c144757c2d05595b33364fe4a9abb06b8"
+    },
+    {
+      "path": "_framework/System.Threading.wasm.gz",
+      "sha256": "6b78132b3a36e3d311d889a690b819227fa30ed08738bd0c612a78553f2677c0"
+    },
+    {
+      "path": "_framework/dotnet.boot.js",
+      "sha256": "6bcde374a28dada3a71ae4cc5f75a098e9d202fef6d29d5b5708e107997333db"
+    },
+    {
+      "path": "_framework/dotnet.boot.js.br",
+      "sha256": "3053bca924f1966045cf74ba419048355d236d571d198b0da250e1c87415bdf5"
+    },
+    {
+      "path": "_framework/dotnet.boot.js.gz",
+      "sha256": "eee3ec68f7c63c2de6e3b08560000517cd110615049c21a3a04f742fb7acd9a3"
+    },
+    {
+      "path": "_framework/dotnet.js",
+      "sha256": "ba72088a45591210f9a08fec223b0f848a0a4d3245026ae9479353596c7fa89d"
+    },
+    {
+      "path": "_framework/dotnet.js.br",
+      "sha256": "f1d3dcc469c986e941665c282eae2341bc0e22a892895a080fef638cb593290a"
+    },
+    {
+      "path": "_framework/dotnet.js.gz",
+      "sha256": "670691da149adc78dda59f1908690b58992985405f65f9954bbc4a05cd247d5d"
+    },
+    {
+      "path": "_framework/dotnet.native.js",
+      "sha256": "f1ae452278bab15245a0a4a4770b32c0ccc805de1457b1802454015446ade4a6"
+    },
+    {
+      "path": "_framework/dotnet.native.js.br",
+      "sha256": "1dc95b16081a22ab53e1b08ed1b4a128287f3a1b7a4e9c55684cd32ace701233"
+    },
+    {
+      "path": "_framework/dotnet.native.js.gz",
+      "sha256": "433cc331454c95a40789659d7bc2e3cc6b7621d8ff673eb90889142ed8470fbe"
+    },
+    {
+      "path": "_framework/dotnet.native.js.symbols",
+      "sha256": "c915b00b408dcc6cd11d73d330c05f1eb90267eeb62b851ad7dbf406e5c76858"
+    },
+    {
+      "path": "_framework/dotnet.runtime.js",
+      "sha256": "41b9eaad9187b46abbc2e752d7bfc06043e91fd264a61aecc959650fa24799db"
+    },
+    {
+      "path": "_framework/dotnet.runtime.js.br",
+      "sha256": "2e012c9dc16caca2883b3927e9acc93a31abf05153abf67508271e0b45c6a3ed"
+    },
+    {
+      "path": "_framework/dotnet.runtime.js.gz",
+      "sha256": "0876bc8fd459b9a6ffbf34293e8cb0fef0051b585199cf93404f69e15f3086f7"
+    },
+    {
+      "path": "_framework/icudt_CJK.dat",
+      "sha256": "4992ed42745cd09930a8769bd155153fb4f7b813d2798cf1cc39e9c4fa549c79"
+    },
+    {
+      "path": "_framework/icudt_CJK.dat.br",
+      "sha256": "0b113c8228e57875f68c01b203d762bb191e7b2078016d44a9389440515500ce"
+    },
+    {
+      "path": "_framework/icudt_CJK.dat.gz",
+      "sha256": "aefa07fc10fe22651cb89967d3e66abfed72dbb595847342fc54797eaedd9feb"
+    },
+    {
+      "path": "_framework/icudt_EFIGS.dat",
+      "sha256": "f1f22d7ad618f24434c30ea8c704cb893de85e50701caba66de3f6a51178c937"
+    },
+    {
+      "path": "_framework/icudt_EFIGS.dat.br",
+      "sha256": "660fd535cd7f101aa4786b2721cd50406dcfd75ff390cd7aa4a70b42d5cd3052"
+    },
+    {
+      "path": "_framework/icudt_EFIGS.dat.gz",
+      "sha256": "896fed5768f7e123f71092f34105abb0ea9c3f234db3892e5723a271248a7947"
+    },
+    {
+      "path": "_framework/icudt_no_CJK.dat",
+      "sha256": "2fbb15ecd1183f7eff42bd853c278fa39709a918135d1c061eec05e50fb435fb"
+    },
+    {
+      "path": "_framework/icudt_no_CJK.dat.br",
+      "sha256": "c9c9607b8b9b41b926be614152e9de9969f13a6575bfa4f05b2c81d053838384"
+    },
+    {
+      "path": "_framework/icudt_no_CJK.dat.gz",
+      "sha256": "2ee0361b2e5b3bff571e92a68e07bea8fe1d6014255d10b9a8648caa283bd709"
+    },
+    {
+      "path": "_framework/twodog.wasm",
+      "sha256": "264b48b25dfa42d41d8e3837cbbe666054d50c6f06ec9cf0731d85f24ec989e2"
+    },
+    {
+      "path": "_framework/twodog.wasm.br",
+      "sha256": "ef75d45f5f5b9bbb4d0d38db3963af7de4f0bece59036cbb6bd4d06311a5b69a"
+    },
+    {
+      "path": "_framework/twodog.wasm.gz",
+      "sha256": "2630aa0e5d6e572e9ddfe9a024389332a2270840cace3dcb5c7d26bd776bd8f4"
+    },
+    {
+      "path": "animation/.stamp",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "animation/CuriousContraptions.Animation.Worker.runtimeconfig.json",
+      "sha256": "2d8eb6f4f2caa4f41765defd38e6754034cfdabc691bc7abc32d81b260c3ddc8"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm",
+      "sha256": "550312613f818b3d0a0b800d641b903a772b7bd8d85f6dbf1ab4ebfdf212a579"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm.br",
+      "sha256": "db35084d8ad23369d6395e31fb4937ce9e6920c5dd53d46feb4778f25f82892a"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.Worker.wasm.gz",
+      "sha256": "feb5e8d6301ae6ce4916a75c97b55828261313a7e65a0faa8652797ab0aea45c"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.wasm",
+      "sha256": "72b00af0d38397db562cc9f13a319e9c5963924725cf683930497a3c498e40dd"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.wasm.br",
+      "sha256": "16d3399f770772bd2120753f32c3e0339fd4ef0dc07992ece29ddccd17a728ad"
+    },
+    {
+      "path": "animation/_framework/CuriousContraptions.Animation.wasm.gz",
+      "sha256": "15ac6c7838cc846a4c7fc249b814a21013b6cf2518b54e6170f398e0200740a2"
+    },
+    {
+      "path": "animation/_framework/System.Collections.wasm",
+      "sha256": "a0f4cefb05490946f9ca21182f516f3c584675d5f7b72cf59434c464abe6f617"
+    },
+    {
+      "path": "animation/_framework/System.Collections.wasm.br",
+      "sha256": "33e1c5105744a44efb735e4cafd2576441b550d277add3f1a432fe64a348c450"
+    },
+    {
+      "path": "animation/_framework/System.Collections.wasm.gz",
+      "sha256": "f38a0daec4237e9c8392d3f058201a87e7af685276c2a3e23218efadbeee4b2b"
+    },
+    {
+      "path": "animation/_framework/System.Console.wasm",
+      "sha256": "52b0d98b0e48f81a9b286cbb9f4ee967cc7715e9ec4469f12be2ad6464f22b26"
+    },
+    {
+      "path": "animation/_framework/System.Console.wasm.br",
+      "sha256": "3b41525a3667dd0a71dcf8af128d9610c8467c3021b8d3b10b1a5bafeffa9ac1"
+    },
+    {
+      "path": "animation/_framework/System.Console.wasm.gz",
+      "sha256": "c9b5aec45c5f74e5472f4cab1b0cf313851d8305e533ad0c3adb1de22a670c00"
+    },
+    {
+      "path": "animation/_framework/System.Linq.wasm",
+      "sha256": "dbc87807bd3a92fb0b8d268d5ba754d7646a788d24eb164eca68261077074df6"
+    },
+    {
+      "path": "animation/_framework/System.Linq.wasm.br",
+      "sha256": "b604ec4949ddb82c0e900d5124648f41d02e061ebfa268a791d159763336c4b0"
+    },
+    {
+      "path": "animation/_framework/System.Linq.wasm.gz",
+      "sha256": "20a3ec11b908edcb402fd0a2af467fb5927739e52fd811198483a91c768c460e"
+    },
+    {
+      "path": "animation/_framework/System.Memory.wasm",
+      "sha256": "3886781f002ac31da82e228e62b33b81eb1022c96a05a876eb1e3dba5b5415ec"
+    },
+    {
+      "path": "animation/_framework/System.Memory.wasm.br",
+      "sha256": "0997fe572f87bee273642bef4f25aa7db2181e6861e13743ae5fbaa70554318f"
+    },
+    {
+      "path": "animation/_framework/System.Memory.wasm.gz",
+      "sha256": "39869381245317044a46e282b49be31730afe899c46d8830e7a8bb1cddb8bf21"
+    },
+    {
+      "path": "animation/_framework/System.Private.CoreLib.wasm",
+      "sha256": "ec35a948441a311ed5203f51bf78c0ae7f9bf147413010d8b1118d5598de06bb"
+    },
+    {
+      "path": "animation/_framework/System.Private.CoreLib.wasm.br",
+      "sha256": "2073c1d49ce95ed429b2a0b3c442a74c7ffb60b352a48ddfae2bbc4d8c0ed808"
+    },
+    {
+      "path": "animation/_framework/System.Private.CoreLib.wasm.gz",
+      "sha256": "671915d0b0613c02eeb6b3f97fd4b5ac4f68f1886971d6e4b7a72a5edbfe8c1d"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.InteropServices.JavaScript.wasm",
+      "sha256": "09de083b19832e08b2223618cf5833b6a6bb0a4675f7922ac2dd54a625736ee5"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.InteropServices.JavaScript.wasm.br",
+      "sha256": "f189361a6f379a4ff66bc87dc14b66e95949bc4023ed0e09ddf05f91df81da75"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.InteropServices.JavaScript.wasm.gz",
+      "sha256": "dd459cfbd0ea889016740136c5bcc8d885355f6c0be46e48eddff9d620664c98"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.Intrinsics.wasm",
+      "sha256": "5942e9756ee686ad61e93623a6c797ddf38f5f1994b7d4e783ec5d8758e0e9a0"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.Intrinsics.wasm.br",
+      "sha256": "bd2ce096856b732f9a28ebce1f88dbdc966245272f5b08b2a366be3a8326d3fd"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.Intrinsics.wasm.gz",
+      "sha256": "37197b880b362abf906d1294f1e371d11b6cfe550ff8c06d9918394c200fdab0"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.wasm",
+      "sha256": "7f2fe450d1f63308fa3e432c1c8fc7e239de6e333afafdef7d9f7cc47025cb11"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.wasm.br",
+      "sha256": "d87a511b2acd96d2e6551c246eb919362cabadecf3c4d288732fc8b6095bac2a"
+    },
+    {
+      "path": "animation/_framework/System.Runtime.wasm.gz",
+      "sha256": "e46da25ece5a877dccf7882835f672d133a05468c01faa58d1adb79f12eda72d"
+    },
+    {
+      "path": "animation/_framework/dotnet.boot.js",
+      "sha256": "95aa24ad0de7f12da46cc48d7543237e83e008ab63d7bcfb6a120ecc7318ac19"
+    },
+    {
+      "path": "animation/_framework/dotnet.boot.js.br",
+      "sha256": "d9b96636864cffc020b0d6cc1a4c396cc4315409cca274f2c5552f5a49650913"
+    },
+    {
+      "path": "animation/_framework/dotnet.boot.js.gz",
+      "sha256": "806cc40c9365c52e623d08428aac7d62f25ea297877d707aeac295cbeea46910"
+    },
+    {
+      "path": "animation/_framework/dotnet.js",
+      "sha256": "ba72088a45591210f9a08fec223b0f848a0a4d3245026ae9479353596c7fa89d"
+    },
+    {
+      "path": "animation/_framework/dotnet.js.br",
+      "sha256": "f1d3dcc469c986e941665c282eae2341bc0e22a892895a080fef638cb593290a"
+    },
+    {
+      "path": "animation/_framework/dotnet.js.gz",
+      "sha256": "670691da149adc78dda59f1908690b58992985405f65f9954bbc4a05cd247d5d"
+    },
+    {
+      "path": "animation/_framework/dotnet.native.js",
+      "sha256": "7ef6453f0c5f7dfd88a6059637027f1510197e25369a140b7c3a67192e8b0df6"
+    },
+    {
+      "path": "animation/_framework/dotnet.native.js.br",
+      "sha256": "33b282f8b1fe66039a780a7f7fa74edf37e288512b78dda45abb4cd1c99ae616"
+    },
+    {
+      "path": "animation/_framework/dotnet.native.js.gz",
+      "sha256": "71ce9cb49eee54a523b09e9a3f999b60959c65d7d82b23bfb4d8bbac807c910c"
+    },
+    {
+      "path": "animation/_framework/dotnet.native.wasm",
+      "sha256": "faa9495d16a95a57a2225f0b84e0e3a36e44ee304e221e294e89bdd13f41c889"
+    },
+    {
+      "path": "animation/_framework/dotnet.native.wasm.br",
+      "sha256": "cc80fea6ed8b62f2bbca5cd40973bd2f3711c205706a99a4033550ec8dd737d2"
+    },
+    {
+      "path": "animation/_framework/dotnet.native.wasm.gz",
+      "sha256": "446ed91c391121ea4b40a08b936229fcb66336a97893f955a32bdf42dcc78fc2"
+    },
+    {
+      "path": "animation/_framework/dotnet.runtime.js",
+      "sha256": "41b9eaad9187b46abbc2e752d7bfc06043e91fd264a61aecc959650fa24799db"
+    },
+    {
+      "path": "animation/_framework/dotnet.runtime.js.br",
+      "sha256": "2e012c9dc16caca2883b3927e9acc93a31abf05153abf67508271e0b45c6a3ed"
+    },
+    {
+      "path": "animation/_framework/dotnet.runtime.js.gz",
+      "sha256": "0876bc8fd459b9a6ffbf34293e8cb0fef0051b585199cf93404f69e15f3086f7"
+    },
+    {
+      "path": "animation/package.json",
+      "sha256": "4db3f375c580dbd2fe977190c854014c577b08c59615b41d4bc53163840e625f"
+    },
+    {
+      "path": "animation/worker.js",
+      "sha256": "9b0e0259ee0a1eab08004ff7110a2d8a7acaeb00de753b9d8e1a81245e6b9c12"
+    },
+    {
+      "path": "animation/worker.js.br",
+      "sha256": "bb20e7b3504e8a207653d9c1d051846832389bf897d07141a251b35bc6c333c9"
+    },
+    {
+      "path": "animation/worker.js.gz",
+      "sha256": "dafe801173141e3bb4b2cae3f5e30e883ebcb1c59513bac4114e17cbbf2a80fb"
+    },
+    {
+      "path": "favicon-16x16.png",
+      "sha256": "df8fddef4c64e640d5e67e9d3d75bf333ee6c24c422a226d2628698502dfbded"
+    },
+    {
+      "path": "favicon-32x32.png",
+      "sha256": "1fc8e1db39d0d40495bcd84ec52283f32ad7b680b33ab7a15118ab53194ba10a"
+    },
+    {
+      "path": "favicon-96x96.png",
+      "sha256": "129b6e6db3b690889f3d9dc926b10c1500a819c364671920e3bb806f41f2c310"
+    },
+    {
+      "path": "favicon.ico",
+      "sha256": "2b12b3a195e0f7e1e7052df7e7e9b8369b7a7e0d8843017ebf1435013738491d"
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "1ef6a8841b987bfdf92fed81a7aa51c5e393b5e4269b6f761b905b8d6f902583"
+    },
+    {
+      "path": "godot.audio.position.worklet.js",
+      "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
+    },
+    {
+      "path": "godot.audio.worklet.js",
+      "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
+    },
+    {
+      "path": "godot.audio.worklet.js.br",
+      "sha256": "74217db7ecedde3dd7b4f45ce1029d77eaabe3a53d1f1727f0b637045c76a137"
+    },
+    {
+      "path": "godot.audio.worklet.js.gz",
+      "sha256": "d7a3a96bb9383e53d41d5d98f43d8d0c6316910c93488a82c02206a6b88cadb3"
+    },
+    {
+      "path": "godot.js",
+      "sha256": "d98b44a1caf920bc5a257e647d7d430de5c972eb3f6c07f359678cc8e396cfd9"
+    },
+    {
+      "path": "godot.js.br",
+      "sha256": "48cb5cd08f3a1d37154655b3b5de6b42441f6381dfdce9f12e74cef7dfe4a7c2"
+    },
+    {
+      "path": "godot.js.gz",
+      "sha256": "f978c65c87972d205d48cabe2d7b4522012b0be9d049d0ff67bbbfd8576ecc50"
+    },
+    {
+      "path": "godot.pck",
+      "sha256": "532462f8f8699d64af7b597d8f14a8c21a19167e207c89847041670915764510"
+    },
+    {
+      "path": "godot.pck.br",
+      "sha256": "08e5a40c4237f3a54716bfe23832ef0058bcfbc9c5f84d192d799e13561ff2e4"
+    },
+    {
+      "path": "godot.pck.gz",
+      "sha256": "579c4b205c0c024551efc75eaf1ea8dcdc1e015d1cb7e61dc99ee8fed5811094"
+    },
+    {
+      "path": "godot.wasm",
+      "sha256": "41ef2bf301f8e97ead97465d10503b8e5996c558e3e9fcad6a42213922f4b4fc"
+    },
+    {
+      "path": "godot.wasm.br",
+      "sha256": "a01dd453b6d2f77227ecf738aa24f5938e3fddc5946f78b453417045c9f91811"
+    },
+    {
+      "path": "godot.wasm.gz",
+      "sha256": "a76345dee3ce89757906065b94bf5de4e37c6094f20c97283c00e9c7fbb55c3e"
+    },
+    {
+      "path": "index.html",
+      "sha256": "a9ce285101eff2a600c2275d9b133ea95e357cf8c974545993c74818fd3346ef"
+    },
+    {
+      "path": "index.html.br",
+      "sha256": "78efbe19223c274fae3cfab29c3dafc8c5f28137201282ef1d3b5bc666e2d986"
+    },
+    {
+      "path": "index.html.gz",
+      "sha256": "a671a2fb101e31d797d427a70132daec8a2563ba9c5a8ffb487b87ad230c18ca"
+    },
+    {
+      "path": "native-clock.js",
+      "sha256": "6b4b904664534ee6ab66c3ccd37a76490008754ab1698ed7128759ca290c7a72"
+    },
+    {
+      "path": "package.json",
+      "sha256": "4db3f375c580dbd2fe977190c854014c577b08c59615b41d4bc53163840e625f"
+    },
+    {
+      "path": "simulation/.stamp",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "simulation/CuriousContraptions.Simulation.runtimeconfig.json",
+      "sha256": "8574c1a1ecb76abe614db40bc9e63c537a3f3eab28bb4555aedf2093cc546130"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Animation.wasm",
+      "sha256": "62709c0de53a711e8ef96e838614c4207bf89d1eccd410360278bf348c381705"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Animation.wasm.br",
+      "sha256": "25409b0f1d8cb0b9f4ae1ab2163bc0cae4553c038e9c22e31aee165f3acfb0fa"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Animation.wasm.gz",
+      "sha256": "4aa823a9969e3a28e44361c3768dca79b03d5260f352aa8ebb38d1c54e9a1238"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Simulation.wasm",
+      "sha256": "b36ba53f1889e0d87512f1d2c069cf23b1de42d007c4cacc36e6f3cc6d3bd84d"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Simulation.wasm.br",
+      "sha256": "e2a06ec302183fddcce22a1bbe7764333852d411a7be10c0f3a06a1b9452f1be"
+    },
+    {
+      "path": "simulation/_framework/CuriousContraptions.Simulation.wasm.gz",
+      "sha256": "3174cd522b8e20e3dfccf6c21cc24976c95a27537159dd6be4a19f3961c98e15"
+    },
+    {
+      "path": "simulation/_framework/System.Collections.wasm",
+      "sha256": "a0f4cefb05490946f9ca21182f516f3c584675d5f7b72cf59434c464abe6f617"
+    },
+    {
+      "path": "simulation/_framework/System.Collections.wasm.br",
+      "sha256": "33e1c5105744a44efb735e4cafd2576441b550d277add3f1a432fe64a348c450"
+    },
+    {
+      "path": "simulation/_framework/System.Collections.wasm.gz",
+      "sha256": "f38a0daec4237e9c8392d3f058201a87e7af685276c2a3e23218efadbeee4b2b"
+    },
+    {
+      "path": "simulation/_framework/System.Console.wasm",
+      "sha256": "caf0aa52566ae9bd165e89a273a605dff33caab43a73d31f35e00a81ab89967c"
+    },
+    {
+      "path": "simulation/_framework/System.Console.wasm.br",
+      "sha256": "ca3e116640463960ae1dd0e68fcce47e7f25ae0592a060fe0e41b58eaf541616"
+    },
+    {
+      "path": "simulation/_framework/System.Console.wasm.gz",
+      "sha256": "67bb40d44c4891766b3fe978b7455a1cf097b4208594cd55c1339ee6f332ab68"
+    },
+    {
+      "path": "simulation/_framework/System.Linq.wasm",
+      "sha256": "dbc87807bd3a92fb0b8d268d5ba754d7646a788d24eb164eca68261077074df6"
+    },
+    {
+      "path": "simulation/_framework/System.Linq.wasm.br",
+      "sha256": "b604ec4949ddb82c0e900d5124648f41d02e061ebfa268a791d159763336c4b0"
+    },
+    {
+      "path": "simulation/_framework/System.Linq.wasm.gz",
+      "sha256": "20a3ec11b908edcb402fd0a2af467fb5927739e52fd811198483a91c768c460e"
+    },
+    {
+      "path": "simulation/_framework/System.Memory.wasm",
+      "sha256": "3886781f002ac31da82e228e62b33b81eb1022c96a05a876eb1e3dba5b5415ec"
+    },
+    {
+      "path": "simulation/_framework/System.Memory.wasm.br",
+      "sha256": "0997fe572f87bee273642bef4f25aa7db2181e6861e13743ae5fbaa70554318f"
+    },
+    {
+      "path": "simulation/_framework/System.Memory.wasm.gz",
+      "sha256": "39869381245317044a46e282b49be31730afe899c46d8830e7a8bb1cddb8bf21"
+    },
+    {
+      "path": "simulation/_framework/System.Private.CoreLib.wasm",
+      "sha256": "64e5f5ab87b7feaf73e1d1be56dd888e95bbaa3bb0e56f1d4d09996ea34133a0"
+    },
+    {
+      "path": "simulation/_framework/System.Private.CoreLib.wasm.br",
+      "sha256": "a01d4f9df58c8e63482ec4ee7d4ae6ee130e54e46c7071e42f9bde95762bbfe1"
+    },
+    {
+      "path": "simulation/_framework/System.Private.CoreLib.wasm.gz",
+      "sha256": "7d479e60fa3b27186542336b611c06ae978f28dfd7336d9ba33ec5d1df146d2f"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm",
+      "sha256": "2e9e9c38e701a458caad490ce6827ab7fbe1dc040e20ea67d5655547dc6ff4b7"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm.br",
+      "sha256": "2dc78298225b5569ac98aa3580201cfff40a1bc919ff1852742be22914cd1a1b"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm.gz",
+      "sha256": "f284feaafdc63ffde5d40876f0193b54840208648a4870be7b6e429748d7b95c"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.Intrinsics.wasm",
+      "sha256": "5942e9756ee686ad61e93623a6c797ddf38f5f1994b7d4e783ec5d8758e0e9a0"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.Intrinsics.wasm.br",
+      "sha256": "bd2ce096856b732f9a28ebce1f88dbdc966245272f5b08b2a366be3a8326d3fd"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.Intrinsics.wasm.gz",
+      "sha256": "37197b880b362abf906d1294f1e371d11b6cfe550ff8c06d9918394c200fdab0"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.wasm",
+      "sha256": "c4cbbfc85da2bff24432950f8e104fb25596304b2e04647cee120d8297a40475"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.wasm.br",
+      "sha256": "b553106251926b360115e4f01dd144ac388f445d0262a530384a8480231303ef"
+    },
+    {
+      "path": "simulation/_framework/System.Runtime.wasm.gz",
+      "sha256": "455463d69d7280081b83580b353dd5b40836300b4387298270d96845b83df265"
+    },
+    {
+      "path": "simulation/_framework/System.Threading.wasm",
+      "sha256": "94c92d6950303fa9260a5969d1b222a9cb1009e11486efcecd075be4de440bb5"
+    },
+    {
+      "path": "simulation/_framework/System.Threading.wasm.br",
+      "sha256": "261227d01a3ace389664a2f75593ed9c64acf5d2d7b34c12bf9e2073cc592702"
+    },
+    {
+      "path": "simulation/_framework/System.Threading.wasm.gz",
+      "sha256": "25cd6e89ff0562e70d6aa108c61d018a5e5b48924f966cd61146e062ec9b21eb"
+    },
+    {
+      "path": "simulation/_framework/dotnet.boot.js",
+      "sha256": "fff41b24d3fc6885a7dea17fe395972b4ce7738e15c56bf50f31a7465d4cdeb9"
+    },
+    {
+      "path": "simulation/_framework/dotnet.boot.js.br",
+      "sha256": "6ca8ef017f4cf0ae7700c348b976632f60903e82b0ad354d95d47f1114ee55aa"
+    },
+    {
+      "path": "simulation/_framework/dotnet.boot.js.gz",
+      "sha256": "6e9a7dbbd07bb0e5dda62c02b348588b63d81df12c9eccebc16fc1aca330e0fd"
+    },
+    {
+      "path": "simulation/_framework/dotnet.js",
+      "sha256": "ba72088a45591210f9a08fec223b0f848a0a4d3245026ae9479353596c7fa89d"
+    },
+    {
+      "path": "simulation/_framework/dotnet.js.br",
+      "sha256": "f1d3dcc469c986e941665c282eae2341bc0e22a892895a080fef638cb593290a"
+    },
+    {
+      "path": "simulation/_framework/dotnet.js.gz",
+      "sha256": "670691da149adc78dda59f1908690b58992985405f65f9954bbc4a05cd247d5d"
+    },
+    {
+      "path": "simulation/_framework/dotnet.native.js",
+      "sha256": "7ef6453f0c5f7dfd88a6059637027f1510197e25369a140b7c3a67192e8b0df6"
+    },
+    {
+      "path": "simulation/_framework/dotnet.native.js.br",
+      "sha256": "33b282f8b1fe66039a780a7f7fa74edf37e288512b78dda45abb4cd1c99ae616"
+    },
+    {
+      "path": "simulation/_framework/dotnet.native.js.gz",
+      "sha256": "71ce9cb49eee54a523b09e9a3f999b60959c65d7d82b23bfb4d8bbac807c910c"
+    },
+    {
+      "path": "simulation/_framework/dotnet.native.wasm",
+      "sha256": "4618f5c8735ab0cdb6083cae1b0303fadc357cef5a9ca4d2e8c0a2ea34492109"
+    },
+    {
+      "path": "simulation/_framework/dotnet.native.wasm.br",
+      "sha256": "a5f657453e5a65cf48b44177bc2de037362f2cfc4899a9d645269cd20e7167a4"
+    },
+    {
+      "path": "simulation/_framework/dotnet.native.wasm.gz",
+      "sha256": "0a7fcd1bdacca6d7b8b6464a02cf49ce3cdb14f5920f3e54c9a31abb83fba9eb"
+    },
+    {
+      "path": "simulation/_framework/dotnet.runtime.js",
+      "sha256": "41b9eaad9187b46abbc2e752d7bfc06043e91fd264a61aecc959650fa24799db"
+    },
+    {
+      "path": "simulation/_framework/dotnet.runtime.js.br",
+      "sha256": "2e012c9dc16caca2883b3927e9acc93a31abf05153abf67508271e0b45c6a3ed"
+    },
+    {
+      "path": "simulation/_framework/dotnet.runtime.js.gz",
+      "sha256": "0876bc8fd459b9a6ffbf34293e8cb0fef0051b585199cf93404f69e15f3086f7"
+    },
+    {
+      "path": "simulation/package.json",
+      "sha256": "4db3f375c580dbd2fe977190c854014c577b08c59615b41d4bc53163840e625f"
+    },
+    {
+      "path": "simulation/worker.js",
+      "sha256": "ce058169a9633ab05011af788ba7a330627221840b7a5597034c414002c9823b"
+    },
+    {
+      "path": "simulation/worker.js.br",
+      "sha256": "7348ba2ede4eb7588221a2cdc3361a1746d719e90e4cab709d769df54f235141"
+    },
+    {
+      "path": "simulation/worker.js.gz",
+      "sha256": "ce98b746d94444dba23592c254cd1daea3e4f0e2d75be319e84880edfbb86267"
+    },
+    {
+      "path": "twodog.sizes.json",
+      "sha256": "4bea9bd4bd8d5202da833e9911210fa34582000198ee756637b878e454d483ad"
+    },
+    {
+      "path": "workshop-client.js",
+      "sha256": "1ff22feed79266984e2867931440a17c3c26a89f1e8bd5dc00a63b61866f26c8"
+    },
+    {
+      "path": "workshop-client.js.br",
+      "sha256": "d05b2afc0f4cdf0f80c4433fc04a39355447d7cd3018c1a0552caecd72ef0403"
+    },
+    {
+      "path": "workshop-client.js.gz",
+      "sha256": "47da6ccf77cf8a3053923da1cad64cf69ef1aed42e3fb61314ba904efe08c98f"
+    },
+    {
+      "path": "workshop-isolation-worker.js",
+      "sha256": "491a7e1769e461ee5fe42f2bec445efea6f400d93b45ae13490efe591ae1f7c7"
+    },
+    {
+      "path": "workshop-isolation.js",
+      "sha256": "230d8abff03fb57ccbcc6b5b88c6fce9c96c6cbab9feeac39d23d85c840f7291"
+    },
+    {
+      "path": "workshop-isolation.js.br",
+      "sha256": "a3c9e8e0c5b395eaf19aaa9a6e2751ddb5c73f90d93fc8a44aeff67c812701fe"
+    },
+    {
+      "path": "workshop-isolation.js.gz",
+      "sha256": "1db02c53d66922a2af6f9b583cbf4e5491d79fc6fc28217f240ec64ea3a34351"
+    }
+  ],
+  "checks": {
+    "red": "7471/08b711: Paid and Passive below-threshold controls both fail before fix",
+    "green": "Implementer14/14 (63180/706e8e); independent final14/14 including zero-sequence positive, warnings-as-errors (19689/0dd0fa), exit0",
+    "diff": "git diff --check9199fa; no unmerged entries5f60a2"
+  },
+  "reuse": "Prior scoped actual Chrome applies to unchanged producer and accepted-input behavior subject to independent reviewer; deployed-origin controls remain required."
+}

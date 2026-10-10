@@ -189,8 +189,10 @@ public sealed class WorkshopReadTests
         Assert.Equal(encoded, WorkshopWire.Encode(WorkshopWire.DecodeResponse(encoded)));
     }
 
-    [Fact]
-    public void CurrentWireContactOccurrenceMustOwnCollider()
+    [Theory]
+    [InlineData(ContactWorkEffect.Paid)]
+    [InlineData(ContactWorkEffect.Passive)]
+    public void CurrentWireContactOccurrenceMustOwnColliderAndInclusiveThreshold(ContactWorkEffect effect)
     {
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Basketball(new(1),0,6,0,0,0,0,1),
@@ -204,13 +206,18 @@ public sealed class WorkshopReadTests
         var motion = PhysicsMotionRead.Decode(MotionBytes(body),Bodies(body),new(1));
         var store = new ContactWorkRead(declaration.Id,declaration.Owner,1,new(20));
         var hit = new ContactWorkOccurrence(new(0),owned,new(1),1,1,(Half)0,
-            declaration.Threshold,new(12),ContactWorkEffect.Paid);
+            declaration.Threshold,new(effect == ContactWorkEffect.Paid ? 12 : 0),effect);
         WorkshopResponse Wire(ContactWorkOccurrence occurrence) => WorkshopWire.DecodeResponse(WorkshopWire.Encode(
             Response(MotionRead(body,motion) with { ContactWorks=new(new[] {store}, new[] {occurrence}) })));
         Wire(hit).Read.ContactWorks.ValidateScene(scene, Wire(hit).Read.Bodies);
+        var initial = new PhysicsContactWorkRead(
+            new[] { new ContactWorkRead(declaration.Id,declaration.Owner,0,declaration.InitialEnergy) },
+            new[] { new ContactWorkOccurrence(new(0),default,new(1),0,0,default,default,default,ContactWorkEffect.Passive) });
+        initial.ValidateScene(scene, Bodies(body));
         foreach (var invalid in new[] {
             hit with { Collider=foreign },
-            hit with { Collider=new(ushort.MaxValue) } })
+            hit with { Collider=new(ushort.MaxValue) },
+            hit with { ApproachSpeed=new(float.BitDecrement(declaration.Threshold.Value)) } })
             Assert.Throws<ArgumentException>(()=>Wire(invalid).Read.ContactWorks.ValidateScene(scene, Wire(invalid).Read.Bodies));
     }
 
