@@ -2,7 +2,7 @@
 
 Reviewer: /root/reviewer. Implementer: /root/implementation. Coordinator: /root. Source commit: aaac712a5b49f6ce8762ef2b6fcb3372d426d0d5. Date: 10 October 2026. Reviewer edits evidence only.
 
-**SnapshotApproval Pass for exact candidate below; terminal completion pending local committed-tree verification.** Exact source acceptance read in epics Story 7.2 and ledger §7.2 (raw c82612); actual draft read aa85bd. Scope is 23 ledger roots, 124 tracked files, 1,166 regular files, 264,930,512 bytes, plus empty tools/p0-002-review. The source approximately 2,000 estimate is preserved with the actual observed count; it does not authorize extra deletion. All 1,042 nontracked files are ignored bin/obj outputs. No additional source archive is needed. Exact deletion authorization requires immediate membership/byte drift equality and Anvil before removals.
+**F2 correction SnapshotApproval Pass; Story 7.2 terminal completion pending exact forward-correction commit verification.** Exact source acceptance read in epics Story 7.2 and ledger §7.2 (raw c82612); actual draft read aa85bd. Scope is 23 ledger roots, 124 tracked files, 1,166 regular files, 264,930,512 bytes, plus empty tools/p0-002-review. The source approximately 2,000 estimate is preserved with the actual observed count; it does not authorize extra deletion. All 1,042 nontracked files are ignored bin/obj outputs. No additional source archive is needed. Exact deletion authorization requires immediate membership/byte drift equality and Anvil before removals.
 
 | Criterion/impact | Current result |
 | --- | --- |
@@ -140,5 +140,79 @@ PASS exact diagnostic bundle file membership/bytes/hashes 221 PlaytestDiagnostic
 
 ab70bf:
 PASS exact snapshot;11candidate,129deleted blobs,80kept tools,6excluded files and all current inputs match. Expected142commitpaths.
+
+```
+
+
+## Postcommit receipt — terminal scoped Pass
+
+Independent reviewer verified local commit `90db56b54fd4d5320cc5ce07ec2d921828951bf2`, tree `88962cbd241e74e42b1c6c91e679b71cdcac85a0`. Exact142paths,11candidate hashes,129tool deletions, snapshot and reviewed evidence bytes match approval. Six excluded dirty files preserved and their committed bytes unchanged; index empty. **Story7.2 terminal scoped Pass**, no push. No global/runtime/Battery/fullBumper or future purge qualification implied. This postcommit review-only receipt needs no recursive evidence commit.
+
+```sh
+python3 - <<'PY'
+import pathlib,json,subprocess,hashlib
+commit='90db56b54fd4d5320cc5ce07ec2d921828951bf2'
+snap='_bmad-output/implementation-artifacts/story-7-2-snapshot.json'
+review='_bmad-output/implementation-artifacts/review-7-2-diagnostics-legacy-probe-tools-purge.md'
+git=lambda *a:subprocess.check_output(['git',*a])
+s=json.loads(pathlib.Path(snap).read_text())
+assert git('rev-parse','HEAD').decode().strip()==commit
+assert git('rev-parse',commit+'^').decode().strip()==s['source_commit']
+expected={p for p,h in s['candidate']}|{p for p,h in s['deleted_tracked_git_blobs']}|{snap,review}
+actual=set(git('diff-tree','--no-commit-id','--name-only','-r',commit).decode().splitlines())
+assert actual==expected and len(actual)==142
+for p,h in s['candidate']:assert hashlib.sha256(git('show',commit+':'+p)).hexdigest()==h,p
+for p in [snap,review]: assert git('show',commit+':'+p)==pathlib.Path(p).read_bytes(),p
+assert all(not git('ls-tree',commit,p) for p,h in s['deleted_tracked_git_blobs'])
+for p,h in s['excluded_dirty_files']:
+ assert hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==h,p
+ assert git('show',commit+':'+p)==git('show',s['source_commit']+':'+p),p
+assert not git('diff','--cached','--name-only')
+print('PASS exact commit',commit,'tree',git('rev-parse',commit+'^{tree}').decode().strip())
+print('142 exact paths;11candidate hashes+snapshot+review committed bytes match;129tool deletions;6excluded dirty files preserved and not committed;index empty.')
+PY
+```
+
+Raw3234df:
+
+```text
+PASS exact commit 90db56b54fd4d5320cc5ce07ec2d921828951bf2 tree 88962cbd241e74e42b1c6c91e679b71cdcac85a0
+142 exact paths;11candidate hashes+snapshot+review committed bytes match;129tool deletions;6excluded dirty files preserved and not committed;index empty.
+
+```
+
+
+## F2 reopened after Story 7.4 dependency inspection
+
+**Known regression; current Story7.2 verdict Fail.** Implementer found and reviewer independently confirmed (f25025) an omitted C# consumer: tools/Ownership/SourceInventory.cs line13 defines GeometryProject, Capture line129 unconditionally resolves that now-deleted project, and web configuration identities at120 include it. Retained --capture/--members cannot execute with the removed file despite successful compilation. The earlier project/script/config scan did not cover C# path strings; its “no active consumer” conclusion and resulting7.2 terminal Pass are invalidated. This is not excused by tool-build success or unrelated pre-existing audit incompleteness.
+
+Same implementation owner must remove the obsolete dependency forward, update typed contexts/current callers and README, and execute actual retained tool capture/control checks. No archived fallback or replacement legacy model. Existing ownership audit's deleted work-register dependency predates7.2; retain that as an explicit separate current-authority defect and fix within the justified tool closure, without claiming old assignment evidence is fresh. Coordinator instructed no7.4deletion before bounded correction independently verifies. Original commit90db56b and its exact tree verification remain factual; they no longer establish complete acceptance. Review ownership stays /root/reviewer with /root/implementation.
+
+
+## F2 forward correction SnapshotApproval
+
+Actual diff395d64 removes obsolete Geometry project resolution/config/reference/inspection context and its obsolete oracle fixture. Current five contexts remain explicit; retired numeric4 rejects, current enum external identities retained. Independent direct command `dotnet tools/Ownership/bin/Release/net10.0/Ownership.dll --oracles` exited0 (0c439b); affected portable positive plus15negative controls retained, full rawbody available in owner rawfile after consoletruncation. Complete raw `.anvil/story-7-2-f2-oracles.json` SHA256b38682b9891fb37b60daff6b7e283641ef8d51ba19432490db17e80bb3b0bd45 independently parsed:22general and15portable rejections all pass. Actual integrated `--members .` exits0 and complete746640byte raw JSON SHA256247c6c36ea6f062e08387c08bca220545ae32049ca32d11e6c674409216f2d03 retained at `.anvil/story-7-2-f2-members.json`; independent9b9b56 verified435source hashes,1260members,zero binding diagnostics,contexts0/1/2/3/5 and noGeometry. No substitute fixtures stand in for actual capture. Zero-warning affected build and Anvil scan inspected via spec/raw8b0bed/ee79ba; original MSB1009 failure8d21da retained. Pre-existing deleted-register/stale-assignment audit remains Story7.4 prerequisite, explicitly not solved or qualified here.
+
+**F2 resolved, SnapshotApproval Pass** for immutable `story-7-2-f2-snapshot.json` SHA2568adf86d917074bb120130bcbf2cd2debae967f7f4f937c9a47c38e24521837da **plus one exact README replacement** SHA256db713c368bfd399714dcb51f2053e93463c322a25a0af06303c36d7b282081dd. The replacement only corrects two historical five→six authored Animation source counts, independently confirmed in actual capture. Original frozen unifieddiff hashf825dc5e13673e7cd87eb1e79ea0cfeca0cdfafa4843329e9f4ca7c166987577 remains its original boundary; this stated README delta is included in approval. No other postfreeze delta. Approve9path localcommit=7candidate+correctionsnapshot+this same review record. Only remaining publication check: exact committed bytes/membership/preservation. No runtime/browser/export mutation or new gameplay proof claim; managed capture builds do not replace the unchanged served bundle. No push.
+
+```sh
+python3 - <<'PY'
+import pathlib,json,hashlib
+h=lambda p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
+p='_bmad-output/implementation-artifacts/story-7-2-f2-snapshot.json';assert h(p)=='8adf86d917074bb120130bcbf2cd2debae967f7f4f937c9a47c38e24521837da';s=json.load(open(p))
+for key in ['candidate','inputs','excludedDirty','rawEvidence']:
+ for x in s[key]:
+  expected='db713c368bfd399714dcb51f2053e93463c322a25a0af06303c36d7b282081dd' if x['path']=='tools/Ownership/README.md' else x['sha256']
+  assert h(x['path'])==expected,x['path']
+assert h(s['artifact']['path'])==s['artifact']['sha256']
+m=json.load(open('.anvil/story-7-2-f2-members.json'));a=next(x for x in m['Symbols'] if x['Kind']==5);assert sum(p['Value'].startswith('engine/presentation/') for p in a['CompilePaths'])==6
+print('PASS immutable F2 snapshot plus exact README replacement;7candidate/4inputs/7excluded/2rawoutputs/OwnershipDLL match;Animation has6authoredsources.')
+PY
+```
+
+Raw3725e9:
+
+```text
+PASS immutable F2 snapshot plus exact README replacement;7candidate/4inputs/7excluded/2rawoutputs/OwnershipDLL match;Animation has6authoredsources.
 
 ```

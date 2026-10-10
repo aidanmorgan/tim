@@ -10,7 +10,6 @@ namespace Ownership;
 
 public static class SourceInventory
 {
-    private const string GeometryProject = "CuriousContraptions.Geometry/CuriousContraptions.Geometry.csproj";
     private const string AnimationProject = "CuriousContraptions.Animation/CuriousContraptions.Animation.csproj";
     private const string MainProject = "CuriousContraptions.csproj";
     private const string WebProject = "CuriousContraptions.web/CuriousContraptions.web.csproj";
@@ -27,7 +26,6 @@ public static class SourceInventory
         var diagnostics = context is InspectionContext.ProductionDiagnostic or InspectionContext.TestDiagnostic;
         var generatedDirectory = Path.Combine(root, "tools/Ownership/obj/binding", context switch
         {
-            InspectionContext.GeometryRelease => "GeometryRelease",
             InspectionContext.AnimationRelease => "AnimationRelease",
             InspectionContext.ProductionDiagnostic => "ProductionDiagnostic",
             InspectionContext.ProductionRelease => "ProductionRelease",
@@ -118,7 +116,7 @@ public static class SourceInventory
             new("CuriousContraptions.web/obj/project.assets.json"),
             new("CuriousContraptions.web/obj/CuriousContraptions.web.csproj.nuget.g.props"),
             new("CuriousContraptions.web/obj/CuriousContraptions.web.csproj.nuget.g.targets"),
-            new(MainProject), new(GeometryProject), new("Directory.Build.props"), new("Directory.Build.targets"), new("global.json")
+            new(MainProject), new("Directory.Build.props"), new("Directory.Build.targets"), new("global.json")
         ];
         return explicitInputs.Concat(compile.Concat(imports).Select(path => new SourcePath(path)))
             .Distinct().OrderBy(path => path.Value, StringComparer.Ordinal).ToArray();
@@ -126,26 +124,21 @@ public static class SourceInventory
 
     public static OwnershipSnapshot Capture(string root)
     {
-        var geometry = Resolve(root, GeometryProject, InspectionContext.GeometryRelease);
         var animation = Resolve(root, AnimationProject, InspectionContext.AnimationRelease);
         var main = Resolve(root, MainProject, InspectionContext.ProductionDiagnostic);
         var tests = Resolve(root, TestProject, InspectionContext.TestDiagnostic);
         var releaseMain = Resolve(root, MainProject, InspectionContext.ProductionRelease);
         var releaseTests = Resolve(root, TestProject, InspectionContext.TestRelease);
-        var geometryCompilation = Compile(root, geometry);
         var animationCompilation = Compile(root, animation);
         if (animation.AssemblyName != "CuriousContraptions.Animation")
             throw new InvalidDataException("Animation project assembly identity differs.");
         foreach (var consumer in new[] { main, tests, releaseMain, releaseTests })
             RequireReference(consumer, animationCompilation);
-        CSharpCompilation[] Dependencies(ProjectInputs consumer, params CSharpCompilation[] required) =>
-            HasReference(consumer, geometryCompilation) ? [.. required, geometryCompilation] : required;
-        var compilation = Compile(root, main, Dependencies(main, animationCompilation));
-        var testCompilation = Compile(root, tests, Dependencies(tests, animationCompilation, compilation));
-        var releaseCompilation = Compile(root, releaseMain, Dependencies(releaseMain, animationCompilation));
-        var releaseTestCompilation = Compile(root, releaseTests, Dependencies(releaseTests, animationCompilation, releaseCompilation));
+        var compilation = Compile(root, main, animationCompilation);
+        var testCompilation = Compile(root, tests, animationCompilation, compilation);
+        var releaseCompilation = Compile(root, releaseMain, animationCompilation);
+        var releaseTestCompilation = Compile(root, releaseTests, animationCompilation, releaseCompilation);
         var contexts = new[] {
-            (Kind: InspectionContext.GeometryRelease, Compilation: geometryCompilation, Inputs: geometry),
             (Kind: InspectionContext.AnimationRelease, Compilation: animationCompilation, Inputs: animation),
             (Kind: InspectionContext.ProductionDiagnostic, Compilation: compilation, Inputs: main),
             (Kind: InspectionContext.TestDiagnostic, Compilation: testCompilation, Inputs: tests),
@@ -154,9 +147,6 @@ public static class SourceInventory
         };
         return Inspect(root, contexts, WebLifecycleInputs(root));
     }
-
-    internal static bool HasReference(ProjectInputs inputs, CSharpCompilation dependency) =>
-        inputs.References.Any(path => Path.GetFileNameWithoutExtension(path) == dependency.AssemblyName);
 
     internal static void RequireReference(ProjectInputs inputs, CSharpCompilation dependency)
     {
@@ -213,7 +203,7 @@ public static class SourceInventory
         // Animation currently has no conditional source branches. Revisit this Release-only union
         // when its authored conditionals/configurations change; do not infer future coverage.
         var declarations = contexts.Where(context => context.Kind is InspectionContext.ProductionDiagnostic
-            or InspectionContext.GeometryRelease or InspectionContext.AnimationRelease);
+            or InspectionContext.AnimationRelease);
         var trees = declarations.SelectMany(context => context.Compilation.SyntaxTrees
             .Where(tree => context.Inputs.Paths.Contains(tree.FilePath, StringComparer.Ordinal))
             .Select(tree => (Tree: tree, Compilation: context.Compilation))).ToArray();

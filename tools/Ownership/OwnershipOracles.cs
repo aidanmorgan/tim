@@ -229,7 +229,7 @@ public static class OwnershipOracles
 
     private enum AssemblyAttack
     {
-        MissingContext, DuplicateContext, UnknownContext, MissingReference, DuplicateReference,
+        MissingContext, DuplicateContext, UnknownContext, RetiredContext, MissingReference, DuplicateReference,
         MissingSource, DuplicateSource, BindingError, MissingMember, DuplicateMember,
         StaleSource, StaleConsumer, WrongOwner, StaleConfiguration
     }
@@ -269,7 +269,6 @@ public static class OwnershipOracles
                     public static double Read(AnimationBatch batch) => Hint.Read(batch);
                 }
                 """);
-            File.WriteAllText(Path.Combine(root, "geometry.cs"), "public sealed class GeometryMarker { }");
             File.WriteAllText(Path.Combine(root, "capture.props"), "<Project />");
             var core = typeof(object).Assembly.Location;
             SourceInventory.ProjectInputs Inputs(string path, string assembly, string[] references, string[] symbols) =>
@@ -283,8 +282,6 @@ public static class OwnershipOracles
                 if (!compilation.Emit(stream).Success) throw new InvalidOperationException("Assembly fixture failed compilation.");
             }
             Emit(animation, "CuriousContraptions.Animation.dll");
-            var geometryInput = Inputs("geometry.cs", "GeometryFixture", [core], []);
-            var geometry = SourceInventory.Compile(root, geometryInput);
             var mainInput = Inputs("game.cs", "GameFixture", [core, "CuriousContraptions.Animation.dll"], ["PLAYTEST"]);
             var releaseInput = mainInput with { Symbols = [] };
             var main = SourceInventory.Compile(root, mainInput, animation);
@@ -297,7 +294,6 @@ public static class OwnershipOracles
             (InspectionContext Kind, CSharpCompilation Compilation, SourceInventory.ProjectInputs Inputs)[] contexts =
             [
                 (InspectionContext.AnimationRelease, animation, animationInput),
-                (InspectionContext.GeometryRelease, geometry, geometryInput),
                 (InspectionContext.ProductionDiagnostic, main, mainInput),
                 (InspectionContext.ProductionRelease, release, releaseInput),
                 (InspectionContext.TestDiagnostic, tests, testInput),
@@ -354,6 +350,9 @@ public static class OwnershipOracles
                         case AssemblyAttack.UnknownContext:
                             var unknown = contexts.ToArray(); unknown[0].Kind = (InspectionContext)999;
                             _ = SourceInventory.Inspect(root, unknown, []); break;
+                        case AssemblyAttack.RetiredContext:
+                            var retired = contexts.ToArray(); retired[0].Kind = (InspectionContext)4;
+                            _ = SourceInventory.Inspect(root, retired, []); break;
                         case AssemblyAttack.MissingReference:
                             _ = SourceInventory.Compile(root, mainInput with { References = [core] }, animation); break;
                         case AssemblyAttack.DuplicateReference:
@@ -364,7 +363,7 @@ public static class OwnershipOracles
                             _ = SourceInventory.Compile(root, animationInput with { Paths = ["animation.cs", "animation.cs"] }); break;
                         case AssemblyAttack.BindingError:
                             var broken = contexts.ToArray();
-                            broken[2].Compilation = main.AddSyntaxTrees(CSharpSyntaxTree.ParseText("public class Broken { Undefined value; }", new CSharpParseOptions(LanguageVersion.CSharp14), path: "broken.cs"));
+                            broken[Array.FindIndex(broken, context => context.Kind == InspectionContext.ProductionDiagnostic)].Compilation = main.AddSyntaxTrees(CSharpSyntaxTree.ParseText("public class Broken { Undefined value; }", new CSharpParseOptions(LanguageVersion.CSharp14), path: "broken.cs"));
                             observed = SourceInventory.Inspect(root, broken, []); break;
                         case AssemblyAttack.MissingMember:
                             candidate = contract with { Assignments = assignments.Where(item => item.Member != slotsId).ToArray() }; break;

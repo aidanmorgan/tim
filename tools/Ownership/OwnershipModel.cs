@@ -30,7 +30,8 @@ public sealed record OwnershipAssignment(
     [property: JsonRequired] OwnershipRule Rule,
     [property: JsonRequired] string MemberSha256);
 public readonly record struct DiagnosticId(string Value);
-public enum InspectionContext { ProductionRelease, ProductionDiagnostic, TestRelease, TestDiagnostic, GeometryRelease, AnimationRelease }
+// Numeric values are the external capture boundary; retired value 4 is unsupported.
+public enum InspectionContext { ProductionRelease = 0, ProductionDiagnostic = 1, TestRelease = 2, TestDiagnostic = 3, AnimationRelease = 5 }
 public enum DispatchScope { NamedTarget, VirtualFamily, InterfaceFamily, ContextDelegates, External }
 public sealed record CallerEdge(InspectionContext Context, SourcePath Path, int Line,
     CallerId Caller, CallerId Target, DispatchScope Scope);

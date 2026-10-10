@@ -1,0 +1,99 @@
+{
+  "sourceCommit": "836a2ae0086227d9308eb8a7c175347aa61f14d3",
+  "scope": "Story 7.2 F2: remove retired Geometry compiler capture dependency; current audit/register migration remains Story 7.4",
+  "candidate": [
+    {
+      "path": "TODO.md",
+      "sha256": "ec576290fec1ff70ca580702db9da72b901f05d0ae37a2b9ab0da8688c4c5284"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-7-2-diagnostics-legacy-probe-tools-purge.md",
+      "sha256": "1040340246633c06180824c3972f0cc1be8b155ce8eea0a970d099470c96118d"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "sha256": "af9949eaa60a7ab58940c122ae0517f1f2052881ee82b60ab21e0b1a0fcd7e1f"
+    },
+    {
+      "path": "tools/Ownership/SourceInventory.cs",
+      "sha256": "11bb63457eb3e1a36e7dc32e8caa70b35b1a44f4abd0fe14599c9055caebbd57"
+    },
+    {
+      "path": "tools/Ownership/OwnershipModel.cs",
+      "sha256": "4f791042b3ddf7d5eef5b7f026bc0cafa2afdda4596c94c4f09a3c255670fe12"
+    },
+    {
+      "path": "tools/Ownership/OwnershipOracles.cs",
+      "sha256": "39557d48d9814a7431f678e55a8fe38d840249d23eaf83f5eb2393fa29d14cc5"
+    },
+    {
+      "path": "tools/Ownership/README.md",
+      "sha256": "382b59eefc6490129c2e23f5ec5a480ef9a5b34f64c10ec8e72098319f5311bc"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "tools/Ownership/Ownership.csproj",
+      "sha256": "95dfa8710de7af913992a82b8d84005991cf70272037c570b99808b8b3ea223c"
+    },
+    {
+      "path": "tools/Ownership/OwnershipAudit.cs",
+      "sha256": "0f9d45f798eda9b07dfb74e188d125868c5c45d271cbb27b17930d6847ee8cd8"
+    },
+    {
+      "path": "tools/Ownership/OwnershipPolicy.cs",
+      "sha256": "1df8bdbc741168e23433b66f679af1271d3be49b35b63a0a52fd3c21ac02bd03"
+    },
+    {
+      "path": "tools/Ownership/Program.cs",
+      "sha256": "964289987dbb99f841b6af33e2c98f97ac0dcb9f8457bc3c4ebcf4e83571b1aa"
+    }
+  ],
+  "excludedDirty": [
+    {
+      "path": "_bmad-output/implementation-artifacts/review-7-0-resumed.md",
+      "sha256": "a2f4b2819fd2310b807826ff5947d4308c8d69a2f6a1364db14b5af83775495f"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/review-7-1-reference-historical-archive-purge.md",
+      "sha256": "7f730da340c58d5aba4c0e5699cc08ac7ebdd7cbdcc13098f9e7809e1e11a5a4"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/review-7-3-uncompiled-legacy-test-purge.md",
+      "sha256": "82e41bd5ab799ab116b28bf020540e9f73b0e6362a6571e1923e9c25f6421592"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/story-7-0-owner-questions.md",
+      "sha256": "3a5f302534c5272952222109f4dd6a42ce43050a62675e184158491c944825fa"
+    },
+    {
+      "path": "docs/planning/elements/CAT-005-battery.md",
+      "sha256": "471f0cec46cc9064b1bff5a4ab745af182a76cb2474f6b57a3c75ba268854a59"
+    },
+    {
+      "path": "docs/planning/elements/CAT-015-bumper.md",
+      "sha256": "dc9324e652af3971a4f4c5d53eefa5ef477ae5add1f346ab6536739f2dbe63e4"
+    },
+    {
+      "path": "docs/planning/elements/EL-196-battery.md",
+      "sha256": "b991aa442a0a12b3718757bf4c8e55700887a0d1051c5a0e18253c3bbbcc9f28"
+    }
+  ],
+  "rawEvidence": [
+    {
+      "path": ".anvil/story-7-2-f2-members.json",
+      "sha256": "247c6c36ea6f062e08387c08bca220545ae32049ca32d11e6c674409216f2d03"
+    },
+    {
+      "path": ".anvil/story-7-2-f2-oracles.json",
+      "sha256": "b38682b9891fb37b60daff6b7e283641ef8d51ba19432490db17e80bb3b0bd45"
+    }
+  ],
+  "artifact": {
+    "path": "tools/Ownership/bin/Release/net10.0/Ownership.dll",
+    "sha256": "8823277833a7cfd8392c3646eaab77932a22ca5e8d829d262a9040f570465df3"
+  },
+  "runtime": "No runtime, driver, export or AppBundle mutation; capture only rebuilt managed inspection outputs.",
+  "reviewRecord": "_bmad-output/implementation-artifacts/review-7-2-diagnostics-legacy-probe-tools-purge.md",
+  "priorSnapshots": "Unchanged immutable 7.2 and 7.3 snapshots; this correction has its own coherent boundary."
+}
