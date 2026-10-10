@@ -18,16 +18,16 @@ public readonly record struct PoseRingSlot(
 
 /// <summary>
 /// Lock-free zero-copy triple-buffered SharedArrayBuffer pose ring layout and codecs.
-/// 3 slots x 784 bytes = 2352 bytes. Each slot has a 16-byte header followed by 16 48-byte body slots.
+/// 3 slots x 1040 bytes = 3120 bytes. Each slot has a 16-byte header followed by 16 64-byte body slots.
 /// </summary>
 public static class WorkshopPoseRing
 {
     public const int SlotCount = 3;
     public const int BodyCapacity = 16;
     public const int HeaderBytes = 16;
-    public const int BodyBytes = 48; // 3 x 16-byte SIMD vectors = 12 floats / uint32s
-    public const int SlotBytes = HeaderBytes + BodyCapacity * BodyBytes; // 784 bytes
-    public const int TotalBytes = SlotCount * SlotBytes; // 2352 bytes
+    public const int BodyBytes = 64; // four SIMD vectors; full body identity at byte48
+    public const int SlotBytes = HeaderBytes + BodyCapacity * BodyBytes; // 1040 bytes
+    public const int TotalBytes = SlotCount * SlotBytes; // 3120 bytes
 
     public static int SlotOffset(int slot)
     {
@@ -45,7 +45,7 @@ public static class WorkshopPoseRing
 
     public static void WriteSlot(Span<byte> ring, int slot, ulong sequence, long timestampNanoseconds, PhysicsBodyReadSet bodies)
     {
-        if (ring.Length < TotalBytes) throw new ArgumentException("Ring buffer width insufficient.");
+        if (ring.Length != TotalBytes) throw new ArgumentException("Ring buffer width insufficient.");
         var slotSpan = ring.Slice(SlotOffset(slot), SlotBytes);
 
         // Write header
@@ -60,7 +60,7 @@ public static class WorkshopPoseRing
         {
             var read = bodies[i];
             var dest = bodyData.Slice(i * BodyBytes, BodyBytes);
-            // Vector 0: px, py, pz, bodyId
+            // Vector 0: px, py, pz, padding; full UInt64 identity in vector3.
             var cell = read.Body.Cell;
             var local = read.Body.Local;
             var px = (cell.X + (float)local.X) / 16.0f;
@@ -69,7 +69,7 @@ public static class WorkshopPoseRing
             BinaryPrimitives.WriteSingleLittleEndian(dest[0..], px);
             BinaryPrimitives.WriteSingleLittleEndian(dest[4..], py);
             BinaryPrimitives.WriteSingleLittleEndian(dest[8..], pz);
-            BinaryPrimitives.WriteUInt32LittleEndian(dest[12..], (uint)read.Body.Id.Value);
+            BinaryPrimitives.WriteUInt64LittleEndian(dest[48..], read.Body.Id.Value);
 
             // Vector 1: qx, qy, qz, qw
             BinaryPrimitives.WriteSingleLittleEndian(dest[16..], (float)read.Rotation.X);
@@ -90,7 +90,7 @@ public static class WorkshopPoseRing
         sequence = 0;
         timestampNanoseconds = 0;
         bodyCount = 0;
-        if (ring.Length < TotalBytes || (uint)slot >= (uint)SlotCount) return false;
+        if (ring.Length != TotalBytes || (uint)slot >= (uint)SlotCount) return false;
 
         var slotSpan = ring.Slice(SlotOffset(slot), SlotBytes);
         var seq1 = BinaryPrimitives.ReadUInt64LittleEndian(slotSpan);
@@ -102,7 +102,7 @@ public static class WorkshopPoseRing
         for (var i = 0; i < BodyCapacity && count < bodies.Length; i++)
         {
             var src = bodyData.Slice(i * BodyBytes, BodyBytes);
-            var bodyId = BinaryPrimitives.ReadUInt32LittleEndian(src[12..]);
+            var bodyId = BinaryPrimitives.ReadUInt64LittleEndian(src[48..]);
             var flags = BinaryPrimitives.ReadUInt32LittleEndian(src[44..]);
             if (bodyId == 0 || (flags & 1u) == 0) continue;
 

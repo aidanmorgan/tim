@@ -32,7 +32,7 @@ describe('ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipative Bounc
         assert.equal(settledPose1.bodyCount, 1, 'Pose ring must report exactly 1 body');
 
         const ball = settledPose1.bodies[0];
-        assert.equal(ball.id, 1, 'Body ID must be 1');
+        assert.equal(ball.id, '1', 'Body ID must be 1');
 
         // Workbench plane is at y = -0.46, ball radius is 0.34.
         // Equilibrium center of mass elevation is y_rest = -0.46 + 0.34 = -0.12 m.

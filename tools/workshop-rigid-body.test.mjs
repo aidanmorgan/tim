@@ -9,7 +9,7 @@ import { MessagePort } from 'node:worker_threads';
 
 const source = await readFile(process.env.WORKER_SOURCE ?? 'CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
 
-const STATE_BYTES = 151472;        // PhysicsGpuAbi.ByteLength
+const STATE_BYTES = 154048;        // PhysicsGpuAbi.ByteLength
 const BODIES = 128, COLLIDERS = 4352, MATERIALS = 10496;
 const ORIENTATION_SENSORS = 19744; // PhysicsGpuAbi.OrientationSensorsOffset (64-byte records, count at header byte 116)
 const BENCH_Y = -0.46;
@@ -23,7 +23,7 @@ async function loadWorker(overrides = {}) {
     let imports;
     const host = {
         CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1],
-        StateBytes: () => STATE_BYTES, ScheduleRoles: () => [1, 2], CaptureMode: () => 1, ...overrides
+        StateBytes: () => STATE_BYTES, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], CaptureMode: () => 1, ...overrides
     };
     const runtime = {
         setModuleImports: (_, methods) => { imports = methods; },
@@ -39,7 +39,7 @@ async function loadWorker(overrides = {}) {
         this.setExport('nativeNow', () => 1);
         this.setExport('nativeClockEvidence', () => [2, 1, 1, 1, .005, 1, 1]);
     }, { context });
-    const module = new vm.SourceTextModule(source, { context });
+    const module = new vm.SourceTextModule(source + '\nexport { constraintRows, constraintMass, applyConstraintImpulse, updateDynamicFrame, sweepConstraints };', { context });
     await module.link(name => {
         if (name === './_framework/dotnet.js') return dotnet;
         if (name === '../native-clock.js') return clock;
@@ -96,7 +96,7 @@ function principal(view, offset, value) {
 // Committed linear (m/s) and angular (rad/s) velocity are f32 at body record +48 and +60; mass +72, gravity +76, COM +82.
 function scene(spec, sensors = [], cadence = 2) {
     const bytes = new Uint8Array(STATE_BYTES); const view = new DataView(bytes.buffer);
-    view.setUint32(0, 10, true);
+    view.setUint32(0, 11, true);
     view.setBigUint64(32, 1n, true); view.setUint32(48, cadence, true); view.setUint32(52, 1, true);
     view.setBigUint64(56, 1n, true); view.setBigUint64(64, 1n, true); view.setBigUint64(72, 2n, true); view.setBigUint64(80, 4096n, true);
     const bodies = [{ id: 1, motion: 0, position: [0, BENCH_Y, 0], shape: 2, material: { restitution: 1, threshold: .1, friction: .3 } }, ...spec];
@@ -920,4 +920,341 @@ test('contact work admission: cooldown eligibility is per body and opens at the 
     assert.equal(eligible.calls.length,1);
     assert.equal(new DataView(eligible.bytes.buffer,eligible.bytes.byteOffset).getUint32(WORK_OCCURRENCE+16,true),73);
     assert.equal(new DataView(eligible.bytes.buffer,eligible.bytes.byteOffset).getUint32(WORK_OCCURRENCE+12,true),2);
+});
+test('prismatic relaxation refreshes both moving frames but retains physical-step spring error', async () => {
+    const frames = [], solves = [];
+    const { imports } = await loadWorker({
+        SpringCoefficients: () => [.25, 20],
+        PrismaticJacobians: data => {
+            frames.push(Array.from(data));
+            // Recording boundary, not a substitute for the independently tested C# Jacobian law.
+            return Array.from({ length: 104 }, (_, i) => i % 13 === 12 ? frames.length : [0, 4, 6, 11].includes(i % 13) ? frames.length : 0);
+        },
+        ConstraintRows: data => { solves.push({ frame: frames.length, data: Array.from(data) }); return Array(8).fill(0); }
+    });
+    const bytes = scene([
+        domino([0, 5, 0], { velocity: [1, 0, 0], angular: [2, 3, 4], moments: [1, 1, 1], gravity: 0 }),
+        domino([2, 5, 0], { id: 3, velocity: [0, 1, 0], angular: [-3, 2, 1], moments: [1, 1, 1], gravity: 0 })
+    ]);
+    const view = new DataView(bytes.buffer), offset = 151488;
+    view.setUint32(151472, 1, true);
+    view.setBigUint64(offset, 900n, true);
+    view.setUint32(offset + 8, 1, true); view.setUint32(offset + 12, 2, true);
+    F(view, offset + 16, .3); F(view, offset + 44, -.2);
+    F(view, offset + 40, 1); F(view, offset + 68, 1);
+    F(view, offset + 72, -.25); F(view, offset + 80, 400); F(view, offset + 84, .2);
+    await imports.stage(bytes, 0); imports.commit();
+    await imports.stage(new Uint8Array(0), 1);
+    assert.equal(frames.length, 8, 'four substeps each prepare and refresh current geometry');
+    for (let step = 0; step < 4; step++) {
+        const before = frames[step * 2], after = frames[step * 2 + 1];
+        for (const start of [0, 10]) {
+            assert.notDeepEqual(after.slice(start, start + 3), before.slice(start, start + 3), 'both origins move');
+            assert.notDeepEqual(after.slice(start + 3, start + 7), before.slice(start + 3, start + 7), 'both frames rotate');
+            assert.notDeepEqual(after.slice(start + 7, start + 10), before.slice(start + 7, start + 10), 'both COMs advance');
+        }
+        const relaxed = solves.filter(s => s.frame === step * 2 + 2);
+        assert.ok(relaxed.length >= 8, 'relaxation uses refreshed geometry');
+        for (let i = 0; i < relaxed.length; i++) {
+            const tag = step * 2 + 2;
+            assert.ok(Math.abs(relaxed[i].data[0] - (2 / halfValue(halfBits(.4)) + 2) * tag * tag) < .001, 'refreshed linear/angular Jacobians determine mass, including spring');
+            assert.ok(Math.abs(relaxed[i].data[4] - 5 * tag) < .01, 'refreshed linear/angular Jacobians determine velocity, including spring');
+            assert.equal(relaxed[i].data[8], i % 8 === 5 ? step * 2 + 1 : step * 2 + 2);
+            if (i % 8 === 5) { assert.equal(relaxed[i].data[12], .25); assert.equal(relaxed[i].data[16], 20); }
+        }
+    }
+});
+test('real WASM prismatic rows keep zero-gravity rest and dissipate an uncharged release', { skip: process.env.SPRING_WASM !== '1' }, async () => {
+    const { dotnet } = await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime = await dotnet.create();
+    const { Program } = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    for (const [compression, initialSpeed] of [[0, 0], [-.1, 0], [-.24, 0], [-.2, -8]]) {
+        const { imports } = await loadWorker(Program);
+        const bytes = scene([
+            { ...domino([0, 5, 0]), motion: 0 },
+            domino([0, 5 + compression, 0], { id: 3, mass: .25, half: [.65, .075, .6], velocity: [0, initialSpeed, 0], gravity: 0 })
+        ]);
+        const view = new DataView(bytes.buffer), offset = 151488;
+        view.setUint32(151472, 1, true); view.setBigUint64(offset, 900n, true);
+        view.setUint32(offset + 8, 1, true); view.setUint32(offset + 12, 2, true);
+        F(view, offset + 40, 1); F(view, offset + 68, 1);
+        F(view, offset + 72, -.25); F(view, offset + 80, 400); F(view, offset + 84, .2);
+        await imports.stage(bytes, 0); imports.commit();
+        const initial = readBody(bytes, 2);
+        const initialEnergy = .125 * initial.speed ** 2 + 200 * (initial.p[1] - 5) ** 2;
+        let maximumEnergy = 0, minimumTravel = 0, maximumTravel = -Infinity, maximumLowerImpulse = 0;
+        for (let tick = 0; tick < 180; tick++) {
+            await imports.stage(new Uint8Array(0), 1);
+            const output = imports.read();
+            maximumLowerImpulse = Math.max(maximumLowerImpulse, new DataView(output.buffer, output.byteOffset, output.byteLength).getFloat32(offset + 120, true));
+            const body = readBody(output, 2); imports.commit();
+            const travel = body.p[1] - 5;
+            const energy = .125 * body.speed ** 2 + 200 * travel ** 2;
+            maximumEnergy = Math.max(maximumEnergy, energy);
+            minimumTravel = Math.min(minimumTravel, travel); maximumTravel = Math.max(maximumTravel, travel);
+            assert.ok(energy <= initialEnergy + .005, `finite passive energy ${energy} <= ${initialEnergy}`);
+            assert.ok(travel >= -.251 && travel <= .001, `travel ${travel}`);
+            assert.ok(Math.abs(body.p[0]) < 1e-5 && Math.abs(body.p[2]) < 1e-5 && body.spin < 1e-5);
+            if (compression === 0) assert.equal(energy, 0, 'unloaded zero-gravity plate cannot start itself');
+        }
+        if (initialSpeed < 0) assert.ok(maximumLowerImpulse > 0, 'incoming motion activates the lower unilateral stop');
+        console.log(JSON.stringify({ compression, initialSpeed, initialEnergy, maximumEnergy, minimumTravel, maximumTravel, maximumLowerImpulse }));
+    }
+});
+test('real WASM moving tilted pair preserves reaction momentum and bounded total energy', { skip: process.env.SPRING_WASM !== '1' }, async () => {
+    const { dotnet } = await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime = await dotnet.create();
+    const { Program } = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    const { imports } = await loadWorker(Program);
+    const rotation = [0, 0, Math.sin(.2), Math.cos(.2)];
+    const bytes = scene([
+        domino([0, 5, 0], { mass: 1, rotation, velocity: [1, .3, 0], angular: [.2, .3, .5], moments: [1, 1, 1], gravity: 0 }),
+        domino([0, 5, 0], { id: 3, mass: .25, rotation, velocity: [-.5, -.4, 0], angular: [-.2, .1, -.3], moments: [1, 1, 1], gravity: 0 })
+    ]);
+    const view = new DataView(bytes.buffer), offset = 151488;
+    view.setUint32(151472, 1, true); view.setBigUint64(offset, 901n, true);
+    view.setUint32(offset + 8, 1, true); view.setUint32(offset + 12, 2, true);
+    for (const frame of [16, 44]) { F(view, offset + frame, .3); F(view, offset + frame + 8, .2); F(view, offset + frame + 24, 1); }
+    F(view, offset + 72, -.25); F(view, offset + 80, 400); F(view, offset + 84, .2);
+    const cross = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+    const rotate = (q, v) => { const norm=Math.hypot(...q);const xyz=q.slice(0,3).map(x=>x/norm),w=q[3]/norm;const t=cross(xyz,v).map(x=>2*x),u=cross(xyz,t);return v.map((x,i)=>x+w*t[i]+u[i]); };
+    const quantities = data => {
+        const a=readBody(data,1), b=readBody(data,2);
+        const axis=rotate(a.q,[0,1,0]), aa=rotate(a.q,[.3,0,.2]), ab=rotate(b.q,[.3,0,.2]);
+        const displacement=b.p.map((x,i)=>x+ab[i]-a.p[i]-aa[i]);
+        const q=axis.reduce((s,x,i)=>s+x*displacement[i],0);
+        const momentum=a.v.map((x,i)=>x+.25*b.v[i]);
+        const oa=cross(a.p,a.v),ob=cross(b.p,b.v.map(x=>.25*x));
+        const angular=a.w.map((x,i)=>x+b.w[i]+oa[i]+ob[i]);
+        return { energy:.5*a.speed**2+.125*b.speed**2+.5*(a.spin**2+b.spin**2)+200*q*q, momentum, angular, q };
+    };
+    await imports.stage(bytes,0);imports.commit();
+    const initial=quantities(bytes);let maximumEnergy=initial.energy, maximumMomentumError=0,maximumAngularError=0;
+    for(let tick=0;tick<120;tick++){
+        await imports.stage(new Uint8Array(0),1);const current=quantities(imports.read());imports.commit();
+        maximumEnergy=Math.max(maximumEnergy,current.energy);
+        maximumMomentumError=Math.max(maximumMomentumError,...current.momentum.map((x,i)=>Math.abs(x-initial.momentum[i])));
+        maximumAngularError=Math.max(maximumAngularError,...current.angular.map((x,i)=>Math.abs(x-initial.angular[i])));
+        assert.ok(current.energy<=initial.energy+.01,`energy ${current.energy} initial ${initial.energy}`);
+        assert.ok(current.q>=-.251 && current.q<=.001,`travel ${current.q}`);
+    }
+    assert.ok(maximumMomentumError<.001,`momentum ${maximumMomentumError}`);
+    assert.ok(maximumAngularError<.01,`angular momentum ${maximumAngularError}`);
+    console.log(JSON.stringify({initial,maximumEnergy,maximumMomentumError,maximumAngularError}));
+});
+test('real WASM isolated anisotropic row applies both current-frame reactions', { skip: process.env.SPRING_WASM !== '1' }, async () => {
+    const { dotnet } = await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime = await dotnet.create();
+    const { Program } = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    let firstInput, firstResult, calls=0;
+    const { kernels } = await loadWorker({ ...Program, ConstraintRows: input => {
+        if(calls++===0){firstInput=Array.from(input);firstResult=Array.from(Program.ConstraintRows(input));return firstResult;}
+        return Array(8).fill(0); // Isolate one real solved row; subsequent row reactions are deliberately disabled in this harness.
+    }});
+    const makeBody=(slot,angle,mass,moments,p,w)=>({
+        bodySlot:slot,motion:1,px:p[0],py:p[1],pz:p[2],
+        qx:0,qy:Math.sin(angle/2),qz:0,qw:Math.cos(angle/2),
+        principal:[0,0,0,1],comLocal:[.1,0,-.2],invMass:1/mass,
+        invI:moments.map(x=>1/x),invIWorld:Array(9).fill(0),
+        vx:.3,vy:-.2,vz:.1,wx:w[0],wy:w[1],wz:w[2]
+    });
+    // All masses/moments and local anchors here are exactly representable in the admitted shared scalar lanes.
+    const a=makeBody(1,.4,1,[.5,1,2],[0,4,0],[.2,.3,-.4]);
+    const b=makeBody(2,-.7,.5,[2,.25,1],[.2,4.1,-.1],[-.3,.5,.1]);
+    kernels.updateDynamicFrame(a);kernels.updateDynamicFrame(b);
+    const joint={a,b,pa:[.25,.125,-.25],qa:[0,0,0,1],pb:[-.125,.25,.125],qb:[0,0,0,1],
+        lower:-.25,upper:0,soft:Array.from(Program.SpringCoefficients(400,.2)),impulses:Array(8).fill(0)};
+    joint.rows=kernels.constraintRows(joint,1/480);
+    const row=joint.rows[0],beforeA={...a},beforeB={...b};
+    const dot=(x,y)=>x.reduce((sum,value,i)=>sum+value*y[i],0);
+    const multiply=(angle,inverse,v)=>{
+        const c=Math.cos(angle),s=Math.sin(angle);
+        const local=[c*v[0]-s*v[2],v[1],s*v[0]+c*v[2]].map((x,i)=>x*inverse[i]);
+        return [c*local[0]+s*local[2],local[1],-s*local[0]+c*local[2]];
+    };
+    const ia=multiply(.4,[2,1,.5],row.aa),ib=multiply(-.7,[.5,4,1],row.ab);
+    const expectedMass=dot(row.la,row.la)+2*dot(row.lb,row.lb)+dot(row.aa,ia)+dot(row.ab,ib);
+    kernels.sweepConstraints([joint],true);
+    assert.ok(Math.abs(firstInput[0]-expectedMass)<2e-6,`effective mass ${firstInput[0]} vs ${expectedMass}`);
+    const impulse=firstResult[4];assert.ok(Math.abs(impulse)>.001);
+    for(const [body,before,linear,angular,invMass] of [[a,beforeA,row.la,ia,1],[b,beforeB,row.lb,ib,2]]){
+        for(const [i,key] of ['vx','vy','vz'].entries())assert.ok(Math.abs(body[key]-before[key]-linear[i]*impulse*invMass)<2e-5,`linear reaction ${key}`);
+        for(const [i,key] of ['wx','wy','wz'].entries())assert.ok(Math.abs(body[key]-before[key]-angular[i]*impulse)<2e-5,`angular reaction ${key}`);
+    }
+    console.log(JSON.stringify({expectedMass,actualMass:firstInput[0],impulse}));
+});
+test('real WASM gravity-fed ball and plate contact respects complete passive energy', { skip: process.env.SPRING_WASM !== '1' }, async () => {
+    const {dotnet}=await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime=await dotnet.create();const {Program}=await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    const {imports}=await loadWorker(Program);
+    const bytes=scene([
+        {...domino([0,4.5,0]),motion:0,half:[.65,.06,.6]},
+        domino([0,5,0],{id:3,mass:.25,half:[.65,.075,.6],material:{restitution:0,threshold:.05,friction:.1}}),
+        basketball([0,6.5,0],{id:4})
+    ]);
+    const view=new DataView(bytes.buffer),offset=151488;
+    view.setUint32(151472,1,true);view.setBigUint64(offset,902n,true);
+    view.setUint32(offset+8,1,true);view.setUint32(offset+12,2,true);
+    F(view,offset+20,.5);F(view,offset+40,1);F(view,offset+68,1);
+    F(view,offset+72,-.25);F(view,offset+80,400);F(view,offset+84,.2);
+    const moments=slot=>[96,104,112].map(at=>RH(view,BODIES+slot*128+at)*2**view.getInt32(BODIES+slot*128+at+4,true));
+    const plateI=moments(2),ballI=moments(3),g=-RH(view,BODIES+2*128+78);
+    const energy=data=>{
+        const plate=readBody(data,2),ball=readBody(data,3);
+        // Centred drop retains identity orientation. Include every rotational component explicitly.
+        assert.ok(plate.tilt<.001&&ball.tilt<.001);
+        const rotational=.5*plate.w.reduce((sum,w,i)=>sum+plateI[i]*w*w,0)+.5*ball.w.reduce((sum,w,i)=>sum+ballI[i]*w*w,0);
+        return .125*plate.speed**2+.5*ball.speed**2+rotational+g*(.25*plate.p[1]+ball.p[1])+200*(plate.p[1]-5)**2;
+    };
+    await imports.stage(bytes,0);imports.commit();
+    const initial=energy(bytes);let maximum=initial,minimumPlate=5,upward=0;
+    for(let tick=0;tick<360;tick++){
+        await imports.stage(new Uint8Array(0),1);const output=imports.read();imports.commit();
+        const current=energy(output),plate=readBody(output,2),ball=readBody(output,3);
+        maximum=Math.max(maximum,current);minimumPlate=Math.min(minimumPlate,plate.p[1]);upward=Math.max(upward,ball.v[1]);
+        assert.ok(current<=initial+.01,`complete energy ${current} vs ${initial}`);
+        assert.ok(plate.p[1]>=4.749&&plate.p[1]<=5.001);
+    }
+    assert.ok(minimumPlate<4.85&&upward>2,'actual contact compresses plate and returns finite spring work to ball');
+    console.log(JSON.stringify({initial,maximum,minimumPlate,upward,g}));
+});
+
+test('real WASM preserved passive ball contacts along all three source orientations', { skip: process.env.SPRING_WASM !== '1' }, async () => {
+    const {dotnet}=await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime=await dotnet.create(),{Program}=await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+    const rotate=(q,v)=>{const length=Math.hypot(...q),xyz=q.slice(0,3).map(x=>x/length),w=q[3]/length,t=cross(xyz,v).map(x=>2*x),u=cross(xyz,t);return v.map((x,i)=>x+w*t[i]+u[i]);};
+    const multiply=(a,b)=>{const c=cross(a,b);return [...[0,1,2].map(i=>a[3]*b[i]+b[3]*a[i]+c[i]),a[3]*b[3]-a.slice(0,3).reduce((s,x,i)=>s+x*b[i],0)];};
+    for(const degrees of [[0,0,0],[30,50,70],[90,0,0]]){
+        // Godot default Euler YXZ, matching baseline PartOrientation.FromEulerDegrees columns.
+        const [x,y,z]=degrees.map(v=>v*Math.PI/360);
+        const rotation=multiply(multiply([0,Math.sin(y),0,Math.cos(y)],[Math.sin(x),0,0,Math.cos(x)]),[0,0,Math.sin(z),Math.cos(z)]);
+        const n=rotate(rotation,[0,1,0]),origin=[0,4,0],at=d=>origin.map((v,i)=>v+d*n[i]);
+        const bytes=scene([
+            {...domino(at(-.36)),motion:0,rotation,half:[.65,.06,.6]},
+            domino(at(.14),{id:3,rotation,mass:.25,half:[.65,.075,.6],moments:[.25*(.15**2+1.2**2)/12,.25*(1.3**2+1.2**2)/12,.25*(1.3**2+.15**2)/12],gravity:0,material:{restitution:0,threshold:.05,friction:.1}}),
+            basketball(at(1),{id:4,velocity:n.map(v=>-2*v),gravity:0,drag:0})
+        ]);
+        const view=new DataView(bytes.buffer),offset=151488;
+        view.setUint32(151472,1,true);view.setBigUint64(offset,903n,true);
+        view.setUint32(offset+8,1,true);view.setUint32(offset+12,2,true);
+        F(view,offset+20,.5);F(view,offset+40,1);F(view,offset+68,1);
+        F(view,offset+72,-.25);F(view,offset+80,400);
+        const axis=rotate(readBody(bytes,1).q,[0,1,0]),base=readBody(bytes,1).p;
+        const moments=slot=>[96,104,112].map(a=>RH(view,BODIES+slot*128+a)*2**view.getInt32(BODIES+slot*128+a+4,true));
+        const inertia=[moments(2),moments(3)];
+        const measure=data=>{
+            const plate=readBody(data,2),ball=readBody(data,3);
+            const displacement=plate.p.reduce((s,v,i)=>s+(v-base[i])*axis[i],0)-.5;
+            const rotational=[plate,ball].reduce((s,b,index)=>{const local=rotate([-b.q[0],-b.q[1],-b.q[2],b.q[3]],b.w);return s+.5*local.reduce((sum,w,i)=>sum+inertia[index][i]*w*w,0);},0);
+            return {energy:.125*plate.speed**2+.5*ball.speed**2+rotational+200*displacement**2,compression:-displacement,returned:ball.v.reduce((s,v,i)=>s+v*axis[i],0)};
+        };
+        const {imports}=await loadWorker(Program);await imports.stage(bytes,0);imports.commit();
+        const initial=measure(bytes).energy;let maximum=initial,compression=0,returned=0;
+        for(let tick=0;tick<120;tick++){
+            await imports.stage(new Uint8Array(0),1);const m=measure(imports.read());imports.commit();
+            maximum=Math.max(maximum,m.energy);compression=Math.max(compression,m.compression);returned=Math.max(returned,m.returned);
+            assert.ok(m.energy>=0&&m.energy<=initial+1e-5,`orientation ${degrees}: energy ${m.energy} initial ${initial}`);
+        }
+        assert.ok(compression>=.01&&compression<=.250001,`compression ${compression}`);
+        assert.ok(returned>.2,`return speed ${returned}`);
+        console.log(JSON.stringify({degrees,initial,maximum,compression,returned}));
+    }
+});
+
+test('prismatic row-kind boundary rejects changed missing or duplicate mappings', async () => {
+    for (const mapping of [[0,1,2,3,4,5,6], [0,1,2,3,4,6,5,7], [0,1,2,3,4,5,6,6]])
+        await assert.rejects(loadWorker({PrismaticRowKinds:()=>mapping}), /Invalid prismatic row kind mapping/);
+});
+
+test('real WASM five disjoint joints scatter full and partial SIMD batches and shared bodies sequence', {skip:process.env.SPRING_WASM!=='1'}, async()=>{
+    const {dotnet}=await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime=await dotnet.create(),{Program}=await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    const {kernels}=await loadWorker(Program);
+    const body=(slot,seed)=>{const b={bodySlot:slot,motion:1,px:seed*.1,py:4+seed*.03,pz:-seed*.02,
+        qx:0,qy:Math.sin(seed*.03),qz:0,qw:Math.cos(seed*.03),comLocal:[0,0,0],principal:[0,0,0,1],
+        invMass:1/(1+seed*.125),invI:[1+seed*.1,.5+seed*.05,.8+seed*.025],invIWorld:Array(9).fill(0),
+        vx:seed*.07,vy:-seed*.03,vz:seed*.02,wx:seed*.01,wy:-seed*.015,wz:seed*.02};
+        kernels.updateDynamicFrame(b);return b;};
+    const joint=(a,b,seed)=>{const j={a,b,pa:[.03*seed,0,.01],qa:[0,0,0,1],pb:[-.01,0,.02*seed],qb:[0,0,0,1],
+        lower:-.25,upper:0,soft:Array.from(Program.SpringCoefficients(120+seed*50,.2)),impulses:Array(8).fill(0)};
+        j.rows=kernels.constraintRows(j,1/480);return j;};
+    const make=()=>Array.from({length:5},(_,i)=>joint(body(i*2+1,i+1),body(i*2+2,i+2),i+1));
+    const together=make(),separate=make();
+    for(let sweep=0;sweep<3;sweep++){kernels.sweepConstraints(together,true);for(const j of separate)kernels.sweepConstraints([j],true);}
+    const state=j=>({a:['vx','vy','vz','wx','wy','wz'].map(k=>j.a[k]),b:['vx','vy','vz','wx','wy','wz'].map(k=>j.b[k]),impulses:Array.from(j.impulses)});
+    assert.deepEqual(together.map(state),separate.map(state));
+    assert.equal(new Set(together.map(j=>JSON.stringify(j.impulses))).size,5,'Distinct lanes cannot be broadcast or dropped');
+    const shared=()=>{const common=body(2,2);return[joint(body(1,1),common,1),joint(common,body(3,3),2)];};
+    const actual=shared(),expected=shared();
+    // Independent scalar row schedule: each later joint must consume the earlier shared-body reaction.
+    for(let sweep=0;sweep<3;sweep++){
+        kernels.sweepConstraints(actual,true);
+        for(let row=0;row<8;row++)for(const j of expected){
+            const r=j.rows[row],input=Array(32).fill(0);
+            input[0]=Math.fround(kernels.constraintMass(j.a,r.la,r.aa)+kernels.constraintMass(j.b,r.lb,r.ab));
+            const velocity=(b,l,a)=>Math.fround(Math.fround(Math.fround(Math.fround(l[0]*b.vx)+Math.fround(l[1]*b.vy))+Math.fround(l[2]*b.vz))+
+                Math.fround(Math.fround(Math.fround(a[0]*b.wx)+Math.fround(a[1]*b.wy))+Math.fround(a[2]*b.wz)));
+            input[4]=Math.fround(velocity(j.a,r.la,r.aa)+velocity(j.b,r.lb,r.ab));
+            input[8]=r.error;input[12]=r.gamma;input[16]=r.bias;input[20]=j.impulses[row];input[24]=r.minimum;input[28]=3.4028234663852886e38;
+            const result=Program.ConstraintRows(input);j.impulses[row]=result[0];kernels.applyConstraintImpulse(j,r,result[4]);
+        }
+    }
+    assert.deepEqual(actual.map(state),expected.map(state));
+});
+
+test('real WASM connected collision policy filters only its declared pair', {skip:process.env.SPRING_WASM!=='1'},async()=>{
+    const {dotnet}=await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime=await dotnet.create(),{Program}=await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    const outcomes=[];
+    for(const enabled of [0,1]){
+        const bytes=scene([{...domino([0,5,0]),motion:0,half:[.65,.05,.6]},
+            domino([0,5,0],{id:3,mass:.25,half:[.65,.075,.6],gravity:0}),
+            {...domino([3,5,0]),id:4,motion:0,half:[.5,.1,.5]},
+            basketball([3,5.3,0],{id:5,velocity:[0,-2,0],gravity:0,drag:0})]);
+        const v=new DataView(bytes.buffer),o=151488;v.setUint32(151472,1,true);v.setBigUint64(o,904n,true);
+        v.setUint32(o+8,1,true);v.setUint32(o+12,2,true);F(v,o+40,1);F(v,o+68,1);
+        F(v,o+72,-.25);F(v,o+80,400);v.setUint32(o+88,enabled,true);
+        const {imports}=await loadWorker(Program);await imports.stage(bytes,0);imports.commit();
+        await imports.stage(new Uint8Array(0),1);const output=imports.read();imports.commit();
+        outcomes.push({plate:readBody(output,2),other:readBody(output,4)});
+    }
+    assert.equal(outcomes[0].plate.speed,0);
+    assert.ok(outcomes[1].plate.speed>.001||Math.abs(outcomes[1].plate.p[1]-5)>.00001,'Enabled connected overlap has a physical response');
+    assert.deepEqual(outcomes[0].other,outcomes[1].other,'Unrelated collision is retained for both policies');
+    assert.ok(outcomes[0].other.v[1]>0,'Unrelated ball really collides rather than passing through');
+    console.log(JSON.stringify(outcomes));
+});
+
+test('real WASM compound local frames restore across the shortest-arc boundary', {skip:process.env.SPRING_WASM!=='1'},async()=>{
+    const {dotnet}=await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime=await dotnet.create(),{Program}=await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+    const mul=(a,b)=>{const c=cross(a,b);return [...[0,1,2].map(i=>a[3]*b[i]+b[3]*a[i]+c[i]),a[3]*b[3]-a.slice(0,3).reduce((s,x,i)=>s+x*b[i],0)];};
+    const axis=(v,t)=>{const n=Math.hypot(...v);return[...v.map(x=>x/n*Math.sin(t/2)),Math.cos(t/2)];};
+    const la=axis([1,2,0],.4),lb=axis([0,1,2],-.3),qa=axis([2,-1,1],.5),conjugate=q=>[-q[0],-q[1],-q[2],q[3]];
+    for(const degrees of [179.5,180.5]){
+        const results=[];
+        for(const sign of [1,-1]){
+            const qb=mul(mul(mul(axis([1,2,-3],degrees*Math.PI/180),qa),la),conjugate(lb)).map(x=>x*sign);
+            const bytes=scene([{...domino([0,5,0]),motion:0,rotation:qa},
+                domino([0,5,0],{id:3,rotation:qb,mass:.25,moments:[.5,.75,1],gravity:0})]);
+            const v=new DataView(bytes.buffer),o=151488;v.setUint32(151472,1,true);v.setBigUint64(o,905n,true);
+            v.setUint32(o+8,1,true);v.setUint32(o+12,2,true);
+            la.forEach((x,i)=>F(v,o+28+i*4,x));lb.forEach((x,i)=>F(v,o+56+i*4,x));
+            F(v,o+72,-.25);F(v,o+80,400);
+            const {imports}=await loadWorker(Program);await imports.stage(bytes,0);imports.commit();let final,maxSpin=0;
+            for(let tick=0;tick<120;tick++){
+                await imports.stage(new Uint8Array(0),1);final=readBody(imports.read(),2);imports.commit();
+                maxSpin=Math.max(maxSpin,final.spin);assert.ok(Number.isFinite(final.spin)&&final.spin<128);
+            }
+            const relative=mul(mul(final.q,lb),conjugate(mul(readBody(bytes,1).q,la)));
+            const angle=2*Math.atan2(Math.hypot(...relative.slice(0,3)),Math.abs(relative[3]));
+            assert.ok(angle<.01,`restoration ${degrees}/${sign}: ${angle}`);
+            results.push({angle,maxSpin,position:final.p});
+        }
+        assert.ok(Math.abs(results[0].angle-results[1].angle)<1e-5);
+        assert.ok(Math.abs(results[0].maxSpin-results[1].maxSpin)<1e-4);
+        console.log(JSON.stringify({degrees,results}));
+    }
 });

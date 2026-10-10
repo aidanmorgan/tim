@@ -62,7 +62,7 @@ describe('ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript Playwright
         const runningPose = await driver.readLatestPose();
         assert.ok(runningPose, 'Pose ring slot must be readable during single-ball Run');
         assert.equal(runningPose.bodyCount, 1, 'Pose ring must report exactly 1 body');
-        assert.equal(runningPose.bodies[0].id, 1, 'Body ID must be 1');
+        assert.equal(runningPose.bodies[0].id, '1', 'Body ID must be 1');
         assert.ok(runningPose.bodies[0].py < 3.0, 'Ball must have fallen under gravity (py < 3.0)');
 
         // Reset simulation

@@ -42,7 +42,7 @@ for (const captureMode of [1, 2]) {
     let flushes = 0, release, releasePreparation, preparations = 0, throwOutput = false;
     const stallStates = [];
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 151472, ScheduleRoles: () => [1, 2],
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 154048, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2],
         CaptureMode: () => captureMode, Bootstrap: () => new Uint8Array(16),
         PrepareGpu: () => { preparations++; return new Promise(resolve => { releasePreparation = resolve; }); },
         ClockReply: () => new Uint8Array(144),
@@ -163,7 +163,7 @@ for (const control of Object.values(StartupControl)) {
         destroy: () => { deviceDestroyed = true; }
     };
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 151472, ScheduleRoles: () => [1, 2],
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 154048, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2],
         CaptureMode: () => 1, Bootstrap: () => new Uint8Array(16),
         PrepareGpu: () => control === StartupControl.EarlyLoss
             ? boundary.imports.initialize('fixture preamble')
@@ -196,8 +196,8 @@ for (const control of Object.values(StartupControl)) {
 {
     let dispatched = 0;
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 151472,
-        ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; }
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1], StateBytes: () => 154048,
+        PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], Dispatch: async () => { dispatched++; }
     };
     const { self, messages } = await loadWorker(host);
     for (const width of [72, 1672, 5768]) await self.onmessage({ data: { bytes: new Uint8Array(width) } });

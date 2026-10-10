@@ -9,7 +9,8 @@ const requireMcp = createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp
 const { chromium } = requireMcp('playwright') as typeof import('playwright');
 
 export interface WorkshopBodyPose {
-    id: number;
+    /** Lossless decimal UInt64 at the browser observation boundary. */
+    id: string;
     px: number;
     py: number;
     pz: number;
@@ -80,14 +81,14 @@ const ResponseKindAcknowledgement = 0;
 // The commands the Workshop UI issues (values of WorkshopCommandKind) and the phase each leaves the simulation in when Applied. The
 // acknowledgement carries no command kind, so a command is matched by order (a newer command sequence and authority revision than the
 // last consumed acknowledgement, exactly one arrival) and by the phase its kind implies.
-const WorkshopCommand = { Construct: 1, Run: 2, Reset: 3, Pause: 7, Resume: 8, Save: 10 } as const;
-type WorkshopCommand = typeof WorkshopCommand[keyof typeof WorkshopCommand];
+enum WorkshopCommand { Construct = 1, Run = 2, Reset = 3, Pause = 7, Resume = 8, Step = 9, Save = 10 }
 const PHASE_AFTER: Readonly<Record<WorkshopCommand, SimulationPhase>> = {
     [WorkshopCommand.Construct]: SimulationPhase.Building,
     [WorkshopCommand.Run]: SimulationPhase.Running,
     [WorkshopCommand.Reset]: SimulationPhase.Building,
     [WorkshopCommand.Pause]: SimulationPhase.Paused,
     [WorkshopCommand.Resume]: SimulationPhase.Running,
+    [WorkshopCommand.Step]: SimulationPhase.Paused,
     [WorkshopCommand.Save]: SimulationPhase.Building,
 };
 
@@ -101,7 +102,7 @@ interface WorkshopAcknowledgement {
 // One CCGPU line: its decoded acknowledgement, or the reason it could not be decoded (scoped to that line only).
 type AcknowledgementEntry = { ack: WorkshopAcknowledgement } | { error: string };
 
-function nameOf(table: Readonly<Record<string, number>>, value: number): string {
+function nameOf(table: Readonly<Record<string, string | number>>, value: number): string {
     return Object.keys(table).find(key => table[key] === value) ?? `#${value}`;
 }
 
@@ -206,12 +207,12 @@ const UI_ANCHORS = {
         resume: { x: 1130, y: 240 },
     },
     dock: {
-        // Free workshop lists eleven unlimited rows; Battery follows Bowling ball, shifting the unconstrained part dock down one row (51 px).
+        // Free workshop lists twelve unlimited rows; the Springboard row shifts the Build dock by51px.
         free_workshop: {
-            move: { x: 60, y: 758 },
-            rotate: { x: 104, y: 758 },
-            resize: { x: 148, y: 758 },
-            delete: { x: 192, y: 758 },
+            move: { x: 60, y: 809 },
+            rotate: { x: 104, y: 809 },
+            resize: { x: 148, y: 809 },
+            delete: { x: 192, y: 809 },
         },
         first_principles: {
             move: { x: 40, y: 275 },
@@ -253,7 +254,7 @@ const UI_ANCHORS = {
         connect: {
             locked: { x: 133, y: 236 },
             delay: { x: 133, y: 277 },
-            domino: { x: 133, y: 746 },
+            domino: { x: 133, y: 790 },
         },
         // "ActivationOut → ActivationIn" choice offered after clicking the target part: the row takes the connect row's place.
         choice: {
@@ -410,7 +411,7 @@ export class WorkshopDriver {
     }
 
     // A click that only changes UI state (no Workshop command): wait until Godot has applied it.
-    private async clickAt(x: number, y: number): Promise<void> {
+    async clickAt(x: number, y: number): Promise<void> {
         await this.press(x, y);
         await this.frames(UI_SETTLE_FRAMES);
     }
@@ -531,6 +532,8 @@ export class WorkshopDriver {
         await this.frames(SCROLL_SETTLE_FRAMES);
         const button = steps >= 0 ? UI_ANCHORS.fineRotate.tilt.increase : UI_ANCHORS.fineRotate.tilt.decrease;
         for (let i = 0; i < Math.abs(steps); i++) await this.construct('tiltSelectedByFineRotate', () => this.press(button.x, button.y));
+        await this.page.mouse.wheel(0, -2000);
+        await this.frames(SCROLL_SETTLE_FRAMES);
         await this.closeMenu();
     }
 
@@ -661,6 +664,12 @@ export class WorkshopDriver {
         await this.closeMenu();
     }
 
+    async stepSimulation(): Promise<void> {
+        await this.openMenu();
+        await this.command('stepSimulation', WorkshopCommand.Step, () => this.press(1212,246));
+        await this.closeMenu();
+    }
+
     async resumeSimulation(): Promise<void> {
         await this.openMenu();
         await this.command('resumeSimulation', WorkshopCommand.Resume, () => this.press(UI_ANCHORS.menu.resume.x, UI_ANCHORS.menu.resume.y));
@@ -694,8 +703,8 @@ export class WorkshopDriver {
     }
 
     // The new run owns the latest slot once that slot was rewritten after the key press: its sequence exceeds every slot sequence read
-    // before the press (slot sequences only grow when written) and its capture time is later than the pre-Run slot's (the master
-    // clock is monotonic and Build mode publishes nothing). Either alone can tie or lag across the three per-slot seqlocks.
+    // before the press (the writer has one monotonic publication sequence across all slots) and its capture time is later than
+    // the pre-Run slot's. The master clock is monotonic and Build mode publishes nothing.
     private async waitForPublicationAfter(before: WorkshopPoseSlot): Promise<void> {
         try {
             await this.page.waitForFunction(({ sequence, timestamp }: { sequence: string; timestamp: string }) => {

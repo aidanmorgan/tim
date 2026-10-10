@@ -23,7 +23,7 @@ public static class WorkshopPorts
         WorkshopPartKind.Domino => DominoPorts,
         WorkshopPartKind.Battery => BatteryPorts,
         WorkshopPartKind.PinballBumper => StoragePorts,
-        WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall => [],
+        WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.Wall or WorkshopPartKind.Springboard => [],
         _ => throw new ArgumentException("Unsupported port owner.")
     };
     private static readonly WorkshopPort[] BatteryPorts =

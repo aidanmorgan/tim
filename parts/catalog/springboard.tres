@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/springboard.tscn" id="2"]
+[ext_resource type="Script" path="res://engine/SpringboardResource.cs" id="3"]
+
+[sub_resource type="Resource" id="Spring"]
+script = ExtResource("3")
+Stiffness = 400.0
+Damping = 0.2
+
+[resource]
+script = ExtResource("1")
+Id = "spring"
+Title = "Springboard"
+Category = "Motion"
+Description = "A moving plate compresses its spring under contact and returns stored elastic energy."
+Scene = ExtResource("2")
+Color = Color(0.96, 0.7, 0.33, 1)
+Springboard = SubResource("Spring")

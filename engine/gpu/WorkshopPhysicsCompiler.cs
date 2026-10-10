@@ -18,6 +18,7 @@ public static class WorkshopPhysicsCompiler
         var guides = new List<PlanarGuideDeclaration>();
         var triggers = new List<ContactTriggerDeclaration>();
         var contactWorks = new List<ContactWorkDeclaration>();
+        var prismatics = new List<PrismaticConstraintDeclaration>();
         var electricalSources = new List<ElectricalSourceDeclaration>();
         var orientationSensors = new List<OrientationSensorDeclaration>();
         var plane = new GpuBodyId(InternalIdentityBase);
@@ -138,10 +139,44 @@ public static class WorkshopPhysicsCompiler
                 colliders.Add(new(new(id), instance.Id, material, ColliderShapeKind.Box,
                     new(position, CanonicalRotation.Identity), new((Half)0), half));
         }
+        foreach (var spring in construction.Instances.OfType<WorkshopSpringboard>().OrderBy(value => value.Id.Value))
+        {
+            var first = PartIdentities(spring.Id); next = Math.Max(next, first + 64);
+            var baseMaterial = new GpuMaterialId(first); var plateMaterial = new GpuMaterialId(first + 3);
+            var plate = SpringboardPlate(spring.Id);
+            bodies.Add(new(spring.Id, RigidMotionKind.Static, spring.Cell, spring.Local, spring.Rotation,
+                default, default, new((Half)0), default, new((Half)0)));
+            materials.Add(new(baseMaterial, new((Half)0), new((Half).05), new((Half).1), new((Half)0)));
+            materials.Add(new(plateMaterial, new((Half)0), new((Half).05), new((Half).1), new((Half)0)));
+            colliders.Add(new(new(first + 1), spring.Id, baseMaterial, ColliderShapeKind.Box,
+                new(new((Half)0, (Half)(-.36), (Half)0), CanonicalRotation.Identity), new((Half)0),
+                new((Half).65, (Half).06, (Half).6)));
+            var rotation = new System.Numerics.Quaternion((float)spring.Rotation.X, (float)spring.Rotation.Y,
+                (float)spring.Rotation.Z, (float)spring.Rotation.W);
+            var displacement = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(0, .14f, 0), rotation);
+            var x = WorkshopInput.Position((spring.Cell.X + (float)spring.Local.X) / 16f + displacement.X);
+            var y = WorkshopInput.Position((spring.Cell.Y + (float)spring.Local.Y) / 16f + displacement.Y);
+            var z = WorkshopInput.Position((spring.Cell.Z + (float)spring.Local.Z) / 16f + displacement.Z);
+            bodies.Add(new(plate, RigidMotionKind.Dynamic, new(x.Cell, y.Cell, z.Cell), new(x.Local, y.Local, z.Local),
+                spring.Rotation, default, default, new((Half).25),
+                new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new((Half)0)));
+            colliders.Add(new(new(first + 4), plate, plateMaterial, ColliderShapeKind.Box,
+                RigidLocalPose.Identity, new((Half)0), new((Half).65, (Half).075, (Half).6)));
+            prismatics.Add(new(new(first + 5), spring.Id, plate,
+                new(new System.Numerics.Vector3(0, .14f, 0), System.Numerics.Quaternion.Identity), ConstraintFrame.Identity,
+                -.25f, 0, spring.Settings.Stiffness, spring.Settings.Damping, ConnectedCollision.Disabled));
+        }
         return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical)
-                .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray());
+                .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray(), prismatics.ToArray());
     }
+    public static bool IsSecondaryBodyIdentity(GpuBodyId owner, GpuBodyId body)
+    {
+        return body == SpringboardPlate(owner);
+    }
+
+    public static GpuBodyId SpringboardPlate(GpuBodyId owner) => new(checked(PartIdentities(owner) + 2));
+
     public static ElectricalSourceId ElectricalSource(GpuBodyId owner) => new(checked(PartIdentities(owner) + 6));
 
     public static GpuSensorId CaptureSensor(WorkshopReceiver receiver) => new(checked(PartIdentities(receiver.Id) + 6));

@@ -103,6 +103,9 @@ public partial class MachineWorld
             WorkshopPartKind.Delay => WorkshopInput.Delay(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopDelay timer ? timer.Duration :
                     Registry.Definitions[WorkshopPartKind.Delay].Delay!.Capture()),
+            WorkshopPartKind.Springboard => WorkshopInput.Springboard(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopSpringboard spring ? spring.Settings :
+                    Registry.Definitions[WorkshopPartKind.Springboard].Springboard!.Capture()),
             WorkshopPartKind.Battery => WorkshopInput.Battery(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopBattery battery ? battery.Settings :
                     Registry.Definitions[WorkshopPartKind.Battery].ElectricalSource!.Capture()),
@@ -227,17 +230,27 @@ public partial class MachineWorld
             var selected = _workshopClient.TryPresent(Engine.GetProcessFrames(), out var presentation);
             if (selected)
             {
+                // Resolve the complete validated set before mutating any rendered body.
+                var targets = new Node3D[presentation.Bodies.Count];
+                for (var index = 0; index < targets.Length; index++)
+                {
+                    var id = presentation.Bodies[index].Id;
+                    targets[index] = _parts.Select(part => part.PhysicalVisual(id)).SingleOrDefault(target => target is not null)
+                        ?? throw new ArgumentException("Presented body has no unique owned visual binding.");
+                }
                 _workshopPresentation = presentation;
                 DisplaySimulationTime = presentation.SimulationTime.Seconds;
-                for (var bodyIndex = 0; bodyIndex < presentation.Bodies.Count; bodyIndex++)
+                for (var index = 0; index < targets.Length; index++)
                 {
-                    var pose = presentation.Bodies[bodyIndex];
-                    var physical = _parts.FirstOrDefault(part => part.AuthoredId == pose.Id)
-                        ?? throw new ArgumentException("Presented body is absent from installed construction.");
-                    ApplyWorkshopPosition(physical, RenderPosition(pose.Cell, pose.Local));
+                    var pose = presentation.Bodies[index]; var target = targets[index];
                     var q = pose.Rotation;
-                    physical.Quaternion = new((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
+                    var worldPose = GlobalTransform * new Transform3D(new Basis(new Quaternion((float)q.X, (float)q.Y, (float)q.Z, (float)q.W)),
+                        RenderPosition(pose.Cell, pose.Local));
+                    var localPose = ((Node3D)target.GetParent()).GlobalTransform.AffineInverse() * worldPose;
+                    ApplyWorkshopPosition(target, localPose.Origin);
+                    target.Basis = localPose.Basis;
                 }
+                foreach (var part in _parts) part.ApplyPhysicalSpans();
             }
             var frame = Engine.GetProcessFrames();
             foreach (var part in _parts)
@@ -302,6 +315,11 @@ public partial class MachineWorld
                 batteryPart.ApplyElectrical(new(supply, fraction >= .25f ? 1f : 0f, fraction >= .5f ? 1f : 0f,
                     fraction >= .75f ? 1f : 0f, fraction >= 1f ? 1f : 0f));
             }
+            if (instance is WorkshopSpringboard spring && part is SpringboardPart springPart)
+            {
+                springPart.ApplySpring(spring.Settings);
+                part.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, WorkshopPhysicsCompiler.SpringboardPlate(instance.Id));
+            }
             if (instance is WorkshopBumper bumper && part is BumperPart bumperPart) bumperPart.ApplyWork(bumper.Work);
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);
@@ -310,10 +328,11 @@ public partial class MachineWorld
             if (part.HasCosmeticBindings != instance.Cosmetic.IsDeclared || (part.HasCosmeticBindings && part.Cosmetic != instance.Cosmetic))
                 throw new ArgumentException("Part artwork and its instance must declare the same cosmetic curve.");
             if (part.HasCosmeticBindings) part.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
+            part.ResetPhysicalVisuals();
         }
     }
 
-    private void ApplyWorkshopPosition(MachinePart part, Vector3 position)
+    private void ApplyWorkshopPosition(Node3D part, Vector3 position)
     {
         // One final physical position writer. Repeated unchanged endpoint application is clean.
         if (part.Position == position) return;

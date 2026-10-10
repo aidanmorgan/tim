@@ -37,10 +37,10 @@ Families from the [element map row](../general-engine-element-map.md): Animation
 | ContactImpulse and a finite contact-work reservoir (FiniteWorkActuation, FiniteLedger) | `engine/gpu/ContactWorkDeclaration.cs`, `engine/gpu/PhysicsContactWorkRead.cs`, `CuriousContraptions.Simulation/wwwroot/worker.js` |
 | AnimationEvaluation/Lifecycle (impulse envelope) | Story 4.2 |
 | Integrated paid radial impulse, generic finite store and Sidekick | Story 6.2 terminal scoped Pass at published60ddbbe; see [integration review](../../../_bmad-output/implementation-artifacts/review-6-2-bumper-battery-integration.md) |
+| Multi-angle contacts, bumper_depth and wall_and_bumper | Story6.3 terminal scoped Pass at published25d53233; [review](../../../_bmad-output/implementation-artifacts/review-6-3-bumper-multi-angle-contacts.md) includes production positive/control routes, Wall resize and lifecycle |
 
 | Missing | Story that builds it |
 | --- | --- |
-| Final independent qualification/publication of multi-angle contacts, bumper_depth and wall_and_bumper | [Story 6.3 current contract](../../../_bmad-output/implementation-artifacts/spec-6-3-bumper-multi-angle-contacts.md): implemented candidate, actual UI routes/lifecycle proved locally; independent final review pending |
 | SignalPropagation / JointConstraint memberships (no declared mode uses them yet) | owner decision (§6) |
 | Physical placement nudging (authored placement correction that moves the bumper's collider; legacy fact 5) | not scheduled, owner decision: the roadmap reports physical nudging unsupported in the current playable mode ([first_principles](../invest/vertical-delivery.md#first-principles)) |
 | Remaining sphere geometry, pose and cosmetic lanes retain inherited binary16 precision. Current integration migrates strength, reference mass, preload, contact speeds/debits and resource authoring to f32; `BumperWorkResource` is retired for generic `ContactWorkResource`. | Remaining shared lanes: Epic16 ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)); affected contact-work integration proof: Story6.2 |
@@ -82,7 +82,7 @@ Acceptance: [CAT-015](../requirements.md#current-cat-015) and [retained behaviou
 - **Boundaries.** Strength 0 and 20; per-ball cooldown edge.
 - **Run/Reset, Save/Load.** Store, cooldowns and rings reset; strength persists.
 - **Integrations.** Contact and cargo connection audit [sequence-task-285](../requirements.md#sequence-task-285) (bumper); wall and bumper teaching [sequence-task-304](../requirements.md#sequence-task-304) and [todo-163](../requirements.md#todo-163); [IX-01 contact impulse](../requirements.md#interaction-01); campaign first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (physical presets row). Partners: Wall (CAT-066) in wall_and_bumper and wall_return, Receiver (CAT-004).
-- **Remaining (unmet now).** Story 6.3; Story 6.2 integration/publication has terminal scoped Pass; the "isolated authored assistance" control (fact 5) needs physical placement nudging, which is not scheduled.
+- **Remaining (unmet now).** Stories6.2/6.3 have bounded terminal scoped Pass; the "isolated authored assistance" control (fact 5) needs physical placement nudging, which is not scheduled.
 
 ## 6. Open questions
 

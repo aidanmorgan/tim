@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 18 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 19 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null, WorkshopElectricalControl? Electrical = null);
@@ -334,6 +334,9 @@ public static class WorkshopWire
                     Write(slot[104..], trigger.Trigger.Threshold.Value); break;
                 case WorkshopDelay delay:
                     Write(slot[104..], delay.Duration.Seconds.Value); break;
+                case WorkshopSpringboard spring:
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[104..], spring.Settings.Stiffness);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[108..], spring.Settings.Damping); break;
                 case WorkshopBattery battery:
                     BinaryPrimitives.WriteSingleLittleEndian(slot[104..], battery.Settings.Capacity.Value);
                     BinaryPrimitives.WriteSingleLittleEndian(slot[108..], battery.Settings.MaximumPower.Value);
@@ -402,6 +405,8 @@ public static class WorkshopWire
                     new(new(Read(slot[104..]))), locked == 1),
                 WorkshopPartKind.Delay when Zero(slot[106..]) => new WorkshopDelay(body.Id, body.Cell, body.Local, rotation,
                     new(new(Read(slot[104..]))), locked == 1),
+                WorkshopPartKind.Springboard when Zero(slot[112..]) => new WorkshopSpringboard(body.Id, body.Cell, body.Local, rotation,
+                    new(BinaryPrimitives.ReadSingleLittleEndian(slot[104..]), BinaryPrimitives.ReadSingleLittleEndian(slot[108..])), locked == 1),
                 WorkshopPartKind.Battery when Zero(slot[117..]) => new WorkshopBattery(body.Id, body.Cell, body.Local, rotation,
                     new(new(BinaryPrimitives.ReadSingleLittleEndian(slot[104..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[108..])),
                         BinaryPrimitives.ReadSingleLittleEndian(slot[112..]), (ElectricalEnable)slot[116]), locked == 1),

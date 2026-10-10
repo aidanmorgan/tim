@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 10 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 11 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
@@ -50,7 +50,7 @@ public static partial class PhysicsGpuAbi
     public const int CacheOffset = MotionOffset + PhysicsMotionRead.ByteLength;
     public const int CacheCapacity = 888 * 4;
     public const int CacheBytes = 32;
-    public const int ByteLength = ElectricalBindingsOffset + WorkshopConnections.Capacity * ElectricalBindingBytes;
+    public const int ByteLength = PrismaticRecordsOffset + PhysicsSceneDeclaration.PrismaticCapacity * PrismaticBytes;
     public const uint NoBody = uint.MaxValue;
     // A binary eighth-second primary segment bounds elapsed-value quantization.
     public const uint PrimarySegmentSteps = WorkshopCadenceSettings.PhysicalFrequency / 8;
@@ -177,6 +177,7 @@ public static partial class PhysicsGpuAbi
             }
         U32(data,112,(uint)pair);
         WriteElectricalAdmission(data, scene);
+        WritePrismaticAdmission(data, scene);
         return bytes;
     }
 
@@ -420,6 +421,7 @@ public static partial class PhysicsGpuAbi
             throw new ArgumentException("Motion profile differs from its committed world.");
         ValidateCache(candidate,source);
         ValidateElectricalCandidate(candidate,source);
+        ValidatePrismaticCandidate(candidate,source);
         return new(bodies, PhysicsMotionRead.Decode(candidate.Slice(MotionOffset,PhysicsMotionRead.ByteLength), bodies, expectedTick));
     }
 

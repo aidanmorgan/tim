@@ -9,9 +9,10 @@ public partial class PartDefinition : Resource
     [Export] public string Id
     {
         get => _id;
-        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "bowling" => WorkshopPartKind.BowlingBall, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, "wall" => WorkshopPartKind.Wall, "delay" => WorkshopPartKind.Delay, "bumper" => WorkshopPartKind.PinballBumper, "domino" => WorkshopPartKind.Domino, "battery" => WorkshopPartKind.Battery, _ => WorkshopPartKind.Unsupported }; }
+        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "bowling" => WorkshopPartKind.BowlingBall, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, "wall" => WorkshopPartKind.Wall, "delay" => WorkshopPartKind.Delay, "bumper" => WorkshopPartKind.PinballBumper, "domino" => WorkshopPartKind.Domino, "battery" => WorkshopPartKind.Battery, "spring" => WorkshopPartKind.Springboard, _ => WorkshopPartKind.Unsupported }; }
     }
     public WorkshopPartKind WorkshopKind { get; private set; }
+    [Export] public SpringboardResource? Springboard { get; set; }
     [Export] public ElectricalSourceResource? ElectricalSource { get; set; }
     [Export] public ContactWorkResource? ContactWork { get; set; }
     [Export] public DelayDurationResource? Delay { get; set; }

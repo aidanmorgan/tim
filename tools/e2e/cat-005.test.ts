@@ -172,7 +172,7 @@ for (const depleted of [false,true]) test(depleted ? 'Battery finite60J source e
         } else {
             const remaining=paid.readFloatLE(SOURCE+16);
             assert.ok(remaining<3504 && remaining>0);
-            await driver.selectPartAt(920,510); await click(driver,130,703);
+            await driver.selectPartAt(920,510); await click(driver,130,750);
             assert.equal(reads.at(-1)!.readFloatLE(WORK+20),paid.readFloatLE(WORK+20),'Disable must preserve stored work');
             await driver.resumeSimulation(); await driver.page.waitForTimeout(3500); await driver.pauseSimulation();
             const off=reads.at(-1)!;
@@ -180,7 +180,7 @@ for (const depleted of [false,true]) test(depleted ? 'Battery finite60J source e
             assert.equal(off.readFloatLE(WORK+20),0);
             assert.equal((await driver.readLastAnimationSample(String(4n<<32n)))?.value,0);
             const retainedBeforeEnable=retained.length;
-            await driver.selectPartAt(920,510); await click(driver,130,703);
+            await driver.selectPartAt(920,510); await click(driver,130,750);
             await driver.resumeSimulation(); await driver.page.waitForTimeout(700); await driver.pauseSimulation();
             const on=reads.at(-1)!;
             assert.equal(on[SOURCE+24],1);
@@ -189,13 +189,13 @@ for (const depleted of [false,true]) test(depleted ? 'Battery finite60J source e
             assert.equal((await driver.readLastAnimationSample(String(4n<<32n)))?.value,1);
             // The preceding prolonged unpaid control can leave the ball resting. Reset through UI for a fresh demand cycle.
             await driver.reset();await driver.run();await driver.page.waitForTimeout(1200);await driver.selectPartAt(920,510);
-            const runningStart=retained.length;await click(driver,130,703);
+            const runningStart=retained.length;await click(driver,130,750);
             const demandStart=Date.now();while(Date.now()-demandStart<3000 && !retained.slice(runningStart).some(read=>read[SOURCE+24]===0 && read.readFloatLE(WORK+20)<32))await driver.page.waitForTimeout(40);
             const disabled=retained.slice(runningStart).filter(read=>read[SOURCE+24]===0);
             assert.ok(disabled.some(read=>read.readFloatLE(WORK+20)<32),'Running disabled source has actual store demand');
             const stopped=disabled[0].readFloatLE(SOURCE+16);
             assert.ok(disabled.every(read=>read.readFloatLE(SOURCE+20)===0 && read.readFloatLE(WORK+24)===0 && read.readFloatLE(SOURCE+16)===stopped));
-            const resumeStart=retained.length;await click(driver,130,703);
+            const resumeStart=retained.length;await click(driver,130,750);
             const supplyStart=Date.now();while(Date.now()-supplyStart<3000 && !retained.slice(resumeStart).some(read=>read[SOURCE+24]===1 && read.readFloatLE(SOURCE+20)>0 && read.readFloatLE(WORK+24)>0))await driver.page.waitForTimeout(40);
             await driver.pauseSimulation();
             const resumed=retained.slice(resumeStart).filter(read=>read[SOURCE+24]===1);
@@ -308,7 +308,7 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
         assert.equal(read.readFloatLE(WORK+24),0);assert.equal(read.readFloatLE(WORK+20),0);
         assert.equal((await driver.readLastAnimationSample(String(4n<<32n)))?.value,1);
         const on=await indicatorPicture(driver,'terminal-on');
-        await driver.selectPartAt(920,510);await click(driver,130,703);
+        await driver.selectPartAt(920,510);await click(driver,130,750);
         await driver.resumeSimulation();await driver.page.waitForTimeout(500);await driver.pauseSimulation();
         const off=await indicatorPicture(driver,'terminal-off');assert.equal(on.terminal,true);assert.equal(off.terminal,false);assert.deepEqual(on.marks,off.marks,'Disabling does not repaint charge');
         await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
@@ -335,21 +335,21 @@ test('Battery paused intent reverses and Running controls preserve stores across
         await driver.page.keyboard.press('Escape');await driver.selectTool('battery');await driver.placeOnCanvas(920,510);
         await driver.save();const initial=await saved(driver);
         await driver.run();await driver.page.waitForTimeout(400);await driver.pauseSimulation();
-        const paused=reads.at(-1)!;await driver.selectPartAt(920,510);await click(driver,130,703);
+        const paused=reads.at(-1)!;await driver.selectPartAt(920,510);await click(driver,130,750);
         await driver.page.screenshot({path:'.anvil/battery-paused-disable-queued.png'});
-        await driver.page.keyboard.press('Escape');await driver.selectPartAt(920,510);await click(driver,130,703);
+        await driver.page.keyboard.press('Escape');await driver.selectPartAt(920,510);await click(driver,130,750);
         await driver.page.screenshot({path:'.anvil/battery-paused-enable-queued.png'});
         assert.equal(reads.at(-1)!.readFloatLE(WORK+20),32);
         await driver.resumeSimulation();await driver.page.waitForTimeout(400);await driver.pauseSimulation();
         assert.equal(reads.at(-1)![SOURCE+24],1,'Second paused click reverses queued disable');
         assert.ok(reads.at(-1)!.readBigUInt64LE(24)>paused.readBigUInt64LE(24));
-        await driver.selectPartAt(920,510);await click(driver,130,703);await driver.reset();
+        await driver.selectPartAt(920,510);await click(driver,130,750);await driver.reset();
         await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
         await driver.run();await driver.page.waitForTimeout(400);
         assert.equal(reads.at(-1)![SOURCE+24],1,'Reset retires pending disable');
         await driver.selectPartAt(920,510);
         for(const enabled of [ElectricalEnable.Disabled,ElectricalEnable.Enabled]) {
-            const before=reads.at(-1)!;await driver.page.screenshot({path:'.anvil/battery-running-before-'+enabled+'.png'});await click(driver,130,703);
+            const before=reads.at(-1)!;await driver.page.screenshot({path:'.anvil/battery-running-before-'+enabled+'.png'});await click(driver,130,750);
             const start=Date.now();while(Date.now()-start<2500 && !reads.some(read=>read.readBigUInt64LE(16)===before.readBigUInt64LE(16) && read.readBigUInt64LE(24)>before.readBigUInt64LE(24) && read[SOURCE+24]===enabled))await driver.page.waitForTimeout(40);
             const after=reads.findLast(read=>read.readBigUInt64LE(16)===before.readBigUInt64LE(16) && read.readBigUInt64LE(24)>before.readBigUInt64LE(24) && read[SOURCE+24]===enabled)!;assert.ok(after,'Observe committed state after Running toggle');await driver.page.screenshot({path:'.anvil/battery-running-after-'+enabled+'.png'});assert.equal(after[SOURCE+24],enabled);
             assert.ok(after.readBigUInt64LE(24)>before.readBigUInt64LE(24),'Running command commits while physics continues');
@@ -377,7 +377,12 @@ test('Battery electrical animation survives same-world cadence downshift through
         for(const [offset,value] of [[72,SettingsVersion.SharedMaster],[76,SimulationCadence.Hz120],[80,PhysicalStepProfile.Canonical480Hz],[84,AnimationCadence.Hz30],[88,PresentationCadence.Hz60],[92,60],[96,1]])bytes.writeUInt32LE(value,offset);
         // No cadence UI exists. This is explicitly a protocol-boundary Chrome regression, not UI acceptance.
         const result=await driver.page.evaluate(async data=>{
-            const transport=await import('/workshop-client.js');
+            const modulePath='/workshop-client.js'; // Browser-served module, not a Node package.
+            const transport=await import(modulePath) as {
+                send(id:number,bytes:Uint8Array):Promise<void>;
+                acknowledgement(id:number,identity:Uint8Array):Uint8Array;
+                completeAcknowledgement(id:number,identity:Uint8Array):void;
+            };
             const bytes=new Uint8Array(data),identity=bytes.slice(0,8);
             await transport.send(1,bytes);
             const reply=transport.acknowledgement(1,identity);

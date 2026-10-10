@@ -58,7 +58,8 @@ public static class WorkshopInventoryPolicy
         (WorkshopPartKind.Ramp, PartAllowance.Unlimited),
         (WorkshopPartKind.Domino, PartAllowance.Unlimited),
         (WorkshopPartKind.BowlingBall, PartAllowance.Unlimited),
-        (WorkshopPartKind.Battery, PartAllowance.Unlimited));
+        (WorkshopPartKind.Battery, PartAllowance.Unlimited),
+        (WorkshopPartKind.Springboard, PartAllowance.Unlimited));
 
     public static IReadOnlyDictionary<WorkshopPartKind, PartAllowance> Authored(WorkshopPuzzle puzzle)
     {

@@ -180,11 +180,11 @@ The solver advances physical time at a fixed **120 Hz tick with 480 Hz sub-stepp
 
 ### 3. Constraint Solver: Box2D v3 "TGS Soft" Formulation
 Every contact, limit, and joint is modeled as an implicit damped spring-damper constraint integrated directly into the effective constraint mass:
-$$\beta = \frac{h \omega}{2 \zeta + h \omega}, \quad \gamma = \frac{1}{h^2 m_{\text{eff}} (2 \zeta \omega + h \omega^2)}$$
+$$\beta = \frac{h \omega}{2 \zeta + h \omega}, \quad \gamma = \frac{1}{h m_{\text{eff}} (2 \zeta \omega + h \omega^2)}$$
 $$\mathbf{M}_{\text{eff}} = \left( J M^{-1} J^T + \gamma \right)^{-1}$$
 $$\Delta \lambda = -\mathbf{M}_{\text{eff}} \left( J v + \frac{\beta}{h} C + \gamma \lambda_{\text{total}} \right)$$
-- The compliance $\gamma$ and softness bias $\beta$ naturally absorb large penetration errors without injecting artificial kinetic energy.
-- **Provably Dissipative:** Eliminates Baumgarte position projection explosions, ensuring smooth, rock-solid joint assemblies and stacks.
+- Compliance $\gamma$ and softness bias $\beta$ regularize constraint corrections; they do not by themselves guarantee energy conservation or dissipation.
+- **Numerical envelope:** Verify contacts, limits and joints against the game-grade error and energy envelope, including external work. Residuals clamp or continue; actual behavior, not the softness formula alone, establishes acceptance.
 - **4-Wide SIMD Batching:** 4 independent constraints or manifold points are evaluated in parallel using WASM SIMD128 `f32x4` instructions.
 
 ### 4. Island Partitioning and Sleeping
@@ -242,10 +242,10 @@ Polyhedral contact generation (such as 3D Box-Box SAT clipping or domino-on-work
 All bilateral and unilateral constraints—rigid contact normals, Coulomb friction, 1D prismatic sliders (`CAT-062a` Springboard), revolute hinges, distance links, and gear/pulley ratios—are unified under an implicit compliant spring-damper formulation:
 - **Kinematic Constraint & Jacobian:** For any constraint function $C(\mathbf{x}) = 0$, the kinematic velocity constraint is $J \mathbf{v} = 0$, where $J = \frac{\partial C}{\partial \mathbf{x}}$.
 - **Compliance $\gamma$ and Softness $\beta$:** Parameterized by natural frequency $\omega$ (stiffness) and damping ratio $\zeta$:
-  $$\beta = \frac{h \omega}{2 \zeta + h \omega}, \quad \gamma = \frac{1}{h^2 m_{\text{eff}} (2 \zeta \omega + h \omega^2)}$$
+  $$\beta = \frac{h \omega}{2 \zeta + h \omega}, \quad \gamma = \frac{1}{h m_{\text{eff}} (2 \zeta \omega + h \omega^2)}$$
 - **Unified Effective Mass:**
   $$\mathbf{M}_{\text{eff}} = \left( J M^{-1} J^T + \gamma \right)^{-1}$$
-- **Unconditionally Stable:** Large penetrations or initial configuration errors are smoothly absorbed over sub-steps without injecting artificial energy, completely eliminating Baumgarte position projection and velocity clamps.
+- **Bounded numerical behavior:** Substeps and compliance improve constraint conditioning but do not guarantee stability or zero energy gain for every coupled scene. Verify physical time scale, damping, contacts and stops within the game-grade envelope; retain the declared velocity bounds and residual handling.
 
 ### 7. Island Partitioning and Deactivation (Sleeping System)
 - **Disjoint Set Union (DSU):** Fast Union-Find with path compression partitions connected active bodies into independent simulation islands.

@@ -134,6 +134,53 @@ public static partial class Program
     }
 
     [JSExport]
+    public static int[] PrismaticRowKinds() => [(int)PrismaticRowKind.TransverseX, (int)PrismaticRowKind.TransverseZ,
+        (int)PrismaticRowKind.AngularX, (int)PrismaticRowKind.AngularY, (int)PrismaticRowKind.AngularZ,
+        (int)PrismaticRowKind.Spring, (int)PrismaticRowKind.LowerStop, (int)PrismaticRowKind.UpperStop];
+
+    [JSExport]
+    public static double[] SpringCoefficients(double stiffness, double damping)
+    {
+        var value = SoftConstraintCoefficients.FromSpring((float)stiffness, (float)damping,
+            1f / WorkshopCadenceSettings.PhysicalFrequency);
+        return [value.Gamma, value.BiasRate];
+    }
+
+    [JSExport]
+    public static double[] PrismaticJacobians(double[] input)
+    {
+        if (input.Length != 36) throw new ArgumentException("Invalid prismatic frame boundary.");
+        System.Numerics.Vector3 V(int offset) => new((float)input[offset], (float)input[offset + 1], (float)input[offset + 2]);
+        System.Numerics.Quaternion Q(int offset) => new((float)input[offset], (float)input[offset + 1], (float)input[offset + 2], (float)input[offset + 3]);
+        Span<PrismaticRow> rows = stackalloc PrismaticRow[PrismaticRows.Count];
+        PrismaticRows.Prepare(new(V(0), Q(3), V(7)), new(V(10), Q(13), V(17)),
+            new(V(20), Q(23)), new(V(27), Q(30)), (float)input[34], (float)input[35], rows);
+        var output = new double[PrismaticRows.Count * 13];
+        for (var i = 0; i < rows.Length; i++)
+        {
+            var row = rows[i]; var offset = i * 13;
+            void Write(int start, System.Numerics.Vector3 vector)
+            { output[offset + start] = vector.X; output[offset + start + 1] = vector.Y; output[offset + start + 2] = vector.Z; }
+            Write(0, row.LinearA); Write(3, row.LinearB); Write(6, row.AngularA); Write(9, row.AngularB);
+            output[offset + 12] = row.Error;
+        }
+        return output;
+    }
+
+    // Four independent Jacobian rows, eight SoA vectors at the explicit JS boundary.
+    [JSExport]
+    public static double[] ConstraintRows(double[] input)
+    {
+        if (input.Length != 32) throw new ArgumentException("Invalid constraint batch width.");
+        Vector128<float> Read(int offset) => Vector128.Create((float)input[offset], (float)input[offset + 1],
+            (float)input[offset + 2], (float)input[offset + 3]);
+        var value = SoftConstraint.Solve4(Read(0), Read(4), Read(8), Read(12), Read(16), Read(20), Read(24), Read(28));
+        return [value.Accumulated.GetElement(0), value.Accumulated.GetElement(1),
+            value.Accumulated.GetElement(2), value.Accumulated.GetElement(3),
+            value.Delta.GetElement(0), value.Delta.GetElement(1), value.Delta.GetElement(2), value.Delta.GetElement(3)];
+    }
+
+    [JSExport]
     public static int[] OperationAbi() => [(int)WorkshopGpuOperation.Admit, (int)WorkshopGpuOperation.Advance];
     [JSExport]
     public static int StateBytes() => PhysicsGpuAbi.ByteLength;

@@ -7,6 +7,8 @@ using CuriousContraptions.Presentation;
 namespace CuriousContraptions;
 
 /// <summary>Render/input node only. Durable construction and motion are canonical worker values.</summary>
+public enum PhysicalVisualSlot : byte { Primary, Secondary }
+
 public partial class MachinePart : Node3D
 {
     public PartDefinition Definition { get; private set; } = null!;
@@ -34,13 +36,14 @@ public partial class MachinePart : Node3D
     public void Configure(PartDefinition definition)
     {
         if (_built || Definition is not null) throw new InvalidOperationException("Part is already configured.");
-        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino or WorkshopPartKind.Battery) ||
+        if (definition.WorkshopKind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino or WorkshopPartKind.Battery or WorkshopPartKind.Springboard) ||
             (definition.WorkshopKind is WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall && definition.Ball is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Ramp && definition.Ramp is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Wall && definition.Wall is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Delay && definition.Delay is null) ||
             (definition.WorkshopKind == WorkshopPartKind.PinballBumper && definition.ContactWork is null) ||
             (definition.WorkshopKind == WorkshopPartKind.Battery && definition.ElectricalSource is null) ||
+            (definition.WorkshopKind == WorkshopPartKind.Springboard && definition.Springboard is null) ||
             definition.Parameters.Count != 0)
             throw new ArgumentException("Unsupported canonical part declaration.");
         if (definition.WorkshopKind is WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall) definition.Ball!.Capture(definition.WorkshopKind);
@@ -49,6 +52,7 @@ public partial class MachinePart : Node3D
         if (definition.WorkshopKind == WorkshopPartKind.Battery) definition.ElectricalSource!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.Delay) definition.Delay!.Capture();
         if (definition.WorkshopKind == WorkshopPartKind.PinballBumper) BumperWork.FromCalibration(definition.ContactWork!.Capture());
+        if (definition.WorkshopKind == WorkshopPartKind.Springboard) definition.Springboard!.Capture();
         Definition = definition;
         Name = definition.Id; // Godot resource/node-name boundary only.
     }
@@ -108,6 +112,54 @@ public partial class MachinePart : Node3D
     internal void ApplyElectrical(ElectricalIndicatorSample sample)
     {
         foreach (var (indicator, binding) in _electricalBindings) binding.Apply(new((Half)sample[indicator]));
+    }
+    private readonly Dictionary<PhysicalVisualSlot, (GpuBodyId Id, Node3D Target, Transform3D RestPose)> _physicalBodies = new();
+    private readonly List<(Node3D Moving, Vector3 MovingAnchor, Node3D Target, Vector3 FixedAnchor, float RestLength)> _physicalSpans = new();
+    protected void BindPhysicalBody(PhysicalVisualSlot slot, Node3D target)
+    {
+        if (slot != PhysicalVisualSlot.Secondary || !IsAncestorOf(target) ||
+            !_physicalBodies.TryAdd(slot, (default, target, target.Transform)))
+            throw new ArgumentException("Invalid owned physical visual binding.");
+    }
+    protected void BindPhysicalSpan(Node3D moving, Vector3 movingAnchor, Node3D target, Vector3 fixedAnchor, float restLength)
+    {
+        if (!IsAncestorOf(moving) || !IsAncestorOf(target) || moving.GetParent() != target.GetParent() ||
+            !float.IsFinite(restLength) || restLength <= 0)
+            throw new ArgumentException("Invalid physical span binding.");
+        _physicalSpans.Add((moving, movingAnchor, target, fixedAnchor, restLength));
+        ApplyPhysicalSpans();
+    }
+    internal void InstallPhysicalIdentity(PhysicalVisualSlot slot, GpuBodyId id)
+    {
+        if (AuthoredId.Value == 0 || !WorkshopPhysicsCompiler.IsSecondaryBodyIdentity(AuthoredId, id) ||
+            !_physicalBodies.TryGetValue(slot, out var binding))
+            throw new ArgumentException("Invalid admitted physical visual identity.");
+        _physicalBodies[slot] = (id, binding.Target, binding.RestPose);
+    }
+    internal Node3D? PhysicalVisual(GpuBodyId id)
+    {
+        if (id.Value == 0) return null;
+        if (id == AuthoredId) return this;
+        foreach (var binding in _physicalBodies.Values) if (id == binding.Id) return binding.Target;
+        return null;
+    }
+    internal void ResetPhysicalVisuals()
+    {
+        foreach (var binding in _physicalBodies.Values) binding.Target.Transform = binding.RestPose;
+        ApplyPhysicalSpans();
+    }
+    internal void ApplyPhysicalSpans()
+    {
+        foreach (var binding in _physicalSpans)
+        {
+            var end = binding.Moving.Transform * binding.MovingAnchor;
+            var delta = end - binding.FixedAnchor;
+            var length = delta.Length();
+            if (!float.IsFinite(length) || length <= 0) continue;
+            binding.Target.Position = (end + binding.FixedAnchor) * .5f;
+            binding.Target.Quaternion = new Quaternion(Vector3.Up, delta / length);
+            binding.Target.Scale = new(1, length / binding.RestLength, 1);
+        }
     }
     protected virtual void Build() { }
     public void SetSelected(bool selected)

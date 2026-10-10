@@ -114,3 +114,6 @@
   evidence: `tools/e2e/workshop-driver.ts:441`; `engine/gpu/WorkshopSaveCodec.cs:12,22`.
   destination: the next e2e driver change, or the Epic 16 qualification gate.
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-6-4-passive-springboard.md`
+  summary: Make the inherited E2E MCP/Playwright dependency resolution portable across installation locations before qualifying another test environment.
+  evidence: BMAD B7; workshop-driver.ts already bootstraps /opt/homebrew/lib/node_modules/@playwright/mcp/package.json, and the new Springboard PNG assertion resolves through that same installation. A differently installed environment cannot launch the existing driver; current Chrome proof uses the declared installation. Resolve the harness dependency and its PNG consumer together without claiming current cross-environment qualification.

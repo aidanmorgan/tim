@@ -71,7 +71,7 @@ public static partial class PhysicsGpuAbi
                 throw new ArgumentException("Invalid or ambiguous electrical storage route.");
             seen[(int)storage] = true;
         }
-        if (!AllZero(data[(ElectricalBindingsOffset + routes * ElectricalBindingBytes)..]))
+        if (!AllZero(data[(ElectricalBindingsOffset + routes * ElectricalBindingBytes)..PrismaticsOffset]))
             throw new ArgumentException("Unused electrical route slot changed.");
         return new(values[..count]);
     }
@@ -80,7 +80,7 @@ public static partial class PhysicsGpuAbi
     {
         var before = ReadElectrical(previous); var after = ReadElectrical(candidate);
         after.ValidateAdvance(before);
-        if (!candidate[ElectricalBindingsOffset..].SequenceEqual(previous[ElectricalBindingsOffset..]))
+        if (!candidate[ElectricalBindingsOffset..PrismaticsOffset].SequenceEqual(previous[ElectricalBindingsOffset..PrismaticsOffset]))
             throw new ArgumentException("Electrical routes changed during a Run.");
         var phaseCount = (R32(candidate,88) + 3) / 4 - (R32(previous,88) + 3) / 4;
         var works = ReadContactWorks(candidate);

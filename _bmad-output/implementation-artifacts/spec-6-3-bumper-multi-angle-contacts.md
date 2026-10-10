@@ -2,7 +2,7 @@
 title: 'Bumper multi-angle contacts and advanced puzzles'
 type: 'feature'
 created: '2026-10-10'
-status: 'in-review'
+status: 'done'
 baseline_commit: '60ddbbe4f010314a64716bf8748845146b312bdc'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -96,3 +96,7 @@ Original279 command: `dotnet test CuriousContraptions.tests/CuriousContraptions.
 - `node --experimental-vm-modules --test tools/workshop-rigid-body.test.mjs` for changed contact behavior.
 - Production and diagnostic publish using existing project commands; actual connector Chrome serial `cat-015b` plus affected existing cases.
 - Reuse published 6.2 proof at `60ddbbe` only where unchanged inputs remain applicable; authoritative continuity: [6.2 review](review-6-2-bumper-battery-integration.md). Reviewer determines the final check set, including production-origin controls.
+
+## Terminal scoped acceptance
+
+Independent [review](review-6-3-bumper-multi-angle-contacts.md) records terminal Pass at published25d53233ab5ee724be0bd34081f175c47f938ff5. [Actions38037623375](https://github.com/aidanmorgan/tim/actions/runs/38037623375) passed710 tests, Production publish and Pages deployment. Four independent production routes/lifecycle controls passed with zero errors; all71 loaded assets matched CI artifact11665075314. Prior pending statements describe their original checkpoints; this terminal result supersedes their status without erasing failures or identities. Physical nudging and later qualification remain outside this bounded completion. Next: Story6.4 passive prismatic/soft-spring capability.

@@ -193,6 +193,14 @@ public static class WorkshopInput
             new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), duration);
         result.Validate(); return result;
     }
+    public static WorkshopSpringboard Springboard(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, SpringboardSettings settings)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopSpringboard(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), settings);
+        result.Validate(); return result;
+    }
     public static WorkshopBattery Battery(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw, ElectricalSourceSettings settings)
     {

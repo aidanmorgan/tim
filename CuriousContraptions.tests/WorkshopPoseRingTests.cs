@@ -12,9 +12,9 @@ public class WorkshopPoseRingTests
         Assert.Equal(3, WorkshopPoseRing.SlotCount);
         Assert.Equal(16, WorkshopPoseRing.BodyCapacity);
         Assert.Equal(16, WorkshopPoseRing.HeaderBytes);
-        Assert.Equal(48, WorkshopPoseRing.BodyBytes);
-        Assert.Equal(784, WorkshopPoseRing.SlotBytes);
-        Assert.Equal(2352, WorkshopPoseRing.TotalBytes);
+        Assert.Equal(64, WorkshopPoseRing.BodyBytes);
+        Assert.Equal(1040, WorkshopPoseRing.SlotBytes);
+        Assert.Equal(3120, WorkshopPoseRing.TotalBytes);
 
         // Every slot start must be 16-byte aligned (and 8-byte aligned for 64-bit Atomics)
         for (var s = 0; s < WorkshopPoseRing.SlotCount; s++)
@@ -34,8 +34,10 @@ public class WorkshopPoseRingTests
         }
     }
 
-    [Fact]
-    public void PoseRing_WriteAndReadSlot_SingleAndDualBodies()
+    [Theory]
+    [InlineData(4294967296UL)]
+    [InlineData(18446744073709551615UL)]
+    public void PoseRing_WriteAndReadSlot_SingleAndDualBodies(ulong secondaryId)
     {
         var ring = new byte[WorkshopPoseRing.TotalBytes];
         var epoch = new SimulationEpoch(1);
@@ -47,7 +49,7 @@ public class WorkshopPoseRingTests
         var rot1 = CanonicalRotation.Identity;
         var read1 = new PhysicsBodyRead(body1, rot1, default, default);
 
-        var body2 = new CanonicalBody(new GpuBodyId(102), 1, 10, new CellOrigin(-16, 0, 16),
+        var body2 = new CanonicalBody(new GpuBodyId(secondaryId), 1, 10, new CellOrigin(-16, 0, 16),
             new LocalPosition((Half)(-0.25), (Half)0.125, (Half)0.0),
             new LinearVelocity(-16f, 8f, 0f));
         var rot2 = new CanonicalRotation((Half)0.0, (Half)0.7071, (Half)0.0, (Half)0.7071);
@@ -80,7 +82,7 @@ public class WorkshopPoseRingTests
         Assert.Equal(1u, bodies[0].Flags);
 
         // Verify body 2
-        Assert.Equal(new GpuBodyId(102), bodies[1].Id);
+        Assert.Equal(new GpuBodyId(secondaryId), bodies[1].Id);
         Assert.Equal((-16 - 0.25f) / 16.0f, bodies[1].Px, precision: 4);
         Assert.Equal(0.125f / 16.0f, bodies[1].Py, precision: 4);
         Assert.Equal((16 + 0.0f) / 16.0f, bodies[1].Pz, precision: 4);

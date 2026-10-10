@@ -10,6 +10,7 @@ let observationPending = false;
 let animationPort, roles;
 let lifetime = 0, disposed = false;
 let poseRing, poseSeqView, poseDataView, poseFloatView, poseSlotIndex = 0;
+let posePublicationSequence = 0n;
 let buffers = [];
 const contactCache = new Map();
 // Byte layouts owned by the C# ABI. WorkerAbiTests reads each constant below from this file and compares it with the named C# value, so
@@ -34,6 +35,9 @@ const ELECTRICAL_SOURCES_OFFSET = 150832; // PhysicsGpuAbi.ElectricalSourcesOffs
 const ELECTRICAL_SOURCE_BYTES = 64;
 const ELECTRICAL_BINDINGS_OFFSET = 151344; // PhysicsGpuAbi.ElectricalBindingsOffset
 const ELECTRICAL_BINDING_BYTES = 16;
+const PRISMATICS_OFFSET = 151472; // PhysicsGpuAbi.PrismaticsOffset
+const PRISMATIC_RECORDS_OFFSET = 151488;
+const PRISMATIC_BYTES = 160;
 const CONTACT_WORKS_OFFSET = 15136; // PhysicsGpuAbi.ContactWorksOffset
 const READ_BODIES_OFFSET = 128;         // WorkshopWire.ReadBodiesOffset
 const BODY_WIRE_BYTES = 64;             // PhysicsBodyWire.ByteLength
@@ -963,6 +967,81 @@ function generateManifold(colA, colB, margin, out) {
     else if (a === 1 && b === 1) collideBoxBox(colA, colB, margin, out);
 }
 
+
+// Closed C# row kinds cross this JS boundary once; ordinals are the declared wire order.
+let prismaticKind;
+const isPrismaticStop = kind => kind === prismaticKind.LowerStop || kind === prismaticKind.UpperStop;
+const f32 = Math.fround;
+const dot3 = (a, b) => f32(f32(f32(a[0] * b[0]) + f32(a[1] * b[1])) + f32(a[2] * b[2]));
+function constraintRows(joint, h) {
+    const frame = body => [body.px, body.py, body.pz, body.qx, body.qy, body.qz, body.qw, body.cmx, body.cmy, body.cmz];
+    const data = host.PrismaticJacobians([...frame(joint.a), ...frame(joint.b),
+        ...joint.pa, ...joint.qa, ...joint.pb, ...joint.qb, joint.lower, joint.upper]);
+    return Array.from({ length: 8 }, (_, index) => {
+        const start = index * 13, error = data[start + 12];
+        return { la: data.slice(start, start + 3), lb: data.slice(start + 3, start + 6),
+            aa: data.slice(start + 6, start + 9), ab: data.slice(start + 9, start + 12),
+            error, gamma: index === prismaticKind.Spring ? joint.soft[0] : 0,
+            bias: index === prismaticKind.Spring ? joint.soft[1] : f32((isPrismaticStop(index) && error >= 0 ? 1 : .2) / h),
+            minimum: isPrismaticStop(index) ? 0 : -3.4028234663852886e38 };
+    });
+}
+function constraintInverseInertia(body, angular) {
+    const matrix = body.invIWorld;
+    return [0, 1, 2].map(i => dot3([f32(matrix[i * 3]), f32(matrix[i * 3 + 1]), f32(matrix[i * 3 + 2])], angular));
+}
+function constraintMass(body, linear, angular) {
+    if (body.motion !== 1) return 0;
+    return f32(f32(f32(body.invMass) * dot3(linear, linear)) + dot3(angular, constraintInverseInertia(body, angular)));
+}
+function constraintVelocity(body, linear, angular) {
+    return f32(dot3(linear, [f32(body.vx), f32(body.vy), f32(body.vz)]) + dot3(angular, [f32(body.wx), f32(body.wy), f32(body.wz)]));
+}
+function applyConstraintImpulse(joint, row, impulse) {
+    for (const [body, linear, angular] of [[joint.a, row.la, row.aa], [joint.b, row.lb, row.ab]]) {
+        if (body.motion !== 1) continue;
+        body.vx = f32(f32(body.vx) + f32(f32(linear[0] * impulse) * f32(body.invMass)));
+        body.vy = f32(f32(body.vy) + f32(f32(linear[1] * impulse) * f32(body.invMass)));
+        body.vz = f32(f32(body.vz) + f32(f32(linear[2] * impulse) * f32(body.invMass)));
+        const dw = constraintInverseInertia(body, angular.map(value => f32(value * impulse)));
+        body.wx = f32(f32(body.wx) + dw[0]); body.wy = f32(f32(body.wy) + dw[1]); body.wz = f32(f32(body.wz) + dw[2]);
+    }
+}
+function sweepConstraints(joints, useBias) {
+    // Rows within a joint are Gauss-Seidel coupled. SIMD batches contain only disjoint body pairs.
+    for (let rowIndex = 0; rowIndex < 8; rowIndex++) {
+        const pending = joints.slice();
+        while (pending.length) {
+            const group = [], used = new Set();
+            for (let index = 0; index < pending.length && group.length < 4;) {
+                const joint = pending[index];
+                if (used.has(joint.a.bodySlot) || used.has(joint.b.bodySlot)) { index++; continue; }
+                group.push(joint); used.add(joint.a.bodySlot); used.add(joint.b.bodySlot); pending.splice(index, 1);
+            }
+            const input = Array(32).fill(0);
+            for (let lane = 0; lane < group.length; lane++) {
+                const joint = group[lane], row = joint.rows[rowIndex];
+                input[lane] = f32(constraintMass(joint.a, row.la, row.aa) + constraintMass(joint.b, row.lb, row.ab));
+                input[4 + lane] = f32(constraintVelocity(joint.a, row.la, row.aa) + constraintVelocity(joint.b, row.lb, row.ab));
+                input[8 + lane] = row.error;
+                input[12 + lane] = row.gamma;
+                // Physical spring stays active with the same pre-integration C during relaxation;
+                // geometric stabilization is removed, and positive stop gaps remain speculative.
+                input[16 + lane] = useBias || rowIndex === prismaticKind.Spring || (isPrismaticStop(rowIndex) && row.error > 0) ? row.bias : 0;
+                input[20 + lane] = joint.impulses[rowIndex];
+                input[24 + lane] = row.minimum;
+                input[28 + lane] = 3.4028234663852886e38;
+            }
+            const result = host.ConstraintRows(input);
+            for (let lane = 0; lane < group.length; lane++) {
+                const joint = group[lane];
+                joint.impulses[rowIndex] = result[lane];
+                applyConstraintImpulse(joint, joint.rows[rowIndex], result[4 + lane]);
+            }
+        }
+    }
+}
+
 function advanceCandidate(source, candidate) {
     candidate.set(source);
     const view = new DataView(candidate.buffer, candidate.byteOffset, candidate.byteLength);
@@ -1160,6 +1239,16 @@ function advanceCandidate(source, candidate) {
         }
     }
 
+    const joints = [];
+    for (let index = 0; index < view.getUint32(PRISMATICS_OFFSET, true); index++) {
+        const offset = PRISMATIC_RECORDS_OFFSET + index * PRISMATIC_BYTES;
+        const floats = (start, count) => Array.from({ length: count }, (_, i) => view.getFloat32(offset + start + i * 4, true));
+        joints.push({ offset, a: allBodies.get(view.getUint32(offset + 8, true)), b: allBodies.get(view.getUint32(offset + 12, true)),
+            pa: floats(16, 3), qa: floats(28, 4), pb: floats(44, 3), qb: floats(56, 4),
+            lower: view.getFloat32(offset + 72, true), upper: view.getFloat32(offset + 76, true),
+            soft: host.SpringCoefficients(view.getFloat32(offset + 80, true), view.getFloat32(offset + 84, true)),
+            collision: view.getUint32(offset + 88, true), impulses: floats(96, 8), rows: [] });
+    }
     const dt = SUBSTEP_SECONDS;
     const soft = makeSoft(CONTACT_HERTZ, CONTACT_DAMPING_RATIO, dt);
 
@@ -1204,6 +1293,7 @@ function advanceCandidate(source, candidate) {
         const colA = colliders[idxA];
         const colB = colliders[idxB];
         if (colA.bodySlot === colB.bodySlot) return;
+        if (joints.some(j => j.collision === 0 && ((j.a === colA.body && j.b === colB.body) || (j.b === colA.body && j.a === colB.body)))) return;
         if (colA.body.motion === 0 && colB.body.motion === 0) return;
         candidatePairs.push([colA, colB]);
     });
@@ -1384,8 +1474,14 @@ function advanceCandidate(source, candidate) {
         for (let b of dynamicBodies) { b.cm0 = [b.cmx, b.cmy, b.cmz]; b.q0 = [b.qx, b.qy, b.qz, b.qw]; }
 
         // 4. TGS Soft: warm start, biased solve, position integration, relax, restitution
+        for (const joint of joints) {
+            joint.rows = constraintRows(joint, dt);
+            for (let row = 0; row < 8; row++) applyConstraintImpulse(joint, joint.rows[row], joint.impulses[row]);
+        }
         for (const c of contacts) warmStartContact(c);
-        for (let iteration = 0; iteration < SOLVER_ITERATIONS; iteration++) sweepManifolds(manifolds, true, soft, dt);
+        for (let iteration = 0; iteration < SOLVER_ITERATIONS; iteration++) {
+            sweepConstraints(joints, true); sweepManifolds(manifolds, true, soft, dt);
+        }
 
         for (let b of dynamicBodies) {
             clampVelocity(b);
@@ -1434,7 +1530,19 @@ function advanceCandidate(source, candidate) {
             updateDynamicFrame(b);
         }
 
-        for (let iteration = 0; iteration < RELAX_ITERATIONS; iteration++) sweepManifolds(manifolds, false, soft, dt);
+        // Inertia and COM frames have advanced. Refresh reaction geometry without
+        // applying the physical spring's positional load a second time this substep.
+        for (const joint of joints) {
+            const springError = joint.rows[prismaticKind.Spring].error;
+            joint.rows = constraintRows(joint, dt);
+            joint.rows[prismaticKind.Spring].error = springError;
+        }
+
+        for (let iteration = 0; iteration < RELAX_ITERATIONS; iteration++) {
+            sweepConstraints(joints, false); sweepManifolds(manifolds, false, soft, dt);
+        }
+        for (const joint of joints)
+            for (let row = 0; row < 8; row++) view.setFloat32(joint.offset + 96 + row * 4, joint.impulses[row], true);
         for (const c of contacts) applyRestitution(c);
         for (let b of dynamicBodies) settleVelocity(b);
 
@@ -1638,21 +1746,21 @@ function writePoseRing(bytes) {
     const timestamp = view.getBigInt64(72, true);
     poseSlotIndex = (poseSlotIndex + 1) % 3;
     const s = poseSlotIndex;
-    const seqIndex = s * 98;
-    const curSeq = Atomics.load(poseSeqView, seqIndex);
-    const nextSeq = (curSeq & ~1n) + 2n;
+    const seqIndex = s * 130;
+    const nextSeq = posePublicationSequence + 2n;
+    posePublicationSequence = nextSeq;
     Atomics.store(poseSeqView, seqIndex, nextSeq - 1n);
 
-    const slotByteOffset = s * 784;
+    const slotByteOffset = s * 1040;
     poseDataView.setBigInt64(slotByteOffset + 8, timestamp, true);
     const bodyFloatOffset = (slotByteOffset + 16) / 4;
 
     for (let i = 0; i < 16; i++) {
-        const b = bodyFloatOffset + i * 12;
+        const b = bodyFloatOffset + i * 16;
         // PhysicsBodyWire (64 B): cell 8..20, local 20..26 and rotation 26..34 (Half), linear velocity m/s 40..52 (f32).
         if (i < bodyCount && READ_BODIES_OFFSET + (i + 1) * BODY_WIRE_BYTES <= bytes.length) {
             const src = READ_BODIES_OFFSET + i * BODY_WIRE_BYTES;
-            const bodyId = view.getUint32(src, true);
+            const bodyId = view.getBigUint64(src, true);
             const cellX = view.getInt32(src + 8, true);
             const cellY = view.getInt32(src + 12, true);
             const cellZ = view.getInt32(src + 16, true);
@@ -1670,7 +1778,8 @@ function writePoseRing(bytes) {
             poseFloatView[b + 0] = (cellX + localX) / 16;
             poseFloatView[b + 1] = (cellY + localY) / 16;
             poseFloatView[b + 2] = (cellZ + localZ) / 16;
-            poseDataView.setUint32((b + 3) * 4, bodyId, true);
+            poseDataView.setUint32((b + 3) * 4, 0, true);
+            poseDataView.setBigUint64((b + 12) * 4, bodyId, true);
             poseFloatView[b + 4] = qx;
             poseFloatView[b + 5] = qy;
             poseFloatView[b + 6] = qz;
@@ -1692,6 +1801,7 @@ function writePoseRing(bytes) {
             poseFloatView[b + 9] = 0;
             poseFloatView[b + 10] = 0;
             poseDataView.setUint32((b + 11) * 4, 0, true);
+            poseDataView.setBigUint64((b + 12) * 4, 0n, true);
         }
     }
 
@@ -1706,7 +1816,7 @@ function disposeOwned() {
     device = undefined;
     readyCandidate = false;
     resultBytes = undefined;
-    poseRing = undefined; poseSeqView = undefined; poseDataView = undefined; poseFloatView = undefined; poseSlotIndex = 0;
+    poseRing = undefined; poseSeqView = undefined; poseDataView = undefined; poseFloatView = undefined; poseSlotIndex = 0; posePublicationSequence = 0n;
     occurrenceReads.length = 0; pendingScheduleControls.length = 0; latestRead = undefined; occurrenceReadReserved = false;
     buffers = [];
     contactCache.clear();
@@ -1874,6 +1984,10 @@ runtime.setModuleImports('workshopGpu', {
 });
 const exports = await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
 host = exports.Program;
+const rowKinds = Array.from(host.PrismaticRowKinds());
+if (rowKinds.length !== 8 || rowKinds.some((kind, index) => kind !== index)) throw new Error('Invalid prismatic row kind mapping');
+prismaticKind = Object.freeze({ TransverseX: rowKinds[0], TransverseZ: rowKinds[1], AngularX: rowKinds[2],
+    AngularY: rowKinds[3], AngularZ: rowKinds[4], Spring: rowKinds[5], LowerStop: rowKinds[6], UpperStop: rowKinds[7] });
 roles = Array.from(host.ScheduleRoles());
 operations = Array.from(host.OperationAbi());
 const commandAbi = Array.from(host.CommandAbi());
@@ -1887,6 +2001,7 @@ self.onmessage = async event => {
         try {
             const captureMode = event.data.captureMode;
             if (event.data?.poseRing) {
+                if (event.data.poseRing.byteLength !== 3120) throw new Error('Unsupported pose ring layout');
                 poseRing = event.data.poseRing;
                 poseSeqView = new BigInt64Array(poseRing);
                 poseDataView = new DataView(poseRing);

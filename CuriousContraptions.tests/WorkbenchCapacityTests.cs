@@ -151,7 +151,7 @@ public sealed class WorkbenchCapacityTests
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
         WorkshopPartKind[] rows = [WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp,
-            WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Ramp, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall, WorkshopPartKind.Battery];
+            WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Ramp, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall, WorkshopPartKind.Battery, WorkshopPartKind.Springboard];
         Assert.Equal(rows, WorkshopInventoryPolicy.Free.Keys.ToArray());
         Assert.All(WorkshopInventoryPolicy.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(Enum.GetValues<WorkshopPartKind>().Count(kind => kind != WorkshopPartKind.Unsupported), WorkshopInventoryPolicy.Free.Count);

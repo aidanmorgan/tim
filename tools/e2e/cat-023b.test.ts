@@ -12,8 +12,8 @@ import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type AnimationSampleRecord, type WorkshopBodyPose } from './workshop-driver.ts';
 
 // domino_effect authored identities: ball 1, end Domino 2, lamp 3; placed tiles receive 4..7 in placement order.
-const BALL_ID = 1, END_ID = 2;
-const TILE_IDS = [4, 5, 6, 7];
+const BALL_ID = '1', END_ID = '2';
+const TILE_IDS = ['4', '5', '6', '7'];
 const LAMP_TARGET = '5';                  // activation node 3 + 2
 const HALF_ONE = 15360;
 // Front view of the authored level: screen x = 720 + 65.2 m, tiles stand at y = 0.1 m on screen row 676 (calibrated through the pose ring).
@@ -41,7 +41,7 @@ function angleFrom(reference: WorkshopBodyPose, b: WorkshopBodyPose): number {
     return 2 * Math.acos(Math.min(1, dot)) * 180 / Math.PI;
 }
 
-async function bodies(driver: WorkshopDriver): Promise<Map<number, WorkshopBodyPose>> {
+async function bodies(driver: WorkshopDriver): Promise<Map<string, WorkshopBodyPose>> {
     const pose = await driver.readLatestPose();
     assert.ok(pose, 'Pose slot must be readable');
     return new Map(pose.bodies.map(b => [b.id, b]));
@@ -79,8 +79,8 @@ function assertEndDominoExact(b: WorkshopBodyPose, label: string): void {
 
 // Watch the cascade until every body has passed the threshold; returns the pose-ring sequence at which each first passed 45 deg
 // (the committed physics order, not the poll clock).
-async function watchCascade(driver: WorkshopDriver, ids: number[], timeoutMs: number): Promise<Map<number, number>> {
-    const passed = new Map<number, number>();
+async function watchCascade(driver: WorkshopDriver, ids: string[], timeoutMs: number): Promise<Map<string, number>> {
+    const passed = new Map<string, number>();
     const start = Date.now();
     while (Date.now() - start < timeoutMs && passed.size < ids.length) {
         const pose = await driver.readLatestPose();
@@ -121,7 +121,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
 
         await driver.run();
         const first = await bodies(driver);
-        assert.deepEqual([...first.keys()].sort((a, b) => a - b), [BALL_ID, END_ID, ...TILE_IDS], 'Ball, end Domino and four tiles are published');
+        assert.deepEqual([...first.keys()].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0), [BALL_ID, END_ID, ...TILE_IDS], 'Ball, end Domino and four tiles are published');
         TILE_IDS.forEach((id, i) => assertUprightPlacement(first.get(id)!, CHAIN_X[i], `tile ${id}`));
         assertEndDominoExact(first.get(END_ID)!, 'end Domino');
         const ball = first.get(BALL_ID)!;
@@ -159,14 +159,14 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         await driver.connectActivation({ ...END_SCREEN, panel: 'locked' }, LAMP_SCREEN);
 
         await driver.run();
-        const placedIds = [4, 5, 6];
+        const placedIds = ['4', '5', '6'];
         const first = await bodies(driver);
         placedIds.forEach((id, i) => assertUprightPlacement(first.get(id)!, threeChain[i], `tile ${id}`));
-        const passed = await watchCascade(driver, [4, 5], 6000);
-        assert.deepEqual([...passed.keys()].sort(), [4, 5], 'The ball topples the first two tiles');
+        const passed = await watchCascade(driver, ['4', '5'], 6000);
+        assert.deepEqual([...passed.keys()].sort(), ['4', '5'], 'The ball topples the first two tiles');
         await driver.page.waitForTimeout(4000);
         const all = await bodies(driver);
-        assert.ok(tiltDegrees(all.get(6)!) < 2, `The tile beyond the gap is never struck (${tiltDegrees(all.get(6)!).toFixed(2)} deg)`);
+        assert.ok(tiltDegrees(all.get('6')!) < 2, `The tile beyond the gap is never struck (${tiltDegrees(all.get('6')!).toFixed(2)} deg)`);
         assert.ok(tiltDegrees(all.get(END_ID)!) < 2, `The end Domino stays upright (${tiltDegrees(all.get(END_ID)!).toFixed(2)} deg)`);
         assert.equal(await driver.readLastAnimationSample(LAMP_TARGET), null, 'The lamp never samples: no orientation occurrence');
         assert.equal(await driver.readCaptured(), 0, 'The goal stays unsolved');
@@ -187,16 +187,16 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         await driver.connectActivation({ ...LOWERED_DOMINO_SCREEN, panel: 'domino' }, FREE_LAMP_SCREEN);
 
         await driver.run();
-        const first = (await bodies(driver)).get(1)!;
+        const first = (await bodies(driver)).get('1')!;
         assert.ok(Math.abs(tiltDegrees(first) - 10) < 1, `The tile starts 10 deg off upright (got ${tiltDegrees(first).toFixed(2)} deg)`);
         let maxFromInitial = 0;
         const start = Date.now();
         while (Date.now() - start < 4000) {
-            const b = (await bodies(driver)).get(1)!;
+            const b = (await bodies(driver)).get('1')!;
             maxFromInitial = Math.max(maxFromInitial, angleFrom(first, b));
             await driver.page.waitForTimeout(40);
         }
-        const final = (await bodies(driver)).get(1)!;
+        const final = (await bodies(driver)).get('1')!;
         assert.ok(maxFromInitial < 45, `The tile never turns 45 deg from its admitted pose (max ${maxFromInitial.toFixed(1)} deg)`);
         assert.ok(tiltDegrees(final) < 2, `The tile settles upright (${tiltDegrees(final).toFixed(2)} deg)`);
         assert.equal(await driver.readLastAnimationSample('3'), null, 'The wired lamp (node 2 + 2 → target 3) never samples');
@@ -212,7 +212,7 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         await driver.load();
         await driver.run();
         const loaded = await bodies(driver);
-        assert.deepEqual([...loaded.keys()].sort((a, b) => a - b), [BALL_ID, END_ID, ...TILE_IDS], 'Load restores the ball, the end Domino and the four tiles');
+        assert.deepEqual([...loaded.keys()].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0), [BALL_ID, END_ID, ...TILE_IDS], 'Load restores the ball, the end Domino and the four tiles');
         TILE_IDS.forEach((id, i) => assertUprightPlacement(loaded.get(id)!, CHAIN_X[i], `loaded tile ${id}`));
         assertEndDominoExact(loaded.get(END_ID)!, 'loaded end Domino');
         assert.ok(await waitFor(async () => (await driver.readCaptured()) === 1, 10000), 'The loaded wired chain solves');

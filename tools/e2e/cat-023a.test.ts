@@ -15,8 +15,8 @@ const HALF_WIDTH = 0.125;
 const DOMINO_SCREEN = { x: 720, y: 485 };          // free workshop placement plane (y = 3 m) at x = 0, z = 0
 const BALL_SCREEN = { x: 742, y: 492 };            // x = 0.4 m on the same plane: the ball's edge overlaps the tile's upper corner
 const LOWER_TO_BENCH_PX = -162;                    // move-gizmo drag (about 56 px/m) that lowers the tile from 3 m to just above the bench
-const DOMINO_ID = 1;
-const BALL_ID = 2;
+const DOMINO_ID = '1';
+const BALL_ID = '2';
 
 function tiltDegrees(b: WorkshopBodyPose): number {
     // Angle between the tile's local +Y axis and world up.
@@ -32,7 +32,7 @@ function quaternionDelta(a: WorkshopBodyPose, b: WorkshopBodyPose): number {
     return Math.hypot(a.qx - b.qx, a.qy - b.qy, a.qz - b.qz, a.qw - b.qw);
 }
 
-async function body(driver: WorkshopDriver, id: number): Promise<WorkshopBodyPose> {
+async function body(driver: WorkshopDriver, id: string): Promise<WorkshopBodyPose> {
     const pose = await driver.readLatestPose();
     assert.ok(pose, 'Pose slot must be readable');
     const found = pose.bodies.find(b => b.id === id);
@@ -40,7 +40,7 @@ async function body(driver: WorkshopDriver, id: number): Promise<WorkshopBodyPos
     return found;
 }
 
-async function sampleUntil(driver: WorkshopDriver, id: number, predicate: (b: WorkshopBodyPose) => boolean, timeoutMs: number): Promise<WorkshopBodyPose | null> {
+async function sampleUntil(driver: WorkshopDriver, id: string, predicate: (b: WorkshopBodyPose) => boolean, timeoutMs: number): Promise<WorkshopBodyPose | null> {
     const start = Date.now();
     while (Date.now() - start < timeoutMs) {
         const b = await body(driver, id);

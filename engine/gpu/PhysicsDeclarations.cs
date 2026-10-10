@@ -163,6 +163,7 @@ public readonly record struct PlanarGuideDeclaration(
 /// <summary>One immutable owner of compiled physical declarations. Array order is not public identity.</summary>
 public sealed class PhysicsSceneDeclaration
 {
+    public const int PrismaticCapacity = 16;
     public const int BodyCapacity = 33;
     public const int ColliderCapacity = 64;
     public const int MaterialCapacity = 33;
@@ -171,6 +172,8 @@ public sealed class PhysicsSceneDeclaration
     public const int TriggerCapacity = 8;
     public const int ContactWorkCapacity = 8;
     public const int OrientationSensorCapacity = PhysicsBodyReadSet.Capacity;
+    private readonly PrismaticConstraintDeclaration[] _prismatics;
+    public ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics => _prismatics;
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
@@ -196,10 +199,11 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<ContactMaterialDeclaration> materials, ReadOnlySpan<ResidenceSensorDeclaration> sensors,
         ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default,
         ReadOnlySpan<ContactWorkDeclaration> contactWorks = default, ReadOnlySpan<OrientationSensorDeclaration> orientationSensors = default,
-        ReadOnlySpan<ElectricalSourceDeclaration> electricalSources = default, ReadOnlySpan<ElectricalStorageBinding> electricalBindings = default)
+        ReadOnlySpan<ElectricalSourceDeclaration> electricalSources = default, ReadOnlySpan<ElectricalStorageBinding> electricalBindings = default,
+        ReadOnlySpan<PrismaticConstraintDeclaration> prismatics = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
-            bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
+            prismatics.Length > PrismaticCapacity || bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
             materials.Length > MaterialCapacity || sensors.Length > SensorCapacity || guides.Length > GuideCapacity || triggers.Length > TriggerCapacity ||
             contactWorks.Length > ContactWorkCapacity || orientationSensors.Length > OrientationSensorCapacity)
             throw new ArgumentException("Invalid physics document or capacity.");
@@ -286,6 +290,17 @@ public sealed class PhysicsSceneDeclaration
             // "Angle from the admitted pose" is a document invariant, not a compiler courtesy.
             if (body.Rotation != sensor.Initial) throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
         }
+        var pairs = new HashSet<(GpuBodyId, GpuBodyId)>();
+        foreach (var joint in prismatics)
+        {
+            joint.Validate(); Identity(joint.Id.Value, nextIdentity, ids);
+            if (!bodyMap.TryGetValue(joint.BodyA, out var a) || !bodyMap.TryGetValue(joint.BodyB, out var b) ||
+                (a.Motion != RigidMotionKind.Dynamic && b.Motion != RigidMotionKind.Dynamic) ||
+                !pairs.Add(joint.BodyA.Value < joint.BodyB.Value ? (joint.BodyA, joint.BodyB) : (joint.BodyB, joint.BodyA)))
+                throw new ArgumentException("A prismatic joint requires a unique admitted pair with a dynamic body.");
+        }
+        _prismatics = prismatics.ToArray();
+        Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
         Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
         Document = document; NextIdentity = nextIdentity;

@@ -32,7 +32,7 @@ const BALL_CENTRE = { min: 0.98, max: 1.12 };  // release band; the Basketball's
 const GRAVITY = 9.81;
 // With ≈ 6 cm of clearance the first strike lands about 110 ms after Run, possibly before the first pose-ring read, so first-read checks admit it.
 const FREE_FALL_MS = 500;                // a ball dropped from the 3 m plane is in free fall for ≈ 0.79 s
-const TILE_A = 1, TILE_B = 2, BASKETBALL = 3, BOWLING = 4;      // placement order
+const TILE_A = '1', TILE_B = '2', BASKETBALL = '3', BOWLING = '4';      // placement order
 const RECEIVER_HALO_TARGET = '12884901890';                     // 3·2^32 + receiver body 2 (free play: ball 1, receiver 2)
 const HALF_ONE = 15360;
 
@@ -42,7 +42,7 @@ function tiltDegrees(b: WorkshopBodyPose): number {
 }
 function speed(b: WorkshopBodyPose): number { return Math.hypot(b.vx, b.vy, b.vz); }
 
-async function bodies(driver: WorkshopDriver): Promise<Map<number, WorkshopBodyPose>> {
+async function bodies(driver: WorkshopDriver): Promise<Map<string, WorkshopBodyPose>> {
     const pose = await driver.readLatestPose();
     assert.ok(pose, 'Pose slot must be readable');
     return new Map(pose.bodies.map(b => [b.id, b]));
@@ -57,8 +57,8 @@ async function waitFor(fn: () => Promise<boolean>, timeoutMs: number, stepMs = 5
 }
 // Every committed state each body publishes during the window, polled as fast as the page allows. The pose ring carries no tick
 // identity, so exact Reset is proven by state equality: a restored world replays the original world's committed states bit-for-bit.
-async function recordStates(driver: WorkshopDriver, windowMs: number): Promise<Map<number, WorkshopBodyPose[]>> {
-    const states = new Map<number, WorkshopBodyPose[]>();
+async function recordStates(driver: WorkshopDriver, windowMs: number): Promise<Map<string, WorkshopBodyPose[]>> {
+    const states = new Map<string, WorkshopBodyPose[]>();
     const start = Date.now();
     while (Date.now() - start < windowMs) {
         const pose = await driver.readLatestPose(5, 1);
@@ -135,7 +135,7 @@ async function watchLanes(driver: WorkshopDriver, windowMs: number): Promise<{ m
     }
     return { maxA, maxB, toppledB };
 }
-function assertLaneOutcome(result: { maxA: number; maxB: number; toppledB: boolean }, all: Map<number, WorkshopBodyPose>, label: string): void {
+function assertLaneOutcome(result: { maxA: number; maxB: number; toppledB: boolean }, all: Map<string, WorkshopBodyPose>, label: string): void {
     assert.ok(result.toppledB, `${label}: the Bowling lane tile passes 60 deg (max ${result.maxB.toFixed(1)} deg)`);
     assert.ok(result.maxA < 20, `${label}: the Basketball lane tile stays below 20 deg (max ${result.maxA.toFixed(1)} deg)`);
     const tileA = all.get(TILE_A)!, tileB = all.get(TILE_B)!, basketball = all.get(BASKETBALL)!, bowling = all.get(BOWLING)!;
@@ -190,7 +190,7 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         await driver.run();
         const runStarted = Date.now();
         const first = await bodies(driver);
-        assert.deepEqual([...first.keys()].sort((a, b) => a - b), [TILE_A, TILE_B, BASKETBALL, BOWLING], 'Two tiles and two balls are published');
+        assert.deepEqual([...first.keys()].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0), [TILE_A, TILE_B, BASKETBALL, BOWLING], 'Two tiles and two balls are published');
         assertTileInLane(first.get(TILE_A)!, LANE_Z.basketball, 'Basketball lane tile');
         assertTileInLane(first.get(TILE_B)!, LANE_Z.bowling, 'Bowling lane tile');
         assertReleasedBall(first.get(BASKETBALL)!, LANE_Z.basketball, !unstruck(first.get(TILE_A)!), 'Basketball');
@@ -214,14 +214,14 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
 
         await driver.run();
         const first = await bodies(driver);
-        assert.deepEqual([...first.keys()].sort((a, b) => a - b), [1, 2], 'Both balls are published');
-        assert.ok(first.get(1)!.py > 2 && first.get(2)!.py > 2, 'Both balls start high above the bench');
+        assert.deepEqual([...first.keys()].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0), ['1', '2'], 'Both balls are published');
+        assert.ok(first.get('1')!.py > 2 && first.get('2')!.py > 2, 'Both balls start high above the bench');
         const originalFall = await recordStates(driver, FREE_FALL_MS);
-        const track = { 1: { landed: false, rebounded: false, apex: -Infinity }, 2: { landed: false, rebounded: false, apex: -Infinity } } as Record<number, { landed: boolean; rebounded: boolean; apex: number }>;
+        const track = { 1: { landed: false, rebounded: false, apex: -Infinity }, 2: { landed: false, rebounded: false, apex: -Infinity } } as Record<string, { landed: boolean; rebounded: boolean; apex: number }>;
         const start = Date.now();
         while (Date.now() - start < 5000) {
             const all = await bodies(driver);
-            for (const id of [1, 2]) {
+            for (const id of ['1', '2']) {
                 const ball = all.get(id)!, t = track[id];
                 if (ball.vy < -1) t.landed = true;
                 if (t.landed && ball.vy > 0.05) t.rebounded = true;
@@ -234,7 +234,7 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         assert.ok(track[2].landed, 'The Bowling ball reaches the bench');
         assert.ok(!track[2].rebounded || bowlingApex < 0.15, `The Bowling ball rebounds low (apex ${bowlingApex.toFixed(3)} m above rest)`);
         assert.ok(track[1].rebounded && basketballApex > 0.5, `The Basketball rebounds high (apex ${basketballApex.toFixed(3)} m above rest)`);
-        const bowling = final.get(2)!, basketball = final.get(1)!;
+        const bowling = final.get('2')!, basketball = final.get('1')!;
         assert.ok(Math.abs(bowling.py - (BENCH_Y + BOWLING_R)) < 0.005, `The Bowling ball rests at its radius height (py ${bowling.py.toFixed(4)})`);
         assert.ok(speed(bowling) < 0.02, `The Bowling ball is at rest (speed ${speed(bowling).toFixed(4)})`);
         assert.ok(Math.abs(bowling.px) < 0.01 && Math.abs(bowling.pz - LANE_Z.bowling) < 0.01, 'The Bowling ball rests where it fell');
@@ -246,14 +246,14 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         await driver.run();                                                       // Run the restored construction
         const restored = await bodies(driver);
         const restoredFall = await recordStates(driver, FREE_FALL_MS);
-        for (const [id, label] of [[1, 'reset Basketball'], [2, 'reset Bowling ball']] as const) {
+        for (const [id, label] of [['1', 'reset Basketball'], ['2', 'reset Bowling ball']] as const) {
             const ball = restored.get(id)!, original = first.get(id)!;
             assert.deepEqual([ball.qx, ball.qy, ball.qz, ball.qw], [0, 0, 0, 1], `${label}: identity orientation bit-for-bit`);
             assert.deepEqual([ball.px, ball.pz], [original.px, original.pz], `${label}: placed x/z exactly as the first Run`);
             assert.ok(ball.py > 2.5 && ball.vy <= 0, `${label}: falls again from the placement plane (py=${ball.py.toFixed(3)})`);
             assertReplaysExactly(originalFall.get(id) ?? [], restoredFall.get(id) ?? [], label);
         }
-        assert.ok(await waitFor(async () => Math.abs((await bodies(driver)).get(2)!.py - (BENCH_Y + BOWLING_R)) < 0.005, 6000), 'The restored Bowling ball lands and rests again');
+        assert.ok(await waitFor(async () => Math.abs((await bodies(driver)).get('2')!.py - (BENCH_Y + BOWLING_R)) < 0.005, 6000), 'The restored Bowling ball lands and rests again');
         await driver.reset(500);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
@@ -268,7 +268,7 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         await driver.run();
         const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
         assert.ok(captured, 'The Receiver capture target ramps to Half 1.0 once the Bowling ball settles in it');
-        const ball = (await bodies(driver)).get(1)!;
+        const ball = (await bodies(driver)).get('1')!;
         assert.ok(speed(ball) <= 1.5, `Captured below the 1.5 m/s capture speed (speed ${speed(ball).toFixed(3)})`);
         assert.ok(Math.abs(ball.px) < 0.7 && Math.abs(ball.pz) < 0.7 && ball.py > 2.5 && ball.py < 4, `The ball sits inside the Receiver (${ball.px.toFixed(2)}, ${ball.py.toFixed(2)}, ${ball.pz.toFixed(2)})`);
         const halo = await driver.readAnimationSamplesForTarget(RECEIVER_HALO_TARGET);
@@ -288,7 +288,7 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         await driver.run();
         const loadedRunStarted = Date.now();
         const loaded = await bodies(driver);
-        assert.deepEqual([...loaded.keys()].sort((a, b) => a - b), [TILE_A, TILE_B, BASKETBALL, BOWLING], 'Load restores two tiles and two balls');
+        assert.deepEqual([...loaded.keys()].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0), [TILE_A, TILE_B, BASKETBALL, BOWLING], 'Load restores two tiles and two balls');
         assertTileInLane(loaded.get(TILE_A)!, LANE_Z.basketball, 'loaded Basketball lane tile');
         assertTileInLane(loaded.get(TILE_B)!, LANE_Z.bowling, 'loaded Bowling lane tile');
         assertReleasedBall(loaded.get(BASKETBALL)!, LANE_Z.basketball, !unstruck(loaded.get(TILE_A)!), 'loaded Basketball');

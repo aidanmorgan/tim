@@ -46,6 +46,11 @@ public sealed class PartRegistry
             battery.ElectricalSource is null || battery.Parameters.Count != 0)
             throw new ArgumentException("Canonical Battery resource is invalid.");
         battery.ElectricalSource.Capture();
+        var springboard = ResourceLoader.Load<PartDefinition>("res://parts/catalog/springboard.tres");
+        if (springboard is null || springboard.Scene is null || springboard.WorkshopKind != WorkshopPartKind.Springboard ||
+            springboard.Springboard is null || springboard.Parameters.Count != 0)
+            throw new ArgumentException("Canonical Springboard resource is invalid.");
+        springboard.Springboard.Capture();
         _definitions.Clear();
         _definitions.Add(WorkshopPartKind.Basketball, ball);
         _definitions.Add(WorkshopPartKind.Receiver, receiver);
@@ -58,6 +63,7 @@ public sealed class PartRegistry
         _definitions.Add(WorkshopPartKind.Domino, domino);
         _definitions.Add(WorkshopPartKind.BowlingBall, bowling);
         _definitions.Add(WorkshopPartKind.Battery, battery);
+        _definitions.Add(WorkshopPartKind.Springboard, springboard);
     }
     /// <summary>Every ball kind ships as the same typed material resource; its bits must equal the declared material of that kind.</summary>
     private static PartDefinition LoadBall(string path, WorkshopPartKind kind)
@@ -70,7 +76,7 @@ public sealed class PartRegistry
     }
     public MachinePart Create(WorkshopPartKind kind)
     {
-        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino or WorkshopPartKind.Battery) || !_definitions.TryGetValue(kind, out var definition))
+        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Receiver or WorkshopPartKind.Ramp or WorkshopPartKind.ImpactSwitch or WorkshopPartKind.SignalLamp or WorkshopPartKind.Wall or WorkshopPartKind.Delay or WorkshopPartKind.PinballBumper or WorkshopPartKind.Domino or WorkshopPartKind.Battery or WorkshopPartKind.Springboard) || !_definitions.TryGetValue(kind, out var definition))
             throw new ArgumentException("This catalogue part is not supported by the current GPU Workshop.");
         var part = definition.Scene.Instantiate<MachinePart>();
         try { part.Configure(definition); return part; }

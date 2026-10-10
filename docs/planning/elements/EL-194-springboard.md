@@ -14,7 +14,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Refines / extends | Refines [CAT-062 spring](CAT-062-spring.md) ([requirement](../requirements.md#current-cat-062)) |
 | Related | CAT-065 Trampoline (shares the elastic capability, different declaration), EL-215 Damped cushion |
 | Roadmap story | Story 6.4 (slider and spring) and Story 6.5 (preload and `spring_forward`) |
-| Status | not started |
+| Status | Passive Story6.4 implementation candidate; final review/publication pending. Preload and `spring_forward` remain Story6.5. |
 
 ## 2. Declaration
 

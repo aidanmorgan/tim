@@ -68,7 +68,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall, WorkshopPartKind.Battery },
+        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall, WorkshopPartKind.Battery, WorkshopPartKind.Springboard },
             registry.Definitions.Keys.OrderBy(kind => kind));
         var definition = registry.Definitions[WorkshopPartKind.Basketball];
         Assert.Empty(definition.Parameters);

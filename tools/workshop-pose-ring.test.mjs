@@ -1,93 +1,104 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import fs from 'node:fs/promises';
+import vm from 'node:vm';
 
-// Provide browser globals for workshop-isolation.js in Node
-globalThis.document = { baseURI: 'http://127.0.0.1:8060/' };
-Object.defineProperty(globalThis, 'navigator', {
-    value: { serviceWorker: {} },
-    configurable: true,
-    writable: true
+// Expose the existing private client registry only in this isolated test module.
+const source = await fs.readFile(new URL('../CuriousContraptions.web/wwwroot/workshop-client.js', import.meta.url), 'utf8');
+const context = vm.createContext({ SharedArrayBuffer, BigInt64Array, DataView, Float32Array, Atomics });
+const module = new vm.SourceTextModule(source + '\nexport { clients };', { context });
+await module.link(async (specifier) => {
+    const names = specifier.includes('native-clock') ?
+        ['admitNativeClock', 'nativeNow', 'nativeProfile', 'nativeClockEvidence'] :
+        ['requireIsolation', 'watchIsolation', 'isolationQualified', 'isolationEvidence', 'stopIsolation'];
+    return new vm.SyntheticModule(names, function () {
+        for (const name of names) this.setExport(name, () => { throw new Error('Unexpected clock/isolation use'); });
+    }, { context });
+});
+await module.evaluate();
+const { clients, readPoseSlot, readLatestPoseSlot } = module.namespace;
+function client(bytes = 3120) {
+    const poseRing = new SharedArrayBuffer(bytes);
+    const value = { poseRing, poseSeqView: new BigInt64Array(poseRing),
+        poseDataView: new DataView(poseRing), poseFloatView: new Float32Array(poseRing) };
+    clients.set(1, value); return value;
+}
+function body(c, slot, index, id, x) {
+    const offset = slot * 1040 + 16 + index * 64;
+    c.poseDataView.setFloat32(offset, x, true);
+    c.poseDataView.setFloat32(offset + 28, 1, true);
+    c.poseDataView.setUint32(offset + 44, 1, true);
+    c.poseDataView.setBigUint64(offset + 48, id, true);
+}
+
+test('actual pose reader preserves first secondary and full-width IDs without owner alias', () => {
+    const c = client();
+    Atomics.store(c.poseSeqView, 0, 2n);
+    body(c, 0, 0, 1n, 1.5);
+    body(c, 0, 1, 4294967296n, -2);
+    body(c, 0, 2, 18446744073709551615n, 3);
+    const result = readPoseSlot(1, 0);
+    assert.deepEqual(Array.from(result.bodies, b => b.id), ['1', '4294967296', '18446744073709551615']);
+    assert.equal(result.bodies[1].px, -2);
 });
 
-const { readPoseSlot, readLatestPoseSlot, hasPoseRing } = await import('../CuriousContraptions.web/wwwroot/workshop-client.js');
+test('actual latest reader ignores in-progress slot and uses new aligned stride', () => {
+    const c = client();
+    Atomics.store(c.poseSeqView, 0, 2n); body(c, 0, 0, 1n, 1);
+    Atomics.store(c.poseSeqView, 130, 4n); body(c, 1, 0, 4294967296n, 2);
+    Atomics.store(c.poseSeqView, 260, 5n);
+    assert.equal(readPoseSlot(1, 2), null);
+    assert.equal(readLatestPoseSlot(1).bodies[0].id, '4294967296');
+    assert.equal(readLatestPoseSlot(1).bodies[0].px, 2);
+    assert.equal(readPoseSlot(1, -1), null);
+    assert.equal(readPoseSlot(1, 3), null);
+});
 
-test('workshop-pose-ring: hasPoseRing, readPoseSlot, readLatestPoseSlot, and atomic protocol', () => {
-    const sab = new SharedArrayBuffer(2352);
-    const seqView = new BigInt64Array(sab);
-    const dataView = new DataView(sab);
-    const floatView = new Float32Array(sab);
+test('old ring layout rejects rather than truncating secondary identity', () => {
+    client(2352);
+    assert.equal(readPoseSlot(1, 0), null);
+});
 
-    // Slot 0: sequence 2 (even = committed)
-    Atomics.store(seqView, 0, 2n);
-    dataView.setBigInt64(8, 1000000n, true); // timestamp
-    // Body 0 (id 1, px=1.5, py=2.0, pz=3.0, qx=0, qy=0, qz=0, qw=1, vx=10, vy=0, vz=0, flags=1)
-    floatView[4] = 1.5;
-    floatView[5] = 2.0;
-    floatView[6] = 3.0;
-    dataView.setUint32(7 * 4, 1, true); // bodyId
-    floatView[8] = 0;
-    floatView[9] = 0;
-    floatView[10] = 0;
-    floatView[11] = 1.0;
-    floatView[12] = 10.0;
-    floatView[13] = 0;
-    floatView[14] = 0;
-    dataView.setUint32(15 * 4, 1, true); // flags
-
-    // Body 1 (id 2, px=-2.0, py=4.0, pz=0.5, qx=0, qy=0.7071, qz=0, qw=0.7071, vx=-5, vy=2, vz=0, flags=1)
-    const b1 = 4 + 12;
-    floatView[b1 + 0] = -2.0;
-    floatView[b1 + 1] = 4.0;
-    floatView[b1 + 2] = 0.5;
-    dataView.setUint32((b1 + 3) * 4, 2, true);
-    floatView[b1 + 4] = 0;
-    floatView[b1 + 5] = 0.7071;
-    floatView[b1 + 6] = 0;
-    floatView[b1 + 7] = 0.7071;
-    floatView[b1 + 8] = -5.0;
-    floatView[b1 + 9] = 2.0;
-    floatView[b1 + 10] = 0;
-    dataView.setUint32((b1 + 11) * 4, 1, true);
-
-    // Slot 1: sequence 4 (even = committed, later frame)
-    Atomics.store(seqView, 98, 4n);
-    dataView.setBigInt64(784 + 8, 2000000n, true);
-    const s1b0 = (784 + 16) / 4;
-    floatView[s1b0 + 0] = 2.5;
-    floatView[s1b0 + 1] = 2.0;
-    floatView[s1b0 + 2] = 3.0;
-    dataView.setUint32((s1b0 + 3) * 4, 1, true);
-    floatView[s1b0 + 7] = 1.0;
-    dataView.setUint32((s1b0 + 11) * 4, 1, true);
-
-    // Slot 2: sequence 5 (odd = write in progress)
-    Atomics.store(seqView, 196, 5n);
-
-    // Test reader protocol logic
-    // Reading slot 0:
-    const s0Seq1 = Atomics.load(seqView, 0);
-    assert.equal(s0Seq1 & 1n, 0n);
-    const s0Time = dataView.getBigInt64(8, true);
-    assert.equal(s0Time, 1000000n);
-    assert.equal(floatView[4], 1.5);
-    assert.equal(dataView.getUint32(7 * 4, true), 1);
-    assert.equal(floatView[b1 + 0], -2.0);
-    assert.equal(dataView.getUint32((b1 + 3) * 4, true), 2);
-
-    // Reading slot 2 (odd sequence): rejected
-    const s2Seq = Atomics.load(seqView, 196);
-    assert.equal(s2Seq & 1n, 1n, 'Odd sequence indicates write in progress');
-
-    // Finding latest committed slot: slot 1 has sequence 4 > slot 0 sequence 2
-    let bestSlot = -1, bestSeq = -1n;
-    for (let s = 0; s < 3; s++) {
-        const seq = Atomics.load(seqView, s * 98);
-        if ((seq & 1n) === 0n && seq > bestSeq) {
-            bestSeq = seq;
-            bestSlot = s;
-        }
+test('actual worker writer publishes globally newest frames across wraps and shrinking populations', async () => {
+    const workerSource = await fs.readFile(new URL('../CuriousContraptions.Simulation/wwwroot/worker.js', import.meta.url), 'utf8');
+    const workerContext = vm.createContext({ self: { postMessage() {} }, console, Uint8Array, Uint32Array,
+        Float32Array, Float64Array, ArrayBuffer, SharedArrayBuffer, BigInt64Array, DataView, Atomics });
+    const host = { CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56],
+        OperationAbi: () => [0, 1], StateBytes: () => 154048, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
+    const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ Program: host }),
+        getConfig: () => ({ mainAssemblyName: 'PoseWriterControl' }) };
+    const worker = new vm.SourceTextModule(workerSource + `
+export function bindTestRing(ring) {
+    poseRing = ring; poseSeqView = new BigInt64Array(ring);
+    poseDataView = new DataView(ring); poseFloatView = new Float32Array(ring);
+}
+export { writePoseRing };
+`, { context: workerContext });
+    await worker.link(async name => {
+        if (name.includes('dotnet')) return new vm.SyntheticModule(['dotnet'], function () {
+            this.setExport('dotnet', { create: async () => runtime });
+        }, { context: workerContext });
+        return new vm.SyntheticModule(['admitNativeClock', 'nativeNow', 'nativeClockEvidence'], function () {
+            this.setExport('admitNativeClock', async () => {});
+            this.setExport('nativeNow', () => 1); this.setExport('nativeClockEvidence', () => []);
+        }, { context: workerContext });
+    });
+    await worker.evaluate();
+    let c = client(); worker.namespace.bindTestRing(c.poseRing);
+    for (let publication = 1; publication <= 12; publication++) {
+        // Build mode does not publish; this exercises actual committed population changes and fresh ring ownership.
+        if (publication === 9) { c = client(); worker.namespace.bindTestRing(c.poseRing); }
+        const ids = publication === 5 ? [] : publication < 5 ? [1n, 4294967296n] : [18446744073709551615n];
+        const bytes = new Uint8Array(128 + ids.length * 64), view = new DataView(bytes.buffer);
+        bytes[104] = ids.length; view.setBigInt64(72, BigInt(publication * 100), true);
+        ids.forEach((id, index) => {
+            const offset = 128 + index * 64;
+            view.setBigUint64(offset, id, true); view.setInt32(offset + 8, publication * 16, true);
+            view.setUint16(offset + 32, 15360, true);
+        });
+        worker.namespace.writePoseRing(bytes);
+        const observed = readLatestPoseSlot(1);
+        assert.equal(observed.timestamp, BigInt(publication * 100), 'every publication must supersede all preceding slots');
+        assert.deepEqual(Array.from(observed.bodies, b => b.id), ids.map(String), 'retired secondary IDs disappear');
     }
-    assert.equal(bestSlot, 1);
-    assert.equal(bestSeq, 4n);
-    assert.equal(floatView[s1b0 + 0], 2.5);
 });

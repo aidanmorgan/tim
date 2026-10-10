@@ -97,7 +97,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
         if (clockProfile !== nativeProfile) throw new Error('Unsupported native clock profile.');
         const [ready, backpressure, timedOut, indeterminate, recoveryBlocked] = states;
         id = nextClient++;
-        const poseRing = typeof SharedArrayBuffer !== 'undefined' ? new SharedArrayBuffer(2352) : undefined;
+        const poseRing = typeof SharedArrayBuffer !== 'undefined' ? new SharedArrayBuffer(3120) : undefined;
         const poseSeqView = poseRing ? new BigInt64Array(poseRing) : undefined;
         const poseDataView = poseRing ? new DataView(poseRing) : undefined;
         const poseFloatView = poseRing ? new Float32Array(poseRing) : undefined;
@@ -563,21 +563,22 @@ export async function loadConstruction(expectedBytes) {
 export function readPoseSlot(id, slotIndex) {
     const client = clients.get(id);
     if (!client || !client.poseRing || !client.poseSeqView || !client.poseDataView || !client.poseFloatView) return null;
-    const s = slotIndex % 3;
-    const seqIndex = s * 98;
+    if (client.poseRing.byteLength !== 3120 || !Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= 3) return null;
+    const s = slotIndex;
+    const seqIndex = s * 130;
     const seq1 = Atomics.load(client.poseSeqView, seqIndex);
     if ((seq1 & 1n) !== 0n) return null;
-    const slotByteOffset = s * 784;
+    const slotByteOffset = s * 1040;
     const timestamp = client.poseDataView.getBigInt64(slotByteOffset + 8, true);
     const bodyFloatOffset = (slotByteOffset + 16) / 4;
     const bodies = [];
     for (let i = 0; i < 16; i++) {
-        const b = bodyFloatOffset + i * 12;
-        const bodyId = client.poseDataView.getUint32((b + 3) * 4, true);
+        const b = bodyFloatOffset + i * 16;
+        const bodyId = client.poseDataView.getBigUint64((b + 12) * 4, true);
         const flags = client.poseDataView.getUint32((b + 11) * 4, true);
-        if (bodyId === 0 || (flags & 1) === 0) continue;
+        if (bodyId === 0n || (flags & 1) === 0) continue;
         bodies.push({
-            id: bodyId,
+            id: bodyId.toString(), // lossless external observation boundary
             px: client.poseFloatView[b + 0],
             py: client.poseFloatView[b + 1],
             pz: client.poseFloatView[b + 2],
@@ -602,7 +603,7 @@ export function readLatestPoseSlot(id) {
     let bestSlot = -1;
     let bestSeq = -1n;
     for (let s = 0; s < 3; s++) {
-        const seq = Atomics.load(client.poseSeqView, s * 98);
+        const seq = Atomics.load(client.poseSeqView, s * 130);
         if ((seq & 1n) === 0n && seq > bestSeq) {
             bestSeq = seq;
             bestSlot = s;
@@ -615,7 +616,7 @@ export function readLatestPoseSlot(id) {
     let altSeq = -1n;
     for (let s = 0; s < 3; s++) {
         if (s === bestSlot) continue;
-        const seq = Atomics.load(client.poseSeqView, s * 98);
+        const seq = Atomics.load(client.poseSeqView, s * 130);
         if ((seq & 1n) === 0n && seq > altSeq) {
             altSeq = seq;
             altSlot = s;
