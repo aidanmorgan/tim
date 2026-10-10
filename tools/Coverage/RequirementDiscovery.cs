@@ -10,7 +10,6 @@ namespace CuriousContraptions.Coverage;
 public static class RequirementDiscovery
 {
     public static readonly SourcePath RequirementsPath=new("docs/planning/requirements.md");
-    private const string CataloguePath="parts/catalog";
     private const string CampaignPath="content/puzzles.json";
     private const string DocumentationPath="docs";
     private const string ResearchPattern="*research.md";
@@ -22,16 +21,7 @@ public static class RequirementDiscovery
         var records=new List<SourceRequirement>();
         var todo=File.ReadAllText(Path.Combine(root.FullName,RequirementsPath.Value));
         records.AddRange(Todo(todo));
-        foreach(var path in Directory.EnumerateFiles(Path.Combine(root.FullName,CataloguePath),"*.tres").Order(StringComparer.Ordinal))
-        {
-            var text=File.ReadAllText(path);
-            var ids=Regex.Matches(text,"^Id = \"([^\"]+)\"$",RegexOptions.Multiline);
-            if(ids.Count!=1)throw new InvalidDataException("Catalogue definition must have exactly one Id.");
-            var title=Regex.Match(text,"^Title = \"([^\"]+)\"$",RegexOptions.Multiline);
-            if(!title.Success)throw new InvalidDataException("Catalogue definition has no title.");
-            records.Add(new(new(RequirementOrigin.Catalogue,new(ids[0].Groups[1].Value)),
-                Path.GetRelativePath(root.FullName,path),title.Groups[1].Value,Hash(text)));
-        }
+        records.AddRange(CurrentCatalogue.Read(root).Elements.Select(element => element.Source));
         records.AddRange(DiscoverFixtures(root).Select(fixture=>fixture.Source));
         foreach(var fullPath in Directory.EnumerateFiles(Path.Combine(root.FullName,DocumentationPath),ResearchPattern)
             .Append(Path.Combine(root.FullName,GapResearchPath)).Order(StringComparer.Ordinal))

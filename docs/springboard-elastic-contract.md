@@ -1,6 +1,6 @@
 # Springboard (CAT-062 · EL-194)
 
-The Springboard is declaration data over the generic capabilities of the single WASM SIMD128 f32 solver ([capability inventory](gpu-f32-physics.md#capability-inventory)); the roadmap slice [CAT-062](planning/invest/vertical-delivery.md#rolling-playable-roadmap) adds the generic elastic spring constraint it first needs (also serving Trampoline CAT-065) and deletes parts/SpringPart.cs physics. PERF-24 applies: no catalogue-specific solver, no target-velocity launch and no impact-energy injection. The Trampoline's massless contact patches are a different declaration.
+The Springboard is declaration data over the generic capabilities of the single WASM SIMD128 f32 solver ([capability inventory](gpu-f32-physics.md#capability-inventory)); the roadmap slice [CAT-062](planning/invest/vertical-delivery.md#rolling-playable-roadmap) adds the generic elastic spring constraint it first needs (also serving Trampoline CAT-065) over the preserved Springboard declaration; Story 7.4 removed the legacy parts/SpringPart.cs physics. PERF-24 applies: no catalogue-specific solver, no target-velocity launch and no impact-energy injection. The Trampoline's massless contact patches are a different declaration.
 
 ## Declaration data
 

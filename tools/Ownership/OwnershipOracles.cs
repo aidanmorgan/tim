@@ -8,9 +8,9 @@ namespace Ownership;
 
 public static class OwnershipOracles
 {
-    private static readonly SourcePath Source = new("engine/SimulationTimers.cs");
-    private static readonly MemberId Member = new("F:CuriousContraptions.SimulationTimers._states");
-    private static readonly CallerId Caller = new("M:CuriousContraptions.SimulationTimers.CaptureCheckpoint");
+    private static readonly SourcePath Source = new("engine/presentation/AnimationBatch.cs");
+    private static readonly MemberId Member = new("F:CuriousContraptions.Presentation.AnimationBatch._free");
+    private static readonly CallerId Caller = new("M:CuriousContraptions.Presentation.AnimationBatch.FillFree");
     private static readonly WorkId Task = new("P0-022");
     private enum Attack
     {
@@ -19,14 +19,14 @@ public static class OwnershipOracles
         StaleWriterFingerprint, StaleContentsFingerprint, UnauthorizedWriter, ReferenceContentsOmitted, ValidButWrongOwner, SceneReferenceCrossing, MissingOwnerField, UnknownField, DuplicateJsonField, NullAssignment, BindingErrors, UnauthorizedReader
     }
 
-    public static object Run()
+    public static object Run(string? root = null)
     {
         var member = new StateMember(Member, Source, 4, new("System.Double[]"), StorageForm.Field,
             StorageMutability.ReferencedStorage, false, [new(Source, 8, Caller, StateAccess.Call)]);
         var source = new SourceInput(Source, new string('a', 64));
         var snapshot = new OwnershipSnapshot([source], [member]);
-        var assignment = new OwnershipAssignment(Member, AssemblyOwner.SimulationCore, Task,
-            OwnershipRule.SimulationAuthority, OwnershipAudit.Fingerprint(member));
+        var assignment = new OwnershipAssignment(Member, AssemblyOwner.AnimationKernel, Task,
+            OwnershipRule.AnimationAuthority, OwnershipAudit.Fingerprint(member));
         var contract = new OwnershipContract([source], [assignment]);
         contract = OwnershipAudit.Decode<OwnershipContract>(JsonSerializer.Serialize(contract, OwnershipAudit.Json));
         var tasks = new HashSet<WorkId> { Task };
@@ -47,7 +47,7 @@ public static class OwnershipOracles
                     case Attack.UnknownOwner: candidate = contract with { Assignments = [assignment with { Owner = (AssemblyOwner)999 }] }; break;
                     case Attack.UnknownRule: candidate = contract with { Assignments = [assignment with { Rule = (OwnershipRule)999 }] }; break;
                     case Attack.UnknownTask: candidate = contract with { Assignments = [assignment with { Migration = new("P0-Unknown") }] }; break;
-                    case Attack.WrongPlacement: candidate = contract with { Assignments = [assignment with { Owner = AssemblyOwner.AnimationKernel }] }; break;
+                    case Attack.WrongPlacement: candidate = contract with { Assignments = [assignment with { Owner = AssemblyOwner.SimulationCore }] }; break;
                     case Attack.StaleSource: candidate = contract with { Sources = [source with { Sha256 = new string('b', 64) }] }; break;
                     case Attack.MissingSource: candidate = contract with { Sources = [] }; break;
                     case Attack.DuplicateSource: candidate = contract with { Sources = [source, source] }; break;
@@ -75,13 +75,13 @@ public static class OwnershipOracles
                         break;
                     case Attack.ValidButWrongOwner:
                         candidate = contract with { Assignments = [assignment with {
-                            Owner = AssemblyOwner.AnimationKernel, Rule = OwnershipRule.AnimationAuthority }] };
+                            Owner = AssemblyOwner.SimulationCore, Rule = OwnershipRule.SimulationAuthority }] };
                         break;
                     case Attack.SceneReferenceCrossing:
                         var scene = member with
                         {
-                            Id = new("F:CuriousContraptions.Presentation.SceneAnimationAdapter.Target.Object"),
-                            Type = new("Godot.GodotObject")
+                            Id = new("F:CuriousContraptions.MachineWorld._parts"),
+                            Type = new("System.Collections.Generic.List<CuriousContraptions.MachinePart>")
                         };
                         observed = snapshot with { Members = [scene] };
                         candidate = contract with { Assignments = [assignment with
@@ -117,9 +117,39 @@ public static class OwnershipOracles
             if (!rejected) throw new InvalidOperationException($"Ownership oracle accepted attack {attack}.");
             results.Add(new { Attack = attack, Rejected = rejected });
         }
-        return new { Positive = true, NegativeCount = results.Count, Results = results, SemanticFlows = CheckReferenceFlows(), PolicyPlacements = CheckPolicyPlacements(), PortableAssembly = CheckPortableAssembly() };
+        return new { Positive = true, NegativeCount = results.Count, Results = results, SemanticFlows = CheckReferenceFlows(), PolicyPlacements = CheckPolicyPlacements(), PortableAssembly = CheckPortableAssembly(), CurrentOwners = CurrentOwnerMembershipOracles.Run(root), ActualCurrentPolicy = CheckCurrentPolicy(root) };
     }
 
+
+
+    private static object? CheckCurrentPolicy(string? root)
+    {
+        if (root is null) return null;
+        var snapshot = SourceInventory.Capture(root);
+        if (snapshot.Diagnostics.Length != 0) throw new InvalidOperationException("Actual policy capture has binding errors.");
+        var checkedMembers = new List<object>();
+        foreach (var (identity, owner) in OwnershipPolicy.Expected)
+        {
+            var member = snapshot.Members.Single(member => member.Id == identity);
+            var rule = owner switch
+            {
+                AssemblyOwner.AnimationKernel => OwnershipRule.AnimationAuthority,
+                AssemblyOwner.SimulationHost => OwnershipRule.HostState,
+                AssemblyOwner.GodotPresenter => OwnershipRule.SceneResource,
+                _ => throw new InvalidOperationException("Unreviewed current guard owner.")
+            };
+            var assignment = new OwnershipAssignment(identity, owner, Task, rule, OwnershipAudit.Fingerprint(member));
+            OwnershipPolicy.Validate(member, assignment);
+            var rejected = false;
+            try { OwnershipPolicy.Validate(member, assignment with { Owner = owner == AssemblyOwner.AnimationKernel ? AssemblyOwner.GodotPresenter : AssemblyOwner.AnimationKernel }); }
+            catch (InvalidDataException) { rejected = true; }
+            if (!rejected) throw new InvalidOperationException("Actual current guard accepted wrong ownership.");
+            checkedMembers.Add(new { member.Id, member.Path, member.Type, member.Mutability,
+                Fingerprint = OwnershipAudit.Fingerprint(member), Callers = member.Uses.Select(use => use.Caller).Distinct().ToArray(),
+                WrongOwnerRejected = rejected });
+        }
+        return new { BindingErrors = snapshot.Diagnostics.Length, Members = checkedMembers };
+    }
 
     private static object[] CheckPolicyPlacements()
     {
@@ -169,32 +199,31 @@ public static class OwnershipOracles
             // These strings are C# compiler-fixture input, not behavior selectors in the inspected program.
             var body = flow switch
             {
-                ReferenceFlow.Direct => "_states[0] = default;",
-                ReferenceFlow.Parenthesized => "((_states))[0] = default;",
-                ReferenceFlow.Cast => "((SimulationTimerState[])_states)[0] = default;",
-                ReferenceFlow.ChainedCast => "((SimulationTimerState[])(object)(_states))[0] = default;",
-                ReferenceFlow.RefArgument => "Take(ref _states[0]);",
-                ReferenceFlow.OutArgument => "Give(out _states[0]);",
-                ReferenceFlow.Alias => "var alias = _states; alias[0] = default;",
-                ReferenceFlow.Return or ReferenceFlow.MutableReturn => "return _states;",
-                ReferenceFlow.Conditional => "var alias = true ? _states : new SimulationTimerState[1]; alias[0] = default;",
-                ReferenceFlow.ObjectArgument => "Consume((object)_states);",
+                ReferenceFlow.Direct => "_free[0] = default;",
+                ReferenceFlow.Parenthesized => "((_free))[0] = default;",
+                ReferenceFlow.Cast => "((int[])_free)[0] = default;",
+                ReferenceFlow.ChainedCast => "((int[])(object)(_free))[0] = default;",
+                ReferenceFlow.RefArgument => "Take(ref _free[0]);",
+                ReferenceFlow.OutArgument => "Give(out _free[0]);",
+                ReferenceFlow.Alias => "var alias = _free; alias[0] = default;",
+                ReferenceFlow.Return or ReferenceFlow.MutableReturn => "return _free;",
+                ReferenceFlow.Conditional => "var alias = true ? _free : new int[1]; alias[0] = default;",
+                ReferenceFlow.ObjectArgument => "Consume((object)_free);",
                 _ => throw new InvalidOperationException("Unknown reference-flow fixture.")
             };
-            var returnType = flow == ReferenceFlow.MutableReturn ? "SimulationTimerState[]" : "void";
-            var methodName = authorization == CallerAuthorization.ExistingName ? "CaptureCheckpoint" : "Mutate";
+            var returnType = flow == ReferenceFlow.MutableReturn ? "int[]" : "void";
+            var methodName = authorization == CallerAuthorization.ExistingName ? "FillFree" : "Mutate";
             var declaration = flow == ReferenceFlow.Return
-                ? $"public System.ReadOnlySpan<SimulationTimerState> {(authorization == CallerAuthorization.ExistingName ? "PublicationReads" : "UnreviewedReads")} {{ get {{ {body} }} }}"
+                ? $"public System.ReadOnlySpan<int> {(authorization == CallerAuthorization.ExistingName ? "PublicationReads" : "UnreviewedReads")} {{ get {{ {body} }} }}"
                 : $"public {returnType} {methodName}() {{ {body} }}";
             var source = $$"""
-                namespace CuriousContraptions;
-                public struct SimulationTimerState { }
-                internal class SimulationTimers
+                namespace CuriousContraptions.Presentation;
+                internal class AnimationBatch
                 {
-                    private readonly SimulationTimerState[] _states = new SimulationTimerState[1];
+                    private readonly int[] _free = new int[1];
                     {{declaration}}
-                    private static void Take(ref SimulationTimerState value) { value = default; }
-                    private static void Give(out SimulationTimerState value) { value = default; }
+                    private static void Take(ref int value) { value = default; }
+                    private static void Give(out int value) { value = default; }
                     private static void Consume(object value) { }
                 }
                 """;
@@ -206,21 +235,21 @@ public static class OwnershipOracles
             if (errors.Length != 0) throw new InvalidOperationException("Reference-flow fixture has binding errors.");
             var model = compilation.GetSemanticModel(tree);
             var reference = tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                .Single(name => name.Identifier.ValueText == "_states");
+                .Single(name => name.Identifier.ValueText == "_free");
             var access = SourceInventory.Classify(reference, model);
             if (access != StateAccess.ReferenceEscape)
                 throw new InvalidOperationException("Mutable array flow was not conservatively classified.");
             var caller = new CallerId(DocumentationCommentId.CreateDeclarationId(model.GetEnclosingSymbol(reference.SpanStart)!)!);
-            var member = new StateMember(Member, Source, 4, new("CuriousContraptions.SimulationTimerState[]"),
+            var member = new StateMember(Member, Source, 4, new("System.Int32[]"),
                 StorageForm.Field, StorageMutability.ReferencedStorage, false, [new(Source, 8, caller, access)]);
             var input = new SourceInput(Source, new string('a', 64));
-            var assignment = new OwnershipAssignment(Member, AssemblyOwner.SimulationCore, Task,
-                OwnershipRule.SimulationAuthority, OwnershipAudit.Fingerprint(member));
+            var assignment = new OwnershipAssignment(Member, AssemblyOwner.AnimationKernel, Task,
+                OwnershipRule.AnimationAuthority, OwnershipAudit.Fingerprint(member));
             var accepted = true;
             try { OwnershipAudit.Validate(new([input], [member]), new([input], [assignment]), new HashSet<WorkId> { Task }); }
             catch (InvalidDataException) { accepted = false; }
             // A same-name method with a new mutable-array return type is a new, unapproved signature.
-            if (accepted != (authorization == CallerAuthorization.ExistingName && flow != ReferenceFlow.MutableReturn))
+            if (accepted != (authorization == CallerAuthorization.ExistingName && flow is not (ReferenceFlow.MutableReturn or ReferenceFlow.Return)))
                 throw new InvalidOperationException("Reference-flow authorization differs from its source-derived policy.");
             results.Add(new { Flow = flow, Authorization = authorization, Access = access, Accepted = accepted });
         }

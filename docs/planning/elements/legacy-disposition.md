@@ -22,6 +22,7 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 | 7.4 `engine/physics/` | 135 | 59 | 76 | 0 |
 | 7.4 `engine/bridge/` | 13 | 4 | 9 | 0 |
 | 7.4 dead `engine/*.cs` | 71 | 50 | 21 | 0 |
+| 7.4 retired WGSL kernels | 2 | 0 | 2 | 0 |
 | 7.4 parked GPU pipe declarations | 2 | 2 | 0 | 0 |
 | 7.4 uncompiled `parts/*.cs` | 43 | 43 | 0 | 0 |
 | 7.4 `parts/scenes/*.tscn` | 60 | 60 | 0 | 0 |
@@ -33,6 +34,7 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 | Code | No element knowledge because |
 | --- | --- |
+| N-KERNEL | Retired binary16 GPU integration experiment; its only GpuBodyFixture consumer was deleted in Story 7.2. Current runtime does not load these files; no new element contract is inferred from obsolete solver code. |
 | N-SOLVER | Generic legacy CPU solver internals (constraints, impulses, contact, loads, iteration, trajectories). Replaced by the worker TGS Soft solver; do not carry forward (CPU solver path). |
 | N-GEOM | Generic legacy CPU geometry, collision and sweep queries. Replaced by the worker broadphase and narrowphase. |
 | N-TRANSFER | Generic legacy mechanical-transfer and power-port framework (CPU). Element drive behaviour is harvested from the part scripts and element tests (CAT-018, CAT-019, CAT-042, CAT-057, CAT-070, CAT-071). |
@@ -120,7 +122,7 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 ## 7.3 LEGACY-0c: uncompiled `CuriousContraptions.tests/`
 
-**Deletion receipt (10 Oct 2026, final commit review pending):** all 417 listed paths (416 uncompiled C# sources and one merge backup, 3,308,638 bytes) were removed after independent membership review and immediate byte checks. All 26 current local C# sources and 36 evaluated Compile inputs are preserved; the solution suite passes 643/643. [Story 7.3](../../../_bmad-output/implementation-artifacts/spec-7-3-uncompiled-legacy-test-purge.md) records the original identities and raw results. Historical harvest rows remain unchanged.
+**Deletion receipt (10 Oct 2026, independently verified local commit 836a2ae):** all 417 listed paths (416 uncompiled C# sources and one merge backup, 3,308,638 bytes) were removed after independent membership review and immediate byte checks. All 26 current local C# sources and 36 evaluated Compile inputs are preserved; the solution suite passes 643/643. [Story 7.3](../../../_bmad-output/implementation-artifacts/spec-7-3-uncompiled-legacy-test-purge.md) records the original identities and raw results. Historical harvest rows remain unchanged.
 
 | File | Harvested into | Notes |
 | --- | --- | --- |
@@ -544,6 +546,8 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 ## 7.4 LEGACY-0d: `engine/physics/`
 
+**Scoped deletion receipt (10 Oct 2026, final snapshot review pending):** 637 tracked files across the Story 7.4 sections were removed after independent entry approval, immediate exact membership/byte checks and Anvil. The exact 649-file inventory, including twelve held straight-Pipe files, is bound in the [Story 7.4 spec](../../../_bmad-output/implementation-artifacts/spec-7-4-legacy-physics-unshipped-engine-purge.md). Current builds and 45/45 serial Chrome cases pass. Original clock-failure evidence remains unattributed; full Story 7.4 and P0-030/P0-031 remain incomplete while Pipe is held. Historical harvest rows below remain the source-knowledge ledger.
+
 | File | Harvested into | Notes |
 | --- | --- | --- |
 | `engine/physics/AccelerationDrive.cs` (+ `.uid`) | CAT-042 | |
@@ -778,6 +782,15 @@ The 15 compiled `engine/*.cs` files listed in `CuriousContraptions.csproj` are e
 | `engine/TubeMouth.cs` (+ `.uid`) | CAT-030, CAT-048, CAT-049, CAT-050, CAT-051, EL-005, EL-012, EL-071, EL-072 | |
 | `engine/TubeProxy.cs` (+ `.uid`) | CAT-016, CAT-048, CAT-051, CAT-070, CAT-071, EL-184 | |
 | `engine/WorldGeometry.cs` (+ `.uid`) | CAT-006, CAT-007, CAT-008, CAT-011, CAT-012, CAT-021, CAT-029, CAT-031, CAT-032, CAT-036, CAT-038, CAT-040, CAT-041, CAT-043, CAT-044, CAT-045, CAT-046, CAT-047, CAT-055, CAT-056, CAT-059, CAT-068, CAT-072 | |
+
+## 7.4 LEGACY-0d: retired WGSL kernels
+
+Reviewed full-purge additions (10 Oct): both kernels were removed within the independently approved 637-file non-Pipe set after exact byte drift checks and Anvil validation. The current f32 authority marked them for deletion; no source/project/runtime caller remained after GpuBodyFixture retirement, and no element spec cites either kernel.
+
+| File | Harvested into | No element knowledge |
+| --- | --- | --- |
+| `engine/gpu/body-integration.wgsl` | — | N-KERNEL |
+| `engine/gpu/basketball.wgsl` | — | N-KERNEL |
 
 ## 7.4 LEGACY-0d: parked GPU pipe declarations
 
@@ -1026,7 +1039,7 @@ Tracked files that the inventory left unclear, kept by ruling in the closing pas
 
 ## Gaps
 
-Every deletion-scope path above has a row. The current G/N source associations are synchronized; Story 7.0 independent enumeration covered its original 1,580 tracked deletion-scope paths with no uncovered path. Story 7.2 adds five explicitly accounted obsolete GpuBodyFixture files after correcting the earlier inventory classification (1,585 total programme paths). No harvest gap remains within the reviewed scope. This is declaration readiness, not authorization to skip the purge stories' own checks.
+Every deletion-scope path above has a row. The current G/N source associations are synchronized; Story 7.0 independent enumeration covered its original 1,580 tracked deletion-scope paths with no uncovered path. Story 7.2 adds five explicitly accounted obsolete GpuBodyFixture files after correcting the earlier inventory classification (1,585 programme paths). Story 7.4 includes two explicitly accounted retired WGSL kernels (1,587 programme paths). Its independently reviewed 637-file non-Pipe set is removed; twelve straight-Pipe files remain unchanged pending the owner decision. No harvest gap remains within the reviewed scope. This is declaration readiness, not authorization to skip the purge stories' own checks.
 
 Resolved in the closing pass (9 Oct 2026):
 - `CuriousContraptions.tests/ImpactFrameTests.cs`: harvested into CAT-015 (facts 12–13) and CAT-062 (facts 16–17).

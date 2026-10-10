@@ -97,7 +97,7 @@ The f32 contract above is the target; the code does not meet it everywhere yet. 
 | Activation/timer phases, contact work `Joules`, puzzle precision and assistance windows | `ActivationTimers.cs`, `PhysicsGpuAbi.cs`, `ContactWorkDeclaration.cs`, `WorkshopPuzzle.cs`, `WorkshopPuzzleWire.cs` | Remaining f32 migration |
 | Animation values, cosmetic durations and the `Half` lanes of the [animation channel ABI](presentation-bindings.md#declared-cosmetic-curves-anim-1b-and-ui-bindings-anim-1c) | `engine/presentation/AnimationValues.cs`, `WorkshopCosmetic.cs`, `WorkshopHint.cs` | Remaining f32 migration |
 | Worker tick arithmetic runs in JavaScript doubles and rounds pose to binary16 (velocity to f32) at commit; the WASM SIMD f32 solver replaces it | worker.js | Remaining f32 migration |
-| Legacy binary16 WGSL kernels still in the tree; their retired `tools/GpuBodyFixture` consumer is removed by Story 7.2 | `engine/gpu/basketball.wgsl`, `engine/gpu/body-integration.wgsl` | Remaining f32 migration (delete); unchanged by Story 7.2 |
+| Retired binary16 WGSL kernels, following their obsolete `tools/GpuBodyFixture` consumer | Historical `engine/gpu/basketball.wgsl`, `engine/gpu/body-integration.wgsl` | Removed by Story 7.4; preserved in git history |
 
 Until a lane migrates, envelope consequences that depend on its precision are stated against binary16.
 

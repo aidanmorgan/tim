@@ -18,7 +18,7 @@
 <a id="cat-002-i"></a>
 ### CAT-002-I · ball_detector
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-002). **Requirements (Incomplete):** [CAT-002](../requirements.md#current-cat-002). **Legacy deleted at this element's slice:** [parts/BallDetectorPart.cs](../../../parts/BallDetectorPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-002). **Requirements (Incomplete):** [CAT-002](../requirements.md#current-cat-002). **Legacy removed by Story 7.4:** `parts/BallDetectorPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-002-ball_detector.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball passes through the detector's physical aperture in the arrow direction and activates Signal lamp. Required capabilities are admitted aperture/contact geometry, shared physics centre-crossing/whole-ball-clearance queries, reusable discrete rearm/event routing and shared fading-indicator animation. A separately placed Clear pipe is not a prerequisite; reuse an admitted shared geometry capability when applicable.
 
@@ -49,7 +49,7 @@
 
 **Level(s) unlocked:** placed in switched_motor, conveyor_courier, belt_relay, reverse_belt, air_and_belt, mixed_signals, chain_mail, double_cold_start, depth_delivery, double_bridge, grand_contraption, wind_then_release, saved_for_later; inventory in battery_motor.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-005). **Requirements (Incomplete):** [CAT-005](../requirements.md#current-cat-005). **Legacy deleted at this element's slice:** [parts/BatteryPart.cs](../../../parts/BatteryPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-005). **Requirements (Incomplete):** [CAT-005](../requirements.md#current-cat-005). **Legacy removed by Story 7.4:** `parts/BatteryPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-005-battery.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Battery Supply energizes existing Motor PowerIn through actual wire.
 
@@ -58,7 +58,7 @@
 <a id="cat-006-i"></a>
 ### CAT-006-I · beam_combiner
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-006). **Requirements (Incomplete):** [CAT-006](../requirements.md#current-cat-006). **Legacy deleted at this element's slice:** [parts/BeamCombinerPart.cs](../../../parts/BeamCombinerPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-006). **Requirements (Incomplete):** [CAT-006](../requirements.md#current-cat-006). **Legacy removed by Story 7.4:** `parts/BeamCombinerPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-006-beam_combiner.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Two supplied Laser beams enter distinct cream inputs and share one output to a receiver, retaining declared channel energy and 90% transmission.
 
@@ -67,7 +67,7 @@
 <a id="cat-007-i"></a>
 ### CAT-007-I · beam_shutter
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-007). **Requirements (Incomplete):** [CAT-007](../requirements.md#current-cat-007). **Legacy deleted at this element's slice:** [parts/BeamShutterPart.cs](../../../parts/BeamShutterPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-007). **Requirements (Incomplete):** [CAT-007](../requirements.md#current-cat-007). **Legacy removed by Story 7.4:** `parts/BeamShutterPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-007-beam_shutter.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Battery-controlled shutter opens the Laser-to-receiver path and loss closes it.
 
@@ -76,7 +76,7 @@
 <a id="cat-008-i"></a>
 ### CAT-008-I · beam_splitter
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-008). **Requirements (Incomplete):** [CAT-008](../requirements.md#current-cat-008). **Legacy deleted at this element's slice:** [parts/BeamSplitterPart.cs](../../../parts/BeamSplitterPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-008). **Requirements (Incomplete):** [CAT-008](../requirements.md#current-cat-008). **Legacy removed by Story 7.4:** `parts/BeamSplitterPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-008-beam_splitter.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Laser enters splitter; straight and reflected branches separately reach two receivers.
 
@@ -85,7 +85,7 @@
 <a id="cat-009-i"></a>
 ### CAT-009-I · bell
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-009). **Requirements (Incomplete):** [CAT-009](../requirements.md#current-cat-009). **Legacy deleted at this element's slice:** [parts/BellPart.cs](../../../parts/BellPart.cs). **Mode records:** Configuration=Fixed, AcousticTone=Low, AcousticTone=Mid, AcousticTone=High.
+[Exact D/I/V acceptance](../requirements.md#current-cat-009). **Requirements (Incomplete):** [CAT-009](../requirements.md#current-cat-009). **Legacy removed by Story 7.4:** `parts/BellPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-009-bell.md). **Mode records:** Configuration=Fixed, AcousticTone=Low, AcousticTone=Mid, AcousticTone=High.
 
 **First visible interaction / minimum collaborators:** Basketball physically strikes Bell and a separately powered Sound meter receives its pulse.
 
@@ -94,7 +94,7 @@
 <a id="cat-010-i"></a>
 ### CAT-010-I · bellows
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-010). **Requirements (Incomplete):** [CAT-010](../requirements.md#current-cat-010). **Legacy deleted at this element's slice:** [parts/BellowsPart.cs](../../../parts/BellowsPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-010). **Requirements (Incomplete):** [CAT-010](../requirements.md#current-cat-010). **Legacy removed by Story 7.4:** `parts/BellowsPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-010-bellows.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball compresses Bellows plate and its inward stroke sends airflow to Windmill.
 
@@ -103,7 +103,7 @@
 <a id="cat-011-i"></a>
 ### CAT-011-I · blue_filter
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-011). **Requirements (Incomplete):** [CAT-011](../requirements.md#current-cat-011). **Legacy deleted at this element's slice:** [parts/ColourFilterPart.cs](../../../parts/ColourFilterPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Blue.
+[Exact D/I/V acceptance](../requirements.md#current-cat-011). **Requirements (Incomplete):** [CAT-011](../requirements.md#current-cat-011). **Legacy removed by Story 7.4:** `parts/ColourFilterPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-011-blue_filter.md). **Mode records:** Configuration=Fixed, OpticalChannel=Blue.
 
 **First visible interaction / minimum collaborators:** Supplied Laser beam through Blue filter reaches Blue receiver only with blue energy already present.
 
@@ -112,7 +112,7 @@
 <a id="cat-012-i"></a>
 ### CAT-012-I · blue_receiver
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-012). **Requirements (Incomplete):** [CAT-012](../requirements.md#current-cat-012). **Legacy deleted at this element's slice:** [parts/LightReceiverPart.cs](../../../parts/LightReceiverPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Blue.
+[Exact D/I/V acceptance](../requirements.md#current-cat-012). **Requirements (Incomplete):** [CAT-012](../requirements.md#current-cat-012). **Legacy removed by Story 7.4:** `parts/LightReceiverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-012-blue_receiver.md). **Mode records:** Configuration=Fixed, OpticalChannel=Blue.
 
 **First visible interaction / minimum collaborators:** A front-facing Blue receiver switches its separate Battery supply under sufficient blue channel power.
 
@@ -121,7 +121,7 @@
 <a id="cat-013-i"></a>
 ### CAT-013-I · both_gate
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-013). **Requirements (Incomplete):** [CAT-013](../requirements.md#current-cat-013). **Legacy deleted at this element's slice:** [parts/ElectricalLogicPart.cs](../../../parts/ElectricalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=And.
+[Exact D/I/V acceptance](../requirements.md#current-cat-013). **Requirements (Incomplete):** [CAT-013](../requirements.md#current-cat-013). **Legacy removed by Story 7.4:** `parts/ElectricalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-013-both_gate.md). **Mode records:** Configuration=Fixed, Logic=And.
 
 **First visible interaction / minimum collaborators:** Battery feeds bottom Supply and two separately powered condition inputs drive AND output to Motor.
 
@@ -152,7 +152,7 @@
 <a id="cat-016-i"></a>
 ### CAT-016-I · cannon
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-016). **Requirements (Incomplete):** [CAT-016](../requirements.md#current-cat-016). **Legacy deleted at this element's slice:** [parts/CannonPart.cs](../../../parts/CannonPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-016). **Requirements (Incomplete):** [CAT-016](../requirements.md#current-cat-016). **Legacy removed by Story 7.4:** `parts/CannonPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-016-cannon.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Single existing ball seats in Toy cannon; separate electrical charge plus activation launches it through a clear muzzle.
 
@@ -161,7 +161,7 @@
 <a id="cat-017-i"></a>
 ### CAT-017-I · clock
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-017). **Requirements (Incomplete):** [CAT-017](../requirements.md#current-cat-017). **Legacy deleted at this element's slice:** [parts/ClockPart.cs](../../../parts/ClockPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-017). **Requirements (Incomplete):** [CAT-017](../requirements.md#current-cat-017). **Legacy removed by Story 7.4:** `parts/ClockPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-017-clock.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Battery powers Repeating clock; ActivationOut drives Signal lamp after a full interval and repeats.
 
@@ -170,7 +170,7 @@
 <a id="cat-018-i"></a>
 ### CAT-018-I · clutch
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-018). **Requirements (Incomplete):** [CAT-018](../requirements.md#current-cat-018). **Legacy deleted at this element's slice:** [parts/ClutchPart.cs](../../../parts/ClutchPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-018). **Requirements (Incomplete):** [CAT-018](../requirements.md#current-cat-018). **Legacy removed by Story 7.4:** `parts/ClutchPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-018-clutch.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Motor drives Clutch left pulley and Conveyor takes right output; electrical supply engages plates.
 
@@ -181,7 +181,7 @@
 
 **Level(s) unlocked:** placed in belt_relay, double_cold_start; inventory in conveyor_courier, belt_relay, reverse_belt, air_and_belt, mixed_signals, chain_mail, depth_delivery, double_bridge, grand_contraption.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-019). **Requirements (Incomplete):** [CAT-019](../requirements.md#current-cat-019). **Legacy deleted at this element's slice:** [parts/ConveyorPart.cs](../../../parts/ConveyorPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-019). **Requirements (Incomplete):** [CAT-019](../requirements.md#current-cat-019). **Legacy removed by Story 7.4:** `parts/ConveyorPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-019-conveyor.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Motor drives Conveyor input and carries Basketball; its output drives a second belt only in the next chaining child.
 
@@ -190,7 +190,7 @@
 <a id="cat-020-i"></a>
 ### CAT-020-I · counter
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-020). **Requirements (Incomplete):** [CAT-020](../requirements.md#current-cat-020). **Legacy deleted at this element's slice:** [parts/CounterPart.cs](../../../parts/CounterPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-020). **Requirements (Incomplete):** [CAT-020](../requirements.md#current-cat-020). **Legacy removed by Story 7.4:** `parts/CounterPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-020-counter.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Impact switch sends three distinct triggers to Counter; threshold emits once to Signal lamp and closes supplied contact.
 
@@ -199,7 +199,7 @@
 <a id="cat-021-i"></a>
 ### CAT-021-I · cyan_receiver
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-021). **Requirements (Incomplete):** [CAT-021](../requirements.md#current-cat-021). **Legacy deleted at this element's slice:** [parts/LightReceiverPart.cs](../../../parts/LightReceiverPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Cyan.
+[Exact D/I/V acceptance](../requirements.md#current-cat-021). **Requirements (Incomplete):** [CAT-021](../requirements.md#current-cat-021). **Legacy removed by Story 7.4:** `parts/LightReceiverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-021-cyan_receiver.md). **Mode records:** Configuration=Fixed, OpticalChannel=Cyan.
 
 **First visible interaction / minimum collaborators:** Red/green/blue optical path supplies required green+blue channels to Cyan receiver's separate electrical contact.
 
@@ -228,7 +228,7 @@
 <a id="cat-024-i"></a>
 ### CAT-024-I · electrical_nand
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-024). **Requirements (Incomplete):** [CAT-024](../requirements.md#current-cat-024). **Legacy deleted at this element's slice:** [parts/ElectricalLogicPart.cs](../../../parts/ElectricalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=Nand.
+[Exact D/I/V acceptance](../requirements.md#current-cat-024). **Requirements (Incomplete):** [CAT-024](../requirements.md#current-cat-024). **Legacy removed by Story 7.4:** `parts/ElectricalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-024-electrical_nand.md). **Mode records:** Configuration=Fixed, Logic=Nand.
 
 **First visible interaction / minimum collaborators:** Battery bottom supply with two condition inputs implements NAND to a supplied consumer.
 
@@ -237,7 +237,7 @@
 <a id="cat-025-i"></a>
 ### CAT-025-I · electrical_nor
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-025). **Requirements (Incomplete):** [CAT-025](../requirements.md#current-cat-025). **Legacy deleted at this element's slice:** [parts/ElectricalLogicPart.cs](../../../parts/ElectricalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=Nor.
+[Exact D/I/V acceptance](../requirements.md#current-cat-025). **Requirements (Incomplete):** [CAT-025](../requirements.md#current-cat-025). **Legacy removed by Story 7.4:** `parts/ElectricalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-025-electrical_nor.md). **Mode records:** Configuration=Fixed, Logic=Nor.
 
 **First visible interaction / minimum collaborators:** Battery bottom supply with two condition inputs implements NOR to a supplied consumer.
 
@@ -246,7 +246,7 @@
 <a id="cat-026-i"></a>
 ### CAT-026-I · electrical_or
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-026). **Requirements (Incomplete):** [CAT-026](../requirements.md#current-cat-026). **Legacy deleted at this element's slice:** [parts/ElectricalLogicPart.cs](../../../parts/ElectricalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=Or.
+[Exact D/I/V acceptance](../requirements.md#current-cat-026). **Requirements (Incomplete):** [CAT-026](../requirements.md#current-cat-026). **Legacy removed by Story 7.4:** `parts/ElectricalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-026-electrical_or.md). **Mode records:** Configuration=Fixed, Logic=Or.
 
 **First visible interaction / minimum collaborators:** Battery bottom supply with two condition inputs implements OR to a supplied consumer.
 
@@ -255,7 +255,7 @@
 <a id="cat-027-i"></a>
 ### CAT-027-I · electrical_xor
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-027). **Requirements (Incomplete):** [CAT-027](../requirements.md#current-cat-027). **Legacy deleted at this element's slice:** [parts/ElectricalLogicPart.cs](../../../parts/ElectricalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=Xor.
+[Exact D/I/V acceptance](../requirements.md#current-cat-027). **Requirements (Incomplete):** [CAT-027](../requirements.md#current-cat-027). **Legacy removed by Story 7.4:** `parts/ElectricalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-027-electrical_xor.md). **Mode records:** Configuration=Fixed, Logic=Xor.
 
 **First visible interaction / minimum collaborators:** Battery bottom supply with two condition inputs implements XOR to a supplied consumer.
 
@@ -266,7 +266,7 @@
 
 **Level(s) unlocked:** placed in cold_start, powered_post, start_and_topple, cold_front, relay_workshop, double_cold_start, cold_signals, cold_bridges; inventory in air_mail, third_dimension, wind_signal, two_deliveries, air_and_belt, wind_and_dominoes, mixed_signals, cross_breezes, spatial_signals, three_deliveries, triple_signal, chain_mail, bounce_mail, depth_telegraph.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-028). **Requirements (Incomplete):** [CAT-028](../requirements.md#current-cat-028). **Legacy deleted at this element's slice:** [parts/FanPart.cs](../../../parts/FanPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-028). **Requirements (Incomplete):** [CAT-028](../requirements.md#current-cat-028). **Legacy removed by Story 7.4:** `parts/FanPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-028-fan.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Current self-contained Fan pushes Basketball along the jet; a Wall blocks the direct field.
 
@@ -277,7 +277,7 @@
 
 **Level(s) unlocked:** placed in solar_motor, solar_shadow, delayed_solar.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-029). **Requirements (Incomplete):** [CAT-029](../requirements.md#current-cat-029). **Legacy deleted at this element's slice:** [parts/FlashlightPart.cs](../../../parts/FlashlightPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-029). **Requirements (Incomplete):** [CAT-029](../requirements.md#current-cat-029). **Legacy removed by Story 7.4:** `parts/FlashlightPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-029-flashlight.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball presses Flashlight's button and its light reaches Solar panel.
 
@@ -286,7 +286,7 @@
 <a id="cat-030-i"></a>
 ### CAT-030-I · funnel
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-030). **Requirements (Incomplete):** [CAT-030](../requirements.md#current-cat-030). **Legacy deleted at this element's slice:** [parts/FunnelPart.cs](../../../parts/FunnelPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-030). **Requirements (Incomplete):** [CAT-030](../requirements.md#current-cat-030). **Legacy removed by Story 7.4:** `parts/FunnelPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-030-funnel.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball enters Funnel's wide hollow inlet and exits into Clear pipe.
 
@@ -295,7 +295,7 @@
 <a id="cat-031-i"></a>
 ### CAT-031-I · green_filter
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-031). **Requirements (Incomplete):** [CAT-031](../requirements.md#current-cat-031). **Legacy deleted at this element's slice:** [parts/ColourFilterPart.cs](../../../parts/ColourFilterPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Green.
+[Exact D/I/V acceptance](../requirements.md#current-cat-031). **Requirements (Incomplete):** [CAT-031](../requirements.md#current-cat-031). **Legacy removed by Story 7.4:** `parts/ColourFilterPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-031-green_filter.md). **Mode records:** Configuration=Fixed, OpticalChannel=Green.
 
 **First visible interaction / minimum collaborators:** Supplied beam through Green filter preserves only existing green power to Green receiver.
 
@@ -304,7 +304,7 @@
 <a id="cat-032-i"></a>
 ### CAT-032-I · green_receiver
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-032). **Requirements (Incomplete):** [CAT-032](../requirements.md#current-cat-032). **Legacy deleted at this element's slice:** [parts/LightReceiverPart.cs](../../../parts/LightReceiverPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Green.
+[Exact D/I/V acceptance](../requirements.md#current-cat-032). **Requirements (Incomplete):** [CAT-032](../requirements.md#current-cat-032). **Legacy removed by Story 7.4:** `parts/LightReceiverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-032-green_receiver.md). **Mode records:** Configuration=Fixed, OpticalChannel=Green.
 
 **First visible interaction / minimum collaborators:** Green receiver passes separate Battery supply with sufficient front green light.
 
@@ -315,7 +315,7 @@
 
 **Level(s) unlocked:** inventory in saved_for_later.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-033). **Requirements (Incomplete):** [CAT-033](../requirements.md#current-cat-033). **Legacy deleted at this element's slice:** [parts/HoldTimerPart.cs](../../../parts/HoldTimerPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-033). **Requirements (Incomplete):** [CAT-033](../requirements.md#current-cat-033). **Legacy removed by Story 7.4:** `parts/HoldTimerPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-033-hold_timer.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Impact switch triggers Hold timer, closing a Battery-fed contact for two seconds to Motor.
 
@@ -324,7 +324,7 @@
 <a id="cat-034-i"></a>
 ### CAT-034-I · impact_lever
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-034). **Requirements (Incomplete):** [CAT-034](../requirements.md#current-cat-034). **Legacy deleted at this element's slice:** [parts/ImpactLeverPart.cs](../../../parts/ImpactLeverPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-034). **Requirements (Incomplete):** [CAT-034](../requirements.md#current-cat-034). **Legacy removed by Story 7.4:** `parts/ImpactLeverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-034-impact_lever.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Bowling load turns one end of Impact lever and lifts a lighter load on the other.
 
@@ -344,7 +344,7 @@
 <a id="cat-036-i"></a>
 ### CAT-036-I · laser
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-036). **Requirements (Incomplete):** [CAT-036](../requirements.md#current-cat-036). **Legacy deleted at this element's slice:** [parts/LaserPart.cs](../../../parts/LaserPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-036). **Requirements (Incomplete):** [CAT-036](../requirements.md#current-cat-036). **Legacy removed by Story 7.4:** `parts/LaserPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-036-laser.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Battery supplies Laser and Impact switch trigger enables its beam to a receiver.
 
@@ -353,7 +353,7 @@
 <a id="cat-037-i"></a>
 ### CAT-037-I · latch
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-037). **Requirements (Incomplete):** [CAT-037](../requirements.md#current-cat-037). **Legacy deleted at this element's slice:** [parts/LatchPart.cs](../../../parts/LatchPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-037). **Requirements (Incomplete):** [CAT-037](../requirements.md#current-cat-037). **Legacy removed by Story 7.4:** `parts/LatchPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-037-latch.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Impact switch Set closes Latch's separately supplied contact to Motor; a second actual trigger reaches Reset.
 
@@ -362,7 +362,7 @@
 <a id="cat-038-i"></a>
 ### CAT-038-I · light_receiver
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-038). **Requirements (Incomplete):** [CAT-038](../requirements.md#current-cat-038). **Legacy deleted at this element's slice:** [parts/LightReceiverPart.cs](../../../parts/LightReceiverPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Broadband.
+[Exact D/I/V acceptance](../requirements.md#current-cat-038). **Requirements (Incomplete):** [CAT-038](../requirements.md#current-cat-038). **Legacy removed by Story 7.4:** `parts/LightReceiverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-038-light_receiver.md). **Mode records:** Configuration=Fixed, OpticalChannel=Broadband.
 
 **First visible interaction / minimum collaborators:** Supplied triggered Laser hits Laser receiver front and closes its separate Battery-fed contact.
 
@@ -371,7 +371,7 @@
 <a id="cat-039-i"></a>
 ### CAT-039-I · linear_pusher
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-039). **Requirements (Incomplete):** [CAT-039](../requirements.md#current-cat-039). **Legacy deleted at this element's slice:** [parts/LinearPusherPart.cs](../../../parts/LinearPusherPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-039). **Requirements (Incomplete):** [CAT-039](../requirements.md#current-cat-039). **Legacy removed by Story 7.4:** `parts/LinearPusherPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-039-linear_pusher.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Battery PowerIn plus one ExtendIn command moves Linear pusher head against an existing load; RetractIn is the next direction child.
 
@@ -380,7 +380,7 @@
 <a id="cat-040-i"></a>
 ### CAT-040-I · magenta_receiver
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-040). **Requirements (Incomplete):** [CAT-040](../requirements.md#current-cat-040). **Legacy deleted at this element's slice:** [parts/LightReceiverPart.cs](../../../parts/LightReceiverPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Magenta.
+[Exact D/I/V acceptance](../requirements.md#current-cat-040). **Requirements (Incomplete):** [CAT-040](../requirements.md#current-cat-040). **Legacy removed by Story 7.4:** `parts/LightReceiverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-040-magenta_receiver.md). **Mode records:** Configuration=Fixed, OpticalChannel=Magenta.
 
 **First visible interaction / minimum collaborators:** Required red+blue illumination switches Magenta receiver's separate Battery supply.
 
@@ -389,7 +389,7 @@
 <a id="cat-041-i"></a>
 ### CAT-041-I · mirror
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-041). **Requirements (Incomplete):** [CAT-041](../requirements.md#current-cat-041). **Legacy deleted at this element's slice:** [parts/MirrorPart.cs](../../../parts/MirrorPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-041). **Requirements (Incomplete):** [CAT-041](../requirements.md#current-cat-041). **Legacy removed by Story 7.4:** `parts/MirrorPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-041-mirror.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Rotate Flat mirror with existing gizmo to reflect supplied Laser into receiver.
 
@@ -400,7 +400,7 @@
 
 **Level(s) unlocked:** placed in battery_motor, switched_motor, conveyor_courier, belt_relay, reverse_belt, solar_motor, solar_shadow, delayed_solar, air_and_belt, mixed_signals, chain_mail, double_cold_start, depth_delivery, double_bridge, grand_contraption, wind_then_release, saved_for_later.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-042). **Requirements (Incomplete):** [CAT-042](../requirements.md#current-cat-042). **Legacy deleted at this element's slice:** [parts/MotorPart.cs](../../../parts/MotorPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-042). **Requirements (Incomplete):** [CAT-042](../requirements.md#current-cat-042). **Legacy removed by Story 7.4:** `parts/MotorPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-042-motor.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Battery PowerIn rotates Motor shaft and its Drive connection moves Conveyor.
 
@@ -409,7 +409,7 @@
 <a id="cat-043-i"></a>
 ### CAT-043-I · optical_and
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-043). **Requirements (Incomplete):** [CAT-043](../requirements.md#current-cat-043). **Legacy deleted at this element's slice:** [parts/OpticalLogicPart.cs](../../../parts/OpticalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=And.
+[Exact D/I/V acceptance](../requirements.md#current-cat-043). **Requirements (Incomplete):** [CAT-043](../requirements.md#current-cat-043). **Legacy removed by Story 7.4:** `parts/OpticalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-043-optical_and.md). **Mode records:** Configuration=Fixed, Logic=And.
 
 **First visible interaction / minimum collaborators:** Two optical condition beams gate a distinct carrier beam through optical AND to receiver.
 
@@ -418,7 +418,7 @@
 <a id="cat-044-i"></a>
 ### CAT-044-I · optical_nand
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-044). **Requirements (Incomplete):** [CAT-044](../requirements.md#current-cat-044). **Legacy deleted at this element's slice:** [parts/OpticalLogicPart.cs](../../../parts/OpticalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=Nand.
+[Exact D/I/V acceptance](../requirements.md#current-cat-044). **Requirements (Incomplete):** [CAT-044](../requirements.md#current-cat-044). **Legacy removed by Story 7.4:** `parts/OpticalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-044-optical_nand.md). **Mode records:** Configuration=Fixed, Logic=Nand.
 
 **First visible interaction / minimum collaborators:** Distinct carrier passes optical NAND when controls are not both lit.
 
@@ -427,7 +427,7 @@
 <a id="cat-045-i"></a>
 ### CAT-045-I · optical_nor
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-045). **Requirements (Incomplete):** [CAT-045](../requirements.md#current-cat-045). **Legacy deleted at this element's slice:** [parts/OpticalLogicPart.cs](../../../parts/OpticalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=Nor.
+[Exact D/I/V acceptance](../requirements.md#current-cat-045). **Requirements (Incomplete):** [CAT-045](../requirements.md#current-cat-045). **Legacy removed by Story 7.4:** `parts/OpticalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-045-optical_nor.md). **Mode records:** Configuration=Fixed, Logic=Nor.
 
 **First visible interaction / minimum collaborators:** Distinct carrier passes optical NOR only when both controls are dark.
 
@@ -436,7 +436,7 @@
 <a id="cat-046-i"></a>
 ### CAT-046-I · optical_or
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-046). **Requirements (Incomplete):** [CAT-046](../requirements.md#current-cat-046). **Legacy deleted at this element's slice:** [parts/OpticalLogicPart.cs](../../../parts/OpticalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=Or.
+[Exact D/I/V acceptance](../requirements.md#current-cat-046). **Requirements (Incomplete):** [CAT-046](../requirements.md#current-cat-046). **Legacy removed by Story 7.4:** `parts/OpticalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-046-optical_or.md). **Mode records:** Configuration=Fixed, Logic=Or.
 
 **First visible interaction / minimum collaborators:** Distinct carrier passes optical OR with either lit control.
 
@@ -445,7 +445,7 @@
 <a id="cat-047-i"></a>
 ### CAT-047-I · optical_xor
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-047). **Requirements (Incomplete):** [CAT-047](../requirements.md#current-cat-047). **Legacy deleted at this element's slice:** [parts/OpticalLogicPart.cs](../../../parts/OpticalLogicPart.cs). **Mode records:** Configuration=Fixed, Logic=Xor.
+[Exact D/I/V acceptance](../requirements.md#current-cat-047). **Requirements (Incomplete):** [CAT-047](../requirements.md#current-cat-047). **Legacy removed by Story 7.4:** `parts/OpticalLogicPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-047-optical_xor.md). **Mode records:** Configuration=Fixed, Logic=Xor.
 
 **First visible interaction / minimum collaborators:** Distinct carrier passes optical XOR with exactly one lit control.
 
@@ -467,7 +467,7 @@
 
 **Level(s) unlocked:** inventory in gentle_bend.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-049). **Requirements (Incomplete):** [CAT-049](../requirements.md#current-cat-049). **Legacy deleted at this element's slice:** [parts/PipeBendPart.cs](../../../parts/PipeBendPart.cs). **Mode records:** Configuration=Fixed, TubeAngle=Degrees45.
+[Exact D/I/V acceptance](../requirements.md#current-cat-049). **Requirements (Incomplete):** [CAT-049](../requirements.md#current-cat-049). **Legacy removed by Story 7.4:** `parts/PipeBendPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-049-pipe_bend_45.md). **Mode records:** Configuration=Fixed, TubeAngle=Degrees45.
 
 **First visible interaction / minimum collaborators:** Basketball traverses a real 45° bend snapped between matching tube mouths.
 
@@ -478,7 +478,7 @@
 
 **Level(s) unlocked:** placed in joined_pipe; inventory in quarter_bend.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-050). **Requirements (Incomplete):** [CAT-050](../requirements.md#current-cat-050). **Legacy deleted at this element's slice:** [parts/PipeBendPart.cs](../../../parts/PipeBendPart.cs). **Mode records:** Configuration=Fixed, TubeAngle=Degrees90.
+[Exact D/I/V acceptance](../requirements.md#current-cat-050). **Requirements (Incomplete):** [CAT-050](../requirements.md#current-cat-050). **Legacy removed by Story 7.4:** `parts/PipeBendPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-050-pipe_bend_90.md). **Mode records:** Configuration=Fixed, TubeAngle=Degrees90.
 
 **First visible interaction / minimum collaborators:** Basketball traverses a real 90° bend snapped between matching tube mouths.
 
@@ -487,7 +487,7 @@
 <a id="cat-051-i"></a>
 ### CAT-051-I · powered_gate
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-051). **Requirements (Incomplete):** [CAT-051](../requirements.md#current-cat-051). **Legacy deleted at this element's slice:** [parts/PoweredGatePart.cs](../../../parts/PoweredGatePart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-051). **Requirements (Incomplete):** [CAT-051](../requirements.md#current-cat-051). **Legacy removed by Story 7.4:** `parts/PoweredGatePart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-051-powered_gate.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Battery retracts Powered gate in an actual pipe/ball route.
 
@@ -496,7 +496,7 @@
 <a id="cat-052-i"></a>
 ### CAT-052-I · pressure_plate
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-052). **Requirements (Incomplete):** [CAT-052](../requirements.md#current-cat-052). **Legacy deleted at this element's slice:** [parts/PressurePlatePart.cs](../../../parts/PressurePlatePart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-052). **Requirements (Incomplete):** [CAT-052](../requirements.md#current-cat-052). **Legacy removed by Story 7.4:** `parts/PressurePlatePart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-052-pressure_plate.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Bowling/Basketball rests on Pressure plate top and its Battery-fed contact powers Motor.
 
@@ -507,7 +507,7 @@
 
 **Level(s) unlocked:** placed in counterweight, pulley_depth; inventory in pulley_depth.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-053). **Requirements (Incomplete):** [CAT-053](../requirements.md#current-cat-053). **Legacy deleted at this element's slice:** [parts/PulleyPart.cs](../../../parts/PulleyPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-053). **Requirements (Incomplete):** [CAT-053](../requirements.md#current-cat-053). **Legacy removed by Story 7.4:** `parts/PulleyPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-053-pulley.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Two Weights connect through an unbranched continuous rope over the existing fixed frictionless routed Pulley, whose current target length includes finite-radius groove tangents/arcs; use counterweight/pulley_depth with fixed mass 1 versus default placed mass 4 for the unequal-load case.
 
@@ -527,7 +527,7 @@
 <a id="cat-055-i"></a>
 ### CAT-055-I · red_filter
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-055). **Requirements (Incomplete):** [CAT-055](../requirements.md#current-cat-055). **Legacy deleted at this element's slice:** [parts/ColourFilterPart.cs](../../../parts/ColourFilterPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Red.
+[Exact D/I/V acceptance](../requirements.md#current-cat-055). **Requirements (Incomplete):** [CAT-055](../requirements.md#current-cat-055). **Legacy removed by Story 7.4:** `parts/ColourFilterPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-055-red_filter.md). **Mode records:** Configuration=Fixed, OpticalChannel=Red.
 
 **First visible interaction / minimum collaborators:** Supplied beam through Red filter preserves only existing red energy to Red receiver.
 
@@ -536,7 +536,7 @@
 <a id="cat-056-i"></a>
 ### CAT-056-I · red_receiver
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-056). **Requirements (Incomplete):** [CAT-056](../requirements.md#current-cat-056). **Legacy deleted at this element's slice:** [parts/LightReceiverPart.cs](../../../parts/LightReceiverPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Red.
+[Exact D/I/V acceptance](../requirements.md#current-cat-056). **Requirements (Incomplete):** [CAT-056](../requirements.md#current-cat-056). **Legacy removed by Story 7.4:** `parts/LightReceiverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-056-red_receiver.md). **Mode records:** Configuration=Fixed, OpticalChannel=Red.
 
 **First visible interaction / minimum collaborators:** Red receiver switches separate Battery supply under sufficient front red light.
 
@@ -547,7 +547,7 @@
 
 **Level(s) unlocked:** inventory in reverse_belt.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-057). **Requirements (Incomplete):** [CAT-057](../requirements.md#current-cat-057). **Legacy deleted at this element's slice:** [parts/ReverseTransmissionPart.cs](../../../parts/ReverseTransmissionPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-057). **Requirements (Incomplete):** [CAT-057](../requirements.md#current-cat-057). **Legacy removed by Story 7.4:** `parts/ReverseTransmissionPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-057-reverse_transmission.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Motor drives Reverse transmission then Conveyor travels in opposite direction.
 
@@ -556,7 +556,7 @@
 <a id="cat-058-i"></a>
 ### CAT-058-I · rope_anchor
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-058). **Requirements (Incomplete):** [CAT-058](../requirements.md#current-cat-058). **Legacy deleted at this element's slice:** [parts/RopeAnchorPart.cs](../../../parts/RopeAnchorPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-058). **Requirements (Incomplete):** [CAT-058](../requirements.md#current-cat-058). **Legacy removed by Story 7.4:** `parts/RopeAnchorPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-058-rope_anchor.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Rope anchor supports hanging Weight through an actual taut rope.
 
@@ -567,7 +567,7 @@
 
 **Level(s) unlocked:** inventory in solar_motor, solar_shadow, delayed_solar.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-059). **Requirements (Incomplete):** [CAT-059](../requirements.md#current-cat-059). **Legacy deleted at this element's slice:** [parts/SolarPanelPart.cs](../../../parts/SolarPanelPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-059). **Requirements (Incomplete):** [CAT-059](../requirements.md#current-cat-059). **Legacy removed by Story 7.4:** `parts/SolarPanelPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-059-solar_panel.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Active Flashlight illuminates Solar panel cells and enables its declared electrical output.
 
@@ -576,7 +576,7 @@
 <a id="cat-060-i"></a>
 ### CAT-060-I · sound_meter
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-060). **Requirements (Incomplete):** [CAT-060](../requirements.md#current-cat-060). **Legacy deleted at this element's slice:** [parts/SoundMeterPart.cs](../../../parts/SoundMeterPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-060). **Requirements (Incomplete):** [CAT-060](../requirements.md#current-cat-060). **Legacy removed by Story 7.4:** `parts/SoundMeterPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-060-sound_meter.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Bell impact reaches separately powered Sound meter; threshold rising edge triggers Signal lamp.
 
@@ -585,7 +585,7 @@
 <a id="cat-061-i"></a>
 ### CAT-061-I · speaker
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-061). **Requirements (Incomplete):** [CAT-061](../requirements.md#current-cat-061). **Legacy deleted at this element's slice:** [parts/SpeakerPart.cs](../../../parts/SpeakerPart.cs). **Mode records:** Configuration=Fixed, AcousticTone=Low, AcousticTone=Mid, AcousticTone=High.
+[Exact D/I/V acceptance](../requirements.md#current-cat-061). **Requirements (Incomplete):** [CAT-061](../requirements.md#current-cat-061). **Legacy removed by Story 7.4:** `parts/SpeakerPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-061-speaker.md). **Mode records:** Configuration=Fixed, AcousticTone=Low, AcousticTone=Mid, AcousticTone=High.
 
 **First visible interaction / minimum collaborators:** Battery supplies Speaker and Impact switch trigger emits forward pulse to powered Sound meter.
 
@@ -596,7 +596,7 @@
 
 **Level(s) unlocked:** placed in ready_to_rebound; inventory in spring_forward, spring_signal, bounce_and_roll, spring_and_chain, two_signals, deep_springs, three_deliveries, triple_signal, cold_front, bounce_mail, double_cold_start, signals_and_chain, cold_signals, depth_delivery, depth_telegraph, bridges_and_signal.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-062). **Requirements (Incomplete):** [CAT-062](../requirements.md#current-cat-062). **Legacy deleted at this element's slice:** [parts/SpringPart.cs](../../../parts/SpringPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-062). **Requirements (Incomplete):** [CAT-062](../requirements.md#current-cat-062). **Legacy removed by Story 7.4:** `parts/SpringPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-062-spring.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball compresses Springboard, which returns stored spring energy.
 
@@ -629,7 +629,7 @@
 
 **Level(s) unlocked:** inventory in a_gentle_rebound.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-065). **Requirements (Incomplete):** [CAT-065](../requirements.md#current-cat-065). **Legacy deleted at this element's slice:** [parts/TrampolinePart.cs](../../../parts/TrampolinePart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-065). **Requirements (Incomplete):** [CAT-065](../requirements.md#current-cat-065). **Legacy removed by Story 7.4:** `parts/TrampolinePart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-065-trampoline.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball hits cyan Trampoline bed and rebounds; rotate it for a separate redirect child.
 
@@ -651,7 +651,7 @@
 
 **Level(s) unlocked:** placed in counterweight, pulley_depth; inventory in counterweight, pulley_depth.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-067). **Requirements (Incomplete):** [CAT-067](../requirements.md#current-cat-067). **Legacy deleted at this element's slice:** [parts/WeightPart.cs](../../../parts/WeightPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-067). **Requirements (Incomplete):** [CAT-067](../requirements.md#current-cat-067). **Legacy removed by Story 7.4:** `parts/WeightPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-067-weight.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Rope-linked Weight pulls a lighter Weight through Pulley.
 
@@ -660,7 +660,7 @@
 <a id="cat-068-i"></a>
 ### CAT-068-I · white_receiver
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-068). **Requirements (Incomplete):** [CAT-068](../requirements.md#current-cat-068). **Legacy deleted at this element's slice:** [parts/LightReceiverPart.cs](../../../parts/LightReceiverPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=White.
+[Exact D/I/V acceptance](../requirements.md#current-cat-068). **Requirements (Incomplete):** [CAT-068](../requirements.md#current-cat-068). **Legacy removed by Story 7.4:** `parts/LightReceiverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-068-white_receiver.md). **Mode records:** Configuration=Fixed, OpticalChannel=White.
 
 **First visible interaction / minimum collaborators:** All marked RGB channels meet White receiver thresholds and switch separate supply.
 
@@ -669,7 +669,7 @@
 <a id="cat-069-i"></a>
 ### CAT-069-I · wind_chimes
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-069). **Requirements (Incomplete):** [CAT-069](../requirements.md#current-cat-069). **Legacy deleted at this element's slice:** [parts/WindChimesPart.cs](../../../parts/WindChimesPart.cs). **Mode records:** Configuration=Fixed, AcousticTone=Low, AcousticTone=Mid, AcousticTone=High.
+[Exact D/I/V acceptance](../requirements.md#current-cat-069). **Requirements (Incomplete):** [CAT-069](../requirements.md#current-cat-069). **Legacy removed by Story 7.4:** `parts/WindChimesPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-069-wind_chimes.md). **Mode records:** Configuration=Fixed, AcousticTone=Low, AcousticTone=Mid, AcousticTone=High.
 
 **First visible interaction / minimum collaborators:** Fan moves Wind chimes sail/clapper into tubes; powered Sound meter hears actual strike.
 
@@ -678,7 +678,7 @@
 <a id="cat-070-i"></a>
 ### CAT-070-I · windmill
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-070). **Requirements (Incomplete):** [CAT-070](../requirements.md#current-cat-070). **Legacy deleted at this element's slice:** [parts/WindmillPart.cs](../../../parts/WindmillPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-070). **Requirements (Incomplete):** [CAT-070](../requirements.md#current-cat-070). **Legacy removed by Story 7.4:** `parts/WindmillPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-070-windmill.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Fan drives Windmill rotor and its shaft moves Conveyor.
 
@@ -689,7 +689,7 @@
 
 **Level(s) unlocked:** placed in saved_for_later; inventory in wind_then_release.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-071). **Requirements (Incomplete):** [CAT-071](../requirements.md#current-cat-071). **Legacy deleted at this element's slice:** [parts/WoundSpringPart.cs](../../../parts/WoundSpringPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-071). **Requirements (Incomplete):** [CAT-071](../requirements.md#current-cat-071). **Legacy removed by Story 7.4:** `parts/WoundSpringPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-071-wound_spring.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Motor belt winds finite Wound spring, then separate activation releases its guided plunger into a load.
 
@@ -698,7 +698,7 @@
 <a id="cat-072-i"></a>
 ### CAT-072-I · yellow_receiver
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-072). **Requirements (Incomplete):** [CAT-072](../requirements.md#current-cat-072). **Legacy deleted at this element's slice:** [parts/LightReceiverPart.cs](../../../parts/LightReceiverPart.cs). **Mode records:** Configuration=Fixed, OpticalChannel=Yellow.
+[Exact D/I/V acceptance](../requirements.md#current-cat-072). **Requirements (Incomplete):** [CAT-072](../requirements.md#current-cat-072). **Legacy removed by Story 7.4:** `parts/LightReceiverPart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-072-yellow_receiver.md). **Mode records:** Configuration=Fixed, OpticalChannel=Yellow.
 
 **First visible interaction / minimum collaborators:** Red+green light meets Yellow receiver channel thresholds and switches separate Battery supply.
 

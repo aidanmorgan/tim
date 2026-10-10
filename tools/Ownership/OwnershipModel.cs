@@ -18,7 +18,6 @@ public readonly record struct SourcePath(string Value);
 public readonly record struct MemberId(string Value);
 public readonly record struct CallerId(string Value);
 public readonly record struct TypeId(string Value);
-public readonly record struct WorkId(string Value);
 public sealed record SourceInput(SourcePath Path, string Sha256);
 public sealed record UseSite(SourcePath Path, int Line, CallerId Caller, StateAccess Access);
 public sealed record StateMember(MemberId Id, SourcePath Path, int Line, TypeId Type,

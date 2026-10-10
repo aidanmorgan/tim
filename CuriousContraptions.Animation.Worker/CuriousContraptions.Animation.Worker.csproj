@@ -6,6 +6,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <DefineConstants Condition="'$(PlaytestDiagnostics)' == 'true'">$(DefineConstants);PLAYTEST</DefineConstants>
     <WasmMainJSPath>wwwroot/worker.js</WasmMainJSPath>
   </PropertyGroup>
   <!-- The shipped worker is the trimmed Publish bundle only: Build produces no bundle, and the publish carries

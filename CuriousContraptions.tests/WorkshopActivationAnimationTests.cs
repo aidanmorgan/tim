@@ -453,15 +453,15 @@ public sealed class WorkshopActivationAnimationTests
         var preparationType = typeof(BrowserWorkshopClient).GetNestedType("Preparation", BindingFlags.NonPublic)!;
         Set(client, "_preparation", Activator.CreateInstance(preparationType, default(ScheduleControlHeader), WorkshopCadenceSettings.Default(), default(WorkshopResponse), ScheduleTransition.Run));
         client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
-        Assert.Equal(1, Field<System.Collections.ICollection>(client, "_uiQueue").Count);
+        Assert.Single(Field<System.Collections.ICollection>(client, "_uiQueue"));
         Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
         Set(client, "_schedule", null); Invoke(client, "PumpUiControls"); // no schedule yet: still queued, not dropped
-        Assert.Equal(1, Field<System.Collections.ICollection>(client, "_uiQueue").Count);
+        Assert.Single(Field<System.Collections.ICollection>(client, "_uiQueue"));
         Set(client, "_schedule", Schedule(1, 1)); Set(client, "_preparation", null);
         var fault = Assert.Throws<TargetInvocationException>(() => Invoke(client, "PumpUiControls"));
         Assert.IsType<PlatformNotSupportedException>(fault.InnerException);
         Assert.Equal(AnimationControlKind.Reveal, Field<ChannelControl?>(client, "_animationPending")!.Value.Kind);
-        Assert.Equal(0, Field<System.Collections.ICollection>(client, "_uiQueue").Count);
+        Assert.Empty(Field<System.Collections.ICollection>(client, "_uiQueue"));
     }
 
     [Fact]
@@ -491,7 +491,7 @@ public sealed class WorkshopActivationAnimationTests
         // The lease is busy: the hint request queues instead of throwing (deferred-work item 1).
         client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Visibility, false);
         client.ControlUi(WorkshopUiTarget.Hint, AnimationControlKind.Reveal, true);
-        Assert.Equal(1, Field<System.Collections.ICollection>(client, "_uiQueue").Count); // Reveal supersedes the queued Visibility.
+        Assert.Single(Field<System.Collections.ICollection>(client, "_uiQueue")); // Reveal supersedes the queued Visibility.
         Assert.Equal(Control, Field<ChannelControl?>(client, "_animationPending"));
         client.ReceiveAnimation(Output(Control, new(1), AnimationOutputKind.Acknowledgement, 1));
         Assert.Null(Field<ChannelControl?>(client, "_animationPending"));
@@ -501,7 +501,7 @@ public sealed class WorkshopActivationAnimationTests
         var hint = UiCurves.Hint;
         Assert.Equal(new ChannelControl(hint.AnimationTarget, default, 1, 1, AnimationControlKind.Reveal, true, (Half)0, (Half)1, hint.Duration, hint.Curve),
             Field<ChannelControl?>(client, "_animationPending"));
-        Assert.Equal(0, Field<System.Collections.ICollection>(client, "_uiQueue").Count);
+        Assert.Empty(Field<System.Collections.ICollection>(client, "_uiQueue"));
         Assert.Equal(1ul, Field<ulong>(client, "_hintGeneration"));
     }
 

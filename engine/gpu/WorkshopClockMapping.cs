@@ -68,6 +68,8 @@ public sealed record WorkshopClockPeer(RuntimeSessionId Session, ClockGeneration
     }
 }
 
+internal enum ClockRecoveryFailure : byte { Elapsed, ProbeLimit }
+
 [Flags]
 internal enum ClockBookkeepingFlags : byte { None = 0, Pending = 1 }
 
@@ -139,7 +141,7 @@ public sealed class WorkshopClockMapping
     public ClockObservation Receive(ClockReply reply)
     {
         ValidateNow(reply.RequesterReceived);
-        RequireRecoveryTime(reply.RequesterReceived);
+        RequireRecoveryTime(reply.RequesterReceived, reply);
         var outcome = Classify(reply);
         var interval = outcome == ClockProbeOutcome.Accepted ? Offset(reply, EndpointUncertainty) : default;
         var expired = _count != 0 && (Int128)reply.RequesterReceived.Value - NewestReceipt() > MappingLifetime;
@@ -199,7 +201,7 @@ public sealed class WorkshopClockMapping
             if (_count == ProbeCapacity && !IsQualified && HasOffsetBudget(reply.RequesterReceived, 0))
                 State = ClockMappingState.Ready;
         }
-        UpdateAvailability(reply.RequesterReceived, outcome == ClockProbeOutcome.Accepted ? interval : null);
+        UpdateAvailability(reply.RequesterReceived, outcome == ClockProbeOutcome.Accepted ? interval : null, reply);
         return new(reply, outcome, interval);
     }
 
@@ -309,21 +311,86 @@ public sealed class WorkshopClockMapping
 
     private void ClearRecovery() { _recoveryStarted = 0; _recoverySends = 0; }
 
-    private void FailRecovery()
+    private void FailRecovery(ClockRecoveryFailure cause, MonotonicNanoseconds now, ClockReply? reply)
     {
+#if PLAYTEST
+        try { EmitRecoveryFault(cause, now, reply); }
+        catch (Exception) { /* Diagnostic output must never replace the original clock fault. */ }
+#endif
         State = ClockMappingState.Faulted;
         _flags &= ~ClockBookkeepingFlags.Pending;
         throw new InvalidOperationException("Clock mapping recovery exhausted its bounded episode.");
     }
 
-    private void RequireRecoveryTime(MonotonicNanoseconds now)
+
+#if PLAYTEST
+    private void EmitRecoveryFault(ClockRecoveryFailure cause, MonotonicNanoseconds now, ClockReply? reply)
+    {
+        using var bytes = new System.IO.MemoryStream();
+        using (var json = new System.Text.Json.Utf8JsonWriter(bytes))
+        {
+            void Exact(string name, Int128 value) =>
+                json.WriteString(name, value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            void Probe(ClockProbe probe)
+            {
+                json.WriteStartObject();
+                Exact("sessionLow", probe.Session.Low); Exact("sessionHigh", probe.Session.High);
+                Exact("masterGeneration", probe.Generation.Value);
+                Exact("requesterGeneration", probe.RequesterGeneration.Value);
+                json.WriteNumber("role", (uint)probe.RequesterRole);
+                Exact("sequence", probe.Sequence.Value); Exact("sent", probe.RequesterSent.Value);
+                json.WriteEndObject();
+            }
+            json.WriteStartObject();
+            json.WriteNumber("role", (uint)_peer.RequesterRole);
+            json.WriteNumber("cause", (byte)cause);
+            json.WriteNumber("stateBeforeTeardown", (byte)State);
+            Exact("sessionLow", Session.Low); Exact("sessionHigh", Session.High);
+            Exact("masterGeneration", Generation.Value);
+            Exact("requesterGeneration", _peer.RequesterGeneration.Value);
+            Exact("masterOrigin", _peer.MasterOrigin.Value);
+            Exact("uncertainty", EndpointUncertainty.Value);
+            Exact("displayEpoch", DisplayEpoch); Exact("now", now.Value);
+            Exact("recoveryStarted", _recoveryStarted);
+            json.WriteNumber("recoverySends", _recoverySends);
+            json.WritePropertyName("pending");
+            if (Pending is { } pending) Probe(pending); else json.WriteNullValue();
+            json.WritePropertyName("reply");
+            if (reply is { } received)
+            {
+                json.WriteStartObject();
+                json.WritePropertyName("probe"); Probe(received.Probe);
+                Exact("masterReceived", received.MasterReceived.Value);
+                Exact("masterSent", received.MasterSent.Value);
+                Exact("requesterReceived", received.RequesterReceived.Value);
+                json.WriteEndObject();
+            }
+            else json.WriteNullValue();
+            // These slots may already include the triggering accepted reply.
+            json.WriteStartArray("slotsBeforeTeardown");
+            for (var i = 0; i < _count; i++)
+            {
+                var slot = _slots[i]; var interval = Interval(slot);
+                json.WriteStartObject();
+                Exact("receipt", slot.Receipt); Exact("sequence", slot.Sequence);
+                Exact("lower", interval.Lower); Exact("upper", interval.Upper);
+                json.WriteEndObject();
+            }
+            json.WriteEndArray(); json.WriteEndObject();
+        }
+        Console.Error.WriteLine("CCGPU_CLOCK_RECOVERY_FAULT " +
+            System.Text.Encoding.UTF8.GetString(bytes.GetBuffer(), 0, checked((int)bytes.Length)));
+    }
+#endif
+
+    private void RequireRecoveryTime(MonotonicNanoseconds now, ClockReply? reply = null)
     {
         // The reply at the exact endpoint may settle; one nanosecond later cannot.
         if (State == ClockMappingState.Recovering && (Int128)now.Value - _recoveryStarted > RecoveryLifetime)
-            FailRecovery();
+            FailRecovery(ClockRecoveryFailure.Elapsed, now, reply);
     }
 
-    private void UpdateAvailability(MonotonicNanoseconds now, ClockInterval? acceptedInterval = null)
+    private void UpdateAvailability(MonotonicNanoseconds now, ClockInterval? acceptedInterval = null, ClockReply? reply = null)
     {
         if (!IsQualified) return;
         var covered = HasOffsetBudget(now, RefreshSpacing);
@@ -339,7 +406,7 @@ public sealed class WorkshopClockMapping
             ClearRecovery();
         }
         if (State == ClockMappingState.Recovering && _recoverySends == RecoveryProbeLimit && Pending is null)
-            FailRecovery();
+            FailRecovery(ClockRecoveryFailure.ProbeLimit, now, reply);
     }
 
     public void Observe(MonotonicNanoseconds now)

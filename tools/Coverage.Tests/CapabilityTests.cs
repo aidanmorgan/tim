@@ -55,6 +55,41 @@ public sealed class CapabilityTests
         },new Dictionary<EngineCapability,RequiredDeclaration[]>(),new HashSet<WorkOrderId>{Owner});
     private static CapabilitySummary Audit(CapabilityInventory value)=>CapabilityAudit.Analyze(Sources,value,Expected(),_=>Declaration);
 
+
+    [Fact] public void ReviewedRoleInputPermitsStrictAuditButMissingOrConflictingRolesDoNot()
+    {
+        var expected = Expected();
+        var roles = CurrentImplementationRoles.Validate(expected.Owners, expected.CapabilityOwners, expected.CapabilityOwners);
+        Assert.Empty(roles.Issues);
+        Assert.Contains(Owner, roles.Eligible);
+        var result = CapabilityAudit.Analyze(Sources, Valid(), expected with { ImplementationEligibleOwners = roles.Eligible }, _ => Declaration);
+        Assert.True(result.InventoryCurrent);
+        Assert.False(result.RuntimeQualified);
+        var empty = CurrentImplementationRoles.Validate(expected.Owners, expected.CapabilityOwners,
+            new Dictionary<EngineCapability, CapabilityOwners>());
+        Assert.Equal(Enum.GetValues<EngineCapability>().Length, empty.Issues.Length);
+        Assert.All(empty.Issues, issue => Assert.Equal(CurrentInputProblem.NoReviewedImplementationRole, issue.Problem));
+        Assert.Empty(empty.Eligible);
+        var wrong = expected.CapabilityOwners.ToDictionary(pair => pair.Key, pair => pair.Value);
+        wrong[EngineCapability.ContactImpulse] = new(OtherOwner, [OtherOwner], OtherOwner);
+        Assert.Contains(CurrentImplementationRoles.Validate(expected.Owners, expected.CapabilityOwners, wrong).Issues,
+            issue => issue.Problem == CurrentInputProblem.ConflictingImplementationRole);
+        wrong[EngineCapability.ContactImpulse] = new(new("S999"), [new("S999")], new("S999"));
+        Assert.Contains(CurrentImplementationRoles.Validate(expected.Owners, expected.CapabilityOwners, wrong).Issues,
+            issue => issue.Problem == CurrentInputProblem.UnknownOwner);
+        wrong[EngineCapability.ContactImpulse] = new(Owner, [], Owner);
+        Assert.Throws<InvalidDataException>(() => CurrentImplementationRoles.Validate(expected.Owners, expected.CapabilityOwners, wrong));
+        wrong[EngineCapability.ContactImpulse] = new(Owner, [Owner, Owner], Owner);
+        Assert.Throws<InvalidDataException>(() => CurrentImplementationRoles.Validate(expected.Owners, expected.CapabilityOwners, wrong));
+        wrong[EngineCapability.ContactImpulse] = new(Owner, [default], Owner);
+        Assert.Throws<ArgumentException>(() => CurrentImplementationRoles.Validate(expected.Owners, expected.CapabilityOwners, wrong));
+        wrong[EngineCapability.ContactImpulse] = expected.CapabilityOwners[EngineCapability.ContactImpulse];
+        wrong[(EngineCapability)999] = new(Owner, [Owner], Owner);
+        Assert.Throws<InvalidDataException>(() => CurrentImplementationRoles.Validate(expected.Owners, expected.CapabilityOwners, wrong));
+        Assert.Throws<InvalidDataException>(() => CurrentImplementationRoles.Validate(expected.Owners,
+            new Dictionary<EngineCapability, CapabilityOwners>(), expected.CapabilityOwners));
+    }
+
     [Fact] public void CurrentInventoryCannotQualifyRuntime()
     {
         var result=Audit(Valid());
@@ -195,51 +230,6 @@ public sealed class CapabilityTests
         Assert.Throws<InvalidDataException>(()=>CapabilityInputs.SourceTaskAnchors(missing));
         Assert.Throws<InvalidDataException>(()=>CapabilityInputs.SourceTaskAnchors(interrupted));
         Assert.Throws<InvalidDataException>(()=>CapabilityInputs.SourceTaskAnchors(duplicate));
-    }
-
-    [Fact] public void SceneModesRejectUnsupportedMalformedAndChangedDefaults()
-    {
-        var root=new DirectoryInfo(Path.Combine(Path.GetTempPath(),Guid.NewGuid().ToString("N")));
-        root.Create();
-        try
-        {
-            Directory.CreateDirectory(Path.Combine(root.FullName,"parts"));
-            Directory.CreateDirectory(Path.Combine(root.FullName,"engine"));
-            File.WriteAllText(Path.Combine(root.FullName,"engine/LogicGate.cs"),"public enum LogicGateKind { And, Or, Xor, Nor, Nand }");
-            Directory.CreateDirectory(Path.Combine(root.FullName,"docs/planning"));
-            File.WriteAllText(Path.Combine(root.FullName,RequirementDiscovery.RequirementsPath.Value),"");
-            File.WriteAllText(Path.Combine(root.FullName,CapabilityInputs.RegisterPath.Value),
-                "| 1 | **CAT-001-D — Test** [part](../../part.tres) | [Design](../delivery-workflow.md#stage-gates) |\n"+
-                "| 2 | **CAT-001-V — Test** | [ElementProof](../delivery-workflow.md#stage-gates) |\n");
-            File.WriteAllText(Path.Combine(root.FullName,"part.tres"),"path=\"res://part.tscn\"");
-            var scriptPath=Path.Combine(root.FullName,"parts/ElectricalLogicPart.cs");
-            File.WriteAllText(scriptPath,"public LogicGateKind Operation { get; set; }");
-            var scenePath=Path.Combine(root.FullName,"part.tscn");
-            const string scene="path=\"res://parts/ElectricalLogicPart.cs\"\n";
-            var key=new SourceKey(RequirementOrigin.Catalogue,new("both_gate"));
-            SourceRequirement[] sources=[new(key,"part.tres","Test",RequirementDiscovery.Hash("test"))];
-            File.WriteAllText(scenePath,scene);
-            Assert.Contains(new ModeContract(key,ModeDimension.Logic,ModeChoice.And,new("CAT-001-V")),
-                CapabilityInputs.Discover(root,sources).Modes);
-            var registerPath=Path.Combine(root.FullName,CapabilityInputs.RegisterPath.Value);
-            var register=File.ReadAllText(registerPath);
-            File.WriteAllText(registerPath,register.Replace("../../part.tres","../../../outside.tres"));
-            Assert.Throws<ArgumentException>(()=>CapabilityInputs.Discover(root,sources));
-            File.WriteAllText(registerPath,register);
-            File.Delete(Path.Combine(root.FullName,RequirementDiscovery.RequirementsPath.Value));
-            Assert.Throws<FileNotFoundException>(()=>CapabilityInputs.Discover(root,sources));
-            File.WriteAllText(Path.Combine(root.FullName,RequirementDiscovery.RequirementsPath.Value),"");
-            File.WriteAllText(scenePath,scene+"Operation = 99\n");
-            Assert.Throws<InvalidDataException>(()=>CapabilityInputs.Discover(root,sources));
-            File.WriteAllText(scenePath,scene+"Operation = unsupported\n");
-            Assert.Throws<InvalidDataException>(()=>CapabilityInputs.Discover(root,sources));
-            File.WriteAllText(scenePath,scene+"Operation = 0\nOperation = 1\n");
-            Assert.Throws<InvalidDataException>(()=>CapabilityInputs.Discover(root,sources));
-            File.WriteAllText(scenePath,scene);
-            File.WriteAllText(scriptPath,"public LogicGateKind Operation { get; set; } = LogicGateKind.Or;");
-            Assert.Throws<InvalidDataException>(()=>CapabilityInputs.Discover(root,sources));
-        }
-        finally { root.Delete(true); }
     }
 
     [Fact] public void RemovedRequiredDependencyAndArtifactReject()

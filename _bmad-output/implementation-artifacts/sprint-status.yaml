@@ -88,7 +88,7 @@ development_status:
   7-1-reference-historical-archive-purge: done
   7-2-diagnostics-legacy-probe-tools-purge: review
   7-3-uncompiled-legacy-test-purge: done
-  7-4-legacy-cpu-physics-unshipped-engine-purge: backlog
+  7-4-legacy-cpu-physics-unshipped-engine-purge: in-progress
   epic-7-retrospective: optional
 
   epic-8: backlog

@@ -1,8 +1,5 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Ownership;
-
-const string WorkRegisterPath = "docs/planning/work-register.md";
 
 try
 {
@@ -17,11 +14,13 @@ var operation = args.Length == 0 ? throw new ArgumentException("Supply a support
 };
 if (operation == Operation.Oracles)
 {
-    Console.WriteLine(JsonSerializer.Serialize(OwnershipOracles.Run(), OwnershipAudit.Json));
+    Console.WriteLine(JsonSerializer.Serialize(OwnershipOracles.Run(args.Length > 1 ? Path.GetFullPath(args[1]) : null), OwnershipAudit.Json));
     return 0;
 }
 if (args.Length < 2) throw new ArgumentException("Supply the workspace root.");
 var root = Path.GetFullPath(args[1]);
+if (operation == Operation.Audit && args.Length != 3) throw new ArgumentException("Supply the ownership contract path.");
+var tasks = operation == Operation.Audit ? CurrentOwnerMembership.Read(root) : null;
 var current = SourceInventory.Capture(root);
 switch (operation)
 {
@@ -40,11 +39,8 @@ switch (operation)
             })
         }, OwnershipAudit.Json)); break;
     case Operation.Audit:
-        if (args.Length != 3) throw new ArgumentException("Supply the ownership contract path.");
         var contract = OwnershipAudit.Read(root, args[2]);
-        var tasks = Regex.Matches(File.ReadAllText(Path.Combine(root, WorkRegisterPath)), "id=\"work-([a-z0-9-]+)\"")
-            .Select(match => new WorkId(match.Groups[1].Value.ToUpperInvariant())).ToHashSet();
-        OwnershipAudit.Validate(current, contract, tasks);
+        OwnershipAudit.Validate(current, contract, tasks!);
         Console.WriteLine(JsonSerializer.Serialize(new
         {
             SourceCount = current.Sources.Length, MemberCount = current.Members.Length,
@@ -56,7 +52,7 @@ switch (operation)
 }
 return 0;
 }
-catch (Exception failure) when (failure is ArgumentException or InvalidDataException or JsonException)
+catch (Exception failure) when (failure is ArgumentException or InvalidDataException or JsonException or IOException)
 {
     Console.Error.WriteLine(failure.Message);
     return 1;

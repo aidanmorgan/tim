@@ -5,4 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Ownership/CurrentOwnerMembership.cs" Link="CurrentOwnerMembership.cs" />
+    <Compile Include="../Ownership/WorkId.cs" Link="WorkId.cs" />
+  </ItemGroup>
 </Project>

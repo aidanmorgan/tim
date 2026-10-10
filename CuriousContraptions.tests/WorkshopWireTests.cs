@@ -3,8 +3,147 @@ using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions.Tests;
 
+// Console.Error controls are serialized by xunit.runner.json: parallelizeTestCollections=false.
 public sealed class WorkshopWireTests
 {
+    public enum FaultTrigger { ProbeLimitReply, ElapsedReply, ElapsedService }
+
+    [Theory]
+    [InlineData(WorkshopRuntimeRole.Browser, FaultTrigger.ProbeLimitReply)]
+    [InlineData(WorkshopRuntimeRole.Animation, FaultTrigger.ProbeLimitReply)]
+    [InlineData(WorkshopRuntimeRole.Browser, FaultTrigger.ElapsedReply)]
+    [InlineData(WorkshopRuntimeRole.Animation, FaultTrigger.ElapsedReply)]
+    [InlineData(WorkshopRuntimeRole.Browser, FaultTrigger.ElapsedService)]
+    [InlineData(WorkshopRuntimeRole.Animation, FaultTrigger.ElapsedService)]
+    public void RecoveryFaultDiagnosticPreservesFailureAndExactContext(WorkshopRuntimeRole role, FaultTrigger trigger)
+    {
+        using var output = new System.IO.StringWriter(System.Globalization.CultureInfo.InvariantCulture);
+        var previous = Console.Error;
+        try
+        {
+            Console.SetError(output);
+            var (clock, fail, now) = RecoveryFaultScenario(role, trigger);
+            var failure = Assert.Throws<InvalidOperationException>(fail);
+            Assert.Equal("Clock mapping recovery exhausted its bounded episode.", failure.Message);
+            Assert.Equal(ClockMappingState.Faulted, clock.State);
+            Assert.Null(clock.Pending);
+            var text = output.ToString();
+            Assert.Throws<InvalidOperationException>(() => clock.Observe(new(now)));
+            Assert.Equal(text, output.ToString());
+#if PLAYTEST
+            var line = Assert.Single(text.Split('\n', StringSplitOptions.RemoveEmptyEntries));
+            Assert.StartsWith("CCGPU_CLOCK_RECOVERY_FAULT ", line);
+            using var document = System.Text.Json.JsonDocument.Parse(line["CCGPU_CLOCK_RECOVERY_FAULT ".Length..]);
+            var root = document.RootElement;
+            Assert.Equal((uint)role, root.GetProperty("role").GetUInt32());
+            Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? 1 : 0, root.GetProperty("cause").GetInt32());
+            Assert.Equal((int)ClockMappingState.Recovering, root.GetProperty("stateBeforeTeardown").GetInt32());
+            Assert.Equal("18446744073709551615", root.GetProperty("sessionLow").GetString());
+            Assert.Equal("9007199254740993", root.GetProperty("sessionHigh").GetString());
+            Assert.Equal("9007199254740995", root.GetProperty("masterGeneration").GetString());
+            Assert.Equal("9007199254740997", root.GetProperty("requesterGeneration").GetString());
+            Assert.Equal(now.ToString(System.Globalization.CultureInfo.InvariantCulture), root.GetProperty("now").GetString());
+            Assert.Equal("1", root.GetProperty("displayEpoch").GetString());
+            Assert.Equal(8, root.GetProperty("slotsBeforeTeardown").GetArrayLength());
+            Assert.Equal(trigger == FaultTrigger.ElapsedService, root.GetProperty("reply").ValueKind == System.Text.Json.JsonValueKind.Null);
+            Assert.Equal(trigger == FaultTrigger.ProbeLimitReply, root.GetProperty("pending").ValueKind == System.Text.Json.JsonValueKind.Null);
+
+            const long origin = 9_007_199_254_740_993;
+            string Exact(long value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal(Exact(origin + 321_295_000), root.GetProperty("recoveryStarted").GetString());
+            Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? 8 : 1, root.GetProperty("recoverySends").GetInt32());
+            var slot = root.GetProperty("slotsBeforeTeardown").EnumerateArray()
+                .Single(value => value.GetProperty("sequence").GetString() ==
+                    (trigger == FaultTrigger.ProbeLimitReply ? "17" : "9"));
+            Assert.Equal(Exact(origin + (trigger == FaultTrigger.ProbeLimitReply ? 401_295_000 : 321_295_000)),
+                slot.GetProperty("receipt").GetString());
+            Assert.Equal("48505000", slot.GetProperty("lower").GetString());
+            Assert.Equal("50200000", slot.GetProperty("upper").GetString());
+            if (trigger != FaultTrigger.ElapsedService)
+            {
+                var reply = root.GetProperty("reply");
+                var probe = reply.GetProperty("probe");
+                Assert.Equal(Exact(now), reply.GetProperty("requesterReceived").GetString());
+                var master = Exact(origin + (trigger == FaultTrigger.ProbeLimitReply ? 450_000_000 : 380_000_000));
+                Assert.Equal(master, reply.GetProperty("masterReceived").GetString());
+                Assert.Equal(master, reply.GetProperty("masterSent").GetString());
+                Assert.Equal(trigger == FaultTrigger.ProbeLimitReply ? "17" : "10", probe.GetProperty("sequence").GetString());
+                Assert.Equal(Exact(origin + (trigger == FaultTrigger.ProbeLimitReply ? 400_000_000 : 330_000_000)),
+                    probe.GetProperty("sent").GetString());
+                Assert.Equal((uint)role, probe.GetProperty("role").GetUInt32());
+                foreach (var field in new[] { "sessionLow", "sessionHigh", "masterGeneration", "requesterGeneration" })
+                    Assert.Equal(root.GetProperty(field).GetString(), probe.GetProperty(field).GetString());
+            }
+            if (trigger != FaultTrigger.ProbeLimitReply)
+            {
+                Assert.Equal("10", root.GetProperty("pending").GetProperty("sequence").GetString());
+                Assert.Equal(Exact(origin + 330_000_000), root.GetProperty("pending").GetProperty("sent").GetString());
+            }
+#else
+            Assert.Empty(text);
+            Assert.Null(typeof(WorkshopClockMapping).GetMethod("EmitRecoveryFault",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance));
+#endif
+        }
+        finally { Console.SetError(previous); }
+    }
+
+    [Theory]
+    [InlineData(WorkshopRuntimeRole.Browser)]
+    [InlineData(WorkshopRuntimeRole.Animation)]
+    public void RecoveryFaultDiagnosticWriterFailureCannotReplaceOriginalFault(WorkshopRuntimeRole role)
+    {
+        var previous = Console.Error;
+        using var writer = new FailingClockDiagnosticWriter();
+        try
+        {
+            Console.SetError(writer);
+            var (clock, fail, _) = RecoveryFaultScenario(role, FaultTrigger.ElapsedService);
+            Assert.Equal("Clock mapping recovery exhausted its bounded episode.",
+                Assert.Throws<InvalidOperationException>(fail).Message);
+            Assert.Equal(ClockMappingState.Faulted, clock.State);
+            Assert.Null(clock.Pending);
+        }
+        finally { Console.SetError(previous); }
+    }
+
+    private sealed class FailingClockDiagnosticWriter : System.IO.StringWriter
+    {
+        public override void WriteLine(string? value) => throw new System.IO.IOException("Controlled diagnostic writer failure.");
+    }
+
+    private static (WorkshopClockMapping Clock, Action Fail, long Now) RecoveryFaultScenario(
+        WorkshopRuntimeRole role, FaultTrigger trigger)
+    {
+        const long origin = 9_007_199_254_740_993;
+        var clock = new WorkshopClockMapping(new(new(ulong.MaxValue, (ulong)origin),
+            new((ulong)origin + 2), new(0), new((ulong)origin + 4), new(100_000), role));
+        void Probe(long offset, long roundtrip = 0)
+        {
+            var sent = origin + offset;
+            var probe = clock.BeginProbe(new(sent))!.Value;
+            Assert.Equal(ClockProbeOutcome.Accepted, clock.Receive(new(probe,
+                new(sent + 50_000_000), new(sent + 50_000_000), new(sent + roundtrip))).Outcome);
+        }
+        for (var i = 0; i < 8; i++) Probe(i * 10_000_000);
+        Probe(320_000_000, 1_295_000);
+        Assert.Equal(ClockMappingState.Recovering, clock.State);
+        if (trigger == FaultTrigger.ProbeLimitReply)
+        {
+            for (var i = 0; i < 7; i++) Probe(330_000_000 + i * 10_000_000, 1_295_000);
+            var probe = clock.BeginProbe(new(origin + 400_000_000))!.Value;
+            var now = origin + 401_295_000;
+            return (clock, () => clock.Receive(new(probe, new(origin + 450_000_000),
+                new(origin + 450_000_000), new(now))), now);
+        }
+        var pending = clock.BeginProbe(new(origin + 330_000_000))!.Value;
+        var expired = origin + 321_295_000 + WorkshopClockMapping.RecoveryLifetime + 1;
+        return (clock, trigger == FaultTrigger.ElapsedService
+            ? () => clock.Observe(new(expired))
+            : () => clock.Receive(new(pending, new(origin + 380_000_000),
+                new(origin + 380_000_000), new(expired))), expired);
+    }
+
     [Fact]
     public void PresentationDiagnosticBindsCadenceAndPulseWithinItsFixedRingBudget()
     {
