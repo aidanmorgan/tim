@@ -87,7 +87,7 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 ## 7.2 LEGACY-0b: `tools/`, `diagnostics/` and `CuriousContraptions.Geometry`
 
-**Deletion receipt (10 Oct 2026, final commit review pending):** all 129 tracked files in these 24 rows and 1,302 ignored bin/obj outputs were removed after independent entry review, immediate exact byte checks and Anvil gates. Empty `tools/p0-002-review` was also removed. GpuBodyFixture's five-file classification correction is explicit below; shared WGSL/current canonical sources remain. Seven retained tool builds have zero warnings; Coverage 40/40, Node 85/85 and contract tools pass. [Story 7.2](../../../_bmad-output/implementation-artifacts/spec-7-2-diagnostics-legacy-probe-tools-purge.md) records the inventories and raw evidence.
+**Deletion receipt (10 Oct 2026, verified in local commit 90db56b):** all 129 tracked files in these 24 rows and 1,302 ignored bin/obj outputs were removed after independent entry review, immediate exact byte checks and Anvil gates. Empty `tools/p0-002-review` was also removed. GpuBodyFixture's five-file classification correction is explicit below; shared WGSL/current canonical sources remain. Seven retained tool builds have zero warnings; Coverage 40/40, Node 85/85 and contract tools pass. [Story 7.2](../../../_bmad-output/implementation-artifacts/spec-7-2-diagnostics-legacy-probe-tools-purge.md) records the inventories and raw evidence.
 
 | Folder | Tracked files | Harvested into | Notes |
 | --- | --- | --- | --- |
@@ -119,6 +119,8 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 `tools/p0-002-review` is empty and untracked. `tools/Coverage.Tests/` (4 tracked files) is kept by ruling; see [Kept by ruling](#kept-by-ruling).
 
 ## 7.3 LEGACY-0c: uncompiled `CuriousContraptions.tests/`
+
+**Deletion receipt (10 Oct 2026, final commit review pending):** all 417 listed paths (416 uncompiled C# sources and one merge backup, 3,308,638 bytes) were removed after independent membership review and immediate byte checks. All 26 current local C# sources and 36 evaluated Compile inputs are preserved; the solution suite passes 643/643. [Story 7.3](../../../_bmad-output/implementation-artifacts/spec-7-3-uncompiled-legacy-test-purge.md) records the original identities and raw results. Historical harvest rows remain unchanged.
 
 | File | Harvested into | Notes |
 | --- | --- | --- |

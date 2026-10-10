@@ -74,6 +74,8 @@ Update the tool list in `docs/README.md:41` to match.
 
 ## 7.3 LEGACY-0c: `CuriousContraptions.tests/`
 
+**Execution receipt (10 Oct 2026):** Story 7.3 removed the 417 ledger paths below after exact compile-membership review; 26 local C# test/fixture sources remain, all compiled. The 36 evaluated items (including linked/package sources) are unchanged, and 643 solution tests pass. Original inventory facts follow as historical deletion evidence.
+
 - **Uncompiled files:** the csproj compiles 26 of the 442 `.cs` files, plus two linked Simulation files, which leaves 416 uncompiled. No compiled test depends on any of them.
 - **Junk:** `WoundSpringTests.cs.orig` is tracked and should go.
 - **Shared data:** there are no fixture folders. The only shared data is `content/puzzles.json`.

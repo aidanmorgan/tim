@@ -551,7 +551,7 @@ So that repository bloat is eliminated and active docs are clearly isolated.
 - **And** the active solution compiles and passes all unit and Playwright tests cleanly.
 
 ### Story 7.2: Diagnostics & Legacy Probe Tools Purge (LEGACY-0b)
-*Status: Review — 1,431 obsolete files removed; seven retained tool builds and affected checks pass; scoped commit verification pending*
+*Status: Done — local commit 90db56b; independent committed-tree Pass*
 
 As an engine maintainer,  
 I want obsolete probe tools and ad-hoc harnesses in `tools/` purged,  
@@ -564,7 +564,7 @@ So that the codebase contains only active build, lint, and test tools.
 - **And** remaining tools compile with zero warnings under Anvil.
 
 ### Story 7.3: Uncompiled Legacy Test Purge (LEGACY-0c)
-*Status: Backlog*
+*Status: Review — 417 obsolete files removed; all active compile inputs preserved; 643 solution tests passed; scoped commit verification pending*
 
 As an engine maintainer,  
 I want uncompiled, commented-out, or obsolete test files in `CuriousContraptions.tests/` purged,  

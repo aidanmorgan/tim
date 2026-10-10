@@ -40,7 +40,7 @@
         <ProjectReference Include="../CuriousContraptions.csproj"/>
     </ItemGroup>
 
-    <!-- Fixed current GPU/native boundary checks. All other source files remain unshipped reference obligations. -->
+    <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
     <ItemGroup>
         <Compile Include="CanonicalBodyTests.cs" />
         <Compile Include="RigidMassPropertiesTests.cs" />
