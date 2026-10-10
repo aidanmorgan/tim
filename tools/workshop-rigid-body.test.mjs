@@ -844,3 +844,80 @@ test('electrical phase routes exactly120 observations per physical second at eve
         assert.equal(phases, 120); assert.equal(enabledObservations, 120);
     }
 });
+
+
+// These controls exercise real worker contact admission with a recording payment boundary.
+// The actual C# work law is covered natively and in WASM/Chrome; this spy adds no impulse.
+const CONTACT_WORK = 15136, WORK_OCCURRENCE = 15648;
+function contactWorkScene(normal, velocity, {gap = -.001, previous = false, ordinal = 0, targets = 1} = {}) {
+    const origin = [0, 4, 0];
+    const ball = { id: 2, motion: 1, position: origin.map((v, i) => v + normal[i] * (.65 + .34 + gap)),
+        shape: 0, radius: .34, mass: 1, gravity: 0, velocity,
+        material: { restitution: 1, threshold: .1, friction: .3 } };
+    const bumper = { id: 3, motion: 0, position: origin, shape: 0, radius: .65,
+        material: { restitution: 1, threshold: .1, friction: .3 }, rotation: [.2, .3, .1, Math.sqrt(.86)] };
+    const specs = [ball, bumper];
+    if (targets === 2) specs.push({...ball, id: 4, position: [0, 4 - .989, 0], velocity: [0, 4, 0]});
+    const bytes = scene(specs), view = new DataView(bytes.buffer);
+    view.setUint32(88, ordinal, true); view.setUint32(104, 1, true); view.setUint32(108, targets, true);
+    view.setBigUint64(CONTACT_WORK, 500n, true); view.setUint32(CONTACT_WORK + 8, 2, true);
+    F(view, CONTACT_WORK + 16, 8); F(view, CONTACT_WORK + 20, .05);
+    view.setUint32(CONTACT_WORK + 24, 72, true); view.setUint32(CONTACT_WORK + 28, 0xffffffff, true);
+    F(view, CONTACT_WORK + 36, 32); F(view, CONTACT_WORK + 48, 32);
+    view.setBigUint64(WORK_OCCURRENCE + 4, 2n, true);
+    if (targets === 2) view.setBigUint64(WORK_OCCURRENCE + 32 + 4, 4n, true);
+    if (previous) {
+        view.setUint32(CONTACT_WORK + 32, 1, true);
+        view.setUint32(WORK_OCCURRENCE + 12, 1, true);
+        view.setUint32(WORK_OCCURRENCE + 16, 1, true);
+    }
+    return bytes;
+}
+async function observeContactAdmission(bytes) {
+    const calls = [];
+    const {imports} = await loadWorker({PaidContactImpulse: (speed, target, inverseMass, available, x, y, z) => {
+        calls.push({speed, target, inverseMass, available, normal: [x, y, z]});
+        return [available, 0, 0, 0, 0];
+    }});
+    await imports.stage(bytes, 0); imports.commit();
+    await imports.stage(new Uint8Array(0), 1);
+    return {calls, bytes: imports.read()};
+}
+test('contact work admission: all six radial directions qualify independent of owner rotation', async () => {
+    for (const normal of [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]) {
+        const result = await observeContactAdmission(contactWorkScene(normal, normal.map(v => -4*v)));
+        assert.equal(result.calls.length, 1);
+        assert.ok(result.calls[0].normal.every((v,i) => Math.abs(v-normal[i])<.001));
+        assert.ok(result.calls[0].speed > 3.9);
+    }
+});
+test('contact work admission: oblique contact keeps ordinary spin and tangent while depth miss never qualifies', async () => {
+    const result = await observeContactAdmission(contactWorkScene([0,1,0], [2,-4,0]));
+    assert.equal(result.calls.length, 1);
+    const body = readBody(result.bytes, 1);
+    assert.ok(body.spin > 1 && body.v[0] > 0 && body.v[0] < 2);
+    // Solid sphere tangential momentum reconstructed at contact, before any paid radial response.
+    assert.ok(Math.abs(body.v[0] - .4*.34*body.w[2] - 2) < .03);
+    const missed = contactWorkScene([0,1,0], [0,-4,0]);
+    new DataView(missed.buffer).setInt32(BODIES+128+24,32,true);
+    assert.equal((await observeContactAdmission(missed)).calls.length,0);
+});
+test('contact work admission: resting separating below-threshold and grazing gap never call payment', async () => {
+    for (const velocity of [[0,0,0],[0,2,0],[0,-.01,0]])
+        assert.equal((await observeContactAdmission(contactWorkScene([0,1,0],velocity))).calls.length,0);
+    assert.equal((await observeContactAdmission(contactWorkScene([0,1,0],[2,0,0],{gap:.02}))).calls.length,0);
+});
+test('contact work admission: cooldown eligibility is per body and opens at the exact 72-step boundary', async () => {
+    const before = await observeContactAdmission(contactWorkScene([0,1,0],[0,-4,0],
+        {previous:true,ordinal:68}));
+    assert.equal(before.calls.length,0);
+    assert.equal(new DataView(before.bytes.buffer,before.bytes.byteOffset).getUint32(WORK_OCCURRENCE+16,true),1);
+    assert.equal(new DataView(before.bytes.buffer,before.bytes.byteOffset).getUint32(WORK_OCCURRENCE+12,true),1);
+    assert.equal((await observeContactAdmission(contactWorkScene([0,1,0],[0,-4,0],
+        {previous:true,ordinal:68,targets:2}))).calls.length,1);
+    const eligible = await observeContactAdmission(contactWorkScene([0,1,0],[0,-4,0],
+        {previous:true,ordinal:72}));
+    assert.equal(eligible.calls.length,1);
+    assert.equal(new DataView(eligible.bytes.buffer,eligible.bytes.byteOffset).getUint32(WORK_OCCURRENCE+16,true),73);
+    assert.equal(new DataView(eligible.bytes.buffer,eligible.bytes.byteOffset).getUint32(WORK_OCCURRENCE+12,true),2);
+});

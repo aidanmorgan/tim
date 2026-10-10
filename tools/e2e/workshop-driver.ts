@@ -195,6 +195,8 @@ const UI_ANCHORS = {
         delayed_signal: { x: 600, y: 155 },
         domino_effect: { x: 600, y: 172 },
         bumper_sidekick: { x: 600, y: 195 },
+        bumper_depth: { x: 600, y: 220 },
+        wall_and_bumper: { x: 600, y: 245 },
     },
     menu: {
         button: { x: 1394, y: 46 },
@@ -222,6 +224,18 @@ const UI_ANCHORS = {
             rotate: { x: 72, y: 275 },
             resize: { x: 104, y: 275 },
             delete: { x: 136, y: 275 },
+        },
+        bumper_sidekick: {
+            move: { x: 60, y: 285 }, rotate: { x: 104, y: 285 },
+            resize: undefined, delete: { x: 148, y: 285 },
+        },
+        bumper_depth: {
+            move: { x: 60, y: 285 }, rotate: { x: 104, y: 285 },
+            resize: undefined, delete: { x: 148, y: 285 },
+        },
+        wall_and_bumper: {
+            move: { x: 60, y: 292 }, rotate: { x: 104, y: 292 },
+            resize: { x: 148, y: 292 }, delete: { x: 192, y: 292 },
         },
         domino_effect: {
             move: { x: 40, y: 275 },
@@ -262,7 +276,7 @@ const UI_ANCHORS = {
     }
 } as const;
 
-export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect' | 'bumper_sidekick';
+export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect' | 'bumper_sidekick' | 'bumper_depth' | 'wall_and_bumper';
 
 export class WorkshopDriver {
     readonly browser: Browser;
@@ -378,15 +392,12 @@ export class WorkshopDriver {
 
     // Wait until the page has rendered `count` more animation frames.
     private async frames(count: number): Promise<void> {
-        const rendered = this.page.evaluate((n: number) => new Promise<void>(resolve => {
-            let left = n;
-            const next = (): void => {
-                left--;
-                if (left <= 0) resolve();
-                else requestAnimationFrame(next);
-            };
-            requestAnimationFrame(next);
-        }), count);
+        const rendered = this.page.evaluate(async (n: number) => {
+            // Anonymous callbacks remain self-contained when serialized by Playwright,
+            // including when the TypeScript runner preserves function names.
+            for (let frame = 0; frame < n; frame++)
+                await new Promise<number>(resolve => requestAnimationFrame(resolve));
+        }, count);
         await bounded(rendered, FRAME_TIMEOUT_MS, `${count} animation frames did not render within ${FRAME_TIMEOUT_MS} ms`);
     }
 
@@ -454,8 +465,11 @@ export class WorkshopDriver {
         // The Bowling ball row exists only in the free-workshop palette; no authored level offers it.
         if ((kind === 'bowling' || kind === 'battery') && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer this free-workshop part`);
         let anchor: { x: number; y: number } = UI_ANCHORS.palette[kind];
-        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino') || (this.currentLevel === 'bumper_sidekick' && kind === 'bumper')) {
+        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino') || ((this.currentLevel === 'bumper_sidekick' || this.currentLevel === 'bumper_depth') && kind === 'bumper')) {
             anchor = { x: 130, y: 155 }; // the authored inventory's single palette row
+        }
+        if (this.currentLevel === 'wall_and_bumper' && (kind === 'wall' || kind === 'bumper')) {
+            anchor = { x: 130, y: kind === 'wall' ? 155 : 202 };
         }
         if (this.currentLevel === 'free_workshop' && kind === 'ramp') {
             anchor = { x: 130, y: 511 }; // Ramp is the appended eighth free-workshop palette row.

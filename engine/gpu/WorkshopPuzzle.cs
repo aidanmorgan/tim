@@ -2,7 +2,7 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopPuzzleId : uint { Free, FirstPrinciples, DelayedSignal, DominoEffect, BumperSidekick }
+public enum WorkshopPuzzleId : uint { Free, FirstPrinciples, DelayedSignal, DominoEffect, BumperSidekick, BumperDepth, WallAndBumper }
 public enum WorkshopPlacementMode : uint { Manual }
 public enum WorkshopGoalKind : uint { None, Captured, ActivatedAfter }
 public readonly record struct PuzzlePrecision(Half Value);
@@ -54,6 +54,8 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
     PuzzlePrecision Precision, WorkshopPartKind InventoryKind, uint InventoryCount, WorkshopGoal Goal, AssistanceProfile BallAssistance,
     AssistanceProfile ReceiverAssistance, AssistanceProfile RampAssistance)
 {
+    public AssistanceProfile WallAssistance => Id == WorkshopPuzzleId.WallAndBumper ? BumperAdvanced.WallAssistance : default;
+
     public void Validate(WorkshopConstruction construction)
     {
         if (!Enum.IsDefined(Id) || Placement != WorkshopPlacementMode.Manual) throw new ArgumentException("Unsupported puzzle or placement mode.");
@@ -74,6 +76,7 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
         Goal.Validate();
         if (Id == WorkshopPuzzleId.DelayedSignal) { DelayedSignal.Validate(this, construction); return; }
         if (Id == WorkshopPuzzleId.BumperSidekick) { BumperSidekick.Validate(this, construction); return; }
+        if (Id is WorkshopPuzzleId.BumperDepth or WorkshopPuzzleId.WallAndBumper) { BumperAdvanced.Validate(this, construction); return; }
         if (Id == WorkshopPuzzleId.DominoEffect) { DominoEffect.Validate(this, construction); return; }
         PhysicsDeclarationBounds.Range(Precision.Value, (Half)0, (Half)1);
         if (construction.Connections.Count != 0 || InventoryKind != WorkshopPartKind.Ramp || InventoryCount != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||

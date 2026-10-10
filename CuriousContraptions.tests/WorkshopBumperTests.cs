@@ -6,6 +6,147 @@ namespace CuriousContraptions.Tests;
 
 public sealed class WorkshopBumperTests
 {
+
+    [Theory]
+    [InlineData(WorkshopPuzzleId.BumperDepth, "bumper_depth")]
+    [InlineData(WorkshopPuzzleId.WallAndBumper, "wall_and_bumper")]
+    public void AdvancedLessonsPreserveSourceFixturesProfilesInventoryAndSave(
+        WorkshopPuzzleId lesson, string sourceId)
+    {
+        using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
+        var level = source.RootElement.EnumerateArray().Single(value => value.GetProperty("id").GetString() == sourceId);
+        var construction = BumperAdvanced.Create(lesson, new(1), WorkshopCadenceSettings.Default(),
+            new(1), new(2), new((Half)0));
+        Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
+        Assert.Equal(new GpuBodyId(1), construction.Puzzle.Goal.Body);
+        Assert.Equal(new GpuBodyId(2), construction.Puzzle.Goal.Target);
+        var fixtures = level.GetProperty("parts");
+        CheckSourcePose(fixtures[0], construction.Ball!.Value.Cell, construction.Ball!.Value.Local, construction.Ball!.Value.Rotation);
+        CheckSourcePose(fixtures[1], construction.Receiver!.Value.Cell, construction.Receiver!.Value.Local, construction.Receiver!.Value.Rotation);
+        Assert.True(construction.Ball!.Value.Locked && construction.Receiver!.Value.Locked);
+        CheckProfile(fixtures[0].GetProperty("difficulty"), construction.Puzzle.BallAssistance);
+        CheckProfile(fixtures[1].GetProperty("difficulty"), construction.Puzzle.ReceiverAssistance);
+        var solution = level.GetProperty("solution").EnumerateArray().ToArray();
+        CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "bumper").GetProperty("difficulty"),
+            construction.Puzzle.RampAssistance);
+        var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
+        Assert.Equal(PartAllowance.Counted(1), inventory[WorkshopPartKind.PinballBumper]);
+        var bumper = WorkshopInput.Bumper(new(3), 0, 1.5, 0, 0, 0, 0, 1, BumperWork.Default);
+        var placed = construction.WithInstance(bumper);
+        var wall = WorkshopInput.Wall(new(4), -1, 4, 0, 0, 0, 0, 1, WallDimensions.FromInput(.4f, 6, 1.5f));
+        if (lesson == WorkshopPuzzleId.WallAndBumper)
+        {
+            Assert.Equal(2, inventory.Count);
+            Assert.Equal(PartAllowance.Counted(1), inventory[WorkshopPartKind.Wall]);
+            Assert.Equal(1, level.GetProperty("inventory").GetProperty("wall").GetInt32());
+            CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "wall").GetProperty("difficulty"),
+                construction.Puzzle.WallAssistance);
+            placed = placed.WithInstance(wall);
+            Assert.Throws<ArgumentException>(() => placed.WithInstance(wall with { Id = new(5) }).Validate());
+        }
+        else
+        {
+            Assert.Single(inventory);
+            Assert.Equal(default, construction.Puzzle.WallAssistance);
+            Assert.Throws<ArgumentException>(() => placed.WithInstance(wall).Validate());
+        }
+        placed.Validate();
+        Assert.Throws<ArgumentException>(() => placed.WithInstance(bumper with { Id = new(5) }).Validate());
+        Assert.Throws<ArgumentException>(() => placed.WithInstance(bumper with { Locked = true }).Validate());
+        Assert.Throws<ArgumentException>(() => placed.WithInstance(construction.Ball!.Value with { Locked = false }).Validate());
+        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { InventoryCount = 2 } }).Validate());
+        Assert.Throws<ArgumentException>(() => (placed with { Puzzle = placed.Puzzle with { RampAssistance = FirstPrinciples.RampAssistance } }).Validate());
+        foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
+        {
+            var next = BumperAdvanced.WithPrecision(placed, new(precision));
+            var expected = precision == (Half)0 ? (.3,3,.15,12) : precision == (Half)1 ? (.02,1.5,.35,0) : (.174,2.325,.24,6.6);
+            Assert.Equal((Half)expected.Item1,next.Receiver!.Value.Capture.Margin.Value);
+            Assert.Equal((Half)expected.Item2,next.Receiver!.Value.Capture.SpeedLimit.Value);
+            Assert.Equal((Half)expected.Item3,next.Receiver!.Value.Capture.Dwell.Value);
+            Assert.Equal((Half)expected.Item4,next.Receiver!.Value.ForceRegion.MaximumAcceleration.Value);
+            var save = new WorkshopSavedConstruction(next, new(6));
+            var bytes = WorkshopSaveCodec.Encode(save);
+            Assert.Equal(save, WorkshopSaveCodec.Decode(bytes));
+            Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(bytes)));
+            Assert.Equal(bumper, next.Instances.Single(value => value.Id == bumper.Id));
+            Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1, 2)).ContactWorks.ToArray());
+        }
+    }
+
+
+    [Theory]
+    [InlineData(WorkshopPuzzleId.BumperDepth)]
+    [InlineData(WorkshopPuzzleId.WallAndBumper)]
+    public void AdvancedLessonSaveAndCommandRejectMalformedIdentityProfileAndInventory(WorkshopPuzzleId lesson)
+    {
+        var construction = BumperAdvanced.Create(lesson,new(1),WorkshopCadenceSettings.Default(),new(1),new(2),new((Half).45));
+        var saved = new WorkshopSavedConstruction(construction,new(3));
+        var original = WorkshopSaveCodec.Encode(saved);
+        var command = new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),construction,
+            Session:new(1,2),Cadence:new(1),Projection:new(1));
+        var wire = WorkshopWire.Encode(command);
+        // Relative to the construction's immutable puzzle record: unknown id, extra inventory,
+        // substituted Bumper assistance and invalid precision. Every decode must reject before admission.
+        foreach (var mutation in new (int Offset, uint Value, bool Wide)[]
+        {
+            (48,uint.MaxValue,true), (48+12,2,true),
+            (48+180+6,BitConverter.HalfToUInt16Bits((Half).3),false),
+            (48+8,BitConverter.HalfToUInt16Bits(Half.NaN),false)
+        })
+        {
+            var badSave=(byte[])original.Clone(); var badWire=(byte[])wire.Clone();
+            if(mutation.Wide)
+            {
+                BinaryPrimitives.WriteUInt32LittleEndian(badSave.AsSpan(24+mutation.Offset),mutation.Value);
+                BinaryPrimitives.WriteUInt32LittleEndian(badWire.AsSpan(WorkshopWire.CommandHeaderBytes+mutation.Offset),mutation.Value);
+            }
+            else
+            {
+                BinaryPrimitives.WriteUInt16LittleEndian(badSave.AsSpan(24+mutation.Offset),(ushort)mutation.Value);
+                BinaryPrimitives.WriteUInt16LittleEndian(badWire.AsSpan(WorkshopWire.CommandHeaderBytes+mutation.Offset),(ushort)mutation.Value);
+            }
+            var rejectedSave=(byte[])badSave.Clone(); var rejectedWire=(byte[])badWire.Clone();
+            Assert.Throws<ArgumentException>(()=>WorkshopSaveCodec.Decode(badSave));
+            Assert.Throws<ArgumentException>(()=>WorkshopWire.DecodeCommand(badWire));
+            Assert.Equal(rejectedSave,badSave); Assert.Equal(rejectedWire,badWire);
+            Assert.Equal(original,WorkshopSaveCodec.Encode(saved));
+            Assert.Equal(saved,WorkshopSaveCodec.Decode(original));
+            Assert.Equal(command,WorkshopWire.DecodeCommand(wire));
+        }
+    }
+
+    private static void CheckSourcePose(System.Text.Json.JsonElement source, CellOrigin cell,
+        LocalPosition local, CanonicalRotation rotation)
+    {
+        var position = source.GetProperty("position");
+        Assert.InRange(Math.Abs((cell.X + (double)local.X) / 16 - position[0].GetDouble()), 0, .001);
+        Assert.InRange(Math.Abs((cell.Y + (double)local.Y) / 16 - position[1].GetDouble()), 0, .001);
+        Assert.InRange(Math.Abs((cell.Z + (double)local.Z) / 16 - position[2].GetDouble()), 0, .001);
+        var q = new Godot.Quaternion((float)rotation.X, (float)rotation.Y, (float)rotation.Z, (float)rotation.W).Normalized();
+        var basis = new Godot.Basis(q);
+        var orientation = source.GetProperty("orientation");
+        for (var column = 0; column < 3; column++)
+            for (var row = 0; row < 3; row++)
+                Assert.InRange(Math.Abs(basis[column][row] - orientation[column * 3 + row].GetDouble()), 0, .002);
+    }
+
+    private static void CheckProfile(System.Text.Json.JsonElement data, AssistanceProfile profile)
+    {
+        var values = new[] { profile.Forgiving, profile.Balanced, profile.Precise };
+        var names = new[] { "precision", "position_window", "rotation_window", "max_position_correction", "max_rotation_correction",
+            "blend_seconds", "capture_margin", "capture_speed", "capture_dwell", "guide_acceleration", "trigger_threshold" };
+        for (var i = 0; i < 3; i++)
+        {
+            var k = values[i];
+            Half[] actual = [k.Precision, k.PositionWindow.Value, k.RotationWindowDegrees, k.MaximumPositionCorrection.Value,
+                k.MaximumRotationCorrectionDegrees, k.Blend.Value, k.CaptureMargin.Value, k.CaptureSpeed.Value,
+                k.CaptureDwell.Value, k.GuideAcceleration.Value, k.TriggerThreshold];
+            for (var field = 0; field < names.Length; field++)
+                Assert.Equal((Half)data[i].GetProperty(names[field]).GetDouble(), actual[field]);
+        }
+    }
+
     [Fact]
     public void SidekickKeepsSourceProfilesAndAtomicInventory()
     {

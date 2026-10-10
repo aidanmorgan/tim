@@ -41,6 +41,8 @@ public partial class Workshop : Node3D
     private const int DelayedSignalIndex = 2;
     private const int DominoEffectIndex = 3;
     private const int BumperSidekickIndex = 4;
+    private const int BumperDepthIndex = 5;
+    private const int WallAndBumperIndex = 6;
     private GpuBodyId _nextId = new(1);
     private IReadOnlyDictionary<WorkshopPartKind, PartAllowance> _inventory = new Dictionary<WorkshopPartKind, PartAllowance>();
     private readonly List<WorkshopConstruction> _undo = new();
@@ -61,6 +63,8 @@ public partial class Workshop : Node3D
         _picker.AddItem("Wait for it");
         _picker.AddItem("The domino effect");
         _picker.AddItem("A little sidekick");
+        _picker.AddItem("Bounce into depth");
+        _picker.AddItem("Build the rebound");
         PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
@@ -736,7 +740,11 @@ public partial class Workshop : Node3D
 
     private void ShowHint()
     {
-        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperSidekick
+        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperDepth
+            ? "Use Q/E to orbit. Put the bumper in front of the falling ball to send it toward the receiver behind."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.WallAndBumper
+            ? "Resize and position the wall to return the bumper rebound toward the receiver."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperSidekick
             ? "Put the bumper just left of the falling ball to send it toward the receiver."
             : World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples
             ? "Start with a gentle slope below the ball. Use the second ramp to continue the journey toward the receiver."

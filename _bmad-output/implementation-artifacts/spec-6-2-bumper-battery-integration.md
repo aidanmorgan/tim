@@ -1,7 +1,7 @@
 ---
 title: 'Story 6.2: integrate finite Battery recharge and paid Bumper contacts'
 type: feature
-status: in-review
+status: done
 route: dispatch
 baseline_commit: e24fea3644cb572858669bf8db7617482760eab2
 context:
@@ -49,7 +49,7 @@ The combined candidate has86 source/deletion entries:35 inherited Bumper entries
 - [x] Given Save/Load and Run/Reset, authored pose/strength/source settings/links restore exactly; runtime stores, occurrences/cooldowns/rings reset. Disable/re-enable preserves stored consumer work and resumes finite transfer.
 - [x] Current affected native/wire/Node and actual Chrome controls pass; Production and Playtest builds succeed. Retain failed attempts, exact source/artifact identities and ordinary resource/queue lifecycle evidence.
 - [x] Independent integrated-candidate pre-publication review has zero unresolved unintended regressions; final status/publication-policy delta still requires SnapshotApproval.
-- [ ] After exact SnapshotApproval, commit and normal non-force push the approved candidate and explicitly approved ancestor range; verify remote/deployed identities and required-now production-origin behavior before terminal Pass.
+- [x] After exact SnapshotApproval, commit and normal non-force push the approved candidate and explicitly approved ancestor range; verify remote/deployed identities and required-now production-origin behavior before terminal Pass.
 
 ## Explicit remaining scope
 
@@ -110,3 +110,7 @@ Publication-dependent checks: verify exact approved commit at origin/main; succe
 ## Owner-approved publication recovery
 
 On10October2026 the owner explicitly approved publication of the reviewed filtered17-commit history after GH001 rejected seven historical ZIP blobs. Candidate9658030e7d3d99ddfbf96ce355d7cdc69278de04 preserves approved tree5440678880eb91e88cb8308ad8a9ab188b8dd641 and published6416b4c ancestry. Original commits, the sole baselinea6c914e and the recovery bundle stay inside tim; no archive upload. [Recovery and exact mapping](../../docs/history-recovery.md) records fresh-clone limitations and manual import. Existing failed pushes and historical approval identities remain evidence; no citations are silently retargeted. The filtered candidate plus only recovery/status/review documentation needs renewed SnapshotApproval before normal push. Production-origin checks still block completion.
+
+## Terminal scoped acceptance
+
+Independent terminal scoped Pass is recorded in [the retained review](review-6-2-bumper-battery-integration.md) for published60ddbbe4f010314a64716bf8748845146b312bdc. [Actions38033880317](https://github.com/aidanmorgan/tim/actions/runs/38033880317) passed706 C# tests, Production build and Pages deployment. Independent actual production Chrome passed16 scenarios with zero runtime/console errors;71 loaded responses matched the exact CI artifact. This closes Story6.2 and its direct-source prerequisite, not full Battery/network or Story6.3 acceptance. The next bounded outcome is [Story6.3 CAT-015b](../planning-artifacts/epics.md#story-63-bumper-multi-angle-contacts--advanced-bumper-puzzles-cat-015b). Historical pending statements above describe their original checkpoints; this terminal result supersedes their status without erasing failed attempts or proof identities.

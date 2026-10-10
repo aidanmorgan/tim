@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-10-2026 08:15
+last_updated: 10-10-2026 15:55
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -64,8 +64,8 @@ development_status:
   6-1b-engine-drag-application: done
   6-1c-f32-committed-velocity-precision: done
   6-1d-velocity-hardening: done
-  6-2-bumper-radial-impulse-work-store: review
-  6-3-bumper-multi-angle-contacts: backlog
+  6-2-bumper-radial-impulse-work-store: done
+  6-3-bumper-multi-angle-contacts: review
   6-4-prismatic-slider-tgs-soft-spring: backlog
   6-5-preload-energy-store-springboard-launch: backlog
   6-6-straight-pipe-compound-cylinder: backlog
