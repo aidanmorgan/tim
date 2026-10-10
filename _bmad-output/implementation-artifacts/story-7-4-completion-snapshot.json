@@ -1,0 +1,243 @@
+{
+  "purpose": "Story7.4 exact remaining cleanup closure after owner authorized fresh-engine Pipe rebuild; independent final approval and commit receipt separate.",
+  "source_commit": "3aca255b464eac1956a5e0ad81e95f982e3071f6",
+  "legacy_citation_baseline": "a6c914e367bb39316887b670e1fde1e4d0973f23",
+  "implementer": "/root/implementation",
+  "reviewer": "/root/reviewer",
+  "candidate": [
+    [
+      "CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj",
+      "299e694e1aac5032b048353ec9bc4b476733b89f4afcf239efcc67b95c4c9b1d"
+    ],
+    [
+      "CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj",
+      "48fa0b40cfefe5c2e20fc3b68a37c5539f2f9cf3c2a441576c4fe667acb97378"
+    ],
+    [
+      "CuriousContraptions.csproj",
+      "fd48c348d6200c723134f2462d629ce1b51957530d96fa66f51bd587b536e7dc"
+    ],
+    [
+      "TODO.md",
+      "238a3b2af09159a3ef4df2ad42b0d5c6745052832c2a630e6556e9f5aef4d6ae"
+    ],
+    [
+      "_bmad-output/implementation-artifacts/spec-7-4-legacy-physics-unshipped-engine-purge.md",
+      "55d4c66295ff03af628de4b46ab3d9e73c7d45b55251287cd13dbe9e9bccf188"
+    ],
+    [
+      "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "1ccd176bad2f7243f29a9a6ce657dcd6486764cbfdaeb4bd43b2e19549bf4016"
+    ],
+    [
+      "_bmad-output/planning-artifacts/epics.md",
+      "d79c08f178e924fa0247d3f35f485d38a2d007a80fa1d5fa19da06fc4f86c606"
+    ],
+    [
+      "docs/gpu-f32-physics.md",
+      "7afbdd5d1bcb8a2b0953ca7a1309370bcb5c115f1448e7b7ad3c2550b30ada09"
+    ],
+    [
+      "docs/planning/elements/CAT-048-pipe.md",
+      "35753e2801ff8421233286a4c72f7ee949e68de75633bf6946e53e214a4b48f3"
+    ],
+    [
+      "docs/planning/elements/EL-071-straight-metal-ball-pipe.md",
+      "71670e02b918caacf759bcf4290e2fc0d6ff1e6ef4ea10a6fc54c8c63c68df09"
+    ],
+    [
+      "docs/planning/elements/legacy-disposition.md",
+      "099adb174bfa0916ead671249927fb2d28b70c6ed60eecb060dd42dcb4750f14"
+    ],
+    [
+      "docs/planning/invest/current-consumers.md",
+      "dc913aa6959c8c93373727d8aaa309217e47813df9cf0435d81968ec5549a7a6"
+    ],
+    [
+      "docs/planning/invest/vertical-delivery.md",
+      "94dc9548d088692f3aaf8c0e251d40648efc21ced59ac8880586a02d97d8d4a8"
+    ]
+  ],
+  "deleted_tracked_git_blobs": [
+    [
+      "engine/PipeDimensionsResource.cs",
+      "139e8b6ebb2f8b4f33cff872d747b3d04c4c27bd"
+    ],
+    [
+      "engine/PipeDimensionsResource.cs.uid",
+      "da561c028ec2101351216657accbdf966e12d44e"
+    ],
+    [
+      "engine/gpu/AnnularProfile.cs",
+      "aff3d2fee785e1965057fc0c538c2c7b941eed18"
+    ],
+    [
+      "engine/gpu/AnnularProfile.cs.uid",
+      "a9cfce8039171c495c5022168350c8717ffc12f8"
+    ],
+    [
+      "engine/gpu/BasketballLawCoefficients.cs.uid",
+      "e0c5b1064a88974e70a921fd8e9d5d1c1a6a8f14"
+    ],
+    [
+      "engine/gpu/WorkshopGpuAbi.cs.uid",
+      "9a424a90c8dc0f66b1c8607726a9eb31a4d20add"
+    ],
+    [
+      "engine/gpu/WorkshopPipe.cs",
+      "32216d206db805822b7ee8ee9bb37cd989f332fb"
+    ],
+    [
+      "engine/gpu/WorkshopPipe.cs.uid",
+      "38529215a665774f58ffb044a957fcd09919be0c"
+    ],
+    [
+      "parts/PipeArt.cs",
+      "8811f606682bfed7fdb27045f8feaffc02d8dd73"
+    ],
+    [
+      "parts/PipeArt.cs.uid",
+      "653f5a44aaa8b49fbc4ccd7ef6e0be9b629001f5"
+    ],
+    [
+      "parts/PipePart.cs",
+      "d1555127f86c641bf50c149bfdcbbfcfa2342f84"
+    ],
+    [
+      "parts/PipePart.cs.uid",
+      "ed8f653159f41a59148549298a46de16c2f9da72"
+    ],
+    [
+      "parts/catalog/pipe.tres",
+      "6a0ef66654628f2bcb68982d6658fd0533746f8f"
+    ],
+    [
+      "parts/scenes/pipe.tscn",
+      "702a5bb12725286799133ded3afb7219f10923ff"
+    ],
+    [
+      "ui/PlaytestConstruction.cs",
+      "577098f51779b1e4019cf3c2740a62f591c89bfd"
+    ],
+    [
+      "ui/PlaytestConstruction.cs.uid",
+      "f6b81378b32e64577c9533503113da2fdadf76af"
+    ],
+    [
+      "ui/PlaytestDiagnostics.cs",
+      "0ba75135e68249677804afc92ca34dea64cccd22"
+    ],
+    [
+      "ui/PlaytestDiagnostics.cs.uid",
+      "261e510517c6d3a59d58a34835fba28860ba9aaa"
+    ]
+  ],
+  "excluded_dirty_files": [
+    [
+      "_bmad-output/implementation-artifacts/review-7-0-resumed.md",
+      "a2f4b2819fd2310b807826ff5947d4308c8d69a2f6a1364db14b5af83775495f"
+    ],
+    [
+      "_bmad-output/implementation-artifacts/review-7-1-reference-historical-archive-purge.md",
+      "7f730da340c58d5aba4c0e5699cc08ac7ebdd7cbdcc13098f9e7809e1e11a5a4"
+    ],
+    [
+      "_bmad-output/implementation-artifacts/review-7-2-diagnostics-legacy-probe-tools-purge.md",
+      "c8a64acc587392065dd3592f58855fadc0a3efc8849d5d619c22c5fd7c00d66b"
+    ],
+    [
+      "_bmad-output/implementation-artifacts/review-7-3-uncompiled-legacy-test-purge.md",
+      "82e41bd5ab799ab116b28bf020540e9f73b0e6362a6571e1923e9c25f6421592"
+    ],
+    [
+      "_bmad-output/implementation-artifacts/story-7-0-owner-questions.md",
+      "3a5f302534c5272952222109f4dd6a42ce43050a62675e184158491c944825fa"
+    ],
+    [
+      "docs/planning/elements/CAT-005-battery.md",
+      "471f0cec46cc9064b1bff5a4ab745af182a76cb2474f6b57a3c75ba268854a59"
+    ],
+    [
+      "docs/planning/elements/CAT-015-bumper.md",
+      "dc9324e652af3971a4f4c5d53eefa5ef477ae5add1f346ab6536739f2dbe63e4"
+    ],
+    [
+      "docs/planning/elements/EL-196-battery.md",
+      "b991aa442a0a12b3718757bf4c8e55700887a0d1051c5a0e18253c3bbbcc9f28"
+    ]
+  ],
+  "preservation_base": {
+    "snapshot": "_bmad-output/implementation-artifacts/story-7-4-non-pipe-snapshot.json",
+    "sha256": "8ab8cd32413251548d22d89dfd5eeb00ed6d8a64ed4042d6948edc7954ae240c",
+    "committed_tree": "cfa0181d376c138ac4fe342a678729f2470fbab2",
+    "declaration_delta": [
+      "docs/planning/elements/CAT-048-pipe.md",
+      "docs/planning/elements/EL-071-straight-metal-ball-pipe.md"
+    ],
+    "rule": "All other346elementdeclarations,85proofJSON,currentrequirements/namedindex/puzzles and outsidecandidates currentruntime/tool sources remain unchanged; excludedownerdecision edits remain bound above."
+  },
+  "proof_references": [
+    [
+      ".anvil/story-7-4-pipe-entry.json",
+      "8bb7b1d975b240d18b6fdcab552b8c2c1aa17d2ce1ab21431828c0f3c9fd29a5"
+    ],
+    [
+      ".anvil/story-7-4-obsolete-ui-diagnostic-entry.json",
+      "fb11b50f519c57c6a23ba5656a0808ef11643bcdffef134247519f16932610ab"
+    ],
+    [
+      ".anvil/story-7-4-pipe-verification.json",
+      "5ea845000cc79299a51e7cc3b4ee5418b1fbf0c96456f15fb506f1a4b341c227"
+    ],
+    [
+      ".anvil/story-7-4-pipe-coverage.log",
+      "ecf4c00b18d3a628b84fc9067bcd52c44aaee62a74d8b56b16f8cc72cd558439"
+    ],
+    [
+      ".anvil/story-7-4-clock-fault-diagnostic-identity.json",
+      "ec5a739d82ebac9b93140f78b7ff03ea39630dd0e62d773f9aa8e8e5c2d90154"
+    ],
+    [
+      ".anvil/story-7-4-clock-fault-production-identity.json",
+      "1453a1771199e8615ea5b074d4c1b874940bf798f0499eba162502e412d4de6e"
+    ],
+    [
+      ".anvil/reviewer-story-7-4-instrumented-chrome.log",
+      "27076a3d86969dfb1aadc911fc7390f1180ea2ba3abb84b6c49253e345c2ffc3"
+    ]
+  ],
+  "acceptance": {
+    "story_total_removed": 655,
+    "remaining_checkpoint_removed": 18,
+    "evaluated_compile_contexts_identical": 6,
+    "retained_compiled_csharp": 189,
+    "retained_file_based_ci_csharp": 2,
+    "remaining_uid_companions": 109,
+    "unclassified_csharp": 0,
+    "orphan_uids": 0,
+    "legacy_physics_namespace_hits": 0,
+    "retained_resources": 22,
+    "resource_edges": 40,
+    "inventory_keys": 1471,
+    "catalogue_identities": 72,
+    "modes": 104,
+    "fixtures": 302,
+    "coverage_tests": 68,
+    "prior_exact_runtime_proof": "239bundlefiles unchanged;17explicitly reconciled input changes (3equivalentprojectedits+14uncompiled/unadmitted/orphanmetadata deletions),362otherinputs unchanged. Prior651unit/91wire/45Chrome proof reused only through this independently reviewed applicability."
+  },
+  "commit_membership": {
+    "candidate_files": 13,
+    "tracked_deletions": 18,
+    "additional_paths": [
+      "_bmad-output/implementation-artifacts/story-7-4-completion-snapshot.json",
+      "_bmad-output/implementation-artifacts/review-7-4-legacy-physics-unshipped-engine-purge.md"
+    ],
+    "total": 33
+  },
+  "limitations": [
+    "Original uninstrumented clock failure remains unattributed; diagnostics are not a behavior fix.",
+    "P0-030/P0-031 source cleanup does not grant global P0-002 capability or ownership proof currency; unresolved future requirements remain explicit.",
+    "Pipe must rebuild fresh at Story6.6/6.7 on canonical f32/WASM SIMD in roadmap/dependency order; no legacy adapter/migration and no acceptance removed.",
+    "No push; Battery/Bumper isolated preparation and unrelated owner decisions remain outside this commit."
+  ]
+}

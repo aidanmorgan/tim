@@ -24,9 +24,9 @@
     <ItemGroup>
         <ProjectReference Include="CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
     </ItemGroup>
-    <!-- One fixed admitted game build. All other engine/part source remains unshipped reference. -->
+    <!-- Explicit current admitted game sources; diagnostic host additions are selected by their host project. -->
     <ItemGroup>
-        <Compile Include="engine/gpu/*.cs" Exclude="engine/gpu/WorkshopPipe.cs;engine/gpu/AnnularProfile.cs" />
+        <Compile Include="engine/gpu/*.cs" />
         <Compile Include="engine/MachineWorld.cs" />
         <Compile Include="engine/MachineWorld.Gpu.cs" />
         <Compile Include="engine/MachinePart.cs" />

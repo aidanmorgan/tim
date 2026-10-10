@@ -2,7 +2,7 @@
 title: 'Story 7.4: Legacy CPU physics and unshipped engine purge'
 type: 'chore'
 created: '2026-10-10'
-status: 'in-progress'
+status: 'done'
 route: 'dispatch'
 source_commit: 'ba32b115aec4f3a204581492d3daad158caa2159'
 context:
@@ -15,7 +15,7 @@ context:
 
 ## Intent
 
-Delete superseded, uncompiled physics/engine/part implementations and unsupported scene/catalogue resources after preserving their declarations. Keep every catalogue/named identity and acceptance criterion, all shipped interactions and current tools. This is the existing owner-authorized LEGACY-0d outcome. The independently approved non-Pipe subset is removed; parked straight Pipe remains pending the owner decision.
+Delete superseded, uncompiled physics/engine/part implementations and unsupported scene/catalogue resources after preserving their declarations. Keep every catalogue/named identity and acceptance criterion, all shipped interactions and current tools. This is the existing owner-authorized LEGACY-0d outcome. All 655 scoped legacy paths are removed, including the owner-authorized twelve-file Pipe closure, four missed obsolete UI diagnostic paths and two orphan UID files. Pipe remains a planned element rebuilt fresh at Story 6.6 on the canonical f32/WASM SIMD engine, in dependency/roadmap order. Final snapshot/commit review binds this completion; historical checkpoints below retain the earlier holds and failures.
 
 ## Exact source acceptance
 
@@ -178,3 +178,18 @@ Diagnostic publish passed warning-as-error. Frozen .anvil/story-7-4-clock-fault-
 ## Instrumented full Chrome result
 
 The independent full serial suite passed 45/45 cases across 15 suites, with zero failures/skips/cancellations, exit 0 in 373.780 seconds. No console.error records occurred; all 239 bundle and 379 input identities matched after the run. Complete raw .anvil/reviewer-story-7-4-instrumented-chrome.log is 9335 bytes, SHA256 27076a3d86969dfb1aadc911fc7390f1180ea2ba3abb84b6c49253e345c2ffc3. The current frozen candidate’s full Chrome criterion passes. The original uninstrumented fault remains unattributed; fault-context capture is not claimed as a behavior fix. Full Story 7.4 remains incomplete pending parked Pipe and final scoped candidate review; no commit or terminal whole-story claim.
+
+## Final owner decision and full cleanup closure
+
+On 10 Oct the owner directed: delete the parked Pipe files and start again using the new physics engine. Exact twelve-file/11128-byte entry is .anvil/story-7-4-pipe-entry.json (8bb7b1d975b240d18b6fdcab552b8c2c1aa17d2ce1ab21431828c0f3c9fd29a5). CAT-048 and EL-071 retain their identity, all 23 CAT harvest facts, baseline citations and complete acceptance. Unresolved oversize/wrong-bore/nudging design questions remain; no legacy adapter/migration or schedule leap is authorized. The unrelated Battery owner ledger stays excluded.
+
+The final tracked-source census exposed two uncompiled old diagnostic sources plus sidecars, independently classified N-PROBE with no current callers/new element law (.anvil/story-7-4-obsolete-ui-diagnostic-entry.json, fb11b50f519c57c6a23ba5656a0808ef11643bcdffef134247519f16932610ab). The metadata census additionally identified BasketballLawCoefficients.cs.uid and WorkshopGpuAbi.cs.uid as orphaned, with no outside UID-value consumers;109 other sidecars retain companions. These six extra paths are explicit ledger additions, not an implied earlier all-tree Pass.
+
+| Required cleanup criterion | Final bounded proof |
+| --- | --- |
+| P0-030/031 current source and consumer cleanup |191 retained tracked C# files:189 in evaluated current Compile contexts,2 documented dotnet --file Anvil CI programs. Six current runtime JS files, 25 automation scripts and 22 agent workflow scripts are classified; no unclassified C# or legacy Physics namespace remains. Historical docs/proof JSON remain evidence, not executable consumers. |
+| Project/resource/export closure |Six affected production/diagnostic Compile lists are identical before/after removing three obsolete exclusion lists.22 retained authored resources have 40 existing edges; ten admitted catalogue resources and the explicitly kept balloon/tennis declarations remain. All 239 frozen bundle files including PCK are unchanged. |
+| Identity and current tool behavior |Coverage 68/68 passes; actual inventory retains 1,471 exact keys,72 catalogue/302 fixtures and104 mode obligations, with no promoted proof states. Requirements, named index and authored puzzles are unchanged. |
+| Builds and serial Chrome |Reuse independently verified warning-free production/diagnostic builds,651 units/91 wire controls and45/45 serial Chrome only through the exact unchanged compiled/resource/payload closure. Project text and removed uncompiled/unadmitted inputs are explicitly reconciled; no blanket zero-drift claim. |
+
+Complete current comparison is .anvil/story-7-4-pipe-verification.json; raw affected controls .anvil/story-7-4-pipe-coverage.log. P0-030/P0-031 cleanup is closed within this current tree scope, not a global P0-002 capability/ownership qualification: stale/unknown proof and role outcomes stay explicit. Original uninstrumented clock failure remains unattributed and is not claimed fixed. Next ready outcome after final committed-tree approval is the Battery prerequisite/Bumper Story 6.2 integration in the authorised roadmap, then remaining Bumper/spring slices before Pipe 6.6/6.7; actual shared contact/ball and hollow collider prerequisites remain mandatory.

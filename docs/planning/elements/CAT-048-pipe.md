@@ -8,14 +8,14 @@
 | Requirement | [CAT-048](../requirements.md#current-cat-048) |
 | Mapped identities | EL-071 Straight metal ball pipe (refines the straight tube). Related, own specs: EL-102 Large-bore ball pipe, EL-103 Accelerator tube, EL-107 Spiral gravity-delay tube, EL-008 Straight water pipe (liquid, not balls). |
 | Roadmap | Stories 6.6 (CAT-048a compound cylindrical collider), 6.7 (CAT-048b hollow torus/rim cap collider, clear_pipe) |
-| Status | not started on the current engine; parked GPU declaration work exists but is excluded from the build (`CuriousContraptions.csproj@a6c914e:L29-L29`) |
+| Status | not started on the current engine; owner decision (10 Oct 2026) removes the twelve parked files in Story 7.4 and requires a fresh canonical f32/WASM SIMD implementation at Story 6.6. The old code was excluded (`CuriousContraptions.csproj@a6c914e:L29-L29`) |
 | Levels | inventory in clear_pipe, joined_pipe; see [CAT-048-I consumers](../invest/current-consumers.md#cat-048-i) |
 
 ## 2. Declaration
 
 | Item | Value and source |
 | --- | --- |
-| Body and shape | One static hollow straight tube along local X (parked): `PipeDimensions` length 1–8 m (default 3.6), bore radius 0.65 m (bore 1.3), annular profile half length = length/2, inner radius 0.65, shell outer radius 0.70, collar (end band) outer radius 0.78, collar half width 0.09 `engine/gpu/WorkshopPipe.cs@a6c914e:L5-L29`. Profile topology rules: middle > inner, end ≥ middle, half length > end half width, end bands present exactly when end radius > middle `engine/gpu/AnnularProfile.cs@a6c914e:L18-L37`. Mouths sit at the outer collar faces, ±(length/2 + 0.09): legacy `TubeMouth` is the outside face of the collar `engine/TubeMouth.cs@a6c914e:L6-L14`, and two default pipes 3.78 m apart have touching mouths `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L110-L113`. `parts/PipePart.cs` at `a6c914e` no longer implements `ITubePart`; the mouth data survives only in the tests and the other tube parts. |
+| Body and shape | One static hollow straight tube along local X (preserved declaration for the fresh implementation): `PipeDimensions` length 1–8 m (default 3.6), bore radius 0.65 m (bore 1.3), annular profile half length = length/2, inner radius 0.65, shell outer radius 0.70, collar (end band) outer radius 0.78, collar half width 0.09 `engine/gpu/WorkshopPipe.cs@a6c914e:L5-L29`. Profile topology rules: middle > inner, end ≥ middle, half length > end half width, end bands present exactly when end radius > middle `engine/gpu/AnnularProfile.cs@a6c914e:L18-L37`. Mouths sit at the outer collar faces, ±(length/2 + 0.09): legacy `TubeMouth` is the outside face of the collar `engine/TubeMouth.cs@a6c914e:L6-L14`, and two default pipes 3.78 m apart have touching mouths `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L110-L113`. `parts/PipePart.cs` at `a6c914e` no longer implements `ITubePart`; the mouth data survives only in the tests and the other tube parts. |
 | Material | restitution 0.15, bounce threshold 0.1 m/s, friction 0.3 `CuriousContraptions.tests/WorkshopPipeTests.cs@a6c914e:L34-L44`. |
 | Constraints and joints | none (static). |
 | Sockets and ports | none: no activation or electrical ports; a pipe → lamp activation link rejects `CuriousContraptions.tests/WorkshopPipeTests.cs@a6c914e:L118-L136`. Typed tube mouths Start (−X) and End (+X) with bore radius are placement data, not network edges. |
@@ -26,7 +26,7 @@
 | Art | `parts/PipePart.cs@a6c914e:L15-L47`: transparent shell (0.40, 0.72, 0.79, alpha 0.16) between bore and shell radius, scaled along X by length; two opaque cream `#fff8e9` collars (half width 0.09, outer 0.78) moved to ±length/2; two navy `#293954` rails of radius 0.018 at z ±0.70 (`PartArt.Line` width is the cylinder radius `engine/PartArt.cs@a6c914e:L24-L30`); pick radius √((length/2 + 0.09)² + 0.78²). Mesh builder: 48-sided annular cylinder, double-sided, transparent shells cast no shadow `parts/PipeArt.cs@a6c914e:L40-L71`. Scene `parts/scenes/pipe.tscn`. Palette Clear pipe `#66b8c9`, shell alpha 0.16 `DESIGN.md@a6c914e:L181-L181`. Icon `ui/WorkshopIcons.cs@a6c914e:L91-L91`. Design rules (resize 1–8, Escape cancels, one Undo, snap 0.45 units and 20°, preview on hover, snap on release) `DESIGN.md@a6c914e:L299-L299`. |
 | Catalogue and inventory | `parts/catalog/pipe.tres@a6c914e:L8-L20`: id `pipe`, title Clear pipe, category Motion, default length 3.6. |
 
-Parked current-engine test: `CuriousContraptions.tests/WorkshopPipeTests.cs` (uncompiled; references `WorkshopPartKind.Pipe` and `ColliderShapeKind.AnnularProfile`, which do not exist at `a6c914e`).
+Historical parked test, removed by Story 7.3: `CuriousContraptions.tests/WorkshopPipeTests.cs` (was uncompiled; references `WorkshopPartKind.Pipe` and `ColliderShapeKind.AnnularProfile`, which do not exist at `a6c914e`).
 
 ## 3. Engine capabilities
 
@@ -45,7 +45,7 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Physical placement nudging (authored correction that moves the pipe's collider; the depth-error difficulty controls of facts 5 and 18 depend on it) | not scheduled, owner decision: the roadmap reports physical nudging unsupported in the current playable mode ([first_principles](../invest/vertical-delivery.md#first-principles)) |
 | Optical transmission through the clear shell, collar occlusion | Epic 13 (Story 13.1) |
 | Air blocking by the shell, open bore along the axis (fact 22) | Epic 12 (Story 12.2) |
-| f32 declarations: the parked `PipeDimensions` and `AnnularProfile` lanes and the `PipeDimensionsResource` `LengthBits` field are binary16 (`Half`) | Remaining f32 migration ([f32 migration status](../../gpu-f32-physics.md#f32-migration-status)); declare in f32 when Story 6.6 admits the pipe |
+| Fresh f32 declarations: do not restore the retired binary16 (`Half`) `PipeDimensions`, `AnnularProfile` or `LengthBits` representation | Story 6.6, using the [canonical f32/WASM SIMD authority](../../gpu-f32-physics.md); rebuild as declaration data and generic shared-engine capabilities, with no legacy adapter or migration |
 
 Dependencies: CAT-001 ball. Consumers: CAT-049/050 bends, CAT-030 funnel, CAT-002 detector and CAT-051 powered gate reuse the tube collider and mouths.
 
@@ -66,7 +66,7 @@ Dependencies: CAT-001 ball. Consumers: CAT-049/050 bends, CAT-030 funnel, CAT-00
 | 11 | Mouths 0.72 m apart (pipes 4.5 m apart) or facing 40° off do not snap; an occupied mouth and a locked part are not candidates. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L87-L121` | carry forward (0.45 m / 20° thresholds per DESIGN). |
 | 12 | Resizing is rejected while Running or Paused without changing tubes, saved construction or physics; it applies after Reset. | `CuriousContraptions.tests/ConstructionLifecycleTests.cs@a6c914e:L92-L139` | carry forward. |
 | 13 | Occupancy of a hollow tube: a box in the bore, in the end hole or beyond the end is clear; a box in the shell, on the annular rim, surrounding the tube or touching the outside overlaps; the result is invariant under a rigid transform. | `CuriousContraptions.tests/TubeBoxIntersectionTests.cs@a6c914e:L8-L38` | carry forward (geometry facts for any part inside a bore, e.g. powered gate blade). |
-| 14 | Parked GPU profile: lengths 1, 3.6, 8 round-trip; one exposed annular profile per pipe; saved lengths 0, 0.5, 9, NaN, +∞ and non-zero padding reject; previous schemas reject; a pipe in the first_principles puzzle rejects; maximum population (8 instances incl. a length-8 pipe) fits capacity. | `CuriousContraptions.tests/WorkshopPipeTests.cs@a6c914e:L14-L136` | carry forward the behaviour; do not carry forward the binary16 lanes, the fixed collider ABI bytes or the `AnnularFeature` enum (deleted by Story 6.7). |
+| 14 | Parked GPU profile: lengths 1, 3.6, 8 round-trip; one exposed annular profile per pipe; saved lengths 0, 0.5, 9, NaN, +∞ and non-zero padding reject; previous schemas reject; a pipe in the first_principles puzzle rejects; maximum population (8 instances incl. a length-8 pipe) fits capacity. | `CuriousContraptions.tests/WorkshopPipeTests.cs@a6c914e:L14-L136` | carry forward the behaviour; do not carry forward the binary16 lanes, the fixed collider ABI bytes or the retired `AnnularFeature` enum. |
 | 15 | Hollow walls were built as convex segments with maximum surface error 0.005 m; tube collars carry an opaque flag, bends and frustums are never opaque. | `engine/SceneCollisionGeometry.cs@a6c914e:L37-L38`; `engine/SceneCollisionGeometry.cs@a6c914e:L75-L77`; `engine/physics/HollowGeometry.cs@a6c914e:L80-L108` | carry forward the opacity facts; do not carry forward the CPU convex segmentation (CPU solver path). |
 | 16 | GPU probe fixture matrix for a default pipe and a Basketball: bore-axis fall onto the inner wall; frictionless circumferential motion at constant speed; tilted axial rolling (−0.2 rad); mouth departure to rim/free motion; outer-shell approach hitting the exposed collar shoulder; plane and box rolling controls. | `reference/pipe/Program.cs@a6c914e:L22-L119` | carry forward the fixture matrix; do not carry forward the "shorter trial" subdivision case (CPU-style directed trial) or the WGSL diagnostic shaders in `reference/pipe/` (proof/diagnostic artefacts). |
 | 17 | clear_pipe reference: ball (−1.4, 6, 0), receiver (2, 0.6, 0), pipe_1 at (0, 3, 0) rotated −45° about Z, length 3.6. joined_pipe: ball (−1.308, 8.402, 0), fixed bend (1, 3.5, 0) at −45°, receiver (−0.2, 0.6, 0), pipe_1 at (−0.537, 6.031, 0), −45°, length 2. | `tools/Campaign/Program.cs@a6c914e:L279-L320` | carry forward (content in `content/puzzles.json`). |
@@ -77,9 +77,9 @@ Dependencies: CAT-001 ball. Consumers: CAT-049/050 bends, CAT-030 funnel, CAT-00
 | 22 | A pipe at (0, 4, 0): light crossing the clear shell sideways is unobstructed (5 m); air crossing it sideways is blocked by the shell (1.1–1.4 m); air along the axis through the bore is open (10 m). | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L211-L215` | carry forward as the air/light shell controls (air owed at Story 12.2, light at Story 13.1); the fan/chime fixture itself belongs to CAT-028/CAT-069. |
 | 23 | clear_pipe with its authored solution at precision 0 is won: the ball is captured by the Receiver within 1,200 ticks. | `CuriousContraptions.tests/FlightCampaignTests.cs@a6c914e:L15-L40` | carry forward as a level-regression check for clear_pipe (shared with CAT-004). |
 
-Files harvested:
-- `engine/gpu/WorkshopPipe.cs` (parked; survives until Story 6.6 decides)
-- `engine/gpu/AnnularProfile.cs` (parked; `AnnularFeature` deleted by Story 6.7)
+Historical files harvested (retrievable at the pinned baseline; not retained implementation prerequisites):
+- `engine/gpu/WorkshopPipe.cs` (removed by Story 7.4; Story 6.6 rebuilds fresh)
+- `engine/gpu/AnnularProfile.cs` (removed with its retired `AnnularFeature` by Story 7.4)
 - `parts/PipePart.cs`
 - `parts/PipeArt.cs`
 - `parts/scenes/pipe.tscn` (script binding only)
@@ -119,5 +119,5 @@ Acceptance: [CAT-048](../requirements.md#current-cat-048) and [retained behaviou
 
 - Oversize payload for the mouth control: the legacy used a per-instance 0.8 m ball radius; current balls have fixed per-kind radii (0.34 and 0.28 m, both fit the 0.65 m bore). Which declared body is the oversize control: unspecified — owner decision.
 - Wrong-bore snapping control: every legacy tube shares one bore; which part provides a different bore (e.g. EL-102 Large-bore ball pipe or the funnel's wide inlet): unspecified — owner decision.
-- Whether the parked `engine/gpu/WorkshopPipe.cs` and `AnnularProfile.cs` are kept as Story 6.6's starting point or deleted in Story 7.4: unspecified — owner decision (TODO says preserve Pipe).
+- **Resolved owner decision (10 Oct 2026):** delete all twelve parked straight-Pipe source/sidecar/scene/catalogue files and start again using the new physics engine. Story 6.6 builds fresh on the canonical f32/WASM SIMD engine through generic shared colliders and typed declaration data; Story 6.7 retains rim/collar and clear_pipe acceptance. No retained legacy implementation, alias or migration is a prerequisite. This decision does not waive any acceptance above or move Pipe ahead of its actual engine/element prerequisites.
 - Physical placement nudging: not scheduled, owner decision. The requirement keeps "all difficulty controls" for the pipe, but the depth-error wins at Forgiving/Balanced need nudging that the roadmap reports unsupported; which story builds it is unspecified.

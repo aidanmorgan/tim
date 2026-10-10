@@ -71,7 +71,7 @@ The requirements row names no variants or modes. One element with a `length` par
 
 Binding: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction (map); coverage JSON adds StateTransaction.
 
-**Exists now:** sphere contacts with friction and rolling resistance (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L702-L766`); `PipeDimensions` and `AnnularProfile` types exist in `engine/gpu` but are excluded from every build (`CuriousContraptions.csproj@a6c914e:L29-L29`), so no hollow collider runs today.
+**Exists now:** sphere contacts with friction and rolling resistance (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L702-L766`); no hollow collider runs today. Historical `PipeDimensions` and `AnnularProfile` were excluded (`CuriousContraptions.csproj@a6c914e:L29-L29`) and are removed by Story 7.4 under the 10 Oct owner decision; Story 6.6 rebuilds fresh on the canonical f32/WASM SIMD engine.
 
 **Missing**
 
@@ -87,7 +87,7 @@ Binding: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointCon
 
 | # | Fact | Citation | Disposition | Reason |
 | --- | --- | --- | --- | --- |
-| 1 | Clear pipe: bore radius 0.65 (diameter 1.3), length 1–8 m default 3.6, profile middle radius 0.70, end radius 0.78, end half-width 0.09; only length may change. | `engine/gpu/WorkshopPipe.cs@a6c914e:L5-L28` | carry forward (proportions and length rule) | Pattern for the metal pipe; the file is excluded from builds. |
+| 1 | Clear pipe: bore radius 0.65 (diameter 1.3), length 1–8 m default 3.6, profile middle radius 0.70, end radius 0.78, end half-width 0.09; only length may change. | `engine/gpu/WorkshopPipe.cs@a6c914e:L5-L28` | carry forward (proportions and length rule) | Pattern for the metal pipe; the historical file was excluded from builds and is removed by Story 7.4. |
 | 2 | A hollow tube keeps its reported minimum bore clearance (≥ 0.6475 m for r 0.65) so a ball passes through the open bore. | `CuriousContraptions.tests/HollowGeometryTests.cs@a6c914e:L209-L213` | carry forward (behaviour); do not carry forward the surface-error certificate | Pass/jam is clearance against the ball radius; proof-grade bounds are not acceptance. |
 | 3 | Catalogue length stored as binary16 bits (`LengthBits = 17203`, i.e. 3.6). | `parts/catalog/pipe.tres@a6c914e:L8-L10` | do not carry forward the bits | f32 contract: carry the decimal meaning only. |
 | 4 | Mouth record: id, position, outward normal, bore radius. | `engine/TubeMouth.cs@a6c914e:L9-L9` | carry forward | Seam snapping identity. |

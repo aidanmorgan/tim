@@ -23,6 +23,8 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 | 7.4 `engine/bridge/` | 13 | 4 | 9 | 0 |
 | 7.4 dead `engine/*.cs` | 71 | 50 | 21 | 0 |
 | 7.4 retired WGSL kernels | 2 | 0 | 2 | 0 |
+| 7.4 obsolete UI diagnostic sources (+ sidecars) | 2 | 0 | 2 | 0 |
+| 7.4 orphan GPU source UID metadata | 2 | 0 | 2 | 0 |
 | 7.4 parked GPU pipe declarations | 2 | 2 | 0 | 0 |
 | 7.4 uncompiled `parts/*.cs` | 43 | 43 | 0 | 0 |
 | 7.4 `parts/scenes/*.tscn` | 60 | 60 | 0 | 0 |
@@ -546,7 +548,7 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 ## 7.4 LEGACY-0d: `engine/physics/`
 
-**Scoped deletion receipt (10 Oct 2026, final snapshot review pending):** 637 tracked files across the Story 7.4 sections were removed after independent entry approval, immediate exact membership/byte checks and Anvil. The exact 649-file inventory, including twelve held straight-Pipe files, is bound in the [Story 7.4 spec](../../../_bmad-output/implementation-artifacts/spec-7-4-legacy-physics-unshipped-engine-purge.md). Current builds and 45/45 serial Chrome cases pass. Original clock-failure evidence remains unattributed; full Story 7.4 and P0-030/P0-031 remain incomplete while Pipe is held. Historical harvest rows below remain the source-knowledge ledger.
+**Deletion closure (10 Oct 2026, final review):** all 655 Story 7.4 paths are accounted for: 637 in verified commit 3aca255, twelve parked straight-Pipe files removed under the owner’s fresh-engine decision, four missed uncompiled UI diagnostic paths and two orphan GPU source UID files. Each removal follows independent entry review, immediate exact byte checks and Anvil. The [Story 7.4 spec](../../../_bmad-output/implementation-artifacts/spec-7-4-legacy-physics-unshipped-engine-purge.md) binds current source/content classification, required builds and applicable 45/45 Chrome proof. Original clock-failure evidence remains unattributed. Historical harvest rows below remain the source-knowledge ledger.
 
 | File | Harvested into | Notes |
 | --- | --- | --- |
@@ -794,12 +796,12 @@ Reviewed full-purge additions (10 Oct): both kernels were removed within the ind
 
 ## 7.4 LEGACY-0d: parked GPU pipe declarations
 
-`engine/gpu/WorkshopPipe.cs` and `engine/gpu/AnnularProfile.cs` are excluded from every build at `a6c914e` (`CuriousContraptions.csproj` L29). Whether Story 6.6 keeps them as its starting point or Story 7.4 deletes them is an owner decision recorded in [CAT-048 §6](CAT-048-pipe.md#6-open-questions); each has its own row either way.
+`engine/gpu/WorkshopPipe.cs` and `engine/gpu/AnnularProfile.cs` are excluded from every build at `a6c914e` (`CuriousContraptions.csproj` L29). The 10 Oct owner decision in [CAT-048 §6](CAT-048-pipe.md#6-open-questions) requires their removal in Story 7.4 and a fresh canonical f32/WASM SIMD implementation at Story 6.6; no legacy adapter or migration remains.
 
 | File | Harvested into | Notes |
 | --- | --- | --- |
-| `engine/gpu/AnnularProfile.cs` (+ `.uid`) | CAT-048, EL-071 | Parked; disposition decided by Story 7.4. |
-| `engine/gpu/WorkshopPipe.cs` (+ `.uid`) | CAT-048, EL-071, EL-102, EL-107 | Parked; disposition decided by Story 7.4. |
+| `engine/gpu/AnnularProfile.cs` (+ `.uid`) | CAT-048, EL-071 | Removed by Story 7.4; rebuild fresh at Story 6.6. |
+| `engine/gpu/WorkshopPipe.cs` (+ `.uid`) | CAT-048, EL-071, EL-102, EL-107 | Removed by Story 7.4; rebuild fresh at Story 6.6. |
 
 ## 7.4 LEGACY-0d: uncompiled `parts/*.cs`
 
@@ -985,6 +987,24 @@ Catalogue entries other than the ten that the compiled game uses (`ball`, `baske
 | `parts/catalog/wound_spring.tres` | CAT-071 | |
 | `parts/catalog/yellow_receiver.tres` | CAT-072, EL-149 | |
 
+## 7.4 LEGACY-0d: obsolete UI diagnostics
+
+Final tracked-source classification found these two uncompiled legacy CPU diagnostic sources and their sidecars outside the earlier ledger. Their DTO projections, canonical external enum converters and observation guards describe retired diagnostic transport, not additional element laws. Current typed CCGPU observations and actual UI proof replace that tooling; no element spec cites these sources. Historical source manifests remain unchanged evidence. Exact four-path entry and absence of outside source/type/path consumers are recorded in `.anvil/story-7-4-obsolete-ui-diagnostic-entry.json` (SHA256 fb11b50f519c57c6a23ba5656a0808ef11643bcdffef134247519f16932610ab); independent entry approval, immediate byte equality and Anvil preceded removal.
+
+| File | Harvested into | No element knowledge |
+| --- | --- | --- |
+| `ui/PlaytestConstruction.cs` (+ `.uid`) | — | N-PROBE: obsolete MachineData/SavedMachine construction-observation DTO and exact event converter. |
+| `ui/PlaytestDiagnostics.cs` (+ `.uid`) | — | N-PROBE: old PhysicsWorld/part/network observation projections and JSON boundary converters; no setters or additional gameplay law. |
+
+## 7.4 LEGACY-0d: orphan GPU source UID metadata
+
+Final metadata census found two tracked UID sidecars with no companion source. Exact UID-value search finds only each sidecar itself, no retained source/resource/configuration consumer. All other 109 retained UID sidecars have existing companions.
+
+| File | Harvested into | No element knowledge |
+| --- | --- | --- |
+| `engine/gpu/BasketballLawCoefficients.cs.uid` | — | N-INFRA: orphan UID metadata for an already removed source; no gameplay content. |
+| `engine/gpu/WorkshopGpuAbi.cs.uid` | — | N-INFRA: orphan UID metadata for an already removed source; no gameplay content. |
+
 ## Kept files whose consumers are deleted
 
 Tracked files that survive Epic 7 although their consumers are deleted. Listed for traceability, not deletion. Recipe files are Chrome UI recipe inputs for the legacy Playtest/MCP adapter (`tools/Playtest`, deleted at 7.2); source files are hash manifests whose listed files are mostly paths Epic 7 deletes.
@@ -1039,7 +1059,7 @@ Tracked files that the inventory left unclear, kept by ruling in the closing pas
 
 ## Gaps
 
-Every deletion-scope path above has a row. The current G/N source associations are synchronized; Story 7.0 independent enumeration covered its original 1,580 tracked deletion-scope paths with no uncovered path. Story 7.2 adds five explicitly accounted obsolete GpuBodyFixture files after correcting the earlier inventory classification (1,585 programme paths). Story 7.4 includes two explicitly accounted retired WGSL kernels (1,587 programme paths). Its independently reviewed 637-file non-Pipe set is removed; twelve straight-Pipe files remain unchanged pending the owner decision. No harvest gap remains within the reviewed scope. This is declaration readiness, not authorization to skip the purge stories' own checks.
+Every deletion-scope path above has a row. The current G/N source associations are synchronized; Story 7.0 independent enumeration covered its original 1,580 tracked deletion-scope paths with no uncovered path. Story 7.2 adds five explicitly accounted obsolete GpuBodyFixture files after correcting the earlier inventory classification (1,585 programme paths). Story 7.4 adds two retired WGSL kernels, four missed UI diagnostic paths and two orphan GPU UID files (1,593 programme paths). All 655 Story 7.4 paths are now accounted for; the owner-authorized Pipe deletion preserves its complete declaration and future fresh-engine acceptance. No harvest gap remains within the reviewed scope. This is declaration readiness, not authorization to skip the purge stories' own checks.
 
 Resolved in the closing pass (9 Oct 2026):
 - `CuriousContraptions.tests/ImpactFrameTests.cs`: harvested into CAT-015 (facts 12–13) and CAT-062 (facts 16–17).

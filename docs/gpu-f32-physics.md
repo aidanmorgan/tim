@@ -93,11 +93,13 @@ The f32 contract above is the target; the code does not meet it everywhere yet. 
 | Committed pose: cell-local position remainders, orientation quaternion (`LocalPosition`, `CanonicalRotation`), motion-piece pose, gravity and acceleration lanes | `CanonicalBody.cs`, `WorkshopConstruction.cs`, `PhysicsMotionRead.cs`, `PhysicsBodyWire.cs`, worker.js | Remaining f32 migration |
 | Physics declarations: mass, gravity, declared linear drag (body record +74, read with `getF16`), centre of mass, principal frame and inertia mantissa, collider frames/radii/half-extents, materials including rolling resistance (material record +14, `RollingResistance` is `Half`), triggers, orientation sensors, drives and motion windows | `PhysicsDeclarations.cs`, `RigidMassProperties.cs`, `OrientationSensorDeclaration.cs`, `PhysicsGpuAbi.cs`, `WorkshopPhysicsCompiler.cs`, worker.js | Remaining f32 migration |
 | Construction values (`Metres`, `Kilograms`, ball materials) and the construction wire reused by the save codec | `WorkshopConstruction.cs`, `WorkshopWire.cs`, `WorkshopSaveCodec.cs` | Remaining f32 migration |
-| Catalog resource `*Bits` fields (ball material, ramp/wall/pipe dimensions, bumper work, delay duration) | `engine/*Resource.cs`, `parts/catalog/*.tres` | Remaining f32 migration |
+| Catalog resource `*Bits` fields (ball material, ramp/wall dimensions, bumper work, delay duration) | `engine/*Resource.cs`, `parts/catalog/*.tres` | Remaining f32 migration |
 | Activation/timer phases, contact work `Joules`, puzzle precision and assistance windows | `ActivationTimers.cs`, `PhysicsGpuAbi.cs`, `ContactWorkDeclaration.cs`, `WorkshopPuzzle.cs`, `WorkshopPuzzleWire.cs` | Remaining f32 migration |
 | Animation values, cosmetic durations and the `Half` lanes of the [animation channel ABI](presentation-bindings.md#declared-cosmetic-curves-anim-1b-and-ui-bindings-anim-1c) | `engine/presentation/AnimationValues.cs`, `WorkshopCosmetic.cs`, `WorkshopHint.cs` | Remaining f32 migration |
 | Worker tick arithmetic runs in JavaScript doubles and rounds pose to binary16 (velocity to f32) at commit; the WASM SIMD f32 solver replaces it | worker.js | Remaining f32 migration |
 | Retired binary16 WGSL kernels, following their obsolete `tools/GpuBodyFixture` consumer | Historical `engine/gpu/basketball.wgsl`, `engine/gpu/body-integration.wgsl` | Removed by Story 7.4; preserved in git history |
+
+**Pipe owner decision (10 Oct 2026):** Story 7.4 removes the twelve parked straight-Pipe files, including their binary16 dimensions/profile/resource lanes. Story 6.6 rebuilds Pipe fresh as canonical f32 declaration data on the generic WASM SIMD physics engine; no legacy adapter, alias or migration is retained. Complete CAT-048 acceptance and Story 6.7 rim/collar controls remain required in roadmap order.
 
 Until a lane migrates, envelope consequences that depend on its precision are stated against binary16.
 

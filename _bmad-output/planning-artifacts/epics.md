@@ -458,7 +458,7 @@ So that level `clear_pipe` can be solved.
 - **When** the ball enters the mouth at high speed and edge angles,
 - **Then** the ball negotiates the pipe geometry and reaches the receiver.
 - **And** all legacy annular-specific kernel code, `AnnularFeature` enums, and `reference/pipe/` are deleted.
-  - Reference-only clause discharged by Story 7.1 (10 Oct 2026); annular kernel cleanup remains this story's acceptance.
+  - Historical reference and annular cleanup clauses discharged by Stories 7.1 and 7.4 (10 Oct 2026); the fresh implementation must preserve the generic shared-engine/no-annular-identifier rule.
 - **And** `tools/e2e/cat-048b.test.ts` passes 100% in Chrome serially.
 
 ### Story 6.8: Generic Aperture Sensor with Directional Rearm (CAT-002)
@@ -577,7 +577,7 @@ So that 100% of test files in the project are actively compiled and executed.
 - **And** `dotnet test CuriousContraptions.slnx` runs with 100% pass rate (0 failures).
 
 ### Story 7.4: Legacy CPU Physics & Unshipped Engine Purge (LEGACY-0d)
-*Status: Backlog*
+*Status: Review — all 655 legacy paths removed; current source/resource classification and applicable 45-case Chrome proof complete; final scoped commit review pending*
 
 As an engine maintainer,  
 I want all superseded CPU physics files in `engine/physics/` and dead classes in `parts/` deleted,  

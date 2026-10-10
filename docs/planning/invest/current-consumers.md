@@ -456,11 +456,11 @@
 
 **Level(s) unlocked:** inventory in clear_pipe, joined_pipe.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-048). **Requirements (Incomplete):** [CAT-048](../requirements.md#current-cat-048). **Legacy deleted at this element's slice:** [parts/PipePart.cs](../../../parts/PipePart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-048). **Requirements (Incomplete):** [CAT-048](../requirements.md#current-cat-048). **Legacy removed by Story 7.4:** `parts/PipePart.cs@a6c914e`; behavior retained in the [element declaration](../elements/CAT-048-pipe.md). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball rolls through tilted Clear pipe's open bore into Receiver.
 
-**Distinct controls / next boundary:** Blocked/oversized body, physical wall/entry/exit and within-part shell/collar transitions; joined-pipe snapping/seams and shell light transmission versus opaque collar are separate retained children. **Capability:** generic hollow SDF/compound collider in the shared pair table, radii as authored data (roadmap CAT-048a/CAT-048b rows); the parked clear_pipe result in TODO is retried on the new core and adopted at that slice. No `annular` identifier may remain in the physics solver.
+**Distinct controls / next boundary:** Blocked/oversized body, physical wall/entry/exit and within-part shell/collar transitions; joined-pipe snapping/seams and shell light transmission versus opaque collar are separate retained children. **Capability:** generic hollow SDF/compound collider in the shared pair table, radii as authored data (roadmap CAT-048a/CAT-048b rows); the preserved clear_pipe fixtures qualify on the new core at that slice. The 10 Oct owner decision requires a fresh implementation, without a legacy adapter or migration. No `annular` identifier may remain in the physics solver.
 
 <a id="cat-049-i"></a>
 ### CAT-049-I · pipe_bend_45
