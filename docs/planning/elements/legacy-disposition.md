@@ -17,7 +17,7 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 | Scope | Rows | Harvested | No element knowledge | GAP |
 | --- | --- | --- | --- | --- |
 | 7.1 `reference/` (folders and root files) | 26 | 10 | 16 | 0 |
-| 7.2 `tools/`, `diagnostics/`, `CuriousContraptions.Geometry/` (folders) | 23 | 3 | 20 | 0 |
+| 7.2 `tools/`, `diagnostics/`, `CuriousContraptions.Geometry/` (folders) | 24 | 3 | 21 | 0 |
 | 7.3 uncompiled `CuriousContraptions.tests/` | 417 | 239 | 178 | 0 |
 | 7.4 `engine/physics/` | 135 | 59 | 76 | 0 |
 | 7.4 `engine/bridge/` | 13 | 4 | 9 | 0 |
@@ -52,7 +52,7 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 ## 7.1 LEGACY-0a: `reference/`
 
-**Deletion receipt (10 Oct 2026, regression checks passed; final commit verification pending):** all 392 tracked paths in the 26 rows below and 4,290 untracked/ignored outputs were removed after exact source-drift and archive recovery checks; the historical rows remain. Owner superseded external storage: the 2,474 untracked app-bundle files remain recoverable from ignored `archives/story-7-1-20261009/p025-appbundles.tar.gz` inside tim (208,369,673 bytes; SHA-256 `5267bbe9fda12ee295b0b044fdc05bf14295e687eaddd740a3545356b13a1d0a`). Manifest SHA-256 `9ae5e8efcfee451939d05604744cbdd91dbd511ba98f061cb36f4cc1bbf3c13b`; recovered tree retained alongside it. Exact original deletion inventory: `.anvil/story-7-1-deletions.json`, SHA-256 `61ebcb39ba02962de6b1aed1db143e3684414c9c850be81125f8dff43a387d9b`. [Story 7.1](../../../_bmad-output/implementation-artifacts/spec-7-1-reference-historical-archive-purge.md) records the scoped checks; build/unit/Node and all 45 Chrome cases passed; final scoped approval and committed-tree verification remain.
+**Deletion receipt (10 Oct 2026, verified in local commit aaac712):** all 392 tracked paths in the 26 rows below and 4,290 untracked/ignored outputs were removed after exact source-drift and archive recovery checks; the historical rows remain. Owner superseded external storage: the 2,474 untracked app-bundle files remain recoverable from ignored `archives/story-7-1-20261009/p025-appbundles.tar.gz` inside tim (208,369,673 bytes; SHA-256 `5267bbe9fda12ee295b0b044fdc05bf14295e687eaddd740a3545356b13a1d0a`). Manifest SHA-256 `9ae5e8efcfee451939d05604744cbdd91dbd511ba98f061cb36f4cc1bbf3c13b`; recovered tree retained alongside it. Exact original deletion inventory: `.anvil/story-7-1-deletions.json`, SHA-256 `61ebcb39ba02962de6b1aed1db143e3684414c9c850be81125f8dff43a387d9b`. [Story 7.1](../../../_bmad-output/implementation-artifacts/spec-7-1-reference-historical-archive-purge.md) records the scoped checks; build/unit/Node and all 45 Chrome cases passed; independent committed-tree verification passed.
 
 | Folder or file | Tracked files | Harvested into | Notes |
 | --- | --- | --- | --- |
@@ -87,9 +87,12 @@ The deletion scope was listed with `git ls-tree -r --name-only a6c914e` and the 
 
 ## 7.2 LEGACY-0b: `tools/`, `diagnostics/` and `CuriousContraptions.Geometry`
 
+**Deletion receipt (10 Oct 2026, final commit review pending):** all 129 tracked files in these 24 rows and 1,302 ignored bin/obj outputs were removed after independent entry review, immediate exact byte checks and Anvil gates. Empty `tools/p0-002-review` was also removed. GpuBodyFixture's five-file classification correction is explicit below; shared WGSL/current canonical sources remain. Seven retained tool builds have zero warnings; Coverage 40/40, Node 85/85 and contract tools pass. [Story 7.2](../../../_bmad-output/implementation-artifacts/spec-7-2-diagnostics-legacy-probe-tools-purge.md) records the inventories and raw evidence.
+
 | Folder | Tracked files | Harvested into | Notes |
 | --- | --- | --- | --- |
 | `tools/Campaign/` | 5 | CAT-003, CAT-004, CAT-005, CAT-014, CAT-015, CAT-018, CAT-019, CAT-022, CAT-023, CAT-028, CAT-029, CAT-033, CAT-035, CAT-048, CAT-049, CAT-050, CAT-053, CAT-054, CAT-057, CAT-058, CAT-059, CAT-062, CAT-063, CAT-064, CAT-065, CAT-066, CAT-067, CAT-071, EL-001, EL-023, EL-024, EL-025, EL-028, EL-039, EL-053, EL-054, EL-057, EL-058, EL-060, EL-061, EL-062, EL-065, EL-066, EL-070, EL-074, EL-075, EL-076, EL-126, EL-128, EL-138, EL-181, EL-193, EL-194, EL-211, TH-01, TH-02, TH-03, TH-04, TH-05, TH-06, TH-07, TH-08, TH-09, TH-10, TH-11, TH-12, TH-13, TH-14, TH-15, TH-16, TH-18, TH-21, TH-22, TH-23, TH-26, TH-27, TH-28, TH-29, TH-30, TH-31, TH-32, TH-33, TH-34, TH-36, TH-37, RAD-01 | Includes the springboard, trampoline and wound-spring lessons. |
+| `tools/GpuBodyFixture/` | 5 | — | N-PROBE: Story 7.2 correction (10 Oct 2026). Retired shader-f16 integration/readback experiment; no element-specific knowledge or element-spec citations. Current canonical ABI is preserved in kept engine sources. The earlier inventory's “current fixture” label was incorrect; shared WGSL remains at its later deletion gate. |
 | `tools/LifecycleContractReview/` | 1 | — | N-PROBE |
 | `tools/P0-007-actual-path-probe/` | 7 | CAT-007, CAT-016, CAT-018, CAT-034, CAT-039, CAT-051, CAT-052, CAT-057, CAT-065, CAT-071 | |
 | `tools/P0-007-binarysum-review/` | 2 | — | N-PROBE |
@@ -1021,7 +1024,7 @@ Tracked files that the inventory left unclear, kept by ruling in the closing pas
 
 ## Gaps
 
-Every deletion-scope path above has a row. The current G/N source associations are synchronized; independent enumeration covers all 1,580 tracked deletion-scope paths with no uncovered path. No harvest gap remains within the reviewed scope. This is declaration readiness, not authorization to skip the purge stories' own checks.
+Every deletion-scope path above has a row. The current G/N source associations are synchronized; Story 7.0 independent enumeration covered its original 1,580 tracked deletion-scope paths with no uncovered path. Story 7.2 adds five explicitly accounted obsolete GpuBodyFixture files after correcting the earlier inventory classification (1,585 total programme paths). No harvest gap remains within the reviewed scope. This is declaration readiness, not authorization to skip the purge stories' own checks.
 
 Resolved in the closing pass (9 Oct 2026):
 - `CuriousContraptions.tests/ImpactFrameTests.cs`: harvested into CAT-015 (facts 12–13) and CAT-062 (facts 16–17).

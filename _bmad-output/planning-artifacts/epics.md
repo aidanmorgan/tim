@@ -537,7 +537,7 @@ So that loosely aimed balls are gathered into a pipe route by gravity and contac
 **Entry gate (Stories 7.1–7.4):** no file is deleted until [legacy-disposition.md](../../docs/planning/elements/legacy-disposition.md) has a row for it. The ledger is written by Story 7.0 ([spec](../implementation-artifacts/spec-7-0-element-implementation-readiness.md)).
 
 ### Story 7.1: Reference & Historical Archive Purge (LEGACY-0a)
-*Status: Review — archive recovery and reference deletion verified; builds, unit and all 45 Chrome cases passed; final scoped commit verification pending*
+*Status: Done — local commit aaac712; independent committed-tree Pass*
 
 As an engine maintainer,  
 I want obsolete tarballs and benchmark dumps in `reference/` purged,  
@@ -551,7 +551,7 @@ So that repository bloat is eliminated and active docs are clearly isolated.
 - **And** the active solution compiles and passes all unit and Playwright tests cleanly.
 
 ### Story 7.2: Diagnostics & Legacy Probe Tools Purge (LEGACY-0b)
-*Status: Backlog*
+*Status: Review — 1,431 obsolete files removed; seven retained tool builds and affected checks pass; scoped commit verification pending*
 
 As an engine maintainer,  
 I want obsolete probe tools and ad-hoc harnesses in `tools/` purged,  

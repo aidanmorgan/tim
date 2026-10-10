@@ -209,7 +209,7 @@ The named desktop reference is MacBook Pro M4 Max with Chrome; the proposed phys
 
 <a id="sequence-task-006"></a>
 
-- [ ] **PERF-02 — add typed instrumentation and reproducible scenarios.** Use enum-typed stages, metrics and scenarios, typed part/body/revision IDs, and validated serialization boundaries in C# diagnostics/Playtest tooling. Capture substeps/events, simulated versus wall time, candidate/tree/leaf counts, solver iterations, largest coupled group, snapshot/allocation bytes, memory growth, draw calls and mesh uploads. Exercise idle, sparse/doubled, dense, fast/rotating/hollow, coupled-mechanism, visual-heavy and lifecycle scenarios using real UI controls. Measure instrumentation overhead; repeat end-to-end timing without diagnostics.
+- [ ] **PERF-02 — add typed instrumentation and reproducible scenarios.** Use enum-typed stages, metrics and scenarios, typed part/body/revision IDs, and validated serialization boundaries in current C# diagnostic tooling. Capture substeps/events, simulated versus wall time, candidate/tree/leaf counts, solver iterations, largest coupled group, snapshot/allocation bytes, memory growth, draw calls and mesh uploads. Exercise idle, sparse/doubled, dense, fast/rotating/hollow, coupled-mechanism, visual-heavy and lifecycle scenarios using real UI controls. Measure instrumentation overhead; repeat end-to-end timing without diagnostics.
 
 <a id="sequence-task-007"></a>
 

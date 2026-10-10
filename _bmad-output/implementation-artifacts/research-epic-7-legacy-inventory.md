@@ -54,7 +54,6 @@ Also present are p020-clean-worker-assets, the `p0xx-pages-*` folders, four `P0-
 | `tools/e2e` | The Chrome suites. |
 | `tools/workshop-*.test.mjs` | The Node physics harness. |
 | `tools/Preview` | Serves :8060. |
-| `tools/GpuBodyFixture` | Current fixture. |
 | `tools/LifecycleContract` | Current contract tool. |
 | `tools/WireContract` | Current contract tool. |
 | `tools/TraceAllocations` | Current analysis tool. |
@@ -65,6 +64,7 @@ Also present are p020-clean-worker-assets, the `p0xx-pages-*` folders, four `P0-
 - every `tools/p0-*` folder, including the empty `p0-002-review`;
 - every `tools/P0-007-*` folder and `p0-007-probe`;
 - `tools/PortableGeometryProof` and `tools/LifecycleContractReview`;
+- `tools/GpuBodyFixture`: corrected on 10 Oct 2026 after direct inspection; this is a retired shader-f16 solver/readback experiment, not a current WASM SIMD fixture. Five tracked files and generated outputs belong to Story 7.2. Its shared WGSL files remain at the existing later migration/deletion gate;
 - `tools/Performance` and `tools/Performance.Tests`;
 - `tools/Playtest` and `tools/Campaign`;
 - `diagnostics/`, which is compiled only by Performance and the P0-007 probes;

@@ -1,6 +1,0 @@
-namespace CuriousContraptions.PortableGeometryProof;
-public sealed class SceneReferenceProbe
-{
-    public Godot.Node? Node { get; set; }
-    public twodog.Engine? Engine { get; set; }
-}

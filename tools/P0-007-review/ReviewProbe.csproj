@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
-  <ItemGroup>
-    <Reference Include="CuriousContraptions"><HintPath>../../.godot/mono/temp/bin/Release/CuriousContraptions.dll</HintPath></Reference>
-    <Reference Include="CuriousContraptions.Geometry"><HintPath>../../.godot/mono/temp/bin/Release/CuriousContraptions.Geometry.dll</HintPath></Reference>
-    <Reference Include="GodotSharp"><HintPath>../../.godot/mono/temp/bin/Release/GodotSharp.dll</HintPath></Reference>
-  </ItemGroup>
-</Project>

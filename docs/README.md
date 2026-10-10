@@ -38,7 +38,7 @@ The [TIM research dossier](research.md) preserves reference observations and fid
 
 ## Tools and records
 
-Tool READMEs document their actual commands and limitations: [Playtest](../tools/Playtest/README.md), [Performance](../tools/Performance/README.md), [Coverage](../tools/Coverage/README.md), [Ownership](../tools/Ownership/README.md), [WireContract](../tools/WireContract/README.md), [LifecycleContract](../tools/LifecycleContract/README.md), [TraceAllocations](../tools/TraceAllocations/README.md), [Anvil](../tools/anvil/README.md). Tools that depend on legacy CPU physics are deleted at LEGACY-0; a frozen historical fixture never qualifies the current GPU runtime.
+Tool READMEs document their actual commands and limitations: [Coverage](../tools/Coverage/README.md), [Ownership](../tools/Ownership/README.md), [WireContract](../tools/WireContract/README.md), [LifecycleContract](../tools/LifecycleContract/README.md), [TraceAllocations](../tools/TraceAllocations/README.md), [Anvil](../tools/anvil/README.md). Story 7.2 removed obsolete Playtest, Performance and probe tools; a frozen historical fixture never qualifies the current GPU runtime.
 
 [Coverage records](coverage/README.md) track source/consumer membership and proof state. Each slice keeps its exact failures, commands, identities and independent review in its own record under docs/verification/; TODO keeps only the working brief.
 
