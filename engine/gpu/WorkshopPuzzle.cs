@@ -2,7 +2,7 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopPuzzleId : uint { Free, FirstPrinciples, DelayedSignal, DominoEffect, BumperSidekick, BumperDepth, WallAndBumper }
+public enum WorkshopPuzzleId : uint { Free, FirstPrinciples, DelayedSignal, DominoEffect, BumperSidekick, BumperDepth, WallAndBumper, SpringForward, ReadyToRebound }
 public enum WorkshopPlacementMode : uint { Manual }
 public enum WorkshopGoalKind : uint { None, Captured, ActivatedAfter }
 public readonly record struct PuzzlePrecision(Half Value);
@@ -74,6 +74,7 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
         }
         if (ballCount != 1) throw new ArgumentException("Authored puzzles require their one named Basketball.");
         Goal.Validate();
+        if (Id is WorkshopPuzzleId.SpringForward or WorkshopPuzzleId.ReadyToRebound) { SpringboardLessons.Validate(this, construction); return; }
         if (Id == WorkshopPuzzleId.DelayedSignal) { DelayedSignal.Validate(this, construction); return; }
         if (Id == WorkshopPuzzleId.BumperSidekick) { BumperSidekick.Validate(this, construction); return; }
         if (Id is WorkshopPuzzleId.BumperDepth or WorkshopPuzzleId.WallAndBumper) { BumperAdvanced.Validate(this, construction); return; }

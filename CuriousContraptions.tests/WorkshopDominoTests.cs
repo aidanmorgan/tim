@@ -52,12 +52,12 @@ public sealed class WorkshopDominoTests
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var slot = Array.FindIndex(scene.Bodies.ToArray(), b => b.Id == body.Id);
         var record = bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes, PhysicsGpuAbi.BodyBytes);
-        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.X.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[96..]));
-        Assert.Equal(properties.X.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[100..]));
-        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Y.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[104..]));
-        Assert.Equal(properties.Y.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[108..]));
-        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Z.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[112..]));
-        Assert.Equal(properties.Z.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[116..]));
+        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.X.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[120..]));
+        Assert.Equal(properties.X.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[124..]));
+        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Y.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[128..]));
+        Assert.Equal(properties.Y.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[132..]));
+        Assert.Equal(BitConverter.HalfToUInt16Bits(properties.Z.Mantissa), BinaryPrimitives.ReadUInt16LittleEndian(record[136..]));
+        Assert.Equal(properties.Z.Exponent, BinaryPrimitives.ReadInt32LittleEndian(record[140..]));
         static void Near(PrincipalInertia value, double expected) =>
             Assert.InRange(Math.Abs(Math.ScaleB((double)value.Mantissa, value.Exponent) - expected) / expected, 0, .003);
     }
@@ -75,13 +75,13 @@ public sealed class WorkshopDominoTests
         Assert.Equal(WorkshopPartKind.Domino, domino.Kind);
         Assert.False(domino.Cosmetic.IsDeclared);
         var dominoOffset = 24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes;
-        foreach (var field in new[] { 104, 106, 108, 110, 112, 114 })
+        foreach (var field in new[] { 112, 114, 116, 118, 120, 122 })
         {
             var forged = (byte[])bytes.Clone();
             BinaryPrimitives.WriteUInt16LittleEndian(forged.AsSpan(dominoOffset + field), BitConverter.HalfToUInt16Bits((Half)17));
             Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(forged));
         }
-        var padding = (byte[])bytes.Clone(); padding[dominoOffset + 116] = 1;
+        var padding = (byte[])bytes.Clone(); padding[dominoOffset + 124] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
         Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)));
     }

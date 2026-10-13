@@ -18,22 +18,22 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     {
         var state = PhysicsGpuAbi.Admission(WorkshopPhysicsCompiler.Compile(Construction, new(101, 207)), new(9), Profile);
         var physical = PhysicsGpuAbi.ReadDynamicBodies(state)[0];
-        var rotation = new CanonicalRotation((Half)0, (Half)0, (Half)(-.301513671875), (Half).9541015625);
+        var rotation = CanonicalRotation.Normalize(0, 0, -.30151367f, MathF.Sqrt(1 - .30151367f * .30151367f));
         var record = WorkshopTraceRecord.Encode(new(new(9), new(0), new([physical with { Rotation = rotation }])), Profile);
         var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
         for (var index = 0; index < values.Length; index++)
-            Assert.Equal(BitConverter.HalfToUInt16Bits(values[index]),
-                BinaryPrimitives.ReadUInt16LittleEndian(record.AsSpan(WorkshopTraceRecord.HeaderBytes + 26 + index * 2)));
+            Assert.Equal(BitConverter.SingleToUInt32Bits(values[index]),
+                BinaryPrimitives.ReadUInt32LittleEndian(record.AsSpan(WorkshopTraceRecord.HeaderBytes + 32 + index * 4)));
     }
 
     [Theory]
     [InlineData(0u)]
     [InlineData(2u)] // the retired schema whose bodies were 56-byte binary16-velocity records
-    [InlineData(4u)]
+    [InlineData(3u)]
     public void RecordsOfAnyOtherTraceVersionReject(uint version)
     {
         var record = Record(Construction, new(9), Profile);
-        Assert.Equal((uint)WorkshopTraceVersion.CompleteBodySetF32Velocity, BinaryPrimitives.ReadUInt32LittleEndian(record));
+        Assert.Equal((uint)WorkshopTraceVersion.CompleteBodySetF32Pose, BinaryPrimitives.ReadUInt32LittleEndian(record));
         Assert.Equal(WorkshopTraceRecord.HeaderBytes + PhysicsBodyWire.ByteLength, record.Length);
         Assert.Equal(Profile, WorkshopTraceRecord.ReadProfile(record));
         BinaryPrimitives.WriteUInt32LittleEndian(record, version);

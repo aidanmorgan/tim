@@ -14,7 +14,7 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Refines / extends | Refines [CAT-062 spring](CAT-062-spring.md) ([requirement](../requirements.md#current-cat-062)) |
 | Related | CAT-065 Trampoline (shares the elastic capability, different declaration), EL-215 Damped cushion |
 | Roadmap story | Story 6.4 (slider and spring) and Story 6.5 (preload and `spring_forward`) |
-| Status | Passive Story6.4 implementation candidate; final review/publication pending. Preload and `spring_forward` remain Story6.5. |
+| Status | Passive Story6.4 published at `781e0c81b838abe13fea8bc72d10e60f0ee67dca` with independent terminal scoped Pass. Preload and `spring_forward` remain Story6.5. |
 
 ## 2. Declaration
 
@@ -39,7 +39,7 @@ All values below are sourced by the [springboard contract](../../springboard-ela
 | `ActivationOut` | Activation | Output | **proposed**: the row requires "typed signal integration"; the legacy raised a `Bounced` event on plate contact (`parts/SpringPart.cs@a6c914e:L80-L85`) |
 
 ### Sensors and activation
-A contact trigger on the plate with approach speed ≥ 0.05 m/s (`parts/SpringPart.cs@a6c914e:L82-L82`) emits on `ActivationOut`, using the existing trigger declaration (`engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18`).
+Proposed future signal integration: a contact trigger on the plate with approach speed ≥ 0.05 m/s (`parts/SpringPart.cs@a6c914e:L82-L82`) emits on `ActivationOut`, using the existing trigger declaration (`engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18`).
 
 ### Work and energy stores
 Elastic store ½·k·q². Initial compression is finite construction energy released when Run begins; no powered recharge or automatic launch ([contract](../../springboard-elastic-contract.md)).
@@ -75,9 +75,10 @@ Families: ContactImpulse, ElasticStorage, EnvironmentState, FiniteLedger, Geomet
 **Exists now**
 - Dynamic box plate and contact: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`; contact triggers for the signal: `engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18`.
 
+- Generic prismatic slider and shared TGS Soft spring (JointConstraint, ElasticStorage), stiffness/damping authoring and passive lifecycle: published Story6.4, [terminal proof](../../../_bmad-output/implementation-artifacts/review-6-4-passive-springboard.md).
+
 **Missing**
-- Prismatic slider and unified TGS Soft spring (JointConstraint, ElasticStorage): Story 6.4.
-- Preload energy store and `spring_forward`: Story 6.5. Owner S300.
+- Preload and preserved launch lessons: Story6.5 candidate, runtime/publication acceptance pending. Owner S300.
 
 **Dependencies.** None beyond Stories 6.4–6.5; CAT-065 trampoline reuses the elastic capability.
 
@@ -113,7 +114,7 @@ Follow [element-194](../requirements.md#element-194) and the [contract](../../sp
 - **Negative/control.** No springboard, a missed ball and an unloaded plate give no launch; a wire into the springboard is refused; the second bounce apex is lower than the first.
 - **Boundaries.** Each parameter endpoint; tilted frame; every one of the fifteen composite lane instances in fact 7: `bounce_and_roll`, `spring_and_chain`, `two_signals`, `deep_springs` (two yawed lanes), `three_deliveries`, `triple_signal`, `cold_front`, `bounce_mail`, `double_cold_start`, `signals_and_chain`, `cold_signals`, `depth_delivery` (yawed), `depth_telegraph` (yawed) and `bridges_and_signal`.
 - **Run/Reset.** Plate returns to authored compression.
-- **Save/Load.** Parameters, pose and the `ActivationOut` wire round-trip; `strength` rejects.
+- **Save/Load.** Parameters and pose round-trip; `strength` rejects. The `ActivationOut` wire round-trip remains acceptance for the later signal slice once the proposed port decision in §6 is resolved; no such port is currently supported.
 - **Integrations.** Campaign row 1 (springboard) first use 1–10, reuse 21–30, 41–50, 91–100, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); retained springboard behaviour [todo-461](../requirements.md#todo-461); switch-and-lamp lanes with CAT-063 and CAT-035.
 
 ## 6. Open questions

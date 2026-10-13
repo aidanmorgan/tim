@@ -12,26 +12,36 @@ public readonly record struct Kilograms(Half Value);
 public readonly record struct Acceleration(Half Value);
 public readonly record struct InverseSeconds(Half Value);
 public readonly record struct Restitution(Half Value);
-public readonly record struct CanonicalRotation(Half X, Half Y, Half Z, Half W)
+public readonly record struct CanonicalRotation(float X, float Y, float Z, float W)
 {
-    public static CanonicalRotation Identity => new((Half)0, (Half)0, (Half)0, (Half)1);
+    public static CanonicalRotation Identity => new((float)0, (float)0, (float)0, (float)1);
+
+    public static CanonicalRotation Normalize(float x, float y, float z, float w)
+    {
+        var q = new System.Numerics.Quaternion(x, y, z, w);
+        var length = q.LengthSquared();
+        if (!float.IsFinite(length) || length < .999f || length > 1.001f)
+            throw new ArgumentException("Input rotation must represent a unit quaternion.");
+        q = System.Numerics.Quaternion.Normalize(q);
+        return new(q.X, q.Y, q.Z, q.W);
+    }
 
     public void Validate()
     {
         ValidateCommitted();
-        // Authored input admission is separate from rounded, normalised GPU output.
-        var norm = (double)X * (double)X + (double)Y * (double)Y + (double)Z * (double)Z + (double)W * (double)W;
-        if (norm < 0.999 || norm > 1.001)
-            throw new ArgumentException("Canonical rotation must represent a unit quaternion.");
     }
 
     public void ValidateCommitted()
     {
-        if (!Half.IsFinite(X) || !Half.IsFinite(Y) || !Half.IsFinite(Z) || !Half.IsFinite(W) ||
-            X < (Half)(-1) || X > (Half)1 || Y < (Half)(-1) || Y > (Half)1 ||
-            Z < (Half)(-1) || Z > (Half)1 || W < (Half)(-1) || W > (Half)1 ||
-            (X == (Half)0 && Y == (Half)0 && Z == (Half)0 && W == (Half)0))
+        if (!float.IsFinite(X) || !float.IsFinite(Y) || !float.IsFinite(Z) || !float.IsFinite(W) ||
+            X < (float)(-1) || X > (float)1 || Y < (float)(-1) || Y > (float)1 ||
+            Z < (float)(-1) || Z > (float)1 || W < (float)(-1) || W > (float)1 ||
+            (X == (float)0 && Y == (float)0 && Z == (float)0 && W == (float)0))
             throw new ArgumentException("Unsupported committed rotation.");
+        // One canonical f32 rotation: allow rounding residual, reject scaled quaternions.
+        var norm = X * X + Y * Y + Z * Z + W * W;
+        if (norm < .99999f || norm > 1.00001f)
+            throw new ArgumentException("Canonical rotation must represent a unit quaternion.");
     }
 }
 
@@ -117,7 +127,10 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
 {
     public WorkshopBall? Ball => Instances.Find<WorkshopBall>();
     public WorkshopReceiver? Receiver => Instances.Find<WorkshopReceiver>();
-    public WorkshopConstruction WithInstance(IWorkshopInstance instance) => this with { Instances = Instances.With(instance) };
+    public WorkshopConstruction WithInstance(IWorkshopInstance instance) =>
+        Puzzle.Id == WorkshopPuzzleId.ReadyToRebound && instance is WorkshopReceiver receiver
+            ? SpringboardLessons.WithReceiver(this, receiver)
+            : this with { Instances = Instances.With(instance) };
     public WorkshopConnections Connections { get; init; } = Connections ?? WorkshopConnections.Empty;
     public WorkshopConstruction WithoutInstance(GpuBodyId id) => this with { Instances = Instances.Without(id), Connections = Connections.Without(id) };
     public static Acceleration Gravity => new((Half)9.81);
@@ -139,7 +152,7 @@ public static class WorkshopInput
         double qx, double qy, double qz, double qw)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
-        var rotation = new CanonicalRotation(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw));
+        var rotation = CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw));
         var result = new WorkshopBall(id, kind, new(px.Cell, py.Cell, pz.Cell),
             new(px.Local, py.Local, pz.Local), rotation, BallMaterial.For(kind));
         result.Validate();
@@ -154,7 +167,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopReceiver(id, new(px.Cell, py.Cell, pz.Cell),
-            new(px.Local, py.Local, pz.Local), new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)),
+            new(px.Local, py.Local, pz.Local), CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)),
             ReceiverCaptureSettings.Free);
         result.Validate(); return result;
     }
@@ -164,7 +177,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopRamp(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), dimensions);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), dimensions);
         result.Validate(); return result;
     }
 
@@ -173,7 +186,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopWall(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), dimensions);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), dimensions);
         result.Validate(); return result;
     }
 
@@ -182,7 +195,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopSwitch(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), trigger);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), trigger);
         result.Validate(); return result;
     }
     public static WorkshopDelay Delay(GpuBodyId id, double x, double y, double z,
@@ -190,7 +203,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopDelay(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), duration);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), duration);
         result.Validate(); return result;
     }
     public static WorkshopSpringboard Springboard(GpuBodyId id, double x, double y, double z,
@@ -198,7 +211,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopSpringboard(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), settings);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), settings);
         result.Validate(); return result;
     }
     public static WorkshopBattery Battery(GpuBodyId id, double x, double y, double z,
@@ -206,7 +219,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopBattery(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), settings);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), settings);
         result.Validate(); return result;
     }
     public static WorkshopBumper Bumper(GpuBodyId id, double x, double y, double z,
@@ -214,7 +227,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopBumper(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), work);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), work);
         result.Validate(); return result;
     }
     public static WorkshopDomino Domino(GpuBodyId id, double x, double y, double z,
@@ -222,7 +235,7 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopDomino(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), DominoMaterial.Default);
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), DominoMaterial.Default);
         result.Validate(); return result;
     }
     public static WorkshopLamp Lamp(GpuBodyId id, double x, double y, double z,
@@ -230,25 +243,25 @@ public static class WorkshopInput
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var result = new WorkshopLamp(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
-            new(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)));
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)));
         result.Validate(); return result;
     }
-    internal static (int Cell, Half Local) Position(double metres)
+    internal static (int Cell, float Local) Position(double metres)
     {
         if (!double.IsFinite(metres) || metres < -64 || metres > 64)
             throw new ArgumentOutOfRangeException(nameof(metres));
         var cells = metres * 16;
         var cell = checked((int)Math.Floor(cells + 0.5));
-        var local = (Half)(cells - cell);
-        if (local == (Half)0.5) { cell++; local = (Half)(-0.5); }
+        var local = (float)(cells - cell);
+        if (local == .5f) { cell++; local = -.5f; }
         return (cell, local);
     }
 
-    private static Half Rotation(double value)
+    private static float Rotation(double value)
     {
         if (!double.IsFinite(value) || value < -1 || value > 1)
             throw new ArgumentOutOfRangeException(nameof(value));
-        return (Half)value;
+        return (float)value;
     }
 }
 
@@ -257,13 +270,13 @@ public static class WorkshopInput
 public static class HalfBits
 {
     public static bool Equal(Half a, Half b) => BitConverter.HalfToUInt16Bits(a) == BitConverter.HalfToUInt16Bits(b);
-    public static bool Equal(LocalPosition a, LocalPosition b) => Equal(a.X, b.X) && Equal(a.Y, b.Y) && Equal(a.Z, b.Z);
     public static bool Equal(MetreVector a, MetreVector b) => Equal(a.X, b.X) && Equal(a.Y, b.Y) && Equal(a.Z, b.Z);
 }
 
 /// <summary>Canonical f32 bit identity, including signed zero; positive zero is the all-zero bit pattern.</summary>
 public static class F32Bits
 {
+    public static bool Equal(LocalPosition a, LocalPosition b) => Equal(a.X,b.X) && Equal(a.Y,b.Y) && Equal(a.Z,b.Z);
     public static bool Equal(float a, float b) => BitConverter.SingleToUInt32Bits(a) == BitConverter.SingleToUInt32Bits(b);
     public static bool IsPositiveZero(float x, float y, float z) =>
         (BitConverter.SingleToUInt32Bits(x) | BitConverter.SingleToUInt32Bits(y) | BitConverter.SingleToUInt32Bits(z)) == 0;

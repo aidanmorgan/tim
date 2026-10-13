@@ -10,7 +10,7 @@ enum Route { Paid, Miss }
 enum WorkEffect { Passive, Paid }
 enum CapturePhase { Clear, Latched }
 const URL=process.env.BUMPER_PREVIEW_URL ?? 'http://127.0.0.1:8069/';
-const WORK=3328,OCCURRENCE=3584,CAPTURES=2176;
+const WORK=3584,OCCURRENCE=3840,CAPTURES=1408;
 const evidence=resolve(process.env.CAT015B_EVIDENCE_DIR??('.anvil/cat015b-'+Date.now()+'-'+process.pid));
 if(!evidence.startsWith(resolve('.anvil')+sep))throw new Error('Evidence must remain inside tim/.anvil');
 mkdirSync(evidence); // Refuse an existing run directory: never overwrite earlier attempts.
@@ -37,7 +37,7 @@ function half(bits:number){const sign=bits&32768?-1:1,e=bits>>10&31,m=bits&1023;
     return sign*(e?2**(e-15)*(1+m/1024):2**-14*m/1024);}
 const slot=(i:number)=>24+320+i*160;
 function position(b:Buffer,i:number,a:number){const o=slot(i);
-    return (b.readInt32LE(o+48+a*4)+half(b.readUInt16LE(o+72+a*2)))/16;}
+    return (b.readInt32LE(o+48+a*4)+b.readFloatLE(o+72+a*4))/16;}
 const authored=(b:Buffer)=>Buffer.concat([b.subarray(0,24),b.subarray(32)]);
 async function difficultyControls(d:WorkshopDriver){
     // The existing slider is a real UI control. Verify committed saved precision at each endpoint,
@@ -47,7 +47,7 @@ async function difficultyControls(d:WorkshopDriver){
         await d.page.keyboard.press('Escape',{delay:70});await d.save();
         const bytes=await saved(d);
         assert.ok(Math.abs(half(bytes.readUInt16LE(24+48+8))-value)<.001);
-        for(const [offset,expected] of [[104,margin],[106,speed],[108,dwell],[132,guide]])
+        for(const [offset,expected] of [[112,margin],[114,speed],[116,dwell],[140,guide]])
             assert.ok(Math.abs(half(bytes.readUInt16LE(slot(1)+offset))-expected)<.002,
                 'Receiver setting at precision '+value+' field '+offset+' expected '+expected);
     }
@@ -80,7 +80,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         assert.equal(initial.readUInt32LE(24+48),lesson);assert.equal(initial.readUInt32LE(36),0);
         const fixture=lesson===Lesson.Depth?[[0,5,3],[0,.9,-2]]:[[-3,5,0],[-5,.9,0]];
         for(let i=0;i<2;i++)for(let a=0;a<3;a++)assert.ok(Math.abs(position(initial,i,a)-fixture[i][a])<.001);
-        assert.equal(initial.readFloatLE(slot(2)+104),8);assert.equal(initial.readFloatLE(slot(2)+112),32);
+        assert.equal(initial.readFloatLE(slot(2)+112),8);assert.equal(initial.readFloatLE(slot(2)+120),32);
         assert.ok(Math.abs(position(initial,2,1)-1)<.001);
         if(lesson===Lesson.Depth){
             assert.equal(position(initial,2,0),0);
@@ -89,7 +89,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
             assert.ok(Math.abs(position(initial,2,0)+3.3)<.001);assert.equal(position(initial,2,2),0);
             if(route===Route.Paid){
                 for(let a=0;a<3;a++)assert.ok(Math.abs(position(initial,3,a)-[-1,4,0][a])<.001);
-                for(let a=0;a<3;a++)assert.ok(Math.abs(half(initial.readUInt16LE(slot(3)+104+a*2))-[.4,6,1.5][a])<.001);
+                for(let a=0;a<3;a++)assert.ok(Math.abs(half(initial.readUInt16LE(slot(3)+112+a*2))-[.4,6,1.5][a])<.001);
             }
         }
         await d.page.screenshot({path:join(evidence,lesson+'-'+route+'-authored.png')});
@@ -108,7 +108,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         }else{
             assert.ok(paid.length>0);assert.ok(after.readFloatLE(WORK+20)<32);
             const firstPaid=paid[0];
-            const spin=Math.hypot(firstPaid.readFloatLE(128+52),firstPaid.readFloatLE(128+56),firstPaid.readFloatLE(128+60));
+            const spin=Math.hypot(firstPaid.readFloatLE(128+68),firstPaid.readFloatLE(128+72),firstPaid.readFloatLE(128+76));
             assert.ok(spin>1,'Actual paid WASM contact retains friction-generated angular motion');
             assert.ok(rings.some(r=>r.value>.5));assert.equal(rings.at(-1)?.value,0);
         }
@@ -123,7 +123,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         await d.reset();const reset=reads.at(-1)!;
         assert.equal(reset.readFloatLE(WORK+20),32);assert.equal(reset.readUInt32LE(WORK+16),0);
         assert.equal(reset[104],initialRead[104]);
-        assert.deepEqual(reset.subarray(128,128+reset[104]*64),initialRead.subarray(128,128+initialRead[104]*64),
+        assert.deepEqual(reset.subarray(128,128+reset[104]*80),initialRead.subarray(128,128+initialRead[104]*80),
             'Every committed live body pose and velocity is restored exactly');
         assert.equal(reset.readUInt32LE(CAPTURES+8),CapturePhase.Clear);
         assert.equal(reset.readUInt32LE(CAPTURES+12),0,'Captured event cleared');

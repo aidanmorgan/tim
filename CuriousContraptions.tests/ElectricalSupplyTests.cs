@@ -5,10 +5,12 @@ namespace CuriousContraptions.Tests;
 
 public sealed class ElectricalSupplyTests
 {
-    [Fact]
-    public void F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection()
+    [Theory]
+    [InlineData(ElectricalEnable.Disabled)]
+    [InlineData(ElectricalEnable.Enabled)]
+    public void F32AuthoringWiringAndSaveRoundTripWithAtomicAmbiguousSourceRejection(ElectricalEnable enabled)
     {
-        var settings = new ElectricalSourceSettings(new(3600.0002f), new(120.00001f), .1234567f, ElectricalEnable.Disabled);
+        var settings = new ElectricalSourceSettings(new(3600.0002f), new(120.00001f), .1234567f, enabled);
         var battery = new WorkshopBattery(new(1), default, default, CanonicalRotation.Identity, settings);
         var bumper = WorkshopInput.Bumper(new(2), 3, 4, 0, 0, 0, 0, 1, BumperWork.FromCanonicalStrength(8f));
         var link = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, bumper.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
@@ -17,6 +19,9 @@ public sealed class ElectricalSupplyTests
         construction.Validate();
         var saved = new WorkshopSavedConstruction(construction, new(3));
         var original = WorkshopSaveCodec.Encode(saved);
+        var malformed = original.ToArray();
+        malformed[24 + WorkshopWire.ConstructionHeaderBytes + 124] = 2;
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(malformed));
         var restored = WorkshopSaveCodec.Decode(original);
         Assert.Equal(settings, Assert.IsType<WorkshopBattery>(restored.Construction.Instances[0]).Settings);
         Assert.Equal(original, WorkshopSaveCodec.Encode(restored));

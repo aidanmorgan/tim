@@ -143,6 +143,14 @@ public partial class MachinePart : Node3D
         foreach (var binding in _physicalBodies.Values) if (id == binding.Id) return binding.Target;
         return null;
     }
+    protected void SetPhysicalRestPose(PhysicalVisualSlot slot, Transform3D pose)
+    {
+        if (!_physicalBodies.TryGetValue(slot, out var binding))
+            throw new ArgumentException("Absent physical visual binding.");
+        _physicalBodies[slot] = (binding.Id, binding.Target, pose);
+        binding.Target.Transform = pose;
+        ApplyPhysicalSpans();
+    }
     internal void ResetPhysicalVisuals()
     {
         foreach (var binding in _physicalBodies.Values) binding.Target.Transform = binding.RestPose;

@@ -42,7 +42,7 @@ public sealed class WorkshopReadTests
         Assert.False(first.HasSameContent(second with { Capture = second.Capture!.Value with { Time = new(100_000_001) } }));
         if (bodyPresent)
         {
-            var signedZero = second.Bodies[0].Body with { Local = new(BitConverter.UInt16BitsToHalf(0x8000), (Half)0, (Half)0) };
+            var signedZero = second.Bodies[0].Body with { Local = new(BitConverter.UInt32BitsToSingle(0x80000000), (float)0, (float)0) };
             Assert.False(first.HasSameContent(second with { Bodies = Bodies(signedZero) }));
         }
         if (captured)
@@ -67,7 +67,7 @@ public sealed class WorkshopReadTests
         var second = WorkshopWire.DecodeResponse(encoded).Read;
         Assert.True(first.HasSameContent(second));
         var changed = (byte[])encoded.Clone();
-        H(changed, WorkshopWire.ReadMotionOffset + piece + 54, (Half).125);
+        H(changed, WorkshopWire.ReadMotionOffset + piece + PhysicsMotionRead.DragRateOffset, (Half).125);
         Assert.False(first.HasSameContent(WorkshopWire.DecodeResponse(changed).Read));
         changed = (byte[])encoded.Clone();
         U32(changed, WorkshopWire.ReadCapturesOffset + 12, 2);
@@ -88,7 +88,7 @@ public sealed class WorkshopReadTests
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(15));
         Assert.True(motion.TrySample(body.Id, 58, out var pose));
         Assert.Equal(2, pose.Cell.X);
-        Assert.Equal((Half)(58.0 / WorkshopCadenceSettings.PhysicalFrequency * 16 - 2), pose.Local.X);
+        Assert.Equal((float)(58.0 / WorkshopCadenceSettings.PhysicalFrequency * 16 - 2), pose.Local.X);
         foreach (var invalid in new Half[] { (Half)(1.0 / 480), (Half)240, Half.NaN })
         {
             var changed = (byte[])bytes.Clone(); H(changed, piece + 22, invalid);
@@ -241,7 +241,7 @@ public sealed class WorkshopReadTests
             U32(bytes, piece + 4, start + i); U32(bytes, piece + 8, start + i + 1);
             H(bytes, piece + 22, (Half)WorkshopCadenceSettings.PhysicalFrequency);
             BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(piece + 24), body.Id.Value);
-            H(bytes, piece + 62, (Half)1);
+            BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(piece + 76), 1f);
         }
         return bytes;
     }

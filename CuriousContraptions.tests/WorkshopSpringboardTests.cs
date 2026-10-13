@@ -5,8 +5,124 @@ using Godot;
 namespace CuriousContraptions.Tests;
 
 [Collection<NativeSceneCollection>]
-public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
+public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutputHelper output)
 {
+
+
+    [Theory]
+    [InlineData(.3)]
+    [InlineData(-.5)]
+    public void ForgivingSpringForwardReceiverBoundaryUsesCompiledSourceScene(double offset)
+    {
+        var lesson = SpringboardLessons.Create(WorkshopPuzzleId.SpringForward, new(1), WorkshopCadenceSettings.Default(),
+            new(1), new(2), new(3), new((Half)0));
+        var construction = lesson.WithInstance(WorkshopInput.Springboard(new(3), -3, .8, 0,
+            0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default));
+        var original = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
+        var bodies = original.Bodies.ToArray();
+        var receiverIndex = Array.FindIndex(bodies, b => b.Id == construction.Receiver!.Value.Id);
+        var shifted = WorkshopInput.Receiver(new(2), -.7 + offset, .55, 0, 0, 0, 0, 1);
+        bodies[receiverIndex] = bodies[receiverIndex] with { Cell = shifted.Cell, Local = shifted.Local };
+        var scene = new PhysicsSceneDeclaration(original.Document, original.NextIdentity, bodies,
+            original.Colliders, original.Materials, original.Sensors, original.Guides,
+            original.Triggers, original.ContactWorks, original.OrientationSensors,
+            prismatics: original.Prismatics);
+        Assert.Equal((Half).3, construction.Receiver!.Value.Capture.Margin.Value);
+        Assert.Equal((Half)12, construction.Receiver!.Value.ForceRegion.MaximumAcceleration.Value);
+        var bytes = PhysicsGpuAbi.Admission(scene, new(1),
+            new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        // Supplemental immutable-fixture boundary: the player cannot move this locked Receiver.
+        // Export only when explicitly requested for the matching real-worker/WASM control.
+        if (System.Environment.GetEnvironmentVariable("SPRING_COMPILED_FIXTURES") == "1")
+            output.WriteLine($"SPRING_RECEIVER_FIXTURE {offset:R} {Convert.ToBase64String(bytes)}");
+    }
+
+
+    [Theory]
+    [InlineData(WorkshopPuzzleId.SpringForward, "spring_forward")]
+    [InlineData(WorkshopPuzzleId.ReadyToRebound, "ready_to_rebound")]
+    public void LaunchLessonsPreserveSourceFixturesAssistanceAndNamedCapture(WorkshopPuzzleId lesson, string sourceId)
+    {
+        using var source = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            twodog.Engine.ResolveProjectDir(), "content/puzzles.json")));
+        var level = source.RootElement.EnumerateArray().Single(x => x.GetProperty("id").GetString() == sourceId);
+        var initial = SpringboardLessons.Create(lesson, new(1), WorkshopCadenceSettings.Default(),
+            new(1), new(2), new(3), new((Half)1));
+        foreach (var fixture in level.GetProperty("parts").EnumerateArray())
+        {
+            IWorkshopInstance actual = fixture.GetProperty("kind").GetString() switch
+            {
+                "ball" => initial.Ball!.Value,
+                "basket" => initial.Receiver!.Value,
+                "spring" => initial.Instances.OfType<WorkshopSpringboard>().Single(),
+                _ => throw new InvalidDataException("Unexpected source fixture.")
+            };
+            var position = fixture.GetProperty("position");
+            Assert.Equal(WorkshopInput.Position(position[0].GetDouble()).Local, actual.Local.X);
+            Assert.Equal(WorkshopInput.Position(position[1].GetDouble()).Local, actual.Local.Y);
+            Assert.Equal(WorkshopInput.Position(position[2].GetDouble()).Local, actual.Local.Z);
+            Assert.Equal(new CellOrigin(WorkshopInput.Position(position[0].GetDouble()).Cell,
+                WorkshopInput.Position(position[1].GetDouble()).Cell, WorkshopInput.Position(position[2].GetDouble()).Cell), actual.Cell);
+            Assert.True(actual.Locked);
+            var basis = new Basis(new Quaternion(actual.Rotation.X, actual.Rotation.Y, actual.Rotation.Z, actual.Rotation.W));
+            for (var column = 0; column < 3; column++)
+                for (var row = 0; row < 3; row++)
+                    Assert.InRange(Math.Abs(basis[column][row] - fixture.GetProperty("orientation")[column * 3 + row].GetDouble()), 0, 2e-7);
+            Profile(fixture.GetProperty("difficulty"), actual.Kind switch
+            {
+                WorkshopPartKind.Basketball => initial.Puzzle.BallAssistance,
+                WorkshopPartKind.Receiver => initial.Puzzle.ReceiverAssistance,
+                WorkshopPartKind.Springboard => initial.Puzzle.RampAssistance,
+                _ => throw new InvalidDataException()
+            });
+        }
+        var ready = lesson == WorkshopPuzzleId.ReadyToRebound;
+        Profile(level.GetProperty("solution")[0].GetProperty("difficulty"),
+            ready ? initial.Puzzle.ReceiverAssistance : initial.Puzzle.RampAssistance);
+        var inventory = WorkshopInventoryPolicy.Authored(initial.Puzzle);
+        Assert.Single(inventory);
+        Assert.Equal(PartAllowance.Counted(1), inventory[ready ? WorkshopPartKind.Receiver : WorkshopPartKind.Springboard]);
+        IWorkshopInstance placed = ready ? WorkshopInput.Receiver(new(3), 1.8, 1.3, 0, 0, 0, 0, 1)
+            : WorkshopInput.Springboard(new(3), -3, .8, 0, 0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default);
+        var construction = initial.WithInstance(placed); construction.Validate();
+        Assert.Equal(WorkshopGoalKind.Captured, construction.Puzzle.Goal.Kind);
+        Assert.Equal(WorkshopPhysicsCompiler.CaptureSensor(construction.Receiver!.Value), construction.Puzzle.Goal.EventSource);
+        foreach (var precision in new Half[] { (Half)0, (Half).45, (Half)1 })
+        {
+            var next = SpringboardLessons.WithPrecision(construction, new(precision));
+            var receiver = next.Receiver!.Value;
+            Assert.Equal((Half)(precision == (Half)0 ? .3 : precision == (Half)1 ? .02 : .174), receiver.Capture.Margin.Value);
+            Assert.Equal((Half)(ready ? 0 : precision == (Half)0 ? 12 : precision == (Half)1 ? 0 : 6.6), receiver.ForceRegion.MaximumAcceleration.Value);
+            var saved = new WorkshopSavedConstruction(next, new(4));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+            Assert.Single(WorkshopPhysicsCompiler.Compile(next, new(1,2)).Prismatics.ToArray());
+        }
+        Assert.Throws<ArgumentException>(() => (construction with { Puzzle = construction.Puzzle with { InventoryCount = 2 } }).Validate());
+        Assert.Throws<ArgumentException>(() => (construction with { Puzzle = construction.Puzzle with { RampAssistance = default } }).Validate());
+        if (ready)
+        {
+            var removed = construction.WithoutInstance(new(3)); removed.Validate();
+            var replaced = removed.WithInstance(WorkshopInput.Receiver(new(4), 1.8, 1.3, 0, 0, 0, 0, 1)); replaced.Validate();
+            Assert.Equal(new GpuBodyId(4), replaced.Puzzle.Goal.Target);
+            Assert.Throws<WorkbenchFullException>(() => replaced.WithInstance(WorkshopInput.Receiver(new(5), 2, 1, 0, 0, 0, 0, 1)).Validate());
+        }
+        static void Profile(System.Text.Json.JsonElement data, AssistanceProfile expected)
+        {
+            var knots = new[] { expected.Forgiving, expected.Balanced, expected.Precise };
+            string[] names = ["precision", "position_window", "rotation_window", "max_position_correction",
+                "max_rotation_correction", "blend_seconds", "capture_margin", "capture_speed", "capture_dwell",
+                "guide_acceleration", "trigger_threshold"];
+            for (var i = 0; i < 3; i++)
+            {
+                var k = knots[i];
+                Half[] values = [k.Precision,k.PositionWindow.Value,k.RotationWindowDegrees,k.MaximumPositionCorrection.Value,
+                    k.MaximumRotationCorrectionDegrees,k.Blend.Value,k.CaptureMargin.Value,k.CaptureSpeed.Value,k.CaptureDwell.Value,
+                    k.GuideAcceleration.Value,k.TriggerThreshold];
+                for (var j = 0; j < names.Length; j++) Assert.Equal((Half)data[i].GetProperty(names[j]).GetDouble(), values[j]);
+            }
+        }
+    }
+
 
     [Theory]
     [InlineData("strength", 8.5f)]
@@ -26,7 +142,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
             Assert.Same(definition, part.Definition);
             var saved = new WorkshopSavedConstruction(Construction(), new(3));
             var accepted = WorkshopSaveCodec.Encode(saved);
-            foreach (var tail in new[] { 112, 156 })
+            foreach (var tail in new[] { 124, 156 })
             {
                 var malformed = accepted.ToArray();
                 BinaryPrimitives.WriteSingleLittleEndian(malformed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes + tail), value);
@@ -39,6 +155,35 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
     private static WorkshopConstruction Construction(SpringboardSettings? settings = null) => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1),
             WorkshopInput.Springboard(new(2), 0, 1, 0, 0, 0, 0, 1, settings ?? SpringboardSettings.Default)));
+
+    [Theory]
+    [InlineData(0f, 0f)]
+    [InlineData(2.5f, -30f)]
+    public void CompiledPreloadUsesActualF32PoseAndEightJoules(float height, float angle)
+    {
+        var q = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, angle * MathF.PI / 180);
+        var board = WorkshopInput.Springboard(new(2), 0, height, 0, q.X, q.Y, q.Z, q.W, new(400, .2f, .2f));
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(board));
+        var scene = WorkshopPhysicsCompiler.Compile(construction, new(1,2));
+        var joint = Assert.Single(scene.Prismatics.ToArray());
+        var a = scene.Bodies.ToArray().Single(value => value.Id == joint.BodyA);
+        var b = scene.Bodies.ToArray().Single(value => value.Id == joint.BodyB);
+        static System.Numerics.Vector3 Position(RigidBodyDeclaration body) =>
+            new((body.Cell.X + body.Local.X) / 16f, (body.Cell.Y + body.Local.Y) / 16f, (body.Cell.Z + body.Local.Z) / 16f);
+        static ConstraintBodyFrame Frame(RigidBodyDeclaration body) => new(Position(body),
+            new(body.Rotation.X, body.Rotation.Y, body.Rotation.Z, body.Rotation.W), Position(body));
+        Span<PrismaticRow> rows = stackalloc PrismaticRow[PrismaticRows.Count];
+        PrismaticRows.Prepare(Frame(a), Frame(b), joint.FrameA, joint.FrameB, joint.Lower, joint.Upper, rows);
+        var displacement = rows[(int)PrismaticRowKind.Spring].Error;
+        Assert.InRange(.5f * joint.Stiffness * displacement * displacement, 7.99999f, 8.00001f);
+        var state = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+        PhysicsGpuAbi.ValidateCandidate(state, state, new(0));
+        var bodies = PhysicsGpuAbi.ReadDynamicBodies(state); Assert.Equal(1, bodies.Count);
+        var actual = bodies[0];
+        Assert.Equal(b.Local, actual.Body.Local); Assert.Equal(b.Rotation, actual.Rotation);
+        var saved = new WorkshopSavedConstruction(construction, new(3));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+    }
 
     [Fact]
     public void CompilesDistinctPlateIdentityAndFullDynamicPopulation()
@@ -75,9 +220,53 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
         Assert.Equal(save, WorkshopSaveCodec.Decode(encoded));
         var source = encoded.ToArray();
         var springSlot = 24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes;
-        BinaryPrimitives.WriteSingleLittleEndian(encoded.AsSpan(springSlot + 104), float.NaN);
+        BinaryPrimitives.WriteSingleLittleEndian(encoded.AsSpan(springSlot + 112), float.NaN);
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(encoded));
         Assert.Equal(save, WorkshopSaveCodec.Decode(source));
+    }
+
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(.1234567f)]
+    [InlineData(.2f)]
+    public void PreloadResourceSaveAndPhysicalRestPreserveExactF32(float compression)
+    {
+        using var resource = new SpringboardResource { Stiffness = 400, Damping = .2f, InitialCompression = compression };
+        var settings = resource.Capture();
+        Assert.Equal(compression, settings.InitialCompression);
+        var saved = new WorkshopSavedConstruction(Construction(settings), new(3));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
+        var scene = WorkshopPhysicsCompiler.Compile(saved.Construction, new(1, 2));
+        var plate = scene.Bodies.ToArray().Single(body => body.Id == WorkshopPhysicsCompiler.SpringboardPlate(new(2)));
+        Assert.InRange(MathF.Abs((plate.Cell.Y + plate.Local.Y) / 16f - (1.14f - compression)), 0, 1e-7f);
+    }
+
+    [Theory]
+    [InlineData(-.000001f)]
+    [InlineData(.200001f)]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    [InlineData(float.NegativeInfinity)]
+    public void InvalidPreloadRejectsResourceAndSaveBeforeAcceptedStateChanges(float compression)
+    {
+        using var resource = new SpringboardResource { Stiffness = 400, Damping = .2f, InitialCompression = compression };
+        using var definition = new PartDefinition { Id = "spring", Springboard = resource };
+        var part = new SpringboardPart();
+        try
+        {
+            Assert.Throws<ArgumentException>(() => part.Configure(definition));
+            Assert.Null(part.Definition);
+            resource.InitialCompression = .2f;
+            part.Configure(definition);
+            Assert.Same(definition, part.Definition);
+            var saved = new WorkshopSavedConstruction(Construction(new(400, .2f, .2f)), new(3));
+            var accepted = WorkshopSaveCodec.Encode(saved);
+            var malformed = accepted.ToArray();
+            BinaryPrimitives.WriteSingleLittleEndian(malformed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes + 120), compression);
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(malformed));
+            Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
+        }
+        finally { part.Free(); }
     }
 
     [Fact]

@@ -341,8 +341,7 @@ public sealed class WorkshopBumperTests
             Assert.Equal(.5f * (float)strength * (float)strength, bumper.Work.Preload.Value);
             var forged = (byte[])bytes.Clone();
             var bumperOffset = 24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes;
-            BinaryPrimitives.WriteUInt16LittleEndian(forged.AsSpan(bumperOffset + 112),
-                BitConverter.HalfToUInt16Bits((Half)17));
+            BinaryPrimitives.WriteSingleLittleEndian(forged.AsSpan(bumperOffset + 120),17f);
             Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(forged));
             var prior = (byte[])bytes.Clone();
             BinaryPrimitives.WriteUInt32LittleEndian(prior.AsSpan(4), 6);

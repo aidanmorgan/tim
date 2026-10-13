@@ -5,7 +5,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum WorkshopCommandKind : uint { Initialize, Construct, Run, Reset, Dispose, Cancel, ConfigureCadence, Pause, Resume, Step, Save, ConfigureElectrical }
 public enum WorkshopResponseKind : uint { Acknowledgement, Read }
-public enum WorkshopWireVersion : uint { GenericMechanical = 19 }
+public enum WorkshopWireVersion : uint { GenericMechanical = 20 }
 public enum ExpectedRevisionKind : uint { Any = 1, Exact = 2 }
 public readonly record struct WorkshopCommand(CommandSequence Sequence, WorkshopCommandKind Kind, SimulationEpoch Epoch, AuthorityRevision Revision, WorkshopConstruction? Construction, WorkshopCommandIdentity? Target = null, ExpectedRevisionKind RevisionKind = ExpectedRevisionKind.Exact, RuntimeSessionId Session = default,
     CadenceRevision Cadence = default, ProjectionEpoch Projection = default, WorkshopCadenceSettings? Settings = null, WorkshopElectricalControl? Electrical = null);
@@ -308,47 +308,48 @@ public static class WorkshopWire
             BinaryPrimitives.WriteUInt32LittleEndian(slot, (uint)instance.Kind);
             BinaryPrimitives.WriteUInt32LittleEndian(slot[4..], instance.Locked ? 1u : 0u);
             new CanonicalBody(instance.Id, 0, 0, instance.Cell, instance.Local, default).Write(slot[16..96]);
-            Write(slot[96..], instance.Rotation.X); Write(slot[98..], instance.Rotation.Y);
-            Write(slot[100..], instance.Rotation.Z); Write(slot[102..], instance.Rotation.W);
+            BinaryPrimitives.WriteSingleLittleEndian(slot[96..], instance.Rotation.X); BinaryPrimitives.WriteSingleLittleEndian(slot[100..], instance.Rotation.Y);
+            BinaryPrimitives.WriteSingleLittleEndian(slot[104..], instance.Rotation.Z); BinaryPrimitives.WriteSingleLittleEndian(slot[108..], instance.Rotation.W);
             switch (instance)
             {
                 case WorkshopBall ball:
-                    Write(slot[104..], ball.Material.Radius.Value); Write(slot[106..], ball.Material.Mass.Value);
-                    Write(slot[108..], ball.Material.Bounce.Value); Write(slot[110..], ball.Material.Drag.Value);
-                    Write(slot[112..], ball.Material.Buoyancy.Value); break;
+                    Write(slot[112..], ball.Material.Radius.Value); Write(slot[114..], ball.Material.Mass.Value);
+                    Write(slot[116..], ball.Material.Bounce.Value); Write(slot[118..], ball.Material.Drag.Value);
+                    Write(slot[120..], ball.Material.Buoyancy.Value); break;
                 case WorkshopReceiver receiver:
-                    Write(slot[104..], receiver.Capture.Margin.Value); Write(slot[106..], receiver.Capture.SpeedLimit.Value);
-                    Write(slot[108..], receiver.Capture.Dwell.Value);
-                    BinaryPrimitives.WriteUInt32LittleEndian(slot[112..], (uint)receiver.Capture.Participation);
-                    Write(slot[116..], receiver.ForceRegion.Minimum.X); Write(slot[118..], receiver.ForceRegion.Minimum.Y);
-                    Write(slot[120..], receiver.ForceRegion.Minimum.Z); Write(slot[122..], receiver.ForceRegion.Maximum.X);
-                    Write(slot[124..], receiver.ForceRegion.Maximum.Y); Write(slot[126..], receiver.ForceRegion.Maximum.Z);
-                    Write(slot[128..], receiver.ForceRegion.SupportHeight.Value); Write(slot[130..], receiver.ForceRegion.SupportMargin.Value);
-                    Write(slot[132..], receiver.ForceRegion.MaximumAcceleration.Value); break;
+                    Write(slot[112..], receiver.Capture.Margin.Value); Write(slot[114..], receiver.Capture.SpeedLimit.Value);
+                    Write(slot[116..], receiver.Capture.Dwell.Value);
+                    BinaryPrimitives.WriteUInt32LittleEndian(slot[120..], (uint)receiver.Capture.Participation);
+                    Write(slot[124..], receiver.ForceRegion.Minimum.X); Write(slot[126..], receiver.ForceRegion.Minimum.Y);
+                    Write(slot[128..], receiver.ForceRegion.Minimum.Z); Write(slot[130..], receiver.ForceRegion.Maximum.X);
+                    Write(slot[132..], receiver.ForceRegion.Maximum.Y); Write(slot[134..], receiver.ForceRegion.Maximum.Z);
+                    Write(slot[136..], receiver.ForceRegion.SupportHeight.Value); Write(slot[138..], receiver.ForceRegion.SupportMargin.Value);
+                    Write(slot[140..], receiver.ForceRegion.MaximumAcceleration.Value); break;
                 case WorkshopRamp ramp:
-                    Write(slot[104..], ramp.Dimensions.Length.Value); Write(slot[106..], ramp.Dimensions.Width.Value); break;
+                    Write(slot[112..], ramp.Dimensions.Length.Value); Write(slot[114..], ramp.Dimensions.Width.Value); break;
                 case WorkshopWall wall:
-                    Write(slot[104..], wall.Dimensions.Width.Value); Write(slot[106..], wall.Dimensions.Height.Value);
-                    Write(slot[108..], wall.Dimensions.Thickness.Value); break;
+                    Write(slot[112..], wall.Dimensions.Width.Value); Write(slot[114..], wall.Dimensions.Height.Value);
+                    Write(slot[116..], wall.Dimensions.Thickness.Value); break;
                 case WorkshopSwitch trigger:
-                    Write(slot[104..], trigger.Trigger.Threshold.Value); break;
+                    Write(slot[112..], trigger.Trigger.Threshold.Value); break;
                 case WorkshopDelay delay:
-                    Write(slot[104..], delay.Duration.Seconds.Value); break;
+                    Write(slot[112..], delay.Duration.Seconds.Value); break;
                 case WorkshopSpringboard spring:
-                    BinaryPrimitives.WriteSingleLittleEndian(slot[104..], spring.Settings.Stiffness);
-                    BinaryPrimitives.WriteSingleLittleEndian(slot[108..], spring.Settings.Damping); break;
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], spring.Settings.Stiffness);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[116..], spring.Settings.Damping);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[120..], spring.Settings.InitialCompression); break;
                 case WorkshopBattery battery:
-                    BinaryPrimitives.WriteSingleLittleEndian(slot[104..], battery.Settings.Capacity.Value);
-                    BinaryPrimitives.WriteSingleLittleEndian(slot[108..], battery.Settings.MaximumPower.Value);
-                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], battery.Settings.InitialFraction);
-                    slot[116] = (byte)battery.Settings.Enabled; break;
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], battery.Settings.Capacity.Value);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[116..], battery.Settings.MaximumPower.Value);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[120..], battery.Settings.InitialFraction);
+                    slot[124] = (byte)battery.Settings.Enabled; break;
                 case WorkshopBumper bumper:
-                    BinaryPrimitives.WriteSingleLittleEndian(slot[104..], bumper.Work.Strength.Value); BinaryPrimitives.WriteSingleLittleEndian(slot[108..], bumper.Work.ReferenceMass.Value);
-                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], bumper.Work.Preload.Value); break;
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[112..], bumper.Work.Strength.Value); BinaryPrimitives.WriteSingleLittleEndian(slot[116..], bumper.Work.ReferenceMass.Value);
+                    BinaryPrimitives.WriteSingleLittleEndian(slot[120..], bumper.Work.Preload.Value); break;
                 case WorkshopDomino domino:
-                    Write(slot[104..], domino.Material.HalfExtents.X); Write(slot[106..], domino.Material.HalfExtents.Y);
-                    Write(slot[108..], domino.Material.HalfExtents.Z); Write(slot[110..], domino.Material.Mass.Value);
-                    Write(slot[112..], domino.Material.Bounce.Value); Write(slot[114..], domino.Material.Friction.Value); break;
+                    Write(slot[112..], domino.Material.HalfExtents.X); Write(slot[114..], domino.Material.HalfExtents.Y);
+                    Write(slot[116..], domino.Material.HalfExtents.Z); Write(slot[118..], domino.Material.Mass.Value);
+                    Write(slot[120..], domino.Material.Bounce.Value); Write(slot[122..], domino.Material.Friction.Value); break;
                 case WorkshopLamp: break;
                 default: throw new ArgumentException("Unsupported instance declaration.");
             }
@@ -383,38 +384,38 @@ public static class WorkshopWire
             var body = CanonicalBody.Decode(slot[16..96]);
             if (body.Epoch != 0 || body.Tick != 0 || !body.Velocity.IsPositiveZero)
                 throw new ArgumentException("Construction contains live simulation state.");
-            var rotation = new CanonicalRotation(Read(slot[96..]), Read(slot[98..]), Read(slot[100..]), Read(slot[102..]));
+            var rotation = new CanonicalRotation(BinaryPrimitives.ReadSingleLittleEndian(slot[96..]), BinaryPrimitives.ReadSingleLittleEndian(slot[100..]), BinaryPrimitives.ReadSingleLittleEndian(slot[104..]), BinaryPrimitives.ReadSingleLittleEndian(slot[108..]));
             instances[i] = kind switch
             {
                 // Both ball kinds share the slot layout; the persisted bits must equal the kind's declared material, whose friction, bounce
                 // threshold and rolling resistance are kind data rather than persisted fields.
-                WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall when Zero(slot[114..]) => new WorkshopBall(body.Id, kind, body.Cell, body.Local, rotation,
-                    BallMaterial.For(kind) with { Radius = new(Read(slot[104..])), Mass = new(Read(slot[106..])), Bounce = new(Read(slot[108..])),
-                        Drag = new(Read(slot[110..])), Buoyancy = new(Read(slot[112..])) }, locked == 1),
-                WorkshopPartKind.Receiver when Zero(slot[110..112]) && Zero(slot[134..]) => new WorkshopReceiver(body.Id, body.Cell, body.Local, rotation,
-                    new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..])),
-                        (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[112..])), locked == 1)
-                    { ForceRegion = new(new(Read(slot[116..]), Read(slot[118..]), Read(slot[120..])),
-                        new(Read(slot[122..]), Read(slot[124..]), Read(slot[126..])), new(Read(slot[128..])),
-                        new(Read(slot[130..])), new(Read(slot[132..]))) },
-                WorkshopPartKind.Ramp when Zero(slot[108..]) => new WorkshopRamp(body.Id, body.Cell, body.Local, rotation,
-                    new(new(Read(slot[104..])), new(Read(slot[106..]))), locked == 1),
-                WorkshopPartKind.Wall when Zero(slot[110..]) => new WorkshopWall(body.Id, body.Cell, body.Local, rotation,
-                    new(new(Read(slot[104..])), new(Read(slot[106..])), new(Read(slot[108..]))), locked == 1),
-                WorkshopPartKind.ImpactSwitch when Zero(slot[106..]) => new WorkshopSwitch(body.Id, body.Cell, body.Local, rotation,
-                    new(new(Read(slot[104..]))), locked == 1),
-                WorkshopPartKind.Delay when Zero(slot[106..]) => new WorkshopDelay(body.Id, body.Cell, body.Local, rotation,
-                    new(new(Read(slot[104..]))), locked == 1),
-                WorkshopPartKind.Springboard when Zero(slot[112..]) => new WorkshopSpringboard(body.Id, body.Cell, body.Local, rotation,
-                    new(BinaryPrimitives.ReadSingleLittleEndian(slot[104..]), BinaryPrimitives.ReadSingleLittleEndian(slot[108..])), locked == 1),
-                WorkshopPartKind.Battery when Zero(slot[117..]) => new WorkshopBattery(body.Id, body.Cell, body.Local, rotation,
-                    new(new(BinaryPrimitives.ReadSingleLittleEndian(slot[104..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[108..])),
-                        BinaryPrimitives.ReadSingleLittleEndian(slot[112..]), (ElectricalEnable)slot[116]), locked == 1),
-                WorkshopPartKind.PinballBumper when Zero(slot[116..]) => new WorkshopBumper(body.Id, body.Cell, body.Local, rotation,
-                    new(new(BinaryPrimitives.ReadSingleLittleEndian(slot[104..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[108..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[112..]))), locked == 1),
-                WorkshopPartKind.Domino when Zero(slot[116..]) => new WorkshopDomino(body.Id, body.Cell, body.Local, rotation,
-                    new(new(Read(slot[104..]), Read(slot[106..]), Read(slot[108..])), new(Read(slot[110..])), new(Read(slot[112..])), new(Read(slot[114..]))), locked == 1),
-                WorkshopPartKind.SignalLamp when Zero(slot[104..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),
+                WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall when Zero(slot[122..]) => new WorkshopBall(body.Id, kind, body.Cell, body.Local, rotation,
+                    BallMaterial.For(kind) with { Radius = new(Read(slot[112..])), Mass = new(Read(slot[114..])), Bounce = new(Read(slot[116..])),
+                        Drag = new(Read(slot[118..])), Buoyancy = new(Read(slot[120..])) }, locked == 1),
+                WorkshopPartKind.Receiver when Zero(slot[118..120]) && Zero(slot[142..]) => new WorkshopReceiver(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[112..])), new(Read(slot[114..])), new(Read(slot[116..])),
+                        (SensorParticipation)BinaryPrimitives.ReadUInt32LittleEndian(slot[120..])), locked == 1)
+                    { ForceRegion = new(new(Read(slot[124..]), Read(slot[126..]), Read(slot[128..])),
+                        new(Read(slot[130..]), Read(slot[132..]), Read(slot[134..])), new(Read(slot[136..])),
+                        new(Read(slot[138..])), new(Read(slot[140..]))) },
+                WorkshopPartKind.Ramp when Zero(slot[116..]) => new WorkshopRamp(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[112..])), new(Read(slot[114..]))), locked == 1),
+                WorkshopPartKind.Wall when Zero(slot[118..]) => new WorkshopWall(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[112..])), new(Read(slot[114..])), new(Read(slot[116..]))), locked == 1),
+                WorkshopPartKind.ImpactSwitch when Zero(slot[114..]) => new WorkshopSwitch(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[112..]))), locked == 1),
+                WorkshopPartKind.Delay when Zero(slot[114..]) => new WorkshopDelay(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[112..]))), locked == 1),
+                WorkshopPartKind.Springboard when Zero(slot[124..]) => new WorkshopSpringboard(body.Id, body.Cell, body.Local, rotation,
+                    new(BinaryPrimitives.ReadSingleLittleEndian(slot[112..]), BinaryPrimitives.ReadSingleLittleEndian(slot[116..]), BinaryPrimitives.ReadSingleLittleEndian(slot[120..])), locked == 1),
+                WorkshopPartKind.Battery when Zero(slot[125..]) => new WorkshopBattery(body.Id, body.Cell, body.Local, rotation,
+                    new(new(BinaryPrimitives.ReadSingleLittleEndian(slot[112..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[116..])),
+                        BinaryPrimitives.ReadSingleLittleEndian(slot[120..]), (ElectricalEnable)slot[124]), locked == 1),
+                WorkshopPartKind.PinballBumper when Zero(slot[124..]) => new WorkshopBumper(body.Id, body.Cell, body.Local, rotation,
+                    new(new(BinaryPrimitives.ReadSingleLittleEndian(slot[112..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[116..])), new(BinaryPrimitives.ReadSingleLittleEndian(slot[120..]))), locked == 1),
+                WorkshopPartKind.Domino when Zero(slot[124..]) => new WorkshopDomino(body.Id, body.Cell, body.Local, rotation,
+                    new(new(Read(slot[112..]), Read(slot[114..]), Read(slot[116..])), new(Read(slot[118..])), new(Read(slot[120..])), new(Read(slot[122..]))), locked == 1),
+                WorkshopPartKind.SignalLamp when Zero(slot[112..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),
                 _ => throw new ArgumentException("Unsupported instance kind or parameters.")
             };
         }

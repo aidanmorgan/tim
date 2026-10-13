@@ -64,16 +64,19 @@ async function placeChain(driver: WorkshopDriver, xs: number[]): Promise<void> {
 }
 
 // Placed tiles stand 1 cm above the bench (placement snaps to 0.1 m) and may already show landing micro-rotation in the first read;
-// the locked end Domino sits exactly on the bench, so its restored pose is checked bit-for-bit (x = 0.1 is committed as the Half remainder 0.100006).
-const END_X = 0.100006103515625;
+// the locked end Domino starts at canonical f32 x=0.1. Tick-zero restoration is checked byte-for-byte separately;
+// live post-Run contact settling may introduce sub-f32-unit motion even before the cascade arrives.
+const END_X = Math.fround(0.1);
+const REST_POSITION_RESIDUAL = 2 ** -23; // One f32 ULP at the one-metre scene scale, not a gameplay placement window.
 function assertUprightPlacement(b: WorkshopBodyPose, x: number, label: string): void {
     assert.ok(tiltDegrees(b) < 0.05, `${label}: upright (tilt ${tiltDegrees(b).toFixed(4)} deg)`);
     assert.ok(Math.abs(b.px - x) < 0.002 && Math.abs(b.pz) < 0.002, `${label}: placed at x=${x} (got ${b.px.toFixed(4)}, ${b.pz.toFixed(4)})`);
     assert.ok(b.py > BENCH_Y + HALF_HEIGHT - 0.01 && b.py < 0.2, `${label}: stands on the bench (py=${b.py.toFixed(3)})`);
 }
-function assertEndDominoExact(b: WorkshopBodyPose, label: string): void {
+function assertEndDominoBeforeImpact(b: WorkshopBodyPose, label: string): void {
     assert.deepEqual([b.qx, b.qy, b.qz, b.qw], [0, 0, 0, 1], `${label}: identity orientation bit-for-bit`);
-    assert.deepEqual([b.px, b.pz], [END_X, 0], `${label}: authored x/z exactly`);
+    assert.ok(Math.abs(b.px - END_X) <= REST_POSITION_RESIDUAL && Math.abs(b.pz) <= REST_POSITION_RESIDUAL,
+        `${label}: live resting x/z remain at the authored position within f32 rounding`);
     assert.ok(Math.abs(b.py - (BENCH_Y + HALF_HEIGHT)) < 0.0005, `${label}: sits on the bench (py=${b.py.toFixed(4)})`);
 }
 
@@ -98,11 +101,30 @@ async function watchCascade(driver: WorkshopDriver, ids: string[], timeoutMs: nu
 describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', () => {
     let driver: WorkshopDriver;
     const errors: string[] = [];
+    const reads: Buffer[] = [];
+    let authoredEnd: Buffer;
+    function assertEndRestored(label: string): void {
+        const read = reads.at(-1);
+        assert.ok(read, `${label}: actual committed read exists`);
+        assert.equal(read.readBigUInt64LE(24), 0n, `${label}: initial physical tick`);
+        let end: Buffer | undefined;
+        for (let i = 0; i < read[104]; i++) {
+            const body = read.subarray(128 + i * 80, 128 + (i + 1) * 80);
+            if (body.readBigUInt64LE(0) === BigInt(END_ID)) end = body;
+        }
+        assert.ok(end, `${label}: locked end body exists`);
+        assert.deepEqual([end.readFloatLE(32), end.readFloatLE(36), end.readFloatLE(40), end.readFloatLE(44)], [0, 0, 0, 1]);
+        assert.equal(Math.fround((end.readInt32LE(8) + end.readFloatLE(20)) / 16), END_X);
+        assert.equal(end.readInt32LE(16), 0); assert.equal(end.readFloatLE(28), 0);
+        if (authoredEnd) assert.deepEqual(end, authoredEnd, `${label}: complete authored body restored byte-for-byte`);
+        else authoredEnd = Buffer.from(end);
+    }
 
     before(async () => {
         driver = await WorkshopDriver.launch();
         driver.page.on('console', (msg: ConsoleMessage) => {
             const text = msg.text();
+            if (text.startsWith('CCGPU ')) reads.push(Buffer.from(text.slice(6), 'base64'));
             if (isWorkshopConsoleFailure(msg.type(), text)) errors.push(text);
         });
         driver.page.on('pageerror', (error: Error) => errors.push(error.message));
@@ -117,13 +139,14 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         await placeChain(driver, CHAIN_X);
         await driver.connectActivation({ ...END_SCREEN, panel: 'locked' }, LAMP_SCREEN);
         await driver.save();
+        assertEndRestored('authored saved end Domino');
         assert.equal(await driver.readLastAnimationSample(LAMP_TARGET), null, 'No lamp sample before Run');
 
         await driver.run();
         const first = await bodies(driver);
         assert.deepEqual([...first.keys()].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0), [BALL_ID, END_ID, ...TILE_IDS], 'Ball, end Domino and four tiles are published');
         TILE_IDS.forEach((id, i) => assertUprightPlacement(first.get(id)!, CHAIN_X[i], `tile ${id}`));
-        assertEndDominoExact(first.get(END_ID)!, 'end Domino');
+        assertEndDominoBeforeImpact(first.get(END_ID)!, 'end Domino');
         const ball = first.get(BALL_ID)!;
         assert.ok(Math.abs(ball.px + 4.4) < 0.01 && ball.py > 2.5, `The locked ball starts above the first tile position (got ${ball.px.toFixed(2)}, ${ball.py.toFixed(2)})`);
 
@@ -210,20 +233,22 @@ describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', ()
         await driver.reload();
         await driver.selectLevel('domino_effect');
         await driver.load();
+        assertEndRestored('loaded end Domino');
         await driver.run();
         const loaded = await bodies(driver);
         assert.deepEqual([...loaded.keys()].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : BigInt(a) > BigInt(b) ? 1 : 0), [BALL_ID, END_ID, ...TILE_IDS], 'Load restores the ball, the end Domino and the four tiles');
         TILE_IDS.forEach((id, i) => assertUprightPlacement(loaded.get(id)!, CHAIN_X[i], `loaded tile ${id}`));
-        assertEndDominoExact(loaded.get(END_ID)!, 'loaded end Domino');
+        assertEndDominoBeforeImpact(loaded.get(END_ID)!, 'loaded end Domino');
         assert.ok(await waitFor(async () => (await driver.readCaptured()) === 1, 10000), 'The loaded wired chain solves');
         assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The loaded lamp lights');
         const litSamples = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
 
         await driver.reset(800);                                  // Reset; drain the retired world's in-flight lamp pulses
+        assertEndRestored('reset end Domino');
         await driver.run();                                       // Run the restored construction
         const restored = await bodies(driver);
         TILE_IDS.forEach((id, i) => assertUprightPlacement(restored.get(id)!, CHAIN_X[i], `reset tile ${id}`));
-        assertEndDominoExact(restored.get(END_ID)!, 'reset end Domino');
+        assertEndDominoBeforeImpact(restored.get(END_ID)!, 'reset end Domino');
         assert.ok(await waitFor(async () => (await driver.readCaptured()) === 2, 10000), 'The second Run solves again: the sensor was rearmed by Reset');
         assert.ok((await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length > litSamples, 'The lamp lights again in the new world');
         assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The lamp reaches full glow again');

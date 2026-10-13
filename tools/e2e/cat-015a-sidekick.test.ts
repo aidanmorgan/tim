@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
 
 const URL=process.env.BUMPER_PREVIEW_URL ?? 'http://127.0.0.1:8069/';
-const WORK=3328, OCCURRENCE=3584;
+const WORK=3584, OCCURRENCE=3840;
 type Scenario='paid'|'unpaid'|'miss';
 async function press(driver:WorkshopDriver,x:number,y:number){
     await driver.page.mouse.move(x,y);await driver.page.mouse.down();await driver.page.waitForTimeout(70);
@@ -24,7 +24,7 @@ async function saved(driver:WorkshopDriver):Promise<Buffer>{
 const authored=(bytes:Buffer)=>Buffer.concat([bytes.subarray(0,24),bytes.subarray(32)]);
 function half(bits:number){const sign=bits&32768?-1:1,exponent=(bits>>10)&31,mantissa=bits&1023;
     return sign*(exponent?Math.pow(2,exponent-15)*(1+mantissa/1024):Math.pow(2,-14)*mantissa/1024);}
-function position(bytes:Buffer,slot:number,axis:number){return (bytes.readInt32LE(slot+48+axis*4)+half(bytes.readUInt16LE(slot+72+axis*2)))/16;}
+function position(bytes:Buffer,slot:number,axis:number){return (bytes.readInt32LE(slot+48+axis*4)+bytes.readFloatLE(slot+72+axis*4))/16;}
 
 for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+scenario+' route uses actual UI and restores authored state',async()=>{
     const driver=await WorkshopDriver.launch({baseUrl:URL}),reads:Buffer[]=[],events:Buffer[]=[],errors:string[]=[];
@@ -52,8 +52,8 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
         if(scenario==='miss') assert.ok(position(initial,slot,0)<-5 && position(initial,slot,0)>-5.6,'Gizmo moves the sphere clear of the falling ball');
         else assert.ok(Math.abs(position(initial,slot,0)+3.3)<.001);
         assert.ok(Math.abs(position(initial,slot,1)-1)<.001);assert.equal(position(initial,slot,2),0);
-        assert.equal(initial.readFloatLE(slot+104),scenario==='unpaid'?0:8);
-        assert.equal(initial.readFloatLE(slot+112),scenario==='unpaid'?0:32);
+        assert.equal(initial.readFloatLE(slot+112),scenario==='unpaid'?0:8);
+        assert.equal(initial.readFloatLE(slot+120),scenario==='unpaid'?0:32);
         await driver.reload();await driver.load();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
         await driver.run();const samples:{x:number,y:number,z:number,vx:number,vy:number}[]=[];
         const started=Date.now();while(Date.now()-started<4300){

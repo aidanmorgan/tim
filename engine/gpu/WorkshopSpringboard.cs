@@ -2,14 +2,15 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public readonly record struct SpringboardSettings(float Stiffness, float Damping)
+public readonly record struct SpringboardSettings(float Stiffness, float Damping, float InitialCompression = 0f)
 {
     public static SpringboardSettings Default => new(400f, .2f);
     public void Validate()
     {
         if (!float.IsFinite(Stiffness) || Stiffness is < 120f or > 1200f ||
-            !float.IsFinite(Damping) || Damping is < 0f or > 8f)
-            throw new ArgumentException("Unsupported passive spring settings.");
+            !float.IsFinite(Damping) || Damping is < 0f or > 8f ||
+            !float.IsFinite(InitialCompression) || InitialCompression is < 0f or > .2f)
+            throw new ArgumentException("Unsupported spring settings.");
     }
 }
 

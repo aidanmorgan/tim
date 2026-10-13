@@ -8,7 +8,7 @@
 | Requirement | [CAT-062](../requirements.md#current-cat-062) |
 | Mapped identities | EL-194 Springboard. Related: TH-33 Spring-mounted match (uses a generic spring assembly; own spec). |
 | Roadmap | Stories 6.4 (CAT-062a prismatic slider and soft spring constraint), 6.5 (CAT-062b preload energy store, spring_forward) |
-| Status | Story6.4 passive implementation candidate; review/publication pending. Legacy `parts/SpringPart.cs` was purged in Story7.4 and remains baseline history only |
+| Status | Story6.4 passive implementation published at `781e0c81b838abe13fea8bc72d10e60f0ee67dca` with independent terminal scoped Pass; preload and `spring_forward` remain Story6.5. Legacy `parts/SpringPart.cs` was purged in Story7.4 and remains baseline history only |
 | Levels | placed in ready_to_rebound; inventory in spring_forward and 15 others; see [CAT-062-I consumers](../invest/current-consumers.md#cat-062-i) |
 | Surviving contract | [Springboard elastic contract](../../springboard-elastic-contract.md) (current document) |
 
@@ -27,7 +27,7 @@
 | Art | Navy `#273446` base; gold plate in the part colour at y 0.14 − preload; three-turn helix radius 0.27, tube radius 0.025, 96 segments × 8 sides, colour `#ccd9df` `parts/SpringPart.cs@a6c914e:L86-L123`; pick radius 0.7. Scene `parts/scenes/spring.tscn`. Palette Spring `#f5b354` `DESIGN.md@a6c914e:L171-L171`; design rule `DESIGN.md@a6c914e:L300-L300`. Icon `ui/WorkshopIcons.cs@a6c914e:L50-L50`. |
 | Catalogue and inventory | `parts/catalog/spring.tres@a6c914e:L6-L14`: id `spring`, title Springboard, category Motion, defaults stiffness 400, damping 0.2, initial compression 0. |
 
-Current candidate tests: `SoftConstraintTests`, `PrismaticConstraintTests`, `WorkshopSpringboardTests`, actual-WASM controls in `tools/workshop-rigid-body.test.mjs`, and actual Chrome `tools/e2e/cat-062.test.ts`. Canonical declaration/resource/art are `WorkshopSpringboard`, `SpringboardResource` and `SpringboardPart`; the shared worker solves generic prismatic rows. [Current implementation/proof scope](../../../_bmad-output/implementation-artifacts/spec-6-4-passive-springboard.md). Preload, named campaign lanes and other later acceptance remain owed. Legacy tests listed in §4.
+Current candidate tests: `SoftConstraintTests`, `PrismaticConstraintTests`, `WorkshopSpringboardTests`, actual-WASM controls in `tools/workshop-rigid-body.test.mjs`, and actual Chrome `tools/e2e/cat-062.test.ts`. Canonical declaration/resource/art are `WorkshopSpringboard`, `SpringboardResource` and `SpringboardPart`; the shared worker solves generic prismatic rows. [Current implementation/proof scope](../../../_bmad-output/implementation-artifacts/spec-6-4-passive-springboard.md). Story6.5 adds typed preload and the preserved passive/precharged lessons in [the current candidate](../../../_bmad-output/implementation-artifacts/spec-6-5-springboard-preload.md); runtime/publication qualification remains pending. Composite campaign lanes and other later acceptance remain owed. Legacy tests listed in §4.
 
 ## 3. Engine capabilities
 
@@ -36,13 +36,13 @@ Families from the [element map row](../general-engine-element-map.md): ContactIm
 | Exists now | Reference |
 | --- | --- |
 | Dynamic box body and box contact | Story 5.1 |
+| JointConstraint: generic 3D prismatic slider with local-Y travel stops | Published Story6.4; [terminal proof](../../../_bmad-output/implementation-artifacts/review-6-4-passive-springboard.md) |
+| ElasticStorage: shared TGS Soft spring-damper; stiffness/damping editor | Published Story6.4 (also serves CAT-065 Trampoline) |
 
 | Missing | Story that builds it |
 | --- | --- |
-| JointConstraint: generic 1D prismatic slider with travel stops | Story 6.4 |
-| ElasticStorage: TGS Soft spring-damper constraint | Story 6.4 (also serves CAT-065 Trampoline) |
 | Initial-compression energy store released at Run | Story 6.5 |
-| Typed parameter UI for stiffness/damping/initial compression | Story 6.4/6.5 |
+| Initial-compression editor and launch lessons | Story6.5 candidate; acceptance pending |
 
 Dependencies: a dynamic payload; Receiver for spring_forward; Impact switch and lamp for spring_signal.
 
@@ -99,4 +99,4 @@ Acceptance: [CAT-062](../requirements.md#current-cat-062), [retained behaviour](
 ## 6. Open questions
 
 - Plate contact material is resolved by the current [EL-194 declaration](EL-194-springboard.md#mass-and-material): preserve restitution 0, threshold 0.05 m/s and friction 0.1 from baseline fact §2. This is existing source authority, not a new tuning choice.
-- Story 6.5 names `engine/LatchedSpringStore.cs` for deletion, but no such file exists at `a6c914e` and the contract says preload is not a latch; the story wording needs correcting — owner decision.
+- No latch decision is pending: `engine/LatchedSpringStore.cs` does not exist at the sole baseline `a6c914e`. Story6.5 declares physical initial compression over the shared spring; Story7.4 already purged `parts/SpringPart.cs`. No latch or compatibility path is created to satisfy obsolete deletion wording.

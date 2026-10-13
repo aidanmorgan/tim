@@ -9,9 +9,9 @@ import { MessagePort } from 'node:worker_threads';
 
 const source = await readFile(process.env.WORKER_SOURCE ?? 'CuriousContraptions.Simulation/wwwroot/worker.js', 'utf8');
 
-const STATE_BYTES = 154048;        // PhysicsGpuAbi.ByteLength
-const BODIES = 128, COLLIDERS = 4352, MATERIALS = 10496;
-const ORIENTATION_SENSORS = 19744; // PhysicsGpuAbi.OrientationSensorsOffset (64-byte records, count at header byte 116)
+const STATE_BYTES = 157152;        // PhysicsGpuAbi.ByteLength
+const BODIES = 128, COLLIDERS = 5408, MATERIALS = 11552;
+const ORIENTATION_SENSORS = 20800; // PhysicsGpuAbi.OrientationSensorsOffset (64-byte records, count at header byte 116)
 const BENCH_Y = -0.46;
 const TICKS_PER_SECOND = 120;      // cadence 2 => 4 substeps of 1/480 s per tick
 // Declared ball data as BallMaterial.For compiles it (parts/catalog/ball.tres, bowling.tres): linear drag 0.04 1/s on the body
@@ -22,7 +22,7 @@ const BASKETBALL_R = .34, BOWLING_R = .28;   // BallMaterial.For radii: the Bowl
 async function loadWorker(overrides = {}) {
     let imports;
     const host = {
-        CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56], OperationAbi: () => [0, 1],
+        CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56], OperationAbi: () => [0, 1],
         StateBytes: () => STATE_BYTES, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], CaptureMode: () => 1, ...overrides
     };
     const runtime = {
@@ -39,7 +39,7 @@ async function loadWorker(overrides = {}) {
         this.setExport('nativeNow', () => 1);
         this.setExport('nativeClockEvidence', () => [2, 1, 1, 1, .005, 1, 1]);
     }, { context });
-    const module = new vm.SourceTextModule(source + '\nexport { constraintRows, constraintMass, applyConstraintImpulse, updateDynamicFrame, sweepConstraints };', { context });
+    const module = new vm.SourceTextModule(source + '\nexport { constraintRows, constraintMass, applyConstraintImpulse, updateDynamicFrame, sweepConstraints, prismaticKind };', { context });
     await module.link(name => {
         if (name === './_framework/dotnet.js') return dotnet;
         if (name === '../native-clock.js') return clock;
@@ -92,29 +92,29 @@ function principal(view, offset, value) {
 }
 
 // Scene builder mirroring PhysicsGpuAbi.Admission for bodies, colliders, materials and orientation sensors only. Declared linear
-// drag sits at body record +74 and rolling resistance at material record +14; both default to zero like a static declaration.
-// Committed linear (m/s) and angular (rad/s) velocity are f32 at body record +48 and +60; mass +72, gravity +76, COM +82.
+// drag sits at body record +90 and rolling resistance at material record +14; both default to zero like a static declaration.
+// Committed linear (m/s) and angular (rad/s) velocity are f32 at body record +64 and +76; mass +88, gravity +92, COM +98.
 function scene(spec, sensors = [], cadence = 2) {
     const bytes = new Uint8Array(STATE_BYTES); const view = new DataView(bytes.buffer);
-    view.setUint32(0, 11, true);
+    view.setUint32(0, 12, true);
     view.setBigUint64(32, 1n, true); view.setUint32(48, cadence, true); view.setUint32(52, 1, true);
     view.setBigUint64(56, 1n, true); view.setBigUint64(64, 1n, true); view.setBigUint64(72, 2n, true); view.setBigUint64(80, 4096n, true);
     const bodies = [{ id: 1, motion: 0, position: [0, BENCH_Y, 0], shape: 2, material: { restitution: 1, threshold: .1, friction: .3 } }, ...spec];
     view.setUint32(12, bodies.length, true); view.setUint32(16, bodies.length, true); view.setUint32(20, bodies.length, true);
     let dynamicCount = 0;
     bodies.forEach((b, slot) => {
-        const r = BODIES + slot * 128;
+        const r = BODIES + slot * 160;
         view.setBigUint64(r, BigInt(b.id), true); view.setUint32(r + 8, b.motion, true);
         const [cx, lx] = position(b.position[0]); const [cy, ly] = position(b.position[1]); const [cz, lz] = position(b.position[2]);
         view.setInt32(r + 16, cx, true); view.setInt32(r + 20, cy, true); view.setInt32(r + 24, cz, true);
-        H(view, r + 32, lx); H(view, r + 34, ly); H(view, r + 36, lz);
+        F(view, r + 32, lx); F(view, r + 36, ly); F(view, r + 40, lz);
         const q = b.rotation ?? [0, 0, 0, 1];
-        H(view, r + 40, q[0]); H(view, r + 42, q[1]); H(view, r + 44, q[2]); H(view, r + 46, q[3]);
+        F(view, r + 48, q[0]); F(view, r + 52, q[1]); F(view, r + 56, q[2]); F(view, r + 60, q[3]);
         const c = COLLIDERS + slot * 96;
         view.setBigUint64(c, BigInt(100 + slot), true); view.setUint32(c + 8, slot, true); view.setUint32(c + 12, slot, true);
-        view.setUint32(c + 16, b.shape, true); H(view, c + 38, 1);
-        if (b.shape === 0) H(view, c + 40, b.radius);
-        if (b.shape === 1) { H(view, c + 42, b.half[0]); H(view, c + 44, b.half[1]); H(view, c + 46, b.half[2]); }
+        view.setUint32(c + 16, b.shape, true); F(view, c + 44, 1);
+        if (b.shape === 0) H(view, c + 48, b.radius);
+        if (b.shape === 1) { H(view, c + 50, b.half[0]); H(view, c + 52, b.half[1]); H(view, c + 54, b.half[2]); }
         const m = MATERIALS + slot * 32;
         view.setBigUint64(m, BigInt(200 + slot), true);
         H(view, m + 8, b.material.restitution); H(view, m + 10, b.material.threshold); H(view, m + 12, b.material.friction);
@@ -122,12 +122,12 @@ function scene(spec, sensors = [], cadence = 2) {
         if (b.motion !== 1) return;
         dynamicCount++;
         const v = b.velocity ?? [0, 0, 0]; const w = b.angular ?? [0, 0, 0];
-        F(view, r + 48, v[0]); F(view, r + 52, v[1]); F(view, r + 56, v[2]);
-        F(view, r + 60, w[0]); F(view, r + 64, w[1]); F(view, r + 68, w[2]);
-        H(view, r + 72, b.mass); H(view, r + 74, b.drag ?? 0); H(view, r + 78, b.gravity ?? -9.81);
+        F(view, r + 64, v[0]); F(view, r + 68, v[1]); F(view, r + 72, v[2]);
+        F(view, r + 76, w[0]); F(view, r + 80, w[1]); F(view, r + 84, w[2]);
+        H(view, r + 88, b.mass); H(view, r + 90, b.drag ?? 0); H(view, r + 94, b.gravity ?? -9.81);
         const com = b.com ?? [0, 0, 0];
-        H(view, r + 82, com[0]); H(view, r + 84, com[1]); H(view, r + 86, com[2]);
-        H(view, r + 94, 1);
+        H(view, r + 98, com[0]); H(view, r + 100, com[1]); H(view, r + 102, com[2]);
+        F(view, r + 116, 1);
         let moments;
         if (b.moments) moments = b.moments;
         else if (b.shape === 0) { const i = .4 * b.mass * b.radius * b.radius; moments = [i, i, i]; }
@@ -135,8 +135,8 @@ function scene(spec, sensors = [], cadence = 2) {
             const [a, h, d] = b.half;
             moments = [b.mass * (h * h + d * d) / 3, b.mass * (a * a + d * d) / 3, b.mass * (a * a + h * h) / 3];
         }
-        principal(view, r + 96, moments[0]); principal(view, r + 104, moments[1]); principal(view, r + 112, moments[2]);
-        view.setUint32(r + 120, slot, true);
+        principal(view, r + 120, moments[0]); principal(view, r + 128, moments[1]); principal(view, r + 136, moments[2]);
+        view.setUint32(r + 144, slot, true);
     });
     view.setUint32(28, dynamicCount, true);
     // Declared orientation sensors: identity, sensed body slot, admitted initial rotation and the cosine of half the threshold angle.
@@ -145,8 +145,8 @@ function scene(spec, sensors = [], cadence = 2) {
         view.setBigUint64(o, BigInt(sensor.id), true);
         view.setUint32(o + 8, bodies.findIndex(b => b.id === sensor.body), true);
         const q = sensor.initial ?? [0, 0, 0, 1];
-        H(view, o + 16, q[0]); H(view, o + 18, q[1]); H(view, o + 20, q[2]); H(view, o + 22, q[3]);
-        H(view, o + 24, Math.cos((sensor.degrees ?? 45) * Math.PI / 360));
+        F(view, o + 16, q[0]); F(view, o + 20, q[1]); F(view, o + 24, q[2]); F(view, o + 28, q[3]);
+        H(view, o + 32, Math.cos((sensor.degrees ?? 45) * Math.PI / 360));
     });
     view.setUint32(116, sensors.length, true);
     return bytes;
@@ -154,31 +154,31 @@ function scene(spec, sensors = [], cadence = 2) {
 
 function readSensor(bytes, slot) {
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); const o = ORIENTATION_SENSORS + slot * 64;
-    const declaration = Array.from(new Uint8Array(bytes.buffer, bytes.byteOffset + o, 32));
-    return { declaration, fired: view.getUint32(o + 32, true), ordinal: view.getUint32(o + 36, true), phase: RH(view, o + 40),
-        padding: new Uint8Array(bytes.buffer, bytes.byteOffset + o + 42, 22).every(b => b === 0) };
+    const declaration = Array.from(new Uint8Array(bytes.buffer, bytes.byteOffset + o, 40));
+    return { declaration, fired: view.getUint32(o + 40, true), ordinal: view.getUint32(o + 44, true), phase: RH(view, o + 48),
+        padding: new Uint8Array(bytes.buffer, bytes.byteOffset + o + 50, 14).every(b => b === 0) };
 }
 
 function readBody(bytes, slot) {
-    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); const r = BODIES + slot * 128;
-    const p = [(view.getInt32(r + 16, true) + RH(view, r + 32)) / 16, (view.getInt32(r + 20, true) + RH(view, r + 34)) / 16, (view.getInt32(r + 24, true) + RH(view, r + 36)) / 16];
-    const q = [RH(view, r + 40), RH(view, r + 42), RH(view, r + 44), RH(view, r + 46)];
-    const v = [RF(view, r + 48), RF(view, r + 52), RF(view, r + 56)];
-    const w = [RF(view, r + 60), RF(view, r + 64), RF(view, r + 68)];
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); const r = BODIES + slot * 160;
+    const p = [(view.getInt32(r + 16, true) + RF(view, r + 32)) / 16, (view.getInt32(r + 20, true) + RF(view, r + 36)) / 16, (view.getInt32(r + 24, true) + RF(view, r + 40)) / 16];
+    const q = [RF(view, r + 48), RF(view, r + 52), RF(view, r + 56), RF(view, r + 60)];
+    const v = [RF(view, r + 64), RF(view, r + 68), RF(view, r + 72)];
+    const w = [RF(view, r + 76), RF(view, r + 80), RF(view, r + 84)];
     // Tilt of the body's local +Y axis from world up, in degrees.
     const upY = 1 - 2 * (q[0] * q[0] + q[2] * q[2]);
     return { p, q, v, w, tilt: Math.acos(Math.max(-1, Math.min(1, upY))) * 180 / Math.PI, speed: Math.hypot(...v), spin: Math.hypot(...w) };
 }
 
-// Every committed cell remainder must be a canonical Half in [-0.5, 0.5); the host rejects a remainder that rounds to 0.5.
+// Every committed cell remainder must be a canonical f32 in [-0.5, 0.5); the host rejects a remainder that rounds to 0.5.
 function assertCanonicalRemainders(bytes, tick) {
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     const bodyCount = view.getUint32(12, true);
     for (let slot = 0; slot < bodyCount; slot++) {
-        const r = BODIES + slot * 128;
+        const r = BODIES + slot * 160;
         if (view.getUint32(r + 8, true) !== 1) continue;
-        for (const offset of [32, 34, 36]) {
-            const local = RH(view, r + offset);
+        for (const offset of [32, 36, 40]) {
+            const local = RF(view, r + offset);
             assert.ok(local >= -0.5 && local < 0.5, `tick ${tick} body slot ${slot} remainder ${local} at +${offset} is not canonical`);
         }
     }
@@ -362,16 +362,17 @@ test('rigid-body: rolling speed follows the declared principal moments, not a sh
     assert.ok(Math.abs(shell.v[0] - 1.8) < 0.08, `hollow sphere (record moments) rolls at ${shell.v[0].toFixed(3)} m/s`);
 });
 
-test('rigid-body: a remainder that rounds to Half 0.5 carries into the next cell instead of committing 0.5', async () => {
-    // From rest at cell 49 / local -2020/4096 under g = -9.875 one tick moves -0.0068576 cells: the double remainder after the
-    // integer carry is 0.4999784, which rounds to Half 0.5 unless the carry uses the rounded value.
-    const y0 = (49 - 2020 / 4096) / 16;
-    const bytes = await run(scene([resistanceFree(basketball([0, y0, 0], { gravity: -9.875 }))]), 1);
-    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); const r = BODIES + 128;
-    const cell = view.getInt32(r + 20, true), local = RH(view, r + 34);
-    assert.ok(local >= -0.5 && local < 0.5, `committed remainder ${local} is canonical`);
-    const expected = y0 - 9.875 * (1 / 480) * (1 / 480) * 10;
-    assert.ok(Math.abs((cell + local) / 16 - expected) < 1e-4, `height ${(cell + local) / 16} matches the fall to ${expected.toFixed(6)}`);
+test('rigid-body: an f32 remainder rounding to0.5 carries into the next cell', async () => {
+    const remainder = Math.fround(.5 - 2 ** -25);
+    const velocity = Math.fround(1.875e-7);
+    const unrounded = remainder + velocity * 16 / 120;
+    assert.ok(unrounded < .5 && Math.fround(unrounded) === .5, 'fixture crosses the f32 rounding boundary only');
+    const bytes = await run(scene([resistanceFree(basketball([remainder / 16, 5, 0],
+        { gravity: 0, velocity: [velocity, 0, 0] }))]), 1);
+    const view = new DataView(bytes.buffer), offset = BODIES + 160;
+    assert.equal(view.getInt32(offset + 16, true), 1);
+    assert.equal(RF(view, offset + 32), -.5);
+    assertCanonicalRemainders(bytes, 1);
 });
 
 test('rigid-body: a zero declared moment reads as infinite inertia and the body stays finite', async () => {
@@ -390,15 +391,43 @@ test('rigid-body: the worker source names no element, hard-coded inertia or mate
 test('rigid-body: the motion description is written at the offset the host declares after the orientation sensor table', async () => {
     const bytes = await run(scene([basketball([0, 3, 0])]), 1);
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    assert.equal(view.getUint32(20768 + 4, true), 4, 'four substeps recorded at PhysicsGpuAbi.MotionOffset');
-    assert.equal(view.getUint32(20768 + 12, true), 4, 'next ordinal recorded at PhysicsGpuAbi.MotionOffset + 12');
-    assert.equal(view.getUint32(20768, true), 4, 'one dynamic body contributes four motion pieces');
+    assert.equal(view.getUint32(21824 + 4, true), 4, 'four substeps recorded at PhysicsGpuAbi.MotionOffset');
+    assert.equal(view.getUint32(21824 + 12, true), 4, 'next ordinal recorded at PhysicsGpuAbi.MotionOffset + 12');
+    assert.equal(view.getUint32(21824, true), 4, 'one dynamic body contributes four motion pieces');
 });
 
 // Orientation-threshold sensors: declared (body, admitted pose, cos half-angle), evaluated at substep endpoints, sticky once per world.
 const tiltedTile = degrees => domino([0, BENCH_Y + .55 * Math.cos(degrees * Math.PI / 180) + .125 * Math.sin(degrees * Math.PI / 180) + .005, 0],
     { rotation: [0, 0, Math.sin(degrees * Math.PI / 360), Math.cos(degrees * Math.PI / 360)] });
 const sensorOn = (body, initial, degrees = 45) => ({ id: 500, body, initial, degrees });
+
+test('orientation sensor: nonzero admitted Z and quaternion signs preserve relative threshold', async () => {
+    for (const degrees of [-30,30]) for (const sign of [-1,1]) {
+        const q=[0,0,sign*Math.sin(degrees*Math.PI/360),sign*Math.cos(degrees*Math.PI/360)];
+        const still=domino([0,5,0],{rotation:q,gravity:0});
+        const sensors=[sensorOn(2,q,10)];
+        const stationary=await run(scene([still],sensors),12);
+        assert.deepEqual([readSensor(stationary,0).fired,readSensor(stationary,0).ordinal],[0,0],
+            `stationary admitted Z=${degrees}, quaternion sign=${sign} remains armed`);
+        const threshold=halfValue(halfBits(Math.cos(10*Math.PI/360)));
+        let first=null,previousAlignment=1;
+        const rotated=await run(scene([{...still,angular:[0,0,1]}],sensors),48,(tick,bytes)=>{
+            const body=readBody(bytes,1),sensor=readSensor(bytes,0);
+            const alignment=Math.abs(body.q.reduce((sum,value,i)=>sum+value*Math.fround(q[i]),0));
+            if(!sensor.fired)assert.ok(alignment>threshold-2e-7,'Below relative threshold stays armed');
+            if(sensor.fired&&first===null){
+                assert.ok(previousAlignment>threshold&&alignment<=threshold+2e-7,'First event brackets the actual relative crossing');
+                assert.ok(sensor.ordinal>(tick-1)*4&&sensor.ordinal<=tick*4);
+                first={tick,ordinal:sensor.ordinal};
+            }
+            if(first!==null)assert.equal(sensor.ordinal,first.ordinal,'One sticky event only');
+            previousAlignment=alignment;
+        });
+        assert.ok(first!==null&&first.tick>1,'A later genuine relative rotation fires');
+        assert.equal(readSensor(rotated,0).fired,1);
+    }
+});
+
 
 test('orientation sensor: a tile placed 10 deg off upright rocks back and never fires', async () => {
     const tile = tiltedTile(10);
@@ -705,7 +734,7 @@ test('f32 velocity: a Basketball rolling at 5 m/s at 240 Hz decelerates on every
 });
 
 // Story 6.1d (velocity hardening): boundary facts for the committed-velocity envelope and the motion-piece drag lane.
-const MOTION = 20768, MOTION_HEADER = 16, MOTION_PIECE = 128;   // PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.HeaderBytes / PieceBytes
+const MOTION = 21824, MOTION_HEADER = 16, MOTION_PIECE = 144;   // PhysicsGpuAbi.MotionOffset, PhysicsMotionRead.HeaderBytes / PieceBytes
 
 test('f32 velocity: a body whose centre of mass sits off its origin (body record +82) spins about that centre in free flight', async () => {
     // Local COM 0.1 m along +X, spinning at 2 rad/s about Z with no gravity: the centre stays at (0.1, 1, 0) and the origin circles it at 0.1 m.
@@ -716,7 +745,7 @@ test('f32 velocity: a body whose centre of mass sits off its origin (body record
         worst = Math.max(worst, Math.abs(Math.hypot(b.p[0] - .1, b.p[1] - 1, b.p[2]) - .1));
         reach = Math.max(reach, Math.hypot(b.p[0], b.p[1] - 1, b.p[2]));
     });
-    // Committed binary16 rotations re-place the centre by up to about 1e-4 m per tick; reading the COM from the wrong lanes misses by > 0.04 m.
+    // Reading the COM from the wrong lanes misses by >0.04m; this bounded trajectory control retains its original3mm tolerance.
     assert.ok(worst < 3e-3, `the origin stays 0.1 m from the declared centre of mass (worst deviation ${worst.toExponential(2)} m)`);
     assert.ok(reach > .19, `the origin really circles the centre (farthest ${reach.toFixed(4)} m from its start)`);
 });
@@ -755,7 +784,7 @@ test('f32 velocity: the end-of-substep guard clamps a finite velocity of any siz
     }
 });
 
-test('f32 velocity: every motion piece carries its body\'s declared drag rate (+54), so between-tick poses decay like the committed physics', async () => {
+test('f32 velocity: every motion piece carries its body\'s declared drag rate (+60), so between-tick poses decay like the committed physics', async () => {
     const bytes = await run(scene([basketball([0, 1, 0], { gravity: 0, velocity: [2, 0, 0] }),
         bowlingBall([0, 1, 2], { gravity: 0, drag: .125, velocity: [2, 0, 0] }), resistanceFree(basketball([0, 1, -2], { id: 7, gravity: 0 }))]), 1);
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -765,7 +794,7 @@ test('f32 velocity: every motion piece carries its body\'s declared drag rate (+
     for (let i = 0; i < count; i++) {
         const piece = MOTION + MOTION_HEADER + i * MOTION_PIECE;
         const id = Number(view.getBigUint64(piece + 24, true));
-        assert.equal(view.getUint16(piece + 54, true), declared[id], `piece ${i} (body ${id}) drag rate bits`);
+        assert.equal(view.getUint16(piece + 60, true), declared[id], `piece ${i} (body ${id}) drag rate bits`);
     }
 });
 
@@ -835,7 +864,7 @@ test('electrical phase routes exactly120 observations per physical second at eve
         });
         const bytes = scene([], [], cadence), view = new DataView(bytes.buffer);
         view.setUint32(120, 1, true);
-        const source = 150832;
+        const source = 153936;
         view.setBigUint64(source, 2n, true); view.setUint32(source + 12, 1, true);
         view.setFloat32(source + 16, 3600, true); view.setFloat32(source + 20, 120, true);
         view.setFloat32(source + 24, 3600, true); view.setFloat32(source + 32, 3600, true); view.setUint32(source + 36, 1, true);
@@ -848,7 +877,7 @@ test('electrical phase routes exactly120 observations per physical second at eve
 
 // These controls exercise real worker contact admission with a recording payment boundary.
 // The actual C# work law is covered natively and in WASM/Chrome; this spy adds no impulse.
-const CONTACT_WORK = 15136, WORK_OCCURRENCE = 15648;
+const CONTACT_WORK = 16192, WORK_OCCURRENCE = 16704;
 function contactWorkScene(normal, velocity, {gap = -.001, previous = false, ordinal = 0, targets = 1} = {}) {
     const origin = [0, 4, 0];
     const ball = { id: 2, motion: 1, position: origin.map((v, i) => v + normal[i] * (.65 + .34 + gap)),
@@ -899,7 +928,7 @@ test('contact work admission: oblique contact keeps ordinary spin and tangent wh
     // Solid sphere tangential momentum reconstructed at contact, before any paid radial response.
     assert.ok(Math.abs(body.v[0] - .4*.34*body.w[2] - 2) < .03);
     const missed = contactWorkScene([0,1,0], [0,-4,0]);
-    new DataView(missed.buffer).setInt32(BODIES+128+24,32,true);
+    new DataView(missed.buffer).setInt32(BODIES+160+24,32,true);
     assert.equal((await observeContactAdmission(missed)).calls.length,0);
 });
 test('contact work admission: resting separating below-threshold and grazing gap never call payment', async () => {
@@ -936,8 +965,8 @@ test('prismatic relaxation refreshes both moving frames but retains physical-ste
         domino([0, 5, 0], { velocity: [1, 0, 0], angular: [2, 3, 4], moments: [1, 1, 1], gravity: 0 }),
         domino([2, 5, 0], { id: 3, velocity: [0, 1, 0], angular: [-3, 2, 1], moments: [1, 1, 1], gravity: 0 })
     ]);
-    const view = new DataView(bytes.buffer), offset = 151488;
-    view.setUint32(151472, 1, true);
+    const view = new DataView(bytes.buffer), offset = 154592;
+    view.setUint32(154576, 1, true);
     view.setBigUint64(offset, 900n, true);
     view.setUint32(offset + 8, 1, true); view.setUint32(offset + 12, 2, true);
     F(view, offset + 16, .3); F(view, offset + 44, -.2);
@@ -974,8 +1003,8 @@ test('real WASM prismatic rows keep zero-gravity rest and dissipate an uncharged
             { ...domino([0, 5, 0]), motion: 0 },
             domino([0, 5 + compression, 0], { id: 3, mass: .25, half: [.65, .075, .6], velocity: [0, initialSpeed, 0], gravity: 0 })
         ]);
-        const view = new DataView(bytes.buffer), offset = 151488;
-        view.setUint32(151472, 1, true); view.setBigUint64(offset, 900n, true);
+        const view = new DataView(bytes.buffer), offset = 154592;
+        view.setUint32(154576, 1, true); view.setBigUint64(offset, 900n, true);
         view.setUint32(offset + 8, 1, true); view.setUint32(offset + 12, 2, true);
         F(view, offset + 40, 1); F(view, offset + 68, 1);
         F(view, offset + 72, -.25); F(view, offset + 80, 400); F(view, offset + 84, .2);
@@ -1011,8 +1040,8 @@ test('real WASM moving tilted pair preserves reaction momentum and bounded total
         domino([0, 5, 0], { mass: 1, rotation, velocity: [1, .3, 0], angular: [.2, .3, .5], moments: [1, 1, 1], gravity: 0 }),
         domino([0, 5, 0], { id: 3, mass: .25, rotation, velocity: [-.5, -.4, 0], angular: [-.2, .1, -.3], moments: [1, 1, 1], gravity: 0 })
     ]);
-    const view = new DataView(bytes.buffer), offset = 151488;
-    view.setUint32(151472, 1, true); view.setBigUint64(offset, 901n, true);
+    const view = new DataView(bytes.buffer), offset = 154592;
+    view.setUint32(154576, 1, true); view.setBigUint64(offset, 901n, true);
     view.setUint32(offset + 8, 1, true); view.setUint32(offset + 12, 2, true);
     for (const frame of [16, 44]) { F(view, offset + frame, .3); F(view, offset + frame + 8, .2); F(view, offset + frame + 24, 1); }
     F(view, offset + 72, -.25); F(view, offset + 80, 400); F(view, offset + 84, .2);
@@ -1092,13 +1121,13 @@ test('real WASM gravity-fed ball and plate contact respects complete passive ene
         domino([0,5,0],{id:3,mass:.25,half:[.65,.075,.6],material:{restitution:0,threshold:.05,friction:.1}}),
         basketball([0,6.5,0],{id:4})
     ]);
-    const view=new DataView(bytes.buffer),offset=151488;
-    view.setUint32(151472,1,true);view.setBigUint64(offset,902n,true);
+    const view=new DataView(bytes.buffer),offset=154592;
+    view.setUint32(154576,1,true);view.setBigUint64(offset,902n,true);
     view.setUint32(offset+8,1,true);view.setUint32(offset+12,2,true);
     F(view,offset+20,.5);F(view,offset+40,1);F(view,offset+68,1);
     F(view,offset+72,-.25);F(view,offset+80,400);F(view,offset+84,.2);
-    const moments=slot=>[96,104,112].map(at=>RH(view,BODIES+slot*128+at)*2**view.getInt32(BODIES+slot*128+at+4,true));
-    const plateI=moments(2),ballI=moments(3),g=-RH(view,BODIES+2*128+78);
+    const moments=slot=>[120,128,136].map(at=>RH(view,BODIES+slot*160+at)*2**view.getInt32(BODIES+slot*160+at+4,true));
+    const plateI=moments(2),ballI=moments(3),g=-RH(view,BODIES+2*160+94);
     const energy=data=>{
         const plate=readBody(data,2),ball=readBody(data,3);
         // Centred drop retains identity orientation. Include every rotational component explicitly.
@@ -1135,13 +1164,13 @@ test('real WASM preserved passive ball contacts along all three source orientati
             domino(at(.14),{id:3,rotation,mass:.25,half:[.65,.075,.6],moments:[.25*(.15**2+1.2**2)/12,.25*(1.3**2+1.2**2)/12,.25*(1.3**2+.15**2)/12],gravity:0,material:{restitution:0,threshold:.05,friction:.1}}),
             basketball(at(1),{id:4,velocity:n.map(v=>-2*v),gravity:0,drag:0})
         ]);
-        const view=new DataView(bytes.buffer),offset=151488;
-        view.setUint32(151472,1,true);view.setBigUint64(offset,903n,true);
+        const view=new DataView(bytes.buffer),offset=154592;
+        view.setUint32(154576,1,true);view.setBigUint64(offset,903n,true);
         view.setUint32(offset+8,1,true);view.setUint32(offset+12,2,true);
         F(view,offset+20,.5);F(view,offset+40,1);F(view,offset+68,1);
         F(view,offset+72,-.25);F(view,offset+80,400);
         const axis=rotate(readBody(bytes,1).q,[0,1,0]),base=readBody(bytes,1).p;
-        const moments=slot=>[96,104,112].map(a=>RH(view,BODIES+slot*128+a)*2**view.getInt32(BODIES+slot*128+a+4,true));
+        const moments=slot=>[120,128,136].map(a=>RH(view,BODIES+slot*160+a)*2**view.getInt32(BODIES+slot*160+a+4,true));
         const inertia=[moments(2),moments(3)];
         const measure=data=>{
             const plate=readBody(data,2),ball=readBody(data,3);
@@ -1212,7 +1241,7 @@ test('real WASM connected collision policy filters only its declared pair', {ski
             domino([0,5,0],{id:3,mass:.25,half:[.65,.075,.6],gravity:0}),
             {...domino([3,5,0]),id:4,motion:0,half:[.5,.1,.5]},
             basketball([3,5.3,0],{id:5,velocity:[0,-2,0],gravity:0,drag:0})]);
-        const v=new DataView(bytes.buffer),o=151488;v.setUint32(151472,1,true);v.setBigUint64(o,904n,true);
+        const v=new DataView(bytes.buffer),o=154592;v.setUint32(154576,1,true);v.setBigUint64(o,904n,true);
         v.setUint32(o+8,1,true);v.setUint32(o+12,2,true);F(v,o+40,1);F(v,o+68,1);
         F(v,o+72,-.25);F(v,o+80,400);v.setUint32(o+88,enabled,true);
         const {imports}=await loadWorker(Program);await imports.stage(bytes,0);imports.commit();
@@ -1239,7 +1268,7 @@ test('real WASM compound local frames restore across the shortest-arc boundary',
             const qb=mul(mul(mul(axis([1,2,-3],degrees*Math.PI/180),qa),la),conjugate(lb)).map(x=>x*sign);
             const bytes=scene([{...domino([0,5,0]),motion:0,rotation:qa},
                 domino([0,5,0],{id:3,rotation:qb,mass:.25,moments:[.5,.75,1],gravity:0})]);
-            const v=new DataView(bytes.buffer),o=151488;v.setUint32(151472,1,true);v.setBigUint64(o,905n,true);
+            const v=new DataView(bytes.buffer),o=154592;v.setUint32(154576,1,true);v.setBigUint64(o,905n,true);
             v.setUint32(o+8,1,true);v.setUint32(o+12,2,true);
             la.forEach((x,i)=>F(v,o+28+i*4,x));lb.forEach((x,i)=>F(v,o+56+i*4,x));
             F(v,o+72,-.25);F(v,o+80,400);
@@ -1256,5 +1285,99 @@ test('real WASM compound local frames restore across the shortest-arc boundary',
         assert.ok(Math.abs(results[0].angle-results[1].angle)<1e-5);
         assert.ok(Math.abs(results[0].maxSpin-results[1].maxSpin)<1e-4);
         console.log(JSON.stringify({degrees,results}));
+    }
+});
+
+test('real WASM preload transfers only finite stored work to contacting payloads in upright and tilted frames', {skip:process.env.SPRING_WASM!=='1'}, async()=>{
+    const {dotnet}=await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime=await dotnet.create(),{Program}=await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+    const rotate=(q,v)=>{const t=cross(q,v).map(x=>2*x),u=cross(q,t);return v.map((x,i)=>x+q[3]*t[i]+u[i]);};
+    for(const degrees of [0,-30])for(const configuration of [
+        {compression:.2,payload:true,miss:0}, {compression:0,payload:true,miss:0},
+        {compression:.2,payload:true,miss:2}, {compression:.2,payload:false,miss:0}
+    ]){
+        const rotation=[0,0,Math.fround(Math.sin(degrees*Math.PI/360)),Math.fround(Math.cos(degrees*Math.PI/360))];
+        const origin=[0,2.5,0],axis=rotate(rotation,[0,1,0]);
+        const at=distance=>origin.map((x,i)=>Math.fround(x+Math.fround(distance*axis[i])));
+        const platePosition=at(Math.fround(Math.fround(.14)-Math.fround(configuration.compression)));
+        const payloadPosition=at(.557-configuration.compression);payloadPosition[0]+=configuration.miss;
+        const bodies=[
+            {...domino(origin),motion:0,rotation,half:[.65,.06,.6]},
+            domino(platePosition,{id:3,rotation,mass:.25,half:[.65,.075,.6],gravity:0,
+                material:{restitution:0,threshold:.05,friction:.1}})
+        ];
+        if(configuration.payload)bodies.push(basketball(payloadPosition,{id:4,gravity:0,drag:0}));
+        const bytes=scene(bodies),view=new DataView(bytes.buffer),joint=154592;
+        // The actual declared base collider is .36m below its authored origin.
+        H(view,COLLIDERS+96+26,-.36);
+        view.setUint32(154576,1,true);view.setBigUint64(joint,904n,true);
+        view.setUint32(joint+8,1,true);view.setUint32(joint+12,2,true);
+        F(view,joint+20,.14);F(view,joint+40,1);F(view,joint+68,1);
+        F(view,joint+72,-.25);F(view,joint+80,400);F(view,joint+84,.2);
+        const moments=slot=>[120,128,136].map(o=>RH(view,BODIES+slot*160+o)*2**view.getInt32(BODIES+slot*160+o+4,true));
+        const inertia=[moments(2),configuration.payload?moments(3):[]];
+        const {imports,kernels}=await loadWorker(Program);
+        const measure=data=>{
+            const base=readBody(data,1),plate=readBody(data,2),payload=configuration.payload?readBody(data,3):null;
+            // Query the shipped f32 geometric row, not a nominal authored-energy ledger.
+            const row=Program.PrismaticJacobians([...base.p,...base.q,...base.p,...plate.p,...plate.q,...plate.p,
+                0,Math.fround(.14),0,0,0,0,1,0,0,0,0,0,0,1,-.25,0]);
+            const q=row[kernels.prismaticKind.Spring*13+12];
+            let energy=200*q*q;
+            for(const [index,body] of [plate,payload].entries()){
+                if(!body)continue;
+                const local=rotate([-body.q[0],-body.q[1],-body.q[2],body.q[3]],body.w);
+                energy+=(index===0?.125:.5)*body.speed**2+.5*local.reduce((sum,w,i)=>sum+inertia[index][i]*w*w,0);
+            }
+            return {energy,q,payloadSpeed:payload?.speed??0,normalSpeed:payload?payload.v.reduce((sum,v,i)=>sum+v*axis[i],0):0};
+        };
+        const initial=measure(bytes);
+        assert.ok(Math.abs(initial.energy-(configuration.compression===0?0:8))<=1e-5,JSON.stringify({degrees,configuration,initial}));
+        for(let replay=0;replay<2;replay++){
+            await imports.stage(bytes,0);imports.commit();
+            let maximum=initial.energy,speed=0,normalSpeed=0;
+            for(let tick=0;tick<120;tick++){
+                await imports.stage(new Uint8Array(0),1);const value=measure(imports.read());imports.commit();
+                maximum=Math.max(maximum,value.energy);speed=Math.max(speed,value.payloadSpeed);normalSpeed=Math.max(normalSpeed,value.normalSpeed);
+                assert.ok(value.energy<=initial.energy+1e-5,JSON.stringify({degrees,configuration,tick,value,initial}));
+                assert.ok(value.q>=-.251&&value.q<=.001);
+            }
+            if(configuration.payload&&configuration.compression>0&&configuration.miss===0)assert.ok(normalSpeed>1);
+            else assert.equal(speed,0,'Uncharged or missed payload receives no work; empty plate has no payload');
+            console.log(JSON.stringify({degrees,configuration,replay,initial,maximum,speed,normalSpeed}));
+        }
+    }
+});
+
+test('real WASM compiled SpringForward forgiving Receiver offsets preserve capture', {skip:process.env.SPRING_WASM!=='1'}, async()=>{
+    assert.ok(process.env.SPRING_COMPILED_LOG, 'Run the focused compiler fixture test and supply SPRING_COMPILED_LOG');
+    const log=await readFile(process.env.SPRING_COMPILED_LOG,'utf8');
+    const fixtures=[...log.matchAll(/SPRING_RECEIVER_FIXTURE (-?[0-9.]+) ([A-Za-z0-9+/=]+)/g)];
+    assert.equal(fixtures.length,2,'both current compiler admissions required');
+    assert.deepEqual(fixtures.map(x=>Number(x[1])).sort((a,b)=>a-b),[-.5,.3],'exact source offsets');
+    const {dotnet}=await import('../CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js');
+    const runtime=await dotnet.create();
+    const {Program}=await runtime.getAssemblyExports(runtime.getConfig().mainAssemblyName);
+    for(const [,offsetText,encoded] of fixtures){
+        const offset=Number(offsetText),bytes=new Uint8Array(Buffer.from(encoded,'base64'));
+        assert.equal(bytes.length,STATE_BYTES);
+        const initial=new DataView(bytes.buffer);
+        assert.equal(initial.getUint32(24,true),1,'one source Receiver sensor');
+        const {imports}=await loadWorker(Program);
+        await imports.stage(bytes,0);imports.commit();
+        let captured=false,firstTick=0; const nearReceiver=[];
+        for(let tick=1;tick<=1200;tick++){
+            await imports.stage(new Uint8Array(0),1);
+            const state=imports.read(),view=new DataView(state.buffer,state.byteOffset,state.byteLength);
+            if(view.getUint32(12608+84,true)>0){captured=true;if(!firstTick)firstTick=tick;}
+            const ball=readBody(state,0),receiver=readBody(state,1),local=ball.p.map((v,i)=>v-receiver.p[i]);
+            if((tick%10===0 && Math.hypot(...local)<3)||tick===firstTick) nearReceiver.push({tick,local,v:ball.v,phase:view.getUint32(12608+72,true)});
+            imports.commit();
+        }
+        console.log(JSON.stringify({compiledSpringForwardReceiverOffset:offset,captured,firstTick,ticks:1200,nearReceiver}));
+        assert.equal(captured,true,`offset ${offset} captures under physical simulation`);
+        if(offset===-.5) assert.equal(firstTick,192,'-.5 captures at tick 192 per owner decision');
+        if(offset===.3) assert.equal(firstTick,238,'+.3 captures at tick 238');
     }
 });

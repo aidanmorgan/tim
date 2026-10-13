@@ -12,7 +12,7 @@ public partial class Workshop
     private static CanonicalRotation CaptureEditorRotation(Quaternion input)
     {
         var q = input.Normalized();
-        var value = new CanonicalRotation((Half)q.X, (Half)q.Y, (Half)q.Z, (Half)q.W);
+        var value = CanonicalRotation.Normalize(q.X, q.Y, q.Z, q.W);
         value.Validate();
         return value;
     }

@@ -6,7 +6,7 @@ const requireMcp=createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/p
 const {PNG}=requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 import { WorkshopDriver } from './workshop-driver.ts';
 const URL = process.env.BATTERY_PREVIEW_URL ?? 'http://127.0.0.1:8067/';
-const SOURCE = 24080, WORK = 3328;
+const SOURCE = 26384, WORK = 3584;
 const ElectricalEnable={Disabled:0,Enabled:1} as const;
 type ElectricalEnable=typeof ElectricalEnable[keyof typeof ElectricalEnable];
 const WorkshopCommand={ConfigureCadence:6} as const;
@@ -76,7 +76,7 @@ function assertTransfers(reads:Buffer[], stores:number, depleted=false) {
             finalTick=tick;
         }
         for(let i=0;i<read[109];i++) {
-            const offset=3584+i*32, slot=read.readUInt16LE(offset), sequence=read.readUInt32LE(offset+12);
+            const offset=3840+i*32, slot=read.readUInt16LE(offset), sequence=read.readUInt32LE(offset+12);
             const key=read.readBigUInt64LE(16)+':'+slot+':'+sequence;
             if(!sequence || seen.has(key))continue; seen.add(key);
             if(read[offset+30]===WorkEffect.Paid) {
@@ -150,10 +150,10 @@ for (const depleted of [false,true]) test(depleted ? 'Battery finite60J source e
         await connect(driver,false);
         await driver.save();
         const initial = await saved(driver), battery = 24+320+2*160;
-        assert.equal(initial.readFloatLE(battery+104),depleted?60:3600);
-        assert.equal(initial.readFloatLE(battery+108),120);
-        assert.equal(initial.readFloatLE(battery+112),1);
-        assert.equal(initial[battery+116],1);
+        assert.equal(initial.readFloatLE(battery+112),depleted?60:3600);
+        assert.equal(initial.readFloatLE(battery+116),120);
+        assert.equal(initial.readFloatLE(battery+120),1);
+        assert.equal(initial[battery+124],1);
         assertLinks(initial,2,[1]);
         await driver.reload(); await driver.load(); await driver.save();
         assert.deepEqual(authored(await saved(driver)),authored(initial));
@@ -286,8 +286,8 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
             await configure(driver,120,30,fraction,false);
             await driver.save();const initial=await saved(driver),slot=24+320+2*160;
             assert.equal(initial.readUInt32LE(36),0,'Disconnected control has no Supply edge');
-            assert.equal(initial.readFloatLE(slot+104),120);assert.equal(initial.readFloatLE(slot+108),30);
-            assert.equal(initial.readFloatLE(slot+112),fraction);assert.equal(initial[slot+116],0);
+            assert.equal(initial.readFloatLE(slot+112),120);assert.equal(initial.readFloatLE(slot+116),30);
+            assert.equal(initial.readFloatLE(slot+120),fraction);assert.equal(initial[slot+124],0);
             await driver.reload();await driver.load();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(initial));
             await driver.run();await driver.page.waitForTimeout(1200);await driver.pauseSimulation();
             const read=reads.at(-1)!;
@@ -302,7 +302,7 @@ test('Battery disconnected authored settings and rendered charge thresholds rest
             const restored=await indicatorPicture(driver,'fraction-reset-'+fraction);assert.deepEqual(restored.marks,picture.marks);assert.equal(restored.terminal,false);
         }
         // Enabled yet disconnected: source is available, but no credit/debit occurs and preload is finite.
-        await configure(driver,120,30,.5,true);await driver.save();const initial=await saved(driver);assert.equal(initial[24+320+2*160+116],1);
+        await configure(driver,120,30,.5,true);await driver.save();const initial=await saved(driver);assert.equal(initial[24+320+2*160+124],1);
         await driver.run();await driver.page.waitForTimeout(3000);await driver.pauseSimulation();
         const read=reads.at(-1)!;assert.equal(read.readFloatLE(SOURCE+16),60);assert.equal(read.readFloatLE(SOURCE+20),0);
         assert.equal(read.readFloatLE(WORK+24),0);assert.equal(read.readFloatLE(WORK+20),0);

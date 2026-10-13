@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
 
 // WorkshopWire.ReadContactWorkOffset; store record32, occurrence record32; bound to C# by the paid-record tests.
-const WORK_READ = 3328, OCCURRENCE_READ = WORK_READ + 8 * 32;
+const WORK_READ = 3584, OCCURRENCE_READ = WORK_READ + 8 * 32;
 const BASE_URL = process.env.BUMPER_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
 async function savedBytes(driver: WorkshopDriver): Promise<Buffer> {
     const values = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
@@ -42,15 +42,15 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         await driver.selectTool(kind);
         await driver.placeOnCanvas(720, 485);
         await driver.stackUnderLiftedBall('bumper', 150);
-        const authored = observations[observations.length - 1].subarray(128, 192);
+        const authored = observations[observations.length - 1].subarray(128, 208);
         await driver.save();
         const construction = await savedBytes(driver);
         const ballSlot = 24 + 320, bumperSlot = ballSlot + 160;
-        assert.equal(construction.readFloatLE(bumperSlot + 104), 8, 'Placed bumper strength is8m/s');
-        assert.equal(construction.readFloatLE(bumperSlot + 108), 1, 'Calibration reference mass is1kg');
-        assert.equal(construction.readFloatLE(bumperSlot + 112), 32, 'Declared finite preload is32J');
-        for (const offset of [48, 56, 72, 76])
-            assert.equal(construction.readUInt16LE(ballSlot + offset), construction.readUInt16LE(bumperSlot + offset), 'Payload and bumper share the X/Z contact column');
+        assert.equal(construction.readFloatLE(bumperSlot + 112), 8, 'Placed bumper strength is8m/s');
+        assert.equal(construction.readFloatLE(bumperSlot + 116), 1, 'Calibration reference mass is1kg');
+        assert.equal(construction.readFloatLE(bumperSlot + 120), 32, 'Declared finite preload is32J');
+        for (const offset of [48, 56, 72, 80])
+            assert.equal(construction.readUInt32LE(ballSlot + offset), construction.readUInt32LE(bumperSlot + offset), 'Payload and bumper share the complete f32 X/Z contact column');
         assert.equal(construction.readInt32LE(bumperSlot + 52), 48, 'Bumper is on the3m placement plane');
         assert.ok(construction.readInt32LE(ballSlot + 52) > 80, 'Payload is visibly lifted above the bumper');
         await driver.reload();
@@ -59,7 +59,7 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         assert.deepEqual(authoredState(await savedBytes(driver)), authoredState(construction), 'Save/Load preserves every authored bumper and payload declaration byte');
         const loaded = observations[observations.length - 1];
         assert.equal(loaded[104], 1, 'Loaded construction has one dynamic payload');
-        const built = loaded.subarray(128, 192);
+        const built = loaded.subarray(128, 208);
         assert.deepEqual(built, authored, 'Save/Load restores the exact placed payload');
         await driver.run();
         const samples: { time: number; y: number; vy: number }[] = [];
@@ -102,7 +102,7 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         }
         await driver.reset();
         const restored = observations[observations.length - 1];
-        assert.deepEqual(restored.subarray(128, 192), built, 'Reset restores exact placed body state after saved construction reload');
+        assert.deepEqual(restored.subarray(128, 208), built, 'Reset restores exact placed body state after saved construction reload');
         assert.equal(restored.readFloatLE(WORK_READ + 20), 32);
         assert.equal(restored.readUInt32LE(WORK_READ + 16), 0);
         await driver.save();

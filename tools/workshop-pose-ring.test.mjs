@@ -63,8 +63,8 @@ test('actual worker writer publishes globally newest frames across wraps and shr
     const workerSource = await fs.readFile(new URL('../CuriousContraptions.Simulation/wwwroot/worker.js', import.meta.url), 'utf8');
     const workerContext = vm.createContext({ self: { postMessage() {} }, console, Uint8Array, Uint32Array,
         Float32Array, Float64Array, ArrayBuffer, SharedArrayBuffer, BigInt64Array, DataView, Atomics });
-    const host = { CommandAbi: () => [72, 5768], ResponseAbi: () => [24336, 40, 56],
-        OperationAbi: () => [0, 1], StateBytes: () => 154048, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
+    const host = { CommandAbi: () => [72, 5768], ResponseAbi: () => [26640, 40, 56],
+        OperationAbi: () => [0, 1], StateBytes: () => 157152, PrismaticRowKinds: () => [0, 1, 2, 3, 4, 5, 6, 7], ScheduleRoles: () => [1, 2], CaptureMode: () => 1 };
     const runtime = { setModuleImports() {}, getAssemblyExports: async () => ({ Program: host }),
         getConfig: () => ({ mainAssemblyName: 'PoseWriterControl' }) };
     const worker = new vm.SourceTextModule(workerSource + `
@@ -89,12 +89,12 @@ export { writePoseRing };
         // Build mode does not publish; this exercises actual committed population changes and fresh ring ownership.
         if (publication === 9) { c = client(); worker.namespace.bindTestRing(c.poseRing); }
         const ids = publication === 5 ? [] : publication < 5 ? [1n, 4294967296n] : [18446744073709551615n];
-        const bytes = new Uint8Array(128 + ids.length * 64), view = new DataView(bytes.buffer);
+        const bytes = new Uint8Array(128 + ids.length * 80), view = new DataView(bytes.buffer);
         bytes[104] = ids.length; view.setBigInt64(72, BigInt(publication * 100), true);
         ids.forEach((id, index) => {
-            const offset = 128 + index * 64;
+            const offset = 128 + index * 80;
             view.setBigUint64(offset, id, true); view.setInt32(offset + 8, publication * 16, true);
-            view.setUint16(offset + 32, 15360, true);
+            view.setFloat32(offset + 44, 1, true);
         });
         worker.namespace.writePoseRing(bytes);
         const observed = readLatestPoseSlot(1);

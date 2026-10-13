@@ -113,7 +113,7 @@ public sealed class ActivationTimerTests
                 U(offset,(uint)PhysicsMotionKind.FreePolynomial);U(offset+4,checked((uint)(tick-1)*4+step));
                 U(offset+8,checked((uint)(tick-1)*4+step+1));U(offset+12,checked((uint)(tick-1)*4));
                 BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset+22),BitConverter.HalfToUInt16Bits((Half)480));
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset+62),BitConverter.HalfToUInt16Bits((Half)1));
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset+76),1f);
                 BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(offset+24),1);
             }
             var bodies=new PhysicsBodyReadSet(new[] {new PhysicsBodyRead(body,CanonicalRotation.Identity,default,default)});

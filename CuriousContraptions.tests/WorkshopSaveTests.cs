@@ -32,18 +32,18 @@ public sealed class WorkshopSaveTests
     }
 
     [Theory]
-    [InlineData(116, 0x7e00)]
-    [InlineData(118, 0x7c00)]
-    [InlineData(120, 0xfc00)]
-    [InlineData(122, 0xc000)]
-    [InlineData(124, 0x0000)]
-    [InlineData(126, 0xc000)]
-    [InlineData(128, 0x4c40)]
-    [InlineData(130, 0xbc00)]
-    [InlineData(130, 0x4000)]
-    [InlineData(132, 0xbc00)]
-    [InlineData(132, 0x4a80)]
-    [InlineData(134, 0x0001)]
+    [InlineData(124, 0x7e00)]
+    [InlineData(126, 0x7c00)]
+    [InlineData(128, 0xfc00)]
+    [InlineData(130, 0xc000)]
+    [InlineData(132, 0x0000)]
+    [InlineData(134, 0xc000)]
+    [InlineData(136, 0x4c40)]
+    [InlineData(138, 0xbc00)]
+    [InlineData(138, 0x4000)]
+    [InlineData(140, 0xbc00)]
+    [InlineData(140, 0x4a80)]
+    [InlineData(142, 0x0001)]
     public void InvalidForceRegionRejectsWithoutChangingExistingConstruction(int field, int bits)
     {
         var saved = Saved();

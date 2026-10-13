@@ -16,32 +16,32 @@ const contactCache = new Map();
 // Byte layouts owned by the C# ABI. WorkerAbiTests reads each constant below from this file and compares it with the named C# value, so
 // a layout change on either side fails the tests instead of silently misreading the records.
 const BODIES_OFFSET = 128;              // PhysicsGpuAbi.BodiesOffset
-const BODY_BYTES = 128;                 // PhysicsGpuAbi.BodyBytes
-const BODY_VELOCITY = 48;               // PhysicsGpuAbi.BodyVelocityOffset: committed linear velocity, f32 m/s
-const BODY_ANGULAR_VELOCITY = 60;       // PhysicsGpuAbi.BodyAngularVelocityOffset: committed angular velocity, f32 rad/s
-const BODY_MASS = 72;                   // PhysicsGpuAbi.BodyMassOffset (Half kg)
-const BODY_DRAG = 74;                   // PhysicsGpuAbi.BodyDragOffset (Half 1/s)
-const BODY_GRAVITY = 76;                // PhysicsGpuAbi.BodyGravityOffset (Half m/s² x3)
-const BODY_CENTRE_OF_MASS = 82;         // PhysicsGpuAbi.BodyCentreOfMassOffset (Half m x3, body-local)
-const ORIENTATION_SENSORS_OFFSET = 19744; // PhysicsGpuAbi.OrientationSensorsOffset
-const MOTION_OFFSET = 20768;            // PhysicsGpuAbi.MotionOffset
+const BODY_BYTES = 160;                 // PhysicsGpuAbi.BodyBytes
+const BODY_VELOCITY = 64;               // PhysicsGpuAbi.BodyVelocityOffset: committed linear velocity, f32 m/s
+const BODY_ANGULAR_VELOCITY = 76;       // PhysicsGpuAbi.BodyAngularVelocityOffset: committed angular velocity, f32 rad/s
+const BODY_MASS = 88;                   // PhysicsGpuAbi.BodyMassOffset (Half kg)
+const BODY_DRAG = 90;                   // PhysicsGpuAbi.BodyDragOffset (Half 1/s)
+const BODY_GRAVITY = 92;                // PhysicsGpuAbi.BodyGravityOffset (Half m/s² x3)
+const BODY_CENTRE_OF_MASS = 98;         // PhysicsGpuAbi.BodyCentreOfMassOffset (Half m x3, body-local)
+const ORIENTATION_SENSORS_OFFSET = 20800; // PhysicsGpuAbi.OrientationSensorsOffset
+const MOTION_OFFSET = 21824;            // PhysicsGpuAbi.MotionOffset
 const MOTION_HEADER_BYTES = 16;         // PhysicsMotionRead.HeaderBytes
-const MOTION_PIECE_BYTES = 128;         // PhysicsMotionRead.PieceBytes
-const MOTION_DRAG_RATE = 54;            // PhysicsMotionRead.DragRateOffset (Half 1/s)
-const MOTION_VELOCITY = 64;             // PhysicsMotionRead.VelocityOffset (f32 m/s)
-const MOTION_ANGULAR_VELOCITY = 76;     // PhysicsMotionRead.AngularVelocityOffset (f32 rad/s)
-const MOTION_GRAVITY = 88;              // PhysicsMotionRead.GravityOffset (Half m/s² x3)
-const ELECTRICAL_SOURCES_OFFSET = 150832; // PhysicsGpuAbi.ElectricalSourcesOffset
+const MOTION_PIECE_BYTES = 144;         // PhysicsMotionRead.PieceBytes
+const MOTION_DRAG_RATE = 60;            // PhysicsMotionRead.DragRateOffset (Half 1/s)
+const MOTION_VELOCITY = 80;             // PhysicsMotionRead.VelocityOffset (f32 m/s)
+const MOTION_ANGULAR_VELOCITY = 92;     // PhysicsMotionRead.AngularVelocityOffset (f32 rad/s)
+const MOTION_GRAVITY = 104;              // PhysicsMotionRead.GravityOffset (Half m/s² x3)
+const ELECTRICAL_SOURCES_OFFSET = 153936; // PhysicsGpuAbi.ElectricalSourcesOffset
 const ELECTRICAL_SOURCE_BYTES = 64;
-const ELECTRICAL_BINDINGS_OFFSET = 151344; // PhysicsGpuAbi.ElectricalBindingsOffset
+const ELECTRICAL_BINDINGS_OFFSET = 154448; // PhysicsGpuAbi.ElectricalBindingsOffset
 const ELECTRICAL_BINDING_BYTES = 16;
-const PRISMATICS_OFFSET = 151472; // PhysicsGpuAbi.PrismaticsOffset
-const PRISMATIC_RECORDS_OFFSET = 151488;
+const PRISMATICS_OFFSET = 154576; // PhysicsGpuAbi.PrismaticsOffset
+const PRISMATIC_RECORDS_OFFSET = 154592;
 const PRISMATIC_BYTES = 160;
-const CONTACT_WORKS_OFFSET = 15136; // PhysicsGpuAbi.ContactWorksOffset
+const CONTACT_WORKS_OFFSET = 16192; // PhysicsGpuAbi.ContactWorksOffset
 const READ_BODIES_OFFSET = 128;         // WorkshopWire.ReadBodiesOffset
-const BODY_WIRE_BYTES = 64;             // PhysicsBodyWire.ByteLength
-const BODY_WIRE_VELOCITY = 40;          // PhysicsBodyWire.VelocityOffset (f32 m/s)
+const BODY_WIRE_BYTES = 80;             // PhysicsBodyWire.ByteLength
+const BODY_WIRE_VELOCITY = 56;          // PhysicsBodyWire.VelocityOffset (f32 m/s)
 
 function getF16(dv, byteOffset) {
     if (typeof dv.getFloat16 === 'function') return dv.getFloat16(byteOffset, true);
@@ -1074,7 +1074,7 @@ function advanceCandidate(source, candidate) {
 
     const triggerCount = view.getUint32(100, true);
     for (let t = 0; t < triggerCount; t++) {
-        const tOffset = 14624 + t * 64;
+        const tOffset = 15680 + t * 64;
         view.setUint32(tOffset + 32, 0, true);
         new Uint8Array(candidate.buffer, candidate.byteOffset + tOffset + 36, 16).fill(0);
     }
@@ -1089,13 +1089,13 @@ function advanceCandidate(source, candidate) {
         const cellX = view.getInt32(bodyOffset + 16, true);
         const cellY = view.getInt32(bodyOffset + 20, true);
         const cellZ = view.getInt32(bodyOffset + 24, true);
-        const localX = getF16(view, bodyOffset + 32);
-        const localY = getF16(view, bodyOffset + 34);
-        const localZ = getF16(view, bodyOffset + 36);
-        const qx = getF16(view, bodyOffset + 40);
-        const qy = getF16(view, bodyOffset + 42);
-        const qz = getF16(view, bodyOffset + 44);
-        const qw = getF16(view, bodyOffset + 46);
+        const localX = view.getFloat32(bodyOffset + 32, true);
+        const localY = view.getFloat32(bodyOffset + 36, true);
+        const localZ = view.getFloat32(bodyOffset + 40, true);
+        const qx = view.getFloat32(bodyOffset + 48, true);
+        const qy = view.getFloat32(bodyOffset + 52, true);
+        const qz = view.getFloat32(bodyOffset + 56, true);
+        const qw = view.getFloat32(bodyOffset + 60, true);
         const px = (cellX + localX) / 16.0;
         const py = (cellY + localY) / 16.0;
         const pz = (cellZ + localZ) / 16.0;
@@ -1122,13 +1122,13 @@ function advanceCandidate(source, candidate) {
         const cellX = view.getInt32(bodyOffset + 16, true);
         const cellY = view.getInt32(bodyOffset + 20, true);
         const cellZ = view.getInt32(bodyOffset + 24, true);
-        const localX = getF16(view, bodyOffset + 32);
-        const localY = getF16(view, bodyOffset + 34);
-        const localZ = getF16(view, bodyOffset + 36);
-        const qx = getF16(view, bodyOffset + 40);
-        const qy = getF16(view, bodyOffset + 42);
-        const qz = getF16(view, bodyOffset + 44);
-        const qw = getF16(view, bodyOffset + 46);
+        const localX = view.getFloat32(bodyOffset + 32, true);
+        const localY = view.getFloat32(bodyOffset + 36, true);
+        const localZ = view.getFloat32(bodyOffset + 40, true);
+        const qx = view.getFloat32(bodyOffset + 48, true);
+        const qy = view.getFloat32(bodyOffset + 52, true);
+        const qz = view.getFloat32(bodyOffset + 56, true);
+        const qw = view.getFloat32(bodyOffset + 60, true);
         // Committed linear (m/s) and angular (rad/s) velocity are f32; the declarations after them stay binary16.
         const vx = view.getFloat32(bodyOffset + BODY_VELOCITY, true);
         const vy = view.getFloat32(bodyOffset + BODY_VELOCITY + 4, true);
@@ -1145,8 +1145,8 @@ function advanceCandidate(source, candidate) {
         const gz = getF16(view, bodyOffset + BODY_GRAVITY + 4);
         const comLocal = [getF16(view, bodyOffset + BODY_CENTRE_OF_MASS), getF16(view, bodyOffset + BODY_CENTRE_OF_MASS + 2),
             getF16(view, bodyOffset + BODY_CENTRE_OF_MASS + 4)];
-        const principal = [getF16(view, bodyOffset + 88), getF16(view, bodyOffset + 90), getF16(view, bodyOffset + 92), getF16(view, bodyOffset + 94)];
-        const inertia = [readPrincipalInertia(view, bodyOffset + 96), readPrincipalInertia(view, bodyOffset + 104), readPrincipalInertia(view, bodyOffset + 112)];
+        const principal = [view.getFloat32(bodyOffset + 104, true), view.getFloat32(bodyOffset + 108, true), view.getFloat32(bodyOffset + 112, true), view.getFloat32(bodyOffset + 116, true)];
+        const inertia = [readPrincipalInertia(view, bodyOffset + 120), readPrincipalInertia(view, bodyOffset + 128), readPrincipalInertia(view, bodyOffset + 136)];
 
         const px = (cellX + localX) / 16.0;
         const py = (cellY + localY) / 16.0;
@@ -1186,23 +1186,23 @@ function advanceCandidate(source, candidate) {
     // Collect colliders; materials are the declared values with no substitution.
     const colliders = [];
     for (let c = 0; c < colliderCount; c++) {
-        const offset = 4352 + c * 96;
+        const offset = 5408 + c * 96;
         const bodySlot = view.getUint32(offset + 8, true);
         const materialSlot = view.getUint32(offset + 12, true);
         const shapeKind = view.getUint32(offset + 16, true);
         const tx = getF16(view, offset + 24);
         const ty = getF16(view, offset + 26);
         const tz = getF16(view, offset + 28);
-        const rqx = getF16(view, offset + 32);
-        const rqy = getF16(view, offset + 34);
-        const rqz = getF16(view, offset + 36);
-        const rqw = getF16(view, offset + 38);
-        const radius = getF16(view, offset + 40);
-        const hx = getF16(view, offset + 42);
-        const hy = getF16(view, offset + 44);
-        const hz = getF16(view, offset + 46);
+        const rqx = view.getFloat32(offset + 32, true);
+        const rqy = view.getFloat32(offset + 36, true);
+        const rqz = view.getFloat32(offset + 40, true);
+        const rqw = view.getFloat32(offset + 44, true);
+        const radius = getF16(view, offset + 48);
+        const hx = getF16(view, offset + 50);
+        const hy = getF16(view, offset + 52);
+        const hz = getF16(view, offset + 54);
 
-        const matOffset = 10496 + materialSlot * 32;
+        const matOffset = 11552 + materialSlot * 32;
         const restitution = getF16(view, matOffset + 8);
         const bounceThreshold = getF16(view, matOffset + 10);
         const friction = getF16(view, matOffset + 12);
@@ -1303,7 +1303,7 @@ function advanceCandidate(source, candidate) {
         const bStatic = colStatic.body;
         const triggerCount = view.getUint32(100, true);
         for (let t = 0; t < triggerCount; t++) {
-            const tOffset = 14624 + t * 64;
+            const tOffset = 15680 + t * 64;
             const owner = view.getUint32(tOffset + 8, true);
             if (owner !== bStatic.bodySlot) continue;
             const kind = view.getUint32(tOffset + 12, true);
@@ -1325,7 +1325,7 @@ function advanceCandidate(source, candidate) {
         const contactWorkCount = view.getUint32(104, true);
         const workOccCount = view.getUint32(108, true);
         for (let w = 0; w < contactWorkCount; w++) {
-            const wOffset = 15136 + w * 64;
+            const wOffset = 16192 + w * 64;
             const owner = view.getUint32(wOffset + 8, true);
             if (owner !== bStatic.bodySlot) continue;
             const kind = view.getUint32(wOffset + 12, true);
@@ -1334,7 +1334,7 @@ function advanceCandidate(source, candidate) {
             const threshold = view.getFloat32(wOffset + 20, true);
             if (approach < threshold) continue;
             for (let o = 0; o < workOccCount; o++) {
-                const oOffset = 15648 + o * 32;
+                const oOffset = 16704 + o * 32;
                 const occWork = view.getUint16(oOffset, true);
                 const targetLow = view.getUint32(oOffset + 4, true);
                 const targetHigh = view.getUint32(oOffset + 8, true);
@@ -1402,18 +1402,18 @@ function advanceCandidate(source, candidate) {
         // 1. Guides Force Evaluation
         const guideCount = view.getUint32(96, true);
         for (let g = 0; g < guideCount; g++) {
-            const offset = 13600 + g * 64;
+            const offset = 14656 + g * 64;
             const frameSlot = view.getUint32(offset + 8, true);
             const targetSlot = view.getUint32(offset + 12, true);
-            const minX = getF16(view, offset + 32);
-            const minY = getF16(view, offset + 34);
-            const minZ = getF16(view, offset + 36);
-            const maxX = getF16(view, offset + 40);
-            const maxY = getF16(view, offset + 42);
-            const maxZ = getF16(view, offset + 44);
-            const maxAcc = getF16(view, offset + 48);
-            const supportHeight = getF16(view, offset + 50);
-            const supportMargin = getF16(view, offset + 52);
+            const minX = getF16(view, offset + 40);
+            const minY = getF16(view, offset + 42);
+            const minZ = getF16(view, offset + 44);
+            const maxX = getF16(view, offset + 48);
+            const maxY = getF16(view, offset + 50);
+            const maxZ = getF16(view, offset + 52);
+            const maxAcc = getF16(view, offset + 56);
+            const supportHeight = getF16(view, offset + 58);
+            const supportMargin = getF16(view, offset + 60);
 
             if (maxAcc <= 0) continue;
             const targetBody = dynamicBodies.find(b => b.bodySlot === targetSlot);
@@ -1513,9 +1513,9 @@ function advanceCandidate(source, candidate) {
             b.cellX += carryX; b.localX -= carryX;
             b.cellY += carryY; b.localY -= carryY;
             b.cellZ += carryZ; b.localZ -= carryZ;
-            if (toHalf(b.localX) >= 0.5) { b.cellX++; b.localX -= 1; }
-            if (toHalf(b.localY) >= 0.5) { b.cellY++; b.localY -= 1; }
-            if (toHalf(b.localZ) >= 0.5) { b.cellZ++; b.localZ -= 1; }
+            if (f32(b.localX) >= 0.5) { b.cellX++; b.localX -= 1; }
+            if (f32(b.localY) >= 0.5) { b.cellY++; b.localY -= 1; }
+            if (f32(b.localZ) >= 0.5) { b.cellZ++; b.localZ -= 1; }
 
             b.px = (b.cellX + b.localX) / 16.0;
             b.py = (b.cellY + b.localY) / 16.0;
@@ -1563,16 +1563,16 @@ function advanceCandidate(source, candidate) {
         const orientationCount = view.getUint32(116, true);
         for (let o = 0; o < orientationCount; o++) {
             const oOffset = orientationOffset + o * 64;
-            if (view.getUint32(oOffset + 32, true) !== 0) continue;
+            if (view.getUint32(oOffset + 40, true) !== 0) continue;
             const sensedSlot = view.getUint32(oOffset + 8, true);
             const sensed = dynamicBodies.find(body => body.bodySlot === sensedSlot);
             if (!sensed) continue;
-            const alignment = Math.abs(sensed.qx * getF16(view, oOffset + 16) + sensed.qy * getF16(view, oOffset + 18) +
-                sensed.qz * getF16(view, oOffset + 20) + sensed.qw * getF16(view, oOffset + 22));
-            if (alignment <= getF16(view, oOffset + 24)) {
-                view.setUint32(oOffset + 32, 1, true);
-                view.setUint32(oOffset + 36, sourceOrdinal + s + 1, true);
-                setF16(view, oOffset + 40, 0);
+            const alignment = Math.abs(sensed.qx * view.getFloat32(oOffset + 16, true) + sensed.qy * view.getFloat32(oOffset + 20, true) +
+                sensed.qz * view.getFloat32(oOffset + 24, true) + sensed.qw * view.getFloat32(oOffset + 28, true));
+            if (alignment <= getF16(view, oOffset + 32)) {
+                view.setUint32(oOffset + 40, 1, true);
+                view.setUint32(oOffset + 44, sourceOrdinal + s + 1, true);
+                setF16(view, oOffset + 48, 0);
             }
         }
 
@@ -1595,14 +1595,14 @@ function advanceCandidate(source, candidate) {
             pieceView.setInt32(32, b.cellX, true);
             pieceView.setInt32(36, b.cellY, true);
             pieceView.setInt32(40, b.cellZ, true);
-            setF16(pieceView, 48, b.localX);
-            setF16(pieceView, 50, b.localY);
-            setF16(pieceView, 52, b.localZ);
+            pieceView.setFloat32(48, b.localX, true);
+            pieceView.setFloat32(52, b.localY, true);
+            pieceView.setFloat32(56, b.localZ, true);
             pieceView.setUint16(MOTION_DRAG_RATE, b.dragBits, true);
-            setF16(pieceView, 56, b.qx);
-            setF16(pieceView, 58, b.qy);
-            setF16(pieceView, 60, b.qz);
-            setF16(pieceView, 62, b.qw);
+            pieceView.setFloat32(64, b.qx, true);
+            pieceView.setFloat32(68, b.qy, true);
+            pieceView.setFloat32(72, b.qz, true);
+            pieceView.setFloat32(76, b.qw, true);
             pieceView.setFloat32(MOTION_VELOCITY, b.vx, true);
             pieceView.setFloat32(MOTION_VELOCITY + 4, b.vy, true);
             pieceView.setFloat32(MOTION_VELOCITY + 8, b.vz, true);
@@ -1619,25 +1619,25 @@ function advanceCandidate(source, candidate) {
     let totalCaptured = 0;
     const sensorCount = view.getUint32(24, true);
     for (let i = 0; i < sensorCount; i++) {
-        const offset = 11552 + i * 128;
+        const offset = 12608 + i * 128;
         const frameSlot = view.getUint32(offset + 8, true);
         const targetSlot = view.getUint32(offset + 12, true);
         const participation = view.getUint32(offset + 16, true);
-        const minX = getF16(view, offset + 40);
-        const minY = getF16(view, offset + 42);
-        const minZ = getF16(view, offset + 44);
-        const maxX = getF16(view, offset + 48);
-        const maxY = getF16(view, offset + 50);
-        const maxZ = getF16(view, offset + 52);
-        const speedLimit = getF16(view, offset + 56);
-        const dwell = getF16(view, offset + 58);
+        const minX = getF16(view, offset + 48);
+        const minY = getF16(view, offset + 50);
+        const minZ = getF16(view, offset + 52);
+        const maxX = getF16(view, offset + 56);
+        const maxY = getF16(view, offset + 58);
+        const maxZ = getF16(view, offset + 60);
+        const speedLimit = getF16(view, offset + 64);
+        const dwell = getF16(view, offset + 66);
 
-        const prevPhase = view.getUint32(offset + 64, true);
-        const prevStartOrdinal = view.getUint32(offset + 68, true);
-        const prevStartPhase = getF16(view, offset + 72);
-        const prevOccurrenceCount = view.getUint32(offset + 76, true);
-        const prevEventOrdinal = view.getUint32(offset + 80, true);
-        const prevEventPhase = getF16(view, offset + 84);
+        const prevPhase = view.getUint32(offset + 72, true);
+        const prevStartOrdinal = view.getUint32(offset + 76, true);
+        const prevStartPhase = getF16(view, offset + 80);
+        const prevOccurrenceCount = view.getUint32(offset + 84, true);
+        const prevEventOrdinal = view.getUint32(offset + 88, true);
+        const prevEventPhase = getF16(view, offset + 92);
 
         const targetBody = dynamicBodies.find(b => b.bodySlot === targetSlot);
         const frameBody = staticBodies.find(b => b.bodySlot === frameSlot);
@@ -1702,14 +1702,14 @@ function advanceCandidate(source, candidate) {
             }
         }
 
-        view.setUint32(offset + 64, phase, true);
-        view.setUint32(offset + 68, startOrdinal, true);
-        setF16(view, offset + 72, startPhase);
-        view.setUint16(offset + 74, 0, true);
-        view.setUint32(offset + 76, occurrenceCount, true);
-        view.setUint32(offset + 80, eventOrdinal, true);
-        setF16(view, offset + 84, eventPhase);
-        new Uint8Array(candidate.buffer, candidate.byteOffset + offset + 86, 42).fill(0);
+        view.setUint32(offset + 72, phase, true);
+        view.setUint32(offset + 76, startOrdinal, true);
+        setF16(view, offset + 80, startPhase);
+        view.setUint16(offset + 82, 0, true);
+        view.setUint32(offset + 84, occurrenceCount, true);
+        view.setUint32(offset + 88, eventOrdinal, true);
+        setF16(view, offset + 92, eventPhase);
+        new Uint8Array(candidate.buffer, candidate.byteOffset + offset + 94, 34).fill(0);
 
         totalCaptured += occurrenceCount;
     }
@@ -1721,13 +1721,13 @@ function advanceCandidate(source, candidate) {
         view.setInt32(b.bodyOffset + 16, b.cellX, true);
         view.setInt32(b.bodyOffset + 20, b.cellY, true);
         view.setInt32(b.bodyOffset + 24, b.cellZ, true);
-        setF16(view, b.bodyOffset + 32, b.localX);
-        setF16(view, b.bodyOffset + 34, b.localY);
-        setF16(view, b.bodyOffset + 36, b.localZ);
-        setF16(view, b.bodyOffset + 40, b.qx);
-        setF16(view, b.bodyOffset + 42, b.qy);
-        setF16(view, b.bodyOffset + 44, b.qz);
-        setF16(view, b.bodyOffset + 46, b.qw);
+        view.setFloat32(b.bodyOffset + 32, b.localX, true);
+        view.setFloat32(b.bodyOffset + 36, b.localY, true);
+        view.setFloat32(b.bodyOffset + 40, b.localZ, true);
+        view.setFloat32(b.bodyOffset + 48, b.qx, true);
+        view.setFloat32(b.bodyOffset + 52, b.qy, true);
+        view.setFloat32(b.bodyOffset + 56, b.qz, true);
+        view.setFloat32(b.bodyOffset + 60, b.qw, true);
         view.setFloat32(b.bodyOffset + BODY_VELOCITY, b.vx, true);
         view.setFloat32(b.bodyOffset + BODY_VELOCITY + 4, b.vy, true);
         view.setFloat32(b.bodyOffset + BODY_VELOCITY + 8, b.vz, true);
@@ -1757,20 +1757,20 @@ function writePoseRing(bytes) {
 
     for (let i = 0; i < 16; i++) {
         const b = bodyFloatOffset + i * 16;
-        // PhysicsBodyWire (64 B): cell 8..20, local 20..26 and rotation 26..34 (Half), linear velocity m/s 40..52 (f32).
+        // PhysicsBodyWire (80 B): cell8..20, f32 local20..32/rotation32..48, Half COM48..54, f32 velocity56..68.
         if (i < bodyCount && READ_BODIES_OFFSET + (i + 1) * BODY_WIRE_BYTES <= bytes.length) {
             const src = READ_BODIES_OFFSET + i * BODY_WIRE_BYTES;
             const bodyId = view.getBigUint64(src, true);
             const cellX = view.getInt32(src + 8, true);
             const cellY = view.getInt32(src + 12, true);
             const cellZ = view.getInt32(src + 16, true);
-            const localX = getF16(view, src + 20);
-            const localY = getF16(view, src + 22);
-            const localZ = getF16(view, src + 24);
-            const qx = getF16(view, src + 26);
-            const qy = getF16(view, src + 28);
-            const qz = getF16(view, src + 30);
-            const qw = getF16(view, src + 32);
+            const localX = view.getFloat32(src + 20, true);
+            const localY = view.getFloat32(src + 24, true);
+            const localZ = view.getFloat32(src + 28, true);
+            const qx = view.getFloat32(src + 32, true);
+            const qy = view.getFloat32(src + 36, true);
+            const qz = view.getFloat32(src + 40, true);
+            const qw = view.getFloat32(src + 44, true);
             const velX = view.getFloat32(src + BODY_WIRE_VELOCITY, true);
             const velY = view.getFloat32(src + BODY_WIRE_VELOCITY + 4, true);
             const velZ = view.getFloat32(src + BODY_WIRE_VELOCITY + 8, true);

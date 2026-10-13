@@ -7,10 +7,10 @@ namespace CuriousContraptions.Tests;
 
 public sealed class CanonicalBodyTests
 {
-    public enum InvalidField { Version, Status, CellScale, TimeScale, Reserved, LocalPadding, VelocityPadding, LocalNan, VelocityInfinity, VelocityNan, VelocityBeyondEnvelope, EmptyIdentity, OutwardPosition }
+    public enum InvalidField { Version, Status, CellScale, TimeScale, Reserved, LocalInfinity, LocalBeyondRange, LocalNan, VelocityInfinity, VelocityNan, VelocityBeyondEnvelope, EmptyIdentity, OutwardPosition }
     // Velocity is f32 in m/s: 1e-7 m/s (far below a binary16 step at 1 m/s) survives the round trip.
     private static CanonicalBody Body => new(new(0xfedcba9876543210), 0xfedcba9876543210, 0x20000000000001,
-        new(160, -1024, 1024), new((Half)(-0.5), (Half)0, (Half)0),
+        new(160, -1024, 1024), new((float)(-0.5), (float)0, (float)0),
         new(0.01f, 1e-7f, -1f));
 
     [Fact]
@@ -29,8 +29,8 @@ public sealed class CanonicalBodyTests
     [InlineData(InvalidField.CellScale)]
     [InlineData(InvalidField.TimeScale)]
     [InlineData(InvalidField.Reserved)]
-    [InlineData(InvalidField.LocalPadding)]
-    [InlineData(InvalidField.VelocityPadding)]
+    [InlineData(InvalidField.LocalInfinity)]
+    [InlineData(InvalidField.LocalBeyondRange)]
     [InlineData(InvalidField.LocalNan)]
     [InlineData(InvalidField.VelocityInfinity)]
     [InlineData(InvalidField.VelocityNan)]
@@ -47,17 +47,17 @@ public sealed class CanonicalBodyTests
             case InvalidField.CellScale: bytes[48] = 0; break;
             case InvalidField.TimeScale: bytes[52] = 0; break;
             case InvalidField.Reserved: bytes[44] = 1; break;
-            case InvalidField.LocalPadding: bytes[62] = 1; break;
-            case InvalidField.VelocityPadding: bytes[76] = 1; break;
-            case InvalidField.LocalNan: BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(56), 0x7e00); break;
-            case InvalidField.VelocityInfinity: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(64), float.PositiveInfinity); break;
-            case InvalidField.VelocityNan: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(72), float.NaN); break;
+            case InvalidField.LocalInfinity: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(60), float.PositiveInfinity); break;
+            case InvalidField.LocalBeyondRange: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(56), .5f); break;
+            case InvalidField.LocalNan: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(56), float.NaN); break;
+            case InvalidField.VelocityInfinity: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(68), float.PositiveInfinity); break;
+            case InvalidField.VelocityNan: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(76), float.NaN); break;
             case InvalidField.VelocityBeyondEnvelope:
                 // Each component is within 64 m/s but the vector is 70.7 m/s.
-                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(64), 50f);
-                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(68), 50f); break;
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(68), 50f);
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(72), 50f); break;
             case InvalidField.EmptyIdentity: Array.Clear(bytes, 24, 8); break;
-            case InvalidField.OutwardPosition: BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(60), BitConverter.HalfToUInt16Bits((Half)0.25)); break;
+            case InvalidField.OutwardPosition: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(64), .25f); break;
             default: throw new ArgumentOutOfRangeException();
         }
         var before = (byte[])bytes.Clone();
@@ -68,12 +68,12 @@ public sealed class CanonicalBodyTests
     [Theory]
     [InlineData(0u)]
     [InlineData(1u)]
-    [InlineData(3u)]
-    public void OnlyTheHalfPoseF32VelocitySchemaDecodes(uint version)
+    [InlineData(2u)]
+    public void OnlyTheF32PoseVelocitySchemaDecodes(uint version)
     {
         var bytes = Body.Encode();
-        Assert.Equal((uint)BodyRecordVersion.HalfPoseF32Velocity, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
-        Assert.Equal(2u, (uint)BodyRecordVersion.HalfPoseF32Velocity); // persisted constructions and saves keep their bytes
+        Assert.Equal((uint)BodyRecordVersion.F32PoseVelocity, BinaryPrimitives.ReadUInt32LittleEndian(bytes));
+        Assert.Equal(3u, (uint)BodyRecordVersion.F32PoseVelocity); // old schemas reject; no compatibility decoding
         BinaryPrimitives.WriteUInt32LittleEndian(bytes, version);
         Assert.Throws<ArgumentException>(() => CanonicalBody.Decode(bytes));
     }
@@ -90,18 +90,18 @@ public sealed class CanonicalBodyTests
     public void VelocityIsF32MetresPerSecondAndTheEnvelopeEdgeIsAdmitted()
     {
         var bytes = (Body with { Velocity = new(64f, 0f, 0f) }).Encode();
-        Assert.Equal(64f, BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(64)));
-        Assert.Equal(1e-7f, BinaryPrimitives.ReadSingleLittleEndian(Body.Encode().AsSpan(68)));
+        Assert.Equal(64f, BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(68)));
+        Assert.Equal(1e-7f, BinaryPrimitives.ReadSingleLittleEndian(Body.Encode().AsSpan(72)));
         Assert.Equal(64f, CanonicalBody.Decode(bytes).Velocity.X);
         Assert.ThrowsAny<ArgumentException>(() => (Body with { Velocity = new(64.0001f, 0f, 0f) }).Encode());
     }
 
     [Fact]
-    public void ARecordWrittenBeforeF32VelocityStillDecodesAsPositiveZeroVelocity()
+    public void ZeroVelocityRetainsCanonicalPositiveZeroAndRejectsNegativeZeroIdentity()
     {
-        // Pre-6.1c construction/save bytes held binary16 zero velocity at 64..70 and zero padding to 80: the same all-zero bits.
+        // Only the current record is written; signed zero remains an exact state distinction.
         var bytes = (Body with { Velocity = default }).Encode();
-        Assert.True(bytes.AsSpan(64, 16).IndexOfAnyExcept((byte)0) < 0);
+        Assert.True(bytes.AsSpan(68, 12).IndexOfAnyExcept((byte)0) < 0);
         Assert.True(CanonicalBody.Decode(bytes).Velocity.IsPositiveZero);
         Assert.False((Body with { Velocity = new(-0f, 0f, 0f) }).Velocity.IsPositiveZero);
     }

@@ -50,7 +50,7 @@ public sealed class WorkshopDelayTests
         foreach (var invalid in new[] {(Half)0,(Half)(-.1),(Half).09,(Half)13,Half.NaN,Half.PositiveInfinity})
         {
             var changed = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + 104),
+            BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + 112),
                 BitConverter.HalfToUInt16Bits(invalid));
             Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(changed));
         }
@@ -59,10 +59,10 @@ public sealed class WorkshopDelayTests
             (ushort)(BitConverter.HalfToUInt16Bits((Half)12) + 1) })
         {
             var changed = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + 104), bits);
+            BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + 112), bits);
             Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(changed));
         }
-        var padding = (byte[])bytes.Clone(); padding[24 + WorkshopWire.ConstructionHeaderBytes + 106] = 1;
+        var padding = (byte[])bytes.Clone(); padding[24 + WorkshopWire.ConstructionHeaderBytes + 114] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
         var old = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(old.AsSpan(4), 4);
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(old));

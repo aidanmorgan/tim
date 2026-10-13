@@ -26,8 +26,8 @@ async function construct(driver: WorkshopDriver, route: SpringRoute) {
     await driver.placeOnCanvas(route === SpringRoute.Centred ? 720 : 960,485);
     await driver.save();
     const bytes = await saved(driver), board=504;
-    assert.equal(bytes.readFloatLE(board+104),400);
-    assert.equal(bytes.readFloatLE(board+108),Math.fround(.2));
+    assert.equal(bytes.readFloatLE(board+112),400);
+    assert.equal(bytes.readFloatLE(board+116),Math.fround(.2));
     assert.equal(bytes.readInt32LE(board+52),48);
     assert.equal(bytes.readInt32LE(344+52),73);
     return bytes;
@@ -101,8 +101,7 @@ test('Springboard actual Step shows compressed plate/coil and Reset restores ren
         await driver.page.mouse.move(1100,380,{steps:12});await driver.page.mouse.up({button:'right'});await driver.page.waitForTimeout(100);
         const before=await driver.page.screenshot({path:evidence+'/visual-rest.png'});
         await driver.run();await driver.pauseSimulation();
-        const half=(bits:number)=>{const sign=bits&0x8000?-1:1,e=(bits>>10)&31,m=bits&1023;return sign*(e===0?m*2**-24:(1+m/1024)*2**(e-15));};
-        const plateY=()=>{const read=reads.at(-1)!;assert.equal(read.readBigUInt64LE(192),4294967490n);return(read.readInt32LE(204)+half(read.readUInt16LE(214)))/16;};
+        const plateY=()=>{const read=reads.at(-1)!;assert.equal(read.readBigUInt64LE(208),4294967490n);return(read.readInt32LE(220)+read.readFloatLE(232))/16;};
         let steps=0;while(plateY()>3.02&&steps<90){await driver.stepSimulation();steps++;}
         assert.ok(plateY()<3.02,'actual UI stepping reaches compressed plate');
         const compressed=await driver.page.screenshot({path:evidence+'/visual-compressed.png'});
@@ -152,15 +151,15 @@ for(const configuration of [SpringConfiguration.SoftUndamped,SpringConfiguration
             if(settings.tilt!==0)await driver.tiltSelectedByFineRotate(settings.tilt/5);
             else{
                 await driver.clickAt(130,790);
-                for(const [y,value] of [[662,settings.stiffness],[702,settings.damping]]){
+                for(const [y,value] of [[622,settings.stiffness],[662,settings.damping]]){
                     await driver.clickAt(100,y);await driver.page.keyboard.press('Meta+A');
                     await driver.page.keyboard.type(String(value),{delay:40});await driver.page.keyboard.press('Enter');
                 }
                 await driver.clickAt(130,744);
             }
             await driver.save();const construction=await saved(driver);
-            assert.equal(construction.readFloatLE(608),Math.fround(settings.stiffness));
-            assert.equal(construction.readFloatLE(612),Math.fround(settings.damping));
+            assert.equal(construction.readFloatLE(616),Math.fround(settings.stiffness));
+            assert.equal(construction.readFloatLE(620),Math.fround(settings.damping));
             await driver.page.screenshot({path:evidence+'/configuration-'+configuration+'.png'});
             await driver.reload();await driver.load();await driver.save();
             assert.deepEqual(authored(await saved(driver)),authored(construction));
@@ -190,24 +189,32 @@ test('Springboard text settings reject atomically and delete/recreate retires th
     const driver=await WorkshopDriver.launch({baseUrl:preview}),errors:string[]=[];
     driver.page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
     driver.page.on('pageerror',error=>errors.push(error.message));
-    const edit=async(k:string,c:string)=>{
+    let editAttempt=0;
+    const edit=async(k:string,c:string,compression:string)=>{
         await driver.selectPartAt(720,485);await driver.clickAt(130,790);
-        for(const [y,text] of [[662,k],[702,c]] as const){
+        for(const [y,text] of [[622,k],[662,c],[702,compression]] as const){
             await driver.clickAt(100,y);await driver.page.keyboard.press('Meta+A');
             await driver.page.keyboard.type(text,{delay:30});
         }
-        await driver.clickAt(130,744);await driver.save();
+        await driver.clickAt(130,744);await driver.page.waitForTimeout(250);
+        await driver.page.screenshot({path:evidence+'/settings-feedback-'+editAttempt++ +'.png'});
+        await driver.save();
     };
     try{
         await construct(driver,SpringRoute.Centred);
-        await edit('400.00003','0.20000002');
+        await edit('400.00003','0.20000002','0.1234567');
         const precise=await saved(driver);
-        assert.equal(precise.readFloatLE(608),Math.fround(400.00003));assert.equal(precise.readFloatLE(612),Math.fround(.20000002));
-        for(const [k,c] of [['NaN','.2'],['1201','.2'],['400','-.1'],['invalid','.2']]){
-            await edit(k,c);assert.deepEqual(authored(await saved(driver)),authored(precise),'invalid text/bounds preserve all construction bytes');
+        assert.equal(precise.readFloatLE(616),Math.fround(400.00003));assert.equal(precise.readFloatLE(620),Math.fround(.20000002));
+        assert.equal(precise.readFloatLE(624),Math.fround(.1234567));
+        for(const [k,c,compression] of [['NaN','.2','.1'],['1201','.2','.1'],['400','-.1','.1'],['invalid','.2','.1'],['400','.2','NaN'],['400','.2','-.01'],['400','.2','.200001'],['400','.2','Infinity']]){
+            await edit(k,c,compression);assert.deepEqual(authored(await saved(driver)),authored(precise),'invalid text/bounds preserve all construction bytes');
         }
-        await driver.clickAt(744,836);await driver.save(); // actual Undo must undo the last valid settings change only
-        const undone=await saved(driver);assert.equal(undone.readFloatLE(608),400);assert.equal(undone.readFloatLE(612),Math.fround(.2));
+        await edit('400.00003','0.20000002','0.2'); // Valid retry through the same editor after rejected input.
+        assert.equal((await saved(driver)).readFloatLE(624),Math.fround(.2));
+        await driver.clickAt(744,836);await driver.save();
+        assert.deepEqual(authored(await saved(driver)),authored(precise),'Undo returns to the preceding accepted settings');
+        await driver.clickAt(744,836);await driver.save(); // Rejected edits never entered the undo history.
+        const undone=await saved(driver);assert.equal(undone.readFloatLE(616),400);assert.equal(undone.readFloatLE(620),Math.fround(.2));assert.equal(undone.readFloatLE(624),0);
         await driver.selectPartAt(720,485);await driver.clickAt(148,842);await driver.save();
         assert.equal((await saved(driver)).readUInt32LE(32),1,'delete removes authored board');
         await driver.run();await driver.page.waitForTimeout(200);

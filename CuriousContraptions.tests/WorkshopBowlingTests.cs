@@ -100,10 +100,10 @@ public sealed class WorkshopBowlingTests
         var bowlingOffset = 24 + WorkshopWire.ConstructionHeaderBytes + 3 * WorkshopWire.InstanceBytes;
         var basketballOffset = 24 + WorkshopWire.ConstructionHeaderBytes + 2 * WorkshopWire.InstanceBytes;
         Assert.Equal((uint)WorkshopPartKind.BowlingBall, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(bowlingOffset)));
-        Assert.Equal((ushort)13435, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 104)));
-        Assert.Equal((ushort)17408, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 106)));
-        Assert.Equal((ushort)0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 114))); // rolling resistance is kind data, not persisted
-        foreach (var field in new[] { 104, 106, 108, 110, 112 })
+        Assert.Equal((ushort)13435, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 112)));
+        Assert.Equal((ushort)17408, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 114)));
+        Assert.Equal((ushort)0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 122))); // rolling resistance is kind data, not persisted
+        foreach (var field in new[] { 112, 114, 116, 118, 120 })
         {
             var forged = (byte[])bytes.Clone();
             BinaryPrimitives.WriteUInt16LittleEndian(forged.AsSpan(bowlingOffset + field), BitConverter.HalfToUInt16Bits((Half)17));
@@ -116,14 +116,13 @@ public sealed class WorkshopBowlingTests
         var swappedBack = (byte[])bytes.Clone();
         BinaryPrimitives.WriteUInt32LittleEndian(swappedBack.AsSpan(basketballOffset), (uint)WorkshopPartKind.BowlingBall);
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(swappedBack));
-        var padding = (byte[])bytes.Clone(); padding[bowlingOffset + 114] = 1;
+        var padding = (byte[])bytes.Clone(); padding[bowlingOffset + 122] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
-        // Each instance's canonical body velocity lane (slot bytes 80..96; f32 m/s since Story 6.1c, binary16 before) is all-zero bits,
-        // so saves written before the f32 change hold the same bytes and load unchanged; any live velocity, even -0, is rejected.
+        // Current construction velocity lanes84..96 are zero; live velocity, including signed zero, rejects. Old schemas reject separately.
         for (var instance = 0; instance < decoded.Construction.Instances.Count; instance++)
         {
             var slot = 24 + WorkshopWire.ConstructionHeaderBytes + instance * WorkshopWire.InstanceBytes;
-            Assert.True(bytes.AsSpan(slot + 80, 16).IndexOfAnyExcept((byte)0) < 0);
+            Assert.True(bytes.AsSpan(slot + 84, 12).IndexOfAnyExcept((byte)0) < 0);
         }
         foreach (var bits in new[] { BitConverter.SingleToUInt32Bits(1f), 0x80000000u, BitConverter.SingleToUInt32Bits(float.NaN) })
         {
@@ -140,12 +139,12 @@ public sealed class WorkshopBowlingTests
         var scene = WorkshopPhysicsCompiler.Compile(TwoLanes(), new(1, 2));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
         var bodies = scene.Bodies.ToArray(); var colliders = scene.Colliders.ToArray(); var materials = scene.Materials.ToArray();
-        // Body record +74 carries the declared linear drag; material record +14 the rolling-resistance coefficient (Domino tiles: zero).
+        // Body record +90 carries the declared linear drag; material record +14 the rolling-resistance coefficient (Domino tiles: zero).
         foreach (var (id, drag, rolling) in new[] { (3UL, (ushort)10527, (ushort)10363), (4UL, (ushort)10527, (ushort)10158), (1UL, (ushort)0, (ushort)0), (2UL, (ushort)0, (ushort)0) })
         {
             var slot = Array.FindIndex(bodies, b => b.Id == new GpuBodyId(id));
             Assert.Equal(drag, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(PhysicsGpuAbi.BodiesOffset + slot * PhysicsGpuAbi.BodyBytes + PhysicsGpuAbi.BodyDragOffset)));
-            Assert.Equal(74, PhysicsGpuAbi.BodyDragOffset);
+            Assert.Equal(90, PhysicsGpuAbi.BodyDragOffset);
             var collider = Assert.Single(colliders, c => c.Body == new GpuBodyId(id));
             var material = Array.FindIndex(materials, m => m.Id == collider.Material);
             Assert.Equal(rolling, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(PhysicsGpuAbi.MaterialsOffset + material * PhysicsGpuAbi.MaterialBytes + 14)));

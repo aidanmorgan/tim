@@ -9,18 +9,16 @@ public enum PhysicsMotionKind : uint { FreePolynomial = 1, SupportedQuadratic = 
 public sealed class PhysicsMotionRead
 {
     public const int Capacity = PhysicsBodyReadSet.Capacity * 8;
-    public const int PieceBytes = 128;
+    public const int PieceBytes = 144;
     public const int HeaderBytes = 16;
-    // Piece: kind 0, start/end/anchor ordinals 4..16, phases and rate (Half) 16..24, body id 24..32, COM cell 32..44, COM remainder
-    // (Half) 48..54, drag rate (Half) 54..56, rotation (Half) 56..64, linear velocity m/s (f32) 64..76, angular velocity rad/s (f32)
-    // 76..88, gravity 88..94, supported acceleration 96..102, angular acceleration 104..110, bounded lane 112..118 with flag 120 (Half).
+    // Piece: f32 COM remainder48, quaternion64, velocity80/angular92; Half drag60, forces104/112/120.
     // The drag rate is the body's declared linear drag (1/s), so a free piece samples the same exponential decay the solver applies.
-    public const int DragRateOffset = 54;
-    public const int VelocityOffset = 64;
-    public const int AngularVelocityOffset = 76;
-    public const int GravityOffset = 88;
-    public const int SupportedAccelerationOffset = 96;
-    public const int AngularAccelerationOffset = 104;
+    public const int DragRateOffset = 60;
+    public const int VelocityOffset = 80;
+    public const int AngularVelocityOffset = 92;
+    public const int GravityOffset = 104;
+    public const int SupportedAccelerationOffset = 112;
+    public const int AngularAccelerationOffset = 120;
     public const int ByteLength = HeaderBytes + Capacity * PieceBytes;
     private readonly byte[] _bytes;
     private readonly SimulationTick _tick;
@@ -88,9 +86,9 @@ public sealed class PhysicsMotionRead
                 end - start != 4096 || end > U32(bytes, 12) * 4096.0 || anchor > start ||
                 end - anchor > (kind != PhysicsMotionKind.FreePolynomial ? 4096 : PhysicsGpuAbi.PrimarySegmentSteps * 4096) ||
                 !HalfBits.Equal(H(piece, 22), (Half)WorkshopCadenceSettings.PhysicalFrequency) ||
-                !Zero(piece[44..48]) || !Zero(piece[94..96]) || !Zero(piece[102..104]) || !Zero(piece[110..112]) ||
-                U32(piece, 120) > 1 || !Zero(piece[118..120]) || !Zero(piece[124..128]) ||
-                (U32(piece, 120) == 0 && !Zero(piece[112..118])))
+                !Zero(piece[44..48]) || !Zero(piece[62..64]) || !Zero(piece[110..112]) || !Zero(piece[118..120]) || !Zero(piece[126..128]) ||
+                U32(piece, 136) > 1 || !Zero(piece[134..136]) || !Zero(piece[140..144]) ||
+                (U32(piece, 136) == 0 && !Zero(piece[128..134])))
                 throw new ArgumentException("Invalid motion piece identity, interval or padding.");
             // COM is an internal point: body origin remains within64m, while a rotated
             // declared16m-per-axis offset fits an additional32m per coordinate.
@@ -98,7 +96,7 @@ public sealed class PhysicsMotionRead
             if (Math.Abs((long)centre.X)>1536 || Math.Abs((long)centre.Y)>1536 || Math.Abs((long)centre.Z)>1536)
                 throw new ArgumentException("Motion COM exceeds its declared origin-plus-offset bound.");
             for (var axis=0; axis<3; axis++)
-                if (!Half.IsFinite(H(piece,48+axis*2)) || H(piece,48+axis*2)<(Half)(-.5) || H(piece,48+axis*2)>=(Half).5)
+                if (!float.IsFinite(F(piece,48+axis*4)) || F(piece,48+axis*4)<-.5f || F(piece,48+axis*4)>=.5f)
                     throw new ArgumentException("Motion COM remainder is not canonical.");
             F32Norm(piece,VelocityOffset,LinearVelocity.MaximumSpeed); F32Norm(piece,AngularVelocityOffset,AngularVelocity.MaximumSpeed);
             Norm(piece,GravityOffset,16); Norm(piece,SupportedAccelerationOffset,64); Norm(piece,AngularAccelerationOffset,1024);
@@ -108,7 +106,7 @@ public sealed class PhysicsMotionRead
                 (!Zero(piece[SupportedAccelerationOffset..(SupportedAccelerationOffset+6)]) ||
                  !Zero(piece[AngularAccelerationOffset..(AngularAccelerationOffset+6)])))
                 throw new ArgumentException("Free motion carries constrained acceleration.");
-            Norm(piece,112,64);
+            Norm(piece,128,64);
             previous = end;
             if (i % steps == steps - 1 && previous != U32(bytes, 12) * 4096.0)
                 throw new ArgumentException("Motion contains a missing body tail.");
@@ -153,7 +151,7 @@ public sealed class PhysicsMotionRead
                 var rx=aw*qx+qw*ax+ay*qz-az*qy; var ry=aw*qy+qw*ay+az*qx-ax*qz;
                 var rz=aw*qz+qw*az+ax*qy-ay*qx; var rw=aw*qw-ax*qx-ay*qy-az*qz;
                 var inverse=1/Math.Sqrt(rx*rx+ry*ry+rz*rz+rw*rw);
-                rotation=new((Half)(rx*inverse),(Half)(ry*inverse),(Half)(rz*inverse),(Half)(rw*inverse));
+                rotation=CanonicalRotation.Normalize((float)(rx*inverse),(float)(ry*inverse),(float)(rz*inverse),(float)(rw*inverse));
             }
             var centre = _localCentresOfMass[bodyIndex];
             var qx2 = (double)rotation.X; var qy2 = (double)rotation.Y; var qz2 = (double)rotation.Z; var qw2 = (double)rotation.W;
@@ -168,22 +166,22 @@ public sealed class PhysicsMotionRead
         }
         pose=default;return false;
     }
-    private static (int Cell, Half Local) Origin((int Cell, Half Local) centre, double offset)
+    private static (int Cell, float Local) Origin((int Cell, float Local) centre, double offset)
     {
         var local = (double)centre.Local - offset * 16;
-        var carry = checked((int)Math.Floor(local + .5)); var remainder = (Half)(local - carry);
-        if (remainder >= (Half).5) { carry++; remainder = (Half)(remainder - (Half)1); }
-        if (remainder < (Half)(-.5)) { carry--; remainder = (Half)(remainder + (Half)1); }
+        var carry = checked((int)Math.Floor(local + .5)); var remainder = (float)(local - carry);
+        if (remainder >= (float).5) { carry++; remainder = (float)(remainder - (float)1); }
+        if (remainder < (float)(-.5)) { carry--; remainder = (float)(remainder + (float)1); }
         return (checked(centre.Cell + carry), remainder);
     }
-    private static (int Cell, Half Local) Position(ReadOnlySpan<byte> p,int axis,int cell,double elapsed,double k,double polynomial,bool supported)
+    private static (int Cell, float Local) Position(ReadOnlySpan<byte> p,int axis,int cell,double elapsed,double k,double polynomial,bool supported)
     {
         var velocity=(double)F(p,VelocityOffset+axis*4);
         var acceleration=supported?(double)H(p,SupportedAccelerationOffset+axis*2):(double)H(p,GravityOffset+axis*2)-k*velocity;
-        var local=(double)H(p,48+axis*2)+(velocity*elapsed+acceleration*elapsed*elapsed*polynomial)*16;
-        var carry=checked((int)Math.Floor(local+.5));var remainder=(Half)(local-carry);
-        if(remainder >= (Half).5){carry++;remainder=(Half)(remainder-(Half)1);}
-        if(remainder < (Half)(-.5)){carry--;remainder=(Half)(remainder+(Half)1);}
+        var local=(double)F(p,48+axis*4)+(velocity*elapsed+acceleration*elapsed*elapsed*polynomial)*16;
+        var carry=checked((int)Math.Floor(local+.5));var remainder=(float)(local-carry);
+        if(remainder >= (float).5){carry++;remainder=(float)(remainder-(float)1);}
+        if(remainder < (float)(-.5)){carry--;remainder=(float)(remainder+(float)1);}
         return(checked(cell+carry),remainder);
     }
     private static void Norm(ReadOnlySpan<byte> p,int offset,double maximum)
@@ -207,7 +205,7 @@ public sealed class PhysicsMotionRead
         return ordinal*4096.0+(double)phase;
     }
     private static CellOrigin Cell(ReadOnlySpan<byte> p)=>new(BinaryPrimitives.ReadInt32LittleEndian(p[32..]),BinaryPrimitives.ReadInt32LittleEndian(p[36..]),BinaryPrimitives.ReadInt32LittleEndian(p[40..]));
-    private static CanonicalRotation Rotation(ReadOnlySpan<byte> p)=>new(H(p,56),H(p,58),H(p,60),H(p,62));
+    private static CanonicalRotation Rotation(ReadOnlySpan<byte> p)=>new(F(p,64),F(p,68),F(p,72),F(p,76));
     private static bool Zero(ReadOnlySpan<byte> p) => p.IndexOfAnyExcept((byte)0) < 0;
     private static uint U32(ReadOnlySpan<byte> p,int offset)=>BinaryPrimitives.ReadUInt32LittleEndian(p[offset..]);
     private static ulong U64(ReadOnlySpan<byte> p,int offset)=>BinaryPrimitives.ReadUInt64LittleEndian(p[offset..]);

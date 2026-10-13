@@ -22,8 +22,8 @@ public sealed class WorkshopSimulationTests
         device.CompleteAdmission(0); await admission;
         await simulation.Run();
         var advance = simulation.Advance().AsTask();
-        // Actual First principles tick86 output: normalised f16, norm squared1.0012203.
-        var rotation = new CanonicalRotation((Half)0, (Half)0, (Half)(-.301513671875), (Half).9541015625);
+        // Computed normalized f32 output uses the same canonical unit-rotation contract as authoring.
+        var rotation = CanonicalRotation.Normalize(0, 0, -.30151367f, MathF.Sqrt(1 - .30151367f * .30151367f));
         device.CompleteAdvance(0, read => ChangeOnlyBody(read, body => body with { Rotation = rotation }));
         Assert.Equal(WorkshopCommandOutcome.Applied, (await advance).Outcome);
         Assert.Equal(WorkshopSimulationPhase.Running, simulation.Phase);
@@ -298,7 +298,7 @@ public sealed class WorkshopSimulationTests
         var initialGeneration = simulation.Epoch;
         var advance = simulation.Advance().AsTask();
         device.CompleteAdvance(0, read => ChangeOnlyBody(read, value => value with { Body = value.Body with
-            { Cell = new(0, 48, 0), Local = new((Half)0, (Half)0.25, (Half)0), Velocity = new(0f, -3.2f, 0f) } }));
+            { Cell = new(0, 48, 0), Local = new((float)0, (float)0.25, (float)0), Velocity = new(0f, -3.2f, 0f) } }));
         await advance;
         Assert.NotEqual(construction.Instances.ToArray().OfType<WorkshopBall>().Single().Cell, simulation.Committed.Bodies[0].Body.Cell);
         var reset = simulation.Reset().AsTask();
@@ -323,7 +323,7 @@ public sealed class WorkshopSimulationTests
         var candidate = ControlledDevice.Initial(request.Construction, request.Epoch);
         var ball = candidate.Bodies[0].Body;
         request.Completion.SetResult(new(request.Sequence, ChangeOnlyBody(candidate, value => value with
-            { Body = ball with { Local = ball.Local with { X = BitConverter.UInt16BitsToHalf(0x8000) } } })));
+            { Body = ball with { Local = ball.Local with { X = BitConverter.UInt32BitsToSingle(0x80000000) } } })));
         Assert.Equal(WorkshopCommandOutcome.Faulted, (await command).Outcome);
         Assert.Equal(before, simulation.Committed);
     }
@@ -370,7 +370,7 @@ public sealed class WorkshopSimulationTests
         device.CompleteAdvance(0, read =>
         {
             var body = read.Bodies[0].Body;
-            body = body with { Local = new((Half).25, body.Local.Y, (Half)(-.25)),
+            body = body with { Local = new((float).25, body.Local.Y, (float)(-.25)),
                 Velocity = new(1f, 0f, -1f) };
             return change switch
             {
@@ -388,8 +388,8 @@ public sealed class WorkshopSimulationTests
         if (change != AdvancedIdentityChange.None) Assert.Equal(before, simulation.Committed);
         else
         {
-            Assert.Equal((Half).25, simulation.Committed.Bodies[0].Body.Local.X);
-            Assert.Equal((Half)(-.25), simulation.Committed.Bodies[0].Body.Local.Z);
+            Assert.Equal((float).25, simulation.Committed.Bodies[0].Body.Local.X);
+            Assert.Equal((float)(-.25), simulation.Committed.Bodies[0].Body.Local.Z);
             Assert.Equal(1f, simulation.Committed.Bodies[0].Body.Velocity.X);
             Assert.Equal(-1f, simulation.Committed.Bodies[0].Body.Velocity.Z);
         }

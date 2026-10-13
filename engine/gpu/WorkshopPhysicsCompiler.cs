@@ -25,7 +25,7 @@ public static class WorkshopPhysicsCompiler
         var planeMaterial = new GpuMaterialId(InternalIdentityBase + 1);
         var height = WorkshopInput.Position((double)WorkshopConstruction.WorkbenchSurface.Value);
         bodies.Add(new(plane, RigidMotionKind.Static, new(0, height.Cell, 0),
-            new((Half)0, height.Local, (Half)0), CanonicalRotation.Identity, default, default, new((Half)0), default, new((Half)0)));
+            new(0f, height.Local, 0f), CanonicalRotation.Identity, default, default, new((Half)0), default, new((Half)0)));
         // Static surfaces and boxes declare zero rolling resistance; only a ball material carries a coefficient.
         materials.Add(new(planeMaterial, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
         colliders.Add(new(new(InternalIdentityBase + 2), plane, planeMaterial,
@@ -153,7 +153,7 @@ public static class WorkshopPhysicsCompiler
                 new((Half).65, (Half).06, (Half).6)));
             var rotation = new System.Numerics.Quaternion((float)spring.Rotation.X, (float)spring.Rotation.Y,
                 (float)spring.Rotation.Z, (float)spring.Rotation.W);
-            var displacement = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(0, .14f, 0), rotation);
+            var displacement = System.Numerics.Vector3.Transform(new System.Numerics.Vector3(0, .14f - spring.Settings.InitialCompression, 0), rotation);
             var x = WorkshopInput.Position((spring.Cell.X + (float)spring.Local.X) / 16f + displacement.X);
             var y = WorkshopInput.Position((spring.Cell.Y + (float)spring.Local.Y) / 16f + displacement.Y);
             var z = WorkshopInput.Position((spring.Cell.Z + (float)spring.Local.Z) / 16f + displacement.Z);

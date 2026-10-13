@@ -43,6 +43,8 @@ public partial class Workshop : Node3D
     private const int BumperSidekickIndex = 4;
     private const int BumperDepthIndex = 5;
     private const int WallAndBumperIndex = 6;
+    private const int SpringForwardIndex = 7;
+    private const int ReadyToReboundIndex = 8;
     private GpuBodyId _nextId = new(1);
     private IReadOnlyDictionary<WorkshopPartKind, PartAllowance> _inventory = new Dictionary<WorkshopPartKind, PartAllowance>();
     private readonly List<WorkshopConstruction> _undo = new();
@@ -65,6 +67,8 @@ public partial class Workshop : Node3D
         _picker.AddItem("A little sidekick");
         _picker.AddItem("Bounce into depth");
         _picker.AddItem("Build the rebound");
+        _picker.AddItem("Spring forward");
+        _picker.AddItem("Ready to rebound");
         PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
@@ -740,7 +744,11 @@ public partial class Workshop : Node3D
 
     private void ShowHint()
     {
-        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperDepth
+        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.SpringForward
+            ? "Tilt the springboard toward the receiver. Let the falling ball compress it, or add initial compression near the ball for a finite launch."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.ReadyToRebound
+            ? "The compressed springboard releases when Run begins. Place the receiver in the ball’s path."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperDepth
             ? "Use Q/E to orbit. Put the bumper in front of the falling ball to send it toward the receiver behind."
             : World.Construction.Puzzle.Id == WorkshopPuzzleId.WallAndBumper
             ? "Resize and position the wall to return the bumper rebound toward the receiver."

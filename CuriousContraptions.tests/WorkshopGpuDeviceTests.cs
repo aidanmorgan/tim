@@ -7,15 +7,17 @@ namespace CuriousContraptions.Tests;
 public sealed class WorkshopGpuDeviceTests
 {
 
-    [Fact]
-    public async Task RealResetLifecycleRebuildsAllEightPrismaticImpulseBytes()
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(.2f)]
+    public async Task RealResetLifecycleRebuildsAllEightPrismaticImpulseBytes(float compression)
     {
         var transport = new HeldTransport(false); transport.Held.SetResult();
         var device = new WorkshopGpuDevice(transport, Document);
         await using var simulation = new WorkshopSimulation(device, new ResetClock(), Settings, new(1), new ResetInstallation());
         await simulation.Initialize();
         var construction = new WorkshopConstruction(new(2), Settings, new(
-            WorkshopInput.Springboard(new(1), 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default)));
+            WorkshopInput.Springboard(new(1), 0, 3, 0, 0, 0, 0, 1, SpringboardSettings.Default with { InitialCompression = compression })));
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         byte[] Committed() => ((byte[])typeof(WorkshopGpuDevice).GetField("_committedWorld", flags)!.GetValue(device)!).ToArray();
@@ -39,7 +41,7 @@ public sealed class WorkshopGpuDeviceTests
                     BinaryPrimitives.WriteUInt32LittleEndian(piece[12..], first + (uint)step);
                     BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
                     body[..8].CopyTo(piece[24..]); body[16..28].CopyTo(piece[32..]);
-                    body[32..38].CopyTo(piece[48..]); body[40..48].CopyTo(piece[56..]);
+                    body[32..44].CopyTo(piece[48..]); body[48..64].CopyTo(piece[64..]);
                 }
                 for (var lane = 0; lane < 8; lane++)
                     BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(offset + lane * 4), lane < 6 ? -.125f * (lane + 1) : .125f);
@@ -52,6 +54,8 @@ public sealed class WorkshopGpuDeviceTests
             Assert.Equal(0UL, simulation.Committed.Tick.Value);
             Assert.All(reset.AsSpan(offset, 32).ToArray(), value => Assert.Equal(0, value));
             Assert.Equal(original.AsSpan(PhysicsGpuAbi.PrismaticsOffset).ToArray(), reset.AsSpan(PhysicsGpuAbi.PrismaticsOffset).ToArray());
+            Assert.Equal(original.AsSpan(PhysicsGpuAbi.BodiesOffset, 3 * PhysicsGpuAbi.BodyBytes).ToArray(),
+                reset.AsSpan(PhysicsGpuAbi.BodiesOffset, 3 * PhysicsGpuAbi.BodyBytes).ToArray());
         }
     }
 

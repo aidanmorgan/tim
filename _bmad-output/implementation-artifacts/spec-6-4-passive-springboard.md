@@ -2,7 +2,7 @@
 title: 'Passive Springboard and generic prismatic soft constraint'
 type: 'feature'
 created: '2026-10-10'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 baseline_commit: '25d53233ab5ee724be0bd34081f175c47f938ff5'
 review_loop_iteration: 0
@@ -55,13 +55,13 @@ context:
 - [x] Admit passive Springboard catalogue/configuration/art; preserve source palette and functional geometry.
 - [x] Test matrix boundaries, malformed input, mixed contacts, energy and exact lifecycle; inspect transitive effects on existing contacts/rendering.
 - [x] Produce actual serial Chrome construction: drop Basketball on board, demonstrate compression/rebound and lower second apex, tilt, missed/no-board controls, configuration endpoints, Save/Load/Reset/replay. Observe plate and coil, not only payload trajectory.
-- [ ] Complete affected Production/diagnostic builds, independent SnapshotApproval, normal publication and production-origin verification before marking done.
+- [x] Complete affected Production/diagnostic builds, independent SnapshotApproval, normal publication and production-origin verification before marking done.
 
 **Acceptance:** Given the authored passive assembly, when real contact loads it, then the generic constraint produces the bounded elastic response without a prescribed launch. Given invalid construction, when decoded/compiled, then rejection preserves existing state. Given Reset, when replayed, then physical/art/configuration restoration and the intended outcome repeat.
 
 ## Implementation Notes
 
-Implementation complete; independent final regression and publication remain pending. Final Production86119/766f11 and Playtest26410/9daae4 pass. Seven actual Chrome development cases pass: default/miss47920, rendered40-step compression3987 (4193 changed pixels, exact0-pixel Reset residual), parameter endpoints35758, tilt44320 and invalid settings/Undo/delete/recreate/Load/Run/Reset98885. The initial Save-menu scroll and wrong save-record offset failures are retained as harness corrections, not product defects.
+Published and independently accepted at `781e0c81b838abe13fea8bc72d10e60f0ee67dca`; Actions38046136219 passed765/765 native tests and deployed Production. Seven production gameplay cases passed;76 actual-loaded assets match CI artifact11666549389. The evidence hook’s response-body eviction was resolved by bounded boot capture, not a runtime fix; the original exit1 evidence attempt remains retained. [Terminal scoped review](review-6-4-passive-springboard.md#publication-verification-and-terminal-scoped-verdict). The following development checkpoints retain their original identities and limitations. Final Production86119/766f11 and Playtest26410/9daae4 pass. Seven actual Chrome development cases pass: default/miss47920, rendered40-step compression3987 (4193 changed pixels, exact0-pixel Reset residual), parameter endpoints35758, tilt44320 and invalid settings/Undo/delete/recreate/Load/Run/Reset98885. The initial Save-menu scroll and wrong save-record offset failures are retained as harness corrections, not product defects.
 
 The final active native run46193/e21710 passed756/759; three stale catalogue expectations omitted Springboard. Those test-only lists were corrected and all49 affected cases passed5962/223daf under warnings-as-errors. No runtime source changed afterward. This is an explicit union of applicable checks, not a claim that the original full invocation passed. Full affected E2E TypeScript compile37b449 passes. Shared ABI, pose ring, presentation and driver impacts require the retained reviewer’s one combined existing-plus-Springboard Chrome run.
 
@@ -146,4 +146,4 @@ Affected native36/36 owner64936/032edb and independent87925/c52da9 pass. Affecte
 
 Matching Playtest15054/09cc50 and Production37088/e7cf6d pass; retained separately at `.anvil/story-6-4-bmad-playtest` (immutable8076) and `.anvil/story-6-4-bmad-production`. Owner actual Chrome7/7 passes14164/cda87e in87.003s. Final narrowed coil-only replay33050/c4d3f3 passes1/1 in18.180s:41UIsteps,226rest/120compressed silver pixels,47new strand positions and exact0-pixel Reset residual. Images/log: `.anvil/springboard-bmad-coil-final/`, `.anvil/story-6-4-bmad-coil-final.log`. The prior dead8074 listener attempt and private test-helper TypeScript error remain retained; corrected UI targets live8076 and affected TypeScript compiles e39e08.
 
-No unresolved product finding is known; independent final seven-case UI/empty-joint control, exact correction identity binding, SnapshotApproval and publication/deployed proof remain pending. Original snapshot is unchanged; scoped replacement identities/current membership live in `snapshot-6-4-review-corrections.json`.
+This correction checkpoint was subsequently closed by independent nine-case UI/empty-joint verification, exact identity binding, SnapshotApproval and the terminal publication review linked above. Original snapshot is unchanged; scoped replacement identities/current membership live in `snapshot-6-4-review-corrections.json`.

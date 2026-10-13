@@ -21,6 +21,8 @@ public partial class Workshop
                 WorkshopPuzzleId.BumperSidekick => BumperSidekickIndex,
                 WorkshopPuzzleId.BumperDepth => BumperDepthIndex,
                 WorkshopPuzzleId.WallAndBumper => WallAndBumperIndex,
+                WorkshopPuzzleId.SpringForward => SpringForwardIndex,
+                WorkshopPuzzleId.ReadyToRebound => ReadyToReboundIndex,
                 _ => FreeWorkshopIndex
             });
             return;
@@ -49,6 +51,13 @@ public partial class Workshop
                 candidate = BumperAdvanced.Create(index == BumperDepthIndex ? WorkshopPuzzleId.BumperDepth : WorkshopPuzzleId.WallAndBumper,
                     World.Construction.Revision, World.Construction.Settings, first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
             }
+            else if (index is SpringForwardIndex or ReadyToReboundIndex)
+            {
+                if (first.Value >= ulong.MaxValue - 2) throw new ArgumentException("Part identity is exhausted.");
+                candidate = SpringboardLessons.Create(index == SpringForwardIndex ? WorkshopPuzzleId.SpringForward : WorkshopPuzzleId.ReadyToRebound,
+                    World.Construction.Revision, World.Construction.Settings, first, new(first.Value + 1), new(first.Value + 2),
+                    new((Half)(_precision.Value / 100)));
+            }
             else if (index == DelayedSignalIndex)
             {
                 if (first.Value >= ulong.MaxValue - 2) throw new ArgumentException("Part identity is exhausted.");
@@ -63,7 +72,7 @@ public partial class Workshop
             }
             else throw new ArgumentException("Unsupported Workshop puzzle.");
             if (!await SubmitConstruction(candidate)) { PresentMode(); return; }
-            if (index is 0 or BumperSidekickIndex or BumperDepthIndex or WallAndBumperIndex) _nextId = new(first.Value + 2);
+            if (index is 0 or BumperSidekickIndex or BumperDepthIndex or WallAndBumperIndex or SpringForwardIndex or ReadyToReboundIndex) _nextId = new(first.Value + 2);
             else if (index is DelayedSignalIndex or DominoEffectIndex) _nextId = new(first.Value + 3);
             Select(null); _tool = null; ClearPreview(); _undo.Clear();
             ResetUiAnimations(); PresentMode();
@@ -78,11 +87,15 @@ public partial class Workshop
         var sidekick = World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperSidekick;
         var depth = World.Construction.Puzzle.Id == WorkshopPuzzleId.BumperDepth;
         var wall = World.Construction.Puzzle.Id == WorkshopPuzzleId.WallAndBumper;
-        var authored = first || delayed || dominoes || sidekick || depth || wall;
-        _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : dominoes ? DominoEffectIndex : sidekick ? BumperSidekickIndex : depth ? BumperDepthIndex : wall ? WallAndBumperIndex : FreeWorkshopIndex);
+        var spring = World.Construction.Puzzle.Id == WorkshopPuzzleId.SpringForward;
+        var ready = World.Construction.Puzzle.Id == WorkshopPuzzleId.ReadyToRebound;
+        var authored = first || delayed || dominoes || sidekick || depth || wall || spring || ready;
+        _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : dominoes ? DominoEffectIndex : sidekick ? BumperSidekickIndex : depth ? BumperDepthIndex : wall ? WallAndBumperIndex : spring ? SpringForwardIndex : ready ? ReadyToReboundIndex : FreeWorkshopIndex);
         _inventory = authored ? WorkshopInventoryPolicy.Authored(World.Construction.Puzzle) : WorkshopInventoryPolicy.Free;
-        _title.Text = first ? "First principles" : delayed ? "Wait for it" : dominoes ? "The domino effect" : sidekick ? "A little sidekick" : depth ? "Bounce into depth" : wall ? "Build the rebound" : "Free workshop";
+        _title.Text = first ? "First principles" : delayed ? "Wait for it" : dominoes ? "The domino effect" : sidekick ? "A little sidekick" : depth ? "Bounce into depth" : wall ? "Build the rebound" : spring ? "Spring forward" : ready ? "Ready to rebound" : "Free workshop";
         _task.Text = first ? "Guide the orange ball into the green receiver. Place the two ramps to build a path through the air."
+            : spring ? "Catch the falling ball’s energy in a springboard and return it toward the receiver."
+            : ready ? "Place a receiver to catch the ball when the compressed springboard releases on Run."
             : depth ? "Use the bumper to bounce the ball through depth into the receiver."
             : wall ? "Build a wall and bumper route to return the ball to the receiver."
             : sidekick ? "Use the pinball bumper to bounce the orange ball into the receiver."
@@ -100,6 +113,8 @@ public partial class Workshop
         if (sidekick) _status.Text = "Place the bumper just left of the falling ball. Run tests the rebound; Reset lets you retry.";
         if (depth) _status.Text = "Orbit with Q/E and place the bumper in depth. Manual placement; physical nudging is not yet supported.";
         if (wall) _status.Text = "Resize the wall and place the bumper to build the return route. Placement remains manual.";
+        if (spring) _status.Text = "Place and tilt the springboard. Initial compression is optional stored energy; release needs no wire.";
+        if (ready) _status.Text = "The springboard starts compressed. Place the receiver beneath the ball’s descent.";
         if (first) _status.Text = "Place and rotate both ramps. Manual placement; physical nudging is not yet supported.";
     }
     private async void ChangePrecision(double value)
@@ -115,6 +130,7 @@ public partial class Workshop
             var precision = new PuzzlePrecision((Half)(value / 100));
             var candidate = World.Construction.Puzzle.Id switch
             {
+                WorkshopPuzzleId.SpringForward or WorkshopPuzzleId.ReadyToRebound => SpringboardLessons.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.FirstPrinciples => FirstPrinciples.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.DelayedSignal => DelayedSignal.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.DominoEffect => DominoEffect.WithPrecision(World.Construction, precision),
@@ -128,7 +144,8 @@ public partial class Workshop
             {
                 WorkshopPuzzleId.DelayedSignal => "Switch sensitivity updated. Delay placement remains manual.",
                 WorkshopPuzzleId.DominoEffect => "Difficulty recorded. Domino placement remains manual.",
-                WorkshopPuzzleId.BumperSidekick or WorkshopPuzzleId.BumperDepth or WorkshopPuzzleId.WallAndBumper => "Receiver assistance updated. Placement remains manual.",
+                WorkshopPuzzleId.BumperSidekick or WorkshopPuzzleId.BumperDepth or WorkshopPuzzleId.WallAndBumper or
+                    WorkshopPuzzleId.SpringForward or WorkshopPuzzleId.ReadyToRebound => "Receiver assistance updated. Placement remains manual.",
                 _ => "Receiver assistance updated. Ramp placement remains manual."
             };
         }

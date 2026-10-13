@@ -4,13 +4,12 @@ using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Body-local payload; epoch and tick belong to the complete sample envelope.</summary>
-/// <remarks>Layout: id 0..8, cell 8..20, local remainder (Half) 20..26, rotation (Half) 26..34, local centre of mass (Half)
-/// 34..40, linear velocity m/s (f32) 40..52, angular velocity rad/s (f32) 52..64.</remarks>
+/// <remarks>F32 position at20, rotation32, Half COM48, f32 velocities56/68; bytes54..56 are zero.</remarks>
 public static class PhysicsBodyWire
 {
-    public const int ByteLength = 64;
-    public const int VelocityOffset = 40;
-    public const int AngularVelocityOffset = 52;
+    public const int ByteLength = 80;
+    public const int VelocityOffset = 56;
+    public const int AngularVelocityOffset = 68;
     public static void Write(PhysicsBodyRead value, Span<byte> bytes)
     {
         if (bytes.Length != ByteLength) throw new ArgumentException("Invalid body payload width.");
@@ -19,9 +18,9 @@ public static class PhysicsBodyWire
         BinaryPrimitives.WriteInt32LittleEndian(bytes[8..], value.Body.Cell.X);
         BinaryPrimitives.WriteInt32LittleEndian(bytes[12..], value.Body.Cell.Y);
         BinaryPrimitives.WriteInt32LittleEndian(bytes[16..], value.Body.Cell.Z);
-        H(bytes,20,value.Body.Local.X); H(bytes,22,value.Body.Local.Y); H(bytes,24,value.Body.Local.Z);
-        H(bytes,26,value.Rotation.X); H(bytes,28,value.Rotation.Y); H(bytes,30,value.Rotation.Z); H(bytes,32,value.Rotation.W);
-        H(bytes,34,value.LocalCentreOfMass.X); H(bytes,36,value.LocalCentreOfMass.Y); H(bytes,38,value.LocalCentreOfMass.Z);
+        F(bytes,20,value.Body.Local.X); F(bytes,24,value.Body.Local.Y); F(bytes,28,value.Body.Local.Z);
+        F(bytes,32,value.Rotation.X); F(bytes,36,value.Rotation.Y); F(bytes,40,value.Rotation.Z); F(bytes,44,value.Rotation.W);
+        H(bytes,48,value.LocalCentreOfMass.X); H(bytes,50,value.LocalCentreOfMass.Y); H(bytes,52,value.LocalCentreOfMass.Z);
         F(bytes,VelocityOffset,value.Body.Velocity.X); F(bytes,VelocityOffset+4,value.Body.Velocity.Y); F(bytes,VelocityOffset+8,value.Body.Velocity.Z);
         F(bytes,AngularVelocityOffset,value.AngularVelocity.X); F(bytes,AngularVelocityOffset+4,value.AngularVelocity.Y);
         F(bytes,AngularVelocityOffset+8,value.AngularVelocity.Z);
@@ -29,16 +28,16 @@ public static class PhysicsBodyWire
 
     public static PhysicsBodyRead Read(ReadOnlySpan<byte> bytes, SimulationEpoch epoch, SimulationTick tick)
     {
-        if (bytes.Length != ByteLength || epoch.Value == 0)
+        if (bytes.Length != ByteLength || epoch.Value == 0 || BinaryPrimitives.ReadUInt16LittleEndian(bytes[54..]) != 0)
             throw new ArgumentException("Invalid body payload width or time.");
         var body = new CanonicalBody(new(BinaryPrimitives.ReadUInt64LittleEndian(bytes)), epoch.Value, tick.Value,
             new(BinaryPrimitives.ReadInt32LittleEndian(bytes[8..]), BinaryPrimitives.ReadInt32LittleEndian(bytes[12..]),
                 BinaryPrimitives.ReadInt32LittleEndian(bytes[16..])),
-            new(H(bytes,20),H(bytes,22),H(bytes,24)),
+            new(F(bytes,20),F(bytes,24),F(bytes,28)),
             new(F(bytes,VelocityOffset),F(bytes,VelocityOffset+4),F(bytes,VelocityOffset+8)));
-        var value = new PhysicsBodyRead(body, new(H(bytes,26),H(bytes,28),H(bytes,30),H(bytes,32)),
+        var value = new PhysicsBodyRead(body, new(F(bytes,32),F(bytes,36),F(bytes,40),F(bytes,44)),
             new(F(bytes,AngularVelocityOffset),F(bytes,AngularVelocityOffset+4),F(bytes,AngularVelocityOffset+8)),
-            new(H(bytes,34),H(bytes,36),H(bytes,38)));
+            new(H(bytes,48),H(bytes,50),H(bytes,52)));
         value.Validate(); return value;
     }
 

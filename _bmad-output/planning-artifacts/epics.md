@@ -425,7 +425,7 @@ So that contraptions can solve `spring_forward`.
 - **When** the preloaded springboard releases on Run start,
 - **Then** the ball is launched across the workbench into the target receiver.
 - **And** an uncharged springboard fails to launch the ball.
-- **And** `engine/LatchedSpringStore.cs` is deleted in favor of declarative preload energy stores.
+- **And** no legacy latch implementation remains: `engine/LatchedSpringStore.cs` is absent from sole baseline `a6c914e` and the current tree, so there is no such file to delete. Deliver the intended declarative finite preload energy store without restoring or inventing a legacy latch.
 - **And** `tools/e2e/cat-062b.test.ts` passes 100% in Chrome serially.
 
 ### Story 6.6: Straight Pipe Compound Cylindrical Collider (CAT-048a)

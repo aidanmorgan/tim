@@ -34,7 +34,7 @@ public sealed class RigidMassPropertiesTests
     public void CentreAndPrincipalFrameRemainExactDeclaredGeometry()
     {
         var pose = new RigidLocalPose(new((Half)1, (Half)(-2), (Half).5),
-            new((Half)0, (Half)0, (Half).7071067811865476, (Half).7071067811865476));
+            new((float)0, (float)0, (float).7071067811865476, (float).7071067811865476));
         var collider = Collider(ColliderShapeKind.Box, 1, 2, 3) with { Pose = pose };
         var properties = RigidMassProperties.Compile(Body(2), collider);
         Assert.Equal(pose.Translation, properties.LocalCentreOfMass);

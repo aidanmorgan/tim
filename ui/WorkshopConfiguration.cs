@@ -94,12 +94,14 @@ public partial class Workshop
             }
             var stiffness = Field(spring.CanonicalSpring.Stiffness, "SpringStiffness", "N/m", "Stiffness: 120–1200 N/m");
             var damping = Field(spring.CanonicalSpring.Damping, "SpringDamping", "N·s/m", "Damping: 0–8 N·s/m");
+            var compression = Field(spring.CanonicalSpring.InitialCompression, "SpringCompression", "m", "Initial compression: 0–0.20 m");
             _connectionChoices.AddChild(SignalButton("Apply spring", () =>
             {
                 if (!float.TryParse(stiffness.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var k) ||
-                    !float.TryParse(damping.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var c))
+                    !float.TryParse(damping.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var c) ||
+                    !float.TryParse(compression.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var q))
                 { _status.Text = "Enter valid spring values."; return; }
-                ApplySpringboardSettings(owner, new(k, c));
+                ApplySpringboardSettings(owner, new(k, c, q));
             }));
             _connectionChoices.AddChild(SignalButton("Cancel", RefreshConnectionChoices));
         });

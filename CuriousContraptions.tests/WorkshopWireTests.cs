@@ -441,9 +441,9 @@ public sealed class WorkshopWireTests
                 BinaryPrimitives.WriteInt32LittleEndian(piece[40..], body.Cell.Z);
                 static void H(Span<byte> target, int offset, Half number) =>
                     BinaryPrimitives.WriteUInt16LittleEndian(target[offset..], BitConverter.HalfToUInt16Bits(number));
-                H(piece,22,(Half)WorkshopCadenceSettings.PhysicalFrequency); H(piece,48,body.Local.X); H(piece,50,body.Local.Y); H(piece,52,body.Local.Z);
+                H(piece,22,(Half)WorkshopCadenceSettings.PhysicalFrequency); F(piece,48,body.Local.X); F(piece,52,body.Local.Y); F(piece,56,body.Local.Z);
                 var q = value.Rotation;
-                H(piece,56,q.X); H(piece,58,q.Y); H(piece,60,q.Z); H(piece,62,q.W);
+                F(piece,64,q.X); F(piece,68,q.Y); F(piece,72,q.Z); F(piece,76,q.W);
                 static void F(Span<byte> target, int offset, float number) => BinaryPrimitives.WriteSingleLittleEndian(target[offset..], number);
                 const int v = PhysicsMotionRead.VelocityOffset, w = PhysicsMotionRead.AngularVelocityOffset;
                 F(piece,v,body.Velocity.X); F(piece,v+4,body.Velocity.Y); F(piece,v+8,body.Velocity.Z);
@@ -767,8 +767,8 @@ public sealed class WorkshopWireTests
         Assert.True(sourceResponse.Read.Electrical.HasSameBits(sourceRoundTrip.Read.Electrical));
         sourceBytes[113] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(sourceBytes));
-        Assert.Equal(24336, bytes.Length);
-        Assert.Equal(64, PhysicsBodyWire.ByteLength);
+        Assert.Equal(26640, bytes.Length);
+        Assert.Equal(80, PhysicsBodyWire.ByteLength);
         Assert.Equal(response, WorkshopWire.DecodeResponse(bytes));
         bytes[112] = 1;
         Assert.Throws<ArgumentException>(() => WorkshopWire.DecodeResponse(bytes));
@@ -823,8 +823,8 @@ public sealed class WorkshopWireTests
     [Fact]
     public void InvalidQuaternionAndOutOfDeckDescriptorReject()
     {
-        Assert.Throws<ArgumentException>(() => new CanonicalRotation((Half)1, (Half)1, (Half)1, (Half)1).Validate());
-        Assert.Throws<ArgumentException>(() => new CanonicalRotation((Half).001, (Half)0, (Half)0, (Half)0).Validate());
+        Assert.Throws<ArgumentException>(() => new CanonicalRotation((float)1, (float)1, (float)1, (float)1).Validate());
+        Assert.Throws<ArgumentException>(() => new CanonicalRotation((float).001, (float)0, (float)0, (float)0).Validate());
         var bytes = GenericAdmission();
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(DynamicOffset(bytes) + 16), 2048);
         Assert.ThrowsAny<ArgumentException>(() => PhysicsGpuAbi.ReadDynamicBodies(bytes));
@@ -835,8 +835,8 @@ public sealed class WorkshopWireTests
     {
         var ball = OnlyBall(Construction) with
         {
-            Local = new(BitConverter.UInt16BitsToHalf(0x8000), (Half)0.25, (Half)0),
-            Rotation = new(BitConverter.UInt16BitsToHalf(0x8000), (Half)0, (Half)0, (Half)1)
+            Local = new(BitConverter.UInt32BitsToSingle(0x80000000), (float)0.25, (float)0),
+            Rotation = new(BitConverter.UInt32BitsToSingle(0x80000000), (float)0, (float)0, (float)1)
         };
         var command = new WorkshopCommand(new(0x20000000000001), WorkshopCommandKind.Construct,
             new(0x30000000000001), new(1), Construction.WithoutInstance(OnlyBall(Construction).Id).WithInstance(ball), Session: Session, Cadence: new(1), Projection: new(1));
@@ -1005,7 +1005,7 @@ public sealed class WorkshopWireTests
         var source = GenericAdmission();
         foreach (var offset in new[] { DynamicOffset(source), DynamicOffset(source) + PhysicsGpuAbi.BodyMassOffset,
             DynamicOffset(source) + PhysicsGpuAbi.BodyDragOffset, DynamicOffset(source) + PhysicsGpuAbi.BodyGravityOffset,
-            DynamicOffset(source) + PhysicsGpuAbi.BodyCentreOfMassOffset + 5, DynamicOffset(source) + 28, DynamicOffset(source) + 38,
+            DynamicOffset(source) + PhysicsGpuAbi.BodyCentreOfMassOffset + 5, DynamicOffset(source) + 28, DynamicOffset(source) + 44,
             PhysicsGpuAbi.CollidersOffset + 40, PhysicsGpuAbi.MaterialsOffset + 8 })
         {
             var changed = (byte[])source.Clone(); changed[offset] ^= 1;
@@ -1085,7 +1085,7 @@ public sealed class WorkshopWireTests
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(wrongProfile, source, new(1)));
         foreach (var offset in new[] { motion + PhysicsMotionRead.HeaderBytes + 4, // missing beginning
             motion + PhysicsMotionRead.HeaderBytes + 24, // wrong body
-            motion + PhysicsMotionRead.HeaderBytes + 102, // padding
+            motion + PhysicsMotionRead.HeaderBytes + 110, // padding
             motion + PhysicsMotionRead.HeaderBytes + checked((int)Profile.Substeps) * PhysicsMotionRead.PieceBytes }) // unused tail
         {
             var changed = (byte[])candidate.Clone(); changed[offset] ^= 1;
@@ -1115,7 +1115,7 @@ public sealed class WorkshopWireTests
         var motion = PhysicsMotionRead.Decode(bytes, Bodies(body), new(1));
         Assert.True(motion.TrySample(body.Id, .5, out var pose));
         Assert.Equal(0, pose.Cell.X);
-        Assert.Equal((Half)(16 * .5 * 32 * Math.Pow(.5 / 480, 2)), pose.Local.X);
+        Assert.Equal((float)(16 * .5 * 32 * Math.Pow(.5 / 480, 2)), pose.Local.X);
         var unknown = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(unknown.AsSpan(PhysicsMotionRead.HeaderBytes), 4);
         Assert.Throws<ArgumentException>(() => PhysicsMotionRead.Decode(unknown, Bodies(body), new(1)));
         var spinning = (byte[])bytes.Clone();
@@ -1126,17 +1126,21 @@ public sealed class WorkshopWireTests
     }
 
     [Fact]
-    public void RoundedGpuQuaternionDoesNotTripAuthoredInputNormGate()
+    public void NormalizedF32QuaternionUsesOneCanonicalNormGate()
     {
-        var rotation = new CanonicalRotation((Half).57861328125, (Half)(-.57275390625),
-            (Half).55712890625, (Half).1676025390625);
+        var rotation = new CanonicalRotation((float).57861328125, (float)(-.57275390625),
+            (float).55712890625, (float).1676025390625);
+        Assert.Throws<ArgumentException>(() => rotation.ValidateCommitted());
+        var computed = System.Numerics.Quaternion.Normalize(
+            new(rotation.X, rotation.Y, rotation.Z, rotation.W));
+        rotation = new(computed.X, computed.Y, computed.Z, computed.W);
         rotation.ValidateCommitted();
-        Assert.Throws<ArgumentException>(() => rotation.Validate());
+        rotation.Validate();
         var state = GenericEndpoint(1, 0, (Half)0);
         var values = new[] { rotation.X, rotation.Y, rotation.Z, rotation.W };
-        for (var i = 0; i < 4; i++) WriteHalf(state, DynamicOffset(state) + 40 + i * 2, values[i]);
+        for (var i = 0; i < 4; i++) BinaryPrimitives.WriteSingleLittleEndian(state.AsSpan(DynamicOffset(state) + 48 + i * 4), values[i]);
         Assert.Equal(rotation, NamedBody(state, new(1)).Rotation);
-        Assert.Throws<ArgumentException>(() => (rotation with { X = Half.NaN }).ValidateCommitted());
+        Assert.Throws<ArgumentException>(() => (rotation with { X = float.NaN }).ValidateCommitted());
         Assert.Throws<ArgumentException>(() => default(CanonicalRotation).ValidateCommitted());
     }
 
@@ -1163,8 +1167,8 @@ public sealed class WorkshopWireTests
             CanonicalPaddingRegion.UnusedBodies => (bodyTail, PhysicsGpuAbi.CollidersOffset - bodyTail),
             CanonicalPaddingRegion.UnusedSensors => (sensorTail, PhysicsGpuAbi.GuidesOffset - sensorTail),
             CanonicalPaddingRegion.UnusedMotion => (motionTail, PhysicsGpuAbi.CacheOffset - motionTail),
-            CanonicalPaddingRegion.BodyPadding => (DynamicOffset(candidate) + 124, 4),
-            CanonicalPaddingRegion.MotionPadding => (PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + 124, 4),
+            CanonicalPaddingRegion.BodyPadding => (DynamicOffset(candidate) + 148, 12),
+            CanonicalPaddingRegion.MotionPadding => (PhysicsGpuAbi.MotionOffset + PhysicsMotionRead.HeaderBytes + 140, 4),
             _ => throw new ArgumentOutOfRangeException(nameof(region))
         };
         Assert.True(length > 0);

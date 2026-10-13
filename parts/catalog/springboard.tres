@@ -8,6 +8,7 @@
 script = ExtResource("3")
 Stiffness = 400.0
 Damping = 0.2
+InitialCompression = 0.0
 
 [resource]
 script = ExtResource("1")

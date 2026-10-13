@@ -18,6 +18,8 @@ ENGINE-DRAG terminal scoped Pass verified via independent reviewer (Murdoch, 9 O
 
 ENGINE-F32-VELOCITY terminal scoped Pass verified via independent reviewer (Murdoch, 9 October 2026; committed 33f44a8; record in `_bmad-output/implementation-artifacts/spec-6-1c-f32-committed-velocity-precision.md`): committed body velocity and angular velocity stored as f32 in m/s and rad/s, in the body record (+48/+60), the motion piece (+64/+76) and the 64-byte `PhysicsBodyWire`, so drag 0.04 survives at 60/120/240 Hz. Legacy deleted: the binary16 velocity lanes, the ×32 velocity scale, `CellVelocity` and the 1/512 Half clamp headroom. Evidence: harness 38/38 with mutation-sensitive drag and 5 m/s roll facts, C# 632/632, cumulative Chrome 15 suites / 54 tests.
 
+The following Story6.1c/6.1d offsets and schema names are historical receipts. The [Story6.5 current candidate](../../_bmad-output/implementation-artifacts/spec-6-5-springboard-preload.md#design-notes) supersedes them with trace4/canonical f32 pose3 and the current body/motion layouts; original results and identities remain unchanged.
+
 Story 6.1d velocity hardening terminal scoped Pass verified via independent reviewer (Murdoch, 9 October 2026, two passes; record in `_bmad-output/implementation-artifacts/spec-6-1d-velocity-hardening.md`):
 - **Clamp bound:** the clamp fact checks exactly the bound the host accepts.
 - **Drag lane:** motion pieces carry the declared drag in their +54 lane, so between-tick poses follow the drag-decayed trajectory.

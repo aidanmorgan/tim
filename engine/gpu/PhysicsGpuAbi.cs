@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace CuriousContraptions.Gpu;
 
-public enum PhysicsStateVersion : uint { GenericMechanical = 11 }
+public enum PhysicsStateVersion : uint { GenericMechanical = 12 }
 public enum PhysicsCandidateStatus : uint { Committed, Invalid }
 public enum PhysicsFailure : uint { None, InvalidDeclaration, Domain, ContactBudget, RootBudget, UnsupportedPair, Arithmetic, MotionCapacity }
 public enum PhysicsMotionPhase : uint { Free, Supported }
@@ -18,16 +18,14 @@ public readonly record struct PhysicsCandidateRead(PhysicsBodyReadSet Bodies, Ph
 public static partial class PhysicsGpuAbi
 {
     public const int HeaderBytes = 128;
-    public const int BodyBytes = 128;
-    // Body record: id 0..8, motion 8..12, cell 16..28, local remainder (Half) 32..38, rotation (Half) 40..48, committed linear
-    // velocity m/s (f32) 48..60 and angular velocity rad/s (f32) 60..72 (the mutable range 16..72); immutable declarations after:
-    // mass 72, linear drag 74, gravity 76..82, local centre of mass 82..88 (Half), principal frame 88, inertia 96/104/112, collider slot 120.
-    public const int BodyVelocityOffset = 48;
-    public const int BodyAngularVelocityOffset = 60;
-    public const int BodyMassOffset = 72;
-    public const int BodyDragOffset = 74;
-    public const int BodyGravityOffset = 76;
-    public const int BodyCentreOfMassOffset = 82;
+    public const int BodyBytes = 160;
+    // Body: f32 pose32/48, velocities64/76; immutable mass/material lanes start88.
+    public const int BodyVelocityOffset = 64;
+    public const int BodyAngularVelocityOffset = 76;
+    public const int BodyMassOffset = 88;
+    public const int BodyDragOffset = 90;
+    public const int BodyGravityOffset = 92;
+    public const int BodyCentreOfMassOffset = 98;
     public const int ColliderBytes = 96;
     public const int MaterialBytes = 32;
     public const int SensorBytes = 128;
@@ -72,7 +70,7 @@ public static partial class PhysicsGpuAbi
         {
             var body = scene.Bodies[i]; var record = data.Slice(BodiesOffset + i * BodyBytes, BodyBytes);
             U64(record, 0, body.Id.Value); U32(record, 8, (uint)body.Motion);
-            Cell(record, 16, body.Cell); Local(record, 32, body.Local); Rotation(record, 40, body.Rotation);
+            Cell(record, 16, body.Cell); Local(record, 32, body.Local); Rotation(record, 48, body.Rotation);
             F32Vector(record, BodyVelocityOffset, body.Velocity.X, body.Velocity.Y, body.Velocity.Z);
             F32Vector(record, BodyAngularVelocityOffset, body.AngularVelocity.X, body.AngularVelocity.Y, body.AngularVelocity.Z);
             H(record, BodyMassOffset, body.Mass.Value); H(record, BodyDragOffset, body.LinearDrag.Value);
@@ -85,9 +83,9 @@ public static partial class PhysicsGpuAbi
                     {
                         var properties=RigidMassProperties.Compile(body,scene.Colliders[collider]);
                         Vector(record,BodyCentreOfMassOffset,properties.LocalCentreOfMass.X,properties.LocalCentreOfMass.Y,properties.LocalCentreOfMass.Z);
-                        Rotation(record,88,properties.PrincipalFrame);
-                        Principal(record,96,properties.X); Principal(record,104,properties.Y); Principal(record,112,properties.Z);
-                        U32(record,120,(uint)collider);
+                        Rotation(record,104,properties.PrincipalFrame);
+                        Principal(record,120,properties.X); Principal(record,128,properties.Y); Principal(record,136,properties.Z);
+                        U32(record,144,(uint)collider);
                     }
             }
         }
@@ -96,8 +94,8 @@ public static partial class PhysicsGpuAbi
             var collider = scene.Colliders[i]; var record = data.Slice(CollidersOffset + i * ColliderBytes, ColliderBytes);
             U64(record, 0, collider.Id.Value); U32(record, 8, BodySlot(scene, collider.Body));
             U32(record, 12, MaterialSlot(scene, collider.Material)); U32(record, 16, (uint)collider.Shape);
-            Pose(record, 24, collider.Pose); H(record, 40, collider.Radius.Value);
-            Vector(record, 42, collider.HalfExtents.X, collider.HalfExtents.Y, collider.HalfExtents.Z);
+            Pose(record, 24, collider.Pose); H(record, 48, collider.Radius.Value);
+            Vector(record, 50, collider.HalfExtents.X, collider.HalfExtents.Y, collider.HalfExtents.Z);
         }
         for (var i = 0; i < scene.Materials.Length; i++)
         {
@@ -112,19 +110,19 @@ public static partial class PhysicsGpuAbi
             U64(record, 0, sensor.Id.Value); U32(record, 8, BodySlot(scene, sensor.Frame));
             U32(record, 12, BodySlot(scene, sensor.Target)); U32(record, 16, (uint)sensor.Participation);
             Pose(record, 24, sensor.Pose);
-            Vector(record, 40, sensor.Minimum.X, sensor.Minimum.Y, sensor.Minimum.Z);
-            Vector(record, 48, sensor.Maximum.X, sensor.Maximum.Y, sensor.Maximum.Z);
-            H(record, 56, sensor.SpeedLimit.Value); H(record, 58, sensor.Dwell.Value);
+            Vector(record, 48, sensor.Minimum.X, sensor.Minimum.Y, sensor.Minimum.Z);
+            Vector(record, 56, sensor.Maximum.X, sensor.Maximum.Y, sensor.Maximum.Z);
+            H(record, 64, sensor.SpeedLimit.Value); H(record, 66, sensor.Dwell.Value);
         }
         for (var i = 0; i < scene.Guides.Length; i++)
         {
             var guide = scene.Guides[i]; var record = data.Slice(GuidesOffset + i * GuideBytes, GuideBytes);
             U64(record, 0, guide.Id.Value); U32(record, 8, BodySlot(scene, guide.Frame));
             U32(record, 12, BodySlot(scene, guide.Target)); Pose(record, 16, guide.Pose);
-            Vector(record, 32, guide.Minimum.X, guide.Minimum.Y, guide.Minimum.Z);
-            Vector(record, 40, guide.Maximum.X, guide.Maximum.Y, guide.Maximum.Z);
-            H(record, 48, guide.MaximumAcceleration.Value); H(record, 50, guide.SupportHeight.Value);
-            H(record, 52, guide.SupportMargin.Value);
+            Vector(record, 40, guide.Minimum.X, guide.Minimum.Y, guide.Minimum.Z);
+            Vector(record, 48, guide.Maximum.X, guide.Maximum.Y, guide.Maximum.Z);
+            H(record, 56, guide.MaximumAcceleration.Value); H(record, 58, guide.SupportHeight.Value);
+            H(record, 60, guide.SupportMargin.Value);
         }
         for (var i = 0; i < scene.Triggers.Length; i++)
         {
@@ -146,7 +144,7 @@ public static partial class PhysicsGpuAbi
             var sensor = scene.OrientationSensors[i];
             var record = data.Slice(OrientationSensorsOffset + i * OrientationSensorBytes, OrientationSensorBytes);
             U64(record, 0, sensor.Id.Value); U32(record, 8, BodySlot(scene, sensor.Body));
-            Rotation(record, 16, sensor.Initial); H(record, 24, sensor.Threshold.CosineHalfAngle);
+            Rotation(record, 16, sensor.Initial); H(record, 32, sensor.Threshold.CosineHalfAngle);
         }
         var occurrence=0;
         for (var work=0; work<scene.ContactWorks.Length; work++)
@@ -219,7 +217,7 @@ public static partial class PhysicsGpuAbi
             var body = new CanonicalBody(new(R64(record, 0)), epoch, tick,
                 ReadCell(record, 16), ReadLocal(record, 32),
                 new(RF(record, BodyVelocityOffset), RF(record, BodyVelocityOffset + 4), RF(record, BodyVelocityOffset + 8)));
-            values[count++] = new(body, ReadRotation(record, 40),
+            values[count++] = new(body, ReadRotation(record, 48),
                 new(RF(record, BodyAngularVelocityOffset), RF(record, BodyAngularVelocityOffset + 4), RF(record, BodyAngularVelocityOffset + 8)),
                 ReadCentreOfMass(record));
         }
@@ -232,9 +230,9 @@ public static partial class PhysicsGpuAbi
         if (ReadFailure(data) != PhysicsFailure.None || slot < 0 || (uint)slot >= R32(data, 24))
             throw new ArgumentException("Invalid sensor read.");
         var record = data.Slice(SensorsOffset + slot * SensorBytes, SensorBytes);
-        var phase = (ResidencePhase)R32(record, 64);
-        var result = new ResidenceRead(new(R64(record, 0)), phase, R32(record, 76),
-            R32(record, 68), RH(record, 72), R32(record, 80), RH(record, 84));
+        var phase = (ResidencePhase)R32(record, 72);
+        var result = new ResidenceRead(new(R64(record, 0)), phase, R32(record, 84),
+            R32(record, 76), RH(record, 80), R32(record, 88), RH(record, 92));
         if (!Enum.IsDefined(phase) || result.Id.Value == 0 || result.OccurrenceCount > 1 ||
             !Half.IsFinite(result.StartPhase) || result.StartPhase < (Half)(-2048) || result.StartPhase >= (Half)2048 ||
             !Half.IsFinite(result.EventPhase) || result.EventPhase < (Half)(-2048) || result.EventPhase >= (Half)2048 ||
@@ -243,7 +241,7 @@ public static partial class PhysicsGpuAbi
             (phase == ResidencePhase.Outside && (result.StartOrdinal != 0 || !PhysicsDeclarationBounds.Zero(result.StartPhase))) ||
             (result.OccurrenceCount == 0 && (result.EventOrdinal != 0 || !PhysicsDeclarationBounds.Zero(result.EventPhase))) ||
             (result.OccurrenceCount != 0 && phase == ResidencePhase.Qualified && Before(result.EventOrdinal, result.EventPhase, result.StartOrdinal, result.StartPhase)) ||
-            !AllZero(record[74..76]) || !AllZero(record[86..128]))
+            !AllZero(record[82..84]) || !AllZero(record[94..128]))
             throw new ArgumentException("Invalid committed residence state.");
         return result;
     }
@@ -290,22 +288,22 @@ public static partial class PhysicsGpuAbi
         if (ReadFailure(data) != PhysicsFailure.None || slot < 0 || (uint)slot >= R32(data, 116))
             throw new ArgumentException("Invalid orientation sensor read.");
         var record = data.Slice(OrientationSensorsOffset + slot * OrientationSensorBytes, OrientationSensorBytes);
-        var body = R32(record, 8); var phase = (OrientationSensorPhase)R32(record, 32);
+        var body = R32(record, 8); var phase = (OrientationSensorPhase)R32(record, 40);
         if (R64(record, 0) == 0 || body >= R32(data, 12) || !Enum.IsDefined(phase) ||
-            !AllZero(record[12..16]) || !AllZero(record[26..32]) || !AllZero(record[42..]))
+            !AllZero(record[12..16]) || !AllZero(record[34..40]) || !AllZero(record[50..]))
             throw new ArgumentException("Invalid orientation sensor declaration or padding.");
         var bodyRecord = data.Slice(BodiesOffset + checked((int)body) * BodyBytes, BodyBytes);
         if ((RigidMotionKind)R32(bodyRecord, 8) != RigidMotionKind.Dynamic)
             throw new ArgumentException("Orientation sensor body is not dynamic.");
         ReadRotation(record, 16).Validate();
-        new OrientationThreshold(RH(record, 24)).Validate();
-        var ordinal = R32(record, 36); var eventPhase = RH(record, 40);
+        new OrientationThreshold(RH(record, 32)).Validate();
+        var ordinal = R32(record, 44); var eventPhase = RH(record, 48);
         // Endpoint-sampled: a fired sensor names one substep boundary inside the admitted time; an armed one holds no event.
         if (phase == OrientationSensorPhase.Armed
             ? ordinal != 0 || !PhysicsDeclarationBounds.Zero(eventPhase)
             : ordinal == 0 || !PhysicsDeclarationBounds.Zero(eventPhase) || !AdmittedTime(ordinal, eventPhase, R32(data, 88)))
             throw new ArgumentException("Invalid orientation sensor event.");
-        var colliderSlot = R32(bodyRecord, 120);
+        var colliderSlot = R32(bodyRecord, 144);
         if (colliderSlot >= R32(data, 16) || R32(data, CollidersOffset + checked((int)colliderSlot) * ColliderBytes + 8) != body)
             throw new ArgumentException("Orientation sensor body has no owned collider.");
         return new(new(R64(record, 0)), new(R64(bodyRecord, 0)),
@@ -339,7 +337,7 @@ public static partial class PhysicsGpuAbi
             if (motion!=RigidMotionKind.Dynamic) throw new ArgumentException("Undefined rigid motion.");
             dynamicCount++;
             if (!actual[..16].SequenceEqual(previous[..16]) || !actual[BodyMassOffset..].SequenceEqual(previous[BodyMassOffset..]) ||
-                !AllZero(actual[28..32]) || !AllZero(actual[38..40]))
+                !AllZero(actual[28..32]) || !AllZero(actual[44..48]))
                 throw new ArgumentException("Dynamic immutable declaration or padding changed.");
             ReadMassProperties(actual).Validate();
         }
@@ -353,7 +351,7 @@ public static partial class PhysicsGpuAbi
         for (var i = 0; i < sensorCount; i++)
         {
             var offset = SensorsOffset + i * SensorBytes;
-            if (!candidate.Slice(offset, 64).SequenceEqual(source.Slice(offset, 64)))
+            if (!candidate.Slice(offset, 72).SequenceEqual(source.Slice(offset, 72)))
                 throw new ArgumentException("Sensor declaration changed.");
             var current = ReadSensor(candidate, i); var previous = ReadSensor(source, i);
             if ((SensorParticipation)R32(source, offset + 16) == SensorParticipation.Disabled &&
@@ -398,12 +396,12 @@ public static partial class PhysicsGpuAbi
         for (var i = 0; i < orientationCount; i++)
         {
             var offset = OrientationSensorsOffset + i * OrientationSensorBytes;
-            if (!candidate.Slice(offset, 32).SequenceEqual(source.Slice(offset, 32)))
+            if (!candidate.Slice(offset, 40).SequenceEqual(source.Slice(offset, 40)))
                 throw new ArgumentException("Orientation sensor declaration changed.");
             // At admission the body record still holds the admitted rotation: the sensor's initial pose must be exactly that.
             // Later ticks keep the declaration bytes equal to the source, so the invariant carries forward.
-            if (expectedTick.Value == 0 && !candidate.Slice(offset + 16, 8).SequenceEqual(
-                    candidate.Slice(BodiesOffset + checked((int)R32(candidate, offset + 8)) * BodyBytes + 40, 8)))
+            if (expectedTick.Value == 0 && !candidate.Slice(offset + 16, 16).SequenceEqual(
+                    candidate.Slice(BodiesOffset + checked((int)R32(candidate, offset + 8)) * BodyBytes + 48, 16)))
                 throw new ArgumentException("Orientation sensor initial pose differs from its body's admitted rotation.");
             var current = ReadOrientationSensor(candidate, i); var previous = ReadOrientationSensor(source, i);
             // Sticky within a world: a fired sensor never regresses or re-emits; a new event belongs to this interval.
@@ -432,8 +430,8 @@ public static partial class PhysicsGpuAbi
         BinaryPrimitives.WriteInt32LittleEndian(bytes[(offset+4)..],value.Exponent);
     }
     private static RigidMassProperties ReadMassProperties(ReadOnlySpan<byte> record) =>
-        new(ReadCentreOfMass(record),ReadRotation(record,88),
-            ReadPrincipal(record,96),ReadPrincipal(record,104),ReadPrincipal(record,112));
+        new(ReadCentreOfMass(record),ReadRotation(record,104),
+            ReadPrincipal(record,120),ReadPrincipal(record,128),ReadPrincipal(record,136));
     private static MetreVector ReadCentreOfMass(ReadOnlySpan<byte> record) =>
         new(RH(record,BodyCentreOfMassOffset),RH(record,BodyCentreOfMassOffset+2),RH(record,BodyCentreOfMassOffset+4));
     private static PrincipalInertia ReadPrincipal(ReadOnlySpan<byte> record,int offset)
@@ -560,10 +558,10 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
     }
     private static void Rotation(Span<byte> bytes, int offset, CanonicalRotation value)
     {
-        Vector(bytes, offset, value.X, value.Y, value.Z); H(bytes, offset + 6, value.W);
+        F32Vector(bytes, offset, value.X, value.Y, value.Z); BinaryPrimitives.WriteSingleLittleEndian(bytes[(offset+12)..], value.W);
     }
     private static CanonicalRotation ReadRotation(ReadOnlySpan<byte> bytes, int offset) =>
-        new(RH(bytes, offset), RH(bytes, offset + 2), RH(bytes, offset + 4), RH(bytes, offset + 6));
+        new(BinaryPrimitives.ReadSingleLittleEndian(bytes[offset..]), BinaryPrimitives.ReadSingleLittleEndian(bytes[(offset+4)..]), BinaryPrimitives.ReadSingleLittleEndian(bytes[(offset+8)..]), BinaryPrimitives.ReadSingleLittleEndian(bytes[(offset+12)..]));
     private static void Cell(Span<byte> bytes, int offset, CellOrigin value)
     {
         BinaryPrimitives.WriteInt32LittleEndian(bytes[offset..], value.X);
@@ -575,9 +573,9 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             BinaryPrimitives.ReadInt32LittleEndian(bytes[(offset + 4)..]),
             BinaryPrimitives.ReadInt32LittleEndian(bytes[(offset + 8)..]));
     private static void Local(Span<byte> bytes, int offset, LocalPosition value) =>
-        Vector(bytes, offset, value.X, value.Y, value.Z);
+        F32Vector(bytes, offset, value.X, value.Y, value.Z);
     private static LocalPosition ReadLocal(ReadOnlySpan<byte> bytes, int offset) =>
-        new(RH(bytes, offset), RH(bytes, offset + 2), RH(bytes, offset + 4));
+        new(BinaryPrimitives.ReadSingleLittleEndian(bytes[offset..]), BinaryPrimitives.ReadSingleLittleEndian(bytes[(offset+4)..]), BinaryPrimitives.ReadSingleLittleEndian(bytes[(offset+8)..]));
     private static void Vector(Span<byte> bytes, int offset, Half x, Half y, Half z)
     {
         H(bytes, offset, x); H(bytes, offset + 2, y); H(bytes, offset + 4, z);

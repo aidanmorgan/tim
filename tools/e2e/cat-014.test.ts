@@ -16,6 +16,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
+import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type AnimationSampleRecord, type WorkshopBodyPose } from './workshop-driver.ts';
 
 const BENCH_Y = -0.46;
@@ -174,8 +175,7 @@ describe('CAT-014: Bowling ball dynamic sphere by material declaration', () => {
         driver = await WorkshopDriver.launch();
         driver.page.on('console', (msg: ConsoleMessage) => {
             const text = msg.text();
-            if (text.includes('CCGPU_TRANSPORT_FAILURE') || text.includes('CCGPU_STARTUP_EXCEPTION') ||
-                text.includes('Unhandled exception') || text.includes('NaN')) errors.push(text);
+            if (isWorkshopConsoleFailure(msg.type(), text)) errors.push(text);
         });
         driver.page.on('pageerror', (error: Error) => errors.push(error.message));
     });

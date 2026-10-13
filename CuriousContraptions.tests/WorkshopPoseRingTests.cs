@@ -44,15 +44,15 @@ public class WorkshopPoseRingTests
         var tick = new SimulationTick(10);
 
         var body1 = new CanonicalBody(new GpuBodyId(101), 1, 10, new CellOrigin(16, 32, 0),
-            new LocalPosition((Half)0.25, (Half)(-0.125), (Half)0.0),
+            new LocalPosition((float)0.25, (float)(-0.125), (float)0.0),
             new LinearVelocity(16.0001f, -8f, 0f));
         var rot1 = CanonicalRotation.Identity;
         var read1 = new PhysicsBodyRead(body1, rot1, default, default);
 
         var body2 = new CanonicalBody(new GpuBodyId(secondaryId), 1, 10, new CellOrigin(-16, 0, 16),
-            new LocalPosition((Half)(-0.25), (Half)0.125, (Half)0.0),
+            new LocalPosition((float)(-0.25), (float)0.125, (float)0.0),
             new LinearVelocity(-16f, 8f, 0f));
-        var rot2 = new CanonicalRotation((Half)0.0, (Half)0.7071, (Half)0.0, (Half)0.7071);
+        var rot2 = CanonicalRotation.Normalize(0, MathF.Sqrt(.5f), 0, MathF.Sqrt(.5f));
         var read2 = new PhysicsBodyRead(body2, rot2, default, default);
 
         var bodySet = new PhysicsBodyReadSet([read1, read2]);

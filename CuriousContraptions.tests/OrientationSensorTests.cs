@@ -19,7 +19,7 @@ public sealed class OrientationSensorTests
     private static void Fire(byte[] bytes, int slot, uint ordinal)
     {
         var record = Record(bytes, slot);
-        BinaryPrimitives.WriteUInt32LittleEndian(record[32..], 1); BinaryPrimitives.WriteUInt32LittleEndian(record[36..], ordinal);
+        BinaryPrimitives.WriteUInt32LittleEndian(record[40..], 1); BinaryPrimitives.WriteUInt32LittleEndian(record[44..], ordinal);
     }
 
     // A tick-N candidate over an unchanged world: header time advanced and a minimal valid motion description (bodies at rest).
@@ -48,7 +48,7 @@ public sealed class OrientationSensorTests
                 BinaryPrimitives.WriteUInt32LittleEndian(piece[12..], ordinal - steps + s);
                 BinaryPrimitives.WriteUInt16LittleEndian(piece[22..], BitConverter.HalfToUInt16Bits((Half)480));
                 record[..8].CopyTo(piece[24..]); record[16..28].CopyTo(piece[32..]);
-                record[32..38].CopyTo(piece[48..]); record[40..48].CopyTo(piece[56..]);
+                record[32..44].CopyTo(piece[48..]); record[48..64].CopyTo(piece[64..]);
             }
         }
         BinaryPrimitives.WriteUInt32LittleEndian(motion, (uint)count);
@@ -99,9 +99,9 @@ public sealed class OrientationSensorTests
         Assert.Throws<ArgumentException>(() => Replace(sensor with { Id = new(scene.NextIdentity) }));
         Assert.Throws<ArgumentException>(() => Replace(sensor with { Id = new(sensor.Body.Value) }));
         Assert.Throws<ArgumentException>(() => Replace(sensor, sensor with { Id = new(sensor.Id.Value + 1) }));
-        Assert.Throws<ArgumentException>(() => Replace(sensor with { Initial = new((Half)1, (Half)1, (Half)0, (Half)0) }));
+        Assert.Throws<ArgumentException>(() => Replace(sensor with { Initial = new((float)1, (float)1, (float)0, (float)0) }));
         // A valid rotation that is not the body's admitted rotation is rejected too: the angle is measured from the admitted pose.
-        Assert.Throws<ArgumentException>(() => Replace(sensor with { Initial = new((Half)0, (Half)Math.Sqrt(.5), (Half)0, (Half)Math.Sqrt(.5)) }));
+        Assert.Throws<ArgumentException>(() => Replace(sensor with { Initial = new((float)0, (float)Math.Sqrt(.5), (float)0, (float)Math.Sqrt(.5)) }));
         Assert.Throws<ArgumentException>(() => Replace(sensor with { Threshold = new((Half)1) }));
         // Node declarations: an orientation source names exactly its sensor and never a trigger; nothing routes into a source.
         var owner = new GpuBodyId(2); var sensorId = new GpuOrientationSensorId(sensor.Id.Value);
@@ -127,7 +127,7 @@ public sealed class OrientationSensorTests
         var armed = new OrientationSensorRead(scene.OrientationSensors[0].Id, new(2), ColliderOf(scene, new(2)), OrientationSensorPhase.Armed, 0, (Half)0);
         Assert.Equal(armed, PhysicsGpuAbi.ReadOrientationSensor(bytes, 0));
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ReadOrientationSensor(bytes, 1));
-        Assert.Equal(BitConverter.HalfToUInt16Bits((Half)Math.Cos(Math.PI / 8)), BinaryPrimitives.ReadUInt16LittleEndian(Record(bytes, 0)[24..]));
+        Assert.Equal(BitConverter.HalfToUInt16Bits((Half)Math.Cos(Math.PI / 8)), BinaryPrimitives.ReadUInt16LittleEndian(Record(bytes, 0)[32..]));
         // Every byte of the sensor table is covered at admission: declaration, state, padding and the unused slots.
         for (var offset = PhysicsGpuAbi.OrientationSensorsOffset; offset < PhysicsGpuAbi.MotionOffset; offset++)
         {
@@ -135,14 +135,14 @@ public sealed class OrientationSensorTests
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(changed, bytes, new(0)));
         }
         var turned = (byte[])bytes.Clone();
-        BinaryPrimitives.WriteUInt16LittleEndian(Record(turned, 0)[18..], BitConverter.HalfToUInt16Bits((Half)Math.Sqrt(.5)));
-        BinaryPrimitives.WriteUInt16LittleEndian(Record(turned, 0)[22..], BitConverter.HalfToUInt16Bits((Half)Math.Sqrt(.5)));
+        BinaryPrimitives.WriteSingleLittleEndian(Record(turned, 0)[20..], MathF.Sqrt(.5f));
+        BinaryPrimitives.WriteSingleLittleEndian(Record(turned, 0)[28..], MathF.Sqrt(.5f));
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(turned, turned, new(0)));
         // After admission the body rotates freely; the declaration bytes, not the live rotation, carry the admitted pose.
         var rotating = Candidate(bytes, 1);
         var sensedBody = PhysicsGpuAbi.BodiesOffset + checked((int)BinaryPrimitives.ReadUInt32LittleEndian(Record(rotating, 0)[8..])) * PhysicsGpuAbi.BodyBytes;
-        BinaryPrimitives.WriteUInt16LittleEndian(rotating.AsSpan(sensedBody + 44), BitConverter.HalfToUInt16Bits((Half).25));
-        BinaryPrimitives.WriteUInt16LittleEndian(rotating.AsSpan(sensedBody + 46), BitConverter.HalfToUInt16Bits((Half)Math.Sqrt(1 - .0625)));
+        BinaryPrimitives.WriteSingleLittleEndian(rotating.AsSpan(sensedBody + 56), .25f);
+        BinaryPrimitives.WriteSingleLittleEndian(rotating.AsSpan(sensedBody + 60), MathF.Sqrt(1 - .0625f));
         Assert.Equal(OrientationSensorPhase.Armed, PhysicsGpuAbi.ReadOrientationSensor(rotating, 0).Phase);
         var still = Candidate(bytes, 1);
         PhysicsGpuAbi.ValidateCandidate(still, bytes, new(1));
@@ -162,16 +162,16 @@ public sealed class OrientationSensorTests
             var outside = Candidate(bytes, 1); Fire(outside, 0, ordinal);
             Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(outside, bytes, new(1)));
         }
-        var phased = Candidate(bytes, 1); Fire(phased, 0, 3); phased[PhysicsGpuAbi.OrientationSensorsOffset + 41] = 0x3c;
+        var phased = Candidate(bytes, 1); Fire(phased, 0, 3); phased[PhysicsGpuAbi.OrientationSensorsOffset + 49] = 0x3c;
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(phased, bytes, new(1)));
         // Sticky: the next interval keeps the same event; regression, re-emission and a changed declaration all reject.
         var kept = Candidate(fired, 2);
         PhysicsGpuAbi.ValidateCandidate(kept, fired, new(2));
-        var regressed = Candidate(fired, 2); Record(regressed, 0)[32..].Clear();
+        var regressed = Candidate(fired, 2); Record(regressed, 0)[40..].Clear();
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(regressed, fired, new(2)));
         var reemitted = Candidate(fired, 2); Fire(reemitted, 0, 7);
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(reemitted, fired, new(2)));
-        var redeclared = Candidate(fired, 2); Record(redeclared, 0)[24] ^= 1;
+        var redeclared = Candidate(fired, 2); Record(redeclared, 0)[32] ^= 1;
         Assert.Throws<ArgumentException>(() => PhysicsGpuAbi.ValidateCandidate(redeclared, fired, new(2)));
         // A fresh admission rearms: the sensor is armed again in the new world.
         var reset = PhysicsGpuAbi.Admission(scene, new(2), Profile);
@@ -236,7 +236,7 @@ public sealed class OrientationSensorTests
         Assert.NotEqual(CanonicalRotation.Identity, sensor.Initial);
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), Profile);
         PhysicsGpuAbi.ValidateCandidate(bytes, bytes, new(0));
-        Assert.Equal(BitConverter.HalfToUInt16Bits(turned.Rotation.Y), BinaryPrimitives.ReadUInt16LittleEndian(Record(bytes, 0)[18..]));
+        Assert.Equal(BitConverter.SingleToUInt32Bits(turned.Rotation.Y), BinaryPrimitives.ReadUInt32LittleEndian(Record(bytes, 0)[20..]));
         Assert.Equal(OrientationSensorPhase.Armed, PhysicsGpuAbi.ReadOrientationSensor(bytes, 0).Phase);
     }
 

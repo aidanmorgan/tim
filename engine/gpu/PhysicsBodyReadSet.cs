@@ -13,10 +13,10 @@ public readonly record struct PhysicsBodyRead(CanonicalBody Body, CanonicalRotat
 
     public bool HasSameBits(PhysicsBodyRead other) =>
         Body.Id == other.Body.Id && Body.Epoch == other.Body.Epoch && Body.Tick == other.Body.Tick &&
-        Body.Cell == other.Body.Cell && HalfBits.Equal(Body.Local, other.Body.Local) &&
+        Body.Cell == other.Body.Cell && F32Bits.Equal(Body.Local, other.Body.Local) &&
         Body.Velocity.HasSameBits(other.Body.Velocity) &&
-        HalfBits.Equal(Rotation.X, other.Rotation.X) && HalfBits.Equal(Rotation.Y, other.Rotation.Y) &&
-        HalfBits.Equal(Rotation.Z, other.Rotation.Z) && HalfBits.Equal(Rotation.W, other.Rotation.W) &&
+        F32Bits.Equal(Rotation.X, other.Rotation.X) && F32Bits.Equal(Rotation.Y, other.Rotation.Y) &&
+        F32Bits.Equal(Rotation.Z, other.Rotation.Z) && F32Bits.Equal(Rotation.W, other.Rotation.W) &&
         AngularVelocity.HasSameBits(other.AngularVelocity) &&
         HalfBits.Equal(LocalCentreOfMass.X, other.LocalCentreOfMass.X) &&
         HalfBits.Equal(LocalCentreOfMass.Y, other.LocalCentreOfMass.Y) &&
@@ -83,12 +83,12 @@ public readonly struct PhysicsBodyReadSet
             if (geometry is not { } shape || !HalfBits.Equal(value.LocalCentreOfMass, shape.Pose.Translation))
                 throw new ArgumentException("Committed centre of mass differs from declaration.");
             if (tick.Value == 0 && (value.Body.Cell != declared.Cell ||
-                !HalfBits.Equal(value.Body.Local, declared.Local) ||
+                !F32Bits.Equal(value.Body.Local, declared.Local) ||
                 !value.Body.Velocity.HasSameBits(declared.Velocity) ||
-                !HalfBits.Equal(value.Rotation.X, declared.Rotation.X) ||
-                !HalfBits.Equal(value.Rotation.Y, declared.Rotation.Y) ||
-                !HalfBits.Equal(value.Rotation.Z, declared.Rotation.Z) ||
-                !HalfBits.Equal(value.Rotation.W, declared.Rotation.W) ||
+                !F32Bits.Equal(value.Rotation.X, declared.Rotation.X) ||
+                !F32Bits.Equal(value.Rotation.Y, declared.Rotation.Y) ||
+                !F32Bits.Equal(value.Rotation.Z, declared.Rotation.Z) ||
+                !F32Bits.Equal(value.Rotation.W, declared.Rotation.W) ||
                 !value.AngularVelocity.HasSameBits(declared.AngularVelocity)))
                 throw new ArgumentException("Admission changed a canonical body.");
         }

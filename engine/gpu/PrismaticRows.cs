@@ -17,11 +17,14 @@ public static class PrismaticRows
         ConstraintFrame localB, float lower, float upper, Span<PrismaticRow> output)
     {
         if (output.Length < Count) throw new ArgumentException("Eight constraint rows are required.");
-        var anchorA = a.Position + Vector3.Transform(localA.Position, a.Rotation);
-        var anchorB = b.Position + Vector3.Transform(localB.Position, b.Rotation);
+        var localAnchorA = Vector3.Transform(localA.Position, a.Rotation);
+        var localAnchorB = Vector3.Transform(localB.Position, b.Rotation);
+        var anchorA = a.Position + localAnchorA;
+        var anchorB = b.Position + localAnchorB;
         var rotationA = Quaternion.Multiply(a.Rotation, localA.Rotation);
         var rotationB = Quaternion.Multiply(b.Rotation, localB.Rotation);
-        var difference = anchorB - anchorA;
+        // Subtract origins before adding local arms: avoid cancellation against the world translation.
+        var difference = (b.Position - a.Position) + (localAnchorB - localAnchorA);
         var armA = anchorA - a.CentreOfMass + difference;
         var armB = anchorB - b.CentreOfMass;
         var axis = Vector3.Transform(Vector3.UnitY, rotationA);
