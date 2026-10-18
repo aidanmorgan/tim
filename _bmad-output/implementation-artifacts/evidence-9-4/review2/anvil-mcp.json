@@ -1,0 +1,3 @@
+{"tool":"mcp__anvil__anvil_check","round":2,"files":"the 27 round-2 code, test, scene and bundle files modified after review/per-suite-counts.txt (11:47 18 Oct 2026); see review-9-4-state-latch.md round 2",
+"result":{"warnings":[],"summary":{"total":0,"errors":0,"warnings":0,"info":0,"suppressed":0},"executionTimeMs":18,"checksRun":["antipattern"],"hasBlockingWarnings":false},
+"caveat":"Anvil has no C# anti-pattern coverage (round 1 probe: evidence-9-4/review/anvil-csharp-coverage-probe.txt)."}

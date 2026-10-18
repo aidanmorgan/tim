@@ -7,46 +7,14 @@ namespace CuriousContraptions.Tests;
 public sealed class BasketballResourceTests(NativeSceneFixture godot)
 {
     [Fact]
-    public void RejectedContactCalibrationDoesNotConfigureOrConstructThePart()
+    public void GenericBumperWorkPreservesF32AndRejectsMissingOrInvalidDeclarations()
     {
-        using var resource = new ContactWorkResource { TargetSpeed=8f, ReferenceMass=2f, InitialEnergy=32f };
-        using var definition = new PartDefinition { Id="bumper", ContactWork=resource };
-        var part = new BumperPart();
-        var originalName = part.Name;
-        try
-        {
-            Assert.Throws<ArgumentException>(() => part.Configure(definition));
-            Assert.Null(part.Definition);
-            Assert.Equal(originalName, part.Name);
-            Assert.Equal(0, part.GetChildCount());
-            resource.ReferenceMass=1f;
-            resource.InitialEnergy=31f;
-            Assert.Throws<ArgumentException>(() => part.Configure(definition));
-            Assert.Null(part.Definition);
-            Assert.Equal(0, part.GetChildCount());
-            resource.InitialEnergy=32f;
-            part.Configure(definition);
-            Assert.Same(definition, part.Definition);
-            Assert.Equal(0, part.GetChildCount());
-        }
-        finally { part.Free(); }
-    }
-
-    [Fact]
-    public void GenericContactWorkResourcePreservesF32AndRejectsMissingOrInvalidDeclarations()
-    {
-        using var resource = new ContactWorkResource { TargetSpeed=8.000001f, ReferenceMass=1f,
-            InitialEnergy=.5f*8.000001f*8.000001f };
-        var captured = resource.Capture();
-        Assert.Equal(8.000001f, captured.TargetSpeed.Value);
-        Assert.NotEqual((float)(Half)resource.TargetSpeed, captured.TargetSpeed.Value);
-        var work = new BumperWork(captured.TargetSpeed,captured.ReferenceMass,captured.InitialEnergy);
-        work.Validate();
         var declared = BumperWork.FromCanonicalStrength(8.000001f);
-        Assert.Equal(declared, work);
+        Assert.Equal(8.000001f, declared.Strength.Value);
+        Assert.NotEqual((float)(Half)8.000001f, declared.Strength.Value);
         var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(
             WorkshopInput.Basketball(new(1), 0, 6, 0, 0, 0, 0, 1),
-            WorkshopInput.Bumper(new(2), 0, 4, 0, 0, 0, 0, 1, BumperWork.FromCalibration(captured))));
+            WorkshopInput.Bumper(new(2), 0, 4, 0, 0, 0, 0, 1, declared)));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
         var admitted = PhysicsGpuAbi.Admission(scene, new(1),
             new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
@@ -54,13 +22,8 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             admitted.AsSpan(PhysicsGpuAbi.ContactWorksOffset + 16)));
         var saved = new WorkshopSavedConstruction(construction, new(3));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
-        resource.ReferenceMass=0;
-        Assert.Throws<ArgumentException>(() => resource.Capture());
-        resource.ReferenceMass=1f;
-        resource.TargetSpeed=float.NaN;
-        Assert.Throws<ArgumentException>(() => resource.Capture());
-        using var missing = new ContactWorkResource();
-        Assert.Throws<ArgumentException>(() => missing.Capture());
+        Assert.Throws<ArgumentException>(() => new BumperWork(new(8f), new(0f), new(32f)).Validate());
+        Assert.Throws<ArgumentException>(() => new BumperWork(new(float.NaN), new(1f), new(32f)).Validate());
     }
 
     [Fact]
@@ -68,26 +31,26 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { WorkshopPartKind.Basketball, WorkshopPartKind.Receiver, WorkshopPartKind.Ramp, WorkshopPartKind.ImpactSwitch, WorkshopPartKind.SignalLamp, WorkshopPartKind.Wall, WorkshopPartKind.Delay, WorkshopPartKind.PinballBumper, WorkshopPartKind.Domino, WorkshopPartKind.BowlingBall, WorkshopPartKind.Battery, WorkshopPartKind.Springboard },
-            registry.Definitions.Keys.OrderBy(kind => kind));
-        var definition = registry.Definitions[WorkshopPartKind.Basketball];
+        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Tennis, PartId.Balloon, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch }.OrderBy(id => id),
+            registry.Definitions.Keys.OrderBy(id => id));
+        var definition = registry.Definitions[PartId.Basketball];
         Assert.Empty(definition.Parameters);
-        var material = definition.Ball!.Capture(WorkshopPartKind.Basketball);
+        var material = definition.Ball!.Capture(PartId.Basketball);
         Assert.Equal((ushort)13681, BitConverter.HalfToUInt16Bits(material.Radius.Value));
         Assert.Equal((ushort)14438, BitConverter.HalfToUInt16Bits(material.Bounce.Value));
         Assert.Equal((ushort)10363, BitConverter.HalfToUInt16Bits(material.Rolling.Value));
-        Assert.Equal(BallMaterial.For(WorkshopPartKind.Basketball), material);
-        Assert.Throws<ArgumentException>(() => definition.Ball!.Capture(WorkshopPartKind.BowlingBall)); // Basketball bits are not a Bowling ball
-        var bowlingDefinition = registry.Definitions[WorkshopPartKind.BowlingBall];
+        Assert.Equal(BallMaterial.For(PartId.Basketball), material);
+        Assert.Throws<ArgumentException>(() => definition.Ball!.Capture(PartId.BowlingBall)); // Basketball bits are not a Bowling ball
+        var bowlingDefinition = registry.Definitions[PartId.BowlingBall];
         Assert.Empty(bowlingDefinition.Parameters);
-        var bowlingMaterial = bowlingDefinition.Ball!.Capture(WorkshopPartKind.BowlingBall);
-        Assert.Equal(BallMaterial.For(WorkshopPartKind.BowlingBall), bowlingMaterial);
+        var bowlingMaterial = bowlingDefinition.Ball!.Capture(PartId.BowlingBall);
+        Assert.Equal(BallMaterial.For(PartId.BowlingBall), bowlingMaterial);
         Assert.Equal((ushort)13435, BitConverter.HalfToUInt16Bits(bowlingMaterial.Radius.Value));
         Assert.Equal((ushort)17408, BitConverter.HalfToUInt16Bits(bowlingMaterial.Mass.Value));
         Assert.Equal((ushort)12411, BitConverter.HalfToUInt16Bits(bowlingMaterial.Bounce.Value));
         Assert.Equal((ushort)10158, BitConverter.HalfToUInt16Bits(bowlingMaterial.Rolling.Value));
-        var ball = registry.Create(WorkshopPartKind.Basketball);
-        var bowling = registry.Create(WorkshopPartKind.BowlingBall);
+        var ball = registry.Create(PartId.Basketball);
+        var bowling = registry.Create(PartId.BowlingBall);
         try
         {
             godot.Tree.Root.AddChild(ball); godot.Tree.Root.AddChild(bowling);
@@ -104,7 +67,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void DelayArtworkUsesSharedFullTurnAndSourcePhasePalette()
     {
         var registry=new PartRegistry(); registry.Discover();
-        var delay=(DelayPart)registry.Create(WorkshopPartKind.Delay);
+        var delay=(MachinePart)registry.Create(PartId.Delay);
         try
         {
             godot.Tree.Root.AddChild(delay);
@@ -137,7 +100,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette()
     {
         var registry=new PartRegistry(); registry.Discover();
-        var receiver=(BasketPart)registry.Create(WorkshopPartKind.Receiver);
+        var receiver=(MachinePart)registry.Create(PartId.Receiver);
         try
         {
             godot.Tree.Root.AddChild(receiver);
@@ -155,7 +118,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             receiver.ApplyCosmetic(new(Half.NaN,CuriousContraptions.Presentation.AnimationTimerPhase.None));
             Assert.InRange(material.AlbedoColor.R,(float)(Half)neutral.R+.01f,.99f); // game-grade: invalid blends keep the committed value
             receiver.ApplyCosmetic(WorkshopCosmeticSample.Neutral);
-            Assert.Equal((float)(Half)neutral.R,material.AlbedoColor.R); Assert.Equal((float)(Half)neutral.B,material.AlbedoColor.B);
+            Assert.Equal((float)(Half)neutral.R,material.AlbedoColor.R); Assert.Equal((float)(Half)neutral.G,material.AlbedoColor.G);
         }
         finally { receiver.GetParent()?.RemoveChild(receiver); receiver.Free(); }
     }
@@ -164,8 +127,8 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples()
     {
         var registry=new PartRegistry(); registry.Discover();
-        var bumper=(BumperPart)registry.Create(WorkshopPartKind.PinballBumper);
-        var toggle=(SwitchPart)registry.Create(WorkshopPartKind.ImpactSwitch);
+        var bumper=(MachinePart)registry.Create(PartId.PinballBumper);
+        var toggle=(MachinePart)registry.Create(PartId.ImpactSwitch);
         try
         {
             godot.Tree.Root.AddChild(bumper); godot.Tree.Root.AddChild(toggle);
@@ -202,7 +165,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         protected override void Build() { PickRadius=.5f; Bindings?.Invoke(this); }
         public void Bind(CosmeticCurveDeclaration declaration,CuriousContraptions.Presentation.AnimationTimerPhase phase=CuriousContraptions.Presentation.AnimationTimerPhase.None)
         {
-            var mesh=PartArt.Sphere(Visual,.1f,Colors.White);
+            var mesh=WorkshopArtwork.Sphere(Visual,.1f,Colors.White);
             if (phase==CuriousContraptions.Presentation.AnimationTimerPhase.None) BindVisual(declaration,mesh,WorkshopVisualProperty.AlbedoRed,(Half)0,(Half)1);
             else BindPhaseVisual(declaration,mesh,WorkshopVisualProperty.AlbedoRed,phase,(Half)1);
         }
@@ -212,7 +175,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     public void ArtworkBindingsRequireOneDeclaredCurveAndTimerPhasesOnlyForTimers()
     {
         var registry=new PartRegistry(); registry.Discover();
-        var definition=registry.Definitions[WorkshopPartKind.SignalLamp];
+        var definition=registry.Definitions[PartId.SignalLamp];
         foreach (var bindings in new Action<ProbePart>[] {
             probe=>probe.Bind(CosmeticCurveDeclaration.None),
             probe=>{ probe.Bind(CosmeticCurves.ImpactSwitch); probe.Bind(CosmeticCurves.PinballBumper); },
@@ -232,10 +195,10 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Throws<ArgumentException>(() => registry.Create(WorkshopPartKind.Unsupported));
-        Assert.Throws<ArgumentException>(() => registry.Create((WorkshopPartKind)999));
+        Assert.Throws<ArgumentException>(() => registry.Create(new PartId("unsupported")));
+        Assert.Throws<ArgumentException>(() => registry.Create(new PartId("999")));
         using var obsolete = new PartDefinition { Id = "ball" };
-        var ball = new BallPart();
+        var ball = new MachinePart();
         try { Assert.Throws<ArgumentException>(() => ball.Configure(obsolete)); }
         finally { ball.Free(); }
     }

@@ -43,6 +43,9 @@ public static class WorkshopIcons
             "ramp" => "<path d='M3 19 21 6v13Z'/>",
             "wall" => "<rect x='3' y='4' width='18' height='16' rx='1'/><path d='M3 12h18M9 4v8m6 0v8'/>",
             "resize" => "<path d='M4 9V4h5M15 20h5v-5M4 4l6 6m4 4 6 6'/><rect x='9' y='9' width='6' height='6'/>",
+            // State Latch socket choices mirror the on-part tactile marks: a raised bar for Set, a hollow ring for Reset.
+            "socket_set" => "<rect x='9.5' y='3' width='5' height='18' rx='1.5' fill='#293954'/>",
+            "socket_reset" => "<circle cx='12' cy='12' r='7.5' stroke-width='3'/>",
             "basket" => "<path d='m3 7 3 13h12l3-13M2 7h20M8 7l2 13M16 7l-2 13M5 13h14'/>",
             "battery" => "<rect x='5' y='4' width='14' height='17' rx='2'/><path d='M9 4V2h6v2M8 12h8m-4-4v8'/>",
             "motor" => "<rect x='3' y='6' width='14' height='13' rx='3'/><path d='M17 11h4v4h-4M6 19v2m8-2v2'/><circle cx='10' cy='12' r='3'/>",

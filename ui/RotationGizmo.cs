@@ -44,10 +44,10 @@ public partial class RotationGizmo : Node3D
         Visible = false;
         for (var axis = 0; axis < 3; axis++)
         {
-            _rings[axis] = PartArt.Ring(this, 1, .025f, Colors[axis]);
+            _rings[axis] = WorkshopArtwork.Ring(this, 1, .025f, Colors[axis]);
             _rings[axis].Name = "Ring" + axis;
             _rings[axis].Quaternion = new Quaternion(Vector3.Up, Axes[axis]);
-            _handles[axis] = PartArt.Sphere(this, .115f, Colors[axis]);
+            _handles[axis] = WorkshopArtwork.Sphere(this, .115f, Colors[axis]);
             _handles[axis].Name = "Handle" + axis;
             _shafts[axis] = new MeshInstance3D
             {

@@ -20,53 +20,79 @@ public readonly record struct PartAllowance(PartAllowanceKind Kind, int Count)
 }
 
 /// <summary>Palette rows in their declared order; lookups derive from the same sequence so enumeration order is the contract.</summary>
-public sealed class PartInventory : IReadOnlyDictionary<WorkshopPartKind, PartAllowance>
+public sealed class PartInventory : IReadOnlyDictionary<PartId, PartAllowance>
 {
-    private readonly (WorkshopPartKind Kind, PartAllowance Allowance)[] _rows;
-    public PartInventory(params (WorkshopPartKind Kind, PartAllowance Allowance)[] rows)
+    private readonly (PartId Id, PartAllowance Allowance)[] _rows;
+    public PartInventory(params (PartId Id, PartAllowance Allowance)[] rows)
     {
-        if (rows.Select(row => row.Kind).Distinct().Count() != rows.Length) throw new ArgumentException("Inventory rows must name distinct kinds.");
+        if (rows.Select(row => row.Id).Distinct().Count() != rows.Length) throw new ArgumentException("Inventory rows must name distinct parts.");
         _rows = rows;
     }
-    public PartAllowance this[WorkshopPartKind key] => TryGetValue(key, out var value) ? value : throw new KeyNotFoundException();
-    public IEnumerable<WorkshopPartKind> Keys => _rows.Select(row => row.Kind);
+    public PartAllowance this[PartId key] => TryGetValue(key, out var value) ? value : throw new KeyNotFoundException();
+    public IEnumerable<PartId> Keys => _rows.Select(row => row.Id);
     public IEnumerable<PartAllowance> Values => _rows.Select(row => row.Allowance);
     public int Count => _rows.Length;
-    public bool ContainsKey(WorkshopPartKind key) => TryGetValue(key, out _);
-    public bool TryGetValue(WorkshopPartKind key, [MaybeNullWhen(false)] out PartAllowance value)
+    public bool ContainsKey(PartId key) => TryGetValue(key, out _);
+    public bool TryGetValue(PartId key, [MaybeNullWhen(false)] out PartAllowance value)
     {
-        foreach (var row in _rows) if (row.Kind == key) { value = row.Allowance; return true; }
+        foreach (var row in _rows) if (row.Id == key) { value = row.Allowance; return true; }
         value = default; return false;
     }
-    public IEnumerator<KeyValuePair<WorkshopPartKind, PartAllowance>> GetEnumerator() =>
-        _rows.Select(row => new KeyValuePair<WorkshopPartKind, PartAllowance>(row.Kind, row.Allowance)).GetEnumerator();
+    public IEnumerator<KeyValuePair<PartId, PartAllowance>> GetEnumerator() =>
+        _rows.Select(row => new KeyValuePair<PartId, PartAllowance>(row.Id, row.Allowance)).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Palette inventory per mode, in palette row order. Free play lists every playable kind without a count.</summary>
+/// <summary>Palette inventory per mode, in palette row order. Free play lists every discovered part without a count.</summary>
 public static class WorkshopInventoryPolicy
 {
-    // Row order is part of the UI contract (e2e palette anchors): existing rows keep their place; each new kind is appended as the last row.
-    public static IReadOnlyDictionary<WorkshopPartKind, PartAllowance> Free { get; } = new PartInventory(
-        (WorkshopPartKind.Basketball, PartAllowance.Unlimited),
-        (WorkshopPartKind.Receiver, PartAllowance.Unlimited),
-        (WorkshopPartKind.ImpactSwitch, PartAllowance.Unlimited),
-        (WorkshopPartKind.SignalLamp, PartAllowance.Unlimited),
-        (WorkshopPartKind.Wall, PartAllowance.Unlimited),
-        (WorkshopPartKind.Delay, PartAllowance.Unlimited),
-        (WorkshopPartKind.PinballBumper, PartAllowance.Unlimited),
-        (WorkshopPartKind.Ramp, PartAllowance.Unlimited),
-        (WorkshopPartKind.Domino, PartAllowance.Unlimited),
-        (WorkshopPartKind.BowlingBall, PartAllowance.Unlimited),
-        (WorkshopPartKind.Battery, PartAllowance.Unlimited),
-        (WorkshopPartKind.Springboard, PartAllowance.Unlimited));
+    private static readonly PartId[] _canonicalOrder =
+    [
+        PartId.Basketball,
+        PartId.Receiver,
+        PartId.ImpactSwitch,
+        PartId.SignalLamp,
+        PartId.Wall,
+        PartId.Delay,
+        PartId.PinballBumper,
+        PartId.Ramp,
+        PartId.Domino,
+        PartId.BowlingBall,
+        PartId.Battery,
+        PartId.Springboard,
+        PartId.Tennis,
+        PartId.Balloon,
+        PartId.Pipe,
+        PartId.BallDetector,
+        PartId.PipeBend45,
+        PartId.PipeBend90,
+        PartId.Funnel,
+        PartId.PoweredGate,
+        PartId.PressurePlate,
+        PartId.Counter,
+        PartId.Clock,
+        PartId.Latch
+    ];
 
-    public static IReadOnlyDictionary<WorkshopPartKind, PartAllowance> Authored(WorkshopPuzzle puzzle)
+    private static IReadOnlyDictionary<PartId, PartAllowance>? _free;
+    public static IReadOnlyDictionary<PartId, PartAllowance> Free => _free ??= GenerateFree(_canonicalOrder);
+
+    public static IReadOnlyDictionary<PartId, PartAllowance> GenerateFree(IEnumerable<PartId> definitions)
+    {
+        var set = definitions.ToHashSet();
+        var ordered = _canonicalOrder.Where(set.Contains);
+        var list = ordered.Select(id => (id, PartAllowance.Unlimited)).ToArray();
+        if (list.Length == 0) throw new ArgumentException("Empty registry cannot populate Free inventory.");
+        _free = new PartInventory(list);
+        return _free;
+    }
+
+    public static IReadOnlyDictionary<PartId, PartAllowance> Authored(WorkshopPuzzle puzzle)
     {
         if (puzzle.Id == WorkshopPuzzleId.Free) throw new ArgumentException("Free Workshop has no authored inventory.");
         if (puzzle.Id == WorkshopPuzzleId.WallAndBumper)
-            return new PartInventory((WorkshopPartKind.Wall, PartAllowance.Counted(1)),
-                (WorkshopPartKind.PinballBumper, PartAllowance.Counted(1)));
-        return new PartInventory((puzzle.InventoryKind, PartAllowance.Counted(checked((int)puzzle.InventoryCount))));
+            return new PartInventory((PartId.Wall, PartAllowance.Counted(1)),
+                (PartId.PinballBumper, PartAllowance.Counted(1)));
+        return new PartInventory((puzzle.InventoryPart, PartAllowance.Counted(checked((int)puzzle.InventoryCount))));
     }
 }

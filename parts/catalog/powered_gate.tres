@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/powered_gate.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "powered_gate"
+Title = "Powered gate"
+Category = "Motion"
+Description = "Electricity retracts the gold shutter. Without power it returns closed, stopping if a ball blocks its path. Its mouths snap to tubes."
+Scene = ExtResource("2")
+Color = Color(0.97, 0.796, 0.322, 1)

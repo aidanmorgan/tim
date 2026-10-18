@@ -13,16 +13,16 @@ internal static class WorkshopPuzzleWire
         BinaryPrimitives.WriteUInt32LittleEndian(bytes, (uint)puzzle.Id);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[4..], (uint)puzzle.Placement);
         H(bytes, 8, puzzle.Precision.Value);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes[10..], checked((ushort)puzzle.InventoryKind));
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes[10..], checked((ushort)puzzle.InventoryPart.ToNumericId()));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[12..], puzzle.InventoryCount);
         BinaryPrimitives.WriteUInt32LittleEndian(bytes[16..], (uint)puzzle.Goal.Kind);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes[24..], puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.SourceNode.Value : puzzle.Goal.Body.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes[32..], puzzle.Goal.Kind == WorkshopGoalKind.ActivatedAfter ? puzzle.Goal.TargetNode.Value : puzzle.Goal.Target.Value);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes[40..], puzzle.Goal.EventSource.Value);
         H(bytes, 20, puzzle.Goal.MinimumDelay.Value);
-        Profile(bytes[48..114], puzzle.BallAssistance);
-        Profile(bytes[114..180], puzzle.ReceiverAssistance);
-        Profile(bytes[180..246], puzzle.RampAssistance);
+        WriteProfile(bytes[48..114], puzzle.BallAssistance);
+        WriteProfile(bytes[114..180], puzzle.ReceiverAssistance);
+        WriteProfile(bytes[180..246], puzzle.RampAssistance);
     }
     public static WorkshopPuzzle Read(ReadOnlySpan<byte> bytes)
     {
@@ -38,15 +38,15 @@ internal static class WorkshopPuzzleWire
         goal.Validate();
         return new((WorkshopPuzzleId)BinaryPrimitives.ReadUInt32LittleEndian(bytes),
             (WorkshopPlacementMode)BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]), new(H(bytes, 8)),
-            (WorkshopPartKind)BinaryPrimitives.ReadUInt16LittleEndian(bytes[10..]),
+            PartId.FromNumericId(BinaryPrimitives.ReadUInt16LittleEndian(bytes[10..])),
             BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..]), goal,
-            Profile(bytes[48..114]), Profile(bytes[114..180]), Profile(bytes[180..246]));
+            ReadProfile(bytes[48..114]), ReadProfile(bytes[114..180]), ReadProfile(bytes[180..246]));
     }
-    private static void Profile(Span<byte> bytes, AssistanceProfile profile)
+    internal static void WriteProfile(Span<byte> bytes, AssistanceProfile profile)
     {
         Knot(bytes[..22], profile.Forgiving); Knot(bytes[22..44], profile.Balanced); Knot(bytes[44..66], profile.Precise);
     }
-    private static AssistanceProfile Profile(ReadOnlySpan<byte> bytes) => new(Knot(bytes[..22]), Knot(bytes[22..44]), Knot(bytes[44..66]));
+    internal static AssistanceProfile ReadProfile(ReadOnlySpan<byte> bytes) => new(Knot(bytes[..22]), Knot(bytes[22..44]), Knot(bytes[44..66]));
     private static void Knot(Span<byte> bytes, AssistanceKnot knot)
     {
         H(bytes, 0, knot.Precision); H(bytes, 2, knot.PositionWindow.Value); H(bytes, 4, knot.RotationWindowDegrees);

@@ -27,31 +27,63 @@ public sealed class WorkshopSaveTests
             Assert.Equal(receiver.ForceRegion.SupportMargin, guide.SupportMargin);
         }
         Assert.Equal((Half)0, Assert.Single(WorkshopPhysicsCompiler.Compile(Saved().Construction, new(1, 2)).Guides.ToArray()).MaximumAcceleration.Value);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), 7);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+        var oldBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var oldCr = WorkshopWireFlatBuffers.EncodeConstructionRecord(oldBuilder, saved.Construction);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(oldBuilder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(oldBuilder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(oldBuilder, 7);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(oldBuilder, saved.NextBodyId.Value);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(oldBuilder, oldCr);
+        var oldEnd = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(oldBuilder);
+        oldBuilder.Finish(oldEnd.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(oldBuilder.SizedByteArray()));
     }
 
     [Theory]
-    [InlineData(124, 0x7e00)]
-    [InlineData(126, 0x7c00)]
-    [InlineData(128, 0xfc00)]
-    [InlineData(130, 0xc000)]
-    [InlineData(132, 0x0000)]
-    [InlineData(134, 0xc000)]
-    [InlineData(136, 0x4c40)]
-    [InlineData(138, 0xbc00)]
-    [InlineData(138, 0x4000)]
-    [InlineData(140, 0xbc00)]
-    [InlineData(140, 0x4a80)]
-    [InlineData(142, 0x0001)]
+    [InlineData(0, 0x7e00)]
+    [InlineData(1, 0x7c00)]
+    [InlineData(2, 0xfc00)]
+    [InlineData(3, 0xc000)]
+    [InlineData(4, 0x0000)]
+    [InlineData(5, 0xc000)]
+    [InlineData(6, 0x4c40)]
+    [InlineData(7, 0xbc00)]
+    [InlineData(8, 0x4000)]
+    [InlineData(9, 0xbc00)]
+    [InlineData(10, 0x4a80)]
     public void InvalidForceRegionRejectsWithoutChangingExistingConstruction(int field, int bits)
     {
         var saved = Saved();
         var original = WorkshopSaveCodec.Encode(saved);
-        var malformed = (byte[])original.Clone();
-        var receiverOffset = 24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes;
-        BinaryPrimitives.WriteUInt16LittleEndian(malformed.AsSpan(receiverOffset + field), (ushort)bits);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(malformed));
+        var baseReceiver = (WorkshopReceiver)saved.Construction.Instances[1];
+        var invalidVal = BitConverter.UInt16BitsToHalf((ushort)bits);
+        var invalidRegion = field switch
+        {
+            0 => baseReceiver.ForceRegion with { Minimum = new(invalidVal, baseReceiver.ForceRegion.Minimum.Y, baseReceiver.ForceRegion.Minimum.Z) },
+            1 => baseReceiver.ForceRegion with { Minimum = new(baseReceiver.ForceRegion.Minimum.X, invalidVal, baseReceiver.ForceRegion.Minimum.Z) },
+            2 => baseReceiver.ForceRegion with { Minimum = new(baseReceiver.ForceRegion.Minimum.X, baseReceiver.ForceRegion.Minimum.Y, invalidVal) },
+            3 => baseReceiver.ForceRegion with { Maximum = new(invalidVal, baseReceiver.ForceRegion.Maximum.Y, baseReceiver.ForceRegion.Maximum.Z) },
+            4 => baseReceiver.ForceRegion with { Maximum = new(baseReceiver.ForceRegion.Maximum.X, invalidVal, baseReceiver.ForceRegion.Maximum.Z) },
+            5 => baseReceiver.ForceRegion with { Maximum = new(baseReceiver.ForceRegion.Maximum.X, baseReceiver.ForceRegion.Maximum.Y, invalidVal) },
+            6 => baseReceiver.ForceRegion with { SupportHeight = new(invalidVal) },
+            7 or 8 => baseReceiver.ForceRegion with { SupportMargin = new(invalidVal) },
+            9 or 10 => baseReceiver.ForceRegion with { MaximumAcceleration = new(invalidVal) },
+            _ => baseReceiver.ForceRegion
+        };
+        var malformedReceiver = baseReceiver with { ForceRegion = invalidRegion };
+        var malformedConstruction = saved.Construction with {
+            Instances = new WorkshopInstances(saved.Construction.Instances[0], malformedReceiver)
+        };
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+        builder.Finish(end.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
     }
 
@@ -67,7 +99,7 @@ public sealed class WorkshopSaveTests
     {
         var saved = Saved();
         var bytes = WorkshopSaveCodec.Encode(saved);
-        Assert.Equal(WorkshopSaveCodec.ByteLength, bytes.Length);
+        Assert.True(bytes.Length >= 16);
         Assert.Equal(saved, WorkshopSaveCodec.Decode(bytes));
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(WorkshopSaveCodec.Decode(bytes)));
         var empty = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), WorkshopInstances.Empty), new(1));
@@ -75,15 +107,25 @@ public sealed class WorkshopSaveTests
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(4)]
-    [InlineData(8)]
-    [InlineData(12)]
-    public void UnknownHeaderCannotBeLoaded(int offset)
+    [InlineData(0x12345678u, 13u, 7UL, true)]
+    [InlineData(WorkshopSaveCodec.Magic, 99u, 7UL, true)]
+    [InlineData(WorkshopSaveCodec.Magic, 13u, 0UL, true)]
+    [InlineData(WorkshopSaveCodec.Magic, 13u, 2UL, true)]
+    [InlineData(WorkshopSaveCodec.Magic, 13u, 7UL, false)]
+    public void UnknownHeaderCannotBeLoaded(uint magic, uint version, ulong nextBodyId, bool includeConstruction)
     {
-        var bytes = WorkshopSaveCodec.Encode(Saved());
-        bytes[offset] ^= 128;
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        Google.FlatBuffers.Offset<CuriousContraptions.Wire.ConstructionRecord>? crOffset = includeConstruction
+            ? WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction)
+            : null;
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, version);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, nextBodyId);
+        if (crOffset.HasValue) CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset.Value);
+        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+        builder.Finish(end.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
     }
 
     [Fact]
@@ -91,20 +133,49 @@ public sealed class WorkshopSaveTests
     {
         var bytes = WorkshopSaveCodec.Encode(Saved());
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes.AsSpan(1)));
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode([..bytes, 0]));
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(16), 3);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes[..10]));
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, Saved().Construction);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+        builder.Finish(end.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Encode(Saved() with { NextBodyId = new(3) }));
     }
 
     [Theory]
-    [InlineData(32)]
-    [InlineData(152)]
-    public void UnsupportedPartPopulationRejectsBeforeAdmission(int offset)
+    [InlineData("unsupported_unknown_part")]
+    [InlineData("unknown_device_kind")]
+    public void UnsupportedPartPopulationRejectsBeforeAdmission(string unknownPartId)
     {
-        var bytes = WorkshopSaveCodec.Encode(Saved());
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(offset), uint.MaxValue);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var partIdOffset = builder.CreateString(unknownPartId);
+        CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+        CuriousContraptions.Wire.InstanceRecord.AddId(builder, 2);
+        CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, partIdOffset);
+        CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, 0, 0, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, 0, 0, 0));
+        CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, 0, 0, 0, 1));
+        var instOffset = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
+        var instancesOffset = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, [instOffset]);
+        CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, 1);
+        var defCadence = WorkshopCadenceSettings.Default();
+        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)WorkshopSettingsVersion.SharedMaster, (uint)defCadence.Simulation, (uint)defCadence.Physical, (uint)defCadence.Animation, (uint)defCadence.Presentation, defCadence.PresentationRate.Numerator, defCadence.PresentationRate.Denominator));
+        CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instancesOffset);
+        var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 10);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+        builder.Finish(end.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
     }
 
     [Fact]
@@ -353,15 +424,17 @@ public sealed class WorkshopSaveTests
     public void ConnectionPaddingCountsAndPriorSchemasRejectBeforeAdmission()
     {
         var save = ActivationSaved();
-        foreach (var offset in new[] { 24 + 12, 24 + WorkshopWire.ConnectionsOffset + 28,
-            24 + WorkshopWire.ConnectionsOffset + WorkshopWire.ConnectionBytes })
-        {
-            var bytes = WorkshopSaveCodec.Encode(save); bytes[offset] = 255;
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
-        }
-        var previous = WorkshopSaveCodec.Encode(save);
-        BinaryPrimitives.WriteUInt32LittleEndian(previous.AsSpan(4), 2);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(previous));
+        var previousBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(previousBuilder, save.Construction);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(previousBuilder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(previousBuilder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(previousBuilder, 2);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(previousBuilder, save.NextBodyId.Value);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(previousBuilder, crOffset);
+        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(previousBuilder);
+        previousBuilder.Finish(end.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(previousBuilder.SizedByteArray()));
+
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1), save.Construction,
             Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var wire = WorkshopWire.Encode(command);
@@ -381,15 +454,47 @@ public sealed class WorkshopSaveTests
     }
 
     [Theory]
-    [InlineData(0, 99u)]
-    [InlineData(8, 99u)]
-    [InlineData(16, (uint)WorkshopConnectionDomain.Electrical)]
-    [InlineData(20, (uint)WorkshopSocket.ActivationIn)]
-    [InlineData(24, (uint)WorkshopSocket.ActivationOut)]
-    public void SerializedInvalidConnectionsRejectBeforeAdmission(int lane, uint value)
+    [InlineData(99UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn)]
+    [InlineData(2UL, 99UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Electrical, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationIn)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationIn, (uint)WorkshopSocket.ActivationIn)]
+    [InlineData(2UL, 3UL, (uint)WorkshopConnectionDomain.Activation, (uint)WorkshopSocket.ActivationOut, (uint)WorkshopSocket.ActivationOut)]
+    public void SerializedInvalidConnectionsRejectBeforeAdmission(ulong source, ulong target, uint domain, uint fromSocket, uint toSocket)
     {
-        var bytes = WorkshopSaveCodec.Encode(ActivationSaved());
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(24 + WorkshopWire.ConnectionsOffset + lane), value);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(bytes));
+        var save = ActivationSaved();
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var instanceOffsets = new Google.FlatBuffers.Offset<CuriousContraptions.Wire.InstanceRecord>[save.Construction.Instances.Count];
+        for (var i = 0; i < save.Construction.Instances.Count; i++)
+        {
+            var inst = save.Construction.Instances[i];
+            var partIdOffset = builder.CreateString(inst.PartId.Value);
+            CuriousContraptions.Wire.InstanceRecord.StartInstanceRecord(builder);
+            CuriousContraptions.Wire.InstanceRecord.AddId(builder, inst.Id.Value);
+            CuriousContraptions.Wire.InstanceRecord.AddPartId(builder, partIdOffset);
+            CuriousContraptions.Wire.InstanceRecord.AddLocked(builder, inst.Locked);
+            CuriousContraptions.Wire.InstanceRecord.AddCell(builder, CuriousContraptions.Wire.Vec3i.CreateVec3i(builder, inst.Cell.X, inst.Cell.Y, inst.Cell.Z));
+            CuriousContraptions.Wire.InstanceRecord.AddLocal(builder, CuriousContraptions.Wire.Vec3f.CreateVec3f(builder, inst.Local.X, inst.Local.Y, inst.Local.Z));
+            CuriousContraptions.Wire.InstanceRecord.AddRotation(builder, CuriousContraptions.Wire.Quat4f.CreateQuat4f(builder, inst.Rotation.X, inst.Rotation.Y, inst.Rotation.Z, inst.Rotation.W));
+            instanceOffsets[i] = CuriousContraptions.Wire.InstanceRecord.EndInstanceRecord(builder);
+        }
+        var instancesVector = CuriousContraptions.Wire.ConstructionRecord.CreateInstancesVector(builder, instanceOffsets);
+        CuriousContraptions.Wire.ConstructionRecord.StartConnectionsVector(builder, 1);
+        CuriousContraptions.Wire.ConnectionRecord.CreateConnectionRecord(builder, source, target, domain, fromSocket, toSocket);
+        var connectionsVector = builder.EndVector();
+        CuriousContraptions.Wire.ConstructionRecord.StartConstructionRecord(builder);
+        CuriousContraptions.Wire.ConstructionRecord.AddRevision(builder, save.Construction.Revision.Value);
+        var saveCadence = save.Construction.Settings;
+        CuriousContraptions.Wire.ConstructionRecord.AddSettings(builder, CuriousContraptions.Wire.CadenceSettingsRecord.CreateCadenceSettingsRecord(builder, (uint)WorkshopSettingsVersion.SharedMaster, (uint)saveCadence.Simulation, (uint)saveCadence.Physical, (uint)saveCadence.Animation, (uint)saveCadence.Presentation, saveCadence.PresentationRate.Numerator, saveCadence.PresentationRate.Denominator));
+        CuriousContraptions.Wire.ConstructionRecord.AddInstances(builder, instancesVector);
+        CuriousContraptions.Wire.ConstructionRecord.AddConnections(builder, connectionsVector);
+        var crOffset = CuriousContraptions.Wire.ConstructionRecord.EndConstructionRecord(builder);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+        builder.Finish(end.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
     }
 }

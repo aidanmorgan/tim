@@ -1,0 +1,899 @@
+Workshop preview: root=/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle, origin=http://127.0.0.1:8060, basePath=/
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://127.0.0.1:8060
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /Users/aidan/dev/personal/tim/tools/Preview
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/ - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/index.html'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/index.html'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/index.html - 200 20447 text/html 6.2097ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/godot.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/godot.pck - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.boot.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/godot.pck'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/godot.pck'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/dotnet.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/dotnet.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/godot.pck - 200 272768 application/octet-stream 0.6431ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.js - 200 37898 text/javascript 0.3434ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/dotnet.boot.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/dotnet.boot.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.boot.js - 200 8236 text/javascript 0.4445ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.runtime.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/dotnet.runtime.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/dotnet.runtime.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.runtime.js - 200 198480 text/javascript 0.3976ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.native.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/dotnet.native.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/dotnet.native.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.native.js - 200 554085 text/javascript 0.4220ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/godot.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/godot.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/godot.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/godot.js - 200 36535 text/javascript 0.4041ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/workshop-isolation.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/workshop-isolation.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation.js - 200 8331 text/javascript 0.2292ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/favicon.ico - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/favicon.ico'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/favicon.ico'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/favicon.ico - 200 15086 image/x-icon 0.2325ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/workshop-isolation-worker.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/workshop-isolation-worker.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - 200 1686 text/javascript 0.2126ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/ - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/index.html'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/index.html'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/index.html - 200 20447 text/html 0.2704ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/godot.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/godot.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/godot.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/godot.wasm - 200 47380389 application/wasm 42.6103ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/godot.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/godot.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/godot.wasm - 200 47380389 application/wasm 33.8020ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/workshop-isolation-worker.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/workshop-isolation-worker.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - 200 1686 text/javascript 0.6814ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/twodog.sizes.json - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/twodog.sizes.json'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/twodog.sizes.json'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/twodog.sizes.json - 200 46 application/json 0.4883ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Private.CoreLib.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.Abstractions.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.InteropServices.JavaScript.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.Animation.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/CuriousContraptions.Abstractions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.Abstractions.wasm'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/CuriousContraptions.Animation.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.Animation.wasm'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.InteropServices.JavaScript.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.InteropServices.JavaScript.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.Abstractions.wasm - 200 9493 application/wasm 0.3457ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.InteropServices.JavaScript.wasm - 200 47381 application/wasm 0.3778ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.Animation.wasm - 200 15125 application/wasm 0.2634ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/GodotSharp.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.web.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/CuriousContraptions.web.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.web.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.web.wasm - 200 6933 application/wasm 0.1831ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Private.CoreLib.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Private.CoreLib.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Private.CoreLib.wasm - 200 1500949 application/wasm 1.9404ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/CuriousContraptions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.wasm - 200 1064213 application/wasm 1.8164ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/Google.FlatBuffers.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/Google.FlatBuffers.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/Google.FlatBuffers.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/Google.FlatBuffers.wasm - 200 28949 application/wasm 0.2140ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.Concurrent.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.Immutable.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Collections.Concurrent.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Collections.Concurrent.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.Concurrent.wasm - 200 24341 application/wasm 0.1510ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Console.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Collections.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Collections.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Diagnostics.StackTrace.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.wasm - 200 12053 application/wasm 0.1574ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Collections.Immutable.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Collections.Immutable.wasm'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Console.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Console.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.Immutable.wasm - 200 42261 application/wasm 0.1872ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Console.wasm - 200 15125 application/wasm 0.1242ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Diagnostics.TraceSource.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Diagnostics.StackTrace.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Diagnostics.StackTrace.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Diagnostics.StackTrace.wasm - 200 4885 application/wasm 0.1274ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Diagnostics.TraceSource.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Diagnostics.TraceSource.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Diagnostics.TraceSource.wasm - 200 11029 application/wasm 0.1146ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Linq.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Linq.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Linq.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Linq.wasm - 200 29973 application/wasm 0.1517ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Memory.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Memory.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Memory.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Memory.wasm - 200 7445 application/wasm 0.1412ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Numerics.Vectors.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Private.Uri.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Numerics.Vectors.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Numerics.Vectors.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Numerics.Vectors.wasm - 200 4885 application/wasm 0.1147ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Private.Uri.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Private.Uri.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Private.Uri.wasm - 200 65813 application/wasm 0.1214ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.wasm - 200 12565 application/wasm 0.1897ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/GodotSharp.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/GodotSharp.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/GodotSharp.wasm - 200 5656857 application/wasm 7.4736ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.InteropServices.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.InteropServices.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.InteropServices.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.InteropServices.wasm - 200 8981 application/wasm 0.2117ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.Intrinsics.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.Loader.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Security.Cryptography.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Text.RegularExpressions.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.Loader.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.Loader.wasm'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.Intrinsics.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.Intrinsics.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.Loader.wasm - 200 4885 application/wasm 0.1893ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.Intrinsics.wasm - 200 4885 application/wasm 0.1933ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Security.Cryptography.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Security.Cryptography.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Security.Cryptography.wasm - 200 20245 application/wasm 0.1977ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Text.RegularExpressions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Text.RegularExpressions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Text.RegularExpressions.wasm - 200 246037 application/wasm 0.2760ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/twodog.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Threading.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/icudt_EFIGS.dat - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Threading.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Threading.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.native.js.symbols - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Threading.wasm - 200 12053 application/wasm 0.1374ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/twodog.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/twodog.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/twodog.wasm - 200 50965 application/wasm 0.1760ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/icudt_EFIGS.dat'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/icudt_EFIGS.dat'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/icudt_EFIGS.dat - 200 550832 application/octet-stream 0.4817ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/dotnet.native.js.symbols'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/dotnet.native.js.symbols'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.native.js.symbols - 200 19444310 application/octet-stream 11.3543ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/workshop-client.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/workshop-client.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/workshop-client.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/workshop-client.js - 200 43921 text/javascript 0.3331ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/godot.audio.worklet.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/godot.audio.position.worklet.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/godot.audio.position.worklet.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/godot.audio.position.worklet.js'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/godot.audio.worklet.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/godot.audio.worklet.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/godot.audio.position.worklet.js - 200 2973 text/javascript 0.2229ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/godot.audio.worklet.js - 200 7298 text/javascript 0.2229ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/native-clock.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/native-clock.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/native-clock.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/native-clock.js - 200 3076 text/javascript 0.2432ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/worker.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/worker.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/worker.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/worker.js'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/worker.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/worker.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/worker.js - 200 5382 text/javascript 0.1961ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/worker.js - 200 16728 text/javascript 0.2012ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/dotnet.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/dotnet.js'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/dotnet.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.js - 200 37898 text/javascript 0.2840ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.js - 200 37898 text/javascript 0.1891ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.boot.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.boot.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/dotnet.boot.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.boot.js'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/dotnet.boot.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/dotnet.boot.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.boot.js - 200 5439 text/javascript 0.1544ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.boot.js - 200 5281 text/javascript 0.1520ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.runtime.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.runtime.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.native.js - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.native.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/dotnet.runtime.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.runtime.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.runtime.js - 200 198480 text/javascript 0.3043ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/dotnet.runtime.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/dotnet.runtime.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.runtime.js - 200 198480 text/javascript 0.3026ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/dotnet.native.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.native.js - 200 215273 text/javascript 0.3262ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.native.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/dotnet.native.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.native.js - 200 215273 text/javascript 0.3318ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.native.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Private.CoreLib.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/dotnet.native.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.native.wasm - 200 1486038 application/wasm 1.7493ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/dotnet.native.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.native.wasm - 200 1486004 application/wasm 2.0471ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Private.CoreLib.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Private.CoreLib.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Private.CoreLib.wasm - 200 1123605 application/wasm 1.1183ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Private.CoreLib.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm - 200 42773 application/wasm 0.1491ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Private.CoreLib.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Private.CoreLib.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Private.CoreLib.wasm - 200 1116437 application/wasm 1.1409ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Abstractions.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Animation.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/CuriousContraptions.Abstractions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/CuriousContraptions.Abstractions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Abstractions.wasm - 200 9493 application/wasm 0.1285ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.InteropServices.JavaScript.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/CuriousContraptions.Animation.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/CuriousContraptions.Animation.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Animation.wasm - 200 14101 application/wasm 0.0675ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Abstractions.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Runtime.InteropServices.JavaScript.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Runtime.InteropServices.JavaScript.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.InteropServices.JavaScript.wasm - 200 42773 application/wasm 0.0940ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/CuriousContraptions.Abstractions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/CuriousContraptions.Abstractions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Abstractions.wasm - 200 9493 application/wasm 0.0718ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Animation.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/CuriousContraptions.Animation.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/CuriousContraptions.Animation.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Animation.wasm - 200 43285 application/wasm 0.1374ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Animation.Worker.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Simulation.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/Google.FlatBuffers.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/CuriousContraptions.Animation.Worker.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/CuriousContraptions.Animation.Worker.wasm'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/Google.FlatBuffers.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/Google.FlatBuffers.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Animation.Worker.wasm - 200 714005 application/wasm 0.5145ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/Google.FlatBuffers.wasm - 200 19733 application/wasm 0.1535ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/CuriousContraptions.Simulation.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/CuriousContraptions.Simulation.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Simulation.wasm - 200 800021 application/wasm 0.5421ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Collections.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Collections.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Collections.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Collections.wasm - 200 10517 application/wasm 0.1345ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Console.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Console.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Console.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Console.wasm - 200 14613 application/wasm 0.0805ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Linq.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Memory.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Memory.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Memory.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/Google.FlatBuffers.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Memory.wasm - 200 7445 application/wasm 0.1353ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Linq.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Linq.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Linq.wasm - 200 25877 application/wasm 0.1778ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Collections.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/Google.FlatBuffers.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/Google.FlatBuffers.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Console.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/Google.FlatBuffers.wasm - 200 19733 application/wasm 0.1088ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Collections.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Collections.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Collections.wasm - 200 10517 application/wasm 0.0834ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Console.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Console.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Console.wasm - 200 14613 application/wasm 0.0853ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Linq.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Linq.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Linq.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Linq.wasm - 200 25877 application/wasm 0.0754ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Memory.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Memory.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Memory.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Memory.wasm - 200 7445 application/wasm 0.0803ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Numerics.Vectors.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Numerics.Vectors.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Numerics.Vectors.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Numerics.Vectors.wasm - 200 4885 application/wasm 0.0742ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Runtime.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Runtime.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.wasm - 200 8469 application/wasm 0.0769ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Numerics.Vectors.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Numerics.Vectors.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Numerics.Vectors.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Numerics.Vectors.wasm - 200 4885 application/wasm 0.0525ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Runtime.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Runtime.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.wasm - 200 8469 application/wasm 0.0885ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.Intrinsics.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Runtime.Intrinsics.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Runtime.Intrinsics.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.Intrinsics.wasm - 200 4885 application/wasm 0.0657ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Threading.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Threading.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Threading.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Threading.wasm - 200 12053 application/wasm 0.1084ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.Intrinsics.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Runtime.Intrinsics.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Runtime.Intrinsics.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.Intrinsics.wasm - 200 4885 application/wasm 0.0729ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/ - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/index.html'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/index.html'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/index.html - 200 20447 text/html 0.3026ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/godot.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/workshop-isolation-worker.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/workshop-isolation-worker.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - 200 1686 text/javascript 0.1627ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Private.CoreLib.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.InteropServices.JavaScript.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.Abstractions.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.InteropServices.JavaScript.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.InteropServices.JavaScript.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.InteropServices.JavaScript.wasm - 200 47381 application/wasm 0.1350ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/CuriousContraptions.Abstractions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.Abstractions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.Abstractions.wasm - 200 9493 application/wasm 0.0984ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.Animation.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/CuriousContraptions.Animation.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.Animation.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.Animation.wasm - 200 15125 application/wasm 0.1293ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Private.CoreLib.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Private.CoreLib.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Private.CoreLib.wasm - 200 1500949 application/wasm 1.1336ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.web.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/CuriousContraptions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.wasm - 200 1064213 application/wasm 0.7374ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/CuriousContraptions.web.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/CuriousContraptions.web.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/CuriousContraptions.web.wasm - 200 6933 application/wasm 0.0838ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/GodotSharp.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/Google.FlatBuffers.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.Concurrent.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/Google.FlatBuffers.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/Google.FlatBuffers.wasm'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Collections.Concurrent.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Collections.Concurrent.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.Concurrent.wasm - 200 24341 application/wasm 0.0900ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/Google.FlatBuffers.wasm - 200 28949 application/wasm 0.1475ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Collections.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Collections.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.wasm - 200 12053 application/wasm 0.1978ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.Immutable.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Collections.Immutable.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Collections.Immutable.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Collections.Immutable.wasm - 200 42261 application/wasm 0.0883ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Console.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Console.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Console.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Console.wasm - 200 15125 application/wasm 0.0600ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Diagnostics.StackTrace.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Diagnostics.TraceSource.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Diagnostics.StackTrace.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Diagnostics.StackTrace.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Diagnostics.StackTrace.wasm - 200 4885 application/wasm 0.1197ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Diagnostics.TraceSource.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Diagnostics.TraceSource.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Diagnostics.TraceSource.wasm - 200 11029 application/wasm 0.0847ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Linq.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Linq.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Linq.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Linq.wasm - 200 29973 application/wasm 0.0699ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Memory.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Memory.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Memory.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Memory.wasm - 200 7445 application/wasm 0.0703ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Numerics.Vectors.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Numerics.Vectors.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Numerics.Vectors.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Numerics.Vectors.wasm - 200 4885 application/wasm 0.0687ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Private.Uri.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Private.Uri.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Private.Uri.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Private.Uri.wasm - 200 65813 application/wasm 0.1015ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.wasm - 200 12565 application/wasm 0.1222ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/GodotSharp.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/GodotSharp.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/GodotSharp.wasm - 200 5656857 application/wasm 5.1567ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.InteropServices.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.InteropServices.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.InteropServices.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.InteropServices.wasm - 200 8981 application/wasm 0.1166ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.Intrinsics.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.Intrinsics.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.Intrinsics.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.Intrinsics.wasm - 200 4885 application/wasm 0.1187ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/godot.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/godot.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/godot.wasm - 200 47380389 application/wasm 33.0651ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Text.RegularExpressions.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Security.Cryptography.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.Loader.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Security.Cryptography.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Security.Cryptography.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Security.Cryptography.wasm - 200 20245 application/wasm 0.0966ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Runtime.Loader.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Runtime.Loader.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Runtime.Loader.wasm - 200 4885 application/wasm 0.1144ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Text.RegularExpressions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Text.RegularExpressions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Text.RegularExpressions.wasm - 200 246037 application/wasm 0.1752ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Threading.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/System.Threading.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/System.Threading.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/System.Threading.wasm - 200 12053 application/wasm 0.0650ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/twodog.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.native.js.symbols - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/_framework/icudt_EFIGS.dat - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/twodog.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/twodog.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/twodog.wasm - 200 50965 application/wasm 0.1290ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/icudt_EFIGS.dat'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/icudt_EFIGS.dat'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/icudt_EFIGS.dat - 200 550832 application/octet-stream 0.3575ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/_framework/dotnet.native.js.symbols'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/_framework/dotnet.native.js.symbols'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/_framework/dotnet.native.js.symbols - 200 19444310 application/octet-stream 9.6676ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.native.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.native.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/dotnet.native.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/dotnet.native.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/dotnet.native.wasm - 200 1486038 application/wasm 1.0685ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/dotnet.native.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/dotnet.native.wasm - 200 1486004 application/wasm 1.1762ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Private.CoreLib.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Private.CoreLib.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Abstractions.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/CuriousContraptions.Abstractions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/CuriousContraptions.Abstractions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Abstractions.wasm - 200 9493 application/wasm 0.0721ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.InteropServices.JavaScript.wasm - 200 42773 application/wasm 0.1251ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Animation.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/CuriousContraptions.Animation.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/CuriousContraptions.Animation.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Animation.wasm - 200 14101 application/wasm 0.0719ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Private.CoreLib.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Private.CoreLib.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Private.CoreLib.wasm - 200 1123605 application/wasm 0.6172ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Private.CoreLib.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Private.CoreLib.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Private.CoreLib.wasm - 200 1116437 application/wasm 0.6604ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Simulation.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/CuriousContraptions.Simulation.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/CuriousContraptions.Simulation.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/CuriousContraptions.Simulation.wasm - 200 800021 application/wasm 0.4123ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/Google.FlatBuffers.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/Google.FlatBuffers.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/Google.FlatBuffers.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/Google.FlatBuffers.wasm - 200 19733 application/wasm 0.0605ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Collections.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.InteropServices.JavaScript.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Collections.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Collections.wasm'
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Runtime.InteropServices.JavaScript.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Runtime.InteropServices.JavaScript.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.InteropServices.JavaScript.wasm - 200 42773 application/wasm 0.0642ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Abstractions.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Collections.wasm - 200 10517 application/wasm 0.1243ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Animation.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/CuriousContraptions.Abstractions.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/CuriousContraptions.Abstractions.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Abstractions.wasm - 200 9493 application/wasm 0.0715ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Animation.Worker.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/CuriousContraptions.Animation.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/CuriousContraptions.Animation.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Animation.wasm - 200 43285 application/wasm 0.0767ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/Google.FlatBuffers.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/Google.FlatBuffers.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/Google.FlatBuffers.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/Google.FlatBuffers.wasm - 200 19733 application/wasm 0.0656ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/CuriousContraptions.Animation.Worker.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/CuriousContraptions.Animation.Worker.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/CuriousContraptions.Animation.Worker.wasm - 200 714005 application/wasm 0.3532ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Collections.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Collections.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Collections.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Collections.wasm - 200 10517 application/wasm 0.0450ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Console.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Console.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Console.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Console.wasm - 200 14613 application/wasm 0.0811ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Linq.wasm - - -
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Console.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Linq.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Linq.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Linq.wasm - 200 25877 application/wasm 0.1121ms
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Console.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Console.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Console.wasm - 200 14613 application/wasm 0.0587ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Linq.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Linq.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Linq.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Linq.wasm - 200 25877 application/wasm 0.0622ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Memory.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Memory.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Memory.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Memory.wasm - 200 7445 application/wasm 0.0667ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Numerics.Vectors.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Numerics.Vectors.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Numerics.Vectors.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Numerics.Vectors.wasm - 200 4885 application/wasm 0.0577ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Runtime.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Runtime.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.wasm - 200 8469 application/wasm 0.0524ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.Intrinsics.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Runtime.Intrinsics.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Runtime.Intrinsics.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Runtime.Intrinsics.wasm - 200 4885 application/wasm 0.0690ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Threading.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/simulation/_framework/System.Threading.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/simulation/_framework/System.Threading.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/simulation/_framework/System.Threading.wasm - 200 12053 application/wasm 0.0549ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Memory.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Memory.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Memory.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Memory.wasm - 200 7445 application/wasm 0.0573ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Numerics.Vectors.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Numerics.Vectors.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Numerics.Vectors.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Numerics.Vectors.wasm - 200 4885 application/wasm 0.0544ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Runtime.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Runtime.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.wasm - 200 8469 application/wasm 0.0522ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.Intrinsics.wasm - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/animation/_framework/System.Runtime.Intrinsics.wasm'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/animation/_framework/System.Runtime.Intrinsics.wasm'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/animation/_framework/System.Runtime.Intrinsics.wasm - 200 4885 application/wasm 0.0523ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/workshop-isolation-worker.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/workshop-isolation-worker.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - 200 1686 text/javascript 0.1715ms
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - - -
+info: Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware[2]
+      Sending file. Request path: '/workshop-isolation-worker.js'. Physical path: '/Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/workshop-isolation-worker.js'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/1.1 GET http://127.0.0.1:8060/workshop-isolation-worker.js - 200 1686 text/javascript 0.2072ms
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...

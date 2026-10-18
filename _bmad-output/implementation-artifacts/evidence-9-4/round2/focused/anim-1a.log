@@ -1,0 +1,13 @@
+▶ ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core Feedback
+  ✔ 1. Animation worker qualification & Receiver capture halo ramp upon goal solve (5744.067708ms)
+  ✔ 2. Cosmetic animation evaluation continues at 60 Hz independent of simulation pause (2056.316208ms)
+  ✔ 3. Exact Reset and Save/Load persistence roundtrip with clean animation re-activation (13866.794625ms)
+✔ ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeline & Core Feedback (26136.434458ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26377.747958

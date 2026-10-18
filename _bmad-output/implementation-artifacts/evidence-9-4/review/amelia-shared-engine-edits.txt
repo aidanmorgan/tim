@@ -1,0 +1,281 @@
+=== /Users/aidan/dev/personal/tim/engine/gpu/WorkshopPhysicsCompiler.cs
+--- OLD
+                new((Half)0.8f, (Half)0.1f, (Half)0.425f)));
+        }
+        return new(document, next,
++++ NEW
+                new((Half)0.8f, (Half)0.1f, (Half)0.425f)));
+        }
+        foreach (var latch in construction.Instances.OfType<WorkshopLatch>().OrderBy(l => l.Id.Value))
+        {
+            var first = PartIdentities(latch.Id); next = Math.Max(next, first + PartIdentityStride);
+            var material = new GpuMaterialId(first);
+            bodies.Add(new(latch.Id, RigidMotionKind.Static, latch.Cell, latch.Local, latch.Rotation,
+                default, default, new((Half)0), default, new((Half)0)));
+            materials.Add(new(material, new((Half)1), new((Half).1), new((Half).3), new((Half)0)));
+            var declared = WorkshopCanonicalColliders.LatchColliders;
+            for (var i = 0; i < declared.Count; i++)
+                colliders.Add(new(new(first + 1 + (ulong)i), latch.Id, material, declared[i].ShapeKind,
+                    declared[i].LocalPose, new Metres(declared[i].Radius), declared[i].HalfExtents));
+        }
+        return new(document, next,
+
+=== /Users/aidan/dev/personal/tim/engine/gpu/WorkshopWire.cs
+--- OLD
+                case WorkshopLamp: break;
++++ NEW
+                case WorkshopLamp or WorkshopLatch: break;
+
+=== /Users/aidan/dev/personal/tim/engine/gpu/WorkshopWire.cs
+--- OLD
+                "lamp" when Zero(slot[112..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),
++++ NEW
+                "lamp" when Zero(slot[112..]) => new WorkshopLamp(body.Id, body.Cell, body.Local, rotation, locked == 1),
+                "latch" when Zero(slot[112..]) => new WorkshopLatch(body.Id, body.Cell, body.Local, rotation, locked == 1),
+
+=== /Users/aidan/dev/personal/tim/engine/gpu/WorkshopWireFlatBuffers.cs
+--- OLD
+                case WorkshopLamp:
+                case IWorkshopDeclaredColliders:
++++ NEW
+                case WorkshopLamp:
+                case WorkshopLatch:
+                case IWorkshopDeclaredColliders:
+
+=== /Users/aidan/dev/personal/tim/engine/gpu/WorkshopWireFlatBuffers.cs
+--- OLD
+                "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
++++ NEW
+                "lamp" => new WorkshopLamp(id, cell, local, rotation, locked),
+                "latch" => new WorkshopLatch(id, cell, local, rotation, locked),
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopGpuDevice.cs
+--- OLD
+    // Resource preparation owns the same gate as candidates, but never stages a world.
++++ NEW
+    /// <summary>Committed State Latch memory through the last committed boundary; physics reads it at the next boundary.</summary>
+    internal SimulationLatchPhase CommittedStateLatchPhase(GpuBodyId owner) =>
+        _committedNetwork?.GetStateLatchPhase(owner) ?? SimulationLatchPhase.Off;
+
+    // Resource preparation owns the same gate as candidates, but never stages a world.
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/Program.cs
+--- OLD
+        return (int)Simulation.ElectricalState(new(((ulong)(uint)ownerHigh << 32) | (uint)ownerLow), (ElectricalEnable)previous);
+    }
+
++++ NEW
+        return (int)Simulation.ElectricalState(new(((ulong)(uint)ownerHigh << 32) | (uint)ownerLow), (ElectricalEnable)previous);
+    }
+
+    /// <summary>Whether a consumer's PowerIn is energised through a closed State Latch contact (latch On and its battery enabled).</summary>
+    internal static bool StateLatchSupplies(ulong consumer)
+    {
+        if (_simulation is null || _device is null) return false;
+        return StateLatchRoutes.Supplies(_simulation.Construction, new(consumer), _device.CommittedStateLatchPhase,
+            battery => _simulation.ElectricalState(battery.Id, battery.Settings.Enabled));
+    }
+
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+--- OLD
+    public uint Collision;
+    public float[] Impulses
++++ NEW
+    public uint Collision;
+    /// <summary>Refreshed each tick from the committed State Latch route feeding the frame owner's PowerIn.</summary>
+    public bool StateLatchSupplied;
+    public float[] Impulses
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+--- OLD
+                                  (b.Drag >= 0.11f && batteryPowered && counterReached);
++++ NEW
+                                  (b.Drag >= 0.11f && batteryPowered && counterReached) ||
+                                  joint.StateLatchSupplied;
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+--- OLD
+            joint.Collision = collision;
+
++++ NEW
+            joint.Collision = collision;
+            joint.StateLatchSupplied = Program.StateLatchSupplies(joint.A.Id);
+
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopGpuDevice.cs
+--- OLD
+        _committedNetwork?.GetStateLatchPhase(owner) ?? SimulationLatchPhase.Off;
++++ NEW
+        _committedNetwork?.StateLatchPhase(_committedActivations, owner) ?? SimulationLatchPhase.Off;
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+--- OLD
+    private bool _plateLoaded;
+    private bool _counterReached;
+    private int _counterCrossings;
+    private readonly Dictionary<int, (bool Armed, float PrevX)> _ballPassageState = new();
+
++++ NEW
+    private bool _plateLoaded;
+
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+--- OLD
+        _plateLoaded = false;
+        _counterReached = false;
+        _counterCrossings = 0;
+        _ballPassageState.Clear();
+
++++ NEW
+        _plateLoaded = false;
+
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+--- OLD
+        SimBody? detectorFrame = null;
+        bool hasClock = false;
+        bool hasCounter = false;
+        foreach (var col in _colliders)
+        {
+            if (col.Body.Motion == 0 && MathF.Abs(col.Hx - 0.28f) < 0.01f && MathF.Abs(col.Hy - 0.025f) < 0.01f && MathF.Abs(col.Hz - 0.14f) < 0.01f)
+            {
+                detectorFrame = col.Body;
+                break;
+            }
+            if (col.Body.Motion == 0 && MathF.Abs(col.Hx - 0.7f) < 0.01f && MathF.Abs(col.Hy - 0.85f) < 0.01f && MathF.Abs(col.Hz - 0.3f) < 0.01f)
+            {
+                hasClock = true;
+            }
+            if (col.Body.Motion == 0 && MathF.Abs(col.Hx - 0.825f) < 0.01f && MathF.Abs(col.Hy - 0.625f) < 0.01f && MathF.Abs(col.Hz - 0.325f) < 0.01f)
+            {
+                hasCounter = true;
+            }
+        }
+
+
++++ NEW
+
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+--- OLD
+            var hz = cadence == 1 ? 60u : (cadence == 2 ? 120u : 240u);
+            if (hasClock && hasCounter && batteryPowered && currentTick >= 3u * hz)
+            {
+                _counterReached = true;
+            }
+
+            PrismaticConstraintSolver.ActuatorSliderDrive(_joints, batteryPowered, _plateLoaded, _counterReached, dt);
++++ NEW
+            // Latch- and Counter-switched gates follow committed contact state (SimJoint.SwitchedSupplyClosed), never a timer.
+            PrismaticConstraintSolver.ActuatorSliderDrive(_joints, batteryPowered, _plateLoaded, dt);
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+--- OLD
+            if (detectorFrame != null)
+            {
+                foreach (var ball in _dynamicBodies)
+                {
+                    var rel = ball.Position - detectorFrame.Position;
+                    var loc = WorkshopCollisionKernels.InvRotateVector(detectorFrame.Rotation, rel);
+                    if (!_ballPassageState.TryGetValue(ball.BodySlot, out var state))
+                    {
+                        state = (loc.X < -0.3f, loc.X);
+                        _ballPassageState[ball.BodySlot] = state;
+                    }
+
+                    if (loc.X < -0.3f) state.Armed = true;
+
+                    if (state.Armed && state.PrevX <= 0f && loc.X > 0f)
+                    {
+                        var rSq = loc.Y * loc.Y + loc.Z * loc.Z;
+                        if (rSq <= 0.65f * 0.65f)
+                        {
+                            state.Armed = false;
+                            _counterCrossings++;
+                            if (_counterCrossings >= 3) _counterReached = true;
+                        }
+                        else state.Armed = false;
+                    }
+                    state.PrevX = loc.X;
+                    _ballPassageState[ball.BodySlot] = state;
+                }
+            }
+
+
++++ NEW
+
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+--- OLD
+    /// <summary>Refreshed each tick from the committed State Latch route feeding the frame owner's PowerIn.</summary>
+    public bool StateLatchSupplied;
++++ NEW
+    /// <summary>Refreshed each tick from the committed switched route (State Latch or Counter contact) feeding the frame owner's PowerIn.</summary>
+    public bool SwitchedSupplyClosed;
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+--- OLD
+bool batteryPowered, bool plateLoaded, bool counterReached, float dt)
++++ NEW
+bool batteryPowered, bool plateLoaded, float dt)
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/PrismaticConstraintSolver.cs
+--- OLD
+                                  (b.Drag >= 0.11f && batteryPowered && counterReached) ||
+                                  joint.StateLatchSupplied;
++++ NEW
+                                  joint.SwitchedSupplyClosed;
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopGpuDevice.cs
+--- OLD
+    /// <summary>Committed State Latch memory through the last committed boundary; physics reads it at the next boundary.</summary>
+    internal SimulationLatchPhase CommittedStateLatchPhase(GpuBodyId owner) =>
+        _committedNetwork?.StateLatchPhase(_committedActivations, owner) ?? SimulationLatchPhase.Off;
++++ NEW
+    /// <summary>Committed switched-contact state through the last committed boundary; physics reads it at the next boundary.</summary>
+    internal bool CommittedContactClosed(GpuBodyId owner) =>
+        _committedNetwork?.ContactClosed(_committedActivations, owner) ?? false;
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/Program.cs
+--- OLD
+    /// <summary>Whether a consumer's PowerIn is energised through a closed State Latch contact (latch On and its battery enabled).</summary>
+    internal static bool StateLatchSupplies(ulong consumer)
+    {
+        if (_simulation is null || _device is null) return false;
+        return StateLatchRoutes.Supplies(_simulation.Construction, new(consumer), _device.CommittedStateLatchPhase,
++++ NEW
+    /// <summary>Whether a consumer's PowerIn is energised through a closed switched contact (State Latch On or Counter reached) and an enabled battery.</summary>
+    internal static bool SwitchedSupplies(ulong consumer)
+    {
+        if (_simulation is null || _device is null) return false;
+        return SwitchedSupplyRoutes.Supplies(_simulation.Construction, new(consumer), _device.CommittedContactClosed,
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+--- OLD
+ActuatorSliderDrive(dummyJoints, true, true, false, WorkshopConstraintSolver.SubstepSeconds);
++++ NEW
+ActuatorSliderDrive(dummyJoints, true, true, WorkshopConstraintSolver.SubstepSeconds);
+
+=== /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs
+--- OLD
+            joint.StateLatchSupplied = Program.StateLatchSupplies(joint.A.Id);
++++ NEW
+            joint.SwitchedSupplyClosed = Program.SwitchedSupplies(joint.A.Id);
+
+=== /Users/aidan/dev/personal/tim/engine/gpu/WorkshopPhysicsCompiler.cs
+--- OLD
+                var isCounterPowered = construction.Connections.Any(link =>
+                    link.Domain == WorkshopConnectionDomain.Electrical &&
+                    link.Target == instance.Id &&
+                    construction.Instances.OfType<WorkshopCounter>().Any(c => c.Id == link.Source &&
+                        construction.Connections.Any(bLink =>
+                            bLink.Domain == WorkshopConnectionDomain.Electrical &&
+                            bLink.Target == c.Id &&
+                            bLink.Input == WorkshopSocket.PowerIn &&
+                            construction.Instances.OfType<WorkshopBattery>().Any(b => b.Id == bLink.Source && b.Settings.Enabled == ElectricalEnable.Enabled))));
+                var bladeDrag = isDirectlyPowered ? (Half)0.0625f : isPlatePowered ? (Half)0.09375f : isCounterPowered ? (Half)0.125f : (Half)0f;
++++ NEW
+                // Latch- and Counter-switched supplies are resolved per tick from committed contact state (SwitchedSupplyRoutes).
+                var bladeDrag = isDirectlyPowered ? (Half)0.0625f : isPlatePowered ? (Half)0.09375f : (Half)0f;
+

@@ -12,7 +12,17 @@ public sealed class WorkshopCommandRouter(Func<WorkshopCommand, byte[], Task<byt
 
     public Task<byte[]> Dispatch(byte[] bytes)
     {
-        var command = WorkshopWire.DecodeCommand(bytes);
+        var isFlatBuffer = false;
+        WorkshopCommand command;
+        try
+        {
+            command = WorkshopWireFlatBuffers.DecodeCommand(bytes);
+            isFlatBuffer = true;
+        }
+        catch
+        {
+            command = WorkshopWire.DecodeCommand(bytes);
+        }
         if (_retained.TryGetValue(command.Sequence.Value, out var existing))
         {
             if (!bytes.AsSpan().SequenceEqual(existing.Request))
@@ -29,7 +39,7 @@ public sealed class WorkshopCommandRouter(Func<WorkshopCommand, byte[], Task<byt
             if (retired == 0) throw new InvalidOperationException("Reliable command result capacity is full.");
         }
         var owned = (byte[])bytes.Clone();
-        var reservedResult = new byte[WorkshopWire.ResponseBytes];
+        var reservedResult = isFlatBuffer ? Array.Empty<byte>() : new byte[WorkshopWire.ResponseBytes];
         if (retired != 0) _retained.Remove(retired);
         _lastSequence = command.Sequence.Value;
         var result = execute(command, reservedResult);

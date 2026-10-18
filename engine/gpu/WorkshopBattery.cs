@@ -18,7 +18,7 @@ public readonly record struct ElectricalSourceSettings(Joules Capacity, Watts Ma
 public readonly record struct WorkshopBattery(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, ElectricalSourceSettings Settings, bool Locked = false) : IWorkshopInstance
 {
-    public WorkshopPartKind Kind => WorkshopPartKind.Battery;
+    public PartId PartId => PartId.Battery;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {

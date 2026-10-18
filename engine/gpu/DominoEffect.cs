@@ -18,7 +18,7 @@ public static class DominoEffect
         var goal = new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default,
             new(end.Value), new(lamp.Value), new((Half)0));
         var puzzle = new WorkshopPuzzle(WorkshopPuzzleId.DominoEffect, WorkshopPlacementMode.Manual,
-            precision, WorkshopPartKind.Domino, Inventory, goal, default, default, default);
+            precision, PartId.Domino, Inventory, goal, default, default, default);
         var result = new WorkshopConstruction(revision, settings, new(Ball(ball), EndDomino(end), Lamp(lamp)), puzzle);
         result.Validate(); return result;
     }
@@ -32,7 +32,7 @@ public static class DominoEffect
     {
         PhysicsDeclarationBounds.Range(puzzle.Precision.Value, (Half)0, (Half)1);
         var end = new GpuBodyId(puzzle.Goal.SourceNode.Value);
-        if (puzzle.InventoryKind != WorkshopPartKind.Domino || puzzle.InventoryCount != Inventory ||
+        if (puzzle.InventoryPart != PartId.Domino || puzzle.InventoryCount != Inventory ||
             puzzle.Goal.Kind != WorkshopGoalKind.ActivatedAfter || !PhysicsDeclarationBounds.Zero(puzzle.Goal.MinimumDelay.Value) ||
             puzzle.BallAssistance != default || puzzle.ReceiverAssistance != default || puzzle.RampAssistance != default ||
             construction.Ball is not { } ball || ball != Ball(ball.Id) ||

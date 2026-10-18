@@ -17,7 +17,7 @@ public readonly record struct SpringboardSettings(float Stiffness, float Damping
 public readonly record struct WorkshopSpringboard(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, SpringboardSettings Settings, bool Locked = false) : IWorkshopInstance
 {
-    public WorkshopPartKind Kind => WorkshopPartKind.Springboard;
+    public PartId PartId => PartId.Springboard;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {

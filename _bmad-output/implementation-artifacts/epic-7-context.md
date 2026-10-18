@@ -10,13 +10,13 @@ Remove dead historical archives, diagnostic tools, uncompiled tests and supersed
 - Story 7.1: Reference and historical archive purge.
 - Story 7.2: Diagnostics and legacy probe tools purge.
 - Story 7.3: Uncompiled legacy test purge.
-- Story 7.4: Legacy CPU physics and unshipped engine purge.
+- Story 7.4: Legacy CPU physics, procedural PartArt and unshipped engine purge.
 
 ## Requirements & Constraints
 
 No deletion precedes a complete disposition-ledger row and harvested element knowledge. Every named element remains in the implementation plan. Preserve requirement IDs, variants and current behavior. Tracked history is the archive; the owner requires the two untracked p025 app bundles archived before deletion, with the 10 Oct owner decision retaining the exact archive and recovery inside tim in an ignored, import/export-excluded directory. Active Markdown survives the reference purge if any remains active. Builds, applicable unit tests and actual Chrome Playwright acceptance must pass; scoped independent review is mandatory.
 
-Delete obsolete paths forward without compatibility shims, legacy modes or fallback implementations. Keep current typed declarations, f32 numerical authority, general engines and the Tri-Graph architecture. Detailed device/performance qualification remains at its named later gates; no scoped purge claims global qualification.
+Delete obsolete paths forward without compatibility shims, legacy modes or fallback implementations. Procedural mesh generation in `engine/PartArt.cs`, hardcoded collider dimension resources, bespoke per-part C# scripts (`parts/*Part.cs`), and closed part enums (`WorkshopPartKind`) are scheduled for permanent deletion; strictly zero backwards-compatibility shims or bridges. Keep current typed declarations, f32 numerical authority, general engines and the Tri-Graph architecture. Detailed device/performance qualification remains at its named later gates; no scoped purge claims global qualification.
 
 ## Technical Decisions
 

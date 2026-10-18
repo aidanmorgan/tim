@@ -68,11 +68,11 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
             for (var column = 0; column < 3; column++)
                 for (var row = 0; row < 3; row++)
                     Assert.InRange(Math.Abs(basis[column][row] - fixture.GetProperty("orientation")[column * 3 + row].GetDouble()), 0, 2e-7);
-            Profile(fixture.GetProperty("difficulty"), actual.Kind switch
+            Profile(fixture.GetProperty("difficulty"), actual.PartId switch
             {
-                WorkshopPartKind.Basketball => initial.Puzzle.BallAssistance,
-                WorkshopPartKind.Receiver => initial.Puzzle.ReceiverAssistance,
-                WorkshopPartKind.Springboard => initial.Puzzle.RampAssistance,
+                var id when id == PartId.Basketball => initial.Puzzle.BallAssistance,
+                var id when id == PartId.Receiver => initial.Puzzle.ReceiverAssistance,
+                var id when id == PartId.Springboard => initial.Puzzle.RampAssistance,
                 _ => throw new InvalidDataException()
             });
         }
@@ -81,7 +81,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
             ready ? initial.Puzzle.ReceiverAssistance : initial.Puzzle.RampAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(initial.Puzzle);
         Assert.Single(inventory);
-        Assert.Equal(PartAllowance.Counted(1), inventory[ready ? WorkshopPartKind.Receiver : WorkshopPartKind.Springboard]);
+        Assert.Equal(PartAllowance.Counted(1), inventory[ready ? PartId.Receiver : PartId.Springboard]);
         IWorkshopInstance placed = ready ? WorkshopInput.Receiver(new(3), 1.8, 1.3, 0, 0, 0, 0, 1)
             : WorkshopInput.Springboard(new(3), -3, .8, 0, 0, 0, -Math.Sin(Math.PI / 18), Math.Cos(Math.PI / 18), SpringboardSettings.Default);
         var construction = initial.WithInstance(placed); construction.Validate();
@@ -129,10 +129,9 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
     [InlineData("initial_compression", .2f)]
     public void ObsoleteResourceParametersAndUnsupportedWireTailRejectBeforeMutation(string externalKey, float value)
     {
-        using var resource = new SpringboardResource { Stiffness = 400, Damping = .2f };
-        using var definition = new PartDefinition { Id = "spring", Springboard = resource };
+        using var definition = new PartDefinition { Id = "spring" };
         definition.Parameters[externalKey] = value; // Deliberately invalid legacy resource boundary, not a domain key.
-        var part = new SpringboardPart();
+        var part = new MachinePart();
         try
         {
             Assert.Throws<ArgumentException>(() => part.Configure(definition));
@@ -142,15 +141,36 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
             Assert.Same(definition, part.Definition);
             var saved = new WorkshopSavedConstruction(Construction(), new(3));
             var accepted = WorkshopSaveCodec.Encode(saved);
-            foreach (var tail in new[] { 124, 156 })
+            foreach (var invalidSettings in new[] {
+                new SpringboardSettings(50f, .2f, 0f),
+                new SpringboardSettings(1500f, .2f, 0f),
+                new SpringboardSettings(400f, -1f, 0f),
+                new SpringboardSettings(400f, 10f, 0f),
+                new SpringboardSettings(400f, .2f, -.1f),
+                new SpringboardSettings(400f, .2f, .5f),
+                new SpringboardSettings(float.NaN, .2f, 0f) })
             {
-                var malformed = accepted.ToArray();
-                BinaryPrimitives.WriteSingleLittleEndian(malformed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes + tail), value);
-                Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(malformed));
+                var malformedConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+                    new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(invalidSettings)));
+                var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+                var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
+                CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+                CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+                CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+                CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
+                CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+                var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+                builder.Finish(end.Value);
+                Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
                 Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
             }
         }
         finally { part.Free(); }
+    }
+    private static WorkshopSpringboard Board(SpringboardSettings settings)
+    {
+        var px = WorkshopInput.Position(0); var py = WorkshopInput.Position(1); var pz = WorkshopInput.Position(0);
+        return new(new(2), new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local), CanonicalRotation.Identity, settings);
     }
     private static WorkshopConstruction Construction(SpringboardSettings? settings = null) => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1),
@@ -218,11 +238,19 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
         var save = new WorkshopSavedConstruction(construction, new(3));
         var encoded = WorkshopSaveCodec.Encode(save);
         Assert.Equal(save, WorkshopSaveCodec.Decode(encoded));
-        var source = encoded.ToArray();
-        var springSlot = 24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes;
-        BinaryPrimitives.WriteSingleLittleEndian(encoded.AsSpan(springSlot + 112), float.NaN);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(encoded));
-        Assert.Equal(save, WorkshopSaveCodec.Decode(source));
+        var badConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+            new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(float.NaN, damping))));
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+        builder.Finish(end.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+        Assert.Equal(save, WorkshopSaveCodec.Decode(encoded));
     }
 
     [Theory]
@@ -231,8 +259,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
     [InlineData(.2f)]
     public void PreloadResourceSaveAndPhysicalRestPreserveExactF32(float compression)
     {
-        using var resource = new SpringboardResource { Stiffness = 400, Damping = .2f, InitialCompression = compression };
-        var settings = resource.Capture();
+        var settings = new SpringboardSettings(400, .2f, compression);
+        settings.Validate();
         Assert.Equal(compression, settings.InitialCompression);
         var saved = new WorkshopSavedConstruction(Construction(settings), new(3));
         Assert.Equal(saved, WorkshopSaveCodec.Decode(WorkshopSaveCodec.Encode(saved)));
@@ -249,21 +277,26 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
     [InlineData(float.NegativeInfinity)]
     public void InvalidPreloadRejectsResourceAndSaveBeforeAcceptedStateChanges(float compression)
     {
-        using var resource = new SpringboardResource { Stiffness = 400, Damping = .2f, InitialCompression = compression };
-        using var definition = new PartDefinition { Id = "spring", Springboard = resource };
-        var part = new SpringboardPart();
+        var part = new MachinePart();
         try
         {
-            Assert.Throws<ArgumentException>(() => part.Configure(definition));
-            Assert.Null(part.Definition);
-            resource.InitialCompression = .2f;
-            part.Configure(definition);
-            Assert.Same(definition, part.Definition);
+            Assert.Throws<ArgumentException>(() => part.ApplySpring(new SpringboardSettings(400, .2f, compression)));
+            part.ApplySpring(new SpringboardSettings(400, .2f, .2f));
+            Assert.Equal(.2f, part.CanonicalSpring.InitialCompression);
             var saved = new WorkshopSavedConstruction(Construction(new(400, .2f, .2f)), new(3));
             var accepted = WorkshopSaveCodec.Encode(saved);
-            var malformed = accepted.ToArray();
-            BinaryPrimitives.WriteSingleLittleEndian(malformed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes + 120), compression);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(malformed));
+            var badConstruction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+                new(WorkshopInput.Basketball(new(1), 0, 4, 0, 0, 0, 0, 1), Board(new(400, .2f, compression))));
+            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
+            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
+            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+            builder.Finish(end.Value);
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
             Assert.Equal(saved, WorkshopSaveCodec.Decode(accepted));
         }
         finally { part.Free(); }
@@ -285,11 +318,11 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
     public void PalettePreviewHasArtWithoutInventedIdentityAndOwnedPlateResets()
     {
         var registry = new PartRegistry(); registry.Discover();
-        var part = Assert.IsType<SpringboardPart>(registry.Create(WorkshopPartKind.Springboard));
+        var part = Assert.IsType<MachinePart>(registry.Create(PartId.Springboard));
         try
         {
             godot.Tree.Root.AddChild(part);
-            Assert.Empty(WorkshopPorts.For(WorkshopPartKind.Springboard).ToArray());
+            Assert.Empty(WorkshopPorts.For(PartId.Springboard).ToArray());
             part.EnsureConstructed(); // The real tool preview has no authored identity yet.
             Assert.Equal(0UL, part.AuthoredId.Value);
             Assert.Null(part.PhysicalVisual(default));
@@ -328,8 +361,8 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
             godot.Tree.Root.AddChild(world);
             await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
             var parts = (List<MachinePart>)typeof(MachineWorld).GetField("_parts", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(world)!;
-            var ball = world.Registry.Create(WorkshopPartKind.Basketball); ball.AuthoredId = new(1); world.AddChild(ball); ball.EnsureConstructed(); parts.Add(ball);
-            var board = world.Registry.Create(WorkshopPartKind.Springboard); board.AuthoredId = new(2); world.AddChild(board); board.EnsureConstructed(); parts.Add(board);
+            var ball = world.Registry.Create(PartId.Basketball); ball.AuthoredId = new(1); world.AddChild(ball); ball.EnsureConstructed(); parts.Add(ball);
+            var board = world.Registry.Create(PartId.Springboard); board.AuthoredId = new(2); world.AddChild(board); board.EnsureConstructed(); parts.Add(board);
             var plateId = WorkshopPhysicsCompiler.SpringboardPlate(new(2));
             board.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, plateId);
             var plate = board.PhysicalVisual(plateId)!;
@@ -341,7 +374,7 @@ public sealed class WorkshopSpringboardTests(NativeSceneFixture godot, ITestOutp
             var oldPresentation = (WorkshopPresentationSample)field.GetValue(world)!;
             if (duplicate)
             {
-                var other = world.Registry.Create(WorkshopPartKind.Springboard); other.AuthoredId = new(2); world.AddChild(other); other.EnsureConstructed();
+                var other = world.Registry.Create(PartId.Springboard); other.AuthoredId = new(2); world.AddChild(other); other.EnsureConstructed();
                 other.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, plateId); parts.Add(other);
             }
             client.Sample = new(new([new(new(1), new(80,80,0), default, CanonicalRotation.Identity),

@@ -13,6 +13,11 @@ Deliver the foundational mechanical and aperture elements as declarations in the
 - Story 6.3: Bumper multi-angle contacts and advanced puzzles
 - Story 6.4: Prismatic slider and unified TGS Soft spring constraint
 - Story 6.5: Preload energy store and Springboard launch
+- Story 6.5b: Dynamic Puzzle Part Discovery & Extensible PartId Architecture
+- Story 6.5c: glTF Asset-Driven Geometry & Collider Extraction (ENGINE-CORE-2d)
+- Story 6.5d: Existing Implementation Conversion — Core Ball & Obstacle Primitives (CAT-001, CAT-014, CAT-064, CAT-003, CAT-066, CAT-054, CAT-004)
+- Story 6.5e: Existing Implementation Conversion — Interactive Mechanisms & Dynamic Fixtures (CAT-015, CAT-023, CAT-062, CAT-063, CAT-035, CAT-022, CAT-005)
+- Story 6.5f: Zero-Remnant Procedural Geometry, Per-Part Classes, and WorkshopPartKind Purge
 - Story 6.6: Straight Pipe compound cylindrical collider
 - Story 6.7: Hollow signed-distance Torus Rim Cap Pipe collider
 - Story 6.8: Generic aperture sensor with directional rearm
@@ -34,11 +39,11 @@ Retain existing difficulty data and its intended assistance behavior. Manual pla
 
 Separate the logical authoring graph, compiled physics graph and rendering graph. Run compiles typed declarations into flat contiguous SIMD-aligned state. A dedicated WASM SIMD worker advances physics at 120 Hz with 480 Hz substeps. The independent animation worker samples at 60 Hz; rendering remains display-paced. Data flows from physics to animation/rendering, never back from cosmetic state into physics.
 
-Use shared contact, constraint, sensor, signal and finite-work primitives. Elements supply declaration data, artwork and bindings, never private solvers, kernels or update loops. Prefer C# and preserve typed enums for closed sets across configuration, admission, worker transport and tests. Convert external strings only at declared boundaries; reject unsupported or malformed input atomically.
+Use shared contact, constraint, sensor, signal and finite-work primitives. Elements supply declaration data, artwork and bindings, never private solvers, kernels or update loops. Elements define visual and physical collision meshes purely via declarative glTF 2.0 (`.glb`) binary assets and `.tres` catalog resources, with co-located `col_*` proxy nodes and `Loc_Port_*` socket locators. Prefer C# and preserve typed enums for closed sets across configuration, admission, worker transport and tests; extensible part identities use strongly typed `PartId` record structs; closed enums like `WorkshopPartKind` are forbidden. Convert external strings only at declared boundaries; reject unsupported or malformed input atomically.
 
 Canonical new game values use IEEE-754 f32 and WASM SIMD. Existing geometry, pose and construction precision lanes remain under their explicit later migration ownership unless pulled into a slice. Do not introduce a second numeric model or claim global f32 qualification from a local change. Ordinary numerical residuals clamp or continue within the game-grade envelope; valid ticks do not fail because of proof-grade arithmetic expectations.
 
-Refactor forward through one current path, updating callers, content, tools and active documentation together. Delete superseded implementation within the slice's ownership; Git history preserves it. No compatibility shims, legacy runtime modes or automatic old-input migration.
+Refactor forward through one current path, updating callers, content, tools and active documentation together. All 14 existing implementations must be converted to the new declarative `.glb` + `PartId` architecture. Procedural mesh routines in `engine/PartArt.cs`, hardcoded collider dimension resources, bespoke per-part C# scripts (`parts/*Part.cs`), and closed part enums (`WorkshopPartKind`) must be deleted permanently. Strictly zero backwards compatibility shims, dual loaders, or legacy runtime modes. Git history preserves deleted code.
 
 ## UX & Interaction Patterns
 

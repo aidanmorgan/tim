@@ -98,7 +98,7 @@ public partial class Workshop
         actions.AddChild(_rotateModeButton);
         _resizeModeButton = Button("Resize mode", () =>
         {
-            if (_selected is not IResizablePart || _selected.Locked) return;
+            if (_selected is not IResizablePart resizable || resizable.ResizableAxes == ResizeAxes.None || _selected.Locked) return;
             EndGizmo(true);
             _dragging = _lifting = false;
             _rotationGizmo.SetResizeMode();
@@ -234,9 +234,9 @@ public partial class Workshop
         }
     }
 
-    private void CreatePreview(WorkshopPartKind kind)
+    private void CreatePreview(PartId id)
     {
-        _preview = World.Registry.Create(kind);
+        _preview = World.Registry.Create(id);
         _preview.Position = new(0, 2, (float)_depth.Value);
         AddChild(_preview); // Deliberately not a World part: no inventory or physics effects.
         foreach (var mesh in _preview.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
@@ -270,14 +270,14 @@ public partial class Workshop
         var target = _preview ?? _selected;
         _cancelButton.Visible = !_inRun && (_tool is not null || _linkSource is not null);
         _connectionChoices.Visible = (CanEdit && (_selected is not null || _linkSource is not null)) ||
-            (_selected is BatteryPart && World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused);
+            (_selected?.Definition?.PartId == PartId.Battery && World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused);
         _removeButton.Visible = _preview == null && _selected is { Locked: false };
         _partTools.Visible = !_inRun && target is { Locked: false } && !_rotationGizmo.Dragging && !_optionsPanel.Visible;
         _rotationGizmo.Follow(_selected, !_inRun && _tool is null, _camera);
         _placementShadows.Follow(World.Parts, _preview, _selected, !_inRun);
         _detail.Visible = target != null;
         _time.Visible = _inRun;
-        _resizeModeButton.Visible = _preview == null && _selected is IResizablePart && !_selected.Locked;
+        _resizeModeButton.Visible = _preview == null && _selected is IResizablePart resizable && resizable.ResizableAxes != ResizeAxes.None && !_selected.Locked;
         _resizeModeButton.ButtonPressed = _rotationGizmo.ResizeMode;
         _moveModeButton.ButtonPressed = _rotationGizmo.MoveMode;
         _rotateModeButton.ButtonPressed = !_rotationGizmo.MoveMode && !_rotationGizmo.ResizeMode;

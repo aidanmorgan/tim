@@ -31,14 +31,14 @@ public sealed class WorkshopBumperTests
         CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "bumper").GetProperty("difficulty"),
             construction.Puzzle.RampAssistance);
         var inventory = WorkshopInventoryPolicy.Authored(construction.Puzzle);
-        Assert.Equal(PartAllowance.Counted(1), inventory[WorkshopPartKind.PinballBumper]);
+        Assert.Equal(PartAllowance.Counted(1), inventory[PartId.PinballBumper]);
         var bumper = WorkshopInput.Bumper(new(3), 0, 1.5, 0, 0, 0, 0, 1, BumperWork.Default);
         var placed = construction.WithInstance(bumper);
         var wall = WorkshopInput.Wall(new(4), -1, 4, 0, 0, 0, 0, 1, WallDimensions.FromInput(.4f, 6, 1.5f));
         if (lesson == WorkshopPuzzleId.WallAndBumper)
         {
             Assert.Equal(2, inventory.Count);
-            Assert.Equal(PartAllowance.Counted(1), inventory[WorkshopPartKind.Wall]);
+            Assert.Equal(PartAllowance.Counted(1), inventory[PartId.Wall]);
             Assert.Equal(1, level.GetProperty("inventory").GetProperty("wall").GetInt32());
             CheckProfile(solution.Single(value => value.GetProperty("kind").GetString() == "wall").GetProperty("difficulty"),
                 construction.Puzzle.WallAssistance);
@@ -86,34 +86,35 @@ public sealed class WorkshopBumperTests
         var command = new WorkshopCommand(new(1),WorkshopCommandKind.Construct,new(1),new(1),construction,
             Session:new(1,2),Cadence:new(1),Projection:new(1));
         var wire = WorkshopWire.Encode(command);
-        // Relative to the construction's immutable puzzle record: unknown id, extra inventory,
-        // substituted Bumper assistance and invalid precision. Every decode must reject before admission.
-        foreach (var mutation in new (int Offset, uint Value, bool Wide)[]
+        var malformedPuzzles = new[]
         {
-            (48,uint.MaxValue,true), (48+12,2,true),
-            (48+180+6,BitConverter.HalfToUInt16Bits((Half).3),false),
-            (48+8,BitConverter.HalfToUInt16Bits(Half.NaN),false)
-        })
+            construction.Puzzle! with { Id = (WorkshopPuzzleId)uint.MaxValue },
+            construction.Puzzle! with { InventoryCount = 2 },
+            construction.Puzzle! with { Precision = new(Half.NaN) },
+            construction.Puzzle! with { RampAssistance = FirstPrinciples.RampAssistance }
+        };
+
+        foreach (var badPuzzle in malformedPuzzles)
         {
-            var badSave=(byte[])original.Clone(); var badWire=(byte[])wire.Clone();
-            if(mutation.Wide)
-            {
-                BinaryPrimitives.WriteUInt32LittleEndian(badSave.AsSpan(24+mutation.Offset),mutation.Value);
-                BinaryPrimitives.WriteUInt32LittleEndian(badWire.AsSpan(WorkshopWire.CommandHeaderBytes+mutation.Offset),mutation.Value);
-            }
-            else
-            {
-                BinaryPrimitives.WriteUInt16LittleEndian(badSave.AsSpan(24+mutation.Offset),(ushort)mutation.Value);
-                BinaryPrimitives.WriteUInt16LittleEndian(badWire.AsSpan(WorkshopWire.CommandHeaderBytes+mutation.Offset),(ushort)mutation.Value);
-            }
-            var rejectedSave=(byte[])badSave.Clone(); var rejectedWire=(byte[])badWire.Clone();
-            Assert.Throws<ArgumentException>(()=>WorkshopSaveCodec.Decode(badSave));
-            Assert.Throws<ArgumentException>(()=>WorkshopWire.DecodeCommand(badWire));
-            Assert.Equal(rejectedSave,badSave); Assert.Equal(rejectedWire,badWire);
-            Assert.Equal(original,WorkshopSaveCodec.Encode(saved));
-            Assert.Equal(saved,WorkshopSaveCodec.Decode(original));
-            Assert.Equal(command,WorkshopWire.DecodeCommand(wire));
+            var badConstruction = construction with { Puzzle = badPuzzle };
+            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, badConstruction, validate: false);
+            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
+            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+            builder.Finish(end.Value);
+            var badSave = builder.SizedByteArray();
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(badSave));
+
+            var badCommand = command with { Construction = badConstruction };
+            Assert.Throws<ArgumentException>(() => WorkshopWire.Encode(badCommand));
         }
+        Assert.Equal(original, WorkshopSaveCodec.Encode(saved));
+        Assert.Equal(saved, WorkshopSaveCodec.Decode(original));
+        Assert.Equal(command, WorkshopWire.DecodeCommand(wire));
     }
 
     private static void CheckSourcePose(System.Text.Json.JsonElement source, CellOrigin cell,
@@ -339,15 +340,29 @@ public sealed class WorkshopBumperTests
             var bumper = Assert.IsType<WorkshopBumper>(save.Construction.Instances[1]);
             Assert.Equal(new WorkMass((float)1), bumper.Work.ReferenceMass);
             Assert.Equal(.5f * (float)strength * (float)strength, bumper.Work.Preload.Value);
-            var forged = (byte[])bytes.Clone();
-            var bumperOffset = 24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes;
-            BinaryPrimitives.WriteSingleLittleEndian(forged.AsSpan(bumperOffset + 120),17f);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(forged));
-            var prior = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt32LittleEndian(prior.AsSpan(4), 6);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(prior));
-            var padding = (byte[])bytes.Clone(); padding[bumperOffset + 116] = 1;
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
+            var forgedBumper = bumper with { Work = new BumperWork(bumper.Work.Strength, bumper.Work.ReferenceMass, new Joules(17f)) };
+            var forgedConstruction = save.Construction with { Instances = new WorkshopInstances(save.Construction.Instances[0], forgedBumper) };
+            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
+            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
+            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+            builder.Finish(end.Value);
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
+
+            var priorBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var priorCr = WorkshopWireFlatBuffers.EncodeConstructionRecord(priorBuilder, save.Construction);
+            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(priorBuilder);
+            CuriousContraptions.Wire.SavedConstruction.AddMagic(priorBuilder, WorkshopSaveCodec.Magic);
+            CuriousContraptions.Wire.SavedConstruction.AddVersion(priorBuilder, 6);
+            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(priorBuilder, save.NextBodyId.Value);
+            CuriousContraptions.Wire.SavedConstruction.AddConstruction(priorBuilder, priorCr);
+            var priorEnd = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(priorBuilder);
+            priorBuilder.Finish(priorEnd.Value);
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(priorBuilder.SizedByteArray()));
         }
     }
 
@@ -378,7 +393,7 @@ public sealed class WorkshopBumperTests
         var bumper = Assert.IsType<WorkshopBumper>(construction.Instances[1]);
         construction.WithInstance(bumper with { Id = new(3) }).Validate(); // No per-kind bumper count in free play.
         Assert.Throws<ArgumentException>(() => (bumper.Work with { ReferenceMass = new((float)2) }).Validate());
-        Assert.False(WorkshopPorts.Has(WorkshopPartKind.PinballBumper, WorkshopSocket.ActivationOut,
+        Assert.False(WorkshopPorts.Has(PartId.PinballBumper, WorkshopSocket.ActivationOut,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
     }
 }

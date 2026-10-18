@@ -68,7 +68,7 @@ public static partial class PhysicsGpuAbi
         U64(data, 64, scene.Document.Low); U64(data, 72, scene.Document.High); U64(data, 80, scene.NextIdentity);
         for (var i = 0; i < scene.Bodies.Length; i++)
         {
-            var body = scene.Bodies[i]; var record = data.Slice(BodiesOffset + i * BodyBytes, BodyBytes);
+            var body = scene.Bodies[i]; var record = data.Slice(scene.Layout.GetBodyOffset(body.Id), BodyBytes);
             U64(record, 0, body.Id.Value); U32(record, 8, (uint)body.Motion);
             Cell(record, 16, body.Cell); Local(record, 32, body.Local); Rotation(record, 48, body.Rotation);
             F32Vector(record, BodyVelocityOffset, body.Velocity.X, body.Velocity.Y, body.Velocity.Z);
@@ -91,7 +91,7 @@ public static partial class PhysicsGpuAbi
         }
         for (var i = 0; i < scene.Colliders.Length; i++)
         {
-            var collider = scene.Colliders[i]; var record = data.Slice(CollidersOffset + i * ColliderBytes, ColliderBytes);
+            var collider = scene.Colliders[i]; var record = data.Slice(scene.Layout.GetColliderOffset(collider.Id), ColliderBytes);
             U64(record, 0, collider.Id.Value); U32(record, 8, BodySlot(scene, collider.Body));
             U32(record, 12, MaterialSlot(scene, collider.Material)); U32(record, 16, (uint)collider.Shape);
             Pose(record, 24, collider.Pose); H(record, 48, collider.Radius.Value);
@@ -99,14 +99,14 @@ public static partial class PhysicsGpuAbi
         }
         for (var i = 0; i < scene.Materials.Length; i++)
         {
-            var material = scene.Materials[i]; var record = data.Slice(MaterialsOffset + i * MaterialBytes, MaterialBytes);
+            var material = scene.Materials[i]; var record = data.Slice(scene.Layout.GetMaterialOffset(material.Id), MaterialBytes);
             U64(record, 0, material.Id.Value); H(record, 8, material.Restitution.Value);
             H(record, 10, material.BounceThreshold.Value); H(record, 12, material.Friction.Value);
             H(record, 14, material.RollingResistance.Value);
         }
         for (var i = 0; i < scene.Sensors.Length; i++)
         {
-            var sensor = scene.Sensors[i]; var record = data.Slice(SensorsOffset + i * SensorBytes, SensorBytes);
+            var sensor = scene.Sensors[i]; var record = data.Slice(scene.Layout.GetSensorOffset(sensor.Id), SensorBytes);
             U64(record, 0, sensor.Id.Value); U32(record, 8, BodySlot(scene, sensor.Frame));
             U32(record, 12, BodySlot(scene, sensor.Target)); U32(record, 16, (uint)sensor.Participation);
             Pose(record, 24, sensor.Pose);
@@ -116,7 +116,7 @@ public static partial class PhysicsGpuAbi
         }
         for (var i = 0; i < scene.Guides.Length; i++)
         {
-            var guide = scene.Guides[i]; var record = data.Slice(GuidesOffset + i * GuideBytes, GuideBytes);
+            var guide = scene.Guides[i]; var record = data.Slice(scene.Layout.GetGuideOffset(guide.Id), GuideBytes);
             U64(record, 0, guide.Id.Value); U32(record, 8, BodySlot(scene, guide.Frame));
             U32(record, 12, BodySlot(scene, guide.Target)); Pose(record, 16, guide.Pose);
             Vector(record, 40, guide.Minimum.X, guide.Minimum.Y, guide.Minimum.Z);
@@ -126,14 +126,14 @@ public static partial class PhysicsGpuAbi
         }
         for (var i = 0; i < scene.Triggers.Length; i++)
         {
-            var trigger = scene.Triggers[i]; var record = data.Slice(TriggersOffset + i * TriggerBytes, TriggerBytes);
+            var trigger = scene.Triggers[i]; var record = data.Slice(scene.Layout.GetTriggerOffset(trigger.Id), TriggerBytes);
             U64(record, 0, trigger.Id.Value); U32(record, 8, BodySlot(scene, trigger.Owner));
             U32(record, 12, (uint)trigger.Targets.Kind); H(record, 16, trigger.Threshold.Value);
             U32(record, 24, trigger.Targets.Kind == BodyTargetKind.NamedBody ? BodySlot(scene, trigger.Targets.Body) : NoBody);
         }
         for (var i = 0; i < scene.ContactWorks.Length; i++)
         {
-            var work = scene.ContactWorks[i]; var record = data.Slice(ContactWorksOffset + i * ContactWorkBytes, ContactWorkBytes);
+            var work = scene.ContactWorks[i]; var record = data.Slice(scene.Layout.GetContactWorkOffset(work.Id), ContactWorkBytes);
             U64(record, 0, work.Id.Value); U32(record, 8, BodySlot(scene, work.Owner)); U32(record,12,(uint)work.Targets.Kind);
             U32(record,28,work.Targets.Kind==BodyTargetKind.NamedBody ? BodySlot(scene,work.Targets.Body) : NoBody);
             BinaryPrimitives.WriteSingleLittleEndian(record[16..], work.TargetSpeed.Value); BinaryPrimitives.WriteSingleLittleEndian(record[36..], work.InitialEnergy.Value); BinaryPrimitives.WriteSingleLittleEndian(record[20..], work.Threshold.Value);
@@ -142,7 +142,7 @@ public static partial class PhysicsGpuAbi
         for (var i = 0; i < scene.OrientationSensors.Length; i++)
         {
             var sensor = scene.OrientationSensors[i];
-            var record = data.Slice(OrientationSensorsOffset + i * OrientationSensorBytes, OrientationSensorBytes);
+            var record = data.Slice(scene.Layout.GetOrientationSensorOffset(sensor.Id), OrientationSensorBytes);
             U64(record, 0, sensor.Id.Value); U32(record, 8, BodySlot(scene, sensor.Body));
             Rotation(record, 16, sensor.Initial); H(record, 32, sensor.Threshold.CosineHalfAngle);
         }
@@ -541,16 +541,8 @@ const PHYSICAL_480:u32={(uint)PhysicalStepProfile.Canonical480Hz}u;
             throw new ArgumentException("Unsupported generic physics record.");
     }
     private static bool AllZero(ReadOnlySpan<byte> bytes) => bytes.IndexOfAnyExcept((byte)0) < 0;
-    private static uint BodySlot(PhysicsSceneDeclaration scene, GpuBodyId id)
-    {
-        for (var i = 0; i < scene.Bodies.Length; i++) if (scene.Bodies[i].Id == id) return (uint)i;
-        throw new ArgumentException("Absent body.");
-    }
-    private static uint MaterialSlot(PhysicsSceneDeclaration scene, GpuMaterialId id)
-    {
-        for (var i = 0; i < scene.Materials.Length; i++) if (scene.Materials[i].Id == id) return (uint)i;
-        throw new ArgumentException("Absent material.");
-    }
+    private static uint BodySlot(PhysicsSceneDeclaration scene, GpuBodyId id) => (uint)scene.Layout.GetBodySlot(id);
+    private static uint MaterialSlot(PhysicsSceneDeclaration scene, GpuMaterialId id) => (uint)scene.Layout.GetMaterialSlot(id);
     private static void Pose(Span<byte> bytes, int offset, RigidLocalPose pose)
     {
         Vector(bytes, offset, pose.Translation.X, pose.Translation.Y, pose.Translation.Z);

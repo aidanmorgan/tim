@@ -165,7 +165,7 @@ public sealed class PhysicsSceneDeclaration
 {
     public const int PrismaticCapacity = 16;
     public const int BodyCapacity = 33;
-    public const int ColliderCapacity = 64;
+    public const int ColliderCapacity = 2048;
     public const int MaterialCapacity = 33;
     public const int SensorCapacity = 16;
     public const int GuideCapacity = 16;
@@ -174,6 +174,9 @@ public sealed class PhysicsSceneDeclaration
     public const int OrientationSensorCapacity = PhysicsBodyReadSet.Capacity;
     private readonly PrismaticConstraintDeclaration[] _prismatics;
     public ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics => _prismatics;
+    private readonly SwitchedSupplyRoute[] _switchedSupplies;
+    /// <summary>Compiled once: each switched supply as indices into the sorted prismatic and electrical-source tables.</summary>
+    public ReadOnlySpan<SwitchedSupplyRoute> SwitchedSupplies => _switchedSupplies;
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
@@ -183,6 +186,7 @@ public sealed class PhysicsSceneDeclaration
     private readonly ContactWorkDeclaration[] _contactWorks;
     private readonly OrientationSensorDeclaration[] _orientationSensors;
     public ElectricalSupplyPlan Electrical { get; }
+    public CompiledMemoryLayout Layout { get; }
     public PhysicsDocumentId Document { get; }
     public ulong NextIdentity { get; }
     public ReadOnlySpan<RigidBodyDeclaration> Bodies => _bodies;
@@ -200,7 +204,8 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<PlanarGuideDeclaration> guides, ReadOnlySpan<ContactTriggerDeclaration> triggers = default,
         ReadOnlySpan<ContactWorkDeclaration> contactWorks = default, ReadOnlySpan<OrientationSensorDeclaration> orientationSensors = default,
         ReadOnlySpan<ElectricalSourceDeclaration> electricalSources = default, ReadOnlySpan<ElectricalStorageBinding> electricalBindings = default,
-        ReadOnlySpan<PrismaticConstraintDeclaration> prismatics = default)
+        ReadOnlySpan<PrismaticConstraintDeclaration> prismatics = default,
+        ReadOnlySpan<SwitchedSupplyRouteDeclaration> switchedSupplies = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
             prismatics.Length > PrismaticCapacity || bodies.Length > BodyCapacity || colliders.Length > ColliderCapacity ||
@@ -303,6 +308,19 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_prismatics, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
         Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
+        var routed = new HashSet<int>();
+        _switchedSupplies = new SwitchedSupplyRoute[switchedSupplies.Length];
+        for (var i = 0; i < switchedSupplies.Length; i++)
+        {
+            var route = switchedSupplies[i];
+            var prismatic = Array.FindIndex(_prismatics, joint => joint.Id == route.Prismatic);
+            var source = -1;
+            for (var s = 0; s < Electrical.Sources.Length; s++) if (Electrical.Sources[s].Id == route.Source) source = s;
+            if (prismatic < 0 || source < 0 || !routed.Add(prismatic) ||
+                !bodyMap.TryGetValue(route.Switch, out var switchBody) || switchBody.Motion != RigidMotionKind.Static)
+                throw new ArgumentException("A switched supply requires an admitted prismatic, source and static switch, once per prismatic.");
+            _switchedSupplies[i] = new(prismatic, source, route.Switch);
+        }
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();
         _materials = materials.ToArray(); _sensors = sensors.ToArray(); _guides = guides.ToArray(); _triggers = triggers.ToArray();
@@ -315,6 +333,7 @@ public sealed class PhysicsSceneDeclaration
         Array.Sort(_guides, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_triggers, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
         Array.Sort(_contactWorks, (a, b) => a.Id.Value.CompareTo(b.Id.Value));
+        Layout = CompiledMemoryLayout.Build(_bodies, _colliders, _materials, _sensors, _guides, _triggers, _contactWorks, _orientationSensors, electricalSources, _prismatics);
     }
 
     private static void Identity(ulong id, ulong next, HashSet<ulong> identities)

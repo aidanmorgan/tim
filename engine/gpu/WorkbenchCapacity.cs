@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>Compiled tables an authored population can exhaust. Closed set; display text lives at the exception boundary.</summary>
-public enum WorkbenchTable : uint { Instances, Bodies, DynamicBodies, Colliders, Sensors, Guides, Triggers, ContactWork, ActivationNodes, ElectricalSources, PrismaticConstraints }
+public enum WorkbenchTable : uint { Instances, Bodies, DynamicBodies, Sensors, Guides, Triggers, ContactWork, ActivationNodes, ElectricalSources, PrismaticConstraints }
 
 /// <summary>Explicit rejection when a construction needs more rows than the fixed physics tables hold. Never a fault.</summary>
 public sealed class WorkbenchFullException : ArgumentException
@@ -16,7 +16,6 @@ public sealed class WorkbenchFullException : ArgumentException
         WorkbenchTable.Instances => "part table",
         WorkbenchTable.Bodies => "body table",
         WorkbenchTable.DynamicBodies => "moving body table",
-        WorkbenchTable.Colliders => "collider table",
         WorkbenchTable.Sensors => "receiver sensor table",
         WorkbenchTable.Guides => "ball guide table (one Receiver guides the balls)",
         WorkbenchTable.Triggers => "impact trigger table",
@@ -33,16 +32,26 @@ public readonly record struct WorkbenchFootprint(int Bodies, int DynamicBodies, 
 {
     /// <summary>The compiled workbench plane itself.</summary>
     public static WorkbenchFootprint Plane => new(1, 0, 1, 0, 0, 0);
-    public static WorkbenchFootprint Of(WorkshopPartKind kind) => kind switch
+    public static WorkbenchFootprint Of(PartId id) => id.Value switch
     {
-        WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall or WorkshopPartKind.Domino => new(1, 1, 1, 0, 0, 0),
-        WorkshopPartKind.Receiver => new(1, 0, ReceiverGeometry.Walls.Length, 0, 0, 0),
-        WorkshopPartKind.Springboard => new(2, 1, 2, 0, 0, 0, 0, 1),
-        WorkshopPartKind.Battery => new(1, 0, 1, 0, 0, 0, 1),
-        WorkshopPartKind.Ramp or WorkshopPartKind.Wall => new(1, 0, 1, 0, 0, 0),
-        WorkshopPartKind.ImpactSwitch => new(1, 0, 2, 1, 0, 1),
-        WorkshopPartKind.SignalLamp or WorkshopPartKind.Delay => new(1, 0, 1, 0, 0, 1),
-        WorkshopPartKind.PinballBumper => new(1, 0, 1, 0, 1, 0),
+        "ball" or "bowling" or "domino" => new(1, 1, 1, 0, 0, 0),
+        "basket" => new(1, 0, 5, 0, 0, 0),
+        "spring" => new(2, 1, 2, 0, 0, 0, 0, 1),
+        "battery" => new(1, 0, 1, 0, 0, 0, 1),
+        "ramp" or "wall" => new(1, 0, 1, 0, 0, 0),
+        "switch" => new(1, 0, 2, 1, 0, 1),
+        "lamp" or "delay" => new(1, 0, 1, 0, 0, 1),
+        "bumper" => new(1, 0, 1, 0, 1, 0),
+        "pipe" => new(1, 0, 24, 0, 0, 0),
+        "ball_detector" => new(1, 0, 17, 0, 0, 1),
+        "pipe_bend_45" => new(1, 0, 40, 0, 0, 0),
+        "pipe_bend_90" => new(1, 0, 72, 0, 0, 0),
+        "funnel" => new(1, 0, 72, 0, 0, 0),
+        "powered_gate" => new(2, 1, 20, 0, 0, 0, 0, 1),
+        "pressure_plate" => new(1, 0, 2, 0, 0, 0),
+        "counter" => new(1, 0, 2, 0, 0, 1),
+        "clock" => new(1, 0, 2, 0, 0, 1),
+        "latch" => new(1, 0, 2, 0, 0, 1),
         _ => throw new ArgumentException("Unsupported authored instance declaration.")
     };
     public static WorkbenchFootprint operator +(WorkbenchFootprint a, WorkbenchFootprint b) =>
@@ -60,14 +69,19 @@ public static class WorkbenchCapacity
         var total = WorkbenchFootprint.Plane; var balls = 0; var receivers = 0;
         foreach (var instance in instances)
         {
-            total += WorkbenchFootprint.Of(instance.Kind);
+            if (instance is IWorkshopDeclaredColliders declared)
+            {
+                var fp = instance.PartId == PartId.Unsupported ? new WorkbenchFootprint(1, 0, 0, 0, 0, 0) : WorkbenchFootprint.Of(instance.PartId);
+                total += new WorkbenchFootprint(fp.Bodies, fp.DynamicBodies, declared.DeclaredColliders.Count, fp.Triggers, fp.ContactWorks, fp.ActivationNodes, fp.ElectricalSources, fp.PrismaticConstraints);
+            }
+            else
+                total += WorkbenchFootprint.Of(instance.PartId);
             if (instance is WorkshopBall) balls++;
-            else if (instance.Kind == WorkshopPartKind.Receiver) receivers++;
+            else if (instance.PartId == PartId.Receiver) receivers++;
         }
         // One contact material per body, so MaterialCapacity is covered by BodyCapacity.
         if (total.Bodies > PhysicsSceneDeclaration.BodyCapacity) throw new WorkbenchFullException(WorkbenchTable.Bodies);
         if (total.DynamicBodies > PhysicsBodyReadSet.Capacity) throw new WorkbenchFullException(WorkbenchTable.DynamicBodies);
-        if (total.Colliders > PhysicsSceneDeclaration.ColliderCapacity) throw new WorkbenchFullException(WorkbenchTable.Colliders);
         // Every receiver declares one residence sensor and one planar guide per ball, and the physics document
         // admits one guide per dynamic body, so a second Receiver fits only while no ball is on the workbench.
         var perBallRows = balls * receivers;
@@ -87,8 +101,8 @@ public static class WorkbenchCapacity
         ArgumentNullException.ThrowIfNull(instances); ArgumentNullException.ThrowIfNull(connections);
         var nodes = 0;
         foreach (var instance in instances)
-            nodes += WorkbenchFootprint.Of(instance.Kind).ActivationNodes +
-                (instance.Kind == WorkshopPartKind.Domino && connections.HasSource(instance.Id) ? 1 : 0);
+            nodes += (instance.PartId == PartId.Unsupported ? 0 : WorkbenchFootprint.Of(instance.PartId).ActivationNodes) +
+                (instance.PartId == PartId.Domino && connections.HasSource(instance.Id) ? 1 : 0);
         if (nodes > ActivationNetwork.Capacity) throw new WorkbenchFullException(WorkbenchTable.ActivationNodes);
     }
 }

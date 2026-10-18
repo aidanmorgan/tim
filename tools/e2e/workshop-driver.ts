@@ -4,6 +4,7 @@
 // the CCGPU command acknowledgement console line, pose-ring publications, the IndexedDB save slot and the CCGOAL_SOLVED console line.
 import { createRequire } from 'node:module';
 import type { Browser, BrowserContext, ConsoleMessage, Page, Worker } from 'playwright';
+import { decodeWorkshopResponse, decodeSavedConstruction, ResponseKind } from './workshop-wire.ts';
 
 const requireMcp = createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
 const { chromium } = requireMcp('playwright') as typeof import('playwright');
@@ -81,7 +82,8 @@ const ResponseKindAcknowledgement = 0;
 // The commands the Workshop UI issues (values of WorkshopCommandKind) and the phase each leaves the simulation in when Applied. The
 // acknowledgement carries no command kind, so a command is matched by order (a newer command sequence and authority revision than the
 // last consumed acknowledgement, exactly one arrival) and by the phase its kind implies.
-enum WorkshopCommand { Construct = 1, Run = 2, Reset = 3, Pause = 7, Resume = 8, Step = 9, Save = 10 }
+const WorkshopCommand = { Construct: 1, Run: 2, Reset: 3, Pause: 7, Resume: 8, Step: 9, Save: 10 } as const;
+type WorkshopCommand = typeof WorkshopCommand[keyof typeof WorkshopCommand];
 const PHASE_AFTER: Readonly<Record<WorkshopCommand, SimulationPhase>> = {
     [WorkshopCommand.Construct]: SimulationPhase.Building,
     [WorkshopCommand.Run]: SimulationPhase.Running,
@@ -118,16 +120,16 @@ function member<T extends number>(table: Readonly<Record<string, T>>, value: num
 const ACK_PREFIX = 'CCGPU ';
 function decodeAcknowledgement(text: string): WorkshopAcknowledgement {
     const bytes = Buffer.from(text.slice(ACK_PREFIX.length), 'base64');
-    if (bytes.length < 40) throw new Error(`acknowledgement of ${bytes.length} bytes`);
-    if (bytes[8] !== ResponseKindAcknowledgement) throw new Error(`response kind ${bytes[8]} is not an acknowledgement`);
-    const sequence = bytes.readBigUInt64LE(0);
+    const res = decodeWorkshopResponse(bytes);
+    if (res.kind() !== ResponseKind.Acknowledgement) throw new Error(`response kind ${res.kind()} is not an acknowledgement`);
+    const sequence = res.sequence();
     if (sequence === 0n) throw new Error('acknowledgement without a command sequence');
     return {
         sequence,
-        revision: bytes.readBigUInt64LE(32),
-        outcome: member(CommandOutcome, bytes[9], 'outcome'),
-        reason: member(CommandRejection, bytes[10], 'rejection'),
-        phase: member(SimulationPhase, bytes[11], 'phase'),
+        revision: res.revision(),
+        outcome: member(CommandOutcome, res.outcome(), 'outcome'),
+        reason: member(CommandRejection, res.reason(), 'rejection'),
+        phase: member(SimulationPhase, res.phase(), 'phase'),
     };
 }
 
@@ -159,10 +161,8 @@ const PUBLICATION_TIMEOUT_MS = 10000;
 const CONSTRUCTION_DATABASE = 'curious-contraptions-workshop';
 const CONSTRUCTION_STORE = 'construction';
 const CONSTRUCTION_SLOT = 1;
-// WorkshopSaveCodec: magic 'CCWS' (u32 LE @0), declared length (u32 LE @8), ByteLength = 24 + WorkshopWire.ConstructionBytes
-// (320 + 32 instances × 160 + 8 connections × 32) = 5720.
+// WorkshopSaveCodec FlatBuffers format: magic 'CCWS' (0x53574343), version 13.
 const SAVE_MAGIC = 0x53574343;
-const SAVE_BYTES = 5720;
 
 async function bounded<T>(work: Promise<T>, timeoutMs: number, message: string): Promise<T> {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -188,6 +188,14 @@ const UI_ANCHORS = {
         bowling: { x: 130, y: 612 },
         battery: { x: 130, y: 664 },
         ramp: { x: 130, y: 155 },
+        pipe: { x: 100, y: 505 },
+        ball_detector: { x: 100, y: 553 },
+        pipe_bend_45: { x: 100, y: 600 },
+        pipe_bend_90: { x: 100, y: 648 },
+        funnel: { x: 100, y: 695 },
+        powered_gate: { x: 100, y: 742 },
+        pressure_plate: { x: 100, y: 790 },
+        counter: { x: 100, y: 838 },
     },
     picker: {
         button: { x: 600, y: 47 },
@@ -198,21 +206,24 @@ const UI_ANCHORS = {
         bumper_sidekick: { x: 600, y: 195 },
         bumper_depth: { x: 600, y: 220 },
         wall_and_bumper: { x: 600, y: 245 },
+        clear_pipe: { x: 600, y: 320 },
+        gentle_bend: { x: 600, y: 345 },
+        quarter_bend: { x: 600, y: 390 },
     },
     menu: {
         button: { x: 1394, y: 46 },
         save: { x: 1056, y: 178 },
         load: { x: 1098, y: 178 },
-        pause: { x: 1070, y: 240 },
-        resume: { x: 1130, y: 240 },
+        pause: { x: 1070, y: 246 },
+        resume: { x: 1142, y: 246 },
     },
     dock: {
         // Free workshop lists twelve unlimited rows; the Springboard row shifts the Build dock by51px.
         free_workshop: {
-            move: { x: 60, y: 809 },
-            rotate: { x: 104, y: 809 },
-            resize: { x: 148, y: 809 },
-            delete: { x: 192, y: 809 },
+            move: { x: 60, y: 844 },
+            rotate: { x: 104, y: 844 },
+            resize: { x: 148, y: 844 },
+            delete: { x: 192, y: 844 },
         },
         first_principles: {
             move: { x: 40, y: 275 },
@@ -243,6 +254,24 @@ const UI_ANCHORS = {
             rotate: { x: 72, y: 275 },
             resize: { x: 104, y: 275 },
             delete: { x: 136, y: 275 },
+        },
+        clear_pipe: {
+            move: { x: 60, y: 285 },
+            rotate: { x: 104, y: 285 },
+            resize: undefined,
+            delete: { x: 148, y: 285 },
+        },
+        gentle_bend: {
+            move: { x: 60, y: 285 },
+            rotate: { x: 104, y: 285 },
+            resize: undefined,
+            delete: { x: 148, y: 285 },
+        },
+        quarter_bend: {
+            move: { x: 60, y: 285 },
+            rotate: { x: 104, y: 285 },
+            resize: undefined,
+            delete: { x: 148, y: 285 },
         }
     },
     // Each "Connect ActivationOut" / "Disconnect signal" row above the dock pushes the part dock down by one row.
@@ -255,11 +284,12 @@ const UI_ANCHORS = {
             locked: { x: 133, y: 236 },
             delay: { x: 133, y: 277 },
             domino: { x: 133, y: 790 },
+            detector: { x: 133, y: 792 },
         },
         // "ActivationOut → ActivationIn" choice offered after clicking the target part: the row takes the connect row's place.
         choice: {
             authored: { x: 133, y: 232 },
-            free_workshop: { x: 133, y: 746 },
+            free_workshop: { x: 133, y: 736 },
         },
     },
     // "Show hint" lightbulb button inside the objective panel (ui/Workshop.cs ShowHint); the panel height follows the task text.
@@ -277,7 +307,7 @@ const UI_ANCHORS = {
     }
 } as const;
 
-export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect' | 'bumper_sidekick' | 'bumper_depth' | 'wall_and_bumper';
+export type WorkshopLevel = 'free_workshop' | 'first_principles' | 'delayed_signal' | 'domino_effect' | 'bumper_sidekick' | 'bumper_depth' | 'wall_and_bumper' | 'clear_pipe' | 'gentle_bend' | 'quarter_bend';
 
 export class WorkshopDriver {
     readonly browser: Browser;
@@ -287,6 +317,7 @@ export class WorkshopDriver {
     currentLevel: WorkshopLevel = 'free_workshop';
     capturedCount: number = 0;
     private fineRotateOpen = false; // the Fine rotate toggle flips; a page reload or level change rebuilds the menu closed
+    private paletteScrolled = false;
     private zRingHandleAngle: number = GIZMO_Z_HANDLE_START_RAD;
     private acknowledgements: AcknowledgementEntry[] = []; // CCGPU lines of the current page, in arrival order
     private lastAcknowledged: WorkshopAcknowledgement | undefined; // the newest acknowledgement a command consumed on this page
@@ -369,6 +400,7 @@ export class WorkshopDriver {
         this.capturedCount = 0;
         this.currentLevel = 'free_workshop';
         this.fineRotateOpen = false;
+        this.paletteScrolled = false;
         this.zRingHandleAngle = GIZMO_Z_HANDLE_START_RAD;
         this.acknowledgements = [];
         this.lastAcknowledged = undefined;
@@ -402,11 +434,11 @@ export class WorkshopDriver {
         await bounded(rendered, FRAME_TIMEOUT_MS, `${count} animation frames did not render within ${FRAME_TIMEOUT_MS} ms`);
     }
 
-    // Press and release the left button at a point, holding it across one rendered frame.
+    // Press and release the left button at a point, holding it across several rendered frames so Godot UI controls register it.
     private async press(x: number, y: number): Promise<void> {
         await this.page.mouse.move(x, y);
         await this.page.mouse.down();
-        await this.frames(1);
+        await this.frames(4);
         await this.page.mouse.up();
     }
 
@@ -459,14 +491,54 @@ export class WorkshopDriver {
     // A construction edit (placement, gizmo commit, wiring, level selection, Load) is installed once its Construct is acknowledged.
     private async construct(action: string, operate: () => Promise<void>): Promise<void> {
         await this.command(action, WorkshopCommand.Construct, operate);
+        this.paletteScrolled = false;
     }
 
     // High-level UI operations (encapsulating all UI button locations)
-    async selectTool(kind: 'basketball' | 'bowling' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver' | 'domino' | 'battery'): Promise<void> {
+    async selectTool(kind: 'basketball' | 'bowling' | 'wall' | 'ramp' | 'bumper' | 'switch' | 'delay' | 'lamp' | 'receiver' | 'domino' | 'battery' | 'pipe' | 'ball_detector' | 'pipe_bend_45' | 'pipe_bend_90' | 'funnel' | 'powered_gate' | 'pressure_plate' | 'counter' | 'clock' | 'latch'): Promise<void> {
+        await this.pressKey('Escape');
+        await this.frames(UI_SETTLE_FRAMES);
         // The Bowling ball row exists only in the free-workshop palette; no authored level offers it.
-        if ((kind === 'bowling' || kind === 'battery') && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer this free-workshop part`);
+        if ((kind === 'bowling' || kind === 'battery' || kind === 'ball_detector' || kind === 'powered_gate' || kind === 'pressure_plate' || kind === 'counter' || kind === 'clock' || kind === 'latch') && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer this free-workshop part`);
+        if (kind === 'pipe' && this.currentLevel !== 'free_workshop' && this.currentLevel !== 'clear_pipe') throw new Error(`Level ${this.currentLevel} does not offer this part`);
+        if (kind === 'pipe_bend_45' && this.currentLevel !== 'free_workshop' && this.currentLevel !== 'gentle_bend') throw new Error(`Level ${this.currentLevel} does not offer this part`);
+        if (kind === 'pipe_bend_90' && this.currentLevel !== 'free_workshop' && this.currentLevel !== 'quarter_bend') throw new Error(`Level ${this.currentLevel} does not offer this part`);
+        // Row centres with the free-workshop palette scrolled to its end (51 px rows; the Set/Reset latch is the last row).
+        const bottomRow: Record<string, number> = {
+            pipe: 382,
+            ball_detector: 433,
+            pipe_bend_45: 484,
+            pipe_bend_90: 535,
+            funnel: 586,
+            powered_gate: 637,
+            pressure_plate: 688,
+            counter: 739,
+            clock: 790,
+            latch: 841,
+        };
+        if (kind in bottomRow && this.currentLevel === 'free_workshop') {
+            if (!this.paletteScrolled) {
+                await this.page.mouse.move(100, 500);
+                for (let i = 0; i < 4; i++) {
+                    await this.page.mouse.wheel(0, 2000);
+                    await this.frames(2);
+                }
+                this.paletteScrolled = true;
+            }
+            await this.clickAt(100, bottomRow[kind]);
+            return;
+        }
+        if (kind === 'funnel' && this.currentLevel !== 'free_workshop') throw new Error(`Level ${this.currentLevel} does not offer this part`);
+        if (this.currentLevel === 'free_workshop') {
+            await this.page.mouse.move(100, 500);
+            for (let i = 0; i < 4; i++) {
+                await this.page.mouse.wheel(0, -2000);
+                await this.frames(2);
+            }
+            this.paletteScrolled = false;
+        }
         let anchor: { x: number; y: number } = UI_ANCHORS.palette[kind];
-        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino') || ((this.currentLevel === 'bumper_sidekick' || this.currentLevel === 'bumper_depth') && kind === 'bumper')) {
+        if ((this.currentLevel === 'delayed_signal' && kind === 'delay') || (this.currentLevel === 'domino_effect' && kind === 'domino') || ((this.currentLevel === 'bumper_sidekick' || this.currentLevel === 'bumper_depth') && kind === 'bumper') || (this.currentLevel === 'clear_pipe' && kind === 'pipe') || (this.currentLevel === 'gentle_bend' && kind === 'pipe_bend_45') || (this.currentLevel === 'quarter_bend' && kind === 'pipe_bend_90')) {
             anchor = { x: 130, y: 155 }; // the authored inventory's single palette row
         }
         if (this.currentLevel === 'wall_and_bumper' && (kind === 'wall' || kind === 'bumper')) {
@@ -514,7 +586,7 @@ export class WorkshopDriver {
     async setPartMode(mode: 'move' | 'rotate' | 'resize' | 'delete', signalRows: number = 0): Promise<void> {
         const anchor = UI_ANCHORS.dock[this.currentLevel][mode];
         if (!anchor) throw new Error(`Unknown part mode ${mode} for level ${this.currentLevel}`);
-        const y = anchor.y + signalRows * UI_ANCHORS.signalRowHeight;
+        const y = this.currentLevel === 'free_workshop' ? anchor.y : anchor.y + signalRows * UI_ANCHORS.signalRowHeight;
         if (mode === 'delete') await this.construct('setPartMode(delete)', () => this.press(anchor.x, y));
         else await this.clickAt(anchor.x, y);
     }
@@ -577,9 +649,9 @@ export class WorkshopDriver {
         }
     }
 
-    async liftSelectedPart(deltaY: number = 100, centerX: number = 720, centerY: number = 485): Promise<void> {
+    async liftSelectedPart(deltaY: number = 100, centerX: number = 720, centerY: number = 485, handleOffsetY: number = 58): Promise<void> {
         const handleX = centerX;
-        const handleY = centerY - 58;
+        const handleY = centerY - handleOffsetY;
         await this.construct('liftSelectedPart', () => this.drag(handleX, handleY, handleX, handleY - deltaY));
     }
 
@@ -604,6 +676,7 @@ export class WorkshopDriver {
 
     async openMenu(): Promise<void> {
         await this.clickAt(UI_ANCHORS.menu.button.x, UI_ANCHORS.menu.button.y);
+        await this.frames(UI_SETTLE_FRAMES);
     }
 
     async closeMenu(): Promise<void> {
@@ -621,8 +694,8 @@ export class WorkshopDriver {
 
     // Read-only check of the construction slot written by workshop-client.js saveConstruction; never creates or upgrades the database.
     private async expectSavedSlot(): Promise<void> {
-        const saved = await this.page.evaluate(({ database, store, slot }: { database: string; store: string; slot: number }) =>
-            new Promise<{ length: number; magic: number; declared: number }>((resolve, reject) => {
+        const savedBytes = await this.page.evaluate(({ database, store, slot }: { database: string; store: string; slot: number }) =>
+            new Promise<number[] | null>((resolve, reject) => {
                 const request = indexedDB.open(database);
                 request.onupgradeneeded = () => request.transaction?.abort();
                 request.onerror = () => reject(new Error(`Construction database ${database} is unavailable: ${request.error?.message ?? 'no detail'}`));
@@ -634,9 +707,8 @@ export class WorkshopDriver {
                         transaction.oncomplete = () => {
                             connection.close();
                             const bytes = read.result;
-                            if (!(bytes instanceof Uint8Array) || bytes.length < 12) { resolve({ length: 0, magic: 0, declared: 0 }); return; }
-                            const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-                            resolve({ length: bytes.length, magic: view.getUint32(0, true), declared: view.getUint32(8, true) });
+                            if (!(bytes instanceof Uint8Array)) { resolve(null); return; }
+                            resolve(Array.from(bytes));
                         };
                         transaction.onabort = () => {
                             connection.close();
@@ -648,8 +720,11 @@ export class WorkshopDriver {
                     }
                 };
             }), { database: CONSTRUCTION_DATABASE, store: CONSTRUCTION_STORE, slot: CONSTRUCTION_SLOT });
-        if (saved.length !== SAVE_BYTES || saved.magic !== SAVE_MAGIC || saved.declared !== SAVE_BYTES)
-            throw new Error(`save: the Save command was acknowledged but the IndexedDB slot is not a ${SAVE_BYTES}-byte construction save (length ${saved.length}, magic 0x${saved.magic.toString(16)}, declared ${saved.declared})`);
+        if (!savedBytes)
+            throw new Error('save: the Save command was acknowledged but the IndexedDB slot is empty or invalid');
+        const saved = decodeSavedConstruction(new Uint8Array(savedBytes));
+        if (saved.magic() !== SAVE_MAGIC || saved.version() !== 13)
+            throw new Error(`save: the Save command was acknowledged but the IndexedDB slot has invalid magic 0x${saved.magic().toString(16)} or version ${saved.version()}`);
     }
 
     async load(): Promise<void> {
@@ -717,7 +792,7 @@ export class WorkshopDriver {
     }
 
     // Wire an activation signal source → target purely through the Godot connection buttons.
-    async connectActivation(source: { x: number; y: number; panel: 'locked' | 'delay' | 'domino' }, target: { x: number; y: number }): Promise<void> {
+    async connectActivation(source: { x: number; y: number; panel: 'locked' | 'delay' | 'domino' | 'detector' }, target: { x: number; y: number }): Promise<void> {
         await this.selectPartAt(source.x, source.y);
         const connect = UI_ANCHORS.connections.connect[source.panel];
         await this.clickAt(connect.x, connect.y);

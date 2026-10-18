@@ -1,6 +1,77 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=12 format=3]
 
-[ext_resource type="Script" path="res://parts/BumperPart.cs" id="1"]
+[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Head"]
+albedo_color = Color(0.87, 0.44, 0.35, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Dark"]
+albedo_color = Color(0.153, 0.216, 0.267, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Yellow"]
+albedo_color = Color(0.969, 0.796, 0.322, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Ring"]
+albedo_color = Color(1, 0.941, 0.761, 1)
+
+[sub_resource type="SphereMesh" id="Mesh_Head"]
+material = SubResource("Mat_Head")
+radius = 0.65
+height = 1.3
+
+[sub_resource type="CylinderMesh" id="Mesh_Base"]
+material = SubResource("Mat_Dark")
+top_radius = 0.3
+bottom_radius = 0.3
+height = 0.12
+
+[sub_resource type="CylinderMesh" id="Mesh_Cap"]
+material = SubResource("Mat_Yellow")
+top_radius = 0.25
+bottom_radius = 0.25
+height = 0.12
+
+[sub_resource type="TorusMesh" id="Mesh_ImpactRing"]
+material = SubResource("Mat_Ring")
+inner_radius = 0.625
+outer_radius = 0.695
+
+[sub_resource type="TorusMesh" id="Mesh_Ring2"]
+material = SubResource("Mat_Ring")
+inner_radius = 0.472
+outer_radius = 0.508
+
+[sub_resource type="SphereShape3D" id="Shape_Sphere"]
+radius = 0.65
 
 [node name="bumper" type="Node3D"]
 script = ExtResource("1")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="BumperHead" type="MeshInstance3D" parent="Visual"]
+material_override = SubResource("Mat_Head")
+mesh = SubResource("Mesh_Head")
+
+[node name="Visual_Base" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.46, 0)
+mesh = SubResource("Mesh_Base")
+
+[node name="Visual_Cap" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.59, 0)
+mesh = SubResource("Mesh_Cap")
+
+[node name="ImpactRing" type="MeshInstance3D" parent="Visual"]
+material_override = SubResource("Mat_Ring")
+mesh = SubResource("Mesh_ImpactRing")
+
+[node name="Visual_Ring2" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.43, 0)
+mesh = SubResource("Mesh_Ring2")
+
+[node name="col_sphere" type="CollisionShape3D" parent="."]
+visible = false
+shape = SubResource("Shape_Sphere")
+
+[node name="Loc_Port_in" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.65)

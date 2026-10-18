@@ -11,4 +11,3 @@ Category = "Power"
 Description = "A qualifying impact presses the button and sends one activation to connected signal parts."
 Scene = ExtResource("2")
 Color = Color(0.94, 0.43, 0.33, 1)
-Parameters = {}

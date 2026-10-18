@@ -14,7 +14,8 @@
     <!-- 2dog packages (2dog.xunit pulls in 2dog.engine for the fixtures and ships the xUnit
          collection definitions as compile-in source) -->
     <ItemGroup>
-        <PackageReference Include="2dog.xunit" Version="$(TwoDogVersion)"/>
+        <PackageReference Include="2dog.xunit" Version="$(TwoDogVersion)" />
+        <PackageReference Include="Google.FlatBuffers" Version="25.2.10" />
     </ItemGroup>
 
     <!-- Native library packages arrive transitively: 2dog pins the platform packages it was built against and
@@ -22,22 +23,23 @@
 
     <!-- Test framework packages -->
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="10.*"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.*"/>
-        <PackageReference Include="xunit.v3" Version="3.*"/>
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.*"/>
+        <PackageReference Include="coverlet.collector" Version="10.*" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.*" />
+        <PackageReference Include="xunit.v3" Version="3.*" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.*" />
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Xunit"/>
+        <Using Include="Xunit" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../CuriousContraptions.csproj"/>
+        <ProjectReference Include="../CuriousContraptions.csproj" />
+        <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
     </ItemGroup>
 
     <!-- Explicit current test and native-boundary inputs; obsolete uncompiled tests were removed by Story 7.3. -->
@@ -45,6 +47,7 @@
         <Compile Include="CanonicalBodyTests.cs" />
         <Compile Include="RigidMassPropertiesTests.cs" />
         <Compile Include="WorkshopSimulationTests.cs" />
+        <Compile Include="EventRingBufferTests.cs" />
         <Compile Include="WorkshopSaveTests.cs" />
         <Compile Include="ContactActivationTests.cs" />
         <Compile Include="WorkshopActivationAnimationTests.cs" />
@@ -64,8 +67,22 @@
         <Compile Include="ActivationTimerTests.cs" />
         <Compile Include="WorkshopWireTests.cs" />
         <Compile Include="WorkshopReadTests.cs" />
+        <Compile Include="WorkshopWireFlatBuffersTests.cs" />
         <Compile Include="NativeSceneFixture.cs" />
         <Compile Include="BasketballResourceTests.cs" />
+        <Compile Include="PartRegistryTests.cs" />
+        <Compile Include="GltfColliderExtractionTests.cs" />
+        <Compile Include="StraightPipeTests.cs" />
+        <Compile Include="ClearPipeLevelTests.cs" />
+        <Compile Include="BallDetectorTests.cs" />
+        <Compile Include="PipeBend45Tests.cs" />
+        <Compile Include="PipeBend90Tests.cs" />
+        <Compile Include="FunnelTests.cs" />
+        <Compile Include="PoweredGateTests.cs" />
+        <Compile Include="PressurePlateTests.cs" />
+        <Compile Include="CounterTests.cs" />
+        <Compile Include="ClockTests.cs" />
+        <Compile Include="StateLatchTests.cs" />
         <Compile Include="WorkshopHintTests.cs" />
         <Compile Include="PortableAnimationTests.cs" />
         <Compile Include="WorkshopGpuDeviceTests.cs" />

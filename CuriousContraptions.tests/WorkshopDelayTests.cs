@@ -47,25 +47,34 @@ public sealed class WorkshopDelayTests
     {
         var saved = new WorkshopSavedConstruction(new(new(1), WorkshopCadenceSettings.Default(), new(Delay((Half)1))), new(4));
         var bytes = WorkshopSaveCodec.Encode(saved);
-        foreach (var invalid in new[] {(Half)0,(Half)(-.1),(Half).09,(Half)13,Half.NaN,Half.PositiveInfinity})
+        foreach (var invalid in new[] { (Half)0, (Half)(-.1), (Half).09, (Half)13, Half.NaN, Half.PositiveInfinity,
+            BitConverter.UInt16BitsToHalf((ushort)(BitConverter.HalfToUInt16Bits((Half).1) - 1)),
+            BitConverter.UInt16BitsToHalf((ushort)(BitConverter.HalfToUInt16Bits((Half)12) + 1)) })
         {
-            var changed = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + 112),
-                BitConverter.HalfToUInt16Bits(invalid));
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(changed));
+            var malformedConstruction = saved.Construction with {
+                Instances = new WorkshopInstances(new WorkshopDelay(new(2), new(0, 0, 0), new(0, 0, 0), CanonicalRotation.Identity, new DelayDuration(new DurationSeconds(invalid))))
+            };
+            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
+            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
+            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+            builder.Finish(end.Value);
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         }
-        foreach (var bits in new[] {
-            (ushort)(BitConverter.HalfToUInt16Bits((Half).1) - 1),
-            (ushort)(BitConverter.HalfToUInt16Bits((Half)12) + 1) })
-        {
-            var changed = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + 112), bits);
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(changed));
-        }
-        var padding = (byte[])bytes.Clone(); padding[24 + WorkshopWire.ConstructionHeaderBytes + 114] = 1;
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
-        var old = (byte[])bytes.Clone(); BinaryPrimitives.WriteUInt32LittleEndian(old.AsSpan(4), 4);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(old));
+        var oldBuilder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var oldCr = WorkshopWireFlatBuffers.EncodeConstructionRecord(oldBuilder, saved.Construction);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(oldBuilder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(oldBuilder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(oldBuilder, 4);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(oldBuilder, saved.NextBodyId.Value);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(oldBuilder, oldCr);
+        var oldEnd = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(oldBuilder);
+        oldBuilder.Finish(oldEnd.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(oldBuilder.SizedByteArray()));
         foreach (var invalid in new[] {double.NaN,double.PositiveInfinity,.09,12.01})
             Assert.Throws<ArgumentException>(() => DelayDuration.FromInput(invalid));
     }
@@ -96,9 +105,9 @@ public sealed class WorkshopDelayTests
     [Fact]
     public void PortsAndPuzzlePopulationRemainBounded()
     {
-        Assert.True(WorkshopPorts.Has(WorkshopPartKind.Delay, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
-        Assert.True(WorkshopPorts.Has(WorkshopPartKind.Delay, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
-        Assert.False(WorkshopPorts.Has(WorkshopPartKind.Delay, WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
+        Assert.True(WorkshopPorts.Has(PartId.Delay, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
+        Assert.True(WorkshopPorts.Has(PartId.Delay, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
+        Assert.False(WorkshopPorts.Has(PartId.Delay, WorkshopSocket.Supply, WorkshopConnectionDomain.Electrical, WorkshopPortDirection.Output));
         new WorkshopInstances(Delay((Half)1), Delay((Half)2) with {Id=new(4)}).Validate(); // No per-kind delay count in free play.
         var puzzle = FirstPrinciples.Create(new(1), WorkshopCadenceSettings.Default(), new(1), new(2), new((Half)0));
         Assert.Throws<ArgumentException>(() => puzzle.WithInstance(Delay((Half)1)).Validate());

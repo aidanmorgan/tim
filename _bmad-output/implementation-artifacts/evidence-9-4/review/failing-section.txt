@@ -1,0 +1,320 @@
+✖ failing tests:
+
+test at tools/e2e/cat-005.test.ts:2:7003
+✖ Battery recharge, disable, Save/Load and Reset (17337.928791ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:180:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:7003
+✖ Battery finite60J source exhausts and retains final credit (19141.922ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:180:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:15428
+✖ Battery fans one finite source out to two existing Bumper stores (20959.195375ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:257:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:19040
+✖ Battery disconnected authored settings and rendered charge thresholds restore exactly (58220.3415ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(budget.debit>0 && budget.credit>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:345:51)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:24777
+✖ Battery paused intent reverses and Running controls preserve stores across continued ticks (14809.561083ms)
+  TypeError [Error]: Cannot read properties of null (reading 'enabled')
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:380:394)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/e2e/cat-015a-sidekick.test.ts:2:2039
+✖ Sidekick paid route uses actual UI and restores authored state (13166.5795ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(powered.length>0 && after.contactWorks(0)!.remainingEnergy()<32)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-015a-sidekick.test.ts:72:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-015a.test.ts:2:8479
+✖ CAT-015a heavy payload receives partial affordable boost, then ordinary unpaid bounce (13376.49525ms)
+  AssertionError [ERR_ASSERTION]: Later empty contact must not spend energy
+  + actual - expected
+  
+  + 0.0000019073486328125
+  - 0
+  
+      at scenario (/Users/aidan/dev/personal/tim/tools/e2e/cat-015a.test.ts:109:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.0000019073486328125,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-015b.test.ts:2:4773
+✖ CAT015b lesson 5 route 0 real UI and exact lifecycle (19742.728042ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(paid.length>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-015b.test.ts:128:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-015b.test.ts:2:4773
+✖ CAT015b lesson 6 route 0 real UI and exact lifecycle (21302.035208ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(paid.length>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-015b.test.ts:128:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-015b.test.ts:2:4773
+✖ CAT015b lesson 6 route 1 real UI and exact lifecycle (17122.32075ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(paid.length>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-015b.test.ts:128:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-023b.test.ts:2:6188
+✖ 1. Four dominoes wired end → lamp topple in sequence, the lamp lights and CCGOAL_SOLVED prints exactly once (8781.49725ms)
+  AssertionError [ERR_ASSERTION]: The lamp publishes its glow ramp (0 samples)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:182:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-023b.test.ts:2:8965
+✖ 2. Three dominoes leave a gap: the chain breaks, the end Domino stays upright and the lamp never lights (9553.028625ms)
+  AssertionError [ERR_ASSERTION]: Zero errors expected, got: CCGPU_TRANSPORT_FAILURE 3 Error: Error: Clock mapping recovery exhausted its bounded episode.
+      at animation.onmessage (http://127.0.0.1:8060/workshop-client.js:251:34); Error: Error: Clock mapping recovery exhausted its bounded episode.
+      at animation.onmessage (http://127.0.0.1:8060/workshop-client.js:251:34); While attempting to print an error, another error was printed:; ERROR: System.InvalidOperationException: Failed to resize vector. Error code is: 4294967296;    at Godot.DebuggingUtils.godot_stack_info_vector.Resize(Int32 size);    at Godot.DebuggingUtils.GetCurrentStackInfo(Void* destVector);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0); ERROR: System.InvalidOperationException: Worker session is unavailable; its unacknowledged operations remain indeterminate.;    at CuriousContraptions.Gpu.BrowserWorkshopClient.ThrowIfTransportFailed();    at CuriousContraptions.Gpu.BrowserWorkshopClient.TryUiFrame(UInt64 frame, WorkshopPresentationSample physical, WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.MachineWorld.TryUiFrame(WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.Workshop.ApplyUiBindings(Double delta);    at CuriousContraptions.Workshop._Process(Double delta);    at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at CuriousContraptions.Workshop.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0);    C# backtrace (most recent call first):;        [0] ;        [1] ;        [2] ;        [3] ;        [4] ;        [5] ;        [6] ;        [7] ;        [8] 
+  
+  27 !== 0
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:211:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-023b.test.ts:2:10351
+✖ 3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting (10699.595667ms)
+  AssertionError [ERR_ASSERTION]: Zero errors expected, got: CCGPU_TRANSPORT_FAILURE 3 Error: Error: Clock mapping recovery exhausted its bounded episode.
+      at animation.onmessage (http://127.0.0.1:8060/workshop-client.js:251:34); Error: Error: Clock mapping recovery exhausted its bounded episode.
+      at animation.onmessage (http://127.0.0.1:8060/workshop-client.js:251:34); While attempting to print an error, another error was printed:; ERROR: System.InvalidOperationException: Failed to resize vector. Error code is: 4294967296;    at Godot.DebuggingUtils.godot_stack_info_vector.Resize(Int32 size);    at Godot.DebuggingUtils.GetCurrentStackInfo(Void* destVector);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0); ERROR: System.InvalidOperationException: Worker session is unavailable; its unacknowledged operations remain indeterminate.;    at CuriousContraptions.Gpu.BrowserWorkshopClient.ThrowIfTransportFailed();    at CuriousContraptions.Gpu.BrowserWorkshopClient.TryUiFrame(UInt64 frame, WorkshopPresentationSample physical, WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.MachineWorld.TryUiFrame(WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.Workshop.ApplyUiBindings(Double delta);    at CuriousContraptions.Workshop._Process(Double delta);    at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at CuriousContraptions.Workshop.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0);    C# backtrace (most recent call first):;        [0] ;        [1] ;        [2] ;        [3] ;        [4] ;        [5] ;        [6] ;        [7] ;        [8] 
+  
+  27 !== 0
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:242:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-023b.test.ts:2:12132
+✖ 4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again (9499.739041ms)
+  AssertionError [ERR_ASSERTION]: Zero errors expected, got: CCGPU_TRANSPORT_FAILURE 3 Error: Error: Clock mapping recovery exhausted its bounded episode.
+      at animation.onmessage (http://127.0.0.1:8060/workshop-client.js:251:34); Error: Error: Clock mapping recovery exhausted its bounded episode.
+      at animation.onmessage (http://127.0.0.1:8060/workshop-client.js:251:34); While attempting to print an error, another error was printed:; ERROR: System.InvalidOperationException: Failed to resize vector. Error code is: 4294967296;    at Godot.DebuggingUtils.godot_stack_info_vector.Resize(Int32 size);    at Godot.DebuggingUtils.GetCurrentStackInfo(Void* destVector);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0); ERROR: System.InvalidOperationException: Worker session is unavailable; its unacknowledged operations remain indeterminate.;    at CuriousContraptions.Gpu.BrowserWorkshopClient.ThrowIfTransportFailed();    at CuriousContraptions.Gpu.BrowserWorkshopClient.TryUiFrame(UInt64 frame, WorkshopPresentationSample physical, WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.MachineWorld.TryUiFrame(WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.Workshop.ApplyUiBindings(Double delta);    at CuriousContraptions.Workshop._Process(Double delta);    at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at CuriousContraptions.Workshop.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0);    C# backtrace (most recent call first):;        [0] ;        [1] ;        [2] ;        [3] ;        [4] ;        [5] ;        [6] ;        [7] ;        [8] 
+  
+  27 !== 0
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:270:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:12849
+✖ CAT062b route Passive preserves construction and repeats after Reset/Load (9166.977375ms)
+  AssertionError [ERR_ASSERTION]: Precise Receiver guide is zero
+  
+  0.5 !== 0
+  
+      at construct (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:164:16)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:202:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:12849
+✖ CAT062b route Charged preserves construction and repeats after Reset/Load (10772.222333ms)
+  AssertionError [ERR_ASSERTION]: Precise Receiver guide is zero
+  
+  0.5 !== 0
+  
+      at construct (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:164:16)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:202:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:12849
+✖ CAT062b route Zero preserves construction and repeats after Reset/Load (10735.075667ms)
+  AssertionError [ERR_ASSERTION]: Precise Receiver guide is zero
+  
+  0.5 !== 0
+  
+      at construct (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:164:16)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:202:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:12849
+✖ CAT062b route Away preserves construction and repeats after Reset/Load (13007.392583ms)
+  AssertionError [ERR_ASSERTION]: Precise Receiver guide is zero
+  
+  0.5 !== 0
+  
+      at construct (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:164:16)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:202:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:16022
+✖ CAT062b Ready Receiver deletion and replacement rebind the saved capture goal (7856.858875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1n !== 4n
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:257:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1n,
+    expected: 4n,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+EXIT 1

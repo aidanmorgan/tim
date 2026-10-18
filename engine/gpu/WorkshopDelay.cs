@@ -36,7 +36,7 @@ public readonly record struct DelayDuration(DurationSeconds Seconds)
 public readonly record struct WorkshopDelay(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, DelayDuration Duration, bool Locked = false) : IWorkshopInstance
 {
-    public WorkshopPartKind Kind => WorkshopPartKind.Delay;
+    public PartId PartId => PartId.Delay;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.Delay;
     public void Validate()
     {

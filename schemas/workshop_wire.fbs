@@ -1,0 +1,319 @@
+namespace CuriousContraptions.Wire;
+
+enum SimulationPhase : uint8 {
+    Uninitialized = 0,
+    Initializing = 1,
+    Building = 2,
+    Admitting = 3,
+    Starting = 4,
+    Running = 5,
+    Paused = 6,
+    Completed = 7,
+    Resetting = 8,
+    Faulted = 9,
+    Disposed = 10
+}
+
+enum CommandKind : uint32 {
+    Initialize = 0,
+    Construct = 1,
+    Run = 2,
+    Reset = 3,
+    Dispose = 4,
+    Cancel = 5,
+    ConfigureCadence = 6,
+    Pause = 7,
+    Resume = 8,
+    Step = 9,
+    Save = 10,
+    ConfigureElectrical = 11
+}
+
+enum CommandOutcome : uint8 {
+    Applied = 0,
+    Rejected = 1,
+    Superseded = 2,
+    Faulted = 3,
+    Cancelled = 4
+}
+
+enum ResponseKind : uint8 {
+    Acknowledgement = 0,
+    Read = 1
+}
+
+enum ElectricalEnable : uint8 {
+    Disabled = 0,
+    Enabled = 1
+}
+
+enum WorkEffect : uint8 {
+    Passive = 0,
+    Paid = 1
+}
+
+struct Vec3f {
+    x: float;
+    y: float;
+    z: float;
+}
+
+struct Vec3i {
+    x: int32;
+    y: int32;
+    z: int32;
+}
+
+struct Quat4f {
+    x: float;
+    y: float;
+    z: float;
+    w: float;
+}
+
+struct BodyRead {
+    id: uint64;
+    cell: Vec3i;
+    local: Vec3f;
+    rotation: Quat4f;
+    com: Vec3f;
+    velocity: Vec3f;
+    angular_velocity: Vec3f;
+}
+
+struct CaptureLatchRead {
+    sensor: uint64;
+    phase: uint32;
+    event_ordinal: uint32;
+    event_phase: float;
+}
+
+struct ElectricalSourceRecord {
+    id: uint64;
+    owner: uint64;
+    remaining: float;
+    debit: float;
+    enabled: uint8;
+    available: bool;
+}
+
+struct ContactWorkStoreRecord {
+    id: uint64;
+    owner: uint64;
+    occurrence_count: uint32;
+    remaining_energy: float;
+    supplied_energy: float;
+}
+
+struct ContactWorkOccurrenceRecord {
+    work: uint16;
+    collider: uint16;
+    target: uint64;
+    sequence: uint32;
+    event_ordinal: uint32;
+    event_phase: float;
+    approach_speed: float;
+    debit: float;
+    effect: uint8;
+}
+
+struct ActivationRecord {
+    node: uint64;
+    owner: uint64;
+    source: uint64;
+    body: uint64;
+    collider: uint64;
+    phase: uint32;
+    event_ordinal: uint32;
+    event_phase: float;
+    approach_speed: float;
+    kind: uint32;
+    emitter: uint64;
+    cause_ordinal: uint32;
+    cause_phase: float;
+}
+
+struct TimerRecord {
+    node: uint64;
+    phase: uint32;
+    started_tick: uint64;
+    due_tick: uint64;
+    input_kind: uint32;
+    input_ordinal: uint32;
+    input_phase: float;
+    input_approach_speed: float;
+    input_emitter: uint64;
+    cause_source: uint64;
+    cause_body: uint64;
+    cause_collider: uint64;
+    cause_ordinal: uint32;
+    cause_phase: float;
+}
+
+struct ClockStamp {
+    time: int64;
+    uncertainty: uint64;
+    domain: uint8;
+}
+
+struct ElectricalControl {
+    owner: uint64;
+    enabled: uint8;
+}
+
+struct CadenceSettingsRecord {
+    version: uint32;
+    simulation: uint32;
+    physical: uint32;
+    animation: uint32;
+    presentation: uint32;
+    presentation_rate_numerator: uint32;
+    presentation_rate_denominator: uint32;
+}
+
+struct CommandIdentityRecord {
+    sequence: uint64;
+    epoch: uint64;
+    revision: uint64;
+    cadence: uint64;
+    projection: uint64;
+}
+
+struct ConnectionRecord {
+    source: uint64;
+    target: uint64;
+    domain: uint32;
+    from_socket: uint32;
+    to_socket: uint32;
+}
+
+table InstanceRecord {
+    id: uint64;
+    part_id: string;
+    locked: bool;
+    cell: Vec3i;
+    local: Vec3f;
+    rotation: Quat4f;
+
+    // Ball
+    radius: float;
+    mass: float;
+    bounce: float;
+    drag: float;
+    buoyancy: float;
+
+    // Receiver
+    margin: float;
+    speed_limit: float;
+    dwell: float;
+    participation: uint32;
+    force_min: Vec3f;
+    force_max: Vec3f;
+    support_height: float;
+    support_margin: float;
+    max_acceleration: float;
+
+    // Ramp / Wall
+    length: float;
+    width: float;
+    height: float;
+    thickness: float;
+
+    // Switch / Delay
+    threshold: float;
+    duration: float;
+
+    // Springboard
+    stiffness: float;
+    damping: float;
+    initial_compression: float;
+
+    // Battery
+    capacity: float;
+    maximum_power: float;
+    initial_fraction: float;
+    enabled: uint8;
+
+    // Bumper
+    strength: float;
+    reference_mass: float;
+    preload: float;
+
+    // Domino
+    half_extents: Vec3f;
+    friction: float;
+}
+
+table PuzzleRecord {
+    id: uint32;
+    placement: uint32;
+    precision: float;
+    inventory_part: string;
+    inventory_count: uint32;
+    goal_kind: uint32;
+    goal_body: uint64;
+    goal_target: uint64;
+    goal_event_source: uint64;
+    goal_delay: float;
+    raw_assistance: [uint8];
+}
+
+table ConstructionRecord {
+    revision: uint64;
+    settings: CadenceSettingsRecord;
+    puzzle: PuzzleRecord;
+    instances: [InstanceRecord];
+    connections: [ConnectionRecord];
+}
+
+table SavedConstruction {
+    magic: uint32;
+    version: uint32;
+    next_body_id: uint64;
+    construction: ConstructionRecord;
+}
+
+table WorkshopResponse {
+    sequence: uint64;
+    kind: ResponseKind;
+    outcome: CommandOutcome;
+    reason: uint8;
+    phase: SimulationPhase;
+    version: uint32;
+    epoch: uint64;
+    tick: uint64;
+    revision: uint64;
+    publication: uint64;
+    master_generation: uint64;
+    cadence: uint64;
+    projection: uint64;
+    session: [uint8];
+    capture: ClockStamp;
+    bodies: [BodyRead];
+    captures: [CaptureLatchRead];
+    activations: [ActivationRecord];
+    timers: [TimerRecord];
+    contact_works: [ContactWorkStoreRecord];
+    occurrences: [ContactWorkOccurrenceRecord];
+    electrical: [ElectricalSourceRecord];
+}
+
+table WorkshopCommand {
+    sequence: uint64;
+    kind: CommandKind;
+    version: uint32;
+    epoch: uint64;
+    revision: uint64;
+    revision_kind: uint32;
+    session: [uint8];
+    cadence: uint64;
+    projection: uint64;
+    electrical: ElectricalControl;
+    settings: CadenceSettingsRecord;
+    target: CommandIdentityRecord;
+    construction: [uint8];
+    construction_record: ConstructionRecord;
+}
+
+root_type WorkshopResponse;
+

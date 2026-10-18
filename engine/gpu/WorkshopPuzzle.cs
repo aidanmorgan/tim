@@ -2,7 +2,7 @@ using System;
 
 namespace CuriousContraptions.Gpu;
 
-public enum WorkshopPuzzleId : uint { Free, FirstPrinciples, DelayedSignal, DominoEffect, BumperSidekick, BumperDepth, WallAndBumper, SpringForward, ReadyToRebound }
+public enum WorkshopPuzzleId : uint { Free, FirstPrinciples, DelayedSignal, DominoEffect, BumperSidekick, BumperDepth, WallAndBumper, SpringForward, ReadyToRebound, ClearPipe, GentleBend, QuarterBend }
 public enum WorkshopPlacementMode : uint { Manual }
 public enum WorkshopGoalKind : uint { None, Captured, ActivatedAfter }
 public readonly record struct PuzzlePrecision(Half Value);
@@ -51,10 +51,11 @@ public readonly record struct AssistanceProfile(AssistanceKnot Forgiving, Assist
 }
 
 public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacementMode Placement,
-    PuzzlePrecision Precision, WorkshopPartKind InventoryKind, uint InventoryCount, WorkshopGoal Goal, AssistanceProfile BallAssistance,
+    PuzzlePrecision Precision, PartId InventoryPart, uint InventoryCount, WorkshopGoal Goal, AssistanceProfile BallAssistance,
     AssistanceProfile ReceiverAssistance, AssistanceProfile RampAssistance)
 {
     public AssistanceProfile WallAssistance => Id == WorkshopPuzzleId.WallAndBumper ? BumperAdvanced.WallAssistance : default;
+    public AssistanceProfile BendAssistance => RampAssistance;
 
     public void Validate(WorkshopConstruction construction)
     {
@@ -69,7 +70,7 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
         foreach (var instance in construction.Instances)
         {
             if (instance is not WorkshopBall ball) continue;
-            if (ball.Kind != WorkshopPartKind.Basketball) throw new ArgumentException("Authored puzzles admit only their named Basketball.");
+            if (ball.PartId != PartId.Basketball) throw new ArgumentException("Authored puzzles admit only their named Basketball.");
             ballCount++;
         }
         if (ballCount != 1) throw new ArgumentException("Authored puzzles require their one named Basketball.");
@@ -79,8 +80,11 @@ public readonly record struct WorkshopPuzzle(WorkshopPuzzleId Id, WorkshopPlacem
         if (Id == WorkshopPuzzleId.BumperSidekick) { BumperSidekick.Validate(this, construction); return; }
         if (Id is WorkshopPuzzleId.BumperDepth or WorkshopPuzzleId.WallAndBumper) { BumperAdvanced.Validate(this, construction); return; }
         if (Id == WorkshopPuzzleId.DominoEffect) { DominoEffect.Validate(this, construction); return; }
+        if (Id == WorkshopPuzzleId.ClearPipe) { ClearPipe.Validate(this, construction); return; }
+        if (Id == WorkshopPuzzleId.GentleBend) { GentleBend.Validate(this, construction); return; }
+        if (Id == WorkshopPuzzleId.QuarterBend) { QuarterBend.Validate(this, construction); return; }
         PhysicsDeclarationBounds.Range(Precision.Value, (Half)0, (Half)1);
-        if (construction.Connections.Count != 0 || InventoryKind != WorkshopPartKind.Ramp || InventoryCount != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||
+        if (construction.Connections.Count != 0 || InventoryPart != PartId.Ramp || InventoryCount != 2 || Goal.Kind != WorkshopGoalKind.Captured || Goal.Body.Value == 0 || Goal.Target.Value == 0 || Goal.Body == Goal.Target ||
             BallAssistance != FirstPrinciples.BallAssistance || ReceiverAssistance != FirstPrinciples.ReceiverAssistance || RampAssistance != FirstPrinciples.RampAssistance)
             throw new ArgumentException("Unsupported First principles authored settings.");
         var expectedBall = FirstPrinciples.Ball(Goal.Body);
@@ -134,7 +138,7 @@ public static class FirstPrinciples
     }
     public static WorkshopConstruction Create(ConstructionRevision revision, WorkshopCadenceSettings settings, GpuBodyId ball, GpuBodyId receiver, PuzzlePrecision precision)
     {
-        var puzzle = new WorkshopPuzzle(WorkshopPuzzleId.FirstPrinciples, WorkshopPlacementMode.Manual, precision, WorkshopPartKind.Ramp, 2,
+        var puzzle = new WorkshopPuzzle(WorkshopPuzzleId.FirstPrinciples, WorkshopPlacementMode.Manual, precision, PartId.Ramp, 2,
             new(WorkshopGoalKind.Captured, ball, receiver, WorkshopPhysicsCompiler.CaptureSensor(Receiver(receiver, precision))), BallAssistance, ReceiverAssistance, RampAssistance);
         var construction = new WorkshopConstruction(revision, settings, new(Ball(ball), Receiver(receiver, precision)), puzzle);
         construction.Validate(); return construction;

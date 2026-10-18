@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/pressure_plate.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "pressure_plate"
+Title = "Pressure plate"
+Category = "Control"
+Description = "Senses resting mass on its top plate. Closes an internal electrical circuit while its threshold mass is met."
+Scene = ExtResource("2")
+Color = Color(0.91, 0.72, 0.39, 1)

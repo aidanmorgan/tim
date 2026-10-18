@@ -1,6 +1,40 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://parts/RampPart.cs" id="1"]
+[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_RampBody"]
+albedo_color = Color(0.76, 0.56, 0.32, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_RampBody"]
+material = SubResource("Mat_RampBody")
+size = Vector3(3, 0.18, 1.3)
+
+[sub_resource type="StandardMaterial3D" id="Mat_RampRail"]
+albedo_color = Color(0.976, 0.91, 0.788, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_RampRail"]
+material = SubResource("Mat_RampRail")
+size = Vector3(3, 0.055, 0.055)
+
+[sub_resource type="BoxShape3D" id="Shape_Ramp"]
+size = Vector3(3, 0.18, 1.3)
 
 [node name="ramp" type="Node3D"]
 script = ExtResource("1")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Visual_Body" type="MeshInstance3D" parent="Visual"]
+mesh = SubResource("Mesh_RampBody")
+
+[node name="Visual_RailA" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11, -0.598)
+mesh = SubResource("Mesh_RampRail")
+
+[node name="Visual_RailB" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11, 0.598)
+mesh = SubResource("Mesh_RampRail")
+
+[node name="col_box" type="CollisionShape3D" parent="."]
+visible = false
+shape = SubResource("Shape_Ramp")

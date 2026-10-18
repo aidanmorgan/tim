@@ -24,7 +24,7 @@ public readonly record struct WorkshopDomino(GpuBodyId Id, CellOrigin Cell, Loca
 {
     /// <summary>ActivationOut emits once the tile has turned 45° from its admitted pose (CAT-023).</summary>
     public static OrientationThreshold ActivationThreshold => OrientationThreshold.Degrees(45);
-    public WorkshopPartKind Kind => WorkshopPartKind.Domino;
+    public PartId PartId => PartId.Domino;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {

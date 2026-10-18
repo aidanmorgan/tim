@@ -104,12 +104,12 @@ Samples read-only committed poses from a lock-free pre-allocated `SharedArrayBuf
 ### AD-05 — Forward-Only Refactoring & Zero Backwards Compatibility
 - **Binds:** `all`
 - **Prevents:** Code bloat, legacy shims, parallel buggy execution modes, dead code retention.
-- **Rule:** Every slice names the legacy it deletes. No backwards compatibility shims, wrappers, flags, or dual-path adapters are permitted. When a forward capability lands, superseded code is immediately purged from the active tree. Git history is the permanent archive.
+- **Rule:** Every slice names the legacy it deletes. Strictly no backwards-compatibility shims, adapters, wrappers, fallback branches, legacy feature flags, or dual-path loaders are permitted. When a forward capability lands or an existing implementation is refactored, the superseded code is immediately purged from the active tree in the exact same slice. When existing puzzle elements are converted to declarative glTF 2.0 (`.glb`) assets and `PartId` catalog resources, all procedural mesh generation (`PartArt.cs`), hardcoded collider dimension tables, per-part C# scripts (`parts/*Part.cs`), and closed enums (`WorkshopPartKind`) must be deleted immediately without compatibility bridges. Git history is the permanent archive.
 
 ### AD-06 — Data-Driven Declarative Puzzle Elements
 - **Binds:** Catalogue elements (`CAT-001` through `CAT-072`).
 - **Prevents:** Element-specific solver branching, bespoke equation tables, individual element tick loops, and regression fragility.
-- **Rule:** A new puzzle element is defined strictly by declaration data: shape, mass, inertia, material coefficients, constraint parameters, force regions, energy stores, visual mesh, and animation curve bindings. The solver contains zero element-specific `switch` statements, class references, or special-case branches. Any developer adding an element authors declaration records and art only; the general WASM SIMD physics core and animation worker remain completely untouched. Codebase greps for element or level identifiers in the solver core must return 0 matches.
+- **Rule:** A new puzzle element is defined strictly by declaration data: self-contained glTF 2.0 (`.glb`) binary asset containing visual meshes and co-located collision proxies (`col_*`), 3D socket locators (`Loc_Port_<Id>`), mass, inertia, material coefficients, constraint parameters, force regions, energy stores, and animation curve bindings. The solver contains zero element-specific `switch` statements, class references, or special-case branches. Any developer adding an element authors declaration records and 3D `.glb` assets only; the general WASM SIMD physics core and animation worker remain completely untouched. Codebase greps for element or level identifiers in the solver core must return 0 matches.
 
 ### AD-07 — Game-Grade Numerical Envelope
 - **Binds:** Physical arithmetic and solver updates.
@@ -123,7 +123,7 @@ Samples read-only committed poses from a lock-free pre-allocated `SharedArrayBuf
 ### AD-08 — Strict Enum Typing and C# Domain Boundaries
 - **Binds:** Domain logic, APIs, event contracts, persistence formats.
 - **Prevents:** Stringly-typed logic bugs, parse errors, loose object mapping.
-- **Rule:** Closed sets are enums end-to-end. Extensible identities use strongly typed IDs. Validated string conversion occurs only at genuine external boundaries (JSON import/export, UI labels). Domain logic must not use named string constants or `nameof`/string matching for control flow.
+- **Rule:** Closed sets are enums end-to-end. Extensible identities (specifically puzzle parts and components) use strongly typed `PartId` record structs wrapping canonical strings; closed enums like `WorkshopPartKind` are strictly prohibited for puzzle parts. Validated string conversion occurs only at genuine external boundaries (JSON import/export, UI labels). Domain logic must not use named string constants or `nameof`/string matching for control flow.
 
 ### AD-09 — Exact Lifecycle Restoration & Deterministic Save/Load
 - **Binds:** Level lifecycle, Workshop state, persistence.
@@ -141,6 +141,23 @@ Samples read-only committed poses from a lock-free pre-allocated `SharedArrayBuf
   - Dedicated browser-based Playwright E2E suite executed in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`) passing 100%.
   - All preceding cumulative browser-based E2E regression suites passing 100% serially in Chrome (`node --test --test-concurrency=1 --test-timeout=150000`).
   - Verification of exact Reset and Save/Load persistence roundtrip in Chrome.
+
+### AD-11 — Universal glTF 2.0 (.glb) Geometry & Dynamic Part Discovery
+- **Binds:** Visual meshes, collision geometry, socket anchors, and catalogue loading.
+- **Prevents:** Hardcoded C# geometry tables, procedural mesh generation coupling, manual part registration bloat.
+- **Rule:**
+  1. **Universal glTF 2.0 (.glb) Container & Strict Entity Separation:** Every puzzle part defines visual meshes (PBR materials per DESIGN.md) and physical collision shapes in a single `.glb` file. Visual mesh entities and collider mesh entities must be separate entities/nodes. Visual mesh nodes are exclusively for presentation rendering; collider nodes are dedicated physics proxies (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`, `col_hull` / `-convcol`) or `KHR_physics_rigid_bodies` whose visual rendering is suppressed (`Visible = false`). `WorkshopPhysicsCompiler` / `GltfPhysicsBodyExtractor` extracts `ColliderDeclaration` records exclusively from dedicated collider proxy entities at compile-to-state time with zero element branching, never from visual mesh entities.
+  2. **Socket Locators (`Loc_Port_<Id>`):** Authored as empty locator nodes in the `.glb` scene hierarchy matching `PortDefinition.Id`. Signal wires and cables snap directly to these locators, tracking articulated child transforms automatically.
+  3. **Dynamic Part Discovery:** `PartRegistry.Discover()` scans `res://parts/catalog/*.tres` dynamically using Godot `DirAccess.GetFilesAt`. New parts are discovered and loaded without editing engine C# code. `PartRegistry.Create(PartId)` instantiates scenes into generic `MachinePart` entities.
+  4. **Procedural Geometry Purge:** Procedural mesh generation (`engine/PartArt.cs`) and hardcoded shape resources are legacy and must be completely deleted upon conversion of existing parts.
+
+### AD-12 — Multi-Domain Port Compatibility & Physical Conservation
+- **Binds:** Connection graph and multi-domain solver stages.
+- **Prevents:** Incompatible port wiring, unphysical loops, instantaneous signal deadlocks.
+- **Rule:**
+  1. Connections validate on domain equality ($\text{Domain}_{\text{src}} == \text{Domain}_{\text{dst}}$) and directional pairing (Exposed `Output` $\to$ Accepted `Input`).
+  2. Directed unbuffered activation networks reject cycles during graph compilation unless a stateful delay is present.
+  3. Energy conservation holds strictly: loads cannot extract more power than available in finite work stores or supply networks.
 
 ---
 
@@ -242,6 +259,8 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 │   └── implementation-artifacts/      # Sprint status and story tracking
 ├── CuriousContraptions/                # Godot C# project root
 │   ├── parts/                         # Declarative puzzle element definitions and scenes
+│   │   ├── catalog/                   # Declarative .tres PartDefinition resources (auto-discovered)
+│   │   └── models/                    # Universal .glb binary assets (visual PBR + col_* proxies)
 │   ├── ui/                            # Workshop and level UI controls
 │   └── levels/                        # Campaign levels and workshop puzzles
 ├── CuriousContraptions.Simulation/     # Simulation worker C# WASM SIMD project
@@ -266,8 +285,10 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 
 | Capability / Area | Lives in | Governed by |
 | :--- | :--- | :--- |
-| **Machine Graph Authoring** | `CuriousContraptions/parts/`, `CuriousContraptions/ui/` | AD-01, AD-06, AD-08, AD-09 |
-| **Physics Graph Compilation** | `CuriousContraptions.Simulation/WorkshopPhysicsCompiler.cs` | AD-01, AD-06, AD-08 |
+| **Machine Graph Authoring** | `CuriousContraptions/parts/`, `CuriousContraptions/ui/` | AD-01, AD-06, AD-08, AD-09, AD-11 |
+| **Dynamic Part Discovery** | `engine/PartRegistry.cs`, `engine/PartId.cs` | AD-06, AD-08, AD-11 |
+| **Physics Graph Compilation** | `CuriousContraptions.Simulation/WorkshopPhysicsCompiler.cs` | AD-01, AD-06, AD-08, AD-11, AD-12 |
+| **glTF Collider & Socket Extraction** | `CuriousContraptions.Simulation/WorkshopPhysicsCompiler.cs` | AD-06, AD-11 |
 | **Quad-BVH Broadphase** | `CuriousContraptions.Simulation/` (WASM SIMD) | AD-02, AD-03, AD-07 |
 | **TGS Soft Constraint Solver**| `CuriousContraptions.Simulation/` (WASM SIMD) | AD-02, AD-03, AD-07 |
 | **Speculative Contacts CCD** | `CuriousContraptions.Simulation/` (WASM SIMD) | AD-02, AD-03, AD-07 |
@@ -278,8 +299,61 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 
 ---
 
+## Existing Implementation Conversion Architecture & Migration Tasks
+
+To eliminate architectural drift, all 14 existing puzzle element implementations authored under earlier procedural C# prototypes are scheduled for sequential forward conversion to the new declarative `.glb` + `PartId` architecture. In accordance with **AD-05**, strictly zero backwards-compatibility shims, dual loaders, or fallback paths are created:
+
+```mermaid
+flowchart TD
+    subgraph PHASE1 ["Phase 1: Dynamic Discovery & Extensible Identity"]
+        P1["Story 6.5b: PartId & Dynamic Discovery<br/>(Scans res://parts/catalog/*.tres, eliminates closed enums)"]
+    end
+
+    subgraph PHASE2 ["Phase 2: Compiler glTF Collider Extraction"]
+        P2["Story 6.5c: ENGINE-CORE-2d glTF Extraction<br/>(WorkshopPhysicsCompiler extracts col_* and Loc_Port_*)"]
+    end
+
+    subgraph PHASE3 ["Phase 3: Existing Implementation Conversion"]
+        P3A["Story 6.5d: Ball & Obstacle Primitives<br/>(Basketball, Bowling, Tennis, Balloon, Wall, Ramp, Receiver to .glb)"]
+        P3B["Story 6.5e: Interactive Mechanisms & Fixtures<br/>(Bumper, Domino, Springboard, Switch, Lamp, Delay, Battery to .glb)"]
+    end
+
+    subgraph PHASE4 ["Phase 4: Zero-Remnant Legacy Purge"]
+        P4["Story 6.5f: Legacy Deletion & Final Purge<br/>(Permanently delete PartArt.cs, WorkshopPartKind.cs, parts/*Part.cs)"]
+    end
+
+    P1 --> P2
+    P2 --> P3A
+    P3A --> P3B
+    P3B --> P4
+```
+
+### Detailed Migration Strategy:
+1. **Story 6.5b — Dynamic Puzzle Part Discovery & Extensible PartId:**
+   - Scan `res://parts/catalog/*.tres` via `DirAccess.GetFilesAt`.
+   - Wrap catalogue identities into extensible `PartId` structs.
+   - Refactor `PartRegistry.Create(PartId)` to instantiate from discovered definition scenes without switch statements.
+2. **Story 6.5c — glTF Asset-Driven Geometry & Collider Extraction (ENGINE-CORE-2d):**
+   - Teach `WorkshopPhysicsCompiler` to traverse instantiated scene hierarchies and extract `ColliderDeclaration` records directly from `col_*` proxy nodes and `KHR_physics_rigid_bodies`.
+   - Extract socket anchor transforms dynamically from named `Loc_Port_<Id>` locator empties.
+3. **Story 6.5d — Existing Implementation Conversion (Balls & Obstacles):**
+   - Convert Basketball (`CAT-001`), Bowling Ball (`CAT-014`), Tennis Ball (`CAT-064`), Floating Balloon (`CAT-003`), Wall (`CAT-066`), Ramp (`CAT-054`), and Receiver (`CAT-004`) to self-contained `.glb` assets in `parts/models/`.
+   - Migrate definitions to generic `MachinePart` instances driven by `.tres` catalog resources.
+   - Delete bespoke C# classes (`BallPart.cs`, `WallPart.cs`, `RampPart.cs`, `BasketPart.cs`) and dimension resources.
+4. **Story 6.5e — Existing Implementation Conversion (Interactive Mechanisms & Dynamic Fixtures):**
+   - Convert Pinball Bumper (`CAT-015`), Domino (`CAT-023`), Springboard (`CAT-062`), Impact Switch (`CAT-063`), Signal Lamp (`CAT-035`), Delay Box (`CAT-022`), and Battery (`CAT-005`) to `.glb` models with embedded `col_*` collision proxies and `Loc_Port_*` locators.
+   - Migrate to generic `MachinePart` entities.
+   - Delete bespoke C# classes (`BumperPart.cs`, `DominoPart.cs`, `SpringboardPart.cs`, `SwitchPart.cs`, `LampPart.cs`, `DelayPart.cs`, `BatteryPart.cs`).
+5. **Story 6.5f — Zero-Remnant Procedural Geometry & Enum Purge:**
+   - Permanently delete `engine/PartArt.cs` and `engine/gpu/WorkshopPartKind.cs`.
+   - Purge all remaining switch statements on part kind across the compiler, UI, and test suites.
+   - Validate with `anvil check` (0 warnings) and full Playwright E2E suites in Chrome. Zero backwards compatibility shims remain.
+
+---
+
 ## Deferred Items
 
 1. **Hardware Timing Budget Qualification (P0-034):** Target thresholds (e.g. $\le 2.5\text{ ms}$ tick p95, zero clock debt over 20 runs) are tracked as advisory telemetry during incremental functional slices; full formal multi-device qualification occurs at the P0-034 gate.
 2. **Post-Authoring Campaign Expansion:** Authorship of all 150 progressive campaign levels occurs across dedicated CAMPAIGN slices following core engine and catalogue component completion.
 3. **ECS Entity Framework:** Explicitly deferred per owner decision; current scene-independent C# extraction and SoA tables meet all performance and modularity goals.
+

@@ -9,22 +9,55 @@ public partial class Workshop
 {
     private void AddConfigurationChoices(MachinePart part)
     {
-        if (part is SpringboardPart spring) { AddSpringboardConfiguration(spring); return; }
-        if (part is BatteryPart battery) { AddBatteryConfiguration(battery); return; }
-        if (part is BumperPart bumper) { AddBumperConfiguration(bumper); return; }
-        if (part is not DelayPart delay) return;
+        if (part.Definition?.PartId == PartId.Springboard) { AddSpringboardConfiguration(part); return; }
+        if (part.Definition?.PartId == PartId.Battery) { AddBatteryConfiguration(part); return; }
+        if (part.Definition?.PartId == PartId.PinballBumper) { AddBumperConfiguration(part); return; }
+        if (part.Definition?.PartId == PartId.Clock) { AddClockConfiguration(part); return; }
+        if (part.Definition?.PartId != PartId.Delay) return;
         var owner=part.AuthoredId;
-        var configure=SignalButton("Delay: "+((double)delay.CanonicalDuration.Seconds.Value).ToString("0.###")+" s",()=>
+        var configure=SignalButton("Delay: "+((double)part.CanonicalDuration.Seconds.Value).ToString("0.###")+" s",()=>
         {
             if (!CanEdit) return;
             ClearConnectionChoices();
-            var duration=new SpinBox {MinValue=(double)(Half).1,MaxValue=12,Step=0,Value=(double)delay.CanonicalDuration.Seconds.Value,
+            var duration=new SpinBox {MinValue=(double)(Half).1,MaxValue=12,Step=0,Value=(double)part.CanonicalDuration.Seconds.Value,
                 Suffix="s",Name="DelaySeconds",CustomMinimumSize=new(140,36)};
             _connectionChoices.AddChild(duration);
             _connectionChoices.AddChild(SignalButton("Apply duration",()=> {duration.Apply();ApplyDelayDuration(owner,duration.Value);}));
             _connectionChoices.AddChild(SignalButton("Cancel",RefreshConnectionChoices));
         });
         configure.Disabled=!CanEdit||part.Locked; _connectionChoices.AddChild(configure);
+    }
+    private void AddClockConfiguration(MachinePart part)
+    {
+        var owner = part.AuthoredId;
+        var configure = SignalButton("Interval: " + part.CanonicalIntervalSeconds.ToString("0.###") + " s", () =>
+        {
+            if (!CanEdit) return;
+            ClearConnectionChoices();
+            var interval = new SpinBox { MinValue = (double)WorkshopClock.MinIntervalSeconds, MaxValue = (double)WorkshopClock.MaxIntervalSeconds, Step = 0,
+                Value = part.CanonicalIntervalSeconds, Suffix = "s", Name = "ClockInterval", CustomMinimumSize = new(140, 36) };
+            _connectionChoices.AddChild(interval);
+            _connectionChoices.AddChild(SignalButton("Apply interval", () => { interval.Apply(); ApplyClockInterval(owner, (float)interval.Value); }));
+            _connectionChoices.AddChild(SignalButton("Cancel", RefreshConnectionChoices));
+        });
+        configure.Disabled = !CanEdit || part.Locked; _connectionChoices.AddChild(configure);
+    }
+    private async void ApplyClockInterval(GpuBodyId owner, float seconds)
+    {
+        if (!CanEdit) return;
+        try
+        {
+            if (World.Construction.Instances.Single(instance => instance.Id == owner) is not WorkshopClock current || current.Locked)
+                throw new ArgumentException("This part has no editable clock interval.");
+            if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < WorkshopClock.MinIntervalSeconds || seconds > WorkshopClock.MaxIntervalSeconds)
+                throw new ArgumentException("Clock interval is outside its authored range.");
+            if (seconds == current.IntervalSeconds) { RefreshConnectionChoices(); return; }
+            var proposed = World.Construction.WithInstance(current with { IntervalSeconds = seconds });
+            PushUndo();
+            if (!await SubmitConstruction(proposed)) { if (_undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); return; }
+            if (!_workshopUiRemoved) { _status.Text = "Clock interval updated."; RefreshConnectionChoices(); }
+        }
+        catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
     }
     private async void ApplyDelayDuration(GpuBodyId owner,double seconds)
     {
@@ -42,7 +75,7 @@ public partial class Workshop
         }
         catch(Exception error) {if(!_workshopUiRemoved)_status.Text=error.Message;}
     }
-    private void AddBumperConfiguration(BumperPart bumper)
+    private void AddBumperConfiguration(MachinePart bumper)
     {
         var owner = bumper.AuthoredId;
         var configure = SignalButton("Strength: " + ((double)bumper.CanonicalWork.Strength.Value).ToString("0.###"), () =>
@@ -76,7 +109,7 @@ public partial class Workshop
         catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
     }
 
-    private void AddSpringboardConfiguration(SpringboardPart spring)
+    private void AddSpringboardConfiguration(MachinePart spring)
     {
         var owner = spring.AuthoredId;
         var configure = SignalButton("Spring settings", () =>

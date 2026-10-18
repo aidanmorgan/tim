@@ -181,6 +181,51 @@ Every puzzle element is implemented purely as declarative capability data withou
 
 ---
 
+### 3.8 Universal glTF 2.0 (.glb) Geometry & Dynamic Part Discovery Architecture
+
+All 72 puzzle elements, fixtures, and tools are defined purely as declarative data without bespoke engine code or procedural mesh builders:
+1. **Universal glTF 2.0 (`.glb`) Visual & Collision Asset Container:**
+   - Both visual meshes and physical collision meshes are co-located in a single self-contained `.glb` binary asset per part.
+   - **Strict Entity Separation:** The visual mesh and the collider mesh must be separate entities. Visual mesh nodes are dedicated exclusively to presentation rendering (PBR materials); collider nodes are dedicated physics proxies (`col_*`, `-convcol`, `CollisionShape3D`) whose visual rendering is suppressed (`Visible = false`). Physics colliders are never extracted directly from visual mesh entities, and visual meshes are never evaluated as colliders.
+   - **Visual Meshes:** Rendered with standard PBR metallic-roughness materials conforming to the project color palette and sculptural aesthetic defined in `DESIGN.md`.
+   - **Collision Proxy Nodes:** Authored directly in the `.glb` transform hierarchy using standardized proxy prefixes:
+     - Analytic shapes: `col_box`, `col_sphere`, `col_capsule`, `col_cylinder`.
+     - Convex hull geometry: `col_hull`, `-convcol`.
+     - Or the Khronos `KHR_physics_rigid_bodies` standard extension.
+     - Extracted generically by `WorkshopPhysicsCompiler` at compile-to-state time with zero element-specific branching or hardcoded coordinate/dimension tables.
+   - **Socket Locators (`Loc_Port_<Id>`):** Authored as empty locator nodes in the `.glb` scene graph matching declared `PortDefinition.Id` values (e.g. `Loc_Port_power_in`, `Loc_Port_activation_out`). Cables and wires resolve 3D socket anchor points dynamically from these locators.
+   - **Articulated & Secondary Sub-Assemblies:** Dynamic child components (e.g., motor shafts, springboard moving plates, lever arms) group visual, collision, and socket locators under dedicated child branches in the `.glb`, tracking secondary transforms automatically.
+2. **Dynamic Part Discovery & Extensible `PartId`:**
+   - Parts are discovered dynamically at runtime by scanning `res://parts/catalog/*.tres` via Godot's `DirAccess.GetFilesAt`.
+   - Extensible identities use strongly typed `PartId` record structs wrapping canonical strings rather than closed enums (`WorkshopPartKind`).
+   - Adding a new puzzle element requires only authoring its `.glb` model and `.tres` catalog resource. Zero C# engine code or enum edits are permitted.
+   - `PartRegistry.Create(PartId)` instantiates parts directly from their discovered definition scenes (`PartDefinition.Scene`) into generic `MachinePart` entities without switch statements.
+3. **Multi-Domain Port Compatibility & Validation Contract:**
+   - Typed domains: `Electrical`, `Activation`, `Mechanical`, `Optical`, `Acoustic`.
+   - Connections validate under strict physical invariants:
+     - Domain equality: $\text{Domain}(P_{\text{source}}) == \text{Domain}(P_{\text{target}})$.
+     - Directional pairing: Exactly one `Output` connects to one `Input`.
+     - DAG cycle prevention: Direct unbuffered instantaneous activation signals cannot form cycles without a stateful delay component.
+
+---
+
+### 3.9 Conversion of Existing Implementations to New Design (Zero Backwards Compatibility)
+
+All currently existing puzzle element implementations must be converted from procedural C# and legacy closed enums to the new declarative `.glb` + `PartId` design. No backwards compatibility shims, dual-path adapters, or legacy fallback modes are permitted:
+
+1. **Target Existing Implementations for Conversion:**
+   - **Rigid Dynamic Spheres:** Basketball (`CAT-001`), Bowling Ball (`CAT-014`), Tennis Ball (`CAT-064`), Floating Balloon (`CAT-003`).
+   - **Static & Receptive Fixtures:** Receiver / Basket (`CAT-004`), Ramp (`CAT-054`), Wall (`CAT-066`).
+   - **Sensors & Timers:** Impact Switch (`CAT-063`), Signal Lamp (`CAT-035`), Delay Box (`CAT-022`), Domino (`CAT-023`).
+   - **Constrained & Kinetic Fixtures:** Pinball Bumper (`CAT-015`), Springboard (`CAT-062`), Battery (`CAT-005`).
+2. **Conversion Tasks & Invariants:**
+   - **Geometry Conversion:** Replace procedural geometry in `engine/PartArt.cs` and hardcoded collider dimensions in C# (`WallDimensionsResource.cs`, `RampDimensionsResource.cs`, `SpringboardResource.cs`, `ReceiverGeometry.cs`, `WorkshopWall.cs`, `WorkshopBumper.cs`) with standard `.glb` assets embedding visual meshes, co-located `col_*` proxy nodes, and `Loc_Port_*` locators.
+   - **Generic MachinePart Transition:** Replace bespoke per-part C# scripts (`parts/BallPart.cs`, `parts/BasketPart.cs`, `parts/BatteryPart.cs`, `parts/BumperPart.cs`, `parts/DelayPart.cs`, `parts/DominoPart.cs`, `parts/LampPart.cs`, `parts/RampPart.cs`, `parts/SpringboardPart.cs`, `parts/SwitchPart.cs`, `parts/WallPart.cs`) with generic `MachinePart` instances driven by declarative `.tres` resources.
+   - **PartId Migration & Enum Elimination:** Completely eliminate `WorkshopPartKind` enum and all switch statements across the engine, tests, UI, and compiler; all part references use `PartId`.
+   - **Legacy Deletion:** Procedural mesh generation in `engine/PartArt.cs`, `WorkshopPartKind.cs`, and hardcoded dimension resources must be permanently deleted. Zero backwards compatibility shims or fallback paths.
+
+---
+
 ## 4. Non-Negotiable Technical Constraints & Architectural Invariants
 
 1. **Zero External Physics Dependencies:**
@@ -198,9 +243,24 @@ Every puzzle element is implemented purely as declarative capability data withou
    - **Animation Worker (WASM Worker @ 60 Hz):** Procedural cosmetic curves and halo pulses; fed one-way by physics events.
    - **Data Flow:** One-way only: Physics $\to$ Animation $\to$ Renderer. Zero reverse data flow or synchronous waits.
 3. **Forward-Only Refactoring & Zero Backwards Compatibility:**
-   - Zero backward-compatibility shims, legacy flags, or parallel CPU fallback paths.
-   - Git history is the permanent archive. When a forward capability lands, superseded code is deleted in the exact same PR/slice.
-4. **Mandatory Quality Gates for Every Single Story (DoD):**
+   - Strictly zero backwards-compatibility shims, legacy flags, dual-path adapters, or parallel CPU fallback paths.
+   - Never create compatibility bridges or maintain legacy procedural code alongside declarative assets.
+   - All existing implementations must be refactored forward into declarative `.glb` + `PartId` catalog definitions.
+   - When a forward capability lands or existing elements are converted, superseded code (`PartArt.cs`, `WorkshopPartKind`, per-part C# classes, hardcoded collider tables) is deleted in the exact same PR/slice.
+   - Git history is the permanent archive.
+4. **Universal glTF 2.0 Geometry & Collision Authority:**
+   - Single source of truth for visual meshes and physical colliders across all puzzle elements.
+   - Collision proxies (`col_*`) and socket locators (`Loc_Port_*`) are co-located in the `.glb` scene hierarchy.
+   - Procedural mesh generation in C# (`engine/PartArt.cs`) and hardcoded shape tables in the physics compiler are prohibited and scheduled for complete deletion.
+5. **Dynamic Part Discovery & Extensible Typing:**
+   - Puzzle parts are discovered dynamically from `res://parts/catalog/*.tres` via `PartRegistry.Discover()`.
+   - Extensible identities use strongly-typed `PartId` record structs; closed enums like `WorkshopPartKind` are forbidden for part sets.
+   - Domain logic must not use switch statements or string parsing for part dispatch.
+6. **Multi-Domain Port Compatibility & Physical Conservation:**
+   - Ports validate strictly on domain equality and directional pairing (`Output` $\to$ `Input`).
+   - DAG cycle prevention for instantaneous signals.
+   - Thermodynamic energy conservation: loads cannot extract more work than stored or supplied.
+7. **Mandatory Quality Gates for Every Single Story (DoD):**
    - C# Unit tests pass 100% (`dotnet test CuriousContraptions.slnx`, 557+ tests).
    - Anvil static analysis clean with **0 warnings** (`anvil check --changed`).
    - Browser-based E2E Playwright test in actual Chrome passes 100% (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`).

@@ -23,7 +23,7 @@ public sealed class DominoEffectTests
     {
         var lesson = Lesson((Half).45);
         Assert.Equal(WorkshopPuzzleId.DominoEffect, lesson.Puzzle.Id);
-        Assert.Equal(WorkshopPartKind.Domino, lesson.Puzzle.InventoryKind);
+        Assert.Equal(PartId.Domino, lesson.Puzzle.InventoryPart);
         Assert.Equal(4u, lesson.Puzzle.InventoryCount);
         Assert.Equal(new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default, new(2), new(3), new((Half)0)), lesson.Puzzle.Goal);
         Assert.All(lesson.Instances, instance => Assert.True(instance.Locked));
@@ -84,7 +84,7 @@ public sealed class DominoEffectTests
         var time = new ActivationTime(300, (Half)0);
         var cause = new ActivationCause(new(7), new(2), new(9), time, new((Half)0));
         var end = new ActivationNodeDeclaration(new(2), new(2), ActivationNodeKind.OrientationSource, default, 0, new(7));
-        var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.Latch, default);
+        var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.StickyFirstInput, default);
         var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Orientation, new(2), time, cause);
         var read = new WorkshopRead(new(2), new(75), default, Activations: new([ActivationLatch.From(end, occurrence), ActivationLatch.From(lamp, occurrence)]));
         Assert.Equal(WorkshopGoalPhase.Solved, WorkshopGoalEvaluator.Evaluate(goal, read, new(2)));

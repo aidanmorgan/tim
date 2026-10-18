@@ -18,11 +18,12 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="2dog.godotsharp" Version="$(TwoDogVersion)" />
-        <PackageReference Include="2dog.godotsharp.editor" Version="$(TwoDogVersion)"
-                          Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Editor'" />
+        <PackageReference Include="2dog.godotsharp.editor" Version="$(TwoDogVersion)" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Editor'" />
+        <PackageReference Include="Google.FlatBuffers" Version="25.2.10" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
+        <ProjectReference Include="CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
     </ItemGroup>
     <!-- Explicit current admitted game sources; diagnostic host additions are selected by their host project. -->
     <ItemGroup>
@@ -34,27 +35,10 @@
         <Compile Include="engine/WorkshopUiBinding.cs" />
         <Compile Include="engine/PartDefinition.cs" />
         <Compile Include="engine/BallMaterialResource.cs" />
-        <Compile Include="engine/RampDimensionsResource.cs" />
-        <Compile Include="engine/WallDimensionsResource.cs" />
-        <Compile Include="engine/DelayDurationResource.cs" />
-        <Compile Include="engine/ContactWorkResource.cs" />
-        <Compile Include="engine/ElectricalSourceResource.cs" />
-        <Compile Include="engine/SpringboardResource.cs" />
         <Compile Include="engine/PartRegistry.cs" />
-        <Compile Include="engine/PartArt.cs" />
+        <Compile Include="engine/PartId.cs" />
         <Compile Include="engine/Workbench.cs" />
         <Compile Include="engine/IResizablePart.cs" />
-        <Compile Include="parts/BallPart.cs" />
-        <Compile Include="parts/BasketPart.cs" />
-        <Compile Include="parts/RampPart.cs" />
-        <Compile Include="parts/SwitchPart.cs" />
-        <Compile Include="parts/LampPart.cs" />
-        <Compile Include="parts/WallPart.cs" />
-        <Compile Include="parts/DelayPart.cs" />
-        <Compile Include="parts/BumperPart.cs" />
-        <Compile Include="parts/BatteryPart.cs" />
-        <Compile Include="parts/SpringboardPart.cs" />
-        <Compile Include="parts/DominoPart.cs" />
         <Compile Include="ui/Workshop.cs" />
         <Compile Include="ui/WorkshopGpu.cs" />
         <Compile Include="ui/WorkshopConnections.cs" />
@@ -66,6 +50,7 @@
         <Compile Include="ui/WorkshopIcons.cs" />
         <Compile Include="ui/RotationGizmo.cs" />
         <Compile Include="ui/PlacementShadows.cs" />
+        <Compile Include="ui/WorkshopArtwork.cs" />
         <Compile Include="CuriousContraptions.web/TwoDogWebBoot.cs" />
     </ItemGroup>
 </Project>

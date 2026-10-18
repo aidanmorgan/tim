@@ -46,7 +46,7 @@ public partial class Workshop
         }
     }
 
-    private void AddBatteryConfiguration(BatteryPart battery)
+    private void AddBatteryConfiguration(MachinePart battery)
     {
         var owner = battery.AuthoredId;
         if (World.WorkshopPhase is WorkshopSimulationPhase.Running or WorkshopSimulationPhase.Paused)

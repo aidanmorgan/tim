@@ -11,4 +11,3 @@ Category = "Motion"
 Description = "Buoyancy lifts it; fans can guide it. Pressure changes its ascent."
 Scene = ExtResource("2")
 Color = Color(0.93, 0.39, 0.47, 1)
-Parameters = {"mass": 0.5, "bounce": 0.2, "radius": 0.36, "buoyancy": 11.5, "drag": 0.4}

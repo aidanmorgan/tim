@@ -216,3 +216,7 @@ Raw3725e9:
 PASS immutable F2 snapshot plus exact README replacement;7candidate/4inputs/7excluded/2rawoutputs/OwnershipDLL match;Animation has6authoredsources.
 
 ```
+
+## Committed-tree receipt (18 Oct 2026, independent reviewer)
+
+**Terminal scoped verdict: Pass.** Forward-correction commit `e1362e1` (parent `bbaeb1a`, first-parent on main) contains exactly the nine approved paths (seven candidates, the F2 snapshot and this record); the committed snapshot hash `8adf86d9…` and all seven candidate and four input hashes match, and no excluded file is committed. Duplicate-history twins are tree-identical (`12a7f26`=`90db56b`, `bbaeb1a`=`836a2ae`, `e1362e1`=`ba32b11`). None of the 129 deleted paths exists at HEAD `9107148` or in the working tree, none was re-added (`git log --diff-filter=A 12a7f26..HEAD`), and `tools/Ownership/SourceInventory.cs` no longer references the Geometry project. Verification scripts: session scratchpad `v72.py`; commands `git show --stat e1362e1`, `git rev-parse <c>^{tree}`, `git ls-tree -r --name-only HEAD`.

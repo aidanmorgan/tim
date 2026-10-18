@@ -2,9 +2,12 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdir } from 'node:fs/promises';
 import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
+import { decodeSavedConstruction, authoredState } from './workshop-wire.ts';
+import { decodeWorkshopResponse, type WorkshopResponse } from './workshop-wire.ts';
 
-enum SpringRoute { Centred, Miss }
-const preview = process.env.SPRING_PREVIEW_URL ?? 'http://127.0.0.1:8074/';
+const SpringRoute = { Centred: 'Centred', Miss: 'Miss' } as const;
+type SpringRoute = typeof SpringRoute[keyof typeof SpringRoute];
+const preview = process.env.SPRING_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
 const evidence = process.env.SPRING_EVIDENCE_DIR ?? '.anvil/springboard-ui-' + Date.now();
 async function saved(driver: WorkshopDriver): Promise<Buffer> {
     return Buffer.from(await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
@@ -18,21 +21,24 @@ async function saved(driver: WorkshopDriver): Promise<Buffer> {
         request.onerror = () => reject(new Error('Save database unavailable'));
     })));
 }
-function authored(bytes: Buffer): Buffer { return Buffer.concat([bytes.subarray(0,24), bytes.subarray(32)]); }
+const authored = (bytes: Buffer) => authoredState(bytes);
 async function construct(driver: WorkshopDriver, route: SpringRoute) {
     await driver.selectTool('basketball'); await driver.placeOnCanvas(720,485);
-    await driver.clickAt(60,809); await driver.liftSelectedPart(90);
+    await driver.clickAt(60,844); await driver.liftSelectedPart(90);
     await driver.clickAt(130,715); // actual Springboard palette row
     await driver.placeOnCanvas(route === SpringRoute.Centred ? 720 : 960,485);
     await driver.save();
-    const bytes = await saved(driver), board=504;
-    assert.equal(bytes.readFloatLE(board+112),400);
-    assert.equal(bytes.readFloatLE(board+116),Math.fround(.2));
-    assert.equal(bytes.readInt32LE(board+52),48);
-    assert.equal(bytes.readInt32LE(344+52),73);
+    const bytes = await saved(driver);
+    const fb = decodeSavedConstruction(bytes);
+    const boardInst = fb.construction()!.instances(1)!;
+    const ballInst = fb.construction()!.instances(0)!;
+    assert.equal(boardInst.stiffness(), 400);
+    assert.equal(boardInst.damping(), Math.fround(.2));
+    assert.equal(boardInst.cell()!.y(), 48);
+    assert.equal(ballInst.cell()!.y(), 73);
     return bytes;
 }
-async function observe(driver: WorkshopDriver, milliseconds: number, plateId = '4294967490') {
+async function observe(driver: WorkshopDriver, milliseconds: number, plateId = '4294968066') {
     const samples: { time: number; sequence: string; timestamp: string; ball: WorkshopBodyPose; plate: WorkshopBodyPose }[]=[];
     let previousSequence = -1n, previousTime = -1n;
     const started=Date.now();
@@ -42,7 +48,7 @@ async function observe(driver: WorkshopDriver, milliseconds: number, plateId = '
         if(ball&&plate&&slot&&BigInt(slot.sequence)!==previousSequence){
             assert.ok(BigInt(slot.sequence)>previousSequence&&BigInt(slot.timestamp)>previousTime,'New publications advance both sequence and capture time');
             previousSequence=BigInt(slot.sequence);previousTime=BigInt(slot.timestamp);
-            if(plateId!=='4294967490')assert.ok(!slot.bodies.some(body=>body.id==='4294967490'),'Retired plate never reappears');
+            if(plateId!=='4294968066')assert.ok(!slot.bodies.some(body=>body.id==='4294968066'),'Retired plate never reappears');
             samples.push({time:Date.now()-started,sequence:slot.sequence,timestamp:slot.timestamp,ball,plate});
         }
         await driver.page.waitForTimeout(15);
@@ -93,7 +99,7 @@ for(const route of [SpringRoute.Centred,SpringRoute.Miss]){
 test('Springboard actual Step shows compressed plate/coil and Reset restores rendered construction',{timeout:120000},async()=>{
     await mkdir(evidence,{recursive:true});
     const driver=await WorkshopDriver.launch({baseUrl:preview});
-    const reads:Buffer[]=[];driver.page.on('console',message=>{const text=message.text();if(text.startsWith('CCGPU '))reads.push(Buffer.from(text.slice(6),'base64'));});
+    const reads:WorkshopResponse[]=[];driver.page.on('console',message=>{const text=message.text();if(text.startsWith('CCGPU '))reads.push(decodeWorkshopResponse(Buffer.from(text.slice(6),'base64')));});
     try{
         await construct(driver,SpringRoute.Centred);
         // Ordinary camera gesture lowers the view so moving coil strands remain visible beneath the plate.
@@ -101,7 +107,7 @@ test('Springboard actual Step shows compressed plate/coil and Reset restores ren
         await driver.page.mouse.move(1100,380,{steps:12});await driver.page.mouse.up({button:'right'});await driver.page.waitForTimeout(100);
         const before=await driver.page.screenshot({path:evidence+'/visual-rest.png'});
         await driver.run();await driver.pauseSimulation();
-        const plateY=()=>{const read=reads.at(-1)!;assert.equal(read.readBigUInt64LE(208),4294967490n);return(read.readInt32LE(220)+read.readFloatLE(232))/16;};
+        const plateY=()=>{const read=reads.at(-1)!;const b=read.bodies(1)!;assert.equal(b.id(),4294968066n);return(b.cell()!.y()+b.local()!.y())/16;};
         let steps=0;while(plateY()>3.02&&steps<90){await driver.stepSimulation();steps++;}
         assert.ok(plateY()<3.02,'actual UI stepping reaches compressed plate');
         const compressed=await driver.page.screenshot({path:evidence+'/visual-compressed.png'});
@@ -132,7 +138,8 @@ test('Springboard actual Step shows compressed plate/coil and Reset restores ren
     }catch(error){await driver.page.screenshot({path:evidence+'/visual-failure.png'});throw error;}
     finally{await driver.close();}
 });
-enum SpringConfiguration { SoftUndamped, StiffDamped, Tilted }
+const SpringConfiguration = { SoftUndamped: 'SoftUndamped', StiffDamped: 'StiffDamped', Tilted: 'Tilted' } as const;
+type SpringConfiguration = typeof SpringConfiguration[keyof typeof SpringConfiguration];
 const configurations:Record<SpringConfiguration,{stiffness:number;damping:number;tilt:number}>={
     [SpringConfiguration.SoftUndamped]:{stiffness:120,damping:0,tilt:0},
     [SpringConfiguration.StiffDamped]:{stiffness:1200,damping:8,tilt:0},
@@ -158,8 +165,10 @@ for(const configuration of [SpringConfiguration.SoftUndamped,SpringConfiguration
                 await driver.clickAt(130,744);
             }
             await driver.save();const construction=await saved(driver);
-            assert.equal(construction.readFloatLE(616),Math.fround(settings.stiffness));
-            assert.equal(construction.readFloatLE(620),Math.fround(settings.damping));
+            const constFb=decodeSavedConstruction(construction);
+            const boardInst=constFb.construction()!.instances(1)!;
+            assert.equal(boardInst.stiffness(),Math.fround(settings.stiffness));
+            assert.equal(boardInst.damping(),Math.fround(settings.damping));
             await driver.page.screenshot({path:evidence+'/configuration-'+configuration+'.png'});
             await driver.reload();await driver.load();await driver.save();
             assert.deepEqual(authored(await saved(driver)),authored(construction));
@@ -204,27 +213,33 @@ test('Springboard text settings reject atomically and delete/recreate retires th
         await construct(driver,SpringRoute.Centred);
         await edit('400.00003','0.20000002','0.1234567');
         const precise=await saved(driver);
-        assert.equal(precise.readFloatLE(616),Math.fround(400.00003));assert.equal(precise.readFloatLE(620),Math.fround(.20000002));
-        assert.equal(precise.readFloatLE(624),Math.fround(.1234567));
+        const preciseFb=decodeSavedConstruction(precise);
+        const preciseBoard=preciseFb.construction()!.instances(1)!;
+        assert.equal(preciseBoard.stiffness(),Math.fround(400.00003));assert.equal(preciseBoard.damping(),Math.fround(.20000002));
+        assert.equal(preciseBoard.initialCompression(),Math.fround(.1234567));
         for(const [k,c,compression] of [['NaN','.2','.1'],['1201','.2','.1'],['400','-.1','.1'],['invalid','.2','.1'],['400','.2','NaN'],['400','.2','-.01'],['400','.2','.200001'],['400','.2','Infinity']]){
             await edit(k,c,compression);assert.deepEqual(authored(await saved(driver)),authored(precise),'invalid text/bounds preserve all construction bytes');
         }
         await edit('400.00003','0.20000002','0.2'); // Valid retry through the same editor after rejected input.
-        assert.equal((await saved(driver)).readFloatLE(624),Math.fround(.2));
+        assert.equal(decodeSavedConstruction(await saved(driver)).construction()!.instances(1)!.initialCompression(),Math.fround(.2));
         await driver.clickAt(744,836);await driver.save();
         assert.deepEqual(authored(await saved(driver)),authored(precise),'Undo returns to the preceding accepted settings');
         await driver.clickAt(744,836);await driver.save(); // Rejected edits never entered the undo history.
-        const undone=await saved(driver);assert.equal(undone.readFloatLE(616),400);assert.equal(undone.readFloatLE(620),Math.fround(.2));assert.equal(undone.readFloatLE(624),0);
+        const undone=await saved(driver);
+        const undoneFb=decodeSavedConstruction(undone);
+        const undoneBoard=undoneFb.construction()!.instances(1)!;
+        assert.equal(undoneBoard.stiffness(),400);assert.equal(undoneBoard.damping(),Math.fround(.2));assert.equal(undoneBoard.initialCompression(),0);
         await driver.selectPartAt(720,485);await driver.clickAt(148,842);await driver.save();
-        assert.equal((await saved(driver)).readUInt32LE(32),1,'delete removes authored board');
+        assert.equal(decodeSavedConstruction(await saved(driver)).construction()!.instancesLength(),1,'delete removes authored board');
         await driver.run();await driver.page.waitForTimeout(200);
         assert.deepEqual((await driver.readLatestPose())!.bodies.map(body=>body.id),['1'],'deleted plate is absent from active population');
         await driver.reset();
         await driver.clickAt(130,715);await driver.placeOnCanvas(720,485);await driver.save();
         const replacement=await saved(driver);
-        assert.equal(replacement.readUInt32LE(32),2);assert.equal(replacement.readBigUInt64LE(544),3n,'replacement has a fresh owner');
+        const repFb=decodeSavedConstruction(replacement);
+        assert.equal(repFb.construction()!.instancesLength(),2);assert.equal(repFb.construction()!.instances(1)!.id(),3n,'replacement has a fresh owner');
         await driver.reload();await driver.load();await driver.run();
-        const samples=await observe(driver,3200,'4294967554');
+        const samples=await observe(driver,3200,'4294968322');
         await driver.pauseSimulation();assertDrop(samples,SpringRoute.Centred);
         await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(replacement));
         assert.deepEqual(errors,[]);await driver.page.screenshot({path:evidence+'/replacement-reset.png'});

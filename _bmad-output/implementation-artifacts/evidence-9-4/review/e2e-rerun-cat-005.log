@@ -1,0 +1,90 @@
+{"errors":[]}
+✖ Battery recharge, disable, Save/Load and Reset (17261.126708ms)
+{"errors":[]}
+✖ Battery finite60J source exhausts and retains final credit (19134.470667ms)
+{"errors":[]}
+✖ Battery fans one finite source out to two existing Bumper stores (20935.963125ms)
+✖ Battery disconnected authored settings and rendered charge thresholds restore exactly (58072.140333ms)
+✖ Battery paused intent reverses and Running controls preserve stores across continued ticks (14802.228542ms)
+✔ Battery electrical animation survives same-world cadence downshift through existing protocol boundary (6541.682708ms)
+✔ Battery accounting deduplicates exact commits and rejects mutated or unfunded credits (1.658125ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 2
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 137003.59025
+
+✖ failing tests:
+
+test at tools/e2e/cat-005.test.ts:2:7003
+✖ Battery recharge, disable, Save/Load and Reset (17261.126708ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:180:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:7003
+✖ Battery finite60J source exhausts and retains final credit (19134.470667ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:180:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:15428
+✖ Battery fans one finite source out to two existing Bumper stores (20935.963125ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:257:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:19040
+✖ Battery disconnected authored settings and rendered charge thresholds restore exactly (58072.140333ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(budget.debit>0 && budget.credit>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:345:51)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:24777
+✖ Battery paused intent reverses and Running controls preserve stores across continued ticks (14802.228542ms)
+  TypeError [Error]: Cannot read properties of null (reading 'enabled')
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:380:394)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+EXIT 1

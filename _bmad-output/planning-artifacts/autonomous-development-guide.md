@@ -31,14 +31,18 @@ flowchart LR
 - **Rules of Engagement:**
   - Preserves Tri-Graph Decoupling: C# Machine Graph $\to$ WASM SIMD flat SoA Physics Graph $\to$ Lock-free SAB triple pose ring $\to$ WebGL 2 / WebGPU instanced rendering.
   - Guarantees **strictly zero external physics dependencies** (no Box2D, no Jolt, no Rapier, no PhysX).
+  - Enforces **Universal glTF 2.0 (`.glb`) Geometry Authority**: elements define visual meshes (PBR materials per DESIGN.md) and co-located collision proxies (`col_*`) in self-contained `.glb` files; socket anchors resolve dynamically from `Loc_Port_<Id>` locators.
+  - Enforces **Dynamic Part Discovery & Extensible `PartId`**: parts are discovered via `res://parts/catalog/*.tres`; no closed enums (`WorkshopPartKind`) are permitted for puzzle elements.
   - Specifies math and algorithms conforming to Jolt patterns: Quad-BVH broadphase, 4-point area-maximizing contact manifold reduction, Box2D v3 TGS Soft compliance ($\gamma, \beta, M_{\text{eff}}$), and speculative contacts anti-tunneling ($v_{\text{target}} = -g/h$).
-  - Explicitly identifies every superseded class, method, or shader that must be deleted in this slice (zero backward-compatibility shims).
+  - Mandates **Forward-Only Refactoring & Zero Backwards Compatibility**: explicitly specifies the deletion of superseded classes, methods, procedural mesh builders (`PartArt.cs`), hardcoded shape tables, or closed enums in the exact same slice. Strictly zero compatibility shims, adapters, or fallback loaders.
 
 ### Role 3: BMAD Developer / Implementation Specialist (Amelia)
-- **Primary Responsibility:** Dedicated implementation subagent that writes production code, deletes legacy assets, and authors automated tests.
+- **Primary Responsibility:** Dedicated implementation subagent that writes production code, converts existing implementations, deletes legacy assets, and authors automated tests.
 - **Rules of Engagement:**
   - Follows strict test-first discipline (red, green, refactor).
+  - Authors declarative `.glb` assets and `.tres` catalog resources; never creates procedural mesh building routines in C# (`PartArt.cs`) or adds members to closed enums like `WorkshopPartKind`.
   - Authors C# (.NET 10 / Mono) for machine authoring and WASM SIMD, and TypeScript for browser worker integration.
+  - Converts existing implementations forward into `.glb` assets and generic `MachinePart` instances, immediately deleting procedural code with zero backwards compatibility shims.
   - Authors reusable, pure TypeScript Playwright E2E tests in `tools/e2e/<suite>.test.ts`.
   - Runs pre-commit checks:
     1. `anvil check --changed` $\implies$ must have **0 warnings**.
@@ -51,7 +55,7 @@ flowchart LR
 - **Primary Responsibility:** Dedicated independent adversarial review subagent. **Self-review never qualifies.**
 - **Rules of Engagement:**
   - Independently inspects the git diff against all Acceptance Criteria in `_bmad-output/planning-artifacts/epics.md`.
-  - Proves zero legacy remnants via codebase grep (e.g. verifying deleted shaders, certificates, or ad-hoc branches are completely absent from active code).
+  - Proves zero legacy remnants via codebase grep: confirms complete deletion of procedural mesh routines (`PartArt.cs`), hardcoded collider tables, closed part enums (`WorkshopPartKind`), bespoke per-part scripts, and backwards-compatibility shims.
   - Independently executes `anvil check --changed` and `dotnet test CuriousContraptions.slnx`.
   - Executes pure TypeScript Playwright E2E tests in actual Chrome browser via the Playwright connector: runs both the slice's dedicated E2E test (`node --test --test-concurrency=1 --test-timeout=150000 tools/e2e/<suite>.test.ts`) and all preceding cumulative E2E regression suites serially (`node --test --test-concurrency=1 --test-timeout=150000`).
   - Tests exact authoring Reset restoration and Save/Load persistence in Chrome.
@@ -65,15 +69,16 @@ flowchart LR
 
 ## Mandatory Definition of Done (DoD) & Story Completion Criteria
 
-No story can be marked complete (`done`) in `_bmad-output/implementation-artifacts/sprint-status.yaml` without satisfying all seven mandatory completion criteria:
+No story can be marked complete (`done`) in `_bmad-output/implementation-artifacts/sprint-status.yaml` without satisfying all eight mandatory completion criteria:
 
 1. **C# Unit Tests Pass 100%:** `dotnet test CuriousContraptions.slnx` passes 100% with 0 failures (557+ tests).
 2. **Anvil Static Analysis Clean:** `anvil check --changed` passes with **0 warnings**.
 3. **Browser-Based Playwright E2E Suite Passes 100%:** The story's dedicated browser-based E2E test (`tools/e2e/<suite>.test.ts`) is authored and executed in actual Chrome via the Playwright browser connector with a **100% pass rate**.
 4. **Cumulative E2E Regression Suites Pass 100% Serially:** All prior cumulative browser-based E2E regression suites are executed serially in actual Chrome (`node --test --test-concurrency=1 --test-timeout=150000`) and pass 100%. A 100% pass rate across both the slice's E2E test and all cumulative E2E regression suites is mandatory before any story can be marked 'done'. Any browser failure or regression strictly blocks completion.
 5. **Exact Reset and Save/Load Persistence Roundtrip:** Exact initial state restoration before Run and after Reset, as well as JSON Save/Load roundtrip, is verified in Chrome.
-6. **Zero Legacy Remnants:** Active tree grep confirms complete deletion of superseded classes, compute shaders, or compatibility bridges.
-7. **Terminal Scoped Pass from Independent Reviewer (Murdoch):** Independent adversarial review subagent verifies all criteria and issues an unambiguous scoped `Pass`. Self-review never qualifies.
+6. **Declarative Asset & Extensible Identity Verification:** Elements are authored via `.glb` assets and `.tres` catalog resources keyed by `PartId`. Zero procedural mesh generation in C# and zero closed part enums.
+7. **Zero Legacy Remnants & Zero Compatibility Shims:** Active tree grep confirms complete deletion of superseded classes, compute shaders, procedural geometry tables, or compatibility bridges.
+8. **Terminal Scoped Pass from Independent Reviewer (Murdoch):** Independent adversarial review subagent verifies all criteria and issues an unambiguous scoped `Pass`. Self-review never qualifies.
 
 ---
 

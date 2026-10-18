@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
+[ext_resource type="PackedScene" path="res://parts/scenes/latch.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+Id = "latch"
+Title = "Set/Reset latch"
+Category = "Control"
+Description = "Set closes the electrical contact; Reset opens it. Reset wins simultaneous triggers. Remembers its state without power, but needs a connected supply to power another device."
+Scene = ExtResource("2")
+Color = Color(0.4, 0.72, 0.79, 1)

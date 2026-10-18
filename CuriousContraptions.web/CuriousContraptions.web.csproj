@@ -38,6 +38,7 @@
     <ItemGroup>
         <TrimmerRootAssembly Include="CuriousContraptions"/>
         <TrimmerRootAssembly Include="$(TargetName)"/>
+        <TrimmerRootAssembly Include="Google.FlatBuffers"/>
     </ItemGroup>
 
     <!-- Godot's editor serializes exported C# properties using the native Debug metadata.

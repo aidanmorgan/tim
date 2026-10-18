@@ -30,7 +30,7 @@ public readonly record struct WallDimensions(Metres Width, Metres Height, Metres
 public readonly record struct WorkshopWall(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, WallDimensions Dimensions, bool Locked = false) : IWorkshopInstance
 {
-    public WorkshopPartKind Kind => WorkshopPartKind.Wall;
+    public PartId PartId => PartId.Wall;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {

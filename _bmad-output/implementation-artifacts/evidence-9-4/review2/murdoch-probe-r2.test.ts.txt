@@ -1,0 +1,48 @@
+// Murdoch round-2 probe (review-only evidence): the in-run source-enable path now reaches physics only through
+// WorkshopTickControls -> PhysicsTickInputs (the ElectricalState export was deleted). Direct Battery -> Powered Gate:
+// Run (gate opens), Disable supply (gate must close), Enable supply (gate must reopen). Actual UI controls only.
+import assert from 'node:assert/strict';
+import { after, before, describe, test } from 'node:test';
+import { WorkshopDriver } from '/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts';
+
+const BLADE = '4294967810';
+const GATE = { x: 720, y: 485 }, BATTERY = { x: 1100, y: 520 };
+const TOGGLE = { x: 138, y: 822 };
+
+async function sample(d: WorkshopDriver, ms: number, tag: string) {
+    const out: [number, number][] = []; let prev = ''; const t0 = Date.now();
+    while (Date.now() - t0 < ms) {
+        const s = await d.readLatestPose();
+        if (s && s.sequence !== prev) { prev = s.sequence; const b = s.bodies.find(x => x.id === BLADE); if (b) out.push([Date.now() - t0, Number(b.py.toFixed(3))]); }
+        await d.page.waitForTimeout(40);
+    }
+    console.log(`[PROBE-R2 ${tag}] ${JSON.stringify(out)}`);
+    return out;
+}
+const tail = (s: [number, number][], from: number) => s.filter(([t]) => t >= from).map(([, p]) => p);
+
+describe('Murdoch 9.4 round-2 probe', () => {
+    let d: WorkshopDriver; const errors: string[] = [];
+    before(async () => { d = await WorkshopDriver.launch(); d.page.on('pageerror', e => errors.push(e.message)); });
+    after(async () => { await d?.close(); });
+
+    test('Direct Battery -> Powered Gate follows in-run Disable / Enable', { timeout: 150000 }, async () => {
+        await d.reload();
+        await d.selectTool('powered_gate'); await d.placeOnCanvas(GATE.x, GATE.y);
+        await d.selectTool('battery'); await d.placeOnCanvas(BATTERY.x, BATTERY.y);
+        await d.selectPartAt(BATTERY.x, BATTERY.y); await d.clickAt(133, 789); await d.clickAt(GATE.x, GATE.y);
+        await d.clickAt(133, 735); await d.page.keyboard.press('Escape'); await d.page.waitForTimeout(150);
+        await d.run();
+        try {
+            const open = await sample(d, 3000, 'enabled');
+            assert.ok(Math.min(...tail(open, 2200)) > 4.2, 'Directly supplied gate opens');
+            await d.selectPartAt(BATTERY.x, BATTERY.y); await d.clickAt(TOGGLE.x, TOGGLE.y); await d.page.keyboard.press('Escape');
+            const off = await sample(d, 3000, 'disabled');
+            assert.ok(Math.max(...tail(off, 2200)) < 3.2, 'Disable supply closes the directly supplied gate');
+            await d.selectPartAt(BATTERY.x, BATTERY.y); await d.clickAt(TOGGLE.x, TOGGLE.y); await d.page.keyboard.press('Escape');
+            const on = await sample(d, 3000, 're-enabled');
+            assert.ok(Math.min(...tail(on, 2200)) > 4.2, 'Enable supply reopens the gate');
+        } finally { await d.reset(); }
+        assert.deepEqual(errors, []);
+    });
+});

@@ -2,7 +2,7 @@
 
 This document defines the numerical authority, compilation model, solver model, and game-grade tolerance envelope for the game engine. It supersedes earlier experimental WebGPU compute shader and Half-precision (`f16`) specifications with an architecture designed for **hundreds of concurrent puzzle elements**, **universal WebGL 2 and WebGPU compatibility**, **standard IEEE-754 `f32` precision with WebAssembly SIMD128 vectorization**, and a **lock-free zero-copy shared memory pipeline**.
 
-The engine operates under the [general data-driven engine contract](engine-contracts.md) and maintains **strictly zero external dependencies for physics** (no Box2D, no Jolt, no Rapier, no PhysX, and zero npm/NuGet physics packages). All algorithms, vector mathematics, spatial hierarchies, and constraint solvers are custom, data-driven implementations authored directly within this repository. Typed element declarations select reusable physical capabilities, never element-specific solvers, bespoke equation tables, or per-part update loops. Missing behavior extends the general engine within its consuming slice. Domain-specialised capability kernels selected by declared data are valid; element-selected kernels are forbidden.
+The engine operates under the [general data-driven engine contract](engine-contracts.md) and maintains **strictly zero external dependencies for physics** (no Box2D, no Jolt, no Rapier, no PhysX, and zero npm/NuGet physics packages). All algorithms, vector mathematics, spatial hierarchies, and constraint solvers are custom, data-driven implementations authored directly within this repository. Typed element declarations select reusable physical capabilities, never element-specific solvers, bespoke equation tables, or per-part update loops. Puzzle parts are discovered dynamically at runtime by scanning `res://parts/catalog/*.tres` via `DirAccess.GetFilesAt("res://parts/catalog")` at startup (`PartRegistry.Discover()`), using strongly-typed `PartId` rather than closed enums (`WorkshopPartKind`). New parts declare their capabilities, artwork, and bindings without requiring core engine enum modifications or hardcoded switch statements, and Free Workshop inventory automatically populates with all discovered parts. Missing behavior extends the general engine within its consuming slice. Domain-specialised capability kernels selected by declared data are valid; element-selected kernels are forbidden.
 
 ---
 
@@ -51,24 +51,52 @@ The game architecture strictly separates data and operations into three decouple
 ```
 
 ### 1. Logical Scene Graph (Machine Graph)
-The authoring representation manipulated by the player in build mode. It maintains high-level entity hierarchies, socket pin attachments, parameter configurations, electrical/signal wiring, and JSON save/load state. It is static during simulation runs and contains full object metadata.
+The authoring representation manipulated by the player in build mode. It maintains high-level entity hierarchies, socket pin attachments, parameter configurations, electrical/signal wiring, and JSON save/load state. It is static during simulation runs and contains full object metadata. Puzzle parts are discovered dynamically from `res://parts/catalog/*.tres` via `DirAccess.GetFilesAt("res://parts/catalog")` at startup and identified by extensible strongly-typed `PartId` rather than closed enums (`WorkshopPartKind`). Free Workshop inventory automatically populates with all discovered parts from the catalog. Connection ports (exposed/output and accepted/input) and their connection domains (`Electrical`, `Activation`) are declared directly in `.tres` catalog resources, referencing named target nodes in the rendering mesh hierarchy (`TargetNode` / `MeshNodeName`) to establish 3D socket anchors without hardcoded coordinate tables.
 
 ### 2. Physics Graph (Simulation Core)
 When the player presses **Run**, the logical scene graph is compiled into a flat, contiguous, SIMD-aligned **Physics Graph**:
-- One homogeneous scene record comprising bodies, shapes, materials, constraints, force regions, energy stores, sensors, triggers, and network nodes across all physical domains (mechanical contact, electrical, optical, acoustic, pneumatic/fluid, thermal, radiation).
-- **One generic solver advances this state.** No puzzle element has its own solver, kernel branch, equation table, or tick loop.
-- Dynamic Bounding Volume Hierarchy (BVH) accelerates all spatial queries.
-- Disjoint Set Union (Union-Find) partitions bodies and constraints into independent Simulation Islands.
+- One homogeneous scene record comprising bodies, shapes, materials, constraints, force regions, energy stores, sensors, triggers, and network nodes across all physical domains (mechanical contact, electrical Modified Nodal Analysis, optical ray marching, acoustic/pneumatic fields, thermal, radiation).
+- Colliders originate directly from the element's authored glTF 2.0 (`.glb`) asset: collision proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`, `col_hull` / `-col`, `-convcol`) or `KHR_physics_rigid_bodies` extension metadata are parsed by `WorkshopPhysicsCompiler` and mapped to flat SIMD collider tables. Zero imperative procedural geometry (`PartArt.cs`) or hardcoded shape tables exist in C#.
+- The WASM SIMD physics worker and GPU compile pipeline consume flat generic capability and collider tables compiled directly from `PartDefinition` declarations, with strictly zero catalogue-specific kernel branches, solvers, or update loops.
+- **One unified generalised data-driven physics engine advances this state.** Strictly zero element-specific solvers, zero per-part update loops, and zero element-selected kernel branches.
+- Multi-domain solver couplings (electrical MNA circuits, discrete activation events) compile directly from declarative ports defined on `.tres` resources rather than hardcoded C# tables or element-specific branches.
+- Flat contiguous SIMD-aligned Structure-of-Arrays (SoA) memory tables with 64-byte cache line alignment.
+- Dynamic Bounding Volume Hierarchy (BVH) with speculative velocity fattening accelerates all broadphase spatial queries.
+- Disjoint Set Union (DSU / Union-Find) partitions bodies and constraints into independent Simulation Islands.
+- Generic Box2D v3 Temporal Gauss-Seidel (TGS Soft) solver unifies non-penetration, friction, and bilateral joints into effective constraint mass.
+- Narrowphase collision detection uses generic analytic manifolds (Sphere, Box, Plane, Capsule, Compound Cylinder) and signed distance fields (SDF).
+- Multi-domain physical fields (MNA electrical circuits, optical rays, acoustics, finite energy stores) execute through shared capability kernels.
 
 ### 3. Rendering Graph (Presentation Pipeline)
-The visual representation on the browser main thread. It consumes read-only pose data from the shared memory ring buffer and translates them into GPU instanced draw batches grouped strictly by mesh and material pipeline.
+The visual representation on the browser main thread. It consumes read-only pose data from the shared memory ring buffer and translates them into GPU instanced draw batches grouped strictly by mesh and material pipeline, using visual PBR meshes extracted directly from the element's `.glb` scene hierarchy.
 
 ### Independent Systems, One-Way Data Flow
-- **Simulation Worker (Physics):** Runs at a fixed 120 Hz tick with 480 Hz sub-stepping. Owns physical truth.
-- **Animation Worker (Cosmetics):** Compiles an independent animation model from the same authoring data; evaluates procedural curves, squash-and-stretch, and cosmetic states at 60 Hz. Fed one-way by committed physics results. Never feeds back into physical state.
-- **Renderer (Main Thread):** Runs at display refresh cadence (30–144 FPS). Smoothly interpolates between committed physics pose brackets using shortest-arc Slerp. Physics always runs faster than rendering; rendering never influences physical results.
+- **Simulation Worker (Physics):** Runs at a fixed 120 Hz tick with 480 Hz sub-stepping on a dedicated WebAssembly SIMD worker. Owns physical truth. The physics worker and GPU compile pipeline consume flat generic capability and collider tables compiled directly from `PartDefinition` resources, advancing state through the unified, generalised, data-driven engine with strictly zero catalogue-specific kernel branches, solvers, or update loops.
+- **Animation Worker (Cosmetics):** All animation executes on an independent Animation Web Worker at 60 Hz, completely decoupled from physical truth. Compiles an independent animation model from the same authoring data; evaluates procedural curves, squash-and-stretch, motor spin, indicator/UI easing, and particle effects driven by declarative bindings to committed physical poses and discrete event occurrences. Strictly zero per-element animation scripts or callbacks in the animation host. Fed one-way by committed physics results. Never feeds back into physical state.
+- **Renderer (Main Thread):** Runs at display refresh cadence (30–144 FPS). Smoothly interpolates between committed physics pose brackets sampled from the zero-copy `SharedArrayBuffer` ring using shortest-arc Slerp.
+Data flows strictly one-way: physics → animation → renderer and physics → renderer; nothing flows back into physics. Physics always runs faster than rendering; rendering never influences physical results.
 
-Adding a new puzzle element means adding declaration data (the capabilities it instantiates, its geometric parameters, art assets, and animation bindings). No new element requires solver modifications or bespoke simulation branches.
+Adding a new puzzle element means adding declaration data (the capabilities it instantiates, its geometric parameters, exposed/accepted ports with named mesh node socket anchors, art assets, and animation bindings) to a catalog resource (`.tres`). No new element requires solver modifications, engine enum additions, hardcoded connection tables, or bespoke simulation branches.
+
+<a id="zero-element-assumptions-physics"></a>
+
+### Zero Element Assumptions & Generic Combination Invariant
+
+The physics simulation core and compilation pipeline enforce the non-negotiable architectural invariant of **zero element assumptions and generic combination support**:
+- **Zero Element Assumptions:** The physics engine makes strictly zero assumptions about which puzzle elements exist or have been loaded. No part identity, kind tag, or catalog class exists in the solver.
+- **Universal Arbitrary Combinations:** The engine supports ANY arbitrary combination of puzzle elements without special cases, element checks, or hardcoded couplings. If hundreds of diverse parts collide, mesh, or wire together, all interactions evolve through generic mathematical models.
+- **Purely Homogeneous Tables & Generic Collider Extraction:** All rigid body integration (symplectic Euler), narrowphase manifold generation (Sphere, Box, Plane, Capsule, Compound Cylinder, SDF), constraint resolution (Box2D v3 TGS Soft), and multi-domain network passes (MNA circuits, optical ray marching, acoustic fields) operate strictly on flat homogeneous capability tables. The compiler extracts collision shapes generically from `.glb` collision nodes based solely on geometric properties (half-extents, radii, lengths) without element-specific branching or hardcoded shape tables.
+- **Strictly Zero Identity Branching:** No physics compiler pass, solver kernel, or integration loop may branch, switch, or execute conditionals based on a part's identity, name, or purpose. When two colliders touch, their contact dynamics are governed 100% by universal geometric manifolds, Coulomb friction cones, and material restitution laws; the solver neither knows nor cares whether the collider belongs to a Tennis Ball, a Domino, or an authored custom fixture.
+
+<a id="conversion-existing-elements-physics"></a>
+
+### Conversion of Existing Elements & Zero Backwards Compatibility Authority
+
+All 14 existing puzzle elements (Basketball, Bowling Ball, Tennis Ball, Floating Balloon, Receiver, Ramp, Wall, Pinball Bumper, Domino, Springboard, Impact Switch, Signal Lamp, Delay Box, Battery) must be converted forward to the new declarative architecture:
+- **glTF 2.0 Geometry & Collision Proxies:** Converted from procedural C# (`engine/PartArt.cs`) and hardcoded shape tables to self-contained `.glb` binary assets in `parts/models/`. Collision proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`, `col_hull` / `-convcol`) are co-located in `.glb` scene graphs and extracted generically by `WorkshopPhysicsCompiler`. Socket anchors resolve dynamically from named empty locator nodes (`Loc_Port_<Id>`).
+- **Extensible PartId & Dynamic Discovery:** Discovered via `res://parts/catalog/*.tres` and identified by `PartId`. Closed enums like `WorkshopPartKind` are permanently eliminated.
+- **Generic MachinePart:** Replaces bespoke `parts/*Part.cs` classes with generic `MachinePart` entities.
+- **Zero Backwards Compatibility:** Procedural mesh generation in `engine/PartArt.cs`, closed enums in `engine/gpu/WorkshopPartKind.cs`, hardcoded dimension resources, and bespoke `parts/*Part.cs` classes must be permanently deleted. Strictly zero compatibility shims, adapters, or fallback loaders. Git history serves as the permanent archive.
 
 ---
 
@@ -114,12 +142,12 @@ Forward schema versions are canonical3 (`BodyRecordVersion.F32PoseVelocity`), ph
 <a id="capability-inventory"></a>
 ## Generic Capability Inventory
 
-Every puzzle element is an instance of one or more shared physical capabilities compiled into flat data tables:
+Every puzzle element is an instance of one or more shared physical capabilities declared in `PartDefinition.Capabilities` and compiled into flat data tables. The simulation worker and compilation pipelines process these tables homogeneously with zero catalogue-specific kernel branches:
 
 | Capability | Declared Data Content | Execution Behavior |
 | :--- | :--- | :--- |
 | **Rigid Body** | Mass, 3x3 inertia tensor, world pose (position vector, orientation quaternion), linear and angular velocities, linear drag coefficient, motion type (Dynamic, Static, Kinematic), island index. | Integrated via symplectic Euler at 480 Hz; declared linear drag decays the linear velocity exactly ($e^{-c\,\Delta t}$) after gravity each sub-step, and no angular drag exists; orientation quaternion normalized every sub-step. Scalable to hundreds of dynamic bodies. |
-| **Colliders & Shapes** | Shape discriminant (Sphere, Box, Capsule, Plane, Hollow SDF), local frame transform, half-extents/radii, participation filter masks. | Tested in narrowphase via branchless analytic manifold generators and signed distance fields. |
+| **Colliders & Shapes** | Shape discriminant (Sphere, Box, Plane, Capsule, Compound Cylinder, Hollow SDF), local frame transform, half-extents/radii, participation filter masks. | Tested in narrowphase via branchless analytic manifold generators and signed distance fields. |
 | **Materials** | Restitution coefficient, bounce threshold velocity, static and dynamic friction coefficients, rolling-resistance coefficient $C_{rr}$ (balls declare it; boxes, planes and walls declare zero). | Pair laws: geometric-mean friction, product restitution, maximum bounce threshold; at every contact (static or dynamic partner) the larger $C_{rr}$ times the larger sphere radius bounds one rolling-resistance row. |
 | **Constraints & Joints** | Connected body pair, local anchor offsets, constraint axes, linear/angular limits, Box2D v3 soft parameters (natural frequency $\omega$, damping ratio $\zeta$). | Solved via Temporal Gauss-Seidel Soft Step (TGS Soft) with 4-wide SIMD vectorization. Unifies hinges, sliders, distance links, and ropes. |
 | **Force Regions** | Spatial bounds (box, cylinder, cone), bounded acceleration vector or field equation (gravity, directional guide, fan airflow, fluid buoyancy). | Applied during sub-step force accumulation; acceleration clamped to $\le 64\text{ m/s}^2$. |
@@ -127,7 +155,7 @@ Every puzzle element is an instance of one or more shared physical capabilities 
 | **Contact Triggers** | Target collision pair, approach velocity threshold, rearm condition. | First qualifying impact per tick generates a typed event occurrence; triggers mechanical or electrical transitions. |
 | **Orientation Sensors** | Sensed dynamic body, admitted initial orientation, threshold as the cosine of half the angle (Domino: 45°). | Evaluated at every sub-step endpoint: $|\langle q, q_0\rangle| \le \cos(\theta/2)$ fires one typed occurrence; the fired state is sticky within the world and only a fresh admission (Reset) rearms it. |
 | **Finite Work Stores** | Stored potential energy capacity, discharge rate limit, recharge coupling. | Thermodynamic power debiting: total power extracted by connected loads cannot exceed available stored power ($\Delta K \le E_{\text{store}}$). |
-| **Network Nodes** | Terminal IDs, node potential, branch conductance, transmission latency, spectral optical band, acoustic frequency. | Evaluated in staged domain sub-passes (Modified Nodal Analysis for circuits, ray marching for optics, acoustic field culling). |
+| **Network Nodes** | Terminal IDs, node potential, branch conductance, transmission latency, spectral optical band, acoustic frequency. | Evaluated in staged domain sub-passes (Modified Nodal Analysis for circuits, ray marching for optics, acoustic field culling). Compiled directly from declarative port connections on `.tres` resources without hardcoded wiring tables. |
 
 ---
 
@@ -173,7 +201,7 @@ The solver advances physical time at a fixed **120 Hz tick with 480 Hz sub-stepp
   If an object remains inside its fat AABB, zero tree modifications occur, eliminating up to 95% of tree updates for resting or sliding objects.
 
 ### 2. Narrowphase: Analytic Manifolds & 4-Point Area Reduction
-- **Branchless Analytic Primitives:** Sphere-Sphere, Sphere-Box, Box-Box (15-axis SAT with reference-face clipping), Sphere-Plane, Box-Plane (up to four deepest vertices) and Capsule-Plane are computed via closed-form geometry without iterative GJK/EPA loops.
+- **Branchless Analytic Primitives:** Sphere-Sphere, Sphere-Box, Box-Box (15-axis SAT with reference-face clipping), Sphere-Plane, Box-Plane (up to four deepest vertices), Capsule, and Compound Cylinder are computed via closed-form geometry without iterative GJK/EPA loops.
 - **One Constraint Row for Every Pair:** each manifold point becomes the same TGS Soft row (lever arms about the centre of mass, world inverse inertia from the compiled principal moments, two-axis Coulomb friction with a circular cone, warm start keyed by collider pair and feature, speculative margin, dissipative restitution). Pair laws are geometric-mean friction, product restitution and maximum bounce threshold from the declared materials; no shape or element owns a different response. Every manifold with a sphere adds one two-axis rolling-resistance row (Box2D v3 coefficient mixing, not warm-started: its impulse restarts from zero every sub-step), solved after the normal rows of each sweep and applied equal and opposite to both bodies whether the partner is static or dynamic: it drives the relative rolling about the tangent axes toward zero within the circular bound $C_{rr}\,r\sum\lambda_N$, so it never reverses a ball on a static support (against a dynamic anisotropic box the per-axis diagonal effective masses are an approximation); spin about the contact normal is not resisted. A struck body (for example a Domino a ball rolls over) receives the reaction, so its outcome includes the ball's resistance (owner decision 9 Oct 2026).
 - **Hollow SDFs:** Pipes, chutes, and funnels evaluate signed distance fields with toroidal rim caps, eliminating snagging and internal face artifacts.
 - **4-Point Manifold Reduction:** Contact polygons from face clipping are reduced to the 4 area-maximizing extreme points (deepest point, furthest point, and two points maximizing triangle/quad area).

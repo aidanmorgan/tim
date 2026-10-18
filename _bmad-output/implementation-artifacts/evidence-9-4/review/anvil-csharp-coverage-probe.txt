@@ -1,0 +1,13 @@
+Anvil C# coverage probe (Murdoch, 2026-10-18). Temporary files were staged in this directory, checked with MCP anvil_check, then deleted.
+
+Probe.cs contents: two empty catch blocks (catch (Exception) { } and catch { }), a TODO comment, and Console.WriteLine debug output.
+probe.ts contents: an empty catch (e) { }, a TODO comment, console.log, `any`, and eval.
+
+Results:
+1. anvil_check on [AnvilProbe.cs, anvil-probe.ts] gave 3 warnings, archived by the tool.
+2. anvil_check on [AnvilProbe.cs] alone gave {"warnings":[],"summary":{"total":0,"errors":0,"warnings":0,"info":0,"suppressed":0},"executionTimeMs":5,"checksRun":["antipattern"]}.
+
+So all 3 warnings came from the .ts probe. Anvil 0.14.2-beta, configured with checks secret-detection, import-boundaries and antipattern-scan, provides no C# anti-pattern coverage on the MCP path, and the CLI `anvil check --changed` skips .cs entirely.
+Anvil "0 warnings" on the 9.4 C# files is therefore true as defined but carries no C# quality signal.
+
+A scratchpad workspaceRoot was refused ("must be inside the MCP server root"), and so were absolute file paths ("must be a workspace-relative path").

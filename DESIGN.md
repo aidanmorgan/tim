@@ -14,11 +14,20 @@ This is the required design, not a claim that the current implementation or brow
 
 | Execution context | Exclusive responsibility | Clock |
 | --- | --- | --- |
-| Dedicated physics Web Worker: C# WebAssembly host + generic WASM SIMD128 f32 solver | Continuous physical state, spatial queries, and sensor predicates over the compiled initial state; typed f32 construction/read values; C# integer/discrete events and atomic transactions | Fixed 120 Hz tick, 480 Hz substeps |
-| Separate C# animation Web Worker | Its own compiled animation model: cosmetic tracks, motor spin, recoil, indicator/UI easing and effect clocks, fed one way by committed physics; no retained UI/DOM objects | Independent clock, currently 60 Hz |
+| Dedicated physics Web Worker: C# WebAssembly host + generic WASM SIMD128 f32 solver | Unified, generalised, data-driven physics engine: flat contiguous SIMD-aligned Structure-of-Arrays (SoA) tables, Dynamic AABB BVH with velocity fattening, Disjoint Set Union (DSU) islands, Box2D v3 Temporal Gauss-Seidel (TGS) Soft solver, generic analytic manifolds (Sphere, Box, Plane, Capsule, Compound Cylinder) and signed distance fields (SDF), and multi-domain physical fields (MNA electrical circuits, optical rays, acoustics, finite energy stores) executing through shared capability kernels; strictly zero element-specific solvers, zero per-part update loops, and zero element-selected kernel branches | Fixed 120 Hz tick, 480 Hz substeps |
+| Separate C# animation Web Worker | Independent animation worker completely decoupled from physical truth; entirely data-driven and event-driven: cosmetic curves, squash-and-stretch, motor spin, indicator/UI easing, and particle effects evaluate declarative bindings to committed physical poses and discrete event occurrences; strictly zero per-element animation scripts or callbacks in the animation host | Independent clock, currently 60 Hz |
 | Browser main thread with Universal WebGL 2 / WebGPU instanced renderer | Input, construction previews, scene/resource ownership; reads committed physics poses from the SharedArrayBuffer triple ring and latest animation samples, interpolates, and issues instanced draw batches | Independent display clock; 30–60 FPS (release checklist) |
 
-The contexts must execute concurrently with rates ordered physics > animation ≥ renderer; rendering never influences either worker. Browser rendering remaining on the main thread is the selected design; a fourth render worker is not required. Separate methods, tasks or asynchronous APIs on one thread do not satisfy the worker requirement. Independent .NET worker runtimes exchange bounded typed messages and owned transferable buffers; zero-copy atomic pose sharing via `SharedArrayBuffer` provides direct presentation updates without thread stalls.
+The contexts must execute concurrently with rates ordered physics (120 Hz with 480 Hz substeps) > animation (60 Hz) ≥ renderer (30–60 FPS). Data flows strictly one-way: physics → animation → renderer and physics → renderer; nothing flows back into physics. Rendering never influences either worker. Browser rendering remaining on the main thread is the selected design; a fourth render worker is not required. Separate methods, tasks or asynchronous APIs on one thread do not satisfy the worker requirement. Independent .NET worker runtimes exchange bounded typed messages and owned transferable buffers; zero-copy atomic pose sharing via `SharedArrayBuffer` provides direct presentation updates without thread stalls.
+
+<a id="zero-element-assumptions-design"></a>
+### Zero Element Assumptions & Generic Combination Support
+
+The presentation and interaction architecture enforces complete generality across all puzzle elements:
+- The engine makes ZERO assumptions about which puzzle elements exist or have been loaded.
+- The system supports ANY arbitrary combination of puzzle elements without special cases, element checks, or hardcoded couplings.
+- All simulation, multi-domain fields (MNA circuits, activation DAGs, joints), animation evaluation, and rendering batches operate strictly on generic mathematical abstractions and homogeneous capability tables.
+- No subsystem (physics compiler, solver kernel, animation worker, UI router) may branch, switch, or assume anything about a part's identity or purpose. If two parts collide or connect, their interaction is governed 100% by universal physics manifolds, contact materials, and typed port contracts.
 
 - Input and construction emit typed intent commands. Show previews and pending state until authoritative acknowledgement; validation errors use existing contextual feedback.
 - Present one coherent generation/revision at a selected display time. Use bounded timestamp histories, explicit buffer acquisition/release and backpressure; do not assume two mutable buffers suffice for delayed independent consumers. Failed or intermediate simulation work never becomes a successful motion/event.
@@ -31,7 +40,7 @@ The contexts must execute concurrently with rates ordered physics > animation �
 
 ## Independent animation ownership
 
-Use the [general data-driven physics and animation engines](docs/engine-contracts.md#general-data-driven-engines). Each element authors typed tracks/curves, transitions, physical-observable/event bindings and visual assets for shared evaluators; never give it a bespoke animation evaluator, private update loop or physical solver. Distinct artwork and declarative motion remain encouraged within this visual contract.
+Use the [general data-driven physics and animation engines](docs/engine-contracts.md#general-data-driven-engines). All animation executes on an independent Animation Web Worker at 60 Hz, completely decoupled from physical truth. Data flows strictly one-way: physics → animation → renderer and physics → renderer; nothing ever flows back into physics. Animation is entirely data-driven and event-driven: cosmetic curves, squash-and-stretch, motor spin, indicator/UI easing, and particle effects evaluate declarative bindings to committed physical poses and discrete event occurrences. Strictly zero per-element animation scripts or callbacks exist in the animation host. Cosmetic animations (such as button presses, indicator lights, switch latch travel, and spring coil compression) evaluate declarative curve bindings (`CosmeticBindingDefinition`) on the Animation worker driven by committed physical observables or discrete event occurrences, with zero per-element procedural update loops. Each element authors typed tracks/curves, transitions, physical-observable/event bindings and visual assets for shared evaluators; never give it a bespoke animation evaluator, private update loop or physical solver. Distinct artwork and declarative motion remain encouraged within this visual contract.
 
 Cosmetic motion does not need a physical body, joint, force or authoritative angular phase. The animation worker owns typed tracks and their lifecycle; the browser presenter alone applies their resulting scene properties. Motor spin may use active/direction/speed observations to communicate real behavior. Actual contact-bearing shafts, moving shields and other functional geometry follow committed physical poses, with decorative child motion composed at the same display time.
 
@@ -52,6 +61,47 @@ The owner requests this visual direction for both the parts and the game environ
 - Retain minimal icon-driven controls, generous spacing and contextual disclosure. No permanent inspectors or new floating toolbars. Signals must remain readable without relying on colour alone; retain shapes, icons and on-object state cues.
 - Keep artwork, layouts and pictograms original. This is visual inspiration, not a request for Monument Valley characters, copied levels, branding or impossible-geometry gameplay.
 - Apply the direction consistently to new families and incrementally reconcile existing shapes and motion while retaining the current palette. Validate build/run screenshots and motion at desktop and mobile sizes; lighting changes must preserve the approved colour appearance.
+
+<a id="technical-art-pipeline"></a>
+## Technical art pipeline — glTF 2.0 (.glb) standards
+
+All 3D puzzle elements, fixtures, and tools are delivered in open-source, industry-standard **glTF 2.0 binary (`.glb`)** format. Imperative procedural C# mesh construction (`engine/PartArt.cs`) and hardcoded coordinate/collider tables in code are strictly deprecated and scheduled for complete deletion at `LEGACY-0`.
+
+### Artist authoring guidelines for Blender / DCC
+
+1. **Scale & Units:**
+   - 1 Blender Unit = 1 metre ($1.0\text{ m}$). All geometry must be modeled at true physical game scale.
+   - Standard export orientation: glTF 2.0 standard (+Y up, +Z forward / -Z forward standard glTF transform).
+2. **Visual Meshes (`Visual/` Hierarchy):**
+   - Clean low-to-mid poly geometry adhering to the sculptural, rounded, matte ceramic/plaster toy diorama aesthetic.
+   - Standard glTF PBR metallic-roughness workflow (principled BSDF in Blender): non-metallic surfaces (metallic 0.0, roughness 0.4–0.7), subtle accents (gold metallic 0.8–1.0).
+   - Base color materials must strictly conform to the approved project palette (Cream `#e8dccb`, Sky Blue `#7ebcd4`, Navy `#1c2836`, Gold `#f7cb52`, Ochre `#d99e32`, Coral `#d96b58`).
+3. **Co-Located Collision Meshes (`Collision/` Hierarchy):**
+   - Simplified proxy geometry co-located in the same `.glb` container alongside visual meshes.
+   - **Strict Entity Separation:** The visual mesh and the collider mesh must be separate entities. Visual meshes are dedicated exclusively to presentation rendering; collider meshes are dedicated physics proxies (`col_box`, `col_sphere`, etc.) whose visual rendering is suppressed (`Visible = false`). Physics colliders are never extracted directly from visual mesh entities, and visual meshes are never evaluated as colliders.
+   - **Analytic Shape Naming Conventions:**
+     - `col_box` (or `*-col_box`, `-col` box): Box volume mapped to half-extents.
+     - `col_sphere` (or `*-col_sphere`): Sphere volume mapped to radius.
+     - `col_capsule` (or `*-col_capsule`): Capsule volume mapped to radius and half-height.
+     - `col_cylinder` (or `*-col_cylinder`): Cylinder volume mapped to radius and height.
+   - **Convex Hull Naming Convention:**
+     - `col_hull` (or `-convcol`): Convex polyhedral hull for irregular rigid bodies.
+   - **Khronos Physics Extension:** The official Khronos `KHR_physics_rigid_bodies` glTF extension is fully supported for authoring rigid body properties and colliders directly from compliant DCC export tools.
+   - Collision nodes are flagged as non-rendering or filtered by the presentation loader; they exist purely to supply physical bounds to the compiler.
+4. **Socket Locator Empties (`Loc_Port_<Id>`):**
+   - Plain Empty axes placed at exact contact/pin vertices for electrical, activation, and mechanical connections.
+   - Naming must strictly follow `Loc_Port_<Id>` matching the port's declared identifier (e.g. `Loc_Port_power_in`, `Loc_Port_shaft_out`, `Loc_Port_activation_in`).
+5. **Articulated & Secondary Sub-Assemblies:**
+   - Moving sub-components (such as motor drive shafts, springboard plates, or impact lever arms) must be authored as child node branches in the `.glb` scene.
+   - Each secondary sub-tree contains its own visual mesh, collision proxy (`col_*`), and socket locators, automatically sharing dynamic transforms during simulation without per-element scripts.
+
+### Conversion of Existing Implementations to glTF Standards (Zero Backwards Compatibility)
+
+All 14 existing puzzle elements (Basketball, Bowling Ball, Tennis Ball, Floating Balloon, Receiver, Ramp, Wall, Pinball Bumper, Domino, Springboard, Impact Switch, Signal Lamp, Delay Box, Battery) must be converted forward from legacy procedural C# primitives (`PartArt.cs`) and hardcoded shape tables to self-contained glTF 2.0 (`.glb`) assets in `parts/models/`.
+- Visual meshes must conform to the sculptural, matte ceramic/plaster aesthetic and canonical palette defined above.
+- Physical collision shapes must be authored directly as co-located proxy nodes (`col_box`, `col_sphere`, etc.) or via `KHR_physics_rigid_bodies`.
+- Connection points must be authored as named locator empties (`Loc_Port_<Id>`).
+- Bespoke per-part C# scripts (`parts/*Part.cs`), procedural mesh generation in `engine/PartArt.cs`, hardcoded dimension resources, and closed part enums (`WorkshopPartKind`) must be completely deleted upon conversion. Strictly zero backwards compatibility shims, dual loaders, or fallback paths are permitted.
 
 ## Optical logic gates
 
@@ -158,7 +208,12 @@ These are source colours, before lighting, transparency and display conversion. 
 | Gizmo X / Y / Z | coral `#de7058` / green `#62aa78` / blue `#5b9cdb` |
 | Floor / back / side projection outlines | ochre `#a5823b` / blue `#527c98` / terracotta `#a96f5c` |
 
-Part identity is defined in `parts/catalog/*.tres`. Preserve these palette relationships when adding variants. Hex below is the nearest 8-bit representation of the recorded source RGB values. These exact approved palette identities are an explicit rendering boundary; they do not authorize a wider floating game-value model or physical feedback.
+<a id="dynamic-part-discovery-and-catalog-palette"></a>
+### Dynamic Part Discovery and Extensible PartId Catalog
+
+All puzzle parts are defined purely via declarative data resources (`res://parts/catalog/*.tres`) without per-part C# code or scripts. Puzzle parts are NOT hardcoded into closed enums (such as `WorkshopPartKind`) or static file registration arrays. Parts are discovered dynamically at runtime based on what is available in the filesystem by scanning `res://parts/catalog/*.tres` via Godot's `DirAccess.GetFilesAt("res://parts/catalog")` at startup (`PartRegistry.Discover()`). Extensible identities use strongly-typed `PartId` record structs wrapping canonical string identifiers rather than closed enums. New parts declare their physical capabilities, visual scenes (`PartDefinition.Scene`), parameters, and animation bindings in declarative `.tres` catalog resources without requiring core engine enum modifications or hardcoded switch statements (`PartRegistry.Create(PartId)` instantiates parts directly from their discovered definition scenes). In 3D authoring (Blender/glTF), models embed named empty locator nodes (`Loc_Port_<Id>`, such as `Loc_Port_power_in`, `Loc_Port_activation_out`) that wire and cable connections snap to, dynamically resolving 3D socket anchor transforms from the visual scene graph without hardcoded coordinate tables. Gameplay and visual behaviors bind directly to these declared ports. Furthermore, the Free Workshop inventory policy (`WorkshopInventoryPolicy.Free`) automatically populates the palette with unlimited allowances for all discovered parts in `PartRegistry.Definitions`.
+
+Part visual identity and canonical colors are defined in `parts/catalog/*.tres`. Preserve these palette relationships when adding variants. Hex below is the nearest 8-bit representation of the recorded source RGB values. These exact approved palette identities are an explicit rendering boundary; they do not authorize a wider floating game-value model or physical feedback.
 
 | Part | RGB | Approximate hex |
 | --- | --- | --- |
@@ -257,7 +312,7 @@ Sphere/arrow handles have an 18 px selection radius; rings a 9 px proximity allo
 
 Advanced front view exists inside the menu: other depth layers fade to 75% transparency. Selecting Back/Middle/Front does not silently move a part; Move selected here is explicit. Front-view dragging edits sideways and vertically within the selected depth layer. Fine rotate offers Tip / Turn / Tilt in 5° steps for previews and placed parts. Page Up/Down changes depth, Escape cancels and Ctrl/Cmd+Z undoes. Camera buttons turn in 45° steps and Reset camera restores the initial angle. Direct workbench dragging preserves a part's height and starts without a centre jump; lifting the preview changes its placement height. Keep these precision tools secondary to direct manipulation.
 
-Battery and motor reuse existing coral, teal, cream, navy and gold colours. The battery has a cream band, raised gold terminal and navy plus sign. The impact switch also has two navy supply terminals; its depressed/green button indicates a latched contact that passes electricity only when an upstream supply exists. The motor has a rounded cylindrical housing on a navy base, a cream shaft wheel with a gold index bar and an on-body supply indicator. Electrical cables are navy and thicker than gold activation links; endpoints follow named local sockets under the part transform. Contextual linking highlights compatible targets and never guesses between multiple compatible socket pairs.
+Battery and motor reuse existing coral, teal, cream, navy and gold colours. The battery has a cream band, raised gold terminal and navy plus sign. The impact switch also has two navy supply terminals; its depressed/green button indicates a latched contact that passes electricity only when an upstream supply exists. The motor has a rounded cylindrical housing on a navy base, a cream shaft wheel with a gold index bar and an on-body supply indicator. Electrical cables are navy and thicker than gold activation links; cable endpoints snap and attach directly to 3D socket anchors resolved dynamically from named locator nodes (`Loc_Port_<Id>`) embedded in the Blender/glTF rendering mesh hierarchy (as declared by the part's .tres `PortDefinition`), tracking secondary articulated body transforms (such as moving arms or spinning shafts) automatically. Visual feedback and indicator animations bind directly to declared port activations and observables via declarative curves on the Animation worker. Contextual linking highlights compatible targets and never guesses between multiple compatible socket pairs.
 
 ## Motion and state feedback
 
@@ -355,6 +410,6 @@ Runtime beams share one world renderer. Co-directed paths with the same physical
 
 ## Source of truth
 
-The contracts above define intended behavior; implementation references are navigation aids and may be incomplete during migration: [Workshop UI/stage](ui/Workshop.cs), [guidance and layout behaviours](ui/WorkshopGuidance.cs), [icons](ui/WorkshopIcons.cs), [gizmo](ui/RotationGizmo.cs), [projections](ui/PlacementShadows.cs), [part geometry/materials](engine/PartArt.cs), [selection](engine/MachinePart.cs), [workbench](engine/Workbench.cs), [assistance easing](engine/PartAssistance.cs), [part implementations](parts), [catalog colours](parts/catalog), and [project settings](project.godot).
+The contracts above define intended behavior; implementation references are navigation aids and may be incomplete during migration: [Workshop UI/stage](ui/Workshop.cs), [guidance and layout behaviours](ui/WorkshopGuidance.cs), [icons](ui/WorkshopIcons.cs), [gizmo](ui/RotationGizmo.cs), [projections](ui/PlacementShadows.cs), [part geometry/materials](engine/PartArt.cs) (procedural mesh generation deprecated in favor of declarative glTF 2.0 `.glb` assets; scheduled for deletion at `LEGACY-0`), [selection](engine/MachinePart.cs), [workbench](engine/Workbench.cs), [assistance easing](engine/PartAssistance.cs), [part implementations](parts), [catalog colours](parts/catalog), and [project settings](project.godot).
 
 [TODO](TODO.md) owns implementation status; every affected mechanism must meet the current visual, physical, accessibility and animation criteria here.

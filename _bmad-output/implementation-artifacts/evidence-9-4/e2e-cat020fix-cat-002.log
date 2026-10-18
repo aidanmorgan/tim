@@ -1,0 +1,15 @@
+▶ CAT-002: Ball Detector Aperture Passage Sensor
+  ✔ 1. Placement, wiring, and forward passage: Ball detector pulses indicator and illuminates connected lamp (10315.469583ms)
+  ✔ 2. Negative control (reverse passage): Traversal in -X does NOT trigger sensor or lamp (11450.197541ms)
+  ✔ 3. Negative control (glancing trajectory): Outside trajectory (R > 0.65m) does NOT trigger sensor or lamp (11415.845166ms)
+  ✔ 4. Directional rearm and reset: Reset restores upstream state and second Run replays forward trigger bit-for-bit (10799.875875ms)
+  ✔ 5. Persistence: Save / reload / Load IndexedDB persistence roundtrip reproduces forward passage and lamp activation (12332.76325ms)
+✔ CAT-002: Ball Detector Aperture Passage Sensor (60822.131417ms)
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 61059.353

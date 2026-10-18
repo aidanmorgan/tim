@@ -1,4 +1,7 @@
 using Godot;
+using System;
+using System.Collections.Generic;
+using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions;
 
@@ -9,21 +12,90 @@ public partial class PartDefinition : Resource
     [Export] public string Id
     {
         get => _id;
-        set { _id = value; WorkshopKind = value switch { "ball" => WorkshopPartKind.Basketball, "bowling" => WorkshopPartKind.BowlingBall, "basket" => WorkshopPartKind.Receiver, "ramp" => WorkshopPartKind.Ramp, "switch" => WorkshopPartKind.ImpactSwitch, "lamp" => WorkshopPartKind.SignalLamp, "wall" => WorkshopPartKind.Wall, "delay" => WorkshopPartKind.Delay, "bumper" => WorkshopPartKind.PinballBumper, "domino" => WorkshopPartKind.Domino, "battery" => WorkshopPartKind.Battery, "spring" => WorkshopPartKind.Springboard, _ => WorkshopPartKind.Unsupported }; }
+        set
+        {
+            _id = value;
+            PartId = string.IsNullOrWhiteSpace(value) ? default : new PartId(value);
+        }
     }
-    public WorkshopPartKind WorkshopKind { get; private set; }
-    [Export] public SpringboardResource? Springboard { get; set; }
-    [Export] public ElectricalSourceResource? ElectricalSource { get; set; }
-    [Export] public ContactWorkResource? ContactWork { get; set; }
-    [Export] public DelayDurationResource? Delay { get; set; }
-    [Export] public WallDimensionsResource? Wall { get; set; }
-    [Export] public RampDimensionsResource? Ramp { get; set; }
+    public PartId PartId { get; private set; }
     /// <summary>Declared material of a dynamic sphere; required for every ball kind.</summary>
     [Export] public BallMaterialResource? Ball { get; set; }
     [Export] public string Title { get; set; } = "";
     [Export] public string Category { get; set; } = "Structure";
     [Export(PropertyHint.MultilineText)] public string Description { get; set; } = "";
-    [Export] public PackedScene Scene { get; set; } = null!;
+
+    private PackedScene? _scene;
+    [Export]
+    public PackedScene Scene
+    {
+        get => _scene!;
+        set
+        {
+            _scene = value;
+            _colliders = null;
+            _portLocators = null;
+            if (value is not null) EnsureExtracted();
+        }
+    }
+
+    private IReadOnlyList<ExtractedCollider>? _colliders;
+    private IReadOnlyDictionary<string, ExtractedPortLocator>? _portLocators;
+
+    public IReadOnlyList<ExtractedCollider> Colliders
+    {
+        get
+        {
+            EnsureExtracted();
+            return _colliders ?? Array.Empty<ExtractedCollider>();
+        }
+    }
+
+    public IReadOnlyDictionary<string, ExtractedPortLocator> PortLocators
+    {
+        get
+        {
+            EnsureExtracted();
+            return _portLocators ?? new Dictionary<string, ExtractedPortLocator>();
+        }
+    }
+
+    public IReadOnlyDictionary<string, ExtractedPortLocator> Ports => PortLocators;
+
+    public void ExtractFromScene() => EnsureExtracted();
+
+    public void SetExtractedData(IReadOnlyList<ExtractedCollider> colliders, IReadOnlyDictionary<string, ExtractedPortLocator> portLocators)
+    {
+        _colliders = colliders;
+        _portLocators = portLocators;
+    }
+
+    private void EnsureExtracted()
+    {
+        if (_colliders is not null) return;
+        if (_scene is null)
+        {
+            _colliders = Array.Empty<ExtractedCollider>();
+            _portLocators = new Dictionary<string, ExtractedPortLocator>();
+            return;
+        }
+
+        var instance = _scene.Instantiate();
+        if (instance is Node3D node3D)
+        {
+            var (colliders, ports) = GltfPhysicsBodyExtractor.Extract(node3D);
+            _colliders = colliders;
+            _portLocators = ports;
+            node3D.Free();
+        }
+        else
+        {
+            instance?.Free();
+            _colliders = Array.Empty<ExtractedCollider>();
+            _portLocators = new Dictionary<string, ExtractedPortLocator>();
+        }
+    }
+
     [Export] public Color Color { get; set; } = new("#f4bd69");
     [Export] public Godot.Collections.Dictionary<string, float> Parameters { get; set; } = new();
 }

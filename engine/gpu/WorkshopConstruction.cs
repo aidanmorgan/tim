@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace CuriousContraptions.Gpu;
 
@@ -55,15 +56,15 @@ public readonly record struct BallMaterial(
     /// <summary>Game-scale declarations (parts/catalog/*.tres carry the same bits): Basketball 0.34 m / 1 kg / bounce 0.55 / rolling
     /// resistance 0.035 (an inflated shell); Bowling ball 0.28 m / 4 kg / bounce 0.14 / rolling resistance 0.03 (a smaller, heavier hard shell). Both share
     /// drag 0.04 1/s, no buoyancy, friction 0.3 and a 0.1 m/s bounce threshold. A ball struck to 1 m/s on the bench rests within 4.5 s.</summary>
-    public static BallMaterial For(WorkshopPartKind kind) => kind switch
+    public static BallMaterial For(PartId id) => id.Value switch
     {
-        WorkshopPartKind.Basketball => new(new((Half)0.34), new((Half)1), new((Half)0.55), new((Half)0.04), new((Half)0), new((Half).3), new((Half).1), new((Half).035)),
-        WorkshopPartKind.BowlingBall => new(new((Half)0.28), new((Half)4), new((Half)0.14), new((Half)0.04), new((Half)0), new((Half).3), new((Half).1), new((Half).03)),
+        "ball" => new(new((Half)0.34), new((Half)1), new((Half)0.55), new((Half)0.04), new((Half)0), new((Half).3), new((Half).1), new((Half).035)),
+        "bowling" => new(new((Half)0.28), new((Half)4), new((Half)0.14), new((Half)0.04), new((Half)0), new((Half).3), new((Half).1), new((Half).03)),
         _ => throw new ArgumentException("Unsupported ball kind.")
     };
-    public void Validate(WorkshopPartKind kind)
+    public void Validate(PartId id)
     {
-        var expected = For(kind);
+        var expected = For(id);
         if (!HalfBits.Equal(Radius.Value, expected.Radius.Value) || !HalfBits.Equal(Mass.Value, expected.Mass.Value) ||
             !HalfBits.Equal(Bounce.Value, expected.Bounce.Value) || !HalfBits.Equal(Drag.Value, expected.Drag.Value) ||
             !HalfBits.Equal(Buoyancy.Value, expected.Buoyancy.Value) || !HalfBits.Equal(Friction.Value, expected.Friction.Value) ||
@@ -75,12 +76,12 @@ public readonly record struct BallMaterial(
 /// <summary>One record for every dynamic sphere; the kind names its declared material. Durable construction uses canonical bits and
 /// identities, never a live Godot transform.</summary>
 public readonly record struct WorkshopBall(
-    GpuBodyId Id, WorkshopPartKind Kind, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, BallMaterial Material, bool Locked = false) : IWorkshopInstance
+    GpuBodyId Id, PartId PartId, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, BallMaterial Material, bool Locked = false) : IWorkshopInstance
 {
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {
-        Material.Validate(Kind);
+        Material.Validate(PartId);
         Rotation.Validate();
         new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
     }
@@ -113,7 +114,7 @@ public readonly record struct WorkshopReceiver(
     GpuBodyId Id, CellOrigin Cell, LocalPosition Local, CanonicalRotation Rotation, ReceiverCaptureSettings Capture, bool Locked = false) : IWorkshopInstance
 {
     public ReceiverForceRegion ForceRegion { get; init; } = ReceiverForceRegion.Free;
-    public WorkshopPartKind Kind => WorkshopPartKind.Receiver;
+    public PartId PartId => PartId.Receiver;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.Receiver;
     public void Validate()
     {
@@ -148,19 +149,19 @@ public readonly record struct WorkshopConstruction(ConstructionRevision Revision
 /// <summary>Only UI/resource boundary code may convert wider external numbers into game values.</summary>
 public static class WorkshopInput
 {
-    public static WorkshopBall Ball(WorkshopPartKind kind, GpuBodyId id, double x, double y, double z,
+    public static WorkshopBall Ball(PartId id, GpuBodyId bodyId, double x, double y, double z,
         double qx, double qy, double qz, double qw)
     {
         var px = Position(x); var py = Position(y); var pz = Position(z);
         var rotation = CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw));
-        var result = new WorkshopBall(id, kind, new(px.Cell, py.Cell, pz.Cell),
-            new(px.Local, py.Local, pz.Local), rotation, BallMaterial.For(kind));
+        var result = new WorkshopBall(bodyId, id, new(px.Cell, py.Cell, pz.Cell),
+            new(px.Local, py.Local, pz.Local), rotation, BallMaterial.For(id));
         result.Validate();
         return result;
     }
     /// <summary>Authored puzzles name this kind explicitly.</summary>
     public static WorkshopBall Basketball(GpuBodyId id, double x, double y, double z,
-        double qx, double qy, double qz, double qw) => Ball(WorkshopPartKind.Basketball, id, x, y, z, qx, qy, qz, qw);
+        double qx, double qy, double qz, double qw) => Ball(PartId.Basketball, id, x, y, z, qx, qy, qz, qw);
 
     public static WorkshopReceiver Receiver(GpuBodyId id, double x, double y, double z,
         double qx, double qy, double qz, double qw)
@@ -246,6 +247,70 @@ public static class WorkshopInput
             CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)));
         result.Validate(); return result;
     }
+    public static WorkshopBallDetector BallDetector(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null, bool locked = false)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopBallDetector(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)),
+            colliders ?? WorkshopCanonicalColliders.For(PartId.BallDetector), locked);
+        result.Validate(); return result;
+    }
+    public static WorkshopPressurePlate PressurePlate(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, float minimumMass = 0.5f, bool locked = false)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopPressurePlate(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), minimumMass, locked);
+        result.Validate(); return result;
+    }
+    public static WorkshopCounter Counter(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, int targetCount = WorkshopCounter.DefaultTargetCount, bool locked = false)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopCounter(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), targetCount, locked);
+        result.Validate(); return result;
+    }
+    public static WorkshopClock Clock(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, float intervalSeconds = WorkshopClock.DefaultIntervalSeconds, bool locked = false)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopClock(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), intervalSeconds, locked);
+        result.Validate(); return result;
+    }
+    public static WorkshopLatch Latch(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, bool locked = false)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopLatch(id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), locked);
+        result.Validate(); return result;
+    }
+    public static WorkshopGenericInstance Generic(PartId partId, GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider> colliders)
+    {
+        var px = Position(x); var py = Position(y); var pz = Position(z);
+        var result = new WorkshopGenericInstance(partId, id, new(px.Cell, py.Cell, pz.Cell), new(px.Local, py.Local, pz.Local),
+            CanonicalRotation.Normalize(Rotation(qx), Rotation(qy), Rotation(qz), Rotation(qw)), colliders);
+        result.Validate(); return result;
+    }
+    public static WorkshopGenericInstance Generic(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider> colliders) =>
+        Generic(PartId.Unsupported, id, x, y, z, qx, qy, qz, qw, colliders);
+    public static WorkshopGenericInstance Pipe(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
+        Generic(PartId.Pipe, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.Pipe));
+    public static WorkshopGenericInstance PipeBend45(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
+        Generic(PartId.PipeBend45, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.PipeBend45));
+    public static WorkshopGenericInstance PipeBend90(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
+        Generic(PartId.PipeBend90, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.PipeBend90));
+    public static WorkshopGenericInstance Funnel(GpuBodyId id, double x, double y, double z,
+        double qx, double qy, double qz, double qw, IReadOnlyList<ExtractedCollider>? colliders = null) =>
+        Generic(PartId.Funnel, id, x, y, z, qx, qy, qz, qw, colliders ?? WorkshopCanonicalColliders.For(PartId.Funnel));
     internal static (int Cell, float Local) Position(double metres)
     {
         if (!double.IsFinite(metres) || metres < -64 || metres > 64)

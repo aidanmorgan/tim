@@ -1,0 +1,87 @@
+// Murdoch independent probe for Story 9.4 (review-only evidence; not a deliverable).
+// P1: Reset-dominance construction (one switch -> SetIn and ResetIn) with an in-run witness that the impact really occurred:
+//     the Impact switch's own Animation target (switch id 5 -> node 5 -> target 7) must receive samples, while the gate stays closed
+//     and the latch target (4) never animates. Control P0: SetIn-only construction shows the same switch witness AND the gate opening,
+//     proving target 7 is the switch witness and that the identical layout fires.
+// P2: Screenshot of the contextual socket-choice drawer offered when wiring Switch -> Latch (icon vs text evidence).
+import assert from 'node:assert/strict';
+import { after, before, describe, test } from 'node:test';
+import { WorkshopDriver } from '/Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts';
+
+const OUT = '/Users/aidan/dev/personal/tim/_bmad-output/implementation-artifacts/evidence-9-4/review';
+const BLADE_BODY_ID = '4294967810';
+const LATCH_TARGET = '4';
+const SWITCH_TARGET = '7';
+const GATE = { x: 720, y: 485 }, LATCH = { x: 930, y: 520 }, BATTERY = { x: 1100, y: 520 }, SWITCH = { x: 450, y: 485 };
+const ROW_LAST = 789, ROW_SECOND_LAST = 744, CHOICE_LAST = 735, CHOICE_SECOND_LAST = 690;
+
+async function connect(d: WorkshopDriver, s: { x: number; y: number }, row: number, t: { x: number; y: number }, choice: number, shot?: string) {
+    await d.selectPartAt(s.x, s.y);
+    await d.clickAt(133, row);
+    await d.clickAt(t.x, t.y);
+    if (shot) await d.page.screenshot({ path: `${OUT}/${shot}` });
+    await d.clickAt(133, choice);
+    await d.page.keyboard.press('Escape');
+    await d.page.waitForTimeout(150);
+}
+
+async function build(d: WorkshopDriver, sameSourceReset: boolean, shot?: string) {
+    await d.reload();
+    await d.selectTool('powered_gate'); await d.placeOnCanvas(GATE.x, GATE.y);
+    await d.selectTool('latch'); await d.placeOnCanvas(LATCH.x, LATCH.y);
+    await d.selectTool('battery'); await d.placeOnCanvas(BATTERY.x, BATTERY.y);
+    await d.selectTool('basketball'); await d.placeOnCanvas(SWITCH.x, SWITCH.y);
+    await d.selectPartAt(SWITCH.x, SWITCH.y); await d.setPartMode('move'); await d.liftSelectedPart(150, SWITCH.x, SWITCH.y);
+    await d.selectTool('switch'); await d.placeOnCanvas(SWITCH.x, SWITCH.y);
+    await connect(d, BATTERY, ROW_LAST, LATCH, CHOICE_LAST);
+    await connect(d, LATCH, ROW_SECOND_LAST, GATE, CHOICE_LAST);
+    await connect(d, SWITCH, ROW_LAST, LATCH, CHOICE_SECOND_LAST, shot);
+    if (sameSourceReset) await connect(d, SWITCH, ROW_SECOND_LAST, LATCH, CHOICE_LAST);
+}
+
+async function observe(d: WorkshopDriver, ms: number) {
+    const sw0 = (await d.readAnimationSamplesForTarget(SWITCH_TARGET)).length;
+    const la0 = (await d.readAnimationSamplesForTarget(LATCH_TARGET)).length;
+    await d.run();
+    let maxPy = -Infinity, n = 0, prev = '';
+    const t0 = Date.now();
+    try {
+        while (Date.now() - t0 < ms) {
+            const slot = await d.readLatestPose();
+            if (slot && slot.sequence !== prev) {
+                prev = slot.sequence;
+                const b = slot.bodies.find(x => x.id === BLADE_BODY_ID);
+                if (b) { n++; maxPy = Math.max(maxPy, b.py); }
+            }
+            await d.page.waitForTimeout(40);
+        }
+        const sw = (await d.readAnimationSamplesForTarget(SWITCH_TARGET)).length - sw0;
+        const la = (await d.readAnimationSamplesForTarget(LATCH_TARGET)).length - la0;
+        return { n, maxPy, switchSamples: sw, latchSamples: la };
+    } finally { await d.reset(); }
+}
+
+describe('Murdoch 9.4 probe', () => {
+    let d: WorkshopDriver;
+    before(async () => { d = await WorkshopDriver.launch(); });
+    after(async () => { await d?.close(); });
+
+    test('P0 control: SetIn only -> switch witness fires and gate opens', { timeout: 150000 }, async () => {
+        await build(d, false, 'probe-socket-choice-drawer.png');
+        const r = await observe(d, 4500);
+        console.log(`[PROBE P0] ${JSON.stringify(r)}`);
+        assert.ok(r.switchSamples > 0, 'switch witness target animates when the impact occurs');
+        assert.ok(r.maxPy > 4.2, 'gate opens after Set');
+        assert.ok(r.latchSamples > 0, 'latch animates On');
+    });
+
+    test('P1 dominance with witness: switch fires, gate never opens, latch never animates', { timeout: 150000 }, async () => {
+        await build(d, true);
+        const r = await observe(d, 4500);
+        console.log(`[PROBE P1] ${JSON.stringify(r)}`);
+        assert.ok(r.n >= 20, 'publications observed');
+        assert.ok(r.switchSamples > 0, 'impact occurred (switch witness)');
+        assert.ok(r.maxPy < 3.2, 'Reset dominates: gate closed');
+        assert.equal(r.latchSamples, 0, 'latch never committed On');
+    });
+});

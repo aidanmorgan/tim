@@ -24,6 +24,22 @@ public partial class Workshop
         WorkshopSocket.Supply => "Supply",
         _ => throw new ArgumentException("Unknown socket.")
     };
+    /// <summary>The State Latch's two activation inputs are chosen by icon only, matching the on-part marks (DESIGN.md Set/Reset latch).</summary>
+    private static string SocketIcon(WorkshopSocket socket) => socket switch
+    {
+        WorkshopSocket.SetIn => "socket_set",
+        WorkshopSocket.ResetIn => "socket_reset",
+        _ => throw new ArgumentException("Socket has no icon-only choice.")
+    };
+    private static Button SocketIconButton(WorkshopSocket socket, Action action)
+    {
+        var button = SignalButton("", action);
+        button.Text = ""; button.Icon = WorkshopIcons.Pictogram(SocketIcon(socket));
+        button.IconAlignment = HorizontalAlignment.Center;
+        button.AddThemeConstantOverride("icon_max_width", 28);
+        button.SetMeta("socket", (int)socket);
+        return button;
+    }
     private void ClearConnectionChoices()
     {
         _batteryCharge = null; _batteryToggle = null;
@@ -36,7 +52,7 @@ public partial class Workshop
         if (_connectionChoices is null || _selected is not { } part) return;
         AddConfigurationChoices(part);
         if (!CanEdit) return;
-        foreach (var port in WorkshopPorts.For(part.Definition.WorkshopKind))
+        foreach (var port in WorkshopPorts.For(part.PartId))
         {
             if (port.Direction != WorkshopPortDirection.Output) continue;
             var owner = part.AuthoredId;
@@ -63,12 +79,15 @@ public partial class Workshop
         if (target is null || target.AuthoredId == source.Owner)
         { _status.Text = "Choose another part with a matching input socket."; return; }
         var choices = 0;
-        foreach (var port in WorkshopPorts.For(target.Definition.WorkshopKind))
+        foreach (var port in WorkshopPorts.For(target.PartId))
         {
             if (port.Direction != WorkshopPortDirection.Input || port.Domain != source.Port.Domain) continue;
             var link = new WorkshopConnection(source.Owner, source.Port.Socket, target.AuthoredId, port.Socket, port.Domain);
-            var button = SignalButton(SocketLabel(source.Port.Socket) + " → " + SocketLabel(port.Socket), () => ChangeConnection(link, true));
-            button.Icon = null; _connectionChoices.AddChild(button); choices++;
+            var button = port.Socket is WorkshopSocket.SetIn or WorkshopSocket.ResetIn
+                ? SocketIconButton(port.Socket, () => ChangeConnection(link, true))
+                // The UI font has no arrow glyph; "to" reads the same and always renders.
+                : SignalButton(SocketLabel(source.Port.Socket) + " to " + SocketLabel(port.Socket), () => ChangeConnection(link, true));
+            _connectionChoices.AddChild(button); choices++;
         }
         _status.Text = choices == 0 ? "These parts have no matching sockets. Choose another part."
             : "Connect the selected sockets.";
@@ -97,11 +116,11 @@ public partial class Workshop
         {
             var source = World.Parts.Single(part => part.AuthoredId == link.Source);
             var target = World.Parts.Single(part => part.AuthoredId == link.Target);
-            var from = WorkshopPorts.LocalPosition(source.Definition.WorkshopKind, link.Output);
-            var to = WorkshopPorts.LocalPosition(target.Definition.WorkshopKind, link.Input);
-            var start = source.ToGlobal(new((float)from.X, (float)from.Y, (float)from.Z));
-            var end = target.ToGlobal(new((float)to.X, (float)to.Y, (float)to.Z));
-            PartArt.Line(_connectionArtwork, start, end,
+            var from = WorkshopPorts.LocalPosition(source.Definition.PartId, link.Output);
+            var to = WorkshopPorts.LocalPosition(target.Definition.PartId, link.Input);
+            var start = source.ToGlobal(new(from.X, from.Y, from.Z));
+            var end = target.ToGlobal(new(to.X, to.Y, to.Z));
+            WorkshopArtwork.Line(_connectionArtwork, start, end,
                 link.Domain == WorkshopConnectionDomain.Electrical ? new("#293954") : new("#ffd899"),
                 link.Domain == WorkshopConnectionDomain.Electrical ? .035f : .025f);
         }

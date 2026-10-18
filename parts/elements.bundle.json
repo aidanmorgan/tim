@@ -1,0 +1,675 @@
+{
+  "Version": "1.0",
+  "GeneratedAt": "2026-10-18T04:19:02.4229050Z",
+  "Elements": [
+    {
+      "Metadata": {
+        "Id": "ball",
+        "Category": "Balls",
+        "DisplayNameKey": "part_ball",
+        "IconPath": "res://parts/icons/ball.png",
+        "ScenePath": "res://parts/scenes/ball.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 1,
+      "Ports": [],
+      "Colliders": [
+        {
+          "ShapeKind": 0,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.8,
+            "Friction": 0.3,
+            "RollingResistance": 0.035,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 1,
+          "PayloadLayout": "Impulse:f32;Contact:vec3;Normal:vec3"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "bumper",
+        "Category": "Obstacles",
+        "DisplayNameKey": "part_bumper",
+        "IconPath": "res://parts/icons/bumper.png",
+        "ScenePath": "res://parts/scenes/bumper.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 3,
+      "Ports": [
+        {
+          "PortId": "power_in",
+          "Domain": 2,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 0,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 1,
+            "Friction": 0.1,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 8,
+          "PayloadLayout": "Impulse:f32;Contact:vec3;Normal:vec3"
+        },
+        {
+          "EventKind": 5,
+          "PayloadLayout": "Load:f32;BodyId:u64"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "domino",
+        "Category": "Mechanisms",
+        "DisplayNameKey": "part_domino",
+        "IconPath": "res://parts/icons/domino.png",
+        "ScenePath": "res://parts/scenes/domino.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 5,
+      "Ports": [
+        {
+          "PortId": "signal_out",
+          "Domain": 4,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.5,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 8,
+          "PayloadLayout": "Angle:f32;Toppled:bool"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "ramp",
+        "Category": "Structures",
+        "DisplayNameKey": "part_ramp",
+        "IconPath": "res://parts/icons/ramp.png",
+        "ScenePath": "res://parts/scenes/ramp.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 1,
+      "Ports": [],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": []
+    },
+    {
+      "Metadata": {
+        "Id": "wall",
+        "Category": "Structures",
+        "DisplayNameKey": "part_wall",
+        "IconPath": "res://parts/icons/wall.png",
+        "ScenePath": "res://parts/scenes/wall.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 1,
+      "Ports": [],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": []
+    },
+    {
+      "Metadata": {
+        "Id": "battery",
+        "Category": "Power",
+        "DisplayNameKey": "part_battery",
+        "IconPath": "res://parts/icons/battery.png",
+        "ScenePath": "res://parts/scenes/battery.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 2,
+      "Ports": [
+        {
+          "PortId": "power_out",
+          "Domain": 2,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 7,
+          "PayloadLayout": "Voltage:f32;Current:f32"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "powered_gate",
+        "Category": "Mechanisms",
+        "DisplayNameKey": "part_powered_gate",
+        "IconPath": "res://parts/icons/powered_gate.png",
+        "ScenePath": "res://parts/scenes/powered_gate.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 3,
+      "Ports": [
+        {
+          "PortId": "power_in",
+          "Domain": 2,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        },
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        },
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 6,
+          "PayloadLayout": "Position:f32;Lower:bool;Upper:bool"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "pressure_plate",
+        "Category": "Control",
+        "DisplayNameKey": "part_pressure_plate",
+        "IconPath": "res://parts/icons/pressure_plate.png",
+        "ScenePath": "res://parts/scenes/pressure_plate.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 7,
+      "Ports": [
+        {
+          "PortId": "power_in",
+          "Domain": 2,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "power_out",
+          "Domain": 2,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "signal_out",
+          "Domain": 4,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.5,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 5,
+          "PayloadLayout": "Load:f32;Threshold:f32;Active:bool"
+        },
+        {
+          "EventKind": 4,
+          "PayloadLayout": "State:bool"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "counter",
+        "Category": "Logic",
+        "DisplayNameKey": "part_counter",
+        "IconPath": "res://parts/icons/counter.png",
+        "ScenePath": "res://parts/scenes/counter.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 6,
+      "Ports": [
+        {
+          "PortId": "signal_in",
+          "Domain": 4,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "signal_out",
+          "Domain": 4,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "power_in",
+          "Domain": 2,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "power_out",
+          "Domain": 2,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        },
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 3,
+          "PayloadLayout": "Count:i32;Target:i32"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "lamp",
+        "Category": "Indicators",
+        "DisplayNameKey": "part_lamp",
+        "IconPath": "res://parts/icons/lamp.png",
+        "ScenePath": "res://parts/scenes/lamp.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 6,
+      "Ports": [
+        {
+          "PortId": "signal_in",
+          "Domain": 4,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "power_in",
+          "Domain": 2,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 8,
+          "PayloadLayout": "Lit:bool"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "ball_detector",
+        "Category": "Sensors",
+        "DisplayNameKey": "part_ball_detector",
+        "IconPath": "res://parts/icons/ball_detector.png",
+        "ScenePath": "res://parts/scenes/ball_detector.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 5,
+      "Ports": [
+        {
+          "PortId": "signal_out",
+          "Domain": 4,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 2,
+          "PayloadLayout": "BodyId:u64;Ordinal:u32"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "clock",
+        "Category": "Control",
+        "DisplayNameKey": "part_clock",
+        "IconPath": "res://parts/icons/clock.png",
+        "ScenePath": "res://parts/scenes/clock.tscn",
+        "Parameters": {
+          "interval_seconds": 1
+        }
+      },
+      "SupportedDomains": 6,
+      "Ports": [
+        {
+          "PortId": "power_in",
+          "Domain": 2,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "activation_out",
+          "Domain": 4,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        },
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 8,
+          "PayloadLayout": "PulseCount:i32;Interval:f32"
+        }
+      ]
+    },
+    {
+      "Metadata": {
+        "Id": "latch",
+        "Category": "Control",
+        "DisplayNameKey": "part_latch",
+        "IconPath": "res://parts/icons/latch.png",
+        "ScenePath": "res://parts/scenes/latch.tscn",
+        "Parameters": {}
+      },
+      "SupportedDomains": 6,
+      "Ports": [
+        {
+          "PortId": "set_in",
+          "Domain": 4,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "reset_in",
+          "Domain": 4,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "power_in",
+          "Domain": 2,
+          "Direction": 0,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "activation_out",
+          "Domain": 4,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        },
+        {
+          "PortId": "supply",
+          "Domain": 2,
+          "Direction": 1,
+          "LocalPosition": {},
+          "Normal": {}
+        }
+      ],
+      "Colliders": [
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        },
+        {
+          "ShapeKind": 1,
+          "Dimensions": {},
+          "Offset": {},
+          "Rotation": {
+            "IsIdentity": true
+          },
+          "Material": {
+            "Restitution": 0.1,
+            "Friction": 0.3,
+            "RollingResistance": 0,
+            "BounceThreshold": 0.1
+          }
+        }
+      ],
+      "Events": [
+        {
+          "EventKind": 4,
+          "PayloadLayout": "State:f32"
+        }
+      ]
+    }
+  ]
+}

@@ -161,7 +161,7 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             ? ExpectedRevisionKind.Any : ExpectedRevisionKind.Exact;
         var command = new WorkshopCommand(sequence, kind, Epoch,
             revisionKind == ExpectedRevisionKind.Any ? default : Revision, construction, target, revisionKind, Peer.Session, _schedule?.Revision ?? default, _schedule?.World.Epoch ?? default, settings, electrical);
-        var bytes = WorkshopWire.Encode(command);
+        var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         _sequence = sequence.Value;
         _pending++;
         var dispatchedReadOrder = _cursor.ReadOrder;
@@ -174,31 +174,36 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
             catch (Exception error) { throw new WorkshopTransportException(identity, TransportState, error); }
             var encodedIdentity = new byte[8];
             BinaryPrimitives.WriteUInt64LittleEndian(encodedIdentity, sequence.Value);
-            var response = WorkshopWire.DecodeResponse(Acknowledgement(_id.Value, encodedIdentity));
-            var prepared = _cursor.PrepareAcknowledgement(command, response, dispatchedReadOrder, _disposed);
-            if (prepared.Applicable)
+            var response = WorkshopWireFlatBuffers.DecodeResponse(Acknowledgement(_id.Value, encodedIdentity));
+            try
             {
-                var boundary = response.Result.Outcome == WorkshopCommandOutcome.Applied ? kind switch
+                var prepared = _cursor.PrepareAcknowledgement(command, response, dispatchedReadOrder, _disposed);
+                if (prepared.Applicable)
                 {
-                    WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.Reset => PresentationBoundary.Seed,
-                    WorkshopCommandKind.Run => PresentationBoundary.Run,
-                    _ => PresentationBoundary.Continuous
-                } : PresentationBoundary.Continuous;
-                WorkshopPoseHistory.Prepared? history = response.Read.Capture is null || _history.Latest is { } installed &&
-                    installed.Read.HasSameContent(response.Read) ? null :
-                    PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
-                _cursor.Commit(prepared);
-                if (history is { } ready) _history.Commit(ready);
-                if (response.Result.Outcome == WorkshopCommandOutcome.Applied && construction is { } admitted)
-                {
-                    _construction = admitted;
-                    EnsureInstalledScene(_construction);
+                    var boundary = response.Result.Outcome == WorkshopCommandOutcome.Applied ? kind switch
+                    {
+                        WorkshopCommandKind.Initialize or WorkshopCommandKind.Construct or WorkshopCommandKind.Reset => PresentationBoundary.Seed,
+                        WorkshopCommandKind.Run => PresentationBoundary.Run,
+                        _ => PresentationBoundary.Continuous
+                    } : PresentationBoundary.Continuous;
+                    WorkshopPoseHistory.Prepared? history = response.Read.Capture is null || _history.Latest is { } installed &&
+                        installed.Read.HasSameContent(response.Read) ? null :
+                        PrepareHistory(response, boundary, WorkshopNativeClock.FromMilliseconds(NativeMilliseconds()));
+                    _cursor.Commit(prepared);
+                    if (history is { } ready) _history.Commit(ready);
+                    if (response.Result.Outcome == WorkshopCommandOutcome.Applied && construction is { } admitted)
+                    {
+                        _construction = admitted;
+                        EnsureInstalledScene(_construction);
+                    }
                 }
+                return new(response, prepared.Applicable);
             }
-            // A valid terminal receipt releases its lease even when a newer read owns presentation.
-            // Decode/identity/history failures above keep the reliable work unresolved.
-            CompleteAcknowledgement(_id.Value, encodedIdentity);
-            return new(response, prepared.Applicable);
+            finally
+            {
+                // A valid terminal receipt releases its lease even when a newer read owns presentation.
+                CompleteAcknowledgement(_id.Value, encodedIdentity);
+            }
         }
         finally { _pending--; if (_constructionOwner == identity) { _proposedConstruction = null; _constructionOwner = null; } if (Pending == identity) Pending = null; }
     }
@@ -260,7 +265,15 @@ public sealed partial class BrowserWorkshopClient : IWorkshopClient
         if (_disposed) return;
         var bytes = EventBytes(_id.Value);
         var milliseconds = EventMilliseconds(_id.Value);
-        var response = WorkshopWire.DecodeResponse(bytes);
+        WorkshopResponse response;
+        try
+        {
+            response = WorkshopWireFlatBuffers.DecodeResponse(bytes);
+        }
+        catch
+        {
+            response = WorkshopWire.DecodeResponse(bytes);
+        }
         if (_schedule is not { } active || response.Cadence.Value < active.Revision.Value ||
             response.Projection.Value < active.World.Epoch.Value) return;
         if (response.Cadence != active.Revision || response.Projection != active.World.Epoch)

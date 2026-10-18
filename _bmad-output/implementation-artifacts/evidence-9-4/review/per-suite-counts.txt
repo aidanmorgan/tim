@@ -1,0 +1,33 @@
+3/3	ANIM-1a: Dedicated 60 Hz WebAssembly Animation Worker Pipeli
+3/3	ANIM-1b: Mechanical cosmetic bindings and procedural curves
+4/4	ANIM-1c: Legacy presentation code retirement
+5/5	CAT-002: Ball Detector Aperture Passage Sensor
+2/7	cat-005
+4/4	CAT-014: Bowling ball dynamic sphere by material declaration
+2/3	cat-015a-sidekick
+1/2	cat-015a
+1/4	cat-015b
+5/5	CAT-017: System Clock Periodic Pulse Generator E2E
+5/5	CAT-020: Pulse Counter Event Accumulator E2E
+4/4	CAT-023a: Dynamic box rigid body & upright stability (Domino
+0/4	CAT-023b: Domino cascade mechanics & orientation-threshold s
+7/7	CAT-030: Funnel Hollow Frustum Inlet to Standard Bore E2E
+6/6	CAT-037: State Latch bistable memory E2E
+4/4	CAT-048a: Straight Pipe Compound Cylindrical Collider
+5/5	CAT-048b: Clear Pipe Level E2E (Through the looking tube)
+5/5	CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Ge
+5/5	CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Qu
+5/5	CAT-051: Powered Gate Passageway Barrier E2E
+5/5	CAT-052: Pressure Plate Surface Contact Load Sensor E2E
+7/7	cat-062
+2/7	cat-062b
+5/5	ENGINE-CORE-2a1: Dual-Sphere Simulation and Pure TypeScript 
+4/4	ENGINE-CORE-2a2: TGS Soft Solver Resting Contact and Dissipa
+5/5	ENGINE-CORE-2a3: Multi-body Ramp and Wall Contact on Generic
+2/2	ENGINE-CORE-2a4: Anti-Tunneling High-Speed Wall Impact via S
+1/1	ENGINE-CORE-2b1: Host Validation & Error Lane Removal (Direc
+1/1	ENGINE-CORE-2b2: Certificate & Directed Rounding Removal (Pu
+1/1	ENGINE-CORE-2b3: Analytic CCD & Interval Library Removal (Pu
+2/2	ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal
+2/2	ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counte
+TOTAL 113/132

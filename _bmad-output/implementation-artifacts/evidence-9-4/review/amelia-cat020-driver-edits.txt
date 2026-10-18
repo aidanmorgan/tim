@@ -1,0 +1,154 @@
+=== /Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts
+--- OLD
+'pressure_plate' | 'counter' | 'clock'): Promise<void> {
++++ NEW
+'pressure_plate' | 'counter' | 'clock' | 'latch'): Promise<void> {
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts
+--- OLD
+kind === 'counter' || kind === 'clock') && this.currentLevel
++++ NEW
+kind === 'counter' || kind === 'clock' || kind === 'latch') && this.currentLevel
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/workshop-driver.ts
+--- OLD
+        const bottomRow: Record<string, number> = {
+            pipe: 440,
+            ball_detector: 505,
+            pipe_bend_45: 553,
+            pipe_bend_90: 600,
+            funnel: 648,
+            powered_gate: 695,
+            pressure_plate: 742,
+            counter: 790,
+            clock: 838,
+        };
++++ NEW
+        // Row centres with the free-workshop palette scrolled to its end (51 px rows; the Set/Reset latch is the last row).
+        const bottomRow: Record<string, number> = {
+            pipe: 382,
+            ball_detector: 433,
+            pipe_bend_45: 484,
+            pipe_bend_90: 535,
+            funnel: 586,
+            powered_gate: 637,
+            pressure_plate: 688,
+            counter: 739,
+            clock: 790,
+            latch: 841,
+        };
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+const BLADE_BODY_ID = '4294967810'; // GpuBodyId: (1n << 32n) + 256n + 1n * 256n + 2n
+
++++ NEW
+const BLADE_BODY_ID = '4294967810'; // GpuBodyId: (1n << 32n) + 256n + 1n * 256n + 2n
+const LAMP_TARGET = '5'; // Animation target of the Signal lamp's activation node: lamp id 3 + 2
+// The detector (tilted −90°) counts a ball only if it starts armed: X < −(0.02 m clearance + 0.34 m radius) = −0.36 m
+// (spec-6-8). One lift pixel is 1/57.9 m, so every ball is lifted at least 28 px (0.48 m). The former 18 px ball (0.31 m)
+// started inside the clearance and was never counted; the recipe only passed through the deleted in-engine crossing shortcut.
+const ARMED_LIFTS = [28, 42, 56, 70] as const;
+
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+        await driver.liftSelectedPart(18, 450, 485);
++++ NEW
+        await driver.liftSelectedPart(ARMED_LIFTS[0], 450, 485);
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+        await driver.liftSelectedPart(32, 450, 485);
++++ NEW
+        await driver.liftSelectedPart(ARMED_LIFTS[1], 450, 485);
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+        await driver.liftSelectedPart(46, 450, 485);
++++ NEW
+        await driver.liftSelectedPart(ARMED_LIFTS[2], 450, 485);
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+        await driver.liftSelectedPart(60, 450, 485);
++++ NEW
+        await driver.liftSelectedPart(ARMED_LIFTS[3], 450, 485);
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+            // Gate blade remains closed (py < 3.2)
++++ NEW
+            assert.equal((await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length, 0, 'Counter below target never lights its lamp');
+
+            // Gate blade remains closed (py < 3.2)
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+        // Run simulation: 3 balls fall through detector
+        await driver.run();
++++ NEW
+        // Run simulation: 3 balls fall through detector
+        const lampBefore = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
+        await driver.run();
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+            assert.ok(maxBladeY > 4.2, `Blade must retract open when counter reaches 3, max py=${maxBladeY}`);
++++ NEW
+            assert.ok(maxBladeY > 4.2, `Blade must retract open when counter reaches 3, max py=${maxBladeY}`);
+            const lampSamples = await driver.readAnimationSamplesForTarget(LAMP_TARGET);
+            assert.ok(lampSamples.length > lampBefore && lampSamples[lampSamples.length - 1].value > 0.99, 'Counter → lamp lights at target');
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+        await driver.liftSelectedPart(ARMED_LIFTS[3], 450, 485);
+
+        await driver.page.keyboard.press('Escape');
+        await driver.page.waitForTimeout(200);
+
+        await driver.run();
++++ NEW
+        await driver.liftSelectedPart(ARMED_LIFTS[3], 450, 485);
+
+        await driver.page.keyboard.press('Escape');
+        await driver.page.waitForTimeout(200);
+
+        const lampBefore = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
+        await driver.run();
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+            assert.ok(maxBladeY > 4.2, `Blade must retract and stay open in saturation, max py=${maxBladeY}`);
++++ NEW
+            assert.ok(maxBladeY > 4.2, `Blade must retract and stay open in saturation, max py=${maxBladeY}`);
+            const lampSamples = await driver.readAnimationSamplesForTarget(LAMP_TARGET);
+            assert.ok(lampSamples.length > lampBefore && lampSamples[lampSamples.length - 1].value > 0.99, 'Saturated counter keeps its lamp lit');
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+        await driver.liftSelectedPart(ARMED_LIFTS[2], 450, 485);
+
+        await driver.page.keyboard.press('Escape');
+        await driver.page.waitForTimeout(200);
+
+        await driver.run();
+        try {
++++ NEW
+        await driver.liftSelectedPart(ARMED_LIFTS[2], 450, 485);
+
+        await driver.page.keyboard.press('Escape');
+        await driver.page.waitForTimeout(200);
+
+        const lampBefore = (await driver.readAnimationSamplesForTarget(LAMP_TARGET)).length;
+        await driver.run();
+        try {
+
+=== /Users/aidan/dev/personal/tim/tools/e2e/cat-020.test.ts
+--- OLD
+            assert.ok(maxBladeY > 4.2, `Replay after reload must retract blade open, max py=${maxBladeY}`);
++++ NEW
+            assert.ok(maxBladeY > 4.2, `Replay after reload must retract blade open, max py=${maxBladeY}`);
+            const lampSamples = await driver.readAnimationSamplesForTarget(LAMP_TARGET);
+            assert.ok(lampSamples.length > lampBefore && lampSamples[lampSamples.length - 1].value > 0.99, 'Replay lights the Counter → lamp output');
+

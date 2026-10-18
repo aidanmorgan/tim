@@ -1,0 +1,129 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://engine/MachinePart.cs" id="1"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Housing"]
+albedo_color = Color(0.9098, 0.7176, 0.3922, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Foot"]
+albedo_color = Color(0.1608, 0.2235, 0.3294, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Face"]
+albedo_color = Color(1, 0.9725, 0.9137, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Recess"]
+albedo_color = Color(0.3333, 0.3961, 0.4510, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Gold"]
+albedo_color = Color(0.9686, 0.7961, 0.3216, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Indicator"]
+albedo_color = Color(0.3333, 0.3961, 0.4510, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_Housing"]
+material = SubResource("Mat_Housing")
+size = Vector3(1.4, 1.7, 0.6)
+
+[sub_resource type="BoxMesh" id="Mesh_Foot"]
+material = SubResource("Mat_Foot")
+size = Vector3(1.6, 0.2, 0.85)
+
+[sub_resource type="BoxMesh" id="Mesh_Face"]
+material = SubResource("Mat_Face")
+size = Vector3(1.14, 1.44, 0.04)
+
+[sub_resource type="BoxMesh" id="Mesh_Recess"]
+material = SubResource("Mat_Recess")
+size = Vector3(0.84, 1.1, 0.02)
+
+[sub_resource type="BoxMesh" id="Mesh_PendulumRod"]
+material = SubResource("Mat_Face")
+size = Vector3(0.045, 0.7, 0.035)
+
+[sub_resource type="SphereMesh" id="Mesh_PendulumBob"]
+material = SubResource("Mat_Gold")
+radius = 0.15
+height = 0.3
+
+[sub_resource type="SphereMesh" id="Mesh_PivotCap"]
+material = SubResource("Mat_Foot")
+radius = 0.055
+height = 0.11
+
+[sub_resource type="SphereMesh" id="Mesh_Indicator"]
+material = SubResource("Mat_Indicator")
+radius = 0.065
+height = 0.13
+
+[sub_resource type="SphereMesh" id="Mesh_Socket"]
+material = SubResource("Mat_Gold")
+radius = 0.075
+height = 0.15
+
+[sub_resource type="BoxShape3D" id="Shape_Housing"]
+size = Vector3(1.4, 1.7, 0.6)
+
+[sub_resource type="BoxShape3D" id="Shape_Foot"]
+size = Vector3(1.6, 0.2, 0.85)
+
+[node name="clock" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Housing" type="MeshInstance3D" parent="Visual"]
+mesh = SubResource("Mesh_Housing")
+
+[node name="Foot" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.95, 0)
+mesh = SubResource("Mesh_Foot")
+
+[node name="Face" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.32)
+mesh = SubResource("Mesh_Face")
+
+[node name="Recess" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 0.35)
+mesh = SubResource("Mesh_Recess")
+
+[node name="PendulumPivot" type="Node3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.39)
+
+[node name="Rod" type="MeshInstance3D" parent="Visual/PendulumPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
+mesh = SubResource("Mesh_PendulumRod")
+
+[node name="Bob" type="MeshInstance3D" parent="Visual/PendulumPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.7, 0)
+mesh = SubResource("Mesh_PendulumBob")
+
+[node name="PivotCap" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.44)
+mesh = SubResource("Mesh_PivotCap")
+
+[node name="Visual_Indicator" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.63, 0.39)
+mesh = SubResource("Mesh_Indicator")
+
+[node name="Visual_Socket_PowerIn" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0, 0)
+mesh = SubResource("Mesh_Socket")
+
+[node name="Visual_Socket_ActivationOut" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 0, 0)
+mesh = SubResource("Mesh_Socket")
+
+[node name="CollisionShape_Housing" type="CollisionShape3D" parent="."]
+visible = false
+shape = SubResource("Shape_Housing")
+
+[node name="CollisionShape_Foot" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.95, 0)
+visible = false
+shape = SubResource("Shape_Foot")
+
+[node name="Loc_Port_power_in" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.78, 0, 0)
+
+[node name="Loc_Port_activation_out" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.78, 0, 0)

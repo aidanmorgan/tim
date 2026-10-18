@@ -11,4 +11,3 @@ Category = "Goals"
 Description = "Catch and hold the named ball. The halo shows the current tolerance."
 Scene = ExtResource("2")
 Color = Color(0.29, 0.67, 0.58, 1)
-Parameters = {}

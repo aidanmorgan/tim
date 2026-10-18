@@ -1,0 +1,17 @@
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  Generated app bundle at /Users/aidan/dev/personal/tim/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/AppBundle/
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  Optimizing assemblies for size. This process might take a while.
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/publish/
+  Generated app bundle at /Users/aidan/dev/personal/tim/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/AppBundle/
+  Generated app bundle at /Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/
+  TwoDog: web app bundle finalized at /Users/aidan/dev/personal/tim/CuriousContraptions.web/AppBundle/
+  TwoDog: deployed godot.pck to the app bundle
+  TwoDog: wrote 158 precompressed sibling file(s)
+timeout 1800 dotnet publish CuriousContraptions.web 2>&1  11.93s user 2.60s system 37% cpu 38.634 total
+tail -15  0.00s user 0.00s system 0% cpu 38.634 total

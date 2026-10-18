@@ -1,15 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace CuriousContraptions.Gpu;
 
 public readonly record struct ActivationNodeId(ulong Value);
-public enum ActivationNodeKind : uint { ContactSource = 1, Latch = 2, Timer = 3, OrientationSource = 4 }
+/// <summary>StickyFirstInput is the Signal lamp's first-input-wins hold (never reset within a run); StateLatch is the bistable
+/// Set/Reset memory (CAT-037); LevelIndicator is a Signal lamp driven by a State Latch ActivationOut, mirroring its On/Off level.
+/// The kinds are distinct and share no name.</summary>
+public enum ActivationNodeKind : uint { ContactSource = 1, StickyFirstInput = 2, Timer = 3, OrientationSource = 4, PassageSource = 5, Counter = 6, Oscillator = 7, StateLatch = 8, LevelIndicator = 9 }
 public enum ActivationPhase : uint { Clear, Latched }
+/// <summary>Committed bistable memory of one State Latch.</summary>
+public enum SimulationLatchPhase : uint { Off = 0, On = 1 }
+/// <summary>Requests a State Latch accumulates within one tick; Reset dominates Set at the boundary.</summary>
+[Flags]
+public enum StateLatchRequest : uint { None = 0, Set = 1, Reset = 2 }
 public readonly record struct ActivationNodeDeclaration(ActivationNodeId Id, GpuBodyId Owner,
-    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default);
-public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target);
+    ActivationNodeKind Kind, GpuContactTriggerId Trigger, uint DurationTicks = 0, GpuOrientationSensorId Sensor = default, GpuPassageSensorId Passage = default, uint TargetCount = 0, uint IntervalTicks = 0, GpuBodyId PowerSource = default, GpuColliderId Collider = default);
+/// <summary>One routed signal; Input names the target socket (ActivationIn, or SetIn/ResetIn on a State Latch).</summary>
+public readonly record struct ActivationEdge(ActivationNodeId Source, ActivationNodeId Target, WorkshopSocket Input);
 
 public readonly record struct ActivationLatch(ActivationNodeId Node, GpuBodyId Owner, ActivationPhase Phase,
     GpuEventSourceId Source, GpuBodyId Body, GpuColliderId Collider, uint EventOrdinal,
@@ -73,18 +83,40 @@ public sealed class ActivationNetwork
     private readonly ActivationNodeDeclaration[] _nodes;
     private readonly ActivationEdge[] _edges;
     private readonly ActivationTimerDeclaration[] _timers;
+    private readonly PassageSensorDeclaration[] _passageSensors;
     private readonly uint _substeps;
+    private readonly int[] _counterCounts;
+    private readonly ActivationTime[] _counterLastTimes;
+    private readonly bool[] _counterEmitted;
+    private readonly int[] _oscillatorPhases;
+    private readonly long[] _oscillatorDueTicks;
+    private readonly int[] _oscillatorPulseCounts;
+    private readonly long[] _oscillatorLastPulseTicks;
+    public ReadOnlySpan<ActivationNodeDeclaration> Nodes => _nodes;
+    public ReadOnlySpan<ActivationEdge> Edges => _edges;
+    public ReadOnlySpan<PassageSensorDeclaration> PassageSensors => _passageSensors;
 
     public ActivationNetwork(ReadOnlySpan<ActivationNodeDeclaration> nodes, ReadOnlySpan<ActivationEdge> edges,
-        uint substeps = 4)
+        uint substeps = 4, ReadOnlySpan<PassageSensorDeclaration> passageSensors = default)
     {
         _ = ActivationTime.Boundary(new(0), substeps); _substeps = substeps;
         if (nodes.Length > Capacity || edges.Length > WorkshopConnections.Capacity)
             throw new ArgumentException("Activation declaration capacity exceeded.");
         _nodes = nodes.ToArray(); _edges = edges.ToArray();
+        _passageSensors = passageSensors.ToArray();
         Array.Sort(_nodes, (a,b) => a.Id.Value.CompareTo(b.Id.Value));
+        _counterCounts = new int[_nodes.Length];
+        _counterLastTimes = new ActivationTime[_nodes.Length];
+        _counterEmitted = new bool[_nodes.Length];
+        _oscillatorPhases = new int[_nodes.Length];
+        _oscillatorDueTicks = new long[_nodes.Length];
+        Array.Fill(_oscillatorDueTicks, -1);
+        _oscillatorPulseCounts = new int[_nodes.Length];
+        _oscillatorLastPulseTicks = new long[_nodes.Length];
+        Array.Fill(_oscillatorLastPulseTicks, -1);
         var owners = new HashSet<GpuBodyId>(); var triggers = new HashSet<GpuContactTriggerId>();
         var sensors = new HashSet<GpuOrientationSensorId>();
+        var passages = new HashSet<GpuPassageSensorId>();
         var timers = new List<ActivationTimerDeclaration>();
         for (var i = 0; i < _nodes.Length; i++)
         {
@@ -93,21 +125,45 @@ public sealed class ActivationNetwork
                 (i != 0 && _nodes[i - 1].Id == node.Id) ||
                 (node.Kind == ActivationNodeKind.ContactSource ? node.Trigger.Value == 0 || !triggers.Add(node.Trigger) : node.Trigger.Value != 0) ||
                 (node.Kind == ActivationNodeKind.OrientationSource ? node.Sensor.Value == 0 || !sensors.Add(node.Sensor) : node.Sensor.Value != 0) ||
-                (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0))
+                (node.Kind == ActivationNodeKind.PassageSource ? node.Passage.Value == 0 || !passages.Add(node.Passage) : node.Passage.Value != 0) ||
+                (node.Kind == ActivationNodeKind.Timer ? node.DurationTicks == 0 : node.DurationTicks != 0) ||
+                (node.Kind == ActivationNodeKind.Counter ? node.TargetCount < 1 || node.TargetCount > 9 : node.TargetCount != 0) ||
+                (node.Kind == ActivationNodeKind.Oscillator ? node.IntervalTicks == 0 : (node.IntervalTicks != 0 || node.PowerSource.Value != 0 || node.Collider.Value != 0)))
                 throw new ArgumentException("Invalid activation node declaration.");
             if (node.Kind == ActivationNodeKind.Timer) timers.Add(new(node.Id, node.DurationTicks));
+        }
+        foreach (var passage in _passageSensors)
+        {
+            passage.Validate();
+            if (!passages.Contains(passage.Id)) throw new ArgumentException("Passage sensor has no owning node.");
         }
         _timers = timers.ToArray();
         var links = new HashSet<ActivationEdge>();
         foreach (var edge in _edges)
             if (edge.Source == edge.Target || !links.Add(edge) || Slot(edge.Source) < 0 || Slot(edge.Target) < 0 ||
-                _nodes[Slot(edge.Source)].Kind == ActivationNodeKind.Latch ||
-                _nodes[Slot(edge.Target)].Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.OrientationSource)
+                _nodes[Slot(edge.Source)].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator ||
+                // A State Latch output is a level: it drives level indicators only, and a level indicator listens to a latch only.
+                (_nodes[Slot(edge.Source)].Kind == ActivationNodeKind.StateLatch) != (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.LevelIndicator) ||
+                _nodes[Slot(edge.Target)].Kind is ActivationNodeKind.ContactSource or ActivationNodeKind.OrientationSource or ActivationNodeKind.PassageSource or ActivationNodeKind.Oscillator ||
+                (_nodes[Slot(edge.Target)].Kind == ActivationNodeKind.StateLatch
+                    ? edge.Input is not (WorkshopSocket.SetIn or WorkshopSocket.ResetIn)
+                    : edge.Input != WorkshopSocket.ActivationIn))
                 throw new ArgumentException("Unsupported activation edge.");
-        Array.Sort(_edges, (a,b) => a.Source != b.Source ? a.Source.Value.CompareTo(b.Source.Value) : a.Target.Value.CompareTo(b.Target.Value));
+        foreach (var node in _nodes)
+            if (node.Kind == ActivationNodeKind.LevelIndicator && _edges.Count(edge => edge.Target == node.Id) != 1)
+                throw new ArgumentException("A level indicator follows exactly one State Latch.");
+        Array.Sort(_edges, (a,b) => a.Source != b.Source ? a.Source.Value.CompareTo(b.Source.Value) :
+            a.Target != b.Target ? a.Target.Value.CompareTo(b.Target.Value) : a.Input.CompareTo(b.Input));
     }
     public PhysicsActivationRead Clear()
     {
+        Array.Clear(_counterCounts);
+        Array.Clear(_counterLastTimes);
+        Array.Clear(_counterEmitted);
+        Array.Clear(_oscillatorPhases);
+        Array.Fill(_oscillatorDueTicks, -1);
+        Array.Clear(_oscillatorPulseCounts);
+        Array.Fill(_oscillatorLastPulseTicks, -1);
         Span<ActivationLatch> values = stackalloc ActivationLatch[Capacity];
         for (var i = 0; i < _nodes.Length; i++) values[i] = ActivationLatch.Clear(_nodes[i]);
         return new(values[.._nodes.Length]);
@@ -118,9 +174,80 @@ public sealed class ActivationNetwork
         for (var i = 0; i < _timers.Length; i++) values[i] = ActivationTimerState.Ready(_timers[i].Node);
         return new(values[.._timers.Length]);
     }
+    public int GetCounterCount(GpuBodyId owner)
+    {
+        for (var i = 0; i < _nodes.Length; i++)
+            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Counter)
+                return _counterCounts[i];
+        throw new ArgumentException("Counter not found for owner.");
+    }
+    public int GetCounterTarget(GpuBodyId owner)
+    {
+        for (var i = 0; i < _nodes.Length; i++)
+            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Counter)
+                return (int)_nodes[i].TargetCount;
+        throw new ArgumentException("Counter not found for owner.");
+    }
+    public bool IsCounterReached(GpuBodyId owner)
+    {
+        for (var i = 0; i < _nodes.Length; i++)
+            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Counter)
+                return _counterCounts[i] >= (int)_nodes[i].TargetCount;
+        throw new ArgumentException("Counter not found for owner.");
+    }
+    /// <summary>State Latch memory lives in the committed checkpoint: On is Latched with the Set occurrence, Off is Clear.</summary>
+    public SimulationLatchPhase StateLatchPhase(PhysicsActivationRead values, GpuBodyId owner)
+    {
+        ValidatePopulation(values, ClearTimers());
+        for (var i = 0; i < _nodes.Length; i++)
+            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.StateLatch)
+                return values[i].Phase == ActivationPhase.Latched ? SimulationLatchPhase.On : SimulationLatchPhase.Off;
+        throw new ArgumentException("State latch not found for owner.");
+    }
+    /// <summary>A switched contact (State Latch or Counter) is closed exactly while its committed value is Latched.</summary>
+    public bool ContactClosed(PhysicsActivationRead values, GpuBodyId owner)
+    {
+        ValidatePopulation(values, ClearTimers());
+        for (var i = 0; i < _nodes.Length; i++)
+            if (_nodes[i].Owner == owner && _nodes[i].Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.Counter)
+                return values[i].Phase == ActivationPhase.Latched;
+        throw new ArgumentException("Switched contact not found for owner.");
+    }
+    public int GetOscillatorPulseCount(GpuBodyId owner)
+    {
+        for (var i = 0; i < _nodes.Length; i++)
+            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Oscillator)
+                return _oscillatorPulseCounts[i];
+        throw new ArgumentException("Oscillator not found for owner.");
+    }
+    public bool IsOscillatorRunning(GpuBodyId owner)
+    {
+        for (var i = 0; i < _nodes.Length; i++)
+            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Oscillator)
+                return _oscillatorPhases[i] == 1;
+        throw new ArgumentException("Oscillator not found for owner.");
+    }
+    public float GetOscillatorProgress(GpuBodyId owner, SimulationTick tick)
+    {
+        for (var i = 0; i < _nodes.Length; i++)
+        {
+            if (_nodes[i].Owner == owner && _nodes[i].Kind == ActivationNodeKind.Oscillator)
+            {
+                if (_oscillatorPhases[i] == 0) return 0f;
+                var startTick = _oscillatorDueTicks[i] - (long)_nodes[i].IntervalTicks;
+                var elapsed = (long)tick.Value - startTick;
+                if (elapsed < 0) return 0f;
+                var fraction = (float)elapsed / _nodes[i].IntervalTicks;
+                return Math.Clamp(fraction, 0f, 1f);
+            }
+        }
+        throw new ArgumentException("Oscillator not found for owner.");
+    }
 
     public ActivationCheckpoint Consume(PhysicsActivationRead committed, PhysicsTimerRead committedTimers,
-        ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations)
+        ReadOnlySpan<ContactTriggerRead> events, SimulationTick boundary, ReadOnlySpan<OrientationSensorRead> orientations,
+        ReadOnlySpan<PassageSensorRead> passages = default, PhysicsElectricalRead electrical = default,
+        Span<byte> eventBuffer = default)
     {
         ValidatePopulation(committed, committedTimers);
         if (events.Length > PhysicsSceneDeclaration.TriggerCapacity) throw new ArgumentException("Contact capacity exceeded.");
@@ -130,7 +257,10 @@ public sealed class ActivationNetwork
         Span<ActivationTimerState> timers = stackalloc ActivationTimerState[Capacity];
         for (var i = 0; i < committed.Count; i++) values[i] = committed[i];
         for (var i = 0; i < committedTimers.Count; i++) timers[i] = committedTimers[i];
-        Span<ActivationOccurrence> pending = stackalloc ActivationOccurrence[Capacity * 2];
+        Span<ActivationOccurrence> pending = stackalloc ActivationOccurrence[Capacity * 4];
+        // Requests routed to each State Latch within this tick; they resolve once at the boundary below.
+        Span<StateLatchRequest> latchRequests = stackalloc StateLatchRequest[Capacity];
+        Span<ActivationOccurrence> latchSetBy = stackalloc ActivationOccurrence[Capacity];
         var count = 0;
         for (var i = 0; i < events.Length; i++)
         {
@@ -191,10 +321,94 @@ public sealed class ActivationNetwork
             }
             pending[count++] = occurrence;
         }
+        for (var i = 0; i < passages.Length; i++)
+        {
+            var item = passages[i]; var slot = -1;
+            for (var j = 0; j < _nodes.Length; j++)
+                if (_nodes[j].Kind == ActivationNodeKind.PassageSource && _nodes[j].Passage == item.Id) slot = j;
+            if (slot < 0 || item.Frame != _nodes[slot].Owner || !Enum.IsDefined(item.Phase))
+                throw new ArgumentException("Unowned passage occurrence.");
+            for (var j = 0; j < i; j++) if (passages[j].Id == item.Id)
+                throw new ArgumentException("Duplicate passage occurrence batch.");
+            if (item.Phase != PassageSensorPhase.Fired) continue;
+            var time = new ActivationTime(item.EventOrdinal, item.EventPhase);
+            var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.Passage, _nodes[slot].Id, time,
+                new(new(item.Id.Value), item.Body, item.Collider, time, item.Speed));
+            occurrence.Validate();
+            if (time.CompareTo(end) > 0) throw new ArgumentException("Future passage occurrence.");
+            if (values[slot].Phase == ActivationPhase.Latched)
+            {
+                var prior = values[slot].Occurrence;
+                var order = time.CompareTo(prior.Time);
+                if (order < 0 || (order == 0 && occurrence != prior)) throw new ArgumentException("Stale or changed occurrence.");
+                if (order == 0) continue;
+            }
+            pending[count++] = occurrence;
+        }
         for (var i = 0; i < _timers.Length; i++)
         {
             timers[i] = timers[i].Complete(boundary, _substeps, out var elapsed);
             if (elapsed is { } occurrence) pending[count++] = occurrence;
+        }
+        for (var i = 0; i < _nodes.Length; i++)
+        {
+            if (_nodes[i].Kind != ActivationNodeKind.Oscillator) continue;
+            var node = _nodes[i];
+            var isPowered = false;
+            if (node.PowerSource.Value != 0)
+            {
+                for (var e = 0; e < electrical.Count; e++)
+                {
+                    if (electrical[e].Owner == node.PowerSource && electrical[e].Available)
+                    {
+                        isPowered = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isPowered)
+            {
+                _oscillatorPhases[i] = 0;
+                _oscillatorDueTicks[i] = -1;
+                continue;
+            }
+
+            if (_oscillatorPhases[i] == 0)
+            {
+                _oscillatorPhases[i] = 1;
+                _oscillatorDueTicks[i] = (long)(boundary.Value <= 1 ? 0 : boundary.Value) + node.IntervalTicks;
+            }
+
+            if (_oscillatorPhases[i] == 1 && (long)boundary.Value == _oscillatorDueTicks[i])
+            {
+                _oscillatorPulseCounts[i]++;
+                _oscillatorLastPulseTicks[i] = (long)boundary.Value;
+                _oscillatorDueTicks[i] += node.IntervalTicks;
+
+                var time = ActivationTime.Boundary(boundary, _substeps);
+                var colliderId = node.Collider.Value != 0 ? node.Collider : new(node.Id.Value);
+                var sourceId = new GpuEventSourceId(colliderId.Value);
+                var cause = new ActivationCause(sourceId, node.Owner, colliderId, time, new((Half)0));
+                var occurrence = new ActivationOccurrence(ActivationOccurrenceKind.OscillatorTick, node.Id, time, cause);
+                occurrence.Validate();
+                if (count == pending.Length) throw new ArgumentException("Activation fanout capacity exceeded.");
+                pending[count++] = occurrence;
+
+                if (eventBuffer.Length >= CuriousContraptions.Abstractions.EventRingBuffer.HeaderBytes)
+                {
+                    var record = new CuriousContraptions.Abstractions.SimulationEventRecord(
+                        0,
+                        (ulong)boundary.Value * 8_333_333UL,
+                        CuriousContraptions.Abstractions.SimulationDomain.Signal,
+                        CuriousContraptions.Abstractions.SimulationEventKind.TriggerActivated,
+                        node.Owner.Value,
+                        0,
+                        P0: (float)_oscillatorPulseCounts[i],
+                        P1: (float)node.IntervalTicks / (float)_substeps);
+                    CuriousContraptions.Abstractions.EventRingBuffer.Publish(eventBuffer, record);
+                }
+            }
         }
         // Every source emits once. At most one physical event and one timer event per node;
         // positive integer durations prevent instantaneous timer cycles.
@@ -204,15 +418,56 @@ public sealed class ActivationNetwork
             for (var i = 1; i < count; i++) if (Compare(pending[i], pending[first]) < 0) first = i;
             var occurrence = pending[first]; pending[first] = pending[--count];
             var source = Slot(occurrence.Emitter);
-            if (values[source].Phase != ActivationPhase.Clear) throw new ArgumentException("Duplicate source emission.");
-            values[source] = ActivationLatch.From(_nodes[source], occurrence);
+            if (values[source].Phase != ActivationPhase.Clear)
+            {
+                if (_nodes[source].Kind == ActivationNodeKind.PassageSource &&
+                    occurrence.Time.CompareTo(values[source].Occurrence.Time) > 0)
+                {
+                }
+                else if (occurrence.Kind == ActivationOccurrenceKind.CounterReached && values[source].Phase == ActivationPhase.Latched)
+                {
+                }
+                else if (_nodes[source].Kind == ActivationNodeKind.Oscillator && occurrence.Kind == ActivationOccurrenceKind.OscillatorTick)
+                {
+                }
+                else
+                {
+                    throw new ArgumentException("Duplicate source emission.");
+                }
+            }
+            if (values[source].Phase == ActivationPhase.Clear)
+                values[source] = ActivationLatch.From(_nodes[source], occurrence);
             foreach (var edge in _edges)
             {
                 if (edge.Source != occurrence.Emitter) continue;
                 var target = Slot(edge.Target);
-                if (_nodes[target].Kind == ActivationNodeKind.Latch)
+                if (_nodes[target].Kind == ActivationNodeKind.StickyFirstInput)
                 {
                     if (values[target].Phase == ActivationPhase.Clear) values[target] = ActivationLatch.From(_nodes[target], occurrence);
+                }
+                else if (_nodes[target].Kind == ActivationNodeKind.StateLatch)
+                {
+                    if (edge.Input == WorkshopSocket.ResetIn) latchRequests[target] |= StateLatchRequest.Reset;
+                    else if ((latchRequests[target] & StateLatchRequest.Set) == 0 || Compare(occurrence, latchSetBy[target]) < 0)
+                    { latchRequests[target] |= StateLatchRequest.Set; latchSetBy[target] = occurrence; }
+                }
+                else if (_nodes[target].Kind == ActivationNodeKind.Counter)
+                {
+                    var targetCount = (int)_nodes[target].TargetCount;
+                    var isNewTrigger = _counterLastTimes[target] == default || occurrence.Time.CompareTo(_counterLastTimes[target]) > 0;
+                    if (isNewTrigger)
+                    {
+                        _counterLastTimes[target] = occurrence.Time;
+                        _counterCounts[target]++;
+                        if (_counterCounts[target] == targetCount && !_counterEmitted[target])
+                        {
+                            _counterEmitted[target] = true;
+                            var reached = new ActivationOccurrence(ActivationOccurrenceKind.CounterReached, _nodes[target].Id, occurrence.Time, occurrence.Cause);
+                            values[target] = ActivationLatch.From(_nodes[target], reached);
+                            if (count == pending.Length) throw new ArgumentException("Activation fanout capacity exceeded.");
+                            pending[count++] = reached;
+                        }
+                    }
                 }
                 else
                 {
@@ -226,6 +481,30 @@ public sealed class ActivationNetwork
                     }
                 }
             }
+        }
+        // Every request routed this tick resolves at the boundary: Reset dominates, otherwise Set, otherwise memory holds.
+        for (var i = 0; i < _nodes.Length; i++)
+        {
+            if (_nodes[i].Kind != ActivationNodeKind.StateLatch) continue;
+            var current = values[i].Phase == ActivationPhase.Latched ? SimulationLatchPhase.On : SimulationLatchPhase.Off;
+            var next = (latchRequests[i] & StateLatchRequest.Reset) != 0 ? SimulationLatchPhase.Off :
+                (latchRequests[i] & StateLatchRequest.Set) != 0 ? SimulationLatchPhase.On : current;
+            if (next == current) continue;
+            values[i] = next == SimulationLatchPhase.On ? ActivationLatch.From(_nodes[i], latchSetBy[i]) : ActivationLatch.Clear(_nodes[i]);
+            if (eventBuffer.Length >= CuriousContraptions.Abstractions.EventRingBuffer.HeaderBytes)
+                CuriousContraptions.Abstractions.EventRingBuffer.Publish(eventBuffer, new CuriousContraptions.Abstractions.SimulationEventRecord(
+                    0, (ulong)boundary.Value * 8_333_333UL, CuriousContraptions.Abstractions.SimulationDomain.Signal,
+                    CuriousContraptions.Abstractions.SimulationEventKind.LatchSet, _nodes[i].Owner.Value, 0,
+                    P0: next == SimulationLatchPhase.On ? 1f : 0f, P1: 0f));
+        }
+        // A latch ActivationOut is a level: each level indicator mirrors its latch's settled value on the same boundary.
+        foreach (var edge in _edges)
+        {
+            var source = Slot(edge.Source);
+            if (_nodes[source].Kind != ActivationNodeKind.StateLatch) continue;
+            var target = Slot(edge.Target);
+            values[target] = values[source].Phase == ActivationPhase.Latched
+                ? ActivationLatch.From(_nodes[target], values[source].Occurrence) : ActivationLatch.Clear(_nodes[target]);
         }
         return new(new(values[.._nodes.Length]), new(timers[.._timers.Length]));
     }
@@ -261,20 +540,32 @@ public sealed class ActivationNetwork
             if (value.Phase == ActivationPhase.Clear) continue;
             var occurrence = value.Occurrence;
             ValidateOccurrence(occurrence, end, scene);
+            if (node.Kind == ActivationNodeKind.StateLatch &&
+                !_edges.ToArray().Any(edge => edge.Target == node.Id && edge.Input == WorkshopSocket.SetIn && edge.Source == occurrence.Emitter))
+                throw new ArgumentException("State latch memory is not owned by a routed Set.");
             if (node.Kind == ActivationNodeKind.ContactSource &&
                 (occurrence.Kind != ActivationOccurrenceKind.Contact || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.Trigger.Value))
                 throw new ArgumentException("Physical activation does not own its trigger.");
             if (node.Kind == ActivationNodeKind.OrientationSource &&
                 (occurrence.Kind != ActivationOccurrenceKind.Orientation || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.Sensor.Value))
                 throw new ArgumentException("Orientation activation does not own its sensor.");
-            if (node.Kind == ActivationNodeKind.Latch)
+            if (node.Kind == ActivationNodeKind.PassageSource &&
+                (occurrence.Kind != ActivationOccurrenceKind.Passage || occurrence.Emitter != node.Id || occurrence.Cause.Source.Value != node.Passage.Value))
+                throw new ArgumentException("Passage activation does not own its sensor.");
+            if (node.Kind == ActivationNodeKind.Counter &&
+                (occurrence.Kind != ActivationOccurrenceKind.CounterReached || occurrence.Emitter != node.Id))
+                throw new ArgumentException("Counter activation does not own its emission.");
+            if (node.Kind == ActivationNodeKind.Oscillator &&
+                (occurrence.Kind != ActivationOccurrenceKind.OscillatorTick || occurrence.Emitter != node.Id))
+                throw new ArgumentException("Oscillator activation does not own its emission.");
+            if (node.Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator)
             {
                 var expected = EarliestInput(node.Id, values);
                 if (expected != occurrence) throw new ArgumentException("Activation target differs from its routed source.");
             }
         }
         for (var i = 0; i < _nodes.Length; i++)
-            if (_nodes[i].Kind == ActivationNodeKind.Latch && values[i].Phase == ActivationPhase.Clear &&
+            if (_nodes[i].Kind is ActivationNodeKind.StickyFirstInput or ActivationNodeKind.LevelIndicator && values[i].Phase == ActivationPhase.Clear &&
                 EarliestInput(_nodes[i].Id, values) is not null)
                 throw new ArgumentException("Activation output was lost.");
 
@@ -309,17 +600,32 @@ public sealed class ActivationNetwork
         {
             ActivationOccurrenceKind.Contact => ActivationNodeKind.ContactSource,
             ActivationOccurrenceKind.Orientation => ActivationNodeKind.OrientationSource,
+            ActivationOccurrenceKind.Passage => ActivationNodeKind.PassageSource,
+            ActivationOccurrenceKind.CounterReached => ActivationNodeKind.Counter,
+            ActivationOccurrenceKind.OscillatorTick => ActivationNodeKind.Oscillator,
             _ => ActivationNodeKind.Timer
         };
         if (emitter < 0 || _nodes[emitter].Kind != expectedKind) throw new ArgumentException("Foreign activation emitter.");
         // The document allocates every physical identity once, so one source id names at most one trigger or sensor.
-        ContactTriggerDeclaration? trigger = null; OrientationSensorDeclaration? sensor = null;
+        ContactTriggerDeclaration? trigger = null; OrientationSensorDeclaration? sensor = null; PassageSensorDeclaration? passage = null;
         foreach (var candidate in scene.Triggers) if (candidate.Id.Value == occurrence.Cause.Source.Value) trigger = candidate;
         foreach (var candidate in scene.OrientationSensors) if (candidate.Id.Value == occurrence.Cause.Source.Value) sensor = candidate;
+        foreach (var candidate in _passageSensors) if (candidate.Id.Value == occurrence.Cause.Source.Value) passage = candidate;
+        var isOscillatorSource = false;
+        for (var i = 0; i < _nodes.Length; i++)
+        {
+            if (_nodes[i].Kind == ActivationNodeKind.Oscillator &&
+                (_nodes[i].Collider.Value != 0 ? _nodes[i].Collider.Value : _nodes[i].Id.Value) == occurrence.Cause.Source.Value &&
+                _nodes[i].Owner == occurrence.Cause.Body)
+            {
+                isOscillatorSource = true;
+                break;
+            }
+        }
         GpuBodyId colliderOwner;
         if (trigger is { } contact)
         {
-            if (occurrence.Kind == ActivationOccurrenceKind.Orientation || !contact.Targets.Contains(occurrence.Cause.Body) ||
+            if (occurrence.Kind == ActivationOccurrenceKind.Orientation || occurrence.Kind == ActivationOccurrenceKind.Passage || !contact.Targets.Contains(occurrence.Cause.Body) ||
                 occurrence.Cause.ApproachSpeed.Value < contact.Threshold.Value ||
                 (occurrence.Kind == ActivationOccurrenceKind.Contact && contact.Owner != _nodes[emitter].Owner))
                 throw new ArgumentException("Activation cause differs from the declared contact.");
@@ -327,17 +633,30 @@ public sealed class ActivationNetwork
         }
         else if (sensor is { } turned)
         {
-            if (occurrence.Kind == ActivationOccurrenceKind.Contact || turned.Body != occurrence.Cause.Body ||
+            if (occurrence.Kind == ActivationOccurrenceKind.Contact || occurrence.Kind == ActivationOccurrenceKind.Passage || turned.Body != occurrence.Cause.Body ||
                 !PhysicsDeclarationBounds.Zero(occurrence.Cause.ApproachSpeed.Value) ||
                 (occurrence.Kind == ActivationOccurrenceKind.Orientation && turned.Body != _nodes[emitter].Owner))
                 throw new ArgumentException("Activation cause differs from the declared orientation sensor.");
             colliderOwner = turned.Body;
         }
+        else if (passage is { } through)
+        {
+            if ((occurrence.Kind != ActivationOccurrenceKind.Passage && occurrence.Kind != ActivationOccurrenceKind.CounterReached) ||
+                (occurrence.Kind == ActivationOccurrenceKind.Passage && through.Frame != _nodes[emitter].Owner))
+                throw new ArgumentException("Activation cause differs from the declared passage sensor.");
+            colliderOwner = occurrence.Cause.Body;
+        }
+        else if (isOscillatorSource)
+        {
+            if (occurrence.Kind == ActivationOccurrenceKind.OscillatorTick && occurrence.Cause.Body != _nodes[emitter].Owner)
+                throw new ArgumentException("Activation cause differs from the declared oscillator.");
+            colliderOwner = occurrence.Cause.Body;
+        }
         else throw new ArgumentException("Activation cause names no declared source.");
         var dynamicTarget = false;
         foreach (var body in scene.Bodies)
             if (body.Id == occurrence.Cause.Body && body.Motion == RigidMotionKind.Dynamic) dynamicTarget = true;
-        if (!dynamicTarget) throw new ArgumentException("Activation cause target is not dynamic.");
+        if (!dynamicTarget && !isOscillatorSource) throw new ArgumentException("Activation cause target is not dynamic.");
         var owned = false;
         foreach (var collider in scene.Colliders)
             if (collider.Id == occurrence.Cause.Collider && collider.Body == colliderOwner) owned = true;
@@ -379,21 +698,70 @@ public static class WorkshopActivationCompiler
     {
         construction.Validate();
         var nodes = new List<ActivationNodeDeclaration>(); var edges = new List<ActivationEdge>();
+        var passageSensors = new List<PassageSensorDeclaration>();
         foreach (var instance in construction.Instances)
         {
             if (instance is WorkshopSwitch trigger)
                 nodes.Add(new(new(trigger.Id.Value), trigger.Id, ActivationNodeKind.ContactSource, WorkshopPhysicsCompiler.ContactTrigger(trigger.Id)));
             else if (instance is WorkshopLamp lamp)
-                nodes.Add(new(new(lamp.Id.Value), lamp.Id, ActivationNodeKind.Latch, default));
+                nodes.Add(new(new(lamp.Id.Value), lamp.Id, construction.Connections.Any(link => link.Domain == WorkshopConnectionDomain.Activation &&
+                    link.Target == lamp.Id && construction.Instances.Any(source => source.Id == link.Source && source is WorkshopLatch))
+                    ? ActivationNodeKind.LevelIndicator : ActivationNodeKind.StickyFirstInput, default));
             else if (instance is WorkshopDelay delay)
                 nodes.Add(new(new(delay.Id.Value), delay.Id, ActivationNodeKind.Timer, default, delay.Duration.Ticks(construction.Settings.Simulation)));
             // A Domino owns a node only while wired: its orientation sensor compiles under the same condition.
             else if (instance is WorkshopDomino domino && construction.Connections.HasSource(domino.Id))
                 nodes.Add(new(new(domino.Id.Value), domino.Id, ActivationNodeKind.OrientationSource, default, 0, WorkshopPhysicsCompiler.OrientationSensor(domino.Id)));
+            else if (instance is WorkshopBallDetector detector)
+            {
+                var sensorId = WorkshopPhysicsCompiler.PassageSensor(detector.Id);
+                nodes.Add(new(new(detector.Id.Value), detector.Id, ActivationNodeKind.PassageSource, default, 0, default, sensorId));
+                passageSensors.Add(new(sensorId, detector.Id, detector.Cell, detector.Local, detector.Rotation, new((Half)0.65), new((Half)0.02)));
+            }
+            else if (instance is WorkshopCounter counter)
+                nodes.Add(new(new(counter.Id.Value), counter.Id, ActivationNodeKind.Counter, default, 0, default, default, (uint)counter.TargetCount));
+            else if (instance is WorkshopLatch latch)
+                nodes.Add(new(new(latch.Id.Value), latch.Id, ActivationNodeKind.StateLatch, default));
+            else if (instance is WorkshopClock clock)
+            {
+                GpuBodyId powerSource = default;
+                foreach (var link in construction.Connections)
+                {
+                    if (link.Domain == WorkshopConnectionDomain.Electrical && link.Target == clock.Id && link.Input == WorkshopSocket.PowerIn)
+                    {
+                        if (construction.Instances.OfType<WorkshopBattery>().Any(b => b.Id == link.Source))
+                        {
+                            powerSource = link.Source;
+                            break;
+                        }
+                        var upstream = link.Source;
+                        while (upstream != default)
+                        {
+                            var battery = construction.Instances.OfType<WorkshopBattery>().FirstOrDefault(b => b.Id == upstream);
+                            if (battery.Id.Value != 0)
+                            {
+                                powerSource = battery.Id;
+                                break;
+                            }
+                            var nextUpstream = construction.Connections
+                                .Where(c => c.Domain == WorkshopConnectionDomain.Electrical && c.Target == upstream && c.Input == WorkshopSocket.PowerIn)
+                                .Select(c => c.Source)
+                                .FirstOrDefault();
+                            if (nextUpstream == default || nextUpstream == upstream) break;
+                            upstream = nextUpstream;
+                        }
+                        break;
+                    }
+                }
+                var first = WorkshopPhysicsCompiler.PartIdentities(clock.Id);
+                var colliderId = new GpuColliderId(first + 1);
+                var intervalTicks = (uint)clock.Ticks(construction.Settings.Simulation);
+                nodes.Add(new(new(clock.Id.Value), clock.Id, ActivationNodeKind.Oscillator, default, 0, default, default, 0, intervalTicks, powerSource, colliderId));
+            }
         }
         foreach (var link in construction.Connections)
-            if (link.Domain == WorkshopConnectionDomain.Activation) edges.Add(new(new(link.Source.Value), new(link.Target.Value)));
+            if (link.Domain == WorkshopConnectionDomain.Activation) edges.Add(new(new(link.Source.Value), new(link.Target.Value), link.Input));
         return new(nodes.ToArray(), edges.ToArray(), new WorkshopGpuProfile(construction.Settings.Simulation,
-            construction.Settings.Physical, new(1)).Substeps);
+            construction.Settings.Physical, new(1)).Substeps, passageSensors.ToArray());
     }
 }

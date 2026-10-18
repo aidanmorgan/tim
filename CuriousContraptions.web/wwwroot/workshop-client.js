@@ -10,7 +10,70 @@ function owner(id) {
 }
 function sequence(bytes) {
     if (!(bytes instanceof Uint8Array) || bytes.length < 8) throw new Error('Invalid command identity.');
-    return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getBigUint64(0, true);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    if (bytes.length === 8) return view.getBigUint64(0, true);
+    if (bytes.length >= 12) {
+        const rootPos = view.getUint32(0, true);
+        if (rootPos >= 4 && rootPos <= bytes.length - 4) {
+            const vtableOffset = view.getInt32(rootPos, true);
+            const vtablePos = rootPos - vtableOffset;
+            if (vtableOffset > 0 && vtablePos >= 0 && vtablePos <= rootPos) {
+                const vtableSize = view.getUint16(vtablePos, true);
+                const tableSize = view.getUint16(vtablePos + 2, true);
+                if (vtableSize >= 6 && tableSize >= 4 && rootPos + tableSize <= bytes.length) {
+                    const fieldOffset = view.getUint16(vtablePos + 4, true);
+                    if (fieldOffset >= 4 && fieldOffset + 8 <= tableSize) {
+                        return view.getBigUint64(rootPos + fieldOffset, true);
+                    }
+                }
+            }
+        }
+    }
+    return view.getBigUint64(0, true);
+}
+function extractReadIdentity(bytes, responseAbi) {
+    if (bytes.length >= 12) {
+        const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+        const rootPos = view.getUint32(0, true);
+        if (rootPos >= 4 && rootPos <= bytes.length - 4) {
+            const vtableOffset = view.getInt32(rootPos, true);
+            const vtablePos = rootPos - vtableOffset;
+            if (vtableOffset > 0 && vtablePos >= 0 && vtablePos <= rootPos) {
+                const vtableSize = view.getUint16(vtablePos, true);
+                let publication = 0n;
+                if (vtableSize >= 24) {
+                    const pubFieldOffset = view.getUint16(vtablePos + 22, true);
+                    if (pubFieldOffset > 0 && rootPos + pubFieldOffset + 8 <= bytes.length) {
+                        publication = view.getBigUint64(rootPos + pubFieldOffset, true);
+                    }
+                }
+                let sessionBytes = null;
+                if (vtableSize >= 32) {
+                    const sessFieldOffset = view.getUint16(vtablePos + 30, true);
+                    if (sessFieldOffset > 0 && rootPos + sessFieldOffset + 4 <= bytes.length) {
+                        const vecOffset = view.getInt32(rootPos + sessFieldOffset, true);
+                        const vecPos = rootPos + sessFieldOffset + vecOffset;
+                        if (vecPos >= 0 && vecPos + 4 <= bytes.length) {
+                            const vecLen = view.getUint32(vecPos, true);
+                            if (vecLen === 16 && vecPos + 4 + 16 <= bytes.length) {
+                                sessionBytes = bytes.subarray(vecPos + 4, vecPos + 4 + 16);
+                            }
+                        }
+                    }
+                }
+                if (sessionBytes) {
+                    const id = new Uint8Array(24);
+                    id.set(sessionBytes, 0);
+                    new DataView(id.buffer, id.byteOffset, 24).setBigUint64(16, publication, true);
+                    return id;
+                }
+            }
+        }
+    }
+    const id = new Uint8Array(24);
+    id.set(bytes.subarray(responseAbi[1], responseAbi[1] + 16));
+    id.set(bytes.subarray(responseAbi[2], responseAbi[2] + 8), 16);
+    return id;
 }
 function updateReliableStall(client, current) {
     let oldest = 0;
@@ -101,13 +164,14 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
         const poseSeqView = poseRing ? new BigInt64Array(poseRing) : undefined;
         const poseDataView = poseRing ? new DataView(poseRing) : undefined;
         const poseFloatView = poseRing ? new Float32Array(poseRing) : undefined;
+        const eventRing = typeof SharedArrayBuffer !== 'undefined' ? new SharedArrayBuffer(65600) : undefined;
         const client = { displayRate, worker: undefined, pending: new Map(), acknowledgements: new Map(),
             failure: null, states: { ready, backpressure, timedOut, indeterminate, recoveryBlocked },
             serviceCallback: service, service: undefined,
             state: ready, lastReply: now(), stalled: false, candidateTimedOut: false,
             identity: undefined, clockAbi: { clockVersion, clockProfile, peerBytes, probeBytes, replyBytes, diagnosticBytes, browserRole, masterRole }, captureMode, beginMemory, receiveMemory, releaseMemory,
             memory: undefined,
-            poseRing, poseSeqView, poseDataView, poseFloatView,
+            poseRing, poseSeqView, poseDataView, poseFloatView, eventRing,
             observations: captureMode === 2 ? new Uint8Array(128 * diagnosticBytes) : undefined, observationNext: 0, observationCount: 0, observationSequence: 0n,
             presentations: captureMode === 2 ? new Uint8Array(32 * 352) : undefined, presentationSequence: 0n };
         const worker = new Worker(new URL('./simulation/worker.js', document.baseURI), { type: 'module' });
@@ -128,6 +192,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                 const bootstrap = new Uint8Array(bootstrapBytes);
                 const postData = { bootstrap, captureMode };
                 if (client.poseRing) postData.poseRing = client.poseRing;
+                if (client.eventRing) postData.eventRing = client.eventRing;
                 worker.postMessage(postData, [bootstrap.buffer]);
             }
             animation.onerror = error => fail(client, new Error(error.message || 'Animation worker failed.'));
@@ -248,9 +313,7 @@ export async function create(states, bootstrapBytes, clockAbi, responseAbi, capt
                     } else if (message.read instanceof Uint8Array) {
                         // Complete C# validation/admission precedes return; JS retains no pose history.
                         deliver(client, message.read, received, physicalRead);
-                        const receipt = new Uint8Array(24);
-                        receipt.set(message.read.subarray(responseAbi[1], responseAbi[1] + 16));
-                        receipt.set(message.read.subarray(responseAbi[2], responseAbi[2] + 8), 16);
+                        const receipt = extractReadIdentity(message.read, responseAbi);
                         worker.postMessage({ readAcknowledged: receipt }, [receipt.buffer]);
                     } else if (message.failure || message.rejected) {
                         throw new Error(message.detail ?? 'Worker rejected its transport envelope.');
@@ -551,7 +614,7 @@ export async function loadConstruction(expectedBytes) {
             transaction.oncomplete = () => {
                 const bytes = request.result;
                 if (bytes === undefined) { resolve(''); return; }
-                if (!(bytes instanceof Uint8Array) || bytes.length !== expectedBytes) {
+                if (!(bytes instanceof Uint8Array) || (expectedBytes > 0 && bytes.length !== expectedBytes)) {
                     reject(new Error('Unsupported construction save.')); return;
                 }
                 resolve(btoa(Array.from(bytes, value => String.fromCharCode(value)).join('')));
@@ -668,6 +731,67 @@ export function readAnimationSamplesForTarget(id = 1, targetId = 2) {
     return client.animationSamplesByTarget.get(targetId.toString()) || [];
 }
 
+export function createEventConsumer(id = 1, domainMask = 0xFFFFFFFF) {
+    const client = clients.get(id);
+    let startCursor = 0n;
+    if (client && client.eventRing) {
+        const headerU64 = new BigUint64Array(client.eventRing, 0, 8);
+        startCursor = Atomics.load(headerU64, 1);
+    }
+    return { id, cursor: startCursor, domainMask };
+}
+
+export function readEventRing(id, consumer, maxEvents = 100) {
+    const client = clients.get(id);
+    if (!client || !client.eventRing) return [];
+    const headerU32 = new Uint32Array(client.eventRing, 0, 16);
+    const headerU64 = new BigUint64Array(client.eventRing, 0, 8);
+    const capacity = headerU32[0] || 1024;
+    const writeSeq = Atomics.load(headerU64, 1);
+
+    if (consumer.cursor > writeSeq) consumer.cursor = writeSeq;
+    if (writeSeq - consumer.cursor > BigInt(capacity)) {
+        consumer.cursor = writeSeq - BigInt(capacity);
+    }
+
+    const events = [];
+    const ringDataView = new DataView(client.eventRing);
+    const capMask = BigInt(capacity - 1);
+
+    while (consumer.cursor < writeSeq && events.length < maxEvents) {
+        const nextSeq = consumer.cursor + 1n;
+        const slotIdx = Number((nextSeq - 1n) & capMask);
+        const slotOffset = 64 + slotIdx * 64;
+
+        const slotSeq = ringDataView.getBigUint64(slotOffset, true);
+        if (slotSeq !== nextSeq) break;
+
+        const domain = ringDataView.getUint32(slotOffset + 16, true);
+        if ((domain & consumer.domainMask) !== 0) {
+            events.push({
+                sequence: slotSeq,
+                timestampNs: ringDataView.getBigUint64(slotOffset + 8, true),
+                domain,
+                eventKind: ringDataView.getUint32(slotOffset + 20, true),
+                sourceBodyId: ringDataView.getBigUint64(slotOffset + 24, true).toString(),
+                targetBodyId: ringDataView.getBigUint64(slotOffset + 32, true).toString(),
+                impulse: ringDataView.getFloat32(slotOffset + 40, true),
+                contactX: ringDataView.getFloat32(slotOffset + 44, true),
+                contactY: ringDataView.getFloat32(slotOffset + 48, true),
+                contactZ: ringDataView.getFloat32(slotOffset + 52, true),
+                value: ringDataView.getFloat32(slotOffset + 56, true),
+            });
+        }
+        consumer.cursor = nextSeq;
+    }
+    return events;
+}
+
+export function hasEventRing(id = 1) {
+    const client = clients.get(id);
+    return Boolean(client && client.eventRing);
+}
+
 if (typeof globalThis !== 'undefined') {
     globalThis.WorkshopPoseRing = { readPoseSlot, readLatestPoseSlot, hasPoseRing };
     globalThis.WorkshopAnimation = {
@@ -677,5 +801,10 @@ if (typeof globalThis !== 'undefined') {
         readAllAnimationSamples,
         readAnimationSamplesForTarget,
         decodeFloat16
+    };
+    globalThis.WorkshopEventRing = {
+        createEventConsumer,
+        readEventRing,
+        hasEventRing
     };
 }

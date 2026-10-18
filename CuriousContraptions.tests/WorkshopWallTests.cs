@@ -69,26 +69,52 @@ public sealed class WorkshopWallTests
     [Fact]
     public void SerializedInvalidDimensionsAndPaddingRejectWithoutClamping()
     {
-        var valid = WorkshopSaveCodec.Encode(Saved(WallDimensions.Default));
-        foreach (var offset in new[] { 104, 106, 108 })
-            foreach (var value in new[] { (Half)0, (Half)(-1), (Half)9, Half.NaN, Half.PositiveInfinity })
+        var saved = Saved(WallDimensions.Default);
+        var valid = WorkshopSaveCodec.Encode(saved);
+        foreach (var value in new[] { (Half)0, (Half)(-1), (Half)9, Half.NaN, Half.PositiveInfinity })
+        {
+            foreach (var invalidDimensions in new[]
             {
-                var changed = (byte[])valid.Clone();
-                BinaryPrimitives.WriteUInt16LittleEndian(changed.AsSpan(24 + WorkshopWire.ConstructionHeaderBytes + offset),
-                    BitConverter.HalfToUInt16Bits(value));
-                Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(changed));
+                new WallDimensions(new(value), WallDimensions.Default.Height, WallDimensions.Default.Thickness),
+                new WallDimensions(WallDimensions.Default.Width, new(value), WallDimensions.Default.Thickness),
+                new WallDimensions(WallDimensions.Default.Width, WallDimensions.Default.Height, new(value))
+            })
+            {
+                var malformedConstruction = saved.Construction with {
+                    Instances = new WorkshopInstances(saved.Construction.Instances[0] switch {
+                        WorkshopWall w => w with { Dimensions = invalidDimensions },
+                        var other => other
+                    })
+                };
+                var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+                var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, malformedConstruction, validate: false);
+                CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+                CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+                CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+                CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
+                CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+                var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+                builder.Finish(end.Value);
+                Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
             }
-        var padding = (byte[])valid.Clone(); padding[24 + WorkshopWire.ConstructionHeaderBytes + 110] = 1;
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
+        }
         Assert.Equal(valid, WorkshopSaveCodec.Encode(Saved(WallDimensions.Default)));
     }
 
     [Fact]
     public void PreviousSaveAndWireSchemasRejectRatherThanReinterpretNewKind()
     {
-        var save = WorkshopSaveCodec.Encode(Saved(WallDimensions.Default));
-        BinaryPrimitives.WriteUInt32LittleEndian(save.AsSpan(4), 3);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(save));
+        var saved = Saved(WallDimensions.Default);
+        var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, saved.Construction);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, 3);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, saved.NextBodyId.Value);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+        var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+        builder.Finish(end.Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Saved(WallDimensions.Default).Construction, Session: new(1, 2), Cadence: new(1), Projection: new(1));
         var bytes = WorkshopWire.Encode(command);
@@ -100,8 +126,8 @@ public sealed class WorkshopWallTests
     public void WallPopulationPuzzleAndForeignPortsReject()
     {
         var wall = Wall(WallDimensions.Default);
-        Assert.Empty(WorkshopPorts.For(WorkshopPartKind.Wall).ToArray());
-        Assert.False(WorkshopPorts.Has(WorkshopPartKind.Wall, WorkshopSocket.ActivationIn,
+        Assert.Empty(WorkshopPorts.For(PartId.Wall).ToArray());
+        Assert.False(WorkshopPorts.Has(PartId.Wall, WorkshopSocket.ActivationIn,
             WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
         // Free play has no per-kind wall count; only the compiled table capacities limit the population.
         new WorkshopInstances(wall, wall with { Id = new(3) }).Validate();
@@ -132,7 +158,7 @@ public sealed class WorkshopWallTests
         Assert.Equal(13, scene.Colliders.Length);
         Assert.Equal(8, scene.Materials.Length);
         Assert.Equal(33, PhysicsSceneDeclaration.BodyCapacity);
-        Assert.Equal(64, PhysicsSceneDeclaration.ColliderCapacity);
+        Assert.Equal(2048, PhysicsSceneDeclaration.ColliderCapacity);
         Assert.Equal(33, PhysicsSceneDeclaration.MaterialCapacity);
     }
 }
@@ -144,10 +170,10 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
     public void ActualResourceThreeAxesArtworkAndProjectionFollowCanonicalFullPose()
     {
         var registry = new PartRegistry(); registry.Discover();
-        var definition = registry.Definitions[WorkshopPartKind.Wall];
+        var definition = registry.Definitions[PartId.Wall];
         Assert.Empty(definition.Parameters);
-        Assert.Equal(WallDimensions.Default, definition.Wall!.Capture());
-        var part = Assert.IsType<WallPart>(registry.Create(WorkshopPartKind.Wall));
+        Assert.Single(definition.Colliders);
+        var part = Assert.IsAssignableFrom<MachinePart>(registry.Create(PartId.Wall));
         try
         {
             godot.Tree.Root.AddChild(part);
@@ -158,7 +184,7 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
             var position = part.Position; var rotation = part.Quaternion;
             foreach (var dimensions in new[] { WallDimensions.Default, WallDimensions.Minimum, WallDimensions.Maximum })
             {
-                part.ApplyDimensions(dimensions);
+                part.ApplyWallDimensions(dimensions);
                 Assert.Equal(position, part.Position); Assert.Equal(rotation, part.Quaternion);
                 Assert.Equal(part.Dimensions, part.Visual.Scale);
                 Assert.Equal(part.Dimensions.Length() * .5f + .025f, ring.OuterRadius);
@@ -179,11 +205,11 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
                 }
             }
             part.SetDimensions(new(float.MaxValue, float.MaxValue, float.MaxValue));
-            Assert.Equal(WallDimensions.Maximum, part.CanonicalDimensions);
+            Assert.Equal(WallDimensions.Maximum, part.WallDimensions);
             Assert.Throws<ArgumentException>(() => part.SetDimensions(new(float.NaN, 2, .25f)));
-            Assert.Equal(WallDimensions.Maximum, part.CanonicalDimensions);
+            Assert.Equal(WallDimensions.Maximum, part.WallDimensions);
             Assert.Equal(position, part.Position); Assert.Equal(rotation, part.Quaternion);
-            part.ApplyDimensions(WallDimensions.Default);
+            part.ApplyWallDimensions(WallDimensions.Default);
             Assert.Equal(part.Dimensions.Length() * .5f + .025f, ring.OuterRadius);
         }
         finally { part.GetParent()?.RemoveChild(part); part.Free(); }
@@ -192,15 +218,15 @@ public sealed class WorkshopWallResourceTests(NativeSceneFixture godot)
     public void ExistingRampSelectionRingTracksResizeAndCanonicalRestore()
     {
         var registry = new PartRegistry(); registry.Discover();
-        var ramp = Assert.IsType<RampPart>(registry.Create(WorkshopPartKind.Ramp));
+        var ramp = Assert.IsAssignableFrom<MachinePart>(registry.Create(PartId.Ramp));
         try
         {
             godot.Tree.Root.AddChild(ramp);
             var ring = ramp.GetChildren().OfType<MeshInstance3D>().Select(mesh => mesh.Mesh).OfType<TorusMesh>().Single();
             var original = ring.OuterRadius;
-            ramp.ApplyDimensions(new(new((Half)2), new((Half)1)));
+            ramp.ApplyRampDimensions(new(new((Half)2), new((Half)1)));
             Assert.Equal(1.025f, ring.OuterRadius);
-            ramp.ApplyDimensions(RampDimensions.Default);
+            ramp.ApplyRampDimensions(RampDimensions.Default);
             Assert.Equal(original, ring.OuterRadius);
         }
         finally { ramp.GetParent()?.RemoveChild(ramp); ramp.Free(); }

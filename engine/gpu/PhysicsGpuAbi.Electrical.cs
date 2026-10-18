@@ -20,22 +20,18 @@ public static partial class PhysicsGpuAbi
         for (var i = 0; i < scene.Electrical.Sources.Length; i++)
         {
             var source = scene.Electrical.Sources[i];
-            var record = data.Slice(ElectricalSourcesOffset + i * ElectricalSourceBytes, ElectricalSourceBytes);
+            var record = data.Slice(scene.Layout.GetElectricalSourceOffset(source.Id), ElectricalSourceBytes);
             U64(record, 0, source.Id.Value);
-            var body = 0;
-            while (scene.Bodies[body].Id != source.Owner) body++;
-            U32(record, 8, (uint)body); U32(record, 12, (uint)source.Enabled);
+            U32(record, 8, (uint)scene.Layout.GetBodySlot(source.Owner)); U32(record, 12, (uint)source.Enabled);
             WriteEnergy(record, 16, source.Capacity.Value); WriteEnergy(record, 20, source.MaximumPower.Value);
             WriteEnergy(record, 24, source.InitialEnergy.Value); WriteEnergy(record, 32, source.InitialEnergy.Value);
             U32(record, 36, (uint)source.Enabled);
         }
         for (var i = 0; i < scene.Electrical.Bindings.Length; i++)
         {
-            var binding = scene.Electrical.Bindings[i]; var source = 0; var storage = 0;
-            while (scene.Electrical.Sources[source].Id != binding.Source) source++;
-            while (scene.ContactWorks[storage].Id != binding.Storage) storage++;
+            var binding = scene.Electrical.Bindings[i];
             var record = data.Slice(ElectricalBindingsOffset + i * ElectricalBindingBytes, ElectricalBindingBytes);
-            U32(record, 0, (uint)source); U32(record, 4, (uint)storage);
+            U32(record, 0, (uint)scene.Layout.GetElectricalSourceSlot(binding.Source)); U32(record, 4, (uint)scene.Layout.GetContactWorkSlot(binding.Storage));
         }
     }
 

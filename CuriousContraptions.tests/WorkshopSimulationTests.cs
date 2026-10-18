@@ -722,7 +722,7 @@ public sealed class WorkshopSimulationTests
             Admissions.Add(new(construction, epoch, sequence, completion));
             return new(completion.Task);
         }
-        public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead source, CommandSequence sequence)
+        public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead source, CommandSequence sequence, WorkshopTickControls controls)
         {
             var completion = new TaskCompletionSource<WorkshopGpuCandidate>();
             _advances.Add((source, sequence, completion));

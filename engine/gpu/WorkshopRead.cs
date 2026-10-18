@@ -28,8 +28,10 @@ public readonly partial record struct WorkshopRead
         if (!first.Bodies.HasSameBits(second.Bodies) ||
             first.Captures.Count != second.Captures.Count || first.Activations.Count != second.Activations.Count ||
             first.Timers.Count != second.Timers.Count || !first.ContactWorks.HasSameBits(second.ContactWorks) || !first.Electrical.HasSameBits(second.Electrical)) return false;
-        if ((first.Motion is null) != (second.Motion is null) ||
-            (first.Motion is { } motion && !motion.Bytes.SequenceEqual(second.Motion!.Bytes))) return false;
+        if (first.Motion is { } m1 && second.Motion is { } m2)
+        {
+            if (!m1.Bytes.SequenceEqual(m2.Bytes)) return false;
+        }
         for (var i = 0; i < first.Captures.Count; i++)
         {
             var left = first.Captures[i]; var right = second.Captures[i];

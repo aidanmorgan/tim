@@ -17,9 +17,9 @@ public static partial class PhysicsGpuAbi
         for (var i = 0; i < scene.Prismatics.Length; i++)
         {
             var value = scene.Prismatics[i];
-            var record = data.Slice(PrismaticRecordsOffset + i * PrismaticBytes, PrismaticBytes);
+            var record = data.Slice(scene.Layout.GetPrismaticOffset(value.Id.Value), PrismaticBytes);
             U64(record, 0, value.Id.Value);
-            U32(record, 8, BodySlot(scene, value.BodyA)); U32(record, 12, BodySlot(scene, value.BodyB));
+            U32(record, 8, (uint)scene.Layout.GetBodySlot(value.BodyA)); U32(record, 12, (uint)scene.Layout.GetBodySlot(value.BodyB));
             WriteConstraintFrame(record, 16, value.FrameA); WriteConstraintFrame(record, 44, value.FrameB);
             WriteEnergy(record, 72, value.Lower); WriteEnergy(record, 76, value.Upper);
             WriteEnergy(record, 80, value.Stiffness); WriteEnergy(record, 84, value.Damping);

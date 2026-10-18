@@ -4,6 +4,7 @@
     <BuildType Name="Editor" />
     <BuildType Name="Release" />
   </Configurations>
+  <Project Path="CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
   <Project Path="CuriousContraptions.2dog/CuriousContraptions.2dog.csproj" />
   <Project Path="CuriousContraptions.csproj" />
   <Project Path="CuriousContraptions.tests/CuriousContraptions.tests.csproj" />

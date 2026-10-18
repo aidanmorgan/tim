@@ -10,6 +10,19 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.mjs';
 import { WorkshopDriver, type AnimationSampleRecord, type WorkshopBodyPose } from './workshop-driver.ts';
+import { decodeWorkshopResponse, type BodyRead, type WorkshopResponse } from './workshop-wire.ts';
+
+function bodyState(b: BodyRead) {
+    return {
+        id: b.id(),
+        cell: { x: b.cell()!.x(), y: b.cell()!.y(), z: b.cell()!.z() },
+        local: { x: b.local()!.x(), y: b.local()!.y(), z: b.local()!.z() },
+        rotation: { x: b.rotation()!.x(), y: b.rotation()!.y(), z: b.rotation()!.z(), w: b.rotation()!.w() },
+        com: { x: b.com()!.x(), y: b.com()!.y(), z: b.com()!.z() },
+        velocity: { x: b.velocity()!.x(), y: b.velocity()!.y(), z: b.velocity()!.z() },
+        angularVelocity: { x: b.angularVelocity()!.x(), y: b.angularVelocity()!.y(), z: b.angularVelocity()!.z() },
+    };
+}
 
 // domino_effect authored identities: ball 1, end Domino 2, lamp 3; placed tiles receive 4..7 in placement order.
 const BALL_ID = '1', END_ID = '2';
@@ -101,30 +114,31 @@ async function watchCascade(driver: WorkshopDriver, ids: string[], timeoutMs: nu
 describe('CAT-023b: Domino cascade mechanics & orientation-threshold sensor', () => {
     let driver: WorkshopDriver;
     const errors: string[] = [];
-    const reads: Buffer[] = [];
-    let authoredEnd: Buffer;
+    const reads: WorkshopResponse[] = [];
+    let authoredEnd: ReturnType<typeof bodyState> | undefined;
     function assertEndRestored(label: string): void {
         const read = reads.at(-1);
         assert.ok(read, `${label}: actual committed read exists`);
-        assert.equal(read.readBigUInt64LE(24), 0n, `${label}: initial physical tick`);
-        let end: Buffer | undefined;
-        for (let i = 0; i < read[104]; i++) {
-            const body = read.subarray(128 + i * 80, 128 + (i + 1) * 80);
-            if (body.readBigUInt64LE(0) === BigInt(END_ID)) end = body;
+        assert.equal(read.tick(), 0n, `${label}: initial physical tick`);
+        let end: BodyRead | undefined;
+        for (let i = 0; i < read.bodiesLength(); i++) {
+            const body = read.bodies(i)!;
+            if (body.id() === BigInt(END_ID)) end = body;
         }
         assert.ok(end, `${label}: locked end body exists`);
-        assert.deepEqual([end.readFloatLE(32), end.readFloatLE(36), end.readFloatLE(40), end.readFloatLE(44)], [0, 0, 0, 1]);
-        assert.equal(Math.fround((end.readInt32LE(8) + end.readFloatLE(20)) / 16), END_X);
-        assert.equal(end.readInt32LE(16), 0); assert.equal(end.readFloatLE(28), 0);
-        if (authoredEnd) assert.deepEqual(end, authoredEnd, `${label}: complete authored body restored byte-for-byte`);
-        else authoredEnd = Buffer.from(end);
+        assert.deepEqual([end.rotation()!.x(), end.rotation()!.y(), end.rotation()!.z(), end.rotation()!.w()], [0, 0, 0, 1]);
+        assert.equal(Math.fround((end.cell()!.x() + end.local()!.x()) / 16), END_X);
+        assert.equal(end.cell()!.z(), 0); assert.equal(end.local()!.z(), 0);
+        const state = bodyState(end);
+        if (authoredEnd) assert.deepEqual(state, authoredEnd, `${label}: complete authored body restored byte-for-byte`);
+        else authoredEnd = state;
     }
 
     before(async () => {
         driver = await WorkshopDriver.launch();
         driver.page.on('console', (msg: ConsoleMessage) => {
             const text = msg.text();
-            if (text.startsWith('CCGPU ')) reads.push(Buffer.from(text.slice(6), 'base64'));
+            if (text.startsWith('CCGPU ')) reads.push(decodeWorkshopResponse(Buffer.from(text.slice(6), 'base64')));
             if (isWorkshopConsoleFailure(msg.type(), text)) errors.push(text);
         });
         driver.page.on('pageerror', (error: Error) => errors.push(error.message));

@@ -29,7 +29,7 @@ public partial class Workshop : Node3D
     private HSlider _precision = null!;
     private CheckButton _friction = null!;
     private MachinePart? _selected;
-    private WorkshopPartKind? _tool;
+    private PartId? _tool;
     private bool _dragging, _dragMoved, _orbiting, _inRun;
     private WorkshopSimulationPhase _displayedWorkshopPhase;
     private WorkshopTransportState _displayedTransportState = WorkshopTransportState.Ready;
@@ -45,8 +45,11 @@ public partial class Workshop : Node3D
     private const int WallAndBumperIndex = 6;
     private const int SpringForwardIndex = 7;
     private const int ReadyToReboundIndex = 8;
+    private const int ClearPipeIndex = 9;
+    private const int GentleBendIndex = 10;
+    private const int QuarterBendIndex = 11;
     private GpuBodyId _nextId = new(1);
-    private IReadOnlyDictionary<WorkshopPartKind, PartAllowance> _inventory = new Dictionary<WorkshopPartKind, PartAllowance>();
+    private IReadOnlyDictionary<PartId, PartAllowance> _inventory = new Dictionary<PartId, PartAllowance>();
     private readonly List<WorkshopConstruction> _undo = new();
     private bool _gpuPending = true;
     private bool _workshopUiRemoved;
@@ -69,6 +72,9 @@ public partial class Workshop : Node3D
         _picker.AddItem("Build the rebound");
         _picker.AddItem("Spring forward");
         _picker.AddItem("Ready to rebound");
+        _picker.AddItem("Through the looking tube");
+        _picker.AddItem("A gentle turn");
+        _picker.AddItem("Around the corner");
         PresentMode();
         _picker.Select(FreeWorkshopIndex);
         try { await World.InitializeWorkshop(); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }
@@ -97,12 +103,12 @@ public partial class Workshop : Node3D
         AddChild(new DirectionalLight3D { RotationDegrees = new(-10, 145, 0), LightColor = new("#b7ddea"), LightEnergy = .45f });
         var stage = new Node3D { Name = "Workbench" };
         AddChild(stage);
-        PartArt.Box(stage, Workbench.Base.Half * 2, new("#b77c42"), Workbench.Base.At);
-        PartArt.Box(stage, Workbench.Deck.Half * 2, new("#ead39b"), Workbench.Deck.At);
+        WorkshopArtwork.Box(stage, Workbench.Base.Half * 2, new("#b77c42"), Workbench.Base.At);
+        WorkshopArtwork.Box(stage, Workbench.Deck.Half * 2, new("#ead39b"), Workbench.Deck.At);
         // A toy workbench, not a permanent drafting grid.
         foreach (var x in new[] { -8f, 8f })
             foreach (var z in new[] { -4.5f, 4.5f })
-                PartArt.Sphere(stage, .09f, new("#9c743f"), new(x, -.43f, z));
+                WorkshopArtwork.Sphere(stage, .09f, new("#9c743f"), new(x, -.43f, z));
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Near = .1f, Far = 100 };
         AddChild(_camera);
         UpdateCamera();
@@ -375,18 +381,18 @@ public partial class Workshop : Node3D
             _palette.AddChild(button);
         }
     }
-    private PartAllowance Remaining(WorkshopPartKind kind) => _inventory.GetValueOrDefault(kind, PartAllowance.None)
-        .Less(World.Parts.Count(p => !p.Locked && p.Definition.WorkshopKind == kind));
-    private void ChooseTool(WorkshopPartKind kind)
+    private PartAllowance Remaining(PartId id) => _inventory.GetValueOrDefault(id, PartAllowance.None)
+        .Less(World.Parts.Count(p => !p.Locked && p.Definition.PartId == id));
+    private void ChooseTool(PartId id)
     {
         if (!CanEdit) return;
         ClearPreview();
         _previewOrientation = CanonicalRotation.Identity;
         _placementHeight = new((Half)(3));
-        _tool = kind;
+        _tool = id;
         Select(null);
-        _detail.Text = World.Registry.Definitions[kind].Title;
-        CreatePreview(kind);
+        _detail.Text = World.Registry.Definitions[id].Title;
+        CreatePreview(id);
         _status.Text = "Click to place. Escape cancels.";
     }
     private void Select(MachinePart? part)
@@ -421,6 +427,7 @@ public partial class Workshop : Node3D
             if (mouse.ButtonIndex == MouseButton.Right) { _orbiting = mouse.Pressed; if (_orbiting) { _buildView = false; RefreshLayerAppearance(); } }
             if (mouse.Pressed && mouse.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
             {
+                if (mouse.Position.X < 260 || mouse.Position.X > 1000) return;
                 _zoom = Mathf.Clamp(_zoom + (mouse.ButtonIndex == MouseButton.WheelUp ? -.6f : .6f), 8, 22);
                 UpdateCamera();
             }
@@ -512,8 +519,8 @@ public partial class Workshop : Node3D
             var chosen = _tool.Value;
             var placedId = _nextId;
             var proposed = World.Construction.WithInstance(World.CaptureInstance(chosen, placedId, position, rotation,
-                _preview is RampPart ramp ? ramp.CanonicalDimensions : null,
-                _preview is WallPart wall ? wall.CanonicalDimensions : null));
+                _preview?.RampDimensions,
+                _preview?.WallDimensions));
             var accepted = await SubmitConstruction(proposed);
             if (_workshopUiRemoved) return;
             if (!accepted) { _undo.RemoveAt(_undo.Count - 1); return; }
@@ -744,7 +751,13 @@ public partial class Workshop : Node3D
 
     private void ShowHint()
     {
-        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.SpringForward
+        _hint.Text = World.Construction.Puzzle.Id == WorkshopPuzzleId.QuarterBend
+            ? "Point one mouth upward and the other toward the left-hand basket. The curve redirects motion, but does not add speed."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.GentleBend
+            ? "Turn the first mouth upward under the ball. The second mouth sends it down and left; gravity carries it through the curve."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.ClearPipe
+            ? "Tilt the tube downhill toward the basket. Its cream mouths are open; the clear walls keep the ball inside without adding speed."
+            : World.Construction.Puzzle.Id == WorkshopPuzzleId.SpringForward
             ? "Tilt the springboard toward the receiver. Let the falling ball compress it, or add initial compression near the ball for a finite launch."
             : World.Construction.Puzzle.Id == WorkshopPuzzleId.ReadyToRebound
             ? "The compressed springboard releases when Run begins. Place the receiver in the ball’s path."
@@ -757,9 +770,9 @@ public partial class Workshop : Node3D
             : World.Construction.Puzzle.Id == WorkshopPuzzleId.FirstPrinciples
             ? "Start with a gentle slope below the ball. Use the second ramp to continue the journey toward the receiver."
             : World.Construction.Puzzle.Id == WorkshopPuzzleId.DelayedSignal
-                ? "Connect switch → delay → lamp. A trigger starts the one-second countdown; further triggers are ignored until Reset."
+                ? "Connect the switch to the delay, then the delay to the lamp. A trigger starts the one-second countdown; further triggers are ignored until Reset."
                 : World.Construction.Puzzle.Id == WorkshopPuzzleId.DominoEffect
-                    ? "Stand four tiles between the ball and the fixed end domino, one metre apart, so each falling tile strikes the next. Connect the end domino → lamp."
+                    ? "Stand four tiles between the ball and the fixed end domino, one metre apart, so each falling tile strikes the next. Connect the end domino to the lamp."
                     : "Place the Basketball at two different heights and compare its fall.";
         if (_hint.Visible) HideHint();
         else { _hint.Visible = true; RevealHint(); }
@@ -801,7 +814,7 @@ public partial class Workshop : Node3D
         _gpuPending = true; RefreshPalette();
         try
         {
-            var encoded = await BrowserWorkshopSaveStore.Load(WorkshopSaveCodec.ByteLength);
+            var encoded = await BrowserWorkshopSaveStore.Load(0);
             if (_workshopUiRemoved) return;
             if (encoded.Length == 0) { _status.Text = "No construction has been saved in this browser."; return; }
             var saved = WorkshopSaveCodec.Decode(Convert.FromBase64String(encoded));

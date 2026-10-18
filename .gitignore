@@ -7,6 +7,7 @@ anvil/witness/.lock
 build/
 .DS_Store
 *.tmp
+node_modules/
 **/bin/
 **/obj/
 **/AppBundle/

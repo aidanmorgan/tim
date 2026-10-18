@@ -70,14 +70,14 @@ public partial class MachineWorld
     }
 
     /// <summary>Any ball kind: the catalogue resource's bits are captured and must equal the kind's declared material.</summary>
-    public WorkshopBall CaptureBall(WorkshopPartKind kind, GpuBodyId id, Vector3 position, Quaternion rotation)
+    public WorkshopBall CaptureBall(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation)
     {
-        if (kind is not (WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall) || !Registry.Definitions.TryGetValue(kind, out var definition))
+        if (!Registry.Definitions.TryGetValue(id, out var definition))
             throw new ArgumentException("Unsupported ball kind.");
-        var material = definition.Ball?.Capture(kind)
+        var material = definition.Ball?.Capture(id)
             ?? throw new ArgumentException("A ball requires canonical resource values.");
         var q = rotation.Normalized(); // Named Godot input boundary, before canonical quantization.
-        return WorkshopInput.Ball(kind, id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W)
+        return WorkshopInput.Ball(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W)
             with { Material = material };
     }
 
@@ -87,34 +87,45 @@ public partial class MachineWorld
         return WorkshopInput.Receiver(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W);
     }
 
-    public IWorkshopInstance CaptureInstance(WorkshopPartKind kind, GpuBodyId id, Vector3 position, Quaternion rotation, RampDimensions? rampDimensions = null, WallDimensions? wallDimensions = null)
+    public IWorkshopInstance CaptureInstance(PartId id, GpuBodyId bodyId, Vector3 position, Quaternion rotation, RampDimensions? rampDimensions = null, WallDimensions? wallDimensions = null)
     {
         var q = rotation.Normalized();
-        return kind switch
+        return id.Value switch
         {
-            WorkshopPartKind.Basketball or WorkshopPartKind.BowlingBall => CaptureBall(kind, id, position, q),
-            WorkshopPartKind.Receiver => CaptureReceiver(id, position, q),
-            WorkshopPartKind.Ramp => WorkshopInput.Ramp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                rampDimensions ?? Registry.Definitions[WorkshopPartKind.Ramp].Ramp!.Capture()),
-            WorkshopPartKind.Wall => WorkshopInput.Wall(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                wallDimensions ?? Registry.Definitions[WorkshopPartKind.Wall].Wall!.Capture()),
-            WorkshopPartKind.ImpactSwitch => WorkshopInput.Switch(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
-            WorkshopPartKind.Delay => WorkshopInput.Delay(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopDelay timer ? timer.Duration :
-                    Registry.Definitions[WorkshopPartKind.Delay].Delay!.Capture()),
-            WorkshopPartKind.Springboard => WorkshopInput.Springboard(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopSpringboard spring ? spring.Settings :
-                    Registry.Definitions[WorkshopPartKind.Springboard].Springboard!.Capture()),
-            WorkshopPartKind.Battery => WorkshopInput.Battery(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopBattery battery ? battery.Settings :
-                    Registry.Definitions[WorkshopPartKind.Battery].ElectricalSource!.Capture()),
-            WorkshopPartKind.PinballBumper => WorkshopInput.Bumper(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
-                Construction.Instances.FirstOrDefault(instance => instance.Id == id) is WorkshopBumper bumper ? bumper.Work :
-                    BumperWork.FromCalibration(Registry.Definitions[WorkshopPartKind.PinballBumper].ContactWork!.Capture())),
-            WorkshopPartKind.SignalLamp => WorkshopInput.Lamp(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
-            WorkshopPartKind.Domino => WorkshopInput.Domino(id, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
-            _ => throw new ArgumentException("Unsupported instance kind.")
+            "ball" or "bowling" => CaptureBall(id, bodyId, position, q),
+            "basket" => CaptureReceiver(bodyId, position, q),
+            "ramp" => WorkshopInput.Ramp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                rampDimensions ?? RampDimensions.Default),
+            "wall" => WorkshopInput.Wall(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                wallDimensions ?? WallDimensions.Default),
+            "switch" => WorkshopInput.Switch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSwitch current ? current.Trigger : ContactTriggerSettings.Default),
+            "delay" => WorkshopInput.Delay(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopDelay timer ? timer.Duration :
+                    DelayDuration.Default),
+            "spring" => WorkshopInput.Springboard(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopSpringboard spring ? spring.Settings :
+                    SpringboardSettings.Default),
+            "battery" => WorkshopInput.Battery(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopBattery battery ? battery.Settings :
+                    ElectricalSourceSettings.Default),
+            "bumper" => WorkshopInput.Bumper(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopBumper bumper ? bumper.Work :
+                    BumperWork.Default),
+            "lamp" => WorkshopInput.Lamp(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+            "domino" => WorkshopInput.Domino(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+            "ball_detector" => WorkshopInput.BallDetector(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Registry.Definitions.TryGetValue(id, out var detectorDef) && detectorDef.Colliders.Count > 0 ? detectorDef.Colliders : WorkshopCanonicalColliders.For(id)),
+            "pipe" or "pipe_bend_45" or "pipe_bend_90" or "funnel" or "powered_gate" => WorkshopInput.Generic(id, bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Registry.Definitions.TryGetValue(id, out var def) && def.Colliders.Count > 0 ? def.Colliders : WorkshopCanonicalColliders.For(id)),
+            "pressure_plate" => WorkshopInput.PressurePlate(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopPressurePlate plate ? plate.MinimumMass : 0.5f),
+            "counter" => WorkshopInput.Counter(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopCounter counter ? counter.TargetCount : WorkshopCounter.DefaultTargetCount),
+            "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
+                Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopClock clock ? clock.IntervalSeconds : WorkshopClock.DefaultIntervalSeconds),
+            "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
+            _ => throw new ArgumentException($"Unsupported instance part id '{id}'.")
         };
     }
 
@@ -293,34 +304,38 @@ public partial class MachineWorld
     public void RestoreConstructionPresentation()
     {
         foreach (var part in _parts.ToArray())
-            if (!Construction.Instances.Any(instance => instance.Id == part.AuthoredId && instance.Kind == part.Definition.WorkshopKind))
+            if (!Construction.Instances.Any(instance => instance.Id == part.AuthoredId && instance.PartId == part.Definition.PartId))
             { _parts.Remove(part); _bodies.Remove(part); RemoveChild(part); part.Free(); }
         foreach (var instance in Construction.Instances)
         {
             var part = _parts.FirstOrDefault(candidate => candidate.AuthoredId == instance.Id);
             if (part is null)
             {
-                part = Registry.Create(instance.Kind); part.AuthoredId = instance.Id;
+                part = Registry.Create(instance.PartId); part.AuthoredId = instance.Id;
                 part.EnsureConstructed(); AddChild(part); _parts.Add(part); _bodies.Add(part);
             }
-            if (part.Definition.WorkshopKind != instance.Kind) throw new ArgumentException("Authored identity changed part kind.");
-            if (instance is WorkshopRamp ramp && part is RampPart rampPart) rampPart.ApplyDimensions(ramp.Dimensions);
-            if (instance is WorkshopWall wall && part is WallPart wallPart) wallPart.ApplyDimensions(wall.Dimensions);
-            if (instance is WorkshopDelay delay && part is DelayPart delayPart) delayPart.ApplyDuration(delay.Duration);
-            if (instance is WorkshopBattery battery && part is BatteryPart batteryPart)
+            if (part.Definition.PartId != instance.PartId) throw new ArgumentException("Authored identity changed part kind.");
+            if (instance is WorkshopRamp ramp) part.ApplyRampDimensions(ramp.Dimensions);
+            if (instance is WorkshopWall wall) part.ApplyWallDimensions(wall.Dimensions);
+            if (instance is WorkshopDelay delay) part.ApplyDuration(delay.Duration);
+            if (instance is WorkshopBattery battery)
             {
-                batteryPart.ApplySource(battery.Settings);
+                part.ApplySource(battery.Settings);
                 var fraction = battery.Settings.InitialFraction;
                 var supply = battery.Settings.Enabled == ElectricalEnable.Enabled && fraction > 0 ? 1f : 0f;
-                batteryPart.ApplyElectrical(new(supply, fraction >= .25f ? 1f : 0f, fraction >= .5f ? 1f : 0f,
+                part.ApplyElectrical(new(supply, fraction >= .25f ? 1f : 0f, fraction >= .5f ? 1f : 0f,
                     fraction >= .75f ? 1f : 0f, fraction >= 1f ? 1f : 0f));
             }
-            if (instance is WorkshopSpringboard spring && part is SpringboardPart springPart)
+            if (instance is WorkshopSpringboard spring)
             {
-                springPart.ApplySpring(spring.Settings);
+                part.ApplySpring(spring.Settings);
                 part.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, WorkshopPhysicsCompiler.SpringboardPlate(instance.Id));
             }
-            if (instance is WorkshopBumper bumper && part is BumperPart bumperPart) bumperPart.ApplyWork(bumper.Work);
+            if (instance.PartId == PartId.PoweredGate)
+            {
+                part.InstallPhysicalIdentity(PhysicalVisualSlot.Secondary, WorkshopPhysicsCompiler.GateBlade(instance.Id));
+            }
+            if (instance is WorkshopBumper bumper) part.ApplyWork(bumper.Work);
             part.Locked = instance.Locked;
             part.Position = RenderPosition(instance.Cell, instance.Local);
             var q = instance.Rotation;
@@ -348,7 +363,7 @@ public partial class MachineWorld
     private static void LogWorkshop(WorkshopResponse response)
     {
         // Exact read-only binary diagnostics, also available without arbitrary browser evaluation.
-        GD.Print("CCGPU " + Convert.ToBase64String(WorkshopWire.Encode(response)));
+        GD.Print("CCGPU " + Convert.ToBase64String(WorkshopWireFlatBuffers.EncodeResponse(response)));
     }
 
     private async Task DisposeWorkshop()

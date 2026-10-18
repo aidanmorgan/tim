@@ -26,7 +26,7 @@ public static class BumperSidekick
         GpuBodyId ball, GpuBodyId receiver, PuzzlePrecision precision)
     {
         var puzzle = new WorkshopPuzzle(WorkshopPuzzleId.BumperSidekick, WorkshopPlacementMode.Manual,
-            precision, WorkshopPartKind.PinballBumper, 1,
+            precision, PartId.PinballBumper, 1,
             new(WorkshopGoalKind.Captured, ball, receiver, WorkshopPhysicsCompiler.CaptureSensor(Receiver(receiver, precision))),
             FirstPrinciples.BallAssistance, FirstPrinciples.ReceiverAssistance, BumperAssistance);
         var construction = new WorkshopConstruction(revision, settings, new(Ball(ball), Receiver(receiver, precision)), puzzle);
@@ -42,7 +42,7 @@ public static class BumperSidekick
     public static void Validate(WorkshopPuzzle puzzle, WorkshopConstruction construction)
     {
         PhysicsDeclarationBounds.Range(puzzle.Precision.Value, (Half)0, (Half)1);
-        if (puzzle.Placement != WorkshopPlacementMode.Manual || puzzle.InventoryKind != WorkshopPartKind.PinballBumper ||
+        if (puzzle.Placement != WorkshopPlacementMode.Manual || puzzle.InventoryPart != PartId.PinballBumper ||
             puzzle.InventoryCount != 1 || puzzle.Goal.Kind != WorkshopGoalKind.Captured ||
             puzzle.BallAssistance != FirstPrinciples.BallAssistance ||
             puzzle.ReceiverAssistance != FirstPrinciples.ReceiverAssistance || puzzle.RampAssistance != BumperAssistance ||

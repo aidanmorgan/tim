@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+    <ProjectReference Include="../../elements/Ball/Ball.csproj" />
+    <ProjectReference Include="../../elements/Bumper/Bumper.csproj" />
+    <ProjectReference Include="../../elements/Domino/Domino.csproj" />
+    <ProjectReference Include="../../elements/Ramp/Ramp.csproj" />
+    <ProjectReference Include="../../elements/Wall/Wall.csproj" />
+    <ProjectReference Include="../../elements/Battery/Battery.csproj" />
+    <ProjectReference Include="../../elements/PoweredGate/PoweredGate.csproj" />
+    <ProjectReference Include="../../elements/PressurePlate/PressurePlate.csproj" />
+    <ProjectReference Include="../../elements/Counter/Counter.csproj" />
+    <ProjectReference Include="../../elements/SignalLamp/SignalLamp.csproj" />
+    <ProjectReference Include="../../elements/BallDetector/BallDetector.csproj" />
+    <ProjectReference Include="../../elements/SystemClock/SystemClock.csproj" />
+    <ProjectReference Include="../../elements/StateLatch/StateLatch.csproj" />
+  </ItemGroup>
+</Project>

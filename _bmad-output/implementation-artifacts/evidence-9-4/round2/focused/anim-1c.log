@@ -1,0 +1,14 @@
+▶ ANIM-1c: Legacy presentation code retirement
+  ✔ 1. Capture halo and goal label animate through declared bindings; Reset retires them and Save/Load re-animates (15068.826541ms)
+  ✔ 2. Show hint while a wired Delay counts reveals on the shared lease without exception, the fill continues, and the next press hides (6066.506625ms)
+  ✔ 3. Hint reveal and hide in Build mode leave every world-bound target silent (2838.154083ms)
+  ✔ 4. Free workshop: a dropped ball captured by a placed Receiver animates the same declared capture target with no goal (5660.027083ms)
+✔ ANIM-1c: Legacy presentation code retirement (34118.369792ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34358.412875

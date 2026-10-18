@@ -1,5 +1,6 @@
 using System;
-using System.Buffers.Binary;
+using Google.FlatBuffers;
+using CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Gpu;
 
@@ -9,33 +10,48 @@ public readonly record struct WorkshopSavedConstruction(WorkshopConstruction Con
 /// <summary>Construction-only storage boundary; shares the canonical declaration codec with GPU admission.</summary>
 public static class WorkshopSaveCodec
 {
-    private const uint Magic = 0x53574343; // CCWS
-    private const int HeaderBytes = 24;
-    public const int ByteLength = HeaderBytes + WorkshopWire.ConstructionBytes;
+    public const uint Magic = 0x53574343; // CCWS
+    public const uint Version = (uint)WorkshopSaveVersion.CanonicalConstruction;
+    public const int ByteLength = 24 + WorkshopWire.ConstructionBytes;
 
     public static byte[] Encode(WorkshopSavedConstruction save)
     {
         Validate(save);
-        var bytes = new byte[ByteLength];
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes, Magic);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(4), (uint)WorkshopSaveVersion.CanonicalConstruction);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(8), ByteLength);
-        BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(16), save.NextBodyId.Value);
-        WorkshopWire.WriteConstruction(bytes.AsSpan(HeaderBytes), save.Construction);
-        return bytes;
+        var builder = new FlatBufferBuilder(2048);
+        var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, save.Construction);
+        SavedConstruction.StartSavedConstruction(builder);
+        SavedConstruction.AddMagic(builder, Magic);
+        SavedConstruction.AddVersion(builder, Version);
+        SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
+        SavedConstruction.AddConstruction(builder, crOffset);
+        var end = SavedConstruction.EndSavedConstruction(builder);
+        builder.Finish(end.Value);
+        return builder.SizedByteArray();
     }
 
     public static WorkshopSavedConstruction Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != ByteLength || BinaryPrimitives.ReadUInt32LittleEndian(bytes) != Magic ||
-            (WorkshopSaveVersion)BinaryPrimitives.ReadUInt32LittleEndian(bytes[4..]) != WorkshopSaveVersion.CanonicalConstruction ||
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[8..]) != ByteLength ||
-            BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..]) != 0)
+        if (bytes.Length < 16) throw new ArgumentException("Unsupported construction save.");
+        var bb = new ByteBuffer(bytes.ToArray());
+        SavedConstruction saved;
+        try
+        {
+            saved = SavedConstruction.GetRootAsSavedConstruction(bb);
+            if (saved.Magic != Magic || saved.Version != Version || !saved.Construction.HasValue)
+                throw new ArgumentException("Unsupported construction save.");
+            var construction = WorkshopWireFlatBuffers.DecodeConstructionRecord(saved.Construction.Value);
+            var save = new WorkshopSavedConstruction(construction, new(saved.NextBodyId));
+            Validate(save);
+            return save;
+        }
+        catch (ArgumentException ex) when (ex.GetType() == typeof(ArgumentException))
+        {
+            throw;
+        }
+        catch
+        {
             throw new ArgumentException("Unsupported construction save.");
-        var save = new WorkshopSavedConstruction(WorkshopWire.ReadConstruction(bytes[HeaderBytes..]),
-            new(BinaryPrimitives.ReadUInt64LittleEndian(bytes[16..])));
-        Validate(save);
-        return save;
+        }
     }
 
     private static void Validate(WorkshopSavedConstruction save)

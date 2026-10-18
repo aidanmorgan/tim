@@ -8,7 +8,7 @@ namespace CuriousContraptions.Gpu;
 /// <summary>Authored instances supply declarations; no instance owns an update or numerical law.</summary>
 public interface IWorkshopInstance
 {
-    WorkshopPartKind Kind { get; }
+    PartId PartId { get; }
     GpuBodyId Id { get; }
     CellOrigin Cell { get; }
     LocalPosition Local { get; }
@@ -17,6 +17,26 @@ public interface IWorkshopInstance
     /// <summary>Declared cosmetic curve data; never persisted. None for parts without animated artwork.</summary>
     CosmeticCurveDeclaration Cosmetic { get; }
     void Validate();
+}
+
+public interface IWorkshopDeclaredColliders : IWorkshopInstance
+{
+    IReadOnlyList<ExtractedCollider> DeclaredColliders { get; }
+}
+
+public readonly record struct WorkshopGenericInstance(
+    PartId PartId,
+    GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
+    CanonicalRotation Rotation, IReadOnlyList<ExtractedCollider> DeclaredColliders, bool Locked = false) : IWorkshopDeclaredColliders
+{
+    public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
+    public void Validate()
+    {
+        if (PartId == default) throw new ArgumentException("Generic instance requires a valid PartId.");
+        new CanonicalBody(Id, 0, 0, Cell, Local, default).Validate();
+        Rotation.Validate();
+        ArgumentNullException.ThrowIfNull(DeclaredColliders);
+    }
 }
 
 public readonly record struct RampDimensions(Metres Length, Metres Width)
@@ -33,7 +53,7 @@ public readonly record struct RampDimensions(Metres Length, Metres Width)
 public readonly record struct WorkshopRamp(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, RampDimensions Dimensions, bool Locked = false) : IWorkshopInstance
 {
-    public WorkshopPartKind Kind => WorkshopPartKind.Ramp;
+    public PartId PartId => PartId.Ramp;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurveDeclaration.None;
     public void Validate()
     {
@@ -72,7 +92,7 @@ public sealed class WorkshopInstances : IReadOnlyList<IWorkshopInstance>, IEquat
         var ids = new HashSet<GpuBodyId>();
         foreach (var item in _items)
         {
-            if (item is not (WorkshopBall or WorkshopReceiver or WorkshopRamp or WorkshopSwitch or WorkshopLamp or WorkshopWall or WorkshopDelay or WorkshopBumper or WorkshopDomino or WorkshopBattery or WorkshopSpringboard))
+            if (item is not (WorkshopBall or WorkshopReceiver or WorkshopRamp or WorkshopSwitch or WorkshopLamp or WorkshopWall or WorkshopDelay or WorkshopBumper or WorkshopDomino or WorkshopBattery or WorkshopSpringboard or WorkshopPressurePlate or WorkshopCounter or WorkshopClock or WorkshopLatch or IWorkshopDeclaredColliders))
                 throw new ArgumentException("Unsupported authored instance declaration.");
             item.Validate();
             if (!ids.Add(item.Id)) throw new ArgumentException("Authored body identities must be unique.");

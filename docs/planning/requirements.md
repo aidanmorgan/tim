@@ -673,7 +673,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-037"></a>
 
-- [ ] **CAT-037 · latch.** Set/Reset inputs settle on the next boundary with Reset dominant for same-tick conflict. Memory survives supply loss; independent supplied contact never generates power. Qualify each input, duplicate/reordered events, missing supply and failed-tick pending state; arm/indicator follows committed memory and Reset clears queue/state.
+- [ ] **CAT-037 · latch.** Set/Reset inputs settle on the next boundary with Reset dominant for same-tick conflict. Memory survives supply loss; independent supplied contact never generates power. Qualify each input, duplicate/reordered events, missing supply and failed-tick pending state; arm/indicator follows committed memory and Reset clears queue/state. An Activation output is high while memory is On and low while Off, and lights a wired Signal lamp accordingly (owner decision 18 Oct 2026, [CAT-037 §6 Q1](elements/CAT-037-latch.md#6-open-questions)).
 
   **Configuration / modes:** declared geometry, typed ports and any source-owned settings; no parameter absence inferred. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [retained behavior](#todo-267) and this complete entry. **Owner / collaborators:** [CAT-037 D/I/V and fixtures](invest/current-consumers.md#cat-037-i), signal capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 

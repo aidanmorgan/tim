@@ -24,7 +24,7 @@ public static class DelayedSignal
         var goal = new WorkshopGoal(WorkshopGoalKind.ActivatedAfter, default, default, default,
             new(source.Value), new(target.Value), new((Half)1));
         var puzzle = new WorkshopPuzzle(WorkshopPuzzleId.DelayedSignal, WorkshopPlacementMode.Manual,
-            precision, WorkshopPartKind.Delay, 1, goal, default, default, default);
+            precision, PartId.Delay, 1, goal, default, default, default);
         var result = new WorkshopConstruction(revision, settings,
             new(Ball(ball), Switch(source, precision), Lamp(target)), puzzle);
         result.Validate(); return result;
@@ -39,7 +39,7 @@ public static class DelayedSignal
     internal static void Validate(WorkshopPuzzle puzzle, WorkshopConstruction construction)
     {
         PhysicsDeclarationBounds.Range(puzzle.Precision.Value, (Half)0, (Half)1);
-        if (puzzle.InventoryKind != WorkshopPartKind.Delay || puzzle.InventoryCount != 1 ||
+        if (puzzle.InventoryPart != PartId.Delay || puzzle.InventoryCount != 1 ||
             puzzle.Goal.Kind != WorkshopGoalKind.ActivatedAfter || puzzle.Goal.MinimumDelay != new DurationSeconds((Half)1) ||
             puzzle.BallAssistance != default || puzzle.ReceiverAssistance != default || puzzle.RampAssistance != default ||
             construction.Ball is not { } ball || ball != Ball(ball.Id) ||

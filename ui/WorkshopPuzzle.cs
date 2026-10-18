@@ -23,6 +23,9 @@ public partial class Workshop
                 WorkshopPuzzleId.WallAndBumper => WallAndBumperIndex,
                 WorkshopPuzzleId.SpringForward => SpringForwardIndex,
                 WorkshopPuzzleId.ReadyToRebound => ReadyToReboundIndex,
+                WorkshopPuzzleId.ClearPipe => ClearPipeIndex,
+                WorkshopPuzzleId.GentleBend => GentleBendIndex,
+                WorkshopPuzzleId.QuarterBend => QuarterBendIndex,
                 _ => FreeWorkshopIndex
             });
             return;
@@ -70,9 +73,27 @@ public partial class Workshop
                 candidate = DominoEffect.Create(World.Construction.Revision, World.Construction.Settings,
                     first, new(first.Value + 1), new(first.Value + 2), new((Half)(_precision.Value / 100)));
             }
+            else if (index == ClearPipeIndex)
+            {
+                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                candidate = ClearPipe.Create(World.Construction.Revision, World.Construction.Settings,
+                    first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
+            }
+            else if (index == GentleBendIndex)
+            {
+                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                candidate = GentleBend.Create(World.Construction.Revision, World.Construction.Settings,
+                    first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
+            }
+            else if (index == QuarterBendIndex)
+            {
+                if (first.Value >= ulong.MaxValue - 1) throw new ArgumentException("Part identity is exhausted.");
+                candidate = QuarterBend.Create(World.Construction.Revision, World.Construction.Settings,
+                    first, new(first.Value + 1), new((Half)(_precision.Value / 100)));
+            }
             else throw new ArgumentException("Unsupported Workshop puzzle.");
             if (!await SubmitConstruction(candidate)) { PresentMode(); return; }
-            if (index is 0 or BumperSidekickIndex or BumperDepthIndex or WallAndBumperIndex or SpringForwardIndex or ReadyToReboundIndex) _nextId = new(first.Value + 2);
+            if (index is 0 or BumperSidekickIndex or BumperDepthIndex or WallAndBumperIndex or SpringForwardIndex or ReadyToReboundIndex or ClearPipeIndex or GentleBendIndex or QuarterBendIndex) _nextId = new(first.Value + 2);
             else if (index is DelayedSignalIndex or DominoEffectIndex) _nextId = new(first.Value + 3);
             Select(null); _tool = null; ClearPreview(); _undo.Clear();
             ResetUiAnimations(); PresentMode();
@@ -89,11 +110,17 @@ public partial class Workshop
         var wall = World.Construction.Puzzle.Id == WorkshopPuzzleId.WallAndBumper;
         var spring = World.Construction.Puzzle.Id == WorkshopPuzzleId.SpringForward;
         var ready = World.Construction.Puzzle.Id == WorkshopPuzzleId.ReadyToRebound;
-        var authored = first || delayed || dominoes || sidekick || depth || wall || spring || ready;
-        _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : dominoes ? DominoEffectIndex : sidekick ? BumperSidekickIndex : depth ? BumperDepthIndex : wall ? WallAndBumperIndex : spring ? SpringForwardIndex : ready ? ReadyToReboundIndex : FreeWorkshopIndex);
+        var pipe = World.Construction.Puzzle.Id == WorkshopPuzzleId.ClearPipe;
+        var gentle = World.Construction.Puzzle.Id == WorkshopPuzzleId.GentleBend;
+        var quarter = World.Construction.Puzzle.Id == WorkshopPuzzleId.QuarterBend;
+        var authored = first || delayed || dominoes || sidekick || depth || wall || spring || ready || pipe || gentle || quarter;
+        _picker.Select(first ? 0 : delayed ? DelayedSignalIndex : dominoes ? DominoEffectIndex : sidekick ? BumperSidekickIndex : depth ? BumperDepthIndex : wall ? WallAndBumperIndex : spring ? SpringForwardIndex : ready ? ReadyToReboundIndex : pipe ? ClearPipeIndex : gentle ? GentleBendIndex : quarter ? QuarterBendIndex : FreeWorkshopIndex);
         _inventory = authored ? WorkshopInventoryPolicy.Authored(World.Construction.Puzzle) : WorkshopInventoryPolicy.Free;
-        _title.Text = first ? "First principles" : delayed ? "Wait for it" : dominoes ? "The domino effect" : sidekick ? "A little sidekick" : depth ? "Bounce into depth" : wall ? "Build the rebound" : spring ? "Spring forward" : ready ? "Ready to rebound" : "Free workshop";
-        _task.Text = first ? "Guide the orange ball into the green receiver. Place the two ramps to build a path through the air."
+        _title.Text = first ? "First principles" : delayed ? "Wait for it" : dominoes ? "The domino effect" : sidekick ? "A little sidekick" : depth ? "Bounce into depth" : wall ? "Build the rebound" : spring ? "Spring forward" : ready ? "Ready to rebound" : pipe ? "Through the looking tube" : gentle ? "A gentle turn" : quarter ? "Around the corner" : "Free workshop";
+        _task.Text = quarter ? "Use a 90-degree bend to turn a vertical fall into a sideways delivery."
+            : gentle ? "Guide the falling ball toward the basket with a 45-degree bend."
+            : pipe ? "Catch the falling ball inside the clear pipe and guide it down to the basket."
+            : first ? "Guide the orange ball into the green receiver. Place the two ramps to build a path through the air."
             : spring ? "Catch the falling ball’s energy in a springboard and return it toward the receiver."
             : ready ? "Place a receiver to catch the ball when the compressed springboard releases on Run."
             : depth ? "Use the bumper to bounce the ball through depth into the receiver."
@@ -108,6 +135,9 @@ public partial class Workshop
         _precisionText.Text = _precision.Value < 33 ? "Forgiving" : _precision.Value > 66 ? "Precise" : "Balanced";
         SetBuildUi(); RefreshPalette(); RefreshLayers();
         _placementHeight = new((Half)3); SetBuildView(authored);
+        if (quarter) _status.Text = "Point one mouth upward and the other toward the left-hand basket. The curve redirects motion, but does not add speed.";
+        if (gentle) _status.Text = "Turn the first mouth upward under the ball. The second mouth sends it down and left; gravity carries it through the curve.";
+        if (pipe) _status.Text = "Tilt the pipe downhill toward the basket. Run tests the passage; Reset lets you retry.";
         if (delayed) _status.Text = "Place the Delay and connect its activation sockets. Run tests the signal; Reset lets you retry.";
         if (dominoes) _status.Text = "Stand the four dominoes between the ball and the end domino, then connect the end domino to the lamp.";
         if (sidekick) _status.Text = "Place the bumper just left of the falling ball. Run tests the rebound; Reset lets you retry.";
@@ -136,6 +166,9 @@ public partial class Workshop
                 WorkshopPuzzleId.DominoEffect => DominoEffect.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.BumperSidekick => BumperSidekick.WithPrecision(World.Construction, precision),
                 WorkshopPuzzleId.BumperDepth or WorkshopPuzzleId.WallAndBumper => BumperAdvanced.WithPrecision(World.Construction, precision),
+                WorkshopPuzzleId.ClearPipe => ClearPipe.WithPrecision(World.Construction, precision),
+                WorkshopPuzzleId.GentleBend => GentleBend.WithPrecision(World.Construction, precision),
+                WorkshopPuzzleId.QuarterBend => QuarterBend.WithPrecision(World.Construction, precision),
                 _ => throw new ArgumentException("Unsupported authored assistance.")
             };
             if (!await SubmitConstruction(candidate)) { _precision.SetValueNoSignal((double)World.Construction.Puzzle.Precision.Value * 100); return; }
@@ -145,7 +178,8 @@ public partial class Workshop
                 WorkshopPuzzleId.DelayedSignal => "Switch sensitivity updated. Delay placement remains manual.",
                 WorkshopPuzzleId.DominoEffect => "Difficulty recorded. Domino placement remains manual.",
                 WorkshopPuzzleId.BumperSidekick or WorkshopPuzzleId.BumperDepth or WorkshopPuzzleId.WallAndBumper or
-                    WorkshopPuzzleId.SpringForward or WorkshopPuzzleId.ReadyToRebound => "Receiver assistance updated. Placement remains manual.",
+                    WorkshopPuzzleId.SpringForward or WorkshopPuzzleId.ReadyToRebound or
+                    WorkshopPuzzleId.ClearPipe or WorkshopPuzzleId.GentleBend or WorkshopPuzzleId.QuarterBend => "Receiver assistance updated. Placement remains manual.",
                 _ => "Receiver assistance updated. Ramp placement remains manual."
             };
         }

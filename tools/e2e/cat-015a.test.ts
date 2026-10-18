@@ -2,10 +2,20 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
+import { decodeWorkshopResponse, authoredState, decodeSavedConstruction, type BodyRead, type WorkshopResponse, type InstanceRecord } from './workshop-wire.ts';
 
-// WorkshopWire.ReadContactWorkOffset; store record32, occurrence record32; bound to C# by the paid-record tests.
-const WORK_READ = 3584, OCCURRENCE_READ = WORK_READ + 8 * 32;
 const BASE_URL = process.env.BUMPER_PREVIEW_URL ?? 'http://127.0.0.1:8060/';
+
+function bodyState(b: BodyRead) {
+    return {
+        id: b.id(),
+        cell: { x: b.cell()!.x(), y: b.cell()!.y(), z: b.cell()!.z() },
+        local: { x: b.local()!.x(), y: b.local()!.y(), z: b.local()!.z() },
+        rotation: { x: b.rotation()!.x(), y: b.rotation()!.y(), z: b.rotation()!.z(), w: b.rotation()!.w() },
+        velocity: { x: b.velocity()!.x(), y: b.velocity()!.y(), z: b.velocity()!.z() },
+        angularVelocity: { x: b.angularVelocity()!.x(), y: b.angularVelocity()!.y(), z: b.angularVelocity()!.z() },
+    };
+}
 async function savedBytes(driver: WorkshopDriver): Promise<Buffer> {
     const values = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
         const request = indexedDB.open('curious-contraptions-workshop');
@@ -22,44 +32,50 @@ async function savedBytes(driver: WorkshopDriver): Promise<Buffer> {
     return Buffer.from(values);
 }
 
-function authoredState(bytes: Buffer): Buffer {
-    // Construction authority revision (save bytes24..31) is a new-session envelope, not authored part data.
-    assert.ok(bytes.readBigUInt64LE(24) > 0n);
-    return Buffer.concat([bytes.subarray(0, 24), bytes.subarray(32)]);
-}
-
 async function scenario(kind: 'basketball' | 'bowling', duration: number) {
     const driver = await WorkshopDriver.launch({ baseUrl: BASE_URL });
     const errors: string[] = [];
-    const observations: Buffer[] = [];
+    const observations: WorkshopResponse[] = [];
     driver.page.on('console', message => {
         const text = message.text();
         if (/CCGPU_TRANSPORT_FAILURE|CCGPU_STARTUP_EXCEPTION|Unhandled exception|Impulse occurrence dropped/.test(text)) errors.push(text);
-        if (text.startsWith('CCGPU ')) observations.push(Buffer.from(text.slice(6), 'base64'));
+        if (text.startsWith('CCGPU ')) observations.push(decodeWorkshopResponse(Buffer.from(text.slice(6), 'base64')));
     });
     driver.page.on('pageerror', error => errors.push(error.message));
     try {
         await driver.selectTool(kind);
         await driver.placeOnCanvas(720, 485);
         await driver.stackUnderLiftedBall('bumper', 150);
-        const authored = observations[observations.length - 1].subarray(128, 208);
+        const authored = bodyState(observations[observations.length - 1].bodies(0)!);
         await driver.save();
         const construction = await savedBytes(driver);
-        const ballSlot = 24 + 320, bumperSlot = ballSlot + 160;
-        assert.equal(construction.readFloatLE(bumperSlot + 112), 8, 'Placed bumper strength is8m/s');
-        assert.equal(construction.readFloatLE(bumperSlot + 116), 1, 'Calibration reference mass is1kg');
-        assert.equal(construction.readFloatLE(bumperSlot + 120), 32, 'Declared finite preload is32J');
-        for (const offset of [48, 56, 72, 80])
-            assert.equal(construction.readUInt32LE(ballSlot + offset), construction.readUInt32LE(bumperSlot + offset), 'Payload and bumper share the complete f32 X/Z contact column');
-        assert.equal(construction.readInt32LE(bumperSlot + 52), 48, 'Bumper is on the3m placement plane');
-        assert.ok(construction.readInt32LE(ballSlot + 52) > 80, 'Payload is visibly lifted above the bumper');
+        const fbSave = decodeSavedConstruction(construction);
+        const c = fbSave.construction()!;
+        const payloadPartId = kind === 'basketball' ? 'ball' : kind;
+        let ballInst: InstanceRecord | null = null;
+        let bumperInst: InstanceRecord | null = null;
+        for (let i = 0; i < c.instancesLength(); i++) {
+            const inst = c.instances(i)!;
+            if (inst.partId() === payloadPartId) ballInst = inst;
+            if (inst.partId() === 'bumper') bumperInst = inst;
+        }
+        assert.ok(ballInst && bumperInst, 'Construction contains payload and bumper instances');
+        assert.equal(bumperInst.strength(), 8, 'Placed bumper strength is 8m/s');
+        assert.equal(bumperInst.referenceMass(), 1, 'Calibration reference mass is 1kg');
+        assert.equal(bumperInst.preload(), 32, 'Declared finite preload is 32J');
+        assert.equal(ballInst.cell()!.x(), bumperInst.cell()!.x(), 'Payload and bumper share the complete f32 X contact cell');
+        assert.equal(ballInst.cell()!.z(), bumperInst.cell()!.z(), 'Payload and bumper share the complete f32 Z contact cell');
+        assert.equal(ballInst.local()!.x(), bumperInst.local()!.x(), 'Payload and bumper share the complete f32 X contact local');
+        assert.equal(ballInst.local()!.z(), bumperInst.local()!.z(), 'Payload and bumper share the complete f32 Z contact local');
+        assert.equal(bumperInst.cell()!.y(), 48, 'Bumper is on the 3m placement plane');
+        assert.ok(ballInst.cell()!.y() > 80, 'Payload is visibly lifted above the bumper');
         await driver.reload();
         await driver.load();
         await driver.save();
         assert.deepEqual(authoredState(await savedBytes(driver)), authoredState(construction), 'Save/Load preserves every authored bumper and payload declaration byte');
         const loaded = observations[observations.length - 1];
-        assert.equal(loaded[104], 1, 'Loaded construction has one dynamic payload');
-        const built = loaded.subarray(128, 208);
+        assert.equal(loaded.bodiesLength(), 1, 'Loaded construction has one dynamic payload');
+        const built = bodyState(loaded.bodies(0)!);
         assert.deepEqual(built, authored, 'Save/Load restores the exact placed payload');
         await driver.run();
         const samples: { time: number; y: number; vy: number }[] = [];
@@ -71,11 +87,11 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         }
         await driver.pauseSimulation();
         const paid = observations[observations.length - 1];
-        assert.ok(paid.length > OCCURRENCE_READ + 32 && paid[108] === 1);
-        const remaining = paid.readFloatLE(WORK_READ + 20);
-        const debit = paid.readFloatLE(OCCURRENCE_READ + 26);
-        const effect = paid[OCCURRENCE_READ + 30];
-        const count = paid.readUInt32LE(WORK_READ + 16);
+        assert.ok(paid.contactWorksLength() >= 1 && paid.occurrencesLength() >= 1);
+        const remaining = paid.contactWorks(0)!.remainingEnergy();
+        const debit = paid.occurrences(0)!.debit();
+        const effect = paid.occurrences(0)!.effect();
+        const count = paid.contactWorks(0)!.occurrenceCount();
         const history = await driver.readAnimationSamplesForTarget(String((2n << 32n) + 2n));
         assert.ok(history.some(value => value.value > .5), 'A paid impact must produce its gold-ring pulse');
         assert.equal(history[history.length - 1].value, 0, 'Paid pulse must return to neutral');
@@ -102,9 +118,9 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         }
         await driver.reset();
         const restored = observations[observations.length - 1];
-        assert.deepEqual(restored.subarray(128, 208), built, 'Reset restores exact placed body state after saved construction reload');
-        assert.equal(restored.readFloatLE(WORK_READ + 20), 32);
-        assert.equal(restored.readUInt32LE(WORK_READ + 16), 0);
+        assert.deepEqual(bodyState(restored.bodies(0)!), built, 'Reset restores exact placed body state after saved construction reload');
+        assert.equal(restored.contactWorks(0)!.remainingEnergy(), 32);
+        assert.equal(restored.contactWorks(0)!.occurrenceCount(), 0);
         await driver.save();
         assert.deepEqual(authoredState(await savedBytes(driver)), authoredState(construction), 'Reset preserves the full authored construction, including bumper pose and strength');
         assert.equal(errors.length, 0, errors.join('\n'));

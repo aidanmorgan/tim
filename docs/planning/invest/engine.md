@@ -28,7 +28,7 @@ These labels sit under their existing canonical work IDs ([requirements](../requ
 | P0-025 / P0-026 | ENGINE-CORE-1 (renderer reads committed poses); ANIM-1 (animation sample) | Main-thread renderer interpolates committed physics and animation samples; nothing flows back. |
 | P0-027 / P0-028 | Release checklist (P0-034) | Resource sharing, dirty tracking, idle wake and visibility culling are measured render-cost work. |
 | P0-029 | Production build every slice; startup at release | Clean Release export of both worker artifacts is required each slice; startup 15 s cold / 5 s warm is release-only. |
-| P0-030 / P0-031 | LEGACY-0 | Consumer coverage and cleanup audits close when the tree holds only shipped code. |
+| P0-030 / P0-031 | LEGACY-0 | Consumer coverage and cleanup audits close when the tree holds only shipped code; delete legacy procedural mesh generation in engine/PartArt.cs and obsolete shape tables. |
 | P0-032 / P0-033 / P0-034 | Release checklist | Concurrency attacks, bottleneck remediation and device/workload qualification are enforced at LEGACY-0 and CAMPAIGN. |
 | P0-035 | CAMPAIGN | Engine closure is the programme's definition of done, not a gate before element or level work. |
 
@@ -176,6 +176,7 @@ Delivered through thin vertical slices (<1 day developer effort each), followed 
 - **ENGINE-CORE-2b3 (Analytic CCD & Interval Library Removal):** Remove analytic CCD continuous collision sweep roots, interval-arithmetic range library, and delete engine/gpu/physics.wgsl compute shaders; collisions rely exclusively on Dynamic AABB BVH with speculative contact margins.
 - **ENGINE-CORE-2b4 (Guide Horizon & Departure Ownership Removal):** Remove guide horizon calculation, departure ownership, and trajectory prediction branches from Receiver physics, converting assist curves to declarative force region fields (PlanarGuideBoundaryPath).
 - **ENGINE-CORE-2c (Endpoint-Sampled Sensors):** Sensors and triggers sampled at substep endpoints, dwell counted in ticks; legacy sensor root-finding and sub-phase residence intervals deleted.
+- **ENGINE-CORE-2d (glTF Asset-Driven Geometry & Collider Extraction):** Extend `WorkshopPhysicsCompiler` to traverse instantiated `.glb` scene hierarchies and extract `ColliderDeclaration` records directly from collision proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`, `col_hull` / `-col`, `-convcol`, and `KHR_physics_rigid_bodies`), compiling them into the flat SIMD Structure-of-Arrays (SoA) physics tables without element-specific branching or hardcoded coordinate tables.
 - **ANIM-1a (Dedicated Animation Worker Pipeline):** Dedicated 60 Hz WebAssembly animation worker and SAB event channel established before element additions; declared animation bindings for Receiver halo and Signal lamp glow.
 - **CAT-023a (Dynamic Box Rigid Body & Upright Stability):** Dynamic box rigid body physics in WASM SIMD (box 3x3 inertia tensor, 4-point SAT contact manifold with workbench plane, friction, upright resting stability).
 - **CAT-023b (Orientation Sensor & Domino Cascade):** Declarative orientation-threshold sensor (angle from initial pose, one-shot trigger, rearm on Reset); domino_effect level solve.
@@ -194,6 +195,23 @@ Delivered through thin vertical slices (<1 day developer effort each), followed 
 ### P0-012 · p012-defect (delivered at ENGINE-CORE-2a2)
 
 **Outcome:** each retained numerical defect is re-judged on the generic core against the envelope with a player-observable check; those that clamp or continue are closed.
+
+<a id="engine-core-2d-collider-extraction"></a>
+### ENGINE-CORE-2d · gltf-asset-collider-extraction
+
+**Outcome:** `WorkshopPhysicsCompiler` reads and extracts `ColliderDeclaration` records directly from the instantiated `.glb` scene hierarchy at compile-to-state time, converting analytic proxy primitives (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`), convex hulls (`col_hull` / `-convcol`), and `KHR_physics_rigid_bodies` metadata into the flat SIMD physics tables without element-specific branching or hardcoded shape tables. Socket anchor transforms resolve dynamically from named empty locator nodes (`Loc_Port_<Id>`).
+**Acceptance:** Placed elements with asset-driven colliders interact, collide, and rest stably in Chrome without hardcoded C# collider tables; zero element identifiers exist in compiler collider extraction dispatch; exact Reset and Save/Load.
+
+<a id="convert-existing-implementations"></a>
+### Existing Element Conversion to glTF & Zero-Remnant Legacy Purge
+
+All 14 existing implementations authored under earlier procedural C# prototypes are scheduled for sequential forward conversion to the new declarative `.glb` + `PartId` architecture with strictly zero backwards compatibility:
+
+1. **ENGINE-DISCOVERY (Story 6.5b):** Dynamic directory discovery in `PartRegistry.Discover()` scanning `res://parts/catalog/*.tres`; wrap identities in extensible `PartId` structs; decouple factory instantiation from closed enums (`WorkshopPartKind`).
+2. **ENGINE-CORE-2d (Story 6.5c):** Generic extraction of `ColliderDeclaration` records and `Loc_Port_<Id>` socket anchors from `.glb` scene trees in `WorkshopPhysicsCompiler`.
+3. **CONVERT-BALLS-OBSTACLES (Story 6.5d):** Convert Basketball (`CAT-001`), Bowling Ball (`CAT-014`), Tennis Ball (`CAT-064`), Floating Balloon (`CAT-003`), Wall (`CAT-066`), Ramp (`CAT-054`), and Receiver (`CAT-004`) to self-contained `.glb` assets in `parts/models/` and generic `MachinePart` instances. Delete bespoke C# files (`BallPart.cs`, `WallPart.cs`, `RampPart.cs`, `BasketPart.cs`) and dimension resources.
+4. **CONVERT-MECHANISMS (Story 6.5e):** Convert Pinball Bumper (`CAT-015`), Domino (`CAT-023`), Springboard (`CAT-062`), Impact Switch (`CAT-063`), Signal Lamp (`CAT-035`), Delay Box (`CAT-022`), and Battery (`CAT-005`) to `.glb` models with embedded `col_*` proxies, `Loc_Port_*` locators, and generic `MachinePart` instances. Delete bespoke C# files (`BumperPart.cs`, `DominoPart.cs`, `SpringboardPart.cs`, `SwitchPart.cs`, `LampPart.cs`, `DelayPart.cs`, `BatteryPart.cs`) and resources.
+5. **LEGACY-PARTART-PURGE (Story 6.5f):** Permanently delete `engine/PartArt.cs`, `engine/gpu/WorkshopPartKind.cs`, and all procedural mesh building routines in C#. Zero backwards compatibility shims or fallback loaders are permitted. All unit tests and cumulative Chrome E2E suites must pass 100%.
 
 ## ANIM-1 · separate animation engine (decomposed into <1d thin vertical slices)
 
@@ -251,6 +269,14 @@ Transition/pending/success clips follow acknowledged state and never complete Ru
 ### P0-023 · acoustic feedback (delivered with CAT-009/CAT-061)
 
 A committed acoustic occurrence drives declared sound/visual feedback; propagation stays physics-owned. **Control:** silence, no power or wrong tone fabricates nothing; disabled audio cannot change the receiver.
+
+## LEGACY-0 · Legacy code retirement and engine closure
+
+Delivered through four focused cleanup and purge slices:
+- **LEGACY-0a (Reference & Archive Purge):** Delete obsolete historical archives and dead tarballs in `reference/`.
+- **LEGACY-0b (Diagnostics & Legacy Probe Purge):** Delete dead probe tools and ad-hoc harnesses in `tools/p0-*`, `tools/P0-007-*`, and `diagnostics/`.
+- **LEGACY-0c (Uncompiled Legacy Test Purge):** Delete obsolete uncompiled test files and dead fixtures in `CuriousContraptions.tests/`.
+- **LEGACY-0d (Legacy CPU Physics & Procedural PartArt Purge):** Delete remaining legacy physics files in `engine/physics/`, retired classes in `engine/presentation/`, and dead `parts/*.cs`. Permanently delete procedural mesh generation in `engine/PartArt.cs` and hardcoded collider tables in C#, establishing `.glb` assets as the single authoritative geometry definition across the entire codebase. Reviewer grep confirms zero legacy physics files and zero procedural mesh building routines in C#.
 
 ## Release checklist · P0-034 stage gate
 

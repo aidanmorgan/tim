@@ -37,7 +37,7 @@ public static class BumperAdvanced
     {
         var target = Receiver(lesson, receiver, precision);
         var puzzle = new WorkshopPuzzle(lesson, WorkshopPlacementMode.Manual, precision,
-            WorkshopPartKind.PinballBumper, 1,
+            PartId.PinballBumper, 1,
             new(WorkshopGoalKind.Captured, ball, receiver, WorkshopPhysicsCompiler.CaptureSensor(target)),
             FirstPrinciples.BallAssistance, FirstPrinciples.ReceiverAssistance, BumperSidekick.BumperAssistance);
         var construction = new WorkshopConstruction(revision, settings, new(Ball(lesson, ball), target), puzzle);
@@ -53,7 +53,7 @@ public static class BumperAdvanced
     {
         var depth = IsDepth(puzzle.Id);
         PhysicsDeclarationBounds.Range(puzzle.Precision.Value, (Half)0, (Half)1);
-        if (puzzle.Placement != WorkshopPlacementMode.Manual || puzzle.InventoryKind != WorkshopPartKind.PinballBumper ||
+        if (puzzle.Placement != WorkshopPlacementMode.Manual || puzzle.InventoryPart != PartId.PinballBumper ||
             puzzle.InventoryCount != 1 || puzzle.Goal.Kind != WorkshopGoalKind.Captured ||
             puzzle.BallAssistance != FirstPrinciples.BallAssistance ||
             puzzle.ReceiverAssistance != FirstPrinciples.ReceiverAssistance ||

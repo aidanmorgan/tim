@@ -10,15 +10,9 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
 {
     private static readonly IReadOnlyDictionary<string, int> Owned = new Dictionary<string, int>
     {
-        ["PRISMATICS_OFFSET"] = PhysicsGpuAbi.PrismaticsOffset,
-        ["PRISMATIC_RECORDS_OFFSET"] = PhysicsGpuAbi.PrismaticRecordsOffset,
         ["PRISMATIC_BYTES"] = PhysicsGpuAbi.PrismaticBytes,
-        ["ELECTRICAL_SOURCES_OFFSET"] = PhysicsGpuAbi.ElectricalSourcesOffset,
         ["ELECTRICAL_SOURCE_BYTES"] = PhysicsGpuAbi.ElectricalSourceBytes,
-        ["ELECTRICAL_BINDINGS_OFFSET"] = PhysicsGpuAbi.ElectricalBindingsOffset,
         ["ELECTRICAL_BINDING_BYTES"] = PhysicsGpuAbi.ElectricalBindingBytes,
-        ["CONTACT_WORKS_OFFSET"] = PhysicsGpuAbi.ContactWorksOffset,
-        ["BODIES_OFFSET"] = PhysicsGpuAbi.BodiesOffset,
         ["BODY_BYTES"] = PhysicsGpuAbi.BodyBytes,
         ["BODY_VELOCITY"] = PhysicsGpuAbi.BodyVelocityOffset,
         ["BODY_ANGULAR_VELOCITY"] = PhysicsGpuAbi.BodyAngularVelocityOffset,
@@ -26,8 +20,6 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
         ["BODY_DRAG"] = PhysicsGpuAbi.BodyDragOffset,
         ["BODY_GRAVITY"] = PhysicsGpuAbi.BodyGravityOffset,
         ["BODY_CENTRE_OF_MASS"] = PhysicsGpuAbi.BodyCentreOfMassOffset,
-        ["ORIENTATION_SENSORS_OFFSET"] = PhysicsGpuAbi.OrientationSensorsOffset,
-        ["MOTION_OFFSET"] = PhysicsGpuAbi.MotionOffset,
         ["MOTION_HEADER_BYTES"] = PhysicsMotionRead.HeaderBytes,
         ["MOTION_PIECE_BYTES"] = PhysicsMotionRead.PieceBytes,
         ["MOTION_DRAG_RATE"] = PhysicsMotionRead.DragRateOffset,
@@ -54,5 +46,17 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
             .Where(match => Owned.ContainsKey(match.Groups[1].Value))
             .ToDictionary(match => match.Groups[1].Value, match => int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture));
         Assert.Equal(Owned.OrderBy(entry => entry.Key), declared.OrderBy(entry => entry.Key));
+    }
+
+    [Fact]
+    public void WorkerDynamicOffsetFallbacksDeclareValidTableOffsets()
+    {
+        var path = Path.Combine(twodog.Engine.ResolveProjectDir(), "CuriousContraptions.Simulation/wwwroot/worker.js");
+        var letDeclared = Regex.Matches(File.ReadAllText(path), @"^let ([A-Z_]+) = (\d+);", RegexOptions.Multiline)
+            .ToDictionary(match => match.Groups[1].Value, match => int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture));
+        Assert.Contains("COLLIDERS_OFFSET", letDeclared.Keys);
+        Assert.Contains("MATERIALS_OFFSET", letDeclared.Keys);
+        Assert.Contains("TRIGGERS_OFFSET", letDeclared.Keys);
+        Assert.Contains("CONTACT_WORKS_OFFSET", letDeclared.Keys);
     }
 }

@@ -105,13 +105,13 @@ public sealed class OrientationSensorTests
         Assert.Throws<ArgumentException>(() => Replace(sensor with { Threshold = new((Half)1) }));
         // Node declarations: an orientation source names exactly its sensor and never a trigger; nothing routes into a source.
         var owner = new GpuBodyId(2); var sensorId = new GpuOrientationSensorId(sensor.Id.Value);
-        var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.Latch, default);
-        _ = new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId), lamp], [new(new(2), new(3))]);
+        var lamp = new ActivationNodeDeclaration(new(3), new(3), ActivationNodeKind.StickyFirstInput, default);
+        _ = new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId), lamp], [new(new(2), new(3), WorkshopSocket.ActivationIn)]);
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default), lamp], []));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, new(5), 0, sensorId), lamp], []));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.ContactSource, new(5), 0, sensorId), lamp], []));
-        Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.Latch, default, 0, sensorId), lamp], []));
-        Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId), lamp], [new(new(3), new(2))]));
+        Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.StickyFirstInput, default, 0, sensorId), lamp], []));
+        Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId), lamp], [new(new(3), new(2), WorkshopSocket.ActivationIn)]));
         Assert.Throws<ArgumentException>(() => new ActivationNetwork([new(new(2), owner, ActivationNodeKind.OrientationSource, default, 0, sensorId),
             new(new(4), new(4), ActivationNodeKind.OrientationSource, default, 0, sensorId)], []));
     }

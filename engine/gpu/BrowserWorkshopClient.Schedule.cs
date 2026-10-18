@@ -130,7 +130,7 @@ public sealed partial class BrowserWorkshopClient
         if (_schedule?.World.WorldGeneration != schedule.World.WorldGeneration)
         { RetireCaptureFeedback(); RetireActivationFeedback(); RetireGoalFeedback(); RetireContactFeedback(schedule.World.WorldGeneration); }
         if (_schedule?.Revision != schedule.Revision)
-        { _hintOrdinal = _goalOrdinal = 0; Array.Clear(_captureOrdinals); Array.Clear(_activationOrdinals); Array.Clear(_timerOrdinals); Array.Clear(_electricalOrdinals); }
+        { _hintOrdinal = _goalOrdinal = 0; Array.Clear(_captureOrdinals); Array.Clear(_activationOrdinals); Array.Clear(_memoryOrdinals); Array.Clear(_timerOrdinals); Array.Clear(_electricalOrdinals); }
     }
     private void ReceiveAnimation() => ReceiveAnimation(EventBytes(_id.Value));
     internal void ReceiveAnimation(byte[] bytes)
@@ -150,7 +150,7 @@ public sealed partial class BrowserWorkshopClient
                     command.Kind == AnimationControlKind.Impulse ? command.Duration : (Half)0) || sample.EventOrdinal != command.EventOrdinal || !HalfBits.Equal(sample.EventPhase, command.EventPhase))
                 throw new ArgumentException("Unowned animation acknowledgement.");
             _animationPending = null;
-            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); RetryRejectedCapture(command); RetryRejectedContact(command); RetryElectricalFeedback(command); return; }
+            if (kind == AnimationOutputKind.Rejected) { RetryRejectedTimer(command); RetryRejectedGoal(command); RetryRejectedCapture(command); RetryRejectedContact(command); RetryElectricalFeedback(command); RetryMemoryFeedback(command); return; }
         }
         if (cadence.Value < active.Revision.Value)
         {
@@ -166,6 +166,7 @@ public sealed partial class BrowserWorkshopClient
         else if (IsCaptureTarget(sample.Target)) ReceiveCaptureSample(sample, kind, active);
         else if (sample.PulseDuration > (Half)0) ReceiveContactSample(sample, kind, active);
         else if (sample.Timer.Phase != AnimationTimerPhase.None) ReceiveTimerSample(sample, kind, active);
+        else if (IsMemoryTarget(sample.Target)) ReceiveMemorySample(sample, kind, active);
         else ReceiveActivationSample(sample, kind, active);
         // The JS ACK lease releases after this callback returns; next presentation pumps the next owner.
     }

@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 10-10-2026 20:22
+last_updated: 10-18-2026 12:00
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -59,7 +59,7 @@ development_status:
   5-2-domino-cascade-orientation-threshold-sensor: done
   epic-5-retrospective: optional
 
-  epic-6: in-progress
+  epic-6: done
   6-1-bowling-ball-dynamic-sphere: done
   6-1b-engine-drag-application: done
   6-1c-f32-committed-velocity-precision: done
@@ -67,13 +67,19 @@ development_status:
   6-2-bumper-radial-impulse-work-store: done
   6-3-bumper-multi-angle-contacts: done
   6-4-prismatic-slider-tgs-soft-spring: done
-  6-5-preload-energy-store-springboard-launch: review
-  6-6-straight-pipe-compound-cylinder: backlog
-  6-7-hollow-sdf-torus-cap-clear-pipe: backlog
-  6-8-generic-aperture-sensor-directional-rearm: backlog
-  6-9-pipe-bend-45-hollow-torus-segment: backlog
-  6-10-pipe-bend-90-joined-pipe-route: backlog
-  6-11-funnel-hollow-frustum-inlet: backlog
+  6-5-preload-energy-store-springboard-launch: done
+  6-5b-dynamic-part-discovery: done
+  6-5c-gltf-collider-extraction-and-port-locators: done
+  6-5d-existing-parts-balls-obstacles-gltf-conversion: done
+  6-5e-existing-parts-mechanisms-fixtures-gltf-conversion: done
+  6-5f-partart-partkind-legacy-purge: done
+  6-6-straight-pipe-compound-cylinder: done
+  6-7-hollow-sdf-torus-cap-clear-pipe: done
+  6-8-generic-aperture-sensor-directional-rearm: done
+  6-9-pipe-bend-45-hollow-torus-segment: done
+  6-9b-unbounded-collider-capacity: done
+  6-10-pipe-bend-90-joined-pipe-route: done
+  6-11-funnel-hollow-frustum-inlet: done
   epic-6-retrospective: optional
 
   # Owner decision 9 Oct 2026: Epic 7 (legacy purge) runs after 6-1d and before 6-2.
@@ -83,25 +89,90 @@ development_status:
   # 7-0: all 348 specs and closing deliverables independently reviewed in review-7-0-resumed.md.
   # Frozen proof plus narrowly reviewed status/owner-decision corrections; local commit, no push.
   # Entry gate for 7-1..7-4: no file is deleted until docs/planning/elements/legacy-disposition.md has a row for it.
-  epic-7: in-progress
+  # 18 Oct 2026: independent committed-tree receipts recorded in review-7-2/review-7-4 -> done.
+  epic-7: done
   7-0-element-implementation-readiness: done
   7-1-reference-historical-archive-purge: done
-  7-2-diagnostics-legacy-probe-tools-purge: review
+  7-2-diagnostics-legacy-probe-tools-purge: done
   7-3-uncompiled-legacy-test-purge: done
-  7-4-legacy-cpu-physics-unshipped-engine-purge: review
+  7-4-legacy-cpu-physics-unshipped-engine-purge: done
   epic-7-retrospective: optional
 
-  epic-8: backlog
-  8-1-battery-dc-power-source-network-graph: backlog
-  8-2-powered-gate-passageway-barrier: backlog
+  epic-8: done
+  8-1-battery-dc-power-source-network-graph: done
+  8-2-powered-gate-passageway-barrier: done
   epic-8-retrospective: optional
 
-  epic-9: backlog
-  9-1-pressure-plate-surface-contact-load-sensor: backlog
-  9-2-pulse-counter-event-accumulator: backlog
-  9-3-system-clock-periodic-pulse-generator: backlog
-  9-4-state-latch-bistable-memory: backlog
+  epic-9: in-progress
+  9-1-pressure-plate-surface-contact-load-sensor: done
+  9-2-pulse-counter-event-accumulator: done
+  9-2b-modular-element-isolation-and-wasm-solver-consolidation: done
+  9-3-system-clock-periodic-pulse-generator: done
+  9-4-state-latch-bistable-memory: done
+  # Coordinator 18 Oct 2026: pre-existing cumulative Chrome failures found during 9.4 (see spec-9-4 item 3).
+  9-4b-cumulative-chrome-regression-repair: backlog
+  # Coordinator 18 Oct 2026 (review-9-4 D1): latch-dependent deferred integrations CAT-005 N19 and
+  # CAT-051 supply interruption mid-stroke.
+  9-4c-latch-fixture-deferred-integrations: backlog
+
+  # Owner decision 18 Oct 2026 (epics.md Open scheduling item g): Epic 9A, sole architecture conformance
+  # (project per element, command/query, event disruptor; bundle is the single declaration source), runs
+  # after 9-4 and 9-4b and before 9-5 and every later new element; 9-4c precedes it by coordinator
+  # placement. Keys listed in delivery order.
+  # Evidence: _bmad-output/planning-artifacts/architecture-conformance-audit-2026-10-18.md
+  epic-9a: backlog
+  9a-0-architecture-authority-docs: backlog
+  9a-1-dead-legacy-purge: backlog
+  9a-2-single-flatbuffers-codec: backlog
+  9a-3-typed-transport-control-commands: backlog
+  9a-4-lossless-bundle-build-gate: backlog
+  9a-5-receiver-element-package: backlog
+  9a-6-bowling-ball-element-package: backlog
+  9a-7-delay-box-element-package: backlog
+  9a-8-funnel-element-package: backlog
+  9a-9-pipe-element-package: backlog
+  9a-10-pipe-bend-45-element-package: backlog
+  9a-11-pipe-bend-90-element-package: backlog
+  9a-12-springboard-element-package: backlog
+  9a-13-impact-switch-element-package: backlog
+  9a-14-bundle-sole-catalogue-source: backlog
+  9a-15-bundle-element-id-save-wire: backlog
+  9a-16-bundle-sole-collider-source: backlog
+  9a-17-bundle-ports-and-footprint: backlog
+  9a-18-package-icons: backlog
+  9a-19-declared-prismatic-drive: backlog
+  9a-20-declared-contact-load-sensor: backlog
+  9a-21-declaration-free-worker-warmup: backlog
+  9a-22-event-ring-producer: backlog
+  9a-23-event-ring-consumers: backlog
+  9a-24-typed-observation-port: backlog
+  9a-25-package-presentation-bindings: backlog
+  9a-26-lessons-as-content-data: backlog
+  9a-27-generic-instance-wall-parameter-editor: backlog
+  9a-28-generic-instance-ramp: backlog
+  9a-29-generic-instance-receiver: backlog
+  9a-30-generic-instance-basketball: backlog
+  9a-31-generic-instance-bowling-ball: backlog
+  9a-32-generic-instance-domino: backlog
+  9a-33-generic-instance-bumper: backlog
+  9a-34-generic-instance-springboard: backlog
+  9a-35-generic-instance-impact-switch: backlog
+  9a-36-generic-instance-signal-lamp: backlog
+  9a-37-generic-instance-ball-detector: backlog
+  9a-38-generic-instance-delay-box: backlog
+  9a-39-generic-instance-battery: backlog
+  9a-40-generic-instance-pressure-plate: backlog
+  9a-41-generic-instance-pulse-counter: backlog
+  9a-42-generic-instance-system-clock: backlog
+  9a-43-generic-instance-state-latch: backlog
+  # Owner decision 18 Oct 2026: every remaining binary16 lane to f32; Half nowhere in the tree.
+  9a-44-f32-lane-completion-half-purge: backlog
+  9a-45-compile-time-isolation-gate: backlog
+  epic-9a-retrospective: optional
+
   9-5-hold-timer-pulse-stretcher: backlog
+  # Owner decision 18 Oct 2026 (open scheduling item b): Switch electrical mode before the Both gate.
+  9-5b-impact-switch-electrical-mode: backlog
   9-6-dual-supply-both-gate: backlog
   9-7-electrical-logic-gates-nand-nor: backlog
   9-8-electrical-logic-gates-or-xor: backlog
@@ -131,6 +202,11 @@ development_status:
 
   epic-13: backlog
   13-1-flashlight-torch-collimated-laser-emitters: backlog
+  # Coordinator decision under owner delegation 18 Oct 2026 (open scheduling items a and d): RGB lasers before
+  # receivers, one element per story (AGENTS.md).
+  13-1b-red-laser-emitter: backlog
+  13-1c-green-laser-emitter: backlog
+  13-1d-blue-laser-emitter: backlog
   13-2-broadband-pure-channel-optical-receivers: backlog
   13-3-beam-shutter-mechanical-guillotine: backlog
   13-4-spectral-color-bandpass-filters-rgb: backlog
@@ -141,8 +217,11 @@ development_status:
   epic-13-retrospective: optional
 
   epic-14: backlog
-  14-1-sound-level-meter-threshold-sensor: backlog
+  # Owner decision 18 Oct 2026 (open scheduling item c): new acoustic engine story first, then the Bell,
+  # then the meter (keys keep their numbers; listed in delivery order).
+  14-0-acoustic-propagation-occlusion-reception-engine: backlog
   14-2-service-bell-percussion-resonant-ringing: backlog
+  14-1-sound-level-meter-threshold-sensor: backlog
   14-3-audio-speaker-directional-pulse-emission: backlog
   14-4-resonant-wind-chimes-airflow-percussion: backlog
   epic-14-retrospective: optional

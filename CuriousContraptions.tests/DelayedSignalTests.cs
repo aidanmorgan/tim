@@ -16,7 +16,7 @@ public sealed class DelayedSignalTests
     public void SourceFixturesInventoryThresholdAndCanonicalRoundtrip(double precision, double threshold)
     {
         var construction = Lesson((Half)precision);
-        Assert.Equal(WorkshopPartKind.Delay, construction.Puzzle.InventoryKind);
+        Assert.Equal(PartId.Delay, construction.Puzzle.InventoryPart);
         Assert.Equal(1u, construction.Puzzle.InventoryCount);
         Assert.All(construction.Instances, value => Assert.True(value.Locked));
         Assert.Equal(new CellOrigin(-48,64,0), construction.Ball!.Value.Cell);
@@ -71,7 +71,7 @@ public sealed class DelayedSignalTests
         var source = new ActivationTime(100,(Half)12);
         var cause = new ActivationCause(new(7),new(1),new(9),source,new((Half)2));
         var sourceNode = new ActivationNodeDeclaration(new(2),new(2),ActivationNodeKind.ContactSource,new(7));
-        var targetNode = new ActivationNodeDeclaration(new(3),new(3),ActivationNodeKind.Latch,default);
+        var targetNode = new ActivationNodeDeclaration(new(3),new(3),ActivationNodeKind.StickyFirstInput,default);
         var trigger = ActivationLatch.From(sourceNode,new(ActivationOccurrenceKind.Contact,new(2),source,cause));
         var delayed = ActivationLatch.From(targetNode,new(ActivationOccurrenceKind.TimerElapsed,new(4),new(584,(Half)0),cause));
         var read = new WorkshopRead(new(2),new(146),default,Activations:new([trigger,delayed]));

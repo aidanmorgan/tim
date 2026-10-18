@@ -72,18 +72,34 @@ public sealed class WorkshopDominoTests
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         var domino = Assert.IsType<WorkshopDomino>(decoded.Construction.Instances[1]);
         Assert.Equal(DominoMaterial.Default, domino.Material);
-        Assert.Equal(WorkshopPartKind.Domino, domino.Kind);
+        Assert.Equal(PartId.Domino, domino.PartId);
         Assert.False(domino.Cosmetic.IsDeclared);
-        var dominoOffset = 24 + WorkshopWire.ConstructionHeaderBytes + WorkshopWire.InstanceBytes;
-        foreach (var field in new[] { 112, 114, 116, 118, 120, 122 })
+        foreach (var forgedMaterial in new[]
         {
-            var forged = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt16LittleEndian(forged.AsSpan(dominoOffset + field), BitConverter.HalfToUInt16Bits((Half)17));
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(forged));
+            domino.Material with { Mass = new((Half)17) },
+            domino.Material with { Bounce = new((Half)17) },
+            domino.Material with { Friction = new((Half)17) },
+            domino.Material with { HalfExtents = new((Half)17, domino.Material.HalfExtents.Y, domino.Material.HalfExtents.Z) },
+            domino.Material with { HalfExtents = new(domino.Material.HalfExtents.X, (Half)17, domino.Material.HalfExtents.Z) },
+            domino.Material with { HalfExtents = new(domino.Material.HalfExtents.X, domino.Material.HalfExtents.Y, (Half)17) }
+        })
+        {
+            var forgedConstruction = save.Construction with { Instances = new WorkshopInstances(save.Construction.Instances[0], domino with { Material = forgedMaterial }) };
+            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
+            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
+            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+            builder.Finish(end.Value);
+            var forgedBytes = builder.SizedByteArray();
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(forgedBytes));
         }
-        var padding = (byte[])bytes.Clone(); padding[dominoOffset + 124] = 1;
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
-        Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)));
+        var bb = new Google.FlatBuffers.ByteBuffer(bytes);
+        var fbSave = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(bb);
+        Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, fbSave.Version);
     }
 
     [Fact]
@@ -101,12 +117,12 @@ public sealed class WorkshopDominoTests
             Assert.Throws<ArgumentException>(() => invalid.Validate());
         Assert.Throws<ArgumentOutOfRangeException>(() => WorkshopInput.Domino(new(2), 0, 65, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentException>(() => WorkshopInput.Domino(new(2), 0, 0, 0, 0, 0, 0, 0));
-        Assert.Equal([new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output)], WorkshopPorts.For(WorkshopPartKind.Domino).ToArray());
-        Assert.True(WorkshopPorts.Has(WorkshopPartKind.Domino, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
-        Assert.False(WorkshopPorts.Has(WorkshopPartKind.Domino, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
-        Assert.Equal(new MetreVector((Half)0, (Half).55, (Half)0), WorkshopPorts.LocalPosition(WorkshopPartKind.Domino, WorkshopSocket.ActivationOut));
-        Assert.Equal(new WorkbenchFootprint(1, 1, 1, 0, 0, 0), WorkbenchFootprint.Of(WorkshopPartKind.Domino));
-        Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[WorkshopPartKind.Domino]);
+        Assert.Equal([new WorkshopPort(WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output)], WorkshopPorts.For(PartId.Domino).ToArray());
+        Assert.True(WorkshopPorts.Has(PartId.Domino, WorkshopSocket.ActivationOut, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Output));
+        Assert.False(WorkshopPorts.Has(PartId.Domino, WorkshopSocket.ActivationIn, WorkshopConnectionDomain.Activation, WorkshopPortDirection.Input));
+        Assert.Equal(new System.Numerics.Vector3(0f, .55f, 0f), WorkshopPorts.LocalPosition(PartId.Domino, WorkshopSocket.ActivationOut));
+        Assert.Equal(new WorkbenchFootprint(1, 1, 1, 0, 0, 0), WorkbenchFootprint.Of(PartId.Domino));
+        Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[PartId.Domino]);
     }
 
     [Fact]

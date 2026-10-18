@@ -36,7 +36,7 @@ public readonly record struct BumperWork(ContactSpeed Strength, WorkMass Referen
 public readonly record struct WorkshopBumper(GpuBodyId Id, CellOrigin Cell, LocalPosition Local,
     CanonicalRotation Rotation, BumperWork Work, bool Locked = false) : IWorkshopInstance
 {
-    public WorkshopPartKind Kind => WorkshopPartKind.PinballBumper;
+    public PartId PartId => PartId.PinballBumper;
     public CosmeticCurveDeclaration Cosmetic => CosmeticCurves.PinballBumper;
     public void Validate()
     {

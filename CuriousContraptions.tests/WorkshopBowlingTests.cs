@@ -9,25 +9,25 @@ public sealed class WorkshopBowlingTests
 {
     private const double Upright = -0.46 + .55;
     private static WorkshopBall Bowling(ulong id, double x, double y = 3, double z = 0) =>
-        WorkshopInput.Ball(WorkshopPartKind.BowlingBall, new(id), x, y, z, 0, 0, 0, 1);
+        WorkshopInput.Ball(PartId.BowlingBall, new(id), x, y, z, 0, 0, 0, 1);
     private static WorkshopConstruction TwoLanes() => new(new(1), WorkshopCadenceSettings.Default(),
         new(WorkshopInput.Domino(new(1), 0, Upright, -1.5, 0, 0, 0, 1), WorkshopInput.Domino(new(2), 0, Upright, 1.5, 0, 0, 0, 1),
-            WorkshopInput.Basketball(new(3), .3, 1.05, -1.5, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
+        WorkshopInput.Basketball(new(3), .3, 1.05, -1.5, 0, 0, 0, 1), Bowling(4, .3, 1.05, 1.5)));
 
     [Fact]
     public void EachBallKindDeclaresItsOwnMaterialAndRejectsEveryOtherBitPattern()
     {
-        var bowling = BallMaterial.For(WorkshopPartKind.BowlingBall);
+        var bowling = BallMaterial.For(PartId.BowlingBall);
         Assert.Equal(new BallMaterial(new((Half).28), new((Half)4), new((Half).14), new((Half).04), new((Half)0), new((Half).3), new((Half).1), new((Half).03)), bowling);
-        var basketball = BallMaterial.For(WorkshopPartKind.Basketball);
+        var basketball = BallMaterial.For(PartId.Basketball);
         Assert.Equal(new BallMaterial(new((Half).34), new((Half)1), new((Half).55), new((Half).04), new((Half)0), new((Half).3), new((Half).1), new((Half).035)), basketball);
-        Assert.Throws<ArgumentException>(() => BallMaterial.For(WorkshopPartKind.Receiver));
-        Assert.Throws<ArgumentException>(() => BallMaterial.For(WorkshopPartKind.Unsupported));
+        Assert.Throws<ArgumentException>(() => BallMaterial.For(PartId.Receiver));
+        Assert.Throws<ArgumentException>(() => BallMaterial.For(PartId.Unsupported));
         // A ball carries the material of its own kind only.
-        Assert.Throws<ArgumentException>(() => bowling.Validate(WorkshopPartKind.Basketball));
-        Assert.Throws<ArgumentException>(() => basketball.Validate(WorkshopPartKind.BowlingBall));
+        Assert.Throws<ArgumentException>(() => bowling.Validate(PartId.Basketball));
+        Assert.Throws<ArgumentException>(() => basketball.Validate(PartId.BowlingBall));
         var ball = Bowling(4, .3, 1.05, 1.5);
-        Assert.Equal(WorkshopPartKind.BowlingBall, ball.Kind);
+        Assert.Equal(PartId.BowlingBall, ball.PartId);
         Assert.False(ball.Cosmetic.IsDeclared);
         foreach (var invalid in new[]
         {
@@ -41,11 +41,11 @@ public sealed class WorkshopBowlingTests
             ball with { Material = bowling with { Rolling = new((Half)0) } },
             ball with { Material = bowling with { Rolling = basketball.Rolling } },
             ball with { Material = basketball },
-            ball with { Kind = WorkshopPartKind.Basketball },
-            ball with { Kind = WorkshopPartKind.Domino }
+            ball with { PartId = PartId.Basketball },
+            ball with { PartId = PartId.Domino }
         })
             Assert.Throws<ArgumentException>(() => invalid.Validate());
-        Assert.Throws<ArgumentException>(() => WorkshopInput.Ball(WorkshopPartKind.Domino, new(4), 0, 3, 0, 0, 0, 0, 1));
+        Assert.Throws<ArgumentException>(() => WorkshopInput.Ball(PartId.Domino, new(4), 0, 3, 0, 0, 0, 0, 1));
         Assert.Throws<ArgumentOutOfRangeException>(() => Bowling(4, 65));
     }
 
@@ -93,44 +93,69 @@ public sealed class WorkshopBowlingTests
         Assert.Equal(bytes, WorkshopSaveCodec.Encode(decoded));
         var basketball = Assert.IsType<WorkshopBall>(decoded.Construction.Instances[2]);
         var bowling = Assert.IsType<WorkshopBall>(decoded.Construction.Instances[3]);
-        Assert.Equal(WorkshopPartKind.Basketball, basketball.Kind);
-        Assert.Equal(BallMaterial.For(WorkshopPartKind.Basketball), basketball.Material);
-        Assert.Equal(WorkshopPartKind.BowlingBall, bowling.Kind);
-        Assert.Equal(BallMaterial.For(WorkshopPartKind.BowlingBall), bowling.Material);
-        var bowlingOffset = 24 + WorkshopWire.ConstructionHeaderBytes + 3 * WorkshopWire.InstanceBytes;
-        var basketballOffset = 24 + WorkshopWire.ConstructionHeaderBytes + 2 * WorkshopWire.InstanceBytes;
-        Assert.Equal((uint)WorkshopPartKind.BowlingBall, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(bowlingOffset)));
-        Assert.Equal((ushort)13435, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 112)));
-        Assert.Equal((ushort)17408, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 114)));
-        Assert.Equal((ushort)0, BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(bowlingOffset + 122))); // rolling resistance is kind data, not persisted
-        foreach (var field in new[] { 112, 114, 116, 118, 120 })
+        Assert.Equal(PartId.Basketball, basketball.PartId);
+        Assert.Equal(BallMaterial.For(PartId.Basketball), basketball.Material);
+        Assert.Equal(PartId.BowlingBall, bowling.PartId);
+        Assert.Equal(BallMaterial.For(PartId.BowlingBall), bowling.Material);
+        var bb = new Google.FlatBuffers.ByteBuffer(bytes);
+        var fbSave = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(bb);
+        Assert.True(fbSave.Construction.HasValue);
+        var fbBasketball = fbSave.Construction.Value.Instances(2)!.Value;
+        var fbBowling = fbSave.Construction.Value.Instances(3)!.Value;
+        Assert.Equal("ball", fbBasketball.PartId);
+        Assert.Equal("bowling", fbBowling.PartId);
+        Assert.Equal((float)BallMaterial.For(PartId.BowlingBall).Radius.Value, fbBowling.Radius);
+        Assert.Equal((float)BallMaterial.For(PartId.BowlingBall).Mass.Value, fbBowling.Mass);
+        foreach (var forgedMaterial in new[]
         {
-            var forged = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt16LittleEndian(forged.AsSpan(bowlingOffset + field), BitConverter.HalfToUInt16Bits((Half)17));
-            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(forged));
+            bowling.Material with { Radius = new((Half)17) },
+            bowling.Material with { Mass = new((Half)17) },
+            bowling.Material with { Bounce = new((Half)17) },
+            bowling.Material with { Drag = new((Half)17) },
+            bowling.Material with { Buoyancy = new((Half)17) }
+        })
+        {
+            var forgedConstruction = decoded.Construction with {
+                Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], decoded.Construction.Instances[2], bowling with { Material = forgedMaterial })
+            };
+            var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
+            var crOffset = WorkshopWireFlatBuffers.EncodeConstructionRecord(builder, forgedConstruction, validate: false);
+            CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
+            CuriousContraptions.Wire.SavedConstruction.AddMagic(builder, WorkshopSaveCodec.Magic);
+            CuriousContraptions.Wire.SavedConstruction.AddVersion(builder, WorkshopSaveCodec.Version);
+            CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 5);
+            CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset);
+            var end = CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder);
+            builder.Finish(end.Value);
+            Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(builder.SizedByteArray()));
         }
         // Material bits of one kind under the other kind's tag are not that kind.
-        var swapped = (byte[])bytes.Clone();
-        BinaryPrimitives.WriteUInt32LittleEndian(swapped.AsSpan(bowlingOffset), (uint)WorkshopPartKind.Basketball);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(swapped));
-        var swappedBack = (byte[])bytes.Clone();
-        BinaryPrimitives.WriteUInt32LittleEndian(swappedBack.AsSpan(basketballOffset), (uint)WorkshopPartKind.BowlingBall);
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(swappedBack));
-        var padding = (byte[])bytes.Clone(); padding[bowlingOffset + 122] = 1;
-        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(padding));
-        // Current construction velocity lanes84..96 are zero; live velocity, including signed zero, rejects. Old schemas reject separately.
-        for (var instance = 0; instance < decoded.Construction.Instances.Count; instance++)
-        {
-            var slot = 24 + WorkshopWire.ConstructionHeaderBytes + instance * WorkshopWire.InstanceBytes;
-            Assert.True(bytes.AsSpan(slot + 84, 12).IndexOfAnyExcept((byte)0) < 0);
-        }
-        foreach (var bits in new[] { BitConverter.SingleToUInt32Bits(1f), 0x80000000u, BitConverter.SingleToUInt32Bits(float.NaN) })
-        {
-            var live = (byte[])bytes.Clone();
-            BinaryPrimitives.WriteUInt32LittleEndian(live.AsSpan(bowlingOffset + 84), bits);
-            Assert.ThrowsAny<ArgumentException>(() => WorkshopSaveCodec.Decode(live));
-        }
-        Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, BinaryPrimitives.ReadUInt32LittleEndian(bytes.AsSpan(4)));
+        var swapped1 = decoded.Construction with {
+            Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], decoded.Construction.Instances[2], bowling with { Material = BallMaterial.For(PartId.Basketball) })
+        };
+        var b1 = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var cr1 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b1, swapped1, validate: false);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(b1);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(b1, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(b1, WorkshopSaveCodec.Version);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(b1, 5);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(b1, cr1);
+        b1.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(b1).Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(b1.SizedByteArray()));
+
+        var swapped2 = decoded.Construction with {
+            Instances = new WorkshopInstances(decoded.Construction.Instances[0], decoded.Construction.Instances[1], basketball with { Material = BallMaterial.For(PartId.BowlingBall) }, decoded.Construction.Instances[3])
+        };
+        var b2 = new Google.FlatBuffers.FlatBufferBuilder(512);
+        var cr2 = WorkshopWireFlatBuffers.EncodeConstructionRecord(b2, swapped2, validate: false);
+        CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(b2);
+        CuriousContraptions.Wire.SavedConstruction.AddMagic(b2, WorkshopSaveCodec.Magic);
+        CuriousContraptions.Wire.SavedConstruction.AddVersion(b2, WorkshopSaveCodec.Version);
+        CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(b2, 5);
+        CuriousContraptions.Wire.SavedConstruction.AddConstruction(b2, cr2);
+        b2.Finish(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(b2).Value);
+        Assert.Throws<ArgumentException>(() => WorkshopSaveCodec.Decode(b2.SizedByteArray()));
+        Assert.Equal((uint)WorkshopSaveVersion.CanonicalConstruction, fbSave.Version);
     }
 
     [Fact]
@@ -171,12 +196,12 @@ public sealed class WorkshopBowlingTests
             Assert.Equal(WorkbenchTable.DynamicBodies, error.Table);
             Assert.Equal("Workbench is full: moving body table", error.Message);
         }
-        Assert.Equal(new WorkbenchFootprint(1, 1, 1, 0, 0, 0), WorkbenchFootprint.Of(WorkshopPartKind.BowlingBall));
-        Assert.Empty(WorkshopPorts.For(WorkshopPartKind.BowlingBall).ToArray());
-        Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[WorkshopPartKind.BowlingBall]);
-        Assert.Equal(WorkshopPartKind.BowlingBall, WorkshopInventoryPolicy.Free.Keys.ElementAt(9));
-        Assert.Equal(WorkshopPartKind.Battery, WorkshopInventoryPolicy.Free.Keys.ElementAt(10));
-        Assert.Equal(WorkshopPartKind.Springboard, WorkshopInventoryPolicy.Free.Keys.Last());
+        Assert.Equal(new WorkbenchFootprint(1, 1, 1, 0, 0, 0), WorkbenchFootprint.Of(PartId.BowlingBall));
+        Assert.Empty(WorkshopPorts.For(PartId.BowlingBall).ToArray());
+        Assert.Equal(PartAllowance.Unlimited, WorkshopInventoryPolicy.Free[PartId.BowlingBall]);
+        Assert.Contains(PartId.BowlingBall, WorkshopInventoryPolicy.Free.Keys);
+        Assert.Contains(PartId.Battery, WorkshopInventoryPolicy.Free.Keys);
+        Assert.Contains(PartId.Springboard, WorkshopInventoryPolicy.Free.Keys);
 
         // One Receiver declares a residence sensor and a guide per ball of either kind, with the shared capture settings.
         var receiver = WorkshopInput.Receiver(new(5), 0, 1, 0, 0, 0, 0, 1);
@@ -197,14 +222,14 @@ public sealed class WorkshopBowlingTests
         foreach (var level in new[] { first, delayed, dominoes })
         {
             var ball = level.Ball!.Value;
-            Assert.Equal(WorkshopPartKind.Basketball, ball.Kind);
+            Assert.Equal(PartId.Basketball, ball.PartId);
             // The same identity and pose as a Bowling ball is not the authored fixture.
-            var replaced = level.WithInstance(ball with { Kind = WorkshopPartKind.BowlingBall, Material = BallMaterial.For(WorkshopPartKind.BowlingBall) });
+            var replaced = level.WithInstance(ball with { PartId = PartId.BowlingBall, Material = BallMaterial.For(PartId.BowlingBall) });
             var error = Assert.Throws<ArgumentException>(() => replaced.Validate());
             Assert.Equal("Authored puzzles admit only their named Basketball.", error.Message);
             // A second ball of the heavier kind is not an inventory item either.
             Assert.Throws<ArgumentException>(() => level.WithInstance(Bowling(100009, 2, 5)).Validate());
-            Assert.False(WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(WorkshopPartKind.BowlingBall));
+            Assert.False(WorkshopInventoryPolicy.Authored(level.Puzzle).ContainsKey(PartId.BowlingBall));
         }
         // Free play admits both kinds together.
         TwoLanes().Validate();

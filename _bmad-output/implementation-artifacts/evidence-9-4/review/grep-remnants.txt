@@ -1,0 +1,12 @@
+## grep remnants (rg over production C#/JS/TS, excluding bin/obj/AppBundle)
+### _counterReached|counterReached
+### _counterCrossings|_ballPassageState
+### hasClock|hasCounter
+### 3u \* hz|currentTick >= 3
+### 0\.125f
+### isCounterPowered
+### MathF.Abs\(col\.H[xyz]
+### StateLatchSupplied|StateLatchSupplies|StateLatchRoutes|GetStateLatchPhase|UpdateLatchPresentation
+### Compat|Legacy|Fallback|Shim|Alias
+tools/e2e/anim-1c.test.ts:2:// Verifies Legacy Presentation Code Retirement (Story 4.3):
+tools/e2e/anim-1c.test.ts:48:describe('ANIM-1c: Legacy presentation code retirement', () => {

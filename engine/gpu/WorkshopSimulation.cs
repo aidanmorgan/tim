@@ -16,7 +16,9 @@ public readonly record struct WorkshopGpuCandidate(CommandSequence Sequence, Wor
 public interface IWorkshopGpuDevice : IAsyncDisposable
 {
     ValueTask<WorkshopGpuCandidate> Admit(WorkshopConstruction construction, SimulationEpoch epoch, WorkshopGpuProfile profile, CommandSequence sequence);
-    ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence);
+    /// <summary>One physics step from the committed world. The controls carry every player input the step reads (per-source enables);
+    /// the device adds committed switch state for its compiled switched supplies. Physics never reads authoring state.</summary>
+    ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls);
     // Swap candidate buffers only after host validation. Discard is idempotent, nonthrowing, and
     // sequence-specific; a superseded request cannot free a newer candidate or committed buffers.
     void Commit(CommandSequence sequence);
@@ -72,6 +74,20 @@ public sealed class WorkshopSimulation : IAsyncDisposable
     public AuthorityRevision Revision => Committed.Revision;
     private ulong _epoch = 1;
     private int _pending;
+    // Bistable activation nodes (State Latch memory and the level indicators it drives) compile once per construction revision;
+    // read validation consults this set instead of walking the authored construction every tick.
+    private (ConstructionRevision Revision, HashSet<ActivationNodeId> Nodes) _bistable;
+    private HashSet<ActivationNodeId> BistableNodes()
+    {
+        if (_bistable.Nodes is null || _bistable.Revision != Construction.Revision)
+        {
+            var nodes = new HashSet<ActivationNodeId>();
+            foreach (var node in WorkshopActivationCompiler.Compile(Construction).Nodes)
+                if (node.Kind is ActivationNodeKind.StateLatch or ActivationNodeKind.LevelIndicator) nodes.Add(node.Id);
+            _bistable = (Construction.Revision, nodes);
+        }
+        return _bistable.Nodes;
+    }
     private bool _disposed;
     public SimulationEpoch Epoch => new(_epoch);
     public WorkshopConstruction Construction { get; private set; }
@@ -240,7 +256,7 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             return Reject(WorkshopRejection.IdentityExhausted);
         try
         {
-            var candidate = await _device.Advance(source, new(owner));
+            var candidate = await _device.Advance(source, new(owner), WorkshopTickControls.For(source.Electrical, ElectricalState));
             var read = CandidateRead(candidate, owner);
             if (!Owns(owner)) return Superseded(owner);
             ValidateAdvancedRead(source, read);
@@ -252,7 +268,11 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             return Applied();
         }
         catch (WorkshopInstallationException) { if (Owns(owner)) Phase = _priorPhase; return Reject(WorkshopRejection.Transport); }
-        catch (Exception) { return Failure(owner, WorkshopRejection.InvalidRead); }
+        catch (Exception error)
+        {
+            Console.WriteLine($"CCGPU_ADVANCE_EXCEPTION: {error}");
+            return Failure(owner, WorkshopRejection.InvalidRead);
+        }
         // Counts every request, independently of ownership. A stale completion cannot clear a new one.
         finally { _device.Discard(new(owner)); _pending--; }
     }
@@ -448,11 +468,13 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             if (read.Captures[i].Sensor != source.Captures[i].Sensor ||
                 (source.Captures[i].Phase == CaptureLatchPhase.Latched && read.Captures[i] != source.Captures[i]))
                 throw new ArgumentException("Committed capture identity or latch changed.");
+        var bistable = BistableNodes();
         for (var i = 0; i < read.Activations.Count; i++)
         {
             var before = source.Activations[i]; var after = read.Activations[i]; after.Validate();
+            // Bistable nodes may flip between Clear (Off) and Latched (On); every other latched value is immutable within a world.
             if (after.Node != before.Node || after.Owner != before.Owner ||
-                (before.Phase == ActivationPhase.Latched && after != before))
+                (!bistable.Contains(after.Node) && before.Phase == ActivationPhase.Latched && after != before))
                 throw new ArgumentException("Committed activation identity or latch changed.");
         }
         for (var i = 0; i < read.Timers.Count; i++)

@@ -1,0 +1,247 @@
+✖ failing tests:
+
+test at tools/e2e/cat-005.test.ts:2:7003
+✖ Battery recharge, disable, Save/Load and Reset (17226.17125ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:180:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:7003
+✖ Battery finite60J source exhausts and retains final credit (19226.669375ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:180:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:15428
+✖ Battery fans one finite source out to two existing Bumper stores (20933.296042ms)
+  AssertionError [ERR_ASSERTION]: Every connected store must receive positive credit
+      at assertTransfers (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:105:16)
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:257:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:19040
+✖ Battery disconnected authored settings and rendered charge thresholds restore exactly (58143.69925ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(budget.debit>0 && budget.credit>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:345:51)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-005.test.ts:2:24777
+✖ Battery paused intent reverses and Running controls preserve stores across continued ticks (14778.505917ms)
+  TypeError [Error]: Cannot read properties of null (reading 'enabled')
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-005.test.ts:380:394)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tools/e2e/cat-015a-sidekick.test.ts:2:2039
+✖ Sidekick paid route uses actual UI and restores authored state (13285.471084ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(powered.length>0 && after.contactWorks(0)!.remainingEnergy()<32)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-015a-sidekick.test.ts:72:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-015a.test.ts:2:8479
+✖ CAT-015a heavy payload receives partial affordable boost, then ordinary unpaid bounce (13404.867459ms)
+  AssertionError [ERR_ASSERTION]: Later empty contact must not spend energy
+  + actual - expected
+  
+  + 0.0000019073486328125
+  - 0
+  
+      at scenario (/Users/aidan/dev/personal/tim/tools/e2e/cat-015a.test.ts:109:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.0000019073486328125,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-015b.test.ts:2:4773
+✖ CAT015b lesson 5 route 0 real UI and exact lifecycle (19739.742083ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(paid.length>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-015b.test.ts:128:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-015b.test.ts:2:4773
+✖ CAT015b lesson 6 route 0 real UI and exact lifecycle (21297.128833ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(paid.length>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-015b.test.ts:128:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-015b.test.ts:2:4773
+✖ CAT015b lesson 6 route 1 real UI and exact lifecycle (17137.317167ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(paid.length>0)
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-015b.test.ts:128:20)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:12849
+✖ CAT062b route Passive preserves construction and repeats after Reset/Load (9195.38ms)
+  AssertionError [ERR_ASSERTION]: Precise Receiver guide is zero
+  
+  0.5 !== 0
+  
+      at construct (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:164:16)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:202:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:12849
+✖ CAT062b route Charged preserves construction and repeats after Reset/Load (10800.312208ms)
+  AssertionError [ERR_ASSERTION]: Precise Receiver guide is zero
+  
+  0.5 !== 0
+  
+      at construct (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:164:16)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:202:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:12849
+✖ CAT062b route Zero preserves construction and repeats after Reset/Load (10745.113292ms)
+  AssertionError [ERR_ASSERTION]: Precise Receiver guide is zero
+  
+  0.5 !== 0
+  
+      at construct (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:164:16)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:202:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:12849
+✖ CAT062b route Away preserves construction and repeats after Reset/Load (12991.229333ms)
+  AssertionError [ERR_ASSERTION]: Precise Receiver guide is zero
+  
+  0.5 !== 0
+  
+      at construct (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:164:16)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:202:33)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0.5,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-062b.test.ts:2:16022
+✖ CAT062b Ready Receiver deletion and replacement rebind the saved capture goal (7912.559042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1n !== 4n
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-062b.test.ts:257:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1n,
+    expected: 4n,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+EXIT 1

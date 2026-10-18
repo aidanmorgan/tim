@@ -62,7 +62,7 @@ public static class SpringboardLessons
         var ready = IsReady(lesson);
         var target = ready ? WorkshopInput.Receiver(receiver, 0, 0, 0, 0, 0, 0, 1) : FixedReceiver(fixedPart, precision);
         var puzzle = new WorkshopPuzzle(lesson, WorkshopPlacementMode.Manual, precision,
-            ready ? WorkshopPartKind.Receiver : WorkshopPartKind.Springboard, 1,
+            ready ? PartId.Receiver : PartId.Springboard, 1,
             new(WorkshopGoalKind.Captured, ball, target.Id, WorkshopPhysicsCompiler.CaptureSensor(target)),
             ready ? ReadyAssistance : FirstPrinciples.BallAssistance,
             ready ? ReadyReceiverAssistance : FirstPrinciples.ReceiverAssistance,
@@ -95,7 +95,7 @@ public static class SpringboardLessons
     {
         var ready = IsReady(puzzle.Id);
         PhysicsDeclarationBounds.Range(puzzle.Precision.Value, (Half)0, (Half)1);
-        if (puzzle.InventoryKind != (ready ? WorkshopPartKind.Receiver : WorkshopPartKind.Springboard) ||
+        if (puzzle.InventoryPart != (ready ? PartId.Receiver : PartId.Springboard) ||
             puzzle.InventoryCount != 1 || puzzle.Goal.Kind != WorkshopGoalKind.Captured ||
             puzzle.BallAssistance != (ready ? ReadyAssistance : FirstPrinciples.BallAssistance) ||
             puzzle.ReceiverAssistance != (ready ? ReadyReceiverAssistance : FirstPrinciples.ReceiverAssistance) ||

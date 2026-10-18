@@ -1,0 +1,13 @@
+▶ ANIM-1b: Mechanical cosmetic bindings and procedural curves
+  ✔ 1. Switch depression ramps to 1 on the declared curve while the unconnected lamp stays neutral (2803.291167ms)
+  ✔ 2. Delay progress fill wired through UI buttons rises monotonically to 1, the lamp lights after, Reset neutralises and Save/Load re-animates (12498.657583ms)
+  ✔ 3. Bumper squash pulse rises and returns to neutral when struck; an un-struck bumper emits nothing (13116.442083ms)
+✔ ANIM-1b: Mechanical cosmetic bindings and procedural curves (32833.048083ms)
+ℹ tests 3
+ℹ suites 1
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33074.763042

@@ -1,0 +1,65 @@
+▶ CAT-023b: Domino cascade mechanics & orientation-threshold sensor
+  ✔ 1. Four dominoes wired end → lamp topple in sequence, the lamp lights and CCGOAL_SOLVED prints exactly once (9352.251042ms)
+  ✖ 2. Three dominoes leave a gap: the chain breaks, the end Domino stays upright and the lamp never lights (9140.526417ms)
+  ✖ 3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting (10726.336708ms)
+  ✖ 4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again (9465.321666ms)
+✖ CAT-023b: Domino cascade mechanics & orientation-threshold sensor (43161.960375ms)
+ℹ tests 4
+ℹ suites 1
+ℹ pass 1
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43403.850792
+
+✖ failing tests:
+
+test at tools/e2e/cat-023b.test.ts:2:8965
+✖ 2. Three dominoes leave a gap: the chain breaks, the end Domino stays upright and the lamp never lights (9140.526417ms)
+  AssertionError [ERR_ASSERTION]: Pose slot must be readable
+      at bodies (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:59:12)
+      at async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:205:21)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-023b.test.ts:2:10351
+✖ 3. A Domino tilted 10 deg through Fine rotate and wired to a lamp rocks back without emitting (10726.336708ms)
+  AssertionError [ERR_ASSERTION]: Zero errors expected, got: CCGPU_TRANSPORT_FAILURE 3 ManagedError: Clock mapping recovery exhausted its bounded episode.; ManagedError: Clock mapping recovery exhausted its bounded episode.; While attempting to print an error, another error was printed:; ERROR: System.InvalidOperationException: Failed to resize vector. Error code is: 4294967296;    at Godot.DebuggingUtils.godot_stack_info_vector.Resize(Int32 size);    at Godot.DebuggingUtils.GetCurrentStackInfo(Void* destVector);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0); ERROR: System.InvalidOperationException: Worker session is unavailable; its unacknowledged operations remain indeterminate.;    at CuriousContraptions.Gpu.BrowserWorkshopClient.ThrowIfTransportFailed();    at CuriousContraptions.Gpu.BrowserWorkshopClient.TryUiFrame(UInt64 frame, WorkshopPresentationSample physical, WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.MachineWorld.TryUiFrame(WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.Workshop.ApplyUiBindings(Double delta);    at CuriousContraptions.Workshop._Process(Double delta);    at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at CuriousContraptions.Workshop.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0);    C# backtrace (most recent call first):;        [0] ;        [1] ;        [2] ;        [3] ;        [4] ;        [5] ;        [6] ;        [7] ;        [8] 
+  
+  27 !== 0
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:242:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/cat-023b.test.ts:2:12132
+✖ 4. Save / reload / Load restores the wired chain and solves; Reset rearms the sensor and a second Run solves again (9465.321666ms)
+  AssertionError [ERR_ASSERTION]: Zero errors expected, got: CCGPU_TRANSPORT_FAILURE 3 ManagedError: Clock mapping recovery exhausted its bounded episode.; ManagedError: Clock mapping recovery exhausted its bounded episode.; While attempting to print an error, another error was printed:; ERROR: System.InvalidOperationException: Failed to resize vector. Error code is: 4294967296;    at Godot.DebuggingUtils.godot_stack_info_vector.Resize(Int32 size);    at Godot.DebuggingUtils.GetCurrentStackInfo(Void* destVector);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0); ERROR: System.InvalidOperationException: Worker session is unavailable; its unacknowledged operations remain indeterminate.;    at CuriousContraptions.Gpu.BrowserWorkshopClient.ThrowIfTransportFailed();    at CuriousContraptions.Gpu.BrowserWorkshopClient.TryUiFrame(UInt64 frame, WorkshopPresentationSample physical, WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.MachineWorld.TryUiFrame(WorkshopUiTarget target, AnimationOpacity& opacity);    at CuriousContraptions.Workshop.ApplyUiBindings(Double delta);    at CuriousContraptions.Workshop._Process(Double delta);    at Godot.Node.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at CuriousContraptions.Workshop.InvokeGodotClassMethod(godot_string_name& method, NativeVariantPtrArgs args, godot_variant& ret);    at Godot.Bridge.CSharpInstanceBridge.Call(IntPtr godotObjectGCHandle, godot_string_name* method, godot_variant** args, Int32 argCount, godot_variant_call_error* refCallError, godot_variant* ret);    at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0);    C# backtrace (most recent call first):;        [0] ;        [1] ;        [2] ;        [3] ;        [4] ;        [5] ;        [6] ;        [7] ;        [8] 
+  
+  27 !== 0
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/tools/e2e/cat-023b.test.ts:270:16)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 27,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

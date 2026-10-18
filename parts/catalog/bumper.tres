@@ -1,15 +1,7 @@
-[gd_resource type="Resource" script_class="PartDefinition" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="PartDefinition" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://engine/PartDefinition.cs" id="1"]
 [ext_resource type="PackedScene" path="res://parts/scenes/bumper.tscn" id="2"]
-
-[ext_resource type="Script" path="res://engine/ContactWorkResource.cs" id="3"]
-
-[sub_resource type="Resource" id="ContactWork"]
-script = ExtResource("3")
-TargetSpeed = 8.0
-ReferenceMass = 1.0
-InitialEnergy = 32.0
 
 [resource]
 script = ExtResource("1")
@@ -19,4 +11,3 @@ Category = "Motion"
 Description = "A round spring-loaded bumper kicks a ball away from its point of impact."
 Scene = ExtResource("2")
 Color = Color(0.87, 0.44, 0.35, 1)
-ContactWork = SubResource("ContactWork")

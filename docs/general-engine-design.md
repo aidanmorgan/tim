@@ -11,11 +11,136 @@ The engine is strictly partitioned into three independent graphs, each optimized
 1. **Logical Scene / Machine Graph (Main Thread Authoring):**
    The authoring model on the browser main thread. Represents placed puzzle elements, their hierarchical components, typed sockets, and physical/logical connections (wires, pipes, belts, chains, axles). Handles user interactions (drag, drop, rotate, connect), undo/redo, UI selection highlights, and serialization. It contains no solver state or GPU vertex layouts.
 2. **Physics Graph (Dedicated WASM SIMD Worker):**
-   Compiled from the Scene Graph at Run into flat, contiguous Structure-of-Arrays (SoA) SIMD-aligned memory tables. Represents dynamic rigid bodies (mass, inertia tensors, linear/angular velocities, transforms), colliders, Box2D v3 Temporal Gauss-Seidel (TGS) Soft constraints, force regions, finite energy stores, continuous sensors, and multi-domain network nodes (electrical circuits, optical rays, acoustic/pneumatic fields). Advances at a fixed 120 Hz tick with 480 Hz substeps using 128-bit WebAssembly SIMD (`wasm-simd128`). Scaled to simulate hundreds of concurrent puzzle elements with sub-millisecond execution times. Committed poses are written directly into a lock-free zero-copy triple-buffered ring in `SharedArrayBuffer` using atomic sequence counters, completely bypassing GPU readback stalls (`mapAsync`).
+   Compiled from the Scene Graph at Run into flat, contiguous Structure-of-Arrays (SoA) SIMD-aligned memory tables. Represents dynamic rigid bodies (mass, inertia tensors, linear/angular velocities, transforms), colliders, Box2D v3 Temporal Gauss-Seidel (TGS) Soft constraints, force regions, finite energy stores, continuous sensors, and multi-domain network nodes (Modified Nodal Analysis electrical circuits, optical rays, acoustic/pneumatic fields). All physics is simulated through a unified, generalised, data-driven engine on a dedicated WASM SIMD Web Worker advancing at a fixed 120 Hz tick with 480 Hz substeps using 128-bit WebAssembly SIMD (`wasm-simd128`). Strictly zero element-specific solvers, zero per-part update loops, and zero element-selected kernel branches exist in the physics engine. Broadphase collision detection uses a Dynamic AABB BVH with velocity fattening; island partitioning uses Disjoint Set Union (DSU); narrowphase collision detection uses generic analytic manifolds (Sphere, Box, Plane, Capsule, Compound Cylinder) and signed distance fields (SDF); and multi-domain physical fields execute through shared capability kernels. Scaled to simulate hundreds of concurrent puzzle elements with sub-millisecond execution times. Committed poses are written directly into a lock-free zero-copy triple-buffered ring in `SharedArrayBuffer` using atomic sequence counters, completely bypassing GPU readback stalls (`mapAsync`).
 3. **Rendering Graph (Browser Main Thread Renderer):**
    Paced by the browser display refresh (30–60 FPS, with high-refresh display support up to 144 Hz). Assembles GPU-instanced draw batches (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU) grouped by shared mesh geometry and material pipelines. Reads the latest committed transforms directly from the zero-copy `SharedArrayBuffer` pose ring, evaluates Slerp interpolation between bracketing substep snapshots, and composes cosmetic secondary animation offsets evaluated at 60 Hz by an independent Animation worker.
 
-Data flows strictly one-way: physics → animation → renderer and physics → renderer; nothing flows back. Rates are ordered: physics (120 Hz with 480 Hz substeps) > animation (60 Hz) ≥ renderer (30–60 FPS). Physics always updates faster than rendering, and rendering never influences physical results.
+**One-Way Data Flow and Decoupled Animation:**
+Data flows strictly one-way: physics → animation → renderer and physics → renderer; nothing flows back into physics. Rates are ordered: physics (120 Hz with 480 Hz substeps) > animation (60 Hz) ≥ renderer (30–60 FPS). Physics always updates faster than rendering, and rendering never influences physical results. All animation executes on an independent Animation Web Worker at 60 Hz, completely decoupled from physical truth. Animation is entirely data-driven and event-driven: cosmetic curves, squash-and-stretch, motor spin, indicator/UI easing, and particle effects evaluate declarative bindings to committed physical poses and discrete event occurrences. Strictly zero per-element animation scripts or callbacks exist in the animation host.
+
+<a id="zero-element-assumptions"></a>
+
+## Zero Element Assumptions & Generic Combination Support
+
+A foundational, non-negotiable architectural invariant of the engine is that it operates with **zero element assumptions and generic combination support**:
+
+- **Zero Part Identity Assumptions:** The engine runtime makes strictly zero assumptions about which puzzle elements exist or have been loaded. There are no built-in "core parts" versus "extension parts", no assumptions that certain parts must co-exist, and zero hardcoded special cases.
+- **Arbitrary Combination Support:** The engine must support ANY arbitrary combination of puzzle elements without special cases, element checks, or hardcoded couplings. Whether a player places fifty motors linked in series, chains ten fans directed at suspended bowling balls, or connects arbitrary electrical networks to sensors, all interactions are evaluated uniformly.
+- **Homogeneous Mathematical Abstractions:** All physics simulation, multi-domain fields (MNA circuits, activation DAGs, joints), animation evaluation, and rendering batches operate strictly on generic mathematical abstractions and homogeneous capability tables.
+- **Strictly Forbidden Identity Branching:** No subsystem—including the physics compiler, solver kernels, animation worker, or UI router—may branch, switch, or assume anything about a part's identity, class, or purpose. If two parts collide or connect, their interaction is governed 100% by universal physics manifolds, contact materials, and typed port contracts. The solver evaluates contact geometry and constraint rows without knowledge of part names or catalog kinds.
+
+<a id="dynamic-part-discovery"></a>
+
+## Dynamic Part Discovery and Extensible Part Identities
+
+A foundational architectural pillar of the game is **dynamic part discovery and extensible part identities**:
+
+- **No Hardcoded Closed Enums or Static File Lists:** Puzzle parts are NOT hardcoded into closed enums (such as `WorkshopPartKind`) or static file registration arrays. Parts are discovered dynamically at runtime based on what is available in the filesystem.
+- **Runtime Catalog Discovery:** At startup, the part registry dynamically discovers all available parts by scanning the catalog directory (`res://parts/catalog/*.tres` via Godot's `DirAccess.GetFilesAt("res://parts/catalog")` in `PartRegistry.Discover()`).
+- **Extensible Strongly-Typed `PartId`:** In accordance with the architectural rule that extensible identities use strongly-typed IDs rather than closed enums, parts are identified by a strongly-typed `PartId` record struct wrapping their canonical string identifier. Closed enums are strictly forbidden for extensible puzzle element types.
+- **Zero Switch Statements for Instantiation and Configuration:** New parts declare their physical capabilities, visual scene (`PartDefinition.Scene`), parameters, and animation bindings in declarative `.tres` catalog resources. `PartRegistry.Create(PartId)` instantiates and configures parts directly from their discovered definition scenes without hardcoded switch statements, enum modifications, or part-specific factory branches.
+- **Dynamic Free Inventory Auto-Population:** The Free Workshop inventory policy (`WorkshopInventoryPolicy.Free`) automatically queries `PartRegistry.Definitions` and populates the palette with unlimited allowances for all discovered parts. Newly authored catalog resources immediately appear in the player's palette without requiring any core engine enum changes, UI code modifications, or static inventory list updates.
+
+<a id="declarative-ports-and-mesh-anchors"></a>
+
+### Declarative Port Definitions and Mesh-Anchored Behavior Bindings
+
+As part of the dynamic catalog architecture, connection sockets and ports are fully decoupled from hardcoded C# coordinate lookup tables and closed enum switches:
+
+- **Declarative Port Schema in `.tres` Files:** Each catalogue resource (`res://parts/catalog/*.tres`) declares the complete collection of ports it provides and consumes via typed `PortDefinition` sub-resources:
+  - **Exposed (Output) Ports:** Ports through which the part emits signals, power, or mechanical/fluid flux (e.g. electrical supply output, impact trigger pulse).
+  - **Accepted (Input) Ports:** Ports through which the part receives signals or energy (e.g. electrical power input, activation trigger).
+  - **Domain / Type:** Strongly-typed connection domain (e.g. `Electrical`, `Activation`, `Mechanical`, `Pneumatic`, `Optical`).
+- **Mesh-Anchored Port Attachment via Named Nodes (`Loc_Port_<Id>`):** Rather than relying on hardcoded C# local-coordinate vectors (`Vector3`), port anchors in 3D space are referenced by name to target locator nodes in the part's rendering scene hierarchy (convention `Loc_Port_<Id>`). At runtime, the connection UI and visual wiring systems resolve the 3D attachment point directly by querying the node transform in the scene graph (e.g. `Visual.FindChild(port.TargetNode)`). Moving or adjusting the 3D mesh automatically updates wire endpoints without code edits or hardcoded coordinate updates.
+- **Port Behavior Binding System:** Parts bind gameplay and presentation behaviors directly to these declared ports:
+  - **Visual & Cosmetic Bindings:** Dynamic visual responses driven by port state (e.g. signal lamp bulb albedo and emission when its accepted `ActivationIn` port triggers; switch button depression when activated; indicator lamp transitions).
+  - **Physical & Multi-Domain Field Bindings:** Solver-level coupling derived from declared ports at compile-to-state time (e.g. inserting an electrical node into the Modified Nodal Analysis (MNA) circuit solver when an accepted power port is wired to an exposed battery port; scheduling an activation event in the discrete event queue; triggering contact impulse drives).
+
+<a id="declarative-part-definition-system"></a>
+
+### Unified Declarative Part Definition System
+
+Every contraption element in the game is defined purely through declarative data resources (`res://parts/catalog/*.tres` or JSON specifications) composed under a unified resource hierarchy, drawing from battle-tested industry architectures (Kerbal Space Program `Part` / `PartModule`, Scrap Mechanic shape/joint data, Besiege block configurations, and Unreal Engine DataAssets / Gameplay Ability System):
+
+- **Zero Per-Part C# Classes or Update Loops:** A puzzle element is never a unique C# class inheriting from a base class with virtual `Update()` methods. An element is a data declaration specifying the reusable capabilities it instantiates, its geometric colliders, connection ports, behavior event-action bindings, art assets, and cosmetic curves.
+- **Hierarchical Resource Schema:**
+  - **`PartDefinition` (Root Catalog Resource):**
+    - `Id`: Strongly-typed `PartId` (e.g. `PartId("motor")`, `PartId("domino")`).
+    - `DisplayName`: Player-facing localized name string.
+    - `Scene`: Reference to the authored element asset (`.glb` or `.tscn` container).
+    - `Collisions`: Array of `CollisionDefinition` resources or asset-derived collision shapes extracted directly from `.glb` collision nodes.
+    - `Ports`: Array of `PortDefinition` resources defining input/output connectivity.
+    - `Capabilities`: Array of `CapabilityDefinition` resources instantiating physical behaviors.
+    - `Behaviors`: Array of `BehaviorBindingDefinition` resources mapping triggers to actuator actions.
+    - `Cosmetics`: Array of `CosmeticBindingDefinition` resources mapping observables/events to visual animation channels.
+  - **`CollisionDefinition` (Compound Geometric Shapes):**
+    - `Shape`: Shape discriminant enum (`Sphere`, `Box`, `Plane`, `Capsule`, `CompoundCylinder`, `HollowSdf`).
+    - `LocalOffset`: IEEE-754 `f32` position offset relative to part origin (`Vector3`).
+    - `LocalRotation`: Unit quaternion orientation relative to part origin (`Quaternion`).
+    - `Dimensions`: `Vector3` geometric parameters (radii, half-extents, cylinder lengths, wall thickness).
+    - `Material`: Physical material reference (restitution, static/dynamic friction, rolling resistance $C_{rr}$).
+  - **`PortDefinition` (Connectivity & Signal Anchors):**
+    - `Id`: Canonical port string ID (e.g. `"power_in"`, `"shaft_out"`, `"impact_signal"`).
+    - `Direction`: `WorkshopPortDirection` (`Exposed` / `Output` or `Accepted` / `Input`).
+    - `Domain`: `WorkshopConnectionDomain` (`Electrical`, `Activation`, `Mechanical`, `Pneumatic`, `Optical`).
+    - `TargetNode`: Relative node path to the locator empty in the visual scene hierarchy (e.g. `"Loc_Port_power_in"`).
+  - **`CapabilityDefinition` (Generic Physics Instantiation):**
+    - `Kind`: Generic capability enum (`RigidBody`, `ConstraintJoint`, `ForceRegion`, `MaterialField`, `ContinuousSensor`, `ContactTrigger`, `OrientationSensor`, `FiniteWorkStore`, `NetworkNode`).
+    - `Parameters`: Typed IEEE-754 `f32` parameter dictionary (mass, inertia principal moments, motor maximum torque, sensor aperture normal, spring stiffness $\omega$, damping $\zeta$).
+  - **`BehaviorBindingDefinition` (Event-to-Action Rules):**
+    - `Trigger`: Trigger condition enum (`ContactImpulseAboveThreshold`, `OrientationExceedsAngle`, `TimerElapsed`, `PortSignalReceived`, `ContinuousSensorStateChanged`).
+    - `TriggerParameter`: Threshold value or trigger identifier.
+    - `Action`: Actuator action enum (`EmitPortSignal`, `SetDriveActive`, `LatchSwitchState`, `DebitEnergyStore`, `ApplyImpulse`).
+    - `ActionParameter`: Target port ID, scalar magnitude, or target capability state.
+  - **`CosmeticBindingDefinition` (Decoupled Visual Presentation):**
+    - `Channel`: Visual presentation channel (`TransformOffset`, `TransformRotation`, `MeshScale`, `MaterialAlbedoColor`, `MaterialEmissionEnergy`).
+    - `TargetNode`: Path to the affected visual mesh node in the scene tree.
+    - `Curve`: Reusable easing/procedural evaluation curve resource.
+    - `Driver`: Driving physical observable or discrete event signal (e.g. `"shaft_speed"`, `"impact_occurred"`, `"port:power_in:active"`).
+
+<a id="locator-anchored-ports"></a>
+
+### Locator-Anchored Port Pattern (`Loc_Port_<Id>`)
+
+Connection sockets and wiring pins are decoupled from hardcoded C# coordinate lookup tables through the **Locator-Anchored Port Pattern**:
+- **Artist-Authored Locators:** 3D models (glTF / Godot `.tscn`) contain empty locator nodes named with the strict canonical convention `Loc_Port_<Id>` (for example, `Loc_Port_power_in`, `Loc_Port_terminal_pos`, `Loc_Port_activation_out`) placed exactly at the connection socket vertices.
+- **Dynamic Runtime Resolution:** At initialization, `MachinePart` queries its instantiated visual hierarchy:
+  $$\mathbf{T}_{\text{socket\_local}} = \text{Visual}.\text{FindChild}(\text{port}.\text{TargetNode}).\text{Transform}$$
+  Wiring endpoints, snap highlights, and connection meshes bind directly to this resolved transform.
+- **Secondary Body Transform Tracking:** For composite or articulated parts (e.g. a motor with a spinning shaft or a lever with a pivoting arm), locators placed under secondary dynamic body nodes in the visual scene automatically inherit the secondary node's local transform during runtime simulation. Wires and belts connected to articulated sockets track the secondary body without bespoke update loops.
+
+<a id="event-to-action-behavior-pipeline"></a>
+
+### Event-to-Action Behavior Binding Pipeline
+
+Parts handle physical interactions and state transitions without per-element C# scripts or update callbacks:
+- **Physical Trigger Dispatch:** Continuous physics sensors, contact triggers, orientation threshold checks ($|\langle q, q_0\rangle| \le \cos(\theta/2)$), and timer deadlines generate typed discrete occurrences on the simulation worker.
+- **Declarative Action Execution:** The runtime behavior engine evaluates the part's `BehaviorBindingDefinition` entries against these occurrences. Qualifying triggers dispatch port signals to connected wires, toggle drive states, latch contact switches, or debit finite energy stores without custom per-part logic.
+
+<a id="gltf-asset-declarative-part-pipeline"></a>
+
+### glTF 2.0 Asset & Declarative Part Pipeline
+
+All 3D puzzle elements, fixtures, and tools are authored and delivered in open-source, industry-standard **glTF 2.0 binary (`.glb`)** files. Imperative C# procedural mesh generation (`engine/PartArt.cs`) and hardcoded collider dimension tables in code are strictly deprecated and scheduled for complete deletion at `LEGACY-0`.
+
+1. **Standard Node Structure of an Element `.glb`:**
+   Every puzzle element `.glb` follows a standardized declarative node hierarchy:
+   - `Visual/` (or visual mesh nodes): Contains the renderable geometry with standard PBR metallic-roughness materials adhering to the project palette and sculptural style defined in [DESIGN.md](../DESIGN.md).
+   - `Collision/` (or collision nodes): Contains non-rendered analytic proxy primitives and convex hulls used for physics:
+     - `col_box` (or `*-col_box`, `-col` box): Analytic box half-extents.
+     - `col_sphere` (or `*-col_sphere`): Analytic sphere radius.
+     - `col_capsule` (or `*-col_capsule`): Analytic capsule radius and half-height.
+     - `col_cylinder` (or `*-col_cylinder`): Analytic cylinder radius and height.
+     - `col_hull` (or `-convcol`): Convex polyhedral hull meshes.
+     - `KHR_physics_rigid_bodies`: Official Khronos glTF extension data defining collision shapes and rigid body parameters where exported by DCC tools.
+   - `Locators/` (or locator nodes): Empty nodes named `Loc_Port_<Id>` specifying 3D socket attachment points for electrical, activation, and mechanical connections.
+   - **Secondary Body Sub-Trees:** For composite or articulated parts (e.g. rotating motor shafts, springboard moving plates, lever arms), moving sub-components are organized under dedicated child node branches. Each secondary body branch contains its respective visual geometry, collision nodes (`col_*`), and locators, sharing local transforms dynamically during simulation.
+2. **`PartDefinition` Binding to `.glb` Assets:**
+   In declarative catalog resources (`res://parts/catalog/*.tres` or JSON equivalent), `PartDefinition.Scene` references the `.glb` asset. The catalog resource declares generic physical capabilities, port contracts, and behavior bindings, while the `.glb` owns 100% of the visual and collision geometry.
+3. **Generic Collider Extraction without Identity Branching:**
+   At compile-to-state time, `WorkshopPhysicsCompiler` inspects the instantiated `.glb` scene hierarchy. It parses all collision proxy nodes (`col_*`, `-col`, `-convcol`, or `KHR_physics_rigid_bodies` nodes), computes their local transforms relative to the parent body origin, and generates generic `ColliderDeclaration` records directly into the SIMD-aligned physics tables. The compiler performs this extraction generically without branching on element kind or catalog class name.
+4. **Deprecation and Retirement of Procedural `PartArt.cs`:**
+   Procedural mesh construction in C# (`engine/PartArt.cs`) was an early prototyping mechanism. It is formally deprecated in favor of declarative `.glb` assets and will be removed at milestone `LEGACY-0`.
 
 <a id="optimization-options"></a>
 
@@ -38,7 +163,7 @@ A catalogue composition describes possible needs; the admitted implementation an
 
 ## Declaration data per element
 
-An element is defined only by its visual, physics and animation behaviours: which generic capabilities it instantiates, their parameters, its art and its animation bindings. Catalogue assemblies contain values and references; they cannot carry executable expressions, delegates, per-part callbacks or an identity that selects an equation. Closed alternatives are enums; extensible definitions and instances use typed stable IDs. The compiled plan contains capability/shape/material kinds and instance handles, not a switch over Basketball, Receiver or any other catalogue name. P0-004/P0-008/P0-016 own the exact admitted fields, offsets, enum mappings and quotas.
+An element is defined only by its visual, physics and animation behaviours: which generic capabilities it instantiates, their parameters, its art and its animation bindings. Catalogue assemblies contain values and references; they cannot carry executable expressions, delegates, per-part callbacks or an identity that selects an equation. Closed alternatives are enums; extensible definitions and instances use typed stable IDs, specifically strongly-typed `PartId` for catalogue part identities discovered dynamically from `res://parts/catalog/*.tres`. The compiled plan contains capability/shape/material kinds and instance handles, not a switch over Basketball, Receiver or any other catalogue name. P0-004/P0-008/P0-016 own the exact admitted fields, offsets, enum mappings and quotas.
 
 | Record family | Declared contents | Execution owner |
 | --- | --- | --- |
@@ -66,11 +191,21 @@ All floating game data is canonical IEEE-754 f32 (single precision); IDs, enum t
 
 The compiler decides structure and admission only. It never computes a physical trajectory, constitutive result or numerical correction in C#. GPU shape/query admission is authoritative; the CPU editor preview is non-authoritative.
 
-## Advance physical time
+<a id="generic-compilation-model"></a>
+
+### Generic Homogeneous Compilation in WorkshopPhysicsCompiler
+
+The compilation of a user contraption from the Logical Scene Graph into the flat WASM SIMD Physics Graph is strictly homogeneous and data-driven:
+- **Homogeneous Part Iteration:** `WorkshopPhysicsCompiler` iterates over placed `MachinePart` instances. It does NOT contain `switch (part.Kind)` or type-testing branches (`if (part is Motor)`).
+- **Component Packing:**
+  - For each part instance, the compiler extracts `ColliderDeclaration` records directly from the `.glb` scene's collision nodes (`col_*` proxies, convex hulls, or `KHR_physics_rigid_bodies` metadata) into the Dynamic AABB BVH and narrowphase collider tables, without element identity branching.
+  - The compiler unpacks `PartDefinition.Capabilities` directly into the flat SIMD-aligned Structure-of-Arrays (SoA) tables: bodies into body SoA arrays, constraint rows into Box2D v3 TGS Soft constraint tables, force regions into force SoA tables, and network nodes into domain solver matrices.
+  - Active wire connections between compatible `PortDefinition` sockets are compiled into multi-domain graph entries: Modified Nodal Analysis (MNA) conductance matrices for `Electrical` domains, discrete event routing tables for `Activation` domains, and kinematic ratio constraints for `Mechanical` domains.
+- **Bitwise Determinism & Zero GC:** The compiler builds flat, cache-aligned (64-byte) tables with zero dynamic heap allocation in the simulation loop, guaranteeing deterministic execution across all browsers and platforms.
 
 ## Advance Physical Time: Staged Multi-Domain Solver Pipeline
 
-Each 120 Hz tick advances through four 480 Hz substeps under the [solver model](gpu-f32-physics.md#solver-model). The physics engine executes the following staged pipeline on the dedicated WASM SIMD Web Worker:
+Each 120 Hz tick advances through four 480 Hz substeps under the [solver model](gpu-f32-physics.md#solver-model). The physics engine executes the following staged pipeline on the dedicated WASM SIMD Web Worker (with strictly zero element-specific solvers, zero per-part update loops, and zero element-selected kernel branches):
 
 1. **Multi-Domain Network Execution:**
    - **Electrical Domain:** Solves circuit topologies using Modified Nodal Analysis (MNA), updating node potentials, branch currents, and logic gate states.
@@ -83,7 +218,7 @@ Each 120 Hz tick advances through four 480 Hz substeps under the [solver model](
    - Queries the Dynamic AABB Bounding Volume Hierarchy (BVH). Leaf nodes use speculative velocity fattening ($|\mathbf{v}|\Delta t + \text{slop}$) and surface-area-heuristic incremental tree rotations.
    - Eliminates 85–95% of tree updates during steady motion, pruning non-colliding pairs in $O(N \log N)$ time.
 4. **Narrowphase Manifold Generation:**
-   - Evaluates active pairs using specialized analytic geometric solvers: Sphere-Sphere, Sphere-Box, Box-Box Separating Axis Theorem (SAT), Sphere-Plane, Box-Plane, and Capsule.
+   - Evaluates active pairs using specialized analytic geometric solvers: Sphere-Sphere, Sphere-Box, Box-Box Separating Axis Theorem (SAT), Sphere-Plane, Box-Plane, Capsule, and Compound Cylinder.
    - Evaluates hollow/concave geometry (pipes, funnels, chutes) using hollow signed distance fields (SDF) with normal vector gradients.
    - Emits persistent 1-to-4 point contact manifolds with feature IDs for warm starting.
 5. **Island Partitioning and Deactivation:**
@@ -109,7 +244,9 @@ Within a tick, C# discrete controllers and goals consume committed WASM observat
 
 ## Animation and rendering
 
-The animation worker evaluates shared clip/easing/follow/impulse/oscillation and occurrence-lifecycle evaluators over active instances compiled from declaration data. Each binding declares its input channels, direction/range, clock projection, target property and lifecycle. A new effect needs a reusable evaluator extension when existing kinds cannot express it; a per-element callback inside the animation host is forbidden (ANIM-1 removes the remaining legacy evaluators). Autonomous UI tracks use session time and run without physics; world feedback uses identified committed observations/events. Present-once effects retain their instance until a visible receipt or Reset. Disabled/reduced-motion effects cannot change physical results.
+All animation executes on an independent Animation Web Worker at 60 Hz, completely decoupled from physical truth. Data flows strictly one-way: physics → animation → renderer and physics → renderer; nothing ever flows back into physics. Animation is entirely data-driven and event-driven: cosmetic curves, squash-and-stretch, motor spin, indicator/UI easing, and particle effects evaluate declarative bindings to committed physical poses and discrete event occurrences. Strictly zero per-element animation scripts or callbacks exist in the animation host (ANIM-1 removes the remaining legacy evaluators).
+
+The animation worker evaluates shared clip/easing/follow/impulse/oscillation and occurrence-lifecycle evaluators over active instances compiled from declaration data. Each binding declares its input channels, direction/range, clock projection, target property and lifecycle. A new effect needs a reusable evaluator extension when existing kinds cannot express it; a per-element callback inside the animation host is forbidden. Autonomous UI tracks use session time and run without physics; world feedback uses identified committed observations/events. Present-once effects retain their instance until a visible receipt or Reset. Disabled/reduced-motion effects cannot change physical results.
 
 The renderer samples one coherent display time, reads bracketing substep snapshots directly from the `SharedArrayBuffer` triple-buffered pose ring with atomic sequence verification, performs Slerp interpolation of orientations and linear interpolation of positions, applies animation child outputs, and executes instanced GPU draw calls (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU). One writer per target property. Physics never reads the drawn transform back. Descriptors choose element-specific mesh, colour, sound or curve data; they cannot choose physical equations. Run, Pause, Step, Resume, Completed, Reset, Load and disposal keep their acknowledged semantics; the durable format is construction-only.
 
@@ -163,5 +300,13 @@ The [element map](planning/general-engine-element-map.md) gives every source its
 | Characters and programmable policies | Perception/preset operations, energy source, locomotion/contact actuation, pursuit/avoidance/obstacle transitions | LAW-CONTROLLER-D and each EL source D |
 | Discrete materials | Grain distribution/capacity, cutting/fracture models, deposited coating state and bounded topology | LAW-GRANULAR-D, S562-D/S563-D and named source D |
 | Animation expressibility | Each needed shared evaluator/feedback kind with f32 ranges, clock projection, occurrence lifecycle and visual oracle; no unknown evaluator becomes a callback | P0-004/P0-022/P0-023/P0-024 and named consumer |
+
+## Conversion of existing implementations to declarative glTF 2.0 and PartId architecture
+
+All 14 existing puzzle element implementations authored during early engine bringup (Basketball, Bowling Ball, Tennis Ball, Floating Balloon, Receiver, Ramp, Wall, Pinball Bumper, Domino, Springboard, Impact Switch, Signal Lamp, Delay Box, Battery) must be converted forward to the new declarative architecture without backwards compatibility:
+- **Geometry & Collision:** Converted from procedural C# (`engine/PartArt.cs`) and hardcoded collider dimension resources to self-contained glTF 2.0 (`.glb`) binary assets in `parts/models/`. Collision shapes are co-located in `.glb` scene graphs using standard node prefixes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`, `col_hull` / `-convcol`) or `KHR_physics_rigid_bodies`. Socket anchors resolve dynamically from named empty locator nodes (`Loc_Port_<Id>`).
+- **Dynamic Discovery & Extensible Identity:** Parts are keyed by extensible strongly-typed `PartId` record structs and discovered dynamically at startup via `PartRegistry.Discover()` scanning `res://parts/catalog/*.tres`. The closed enum `WorkshopPartKind` is eliminated.
+- **Generic MachinePart:** Replaces bespoke per-part C# scripts (`parts/*Part.cs`) with generic `MachinePart` entities driven by `PartDefinition` records and `.glb` scene nodes.
+- **Zero Backwards Compatibility:** Procedural mesh generation in `engine/PartArt.cs`, hardcoded dimension resources, bespoke `parts/*Part.cs` classes, and `WorkshopPartKind.cs` are permanently deleted upon conversion. Strictly zero compatibility shims, adapters, or fallback loaders are permitted. Git history is the permanent archive.
 
 A broad capability such as GeometryQuery, FiniteLedger or ProgrammableController appearing in a source's row does not make that source covered; the source's exact behaviour wins, and the missing reusable primitive is identified in the same design stage. Acceptance of this document proves design coverage and ownership only. Runtime acceptance for each slice is its Chrome/Playwright proof through real controls with the negative control, exact Reset and Save/Load, production build and the grep that finds no element identifier in the physics solver or the evaluator selection; release numbers and P0-035 engine closure are release-checklist gates enforced at LEGACY-0 and CAMPAIGN through P0-034, never reasons to postpone a playable slice.

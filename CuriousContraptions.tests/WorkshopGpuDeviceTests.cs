@@ -203,7 +203,7 @@ public sealed class WorkshopGpuDeviceTests
         transport.Record[4] = (byte)PhysicsCandidateStatus.Invalid;
         transport.Record[8] = (byte)PhysicsFailure.RootBudget;
         var failure = await Assert.ThrowsAsync<PhysicsNumericalException>(() =>
-            device.Advance(admitted.Read, new(2)).AsTask());
+            device.Advance(admitted.Read, new(2), new WorkshopTickControls([])).AsTask());
         Assert.Equal(PhysicsFailure.RootBudget, failure.Failure);
         Assert.Equal(1, transport.Commits);
         Assert.Equal(2, transport.Discards);
@@ -292,9 +292,10 @@ public sealed class WorkshopGpuDeviceTests
         public Action<byte[]>? ReadMutation;
         public Task Initialize(string preamble)
         { Initializations++; return holdInitialization ? Held.Task : Task.CompletedTask; }
-        public Task Stage(byte[] input, WorkshopGpuOperation operation)
+        public PhysicsTickInputs? LastInputs { get; private set; }
+        public Task Stage(byte[] input, WorkshopGpuOperation operation, PhysicsTickInputs inputs)
         {
-            Stages++;
+            Stages++; LastInputs = inputs;
             if (operation == WorkshopGpuOperation.Admit) Record = (byte[])input.Clone();
             else
             {

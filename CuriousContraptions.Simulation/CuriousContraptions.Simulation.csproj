@@ -24,10 +24,16 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../CuriousContraptions.Animation/CuriousContraptions.Animation.csproj" />
-    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs" Link="Gpu/%(Filename)%(Extension)" />
+    <ProjectReference Include="../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" />
+    <Compile Include="../engine/gpu/*.cs" Exclude="../engine/gpu/BrowserWorkshopClient*.cs;../engine/gpu/GltfPhysicsBodyExtractor.cs" Link="Gpu/%(Filename)%(Extension)" />
+    <Compile Include="../engine/PartId.cs" Link="Engine/PartId.cs" />
+    <Using Include="CuriousContraptions" />
     <WasmExtraFilesToDeploy Include="wwwroot/**" />
     <!-- worker.js reaches every [JSExport] entry point by name, so the trimmer keeps the whole worker assembly. -->
     <TrimmerRootAssembly Include="$(AssemblyName)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.FlatBuffers" Version="25.2.10" />
   </ItemGroup>
   <!-- Return this project's actual trimmed publish bundle, never an assumed sibling output directory.
        The WebAssembly SDK writes the published bundle to $(OutputPath)AppBundle during Publish. -->
@@ -35,8 +41,7 @@
     <PropertyGroup>
       <_WorkshopWorkerBundleDir>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(OutputPath)', 'AppBundle'))</_WorkshopWorkerBundleDir>
     </PropertyGroup>
-    <Error Condition="!Exists('$(_WorkshopWorkerBundleDir)worker.js')"
-           Text="The current trimmed Workshop worker publish bundle is missing." />
+    <Error Condition="!Exists('$(_WorkshopWorkerBundleDir)worker.js')" Text="The current trimmed Workshop worker publish bundle is missing." />
     <ItemGroup>
       <_WorkshopWorkerBundleFiles Include="$(_WorkshopWorkerBundleDir)**/*" />
     </ItemGroup>

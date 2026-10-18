@@ -1,0 +1,33 @@
+3/3	ANIM-1a: Dedicated 60 Hz WebAssembly Ani
+3/3	ANIM-1b: Mechanical cosmetic bindings an
+4/4	ANIM-1c: Legacy presentation code retire
+5/5	CAT-002: Ball Detector Aperture Passage 
+2/7	cat-005
+4/4	CAT-014: Bowling ball dynamic sphere by 
+2/3	cat-015a-sidekick
+1/2	cat-015a
+1/4	cat-015b
+5/5	CAT-017: System Clock Periodic Pulse Gen
+5/5	CAT-020: Pulse Counter Event Accumulator
+4/4	CAT-023a: Dynamic box rigid body & uprig
+4/4	CAT-023b: Domino cascade mechanics & ori
+7/7	CAT-030: Funnel Hollow Frustum Inlet to 
+6/6	CAT-037: State Latch bistable memory E2E
+4/4	CAT-048a: Straight Pipe Compound Cylindr
+5/5	CAT-048b: Clear Pipe Level E2E (Through 
+5/5	CAT-049: 45-Degree Pipe Bend Hollow Toru
+5/5	CAT-050: 90-Degree Pipe Bend Hollow Toru
+5/5	CAT-051: Powered Gate Passageway Barrier
+5/5	CAT-052: Pressure Plate Surface Contact 
+7/7	cat-062
+2/7	cat-062b
+5/5	ENGINE-CORE-2a1: Dual-Sphere Simulation 
+4/4	ENGINE-CORE-2a2: TGS Soft Solver Resting
+5/5	ENGINE-CORE-2a3: Multi-body Ramp and Wal
+2/2	ENGINE-CORE-2a4: Anti-Tunneling High-Spe
+1/1	ENGINE-CORE-2b1: Host Validation & Error
+1/1	ENGINE-CORE-2b2: Certificate & Directed 
+1/1	ENGINE-CORE-2b3: Analytic CCD & Interval
+2/2	ENGINE-CORE-2b4: Guide Horizon & Departu
+2/2	ENGINE-CORE-2c: Endpoint-Sampled Sensors
+TOTAL 117/132

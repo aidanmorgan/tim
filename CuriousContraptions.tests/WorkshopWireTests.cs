@@ -1247,6 +1247,27 @@ public sealed class WorkshopWireTests
         Assert.Equal(new[] { new CommandSequence(1) }, seen);
     }
 
+    [Fact]
+    public async Task ActualRouterDispatchesFlatBuffersCommandAndPassesEmptyReservedResult()
+    {
+        var applied = new List<WorkshopCommand>();
+        var reservedLengths = new List<int>();
+        var router = new WorkshopCommandRouter((command, reserved) =>
+        {
+            applied.Add(command);
+            reservedLengths.Add(reserved.Length);
+            return Task.FromResult(new byte[] { 42 });
+        });
+        var command = new WorkshopCommand(new(1), WorkshopCommandKind.Run, new(1), new(1), null, Session: Session, Cadence: new(1), Projection: new(1));
+        var fbBytes = WorkshopWireFlatBuffers.EncodeCommand(command);
+        var result = await router.Dispatch(fbBytes);
+        Assert.Equal(new byte[] { 42 }, result);
+        Assert.Single(applied);
+        Assert.Equal(new CommandSequence(1), applied[0].Sequence);
+        Assert.Single(reservedLengths);
+        Assert.Equal(0, reservedLengths[0]);
+    }
+
     private static WorkshopMemoryRequest MemoryRequest => new(WorkshopMemoryKind.PostGc, WorkshopMemoryContext.Simulation,
         Session, new(ulong.MaxValue), new(ulong.MaxValue), new(ulong.MaxValue), new(ulong.MaxValue));
 

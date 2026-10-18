@@ -115,3 +115,74 @@ Exact original domain criterion and technical stage: S635. Each row is separatel
 | controller: Which typed finite-state controller expresses sensing/intent? | A sensed target produces the declared action; missing supply or unsupported command produces none; nothing teleports. | LAW-CONTROLLER-I |
 | goal-occurrences: Which occurrence identity/window/order rules implement the four goal primitives? | One level per quantity/rate/order/protected-final variant: duplicate, out-of-window, wrong-order and unsafe-final routes do not solve; the intended route shows Solved once. | LAW-GOALS-I |
 | environment: Which gravity/atmosphere/material ranges are immutable for a Run and persisted? | A nondefault environment changes the ball's fall visibly; out-of-range values are refused; Save/Load and Reset keep it. | LAW-ENVIRONMENT-I |
+
+<a id="decision-gltf-element-assets"></a>
+## Architectural Decision: Adoption of glTF 2.0 (.glb) for Element Visual and Collision Meshes
+
+**Status:** Approved / Authoritative
+
+### Context
+Earlier prototypes explored constructing puzzle element 3D geometry and physical colliders imperatively in C# (`engine/PartArt.cs`, procedural ramp prisms, wall boxes, bumper domes) or relying on hardcoded C# coordinate and collider tables. This approach created tight coupling between engine source code and individual puzzle elements, violated the zero-element-assumptions invariant, bloated compiled C# assemblies, and prevented 3D artists from using standard digital content creation (DCC) workflows (such as Blender).
+
+### Alternatives Considered
+1. **Imperative Procedural Primitives in C# (`PartArt.cs`):**
+   - *Rejected:* Violates the data-driven architecture by requiring C# compilation for visual or geometric adjustments. Severely restricts artistic expression and sculptural aesthetic (Monument Valley diorama styling). Fails the core requirement that new puzzle elements must be pure declaration data with zero engine code edits.
+2. **Custom JSON Mesh / Shape Definition Formats:**
+   - *Rejected:* Heavy custom parser maintenance burden. No DCC ecosystem support without building and maintaining custom Blender import/export plugins. High runtime deserialization overhead (parsing large JSON arrays of vertices and indices on the main thread).
+3. **Proprietary Autodesk FBX:**
+   - *Rejected:* Closed binary format with complex licensing restrictions. Monolithic, heavyweight parser dependencies inconsistent with web deployment. Lacks modern web graphics ecosystem alignment.
+4. **Wavefront OBJ:**
+   - *Rejected:* Legacy text-based format lacking standard PBR materials, transform hierarchies, node naming conventions, and modern physical extension standards. Requires managing loose multi-file `.obj` + `.mtl` + texture dependencies.
+
+### Decision
+Adopt open-source, industry-standard **glTF 2.0 binary (`.glb`)** as the universal format for defining BOTH visual meshes and physical collision meshes across all puzzle elements, fixtures, and tools:
+- **Visual Meshes:** Authored in the `.glb` scene with standard PBR metallic-roughness materials conforming to the project color palette and sculptural aesthetic in [DESIGN.md](../../../DESIGN.md).
+- **Co-Located Collision Geometry:** Authored directly within the same `.glb` container alongside visual meshes using standardized analytic shape proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`), convex hull proxies (`col_hull`, `-convcol`), or the official Khronos `KHR_physics_rigid_bodies` extension.
+- **Socket Anchors:** Authored as empty locator nodes `Loc_Port_<Id>` inside the `.glb` transform hierarchy, matching declared `PortDefinition.Id` entries.
+- **Articulated & Secondary Sub-Assemblies:** Secondary dynamic components (e.g., motor shafts, springboard moving plates, lever arms) group their visual, collision, and locator nodes under dedicated child branches in the `.glb`.
+- **Zero Code-Defined Geometry:** Imperative C# procedural mesh generation (`engine/PartArt.cs`) is deprecated and scheduled for complete deletion at `LEGACY-0`.
+
+### Rationale
+- **Universal Industry Standard:** Developed by the Khronos Group and universally supported across Blender, modern DCC tools, Godot, WebGL 2, and WebGPU pipelines.
+- **Self-Contained Single Binary File:** Binary `.glb` embeds geometry, PBR materials, textures, transform hierarchies, and node metadata into a single compact binary payload, eliminating missing-file sync issues.
+- **Physics Extensibility:** Standard node naming conventions combined with `KHR_physics_rigid_bodies` enable seamless artist authoring of collision hulls and analytic primitives without writing engine code.
+- **Strict Decoupling:** Allows puzzle elements to be added purely through declarative catalog resources (`.tres`) pointing to `.glb` assets, satisfying the zero-element-assumptions invariant and dynamic part discovery.
+
+### Impact on Engine & Workflows
+- **Compiler:** `WorkshopPhysicsCompiler` inspects `.glb` scene hierarchies at compile-to-state time, extracts `ColliderDeclaration` records from collision nodes without element-specific branching, and packs them into flat SIMD Structure-of-Arrays (SoA) tables.
+- **Engine Codebase:** Procedural mesh code in `PartArt.cs` and hardcoded collider dimension tables are deprecated and scheduled for deletion at `LEGACY-0`.
+- **Artist Workflow:** Artists author 1:1 metric assets in Blender, visually verifying PBR materials, collision proxies, and socket locators, and export directly to `.glb`.
+
+<a id="decision-dynamic-part-discovery"></a>
+## Architectural Decision: Dynamic Puzzle Part Discovery & Extensible PartId Architecture
+
+**Status:** Approved / Authoritative
+
+### Context
+Earlier implementations relied on a closed `WorkshopPartKind` C# enum and hard-coded file path registrations in `PartRegistry.Discover()`. Introducing or altering any puzzle element required modifying engine enums, updating switch statements across the codebase, and creating brittle test dependencies. This directly contradicted the requirement that new puzzle elements must be pure declarative data without engine code modifications.
+
+### Decision
+1. **Dynamic Directory Discovery:** `PartRegistry.Discover()` scans `res://parts/catalog/*.tres` dynamically at runtime using Godot's `DirAccess.GetFilesAt`.
+2. **Extensible Strongly-Typed Identities:** Puzzle parts are identified by a strongly typed `PartId` record struct wrapping a canonical string identifier (e.g. `PartId("basketball")`, `PartId("springboard")`). Closed enums for puzzle parts are permanently deprecated and eliminated.
+3. **Generic Part Instantiation:** `PartRegistry.Create(PartId)` instantiates parts directly from `definition.Scene` and configures them as generic `MachinePart` entities without switch statements.
+4. **Dynamic Inventory Allocation:** In Free Workshop mode, `WorkshopInventoryPolicy.Free` populates the palette dynamically from all discovered `PartRegistry.Definitions` with unlimited allowances.
+
+<a id="decision-existing-implementation-conversion"></a>
+## Architectural Decision: Conversion of Existing Implementations to New Design (Zero Backwards Compatibility)
+
+**Status:** Approved / Authoritative
+
+### Context
+Curious Contraptions currently possesses 14 existing puzzle element implementations created during early engine bringup (Basketball, Bowling Ball, Tennis Ball, Balloon, Receiver, Ramp, Wall, Pinball Bumper, Domino, Springboard, Impact Switch, Signal Lamp, Delay Box, Battery). These implementations rely on procedural mesh building in C# (`engine/PartArt.cs`), hardcoded C# collider dimensions (`WallDimensionsResource.cs`, `RampDimensionsResource.cs`, `ReceiverGeometry.cs`, `SpringboardResource.cs`, etc.), and bespoke per-part C# classes (`parts/*Part.cs`).
+
+### Decision
+1. **Sequential Forward Conversion:** All 14 existing implementations must be converted to the new declarative architecture:
+   - Self-contained glTF 2.0 (`.glb`) assets in `parts/models/` defining visual meshes and co-located `col_*` collision proxy nodes.
+   - Named locator nodes (`Loc_Port_<Id>`) for socket anchor resolution.
+   - Declarative `.tres` catalog resources in `parts/catalog/`.
+   - Generic `MachinePart` instances replacing bespoke `parts/*Part.cs` classes.
+2. **Strict Zero Backwards Compatibility Invariant:**
+   - No backwards compatibility shims, adapters, legacy wrappers, or fallback loaders may be retained or created.
+   - Procedural mesh routines in `engine/PartArt.cs`, closed enums in `engine/gpu/WorkshopPartKind.cs`, hardcoded collider dimension resources, and bespoke `parts/*Part.cs` files must be completely and permanently deleted upon conversion.
+   - Old scene or persistence formats that rely on deprecated enums or procedural code are rejected atomically.
+   - Git history serves as the permanent archive. No dead code is retained in the active tree.

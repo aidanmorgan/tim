@@ -1,0 +1,15 @@
+[PROBE P0] {"n":105,"maxPy":4.550000190734863,"switchSamples":234,"latchSamples":234}
+▶ Murdoch 9.4 probe
+  ✔ P0 control: SetIn only -> switch witness fires and gate opens (12999.776292ms)
+[PROBE P1] {"n":105,"maxPy":3,"switchSamples":234,"latchSamples":0}
+  ✔ P1 dominance with witness: switch fires, gate never opens, latch never animates (13781.48675ms)
+✔ Murdoch 9.4 probe (31275.857958ms)
+ℹ tests 2
+ℹ suites 1
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31535.056958
+EXIT 0

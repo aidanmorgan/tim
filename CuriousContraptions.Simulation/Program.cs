@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Runtime.InteropServices.JavaScript;
 using System.Runtime.Versioning;
 using CuriousContraptions.Gpu;
+using CuriousContraptions.Simulation;
 
 [assembly: SupportedOSPlatform("browser")]
 
@@ -47,8 +48,70 @@ public static partial class Program
         return WorkshopClockWire.EncodePeer(peer);
     }
 
+    private sealed class WarmupInstallation : IWorkshopInstallation
+    {
+        public void Abort(CommandSequence owner) { }
+        public void Retire() { }
+        public ValueTask Prepare(CommandSequence owner, WorkshopRead read, WorkshopConstruction construction, WorkshopGpuProfile profile, WorkshopSimulationPhase phase) => ValueTask.CompletedTask;
+    }
+
     [JSExport]
-    public static Task PrepareGpu() => Device.Prepare();
+    public static async Task PrepareGpu()
+    {
+        await Device.Prepare();
+        await WarmupSimulation();
+    }
+
+    private static async Task WarmupSimulation()
+    {
+        try
+        {
+            var battery = WorkshopInput.Battery(new(1), -2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
+            var plate = WorkshopInput.PressurePlate(new(2), 0, 0, 0, 0, 0, 0, 1);
+            var gate = WorkshopInput.Generic(PartId.PoweredGate, new(3), 2, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+            var ball = WorkshopInput.Basketball(new(4), 0, 2, 0, 0, 0, 0, 1);
+            var ramp = WorkshopInput.Ramp(new(5), -1, 1, 0, 0, 0, 0, 1, RampDimensions.Default);
+
+            var wire1 = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, plate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+            var wire2 = new WorkshopConnection(plate.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+
+            var settings = WorkshopCadenceSettings.Default();
+            var construction = new WorkshopConstruction(
+                new(2),
+                settings,
+                new([battery, plate, gate, ball, ramp]),
+                Connections: new([wire1, wire2]));
+
+            var sim = new WorkshopSimulation(Device, new CaptureClock(), settings, new(1), new WarmupInstallation());
+            var initResult = await sim.Initialize();
+            Console.WriteLine($"WARMUP: init={initResult.Outcome} {initResult.Reason}");
+            if (initResult.Outcome == WorkshopCommandOutcome.Applied)
+            {
+                var constructResult = await sim.Construct(construction);
+                Console.WriteLine($"WARMUP: construct={constructResult.Outcome} {constructResult.Reason}");
+                if (constructResult.Outcome == WorkshopCommandOutcome.Applied)
+                {
+                    var runResult = await sim.Run();
+                    Console.WriteLine($"WARMUP: run={runResult.Outcome} {runResult.Reason}");
+                    if (runResult.Outcome == WorkshopCommandOutcome.Applied)
+                    {
+                        for (var step = 0; step < 5; step++)
+                        {
+                            var t0 = NativeMilliseconds();
+                            var adv = await sim.Advance();
+                            var dt = NativeMilliseconds() - t0;
+                            Console.WriteLine($"WARMUP: step {step} {adv.Outcome} {adv.Reason} in {dt:F2}ms");
+                        }
+                    }
+                    await sim.Reset();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"WarmupSimulation non-fatal: {ex}");
+        }
+    }
 
     [JSExport]
     public static byte[] ClockReply(byte[] bytes, double receivedMilliseconds) =>
@@ -91,13 +154,6 @@ public static partial class Program
         if (status != WorkshopMemoryStatus.Stale) _lastMemoryObservation = request.Id;
         return WorkshopMemoryWire.Encode(status == WorkshopMemoryStatus.Accepted
             ? WorkshopMemoryWire.Capture(request) : new(request, status));
-    }
-
-    [JSExport]
-    public static int ElectricalState(int ownerLow, int ownerHigh, int previous)
-    {
-        if (previous is < 0 or > 1) throw new ArgumentException("Invalid electrical enable value.");
-        return (int)Simulation.ElectricalState(new(((ulong)(uint)ownerHigh << 32) | (uint)ownerLow), (ElectricalEnable)previous);
     }
 
     [JSExport]
@@ -185,9 +241,26 @@ public static partial class Program
     [JSExport]
     public static int StateBytes() => PhysicsGpuAbi.ByteLength;
     [JSExport]
-    public static int[] CommandAbi() => [WorkshopWire.CommandHeaderBytes, WorkshopWire.CommandHeaderBytes + WorkshopWire.ConstructionBytes];
+    public static int[] CommandAbi() => [16, 65536];
     [JSExport]
     public static int[] ResponseAbi() => WorkshopWire.ResponseAbi();
+    [JSExport]
+    public static int[] AbiOffsets() =>
+    [
+        PhysicsGpuAbi.BodiesOffset,
+        PhysicsGpuAbi.CollidersOffset,
+        PhysicsGpuAbi.MaterialsOffset,
+        PhysicsGpuAbi.SensorsOffset,
+        PhysicsGpuAbi.GuidesOffset,
+        PhysicsGpuAbi.TriggersOffset,
+        PhysicsGpuAbi.ContactWorksOffset,
+        PhysicsGpuAbi.OrientationSensorsOffset,
+        PhysicsGpuAbi.MotionOffset,
+        PhysicsGpuAbi.ElectricalSourcesOffset,
+        PhysicsGpuAbi.ElectricalBindingsOffset,
+        PhysicsGpuAbi.PrismaticsOffset,
+        PhysicsGpuAbi.PrismaticRecordsOffset
+    ];
 
     [JSExport]
     public static async Task Dispatch(byte[] bytes)
@@ -254,12 +327,16 @@ public static partial class Program
                 while (Simulation.HasPendingGpuOperation) await Task.Delay(1);
                 result = Simulation.ConfigureElectrical(command.Electrical!.Value); break;
             case WorkshopCommandKind.Save: result = Simulation.Save(); break;
-            case WorkshopCommandKind.Construct: result = await Simulation.Construct(command.Construction!.Value); break;
+            case WorkshopCommandKind.Construct:
+                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
+                result = await Simulation.Construct(command.Construction!.Value); break;
             case WorkshopCommandKind.Run:
+                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
                 result = await Simulation.Run();
                 break;
             case WorkshopCommandKind.Reset:
                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Reset);
+                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
                 var resetting = Simulation.Reset();
                 result = await resetting;
                 if (result.Outcome == WorkshopCommandOutcome.Applied)
@@ -298,9 +375,14 @@ public static partial class Program
 
     private static byte[] EncodeResponse(byte[] output, WorkshopResponse response)
     {
-        WorkshopWire.Write(response with { Session = Peer.Session, Cadence = _schedule?.Revision ?? default,
+        var populated = response with { Session = Peer.Session, Cadence = _schedule?.Revision ?? default,
             MasterGeneration = _schedule is null ? default : Peer.Generation,
-            Projection = _schedule?.World.Epoch ?? default, SourcePulse = new(response.Read.Tick.Value) }, output);
+            Projection = _schedule?.World.Epoch ?? default, SourcePulse = new(response.Read.Tick.Value) };
+        if (output.Length == 0)
+        {
+            return WorkshopWireFlatBuffers.EncodeResponse(populated);
+        }
+        WorkshopWire.Write(populated, output);
         return output;
     }
 
@@ -312,6 +394,7 @@ public static partial class Program
             if (owner != _loopOwner) return;
             _loopOwner++;
             Simulation.Stop(WorkshopRejection.Transport);
+            Console.WriteLine($"FAULT 1: {error}");
             Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
             Retire("Physical publication failed after commit: " + error.Message);
         }
@@ -328,6 +411,7 @@ public static partial class Program
             var now = MasterNow();
             if (_reliableStalled || schedule.ExceedsPhysicalDebt(Simulation.Committed.Tick, now))
             {
+                Console.WriteLine($"CCGPU_DEBT_FAULT: committedTick={Simulation.Committed.Tick.Value} reliableStalled={_reliableStalled}");
                 Simulation.Stop(_reliableStalled ? WorkshopRejection.ReliableStalled : WorkshopRejection.Capacity);
                 Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
                 EmitRead(new(WorkshopCommandOutcome.Faulted, Simulation.Fault));
@@ -357,24 +441,36 @@ public static partial class Program
 #if PLAYTEST
             if (result.Outcome == WorkshopCommandOutcome.Applied) Trace.Append(Device.DiagnosticCommitted);
 #endif
-            if (result.Outcome != WorkshopCommandOutcome.Applied) Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+            if (result.Outcome != WorkshopCommandOutcome.Applied)
+            {
+                Console.WriteLine($"CCGPU_TICK_FAILED: {result.Outcome} {result.Reason} fault={Simulation.Fault}");
+                Trace.End(CuriousContraptions.Simulation.TraceEnd.Fault);
+            }
             EmitRead(result, Simulation.Committed.RequiresReliableRead(previousRead));
             if (result.Outcome == WorkshopCommandOutcome.Applied)
                 Trace.RecordTickDuration(Simulation.Committed.Tick, ObservationMilliseconds() - tickStarted);
             if (result.Outcome != WorkshopCommandOutcome.Applied) return;
-            if (++batch == 4) { batch = 0; await Task.Delay(1); }
+            if (++batch == 16) { batch = 0; await Task.Delay(1); }
         }
     }
     private static void EmitRead(WorkshopCommandResult result, bool retainOccurrence = false)
     {
         if (_publication == ulong.MaxValue) throw new InvalidOperationException("Physical publication identity exhausted.");
         var sequence = new PublicationSequence(_publication + 1);
-        var encoded = EncodeResponse(ReadOutput, new WorkshopResponse(default, WorkshopResponseKind.Read, result,
-            Simulation.Phase, Simulation.Committed, Peer.Session, sequence));
+        var readResponse = new WorkshopResponse(default, WorkshopResponseKind.Read, result,
+            Simulation.Phase, Simulation.Committed, Peer.Session, sequence,
+            Cadence: _schedule?.Revision ?? default,
+            MasterGeneration: _schedule is null ? default : Peer.Generation,
+            Projection: _schedule?.World.Epoch ?? default,
+            SourcePulse: new(Simulation.Committed.Tick.Value));
+        var encoded = EncodeResponse(ReadOutput, readResponse);
         _publication++;
 #if PLAYTEST
         // Existing binary read diagnostics; retained energy/event commits prove finite transfers in UI runs.
-        if (retainOccurrence) Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(encoded));
+        if (retainOccurrence)
+        {
+            Console.WriteLine("CCGPU_RETAINED " + Convert.ToBase64String(WorkshopWireFlatBuffers.EncodeResponse(readResponse)));
+        }
 #endif
         Publish(encoded, Trace.CanFlush(Simulation.Phase), retainOccurrence);
     }
