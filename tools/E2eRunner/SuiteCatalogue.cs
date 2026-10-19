@@ -174,6 +174,10 @@ internal static class SuiteCatalogue
             [Owner("Coordinator decision, 20 Oct 2026: a new suite starts SerialAlone until calibration qualifies it; the heaviest " +
                 "collider scene (2,305 colliders) debt-faulted before Story 9R.2's broadphase fix.", 1)],
             null, Set(PartId.Basketball, PartId.PipeBend90), [], [], Set(Gizmo, Guide)),
+        Serial(SuiteId.Cat062,
+            [Owner("Coordinator decision, 20 Oct 2026: test 4 timed out with no failed assertion on a Parallel worker under N=2 AOT " +
+                "workers (evidence-9r-3/full-run-1); Parallel is unearned until Story F.1 recalibrates.", 1)],
+            PartId.Springboard, Set(PartId.Basketball, PartId.Springboard), [], [], Set(Gizmo, Guide, Config)),
         Serial(SuiteId.Cat051OwnSupply,
             [Owner("Coordinator decision, 20 Oct 2026 (Murdoch-9, Story 9R.3): a new suite starts SerialAlone until calibration " +
                 "qualifies it; it samples blade and ball poses over wall-clock windows after each in-run supply toggle.", 1)],
@@ -203,8 +207,6 @@ internal static class SuiteCatalogue
             Set(Gizmo, Guide, Wire)),
         Parallel(SuiteId.Cat052, PartId.PressurePlate, Set(PartId.Basketball, PartId.Battery, PartId.BowlingBall, PartId.Domino,
             PartId.PoweredGate, PartId.PressurePlate), [], Set(Signal, Electrical), Set(Gizmo, Guide, Wire, Config)),
-        Parallel(SuiteId.Cat062, PartId.Springboard, Set(PartId.Basketball, PartId.Springboard), [], [],
-            Set(Gizmo, Guide, Config)),
         Parallel(SuiteId.Cat062b, PartId.Springboard, Set(PartId.Springboard, PartId.Receiver),
             Set(new LevelId("spring_forward"), new LevelId("ready_to_rebound")), [], Set(Gizmo, Guide, Config, Levels)),
         Parallel(SuiteId.EngineCore2a1, null, Set(PartId.Basketball), [], [], [], smoke: true),
