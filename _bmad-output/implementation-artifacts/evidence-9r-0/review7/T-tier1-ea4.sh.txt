@@ -1,0 +1,37 @@
+#!/bin/zsh
+# Round-6 Tier 1 on a clean git-archive copy of ca6dcb68 (no .git; the guard falls back to a file walk).
+C=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/clean-ea4edab4
+L=$C.logs; mkdir -p $L
+cd $C
+g="-noAutoResponse"
+step() { echo "### $1"; shift; "$@" > $L/step.raw 2>&1; rc=$?; echo "  exit=$rc"; grep -E "Warning\(s\)|Error\(s\)|Passed!|Failed!|error [A-Z]+[0-9]+|warning [A-Z]+[0-9]+|^# (tests|pass|fail)|^ℹ (tests|pass|fail|skipped)|Total:" $L/step.raw | sort -u | head -8; cp $L/step.raw "$L/$(echo $1 | tr ' /' '__').log"; }
+step "restore slnx" dotnet restore CuriousContraptions.slnx -nologo -v q --disable-parallel $g
+step "build slnx" dotnet build CuriousContraptions.slnx -nologo -v q --no-restore --no-incremental $g -bl:$L/solution.binlog
+step "build slnx PLAYTEST" dotnet build CuriousContraptions.slnx -nologo -v q --no-restore --no-incremental -p:PlaytestDiagnostics=true $g -bl:$L/playtest.binlog
+step "restore web" dotnet restore CuriousContraptions.web/CuriousContraptions.web.csproj -nologo -v q --disable-parallel $g
+step "build web" dotnet build CuriousContraptions.web/CuriousContraptions.web.csproj -nologo -v q --no-restore --no-incremental -p:WasmBuildOnlyAfterPublish=true -p:TwoDogAutoImport=false $g -bl:$L/web.binlog
+step "build CheckStagedTests" dotnet build tools/anvil/CheckStagedTests.cs -nologo -v q -bl:$L/check-staged-tests.binlog
+step "build VerifyPolicy" dotnet build tools/anvil/VerifyPolicy.cs -nologo -v q -bl:$L/verify-policy.binlog
+mkdir -p $L/binlogs; mv $L/*.binlog $L/binlogs/
+step "rebuild tests default" dotnet build CuriousContraptions.slnx -nologo -v q $g
+export CSHARP_STATIC_GATE_BINLOGS=$L/binlogs
+step "dotnet test slnx (default, gate binlogs)" dotnet test CuriousContraptions.slnx -nologo --no-build $g
+unset CSHARP_STATIC_GATE_BINLOGS
+step "dotnet test slnx PLAYTEST" dotnet test CuriousContraptions.slnx -nologo -p:PlaytestDiagnostics=true $g
+step "node --experimental-vm-modules tools/*.test.mjs" node --experimental-vm-modules --test tools/*.test.mjs
+step "node without the flag (control)" node --test tools/*.test.mjs
+step "LifecycleContract" dotnet run --project tools/LifecycleContract -c Release
+step "WireContract" dotnet run --project tools/WireContract -c Release
+step "Ownership --oracles" dotnet run --project tools/Ownership -c Release -- --oracles
+
+cp engine/MachineWorld.Gpu.cs $C.mw.orig
+for m in "or WorkshopTransportState.TimedOut" "or WorkshopTransportState.Backpressure"; do
+  sed -i '' "s#private bool TransportRetired => TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked;#private bool TransportRetired => TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked $m;#" engine/MachineWorld.Gpu.cs
+  grep -c "$m;" engine/MachineWorld.Gpu.cs | sed 's/^/  mutant applied lines: /'
+  dotnet test CuriousContraptions.slnx -nologo $g > $L/mut.raw 2>&1; rc=$?
+  [ $rc -ne 0 ] && echo "### KILLED mutant TransportRetired '$m' (whole slnx)" || echo "### SURVIVED mutant TransportRetired '$m' (whole slnx)"
+  grep -E "Passed!|Failed!|^\s+Failed CuriousContraptions" $L/mut.raw | sed -E 's/\[.*//' | sort -u | head -6
+  cp $C.mw.orig engine/MachineWorld.Gpu.cs
+done
+cmp -s $C.mw.orig engine/MachineWorld.Gpu.cs && echo "source restored"
+echo DONE

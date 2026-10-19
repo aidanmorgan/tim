@@ -510,3 +510,51 @@ Final state: HEAD `5c0a6232`; the working tree is unchanged apart from this appe
 After M1, the native re-run is the theory above plus the mutation check (both survivors killed). No further Chrome run is needed: the change is test-only.
 
 Final state: HEAD `2ea65ed5`. The worktree is unchanged apart from this appendix, `evidence-9r-0/review6/` and the republished, git-ignored `AppBundle`, which is still served on :8060 and was built from code identical to `ca6dcb68`.
+
+---
+
+## Re-review (round 7, after the M1 fix)
+
+*Reviewer: Murdoch-3. Date: 19 Oct 2026.*
+
+*Candidate: `ea4edab4`, checked on a clean `git archive` copy. Raw log: `evidence-9r-0/review7/T-tier1-and-mutants-clean-ea4edab4.log`.*
+
+### Verdict: **Pass-pending-Chrome** (no Chrome re-run required for this change)
+
+The Chrome evidence of round 6 stays valid: `clock-master` ran 8/8 on a bundle republished from code identical to `ca6dcb68`, and this round changes only tests and documents.
+
+**Verdict scope.** This is the gate story's terminal native verdict. It is not a global or runtime qualification. The full serial Chrome baseline stays at the coordinator's recorded decision: one full run on `6c8f7dc3` (33/34), with the failed suite re-run green on `ca6dcb68`.
+
+### Identity and scope
+
+- `2ea65ed5..ea4edab4` touches only `CuriousContraptions.tests/BasketballResourceTests.cs` and `_bmad-output/` documents and evidence. There is no production, MSBuild, hook or CI change.
+- The live-transport control is now a theory over `Ready`, `Backpressure` and `TimedOut`. The disposal exception now carries the live state.
+- My round-6 review section and evidence are committed unchanged: the working tree matched HEAD with nothing to commit.
+
+### M1: closed
+
+Both round-6 survivors are now killed over the whole slnx, each by exactly its own case:
+
+| Mutant | Result |
+| :-- | :-- |
+| `TransportRetired` widened with `TimedOut` | Killed: `APresentationOrDisposalFailureOnALiveTransportIsAStderrFault(live: TimedOut)` fails (1691/1692) |
+| `TransportRetired` widened with `Backpressure` | Killed: `(live: Backpressure)` fails (1691/1692) |
+
+The source was restored and compared byte-for-byte afterwards.
+
+### Native Tier 1
+
+- **Builds:** the gate builds (restore, solution, PLAYTEST, web, both file-based apps, `-noAutoResponse`, binary logs) all have 0 warnings and 0 errors.
+- **`dotnet test CuriousContraptions.slnx`:**
+  - with my gate logs: 1692/1692 and `Coverage.Tests` 78/78;
+  - PLAYTEST: 1706/1706 and 78/78.
+- **Node:** `node --experimental-vm-modules --test tools/*.test.mjs` passes 76/76. The no-flag control fails 6 files on Node 26.
+- **Contract tools:** LifecycleContract, WireContract and `Ownership --oracles` all exit 0.
+
+### Lows carried (non-blocking, owners recorded)
+
+1. The forced fault's two stderr lines are identical to main. Owned by Story 9A.24.
+2. CA2000 at its default cannot flag `FileStream`/`MemoryStream`. Accepted by the coordinator.
+3. The publish is not byte-reproducible, so Chrome evidence is bound by a publish from the verified tree.
+4. The working-tree hook edit is equivalent to `--no-verify`; CI now runs the gate on every push and PR.
+5. The save-decode `ArgumentException` ruling belongs to the Story 9A.2 AC.

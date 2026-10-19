@@ -1,0 +1,62 @@
+### restore slnx
+  exit=0
+### build slnx
+  exit=0
+    0 Error(s)
+    0 Warning(s)
+### build slnx PLAYTEST
+  exit=0
+    0 Error(s)
+    0 Warning(s)
+### restore web
+  exit=0
+### build web
+  exit=0
+    0 Error(s)
+    0 Warning(s)
+### build CheckStagedTests
+  exit=0
+### build VerifyPolicy
+  exit=0
+### rebuild tests default
+  exit=0
+    0 Error(s)
+    0 Warning(s)
+### dotnet test slnx (default, gate binlogs)
+  exit=0
+Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 652 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:  1692, Skipped:     0, Total:  1692, Duration: 18 s - CuriousContraptions.tests.dll (net10.0)
+### dotnet test slnx PLAYTEST
+  exit=0
+Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 937 ms - Coverage.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:  1706, Skipped:     0, Total:  1706, Duration: 15 s - CuriousContraptions.tests.dll (net10.0)
+### node --experimental-vm-modules tools/*.test.mjs
+  exit=0
+ℹ fail 0
+ℹ pass 76
+ℹ skipped 0
+ℹ tests 76
+### node without the flag (control)
+  exit=1
+ℹ fail 6
+ℹ pass 67
+ℹ skipped 0
+ℹ tests 73
+### LifecycleContract
+  exit=0
+### WireContract
+  exit=0
+### Ownership --oracles
+  exit=0
+  mutant applied lines: 1
+### KILLED mutant TransportRetired 'or WorkshopTransportState.TimedOut' (whole slnx)
+  Failed CuriousContraptions.Tests.BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault(live: TimedOut) 
+Failed!  - Failed:     1, Passed:  1691, Skipped:     0, Total:  1692, Duration: 17 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 1 s - Coverage.Tests.dll (net10.0)
+  mutant applied lines: 1
+### KILLED mutant TransportRetired 'or WorkshopTransportState.Backpressure' (whole slnx)
+  Failed CuriousContraptions.Tests.BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault(live: Backpressure) 
+Failed!  - Failed:     1, Passed:  1691, Skipped:     0, Total:  1692, Duration: 15 s - CuriousContraptions.tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 951 ms - Coverage.Tests.dll (net10.0)
+source restored
+DONE
