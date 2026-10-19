@@ -32,7 +32,8 @@ public sealed class CSharpStaticGateTests
     // ----- pinned exemptions -------------------------------------------------------------------------------------
 
     /// <summary>Every catch-all that neither rethrows nor narrows by type, by file and containing method, with its
-    /// exact count. These are the CA1031 boundary methods of the root .editorconfig (25 sites in 24 methods).</summary>
+    /// exact count. These are the CA1031 boundary methods of the root .editorconfig (49 sites in 47 methods). Each Workshop
+    /// async void handler X has one (its HandlerFailed boundary) and its XAsync body has the classifying one (Story 9R.0c).</summary>
     private static readonly Dictionary<string, int> CatchAllBoundaries = new(StringComparer.Ordinal)
     {
         ["engine/gpu/WorkshopSimulation.cs:WorkshopSimulation.Initialize"] = 1,
@@ -44,29 +45,60 @@ public sealed class CSharpStaticGateTests
         ["CuriousContraptions.Simulation/Program.cs:Program.WarmupSimulation"] = 1,
         ["CuriousContraptions.Simulation/Program.cs:Program.RunLoop"] = 1,
         ["ui/Workshop.cs:Workshop._Ready"] = 1,
+        ["ui/Workshop.cs:Workshop.ReadyAsync"] = 1,
+        ["ui/Workshop.cs:Workshop.Click"] = 1,
+        ["ui/Workshop.cs:Workshop.ClickAsync"] = 2,
+        ["ui/Workshop.cs:Workshop.DeleteSelected"] = 1,
+        ["ui/Workshop.cs:Workshop.Undo"] = 1,
         ["ui/Workshop.cs:Workshop.ToggleRun"] = 1,
-        ["ui/Workshop.cs:Workshop.ResetRun"] = 2,
+        ["ui/Workshop.cs:Workshop.ToggleRunAsync"] = 1,
+        ["ui/Workshop.cs:Workshop.ResetRun"] = 1,
+        ["ui/Workshop.cs:Workshop.ResetRunAsync"] = 2,
         ["ui/Workshop.cs:Workshop.Save"] = 1,
+        ["ui/Workshop.cs:Workshop.SaveAsync"] = 1,
         ["ui/Workshop.cs:Workshop.LoadSave"] = 1,
+        ["ui/Workshop.cs:Workshop.LoadSaveAsync"] = 1,
         ["ui/WorkshopBattery.cs:Workshop.ApplyBatterySettings"] = 1,
+        ["ui/WorkshopBattery.cs:Workshop.ApplyBatterySettingsAsync"] = 1,
         ["ui/WorkshopBattery.cs:Workshop.ApplyBatteryEnable"] = 1,
+        ["ui/WorkshopBattery.cs:Workshop.ApplyBatteryEnableAsync"] = 1,
         ["ui/WorkshopConfiguration.cs:Workshop.ApplyClockInterval"] = 1,
+        ["ui/WorkshopConfiguration.cs:Workshop.ApplyClockIntervalAsync"] = 1,
         ["ui/WorkshopConfiguration.cs:Workshop.ApplyDelayDuration"] = 1,
+        ["ui/WorkshopConfiguration.cs:Workshop.ApplyDelayDurationAsync"] = 1,
         ["ui/WorkshopConfiguration.cs:Workshop.ApplyBumperStrength"] = 1,
+        ["ui/WorkshopConfiguration.cs:Workshop.ApplyBumperStrengthAsync"] = 1,
         ["ui/WorkshopConfiguration.cs:Workshop.ApplySpringboardSettings"] = 1,
+        ["ui/WorkshopConfiguration.cs:Workshop.ApplySpringboardSettingsAsync"] = 1,
         ["ui/WorkshopConnections.cs:Workshop.ChangeConnection"] = 1,
+        ["ui/WorkshopConnections.cs:Workshop.ChangeConnectionAsync"] = 1,
         ["ui/WorkshopGpu.cs:Workshop.Playback"] = 1,
+        ["ui/WorkshopGpu.cs:Workshop.PlaybackAsync"] = 1,
         ["ui/WorkshopGpu.cs:Workshop.CommitSelected"] = 1,
+        ["ui/WorkshopGpu.cs:Workshop.CommitSelectedAsync"] = 1,
         ["ui/WorkshopGpu.cs:Workshop.SubmitConstruction"] = 1,
+        ["ui/WorkshopGpu.cs:Workshop.HandlerFailed"] = 1,
         ["ui/WorkshopPuzzle.cs:Workshop.SelectModeFromPicker"] = 1,
+        ["ui/WorkshopPuzzle.cs:Workshop.SelectModeFromPickerAsync"] = 1,
         ["ui/WorkshopPuzzle.cs:Workshop.ChangePrecision"] = 1,
+        ["ui/WorkshopPuzzle.cs:Workshop.ChangePrecisionAsync"] = 1,
+        ["CuriousContraptions.tests/PalettePlacementTests.cs:PalettePlacementTests.EscapeRecorder.Post"] = 1,
     };
+
+    /// <summary>The trim-analysis warning codes Story 9.4b makes errors: IL2001 to IL2125. Declared before its users: static
+    /// fields initialise in textual order.</summary>
+    private static readonly string[] TrimAnalysisCodes = Enumerable.Range(2001, 125).Select(code => $"IL{code}").ToArray();
 
     /// <summary>The only MSBuild lines (comments removed) that may name analysis, warning, analyzer or gate settings.</summary>
     private static readonly Dictionary<string, string[]> MsBuildGateLines = new(StringComparer.Ordinal)
     {
         ["Directory.Build.props"] =
         [
+            // Story 9.4b: every trim-analysis warning is an error in the build (Csc) and in publish (ILLink).
+            "<TrimAnalysisWarningsAsErrors>" + string.Join(';', TrimAnalysisCodes) + "</TrimAnalysisWarningsAsErrors>",
+            "<WarningsAsErrors>$(WarningsAsErrors);$(TrimAnalysisWarningsAsErrors)</WarningsAsErrors>",
+            "<MSBuildWarningsAsErrors>$(MSBuildWarningsAsErrors);$(TrimAnalysisWarningsAsErrors)</MSBuildWarningsAsErrors>",
+            "<ILLinkTreatWarningsAsErrors>true</ILLinkTreatWarningsAsErrors>",
             "<PropertyGroup Label=\"CSharpStaticGate\" Condition=\"'$(CSharpStaticGate)' != 'false'\">",
             "<AnalysisLevel>10.0-recommended</AnalysisLevel>",
             "<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>",
@@ -77,13 +109,17 @@ public sealed class CSharpStaticGateTests
             "<EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>",
         ],
         ["Directory.Build.targets"] = ["<EditorConfigFiles Include=\"$(_PackageCompileSourcesConfig)\" />"],
-        // Expected until the Story 9.4b rebase removes IL2125's cause; delete this entry with that line.
-        ["CuriousContraptions.csproj"] = ["<WarningsNotAsErrors>$(WarningsNotAsErrors);IL2125</WarningsNotAsErrors>"],
     };
 
-    /// <summary>The vendored project's own opt-out, if the vendored directory exists.</summary>
-    private static readonly string[] VendoredOptOutLines = ["<CSharpStaticGate>false</CSharpStaticGate>"];
-
+    /// <summary>Every file in the vendored directory with its SHA-256: the upstream FlatBuffers files (pinned by Story 9.4b's
+    /// VendoredFlatBuffersIdentityTests) and the three local ones, including the gate opt-out. Its MSBuild files are
+    /// therefore pinned whole, so the line and build-logic checks below skip them.</summary>
+    private static readonly Dictionary<string, string> VendoredFiles = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        [".gdignore"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ["CuriousContraptions.FlatBuffers.csproj"] = "9087e1f2bedd8f774e61a9423c2accf35f192339b661ecd0aa4d700312f21f98",
+        ["Directory.Build.props"] = "bf69307ae0bf519681b8c3f18dec41456cf88a5188031af7a3b16e68abd65c84",
+    }.Concat(VendoredFlatBuffersIdentityTests.Pinned).ToDictionary(StringComparer.Ordinal);
 
     /// <summary>Compiled sources from NuGet packages (package root relative): third-party, not scanned.</summary>
     private static readonly string[] PackageSourcePrefixes = ["2dog.xunit/", "xunit.v3.core.mtp-v1/"];
@@ -107,6 +143,8 @@ public sealed class CSharpStaticGateTests
     private static readonly string[] EditorConfig =
     [
         "root = true",
+        "[CuriousContraptions.FlatBuffers/**.cs]",
+        "generated_code = true",
         "[*.cs]",
         "dotnet_diagnostic.CA1031.severity = warning",
         "dotnet_diagnostic.CA1065.severity = warning",
@@ -129,17 +167,19 @@ public sealed class CSharpStaticGateTests
         "[CuriousContraptions.Simulation/Program.cs]",
         "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Simulation.Program.WarmupSimulation|M:CuriousContraptions.Simulation.Program.RunLoop(System.UInt64)",
         "[ui/Workshop.cs]",
-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop._Ready|M:CuriousContraptions.Workshop.ToggleRun|M:CuriousContraptions.Workshop.ResetRun|M:CuriousContraptions.Workshop.Save|M:CuriousContraptions.Workshop.LoadSave",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop._Ready|M:CuriousContraptions.Workshop.ReadyAsync|M:CuriousContraptions.Workshop.Click(Godot.Vector2)|M:CuriousContraptions.Workshop.ClickAsync(Godot.Vector2)|M:CuriousContraptions.Workshop.DeleteSelected|M:CuriousContraptions.Workshop.Undo|M:CuriousContraptions.Workshop.ToggleRun|M:CuriousContraptions.Workshop.ToggleRunAsync|M:CuriousContraptions.Workshop.ResetRun|M:CuriousContraptions.Workshop.ResetRunAsync|M:CuriousContraptions.Workshop.Save|M:CuriousContraptions.Workshop.SaveAsync|M:CuriousContraptions.Workshop.LoadSave|M:CuriousContraptions.Workshop.LoadSaveAsync",
         "[ui/WorkshopBattery.cs]",
-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyBatterySettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalSourceSettings)|M:CuriousContraptions.Workshop.ApplyBatteryEnable(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyBatterySettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalSourceSettings)|M:CuriousContraptions.Workshop.ApplyBatterySettingsAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalSourceSettings)|M:CuriousContraptions.Workshop.ApplyBatteryEnable(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)|M:CuriousContraptions.Workshop.ApplyBatteryEnableAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)",
         "[ui/WorkshopConfiguration.cs]",
-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyClockInterval(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyDelayDuration(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyBumperStrength(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplySpringboardSettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.SpringboardSettings)",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyClockInterval(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyClockIntervalAsync(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyDelayDuration(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyDelayDurationAsync(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyBumperStrength(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyBumperStrengthAsync(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplySpringboardSettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.SpringboardSettings)|M:CuriousContraptions.Workshop.ApplySpringboardSettingsAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.SpringboardSettings)",
         "[ui/WorkshopConnections.cs]",
-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ChangeConnection(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ChangeConnection(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)|M:CuriousContraptions.Workshop.ChangeConnectionAsync(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)",
         "[ui/WorkshopGpu.cs]",
-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.Playback(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.CommitSelected|M:CuriousContraptions.Workshop.SubmitConstruction(CuriousContraptions.Gpu.WorkshopConstruction)",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.Playback(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.PlaybackAsync(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.CommitSelected|M:CuriousContraptions.Workshop.CommitSelectedAsync|M:CuriousContraptions.Workshop.SubmitConstruction(CuriousContraptions.Gpu.WorkshopConstruction)|M:CuriousContraptions.Workshop.HandlerFailed(System.String,System.Exception)",
         "[ui/WorkshopPuzzle.cs]",
-        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.SelectModeFromPickerAsync(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)|M:CuriousContraptions.Workshop.ChangePrecisionAsync(System.Double)",
+        "[CuriousContraptions.tests/PalettePlacementTests.cs]",
+        "dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Tests.PalettePlacementTests.EscapeRecorder.Post(System.Threading.SendOrPostCallback,System.Object)",
         "[CuriousContraptions.tests/**.cs]",
         "dotnet_diagnostic.CA1707.severity = none",
         "[tools/Coverage.Tests/**.cs]",
@@ -552,9 +592,8 @@ public sealed class CSharpStaticGateTests
     ];
     private const string AnalysisLevelConfig = "analysislevel_10_recommended.globalconfig";
     private static readonly string[] PinnedNoWarn = ["1701", "1702", "8002", "IL2121"];
-    private static readonly string[] PinnedWarningsAsErrors = ["NU1605", "SYSLIB0011"];
-    // Expected until the Story 9.4b rebase removes IL2125's cause, in the game project only.
-    private static readonly (string Project, string Code) PinnedWarningNotAsError = ("CuriousContraptions.csproj", "IL2125");
+    // The SDK's two and Story 9.4b's trim-analysis codes; compared as a set (the SDK's order is not a contract).
+    private static readonly string[] PinnedWarningsAsErrors = ["NU1605", "SYSLIB0011", .. TrimAnalysisCodes];
 
     private static string[] Codes(IEnumerable<string> values) => values
         .SelectMany(value => value.Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)).Distinct(StringComparer.Ordinal)
@@ -568,14 +607,15 @@ public sealed class CSharpStaticGateTests
         if (run.Arguments.Length == 0 || !SdkCompiler.IsMatch(run.Arguments[0])) yield return $"{where}: compiler {run.Arguments.FirstOrDefault()} is not the SDK's csc";
         if (!run.Forms("noconfig").Any()) yield return $"{where}: no /noconfig";
         foreach (var file in run.Arguments.Where(argument => argument.StartsWith('@'))) yield return $"{where}: response file {file}";
-        // Warnings as errors: /warnaserror+ and the pinned code list, and only the pinned exemption.
+        // Warnings as errors: /warnaserror+ and exactly one list of exactly the pinned codes; no other form (no exemption).
         var warnAsError = run.Forms("warnaserror").ToArray();
-        var allowed = new List<string> { "/warnaserror+", "/warnaserror+:" + string.Join(',', PinnedWarningsAsErrors) };
-        if (project == PinnedWarningNotAsError.Project) allowed.Add("/warnaserror-:" + PinnedWarningNotAsError.Code);
         if (!warnAsError.Contains("/warnaserror+", StringComparer.Ordinal)) yield return $"{where}: compiled without /warnaserror+";
-        if (!warnAsError.Contains("/warnaserror+:" + string.Join(',', PinnedWarningsAsErrors), StringComparer.Ordinal))
-            yield return $"{where}: compiled without the pinned /warnaserror+:{string.Join(',', PinnedWarningsAsErrors)}";
-        foreach (var form in warnAsError.Where(form => !allowed.Contains(form, StringComparer.Ordinal))) yield return $"{where}: {form}";
+        var lists = warnAsError.Where(form => form.StartsWith("/warnaserror+:", StringComparison.Ordinal)).ToArray();
+        var listed = Codes(lists.Select(form => form["/warnaserror+:".Length..]));
+        if (lists.Length != 1 || !listed.SequenceEqual(Codes(PinnedWarningsAsErrors), StringComparer.Ordinal))
+            yield return $"{where}: /warnaserror+: lists {string.Join(',', listed)} in {lists.Length} form(s), not exactly the pinned {string.Join(',', Codes(PinnedWarningsAsErrors))}";
+        foreach (var form in warnAsError.Where(form => form != "/warnaserror+" && !lists.Contains(form, StringComparer.Ordinal)))
+            yield return $"{where}: {form}";
         foreach (var code in Codes(run.Values("nowarn")).Where(code => !PinnedNoWarn.Contains(code, StringComparer.Ordinal)))
             yield return $"{where}: /nowarn:{code}";
         var warn = run.Values("warn").Concat(run.Values("w")).ToArray();
@@ -720,6 +760,11 @@ public sealed class CSharpStaticGateTests
         ("ui/WorkshopGpu.cs", "Workshop.Playback"), ("ui/WorkshopGpu.cs", "Workshop.CommitSelected"),
         ("ui/WorkshopGpu.cs", "Workshop.SubmitConstruction"),
         ("ui/WorkshopPuzzle.cs", "Workshop.SelectModeFromPicker"), ("ui/WorkshopPuzzle.cs", "Workshop.ChangePrecision"),
+        ("ui/Workshop.cs", "Workshop.Click"), ("ui/Workshop.cs", "Workshop.DeleteSelected"), ("ui/Workshop.cs", "Workshop.Undo"),
+        // The bench placement proposal refuses with the typed rejection only (a plain ArgumentException is a defect there).
+        // CaptureInstance is not listed: its ball capture's registry guards are defects, not refusals.
+        ("ui/WorkshopBenchPlacement.cs", "WorkshopBenchPlacement.Propose"),
+        ("engine/gpu/WorkshopPhysicsCompiler.cs", "WorkshopPhysicsCompiler.PartIdentities"),
         ("engine/gpu/WorkshopConnections.cs", "WorkshopConnections.Validate"),
         ("engine/gpu/WorkshopPuzzle.cs", "WorkshopPuzzle.Validate"),
         ("engine/gpu/SpringboardLessons.cs", "SpringboardLessons.Validate"),
@@ -957,12 +1002,16 @@ public sealed class CSharpStaticGateTests
         AssertNone(violations);
     }
 
-    // Story 9.4b vendors FlatBuffers here with its own opt-out; until that rebase pins its files, the directory must not
-    // exist, so nothing can be placed there to skip the compiler-input pins and the source scan.
+    // The vendored directory skips the compiler-input pins and the source scan, so every file in it is pinned by hash:
+    // nothing can be added there, and neither its sources nor its project and opt-out can change, without a new pin.
     [Fact]
-    public void TheVendoredDirectoryIsAbsentUntilItsFilesArePinned()
+    public void TheVendoredDirectoryIsExactlyItsPinnedFiles()
     {
-        var violations = Files.Where(IsVendored).Select(path => $"{path}: the vendored directory is reserved for Story 9.4b's pinned FlatBuffers copy");
+        var present = Files.Where(IsVendored).ToDictionary(path => path[VendoredDirectory.Length..],
+            path => Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(Root, path)))), StringComparer.Ordinal);
+        var violations = present.Keys.Union(VendoredFiles.Keys).Order(StringComparer.Ordinal)
+            .Where(name => present.GetValueOrDefault(name) != VendoredFiles.GetValueOrDefault(name))
+            .Select(name => $"{VendoredDirectory}{name}: hash {present.GetValueOrDefault(name) ?? "(absent)"}, pinned {VendoredFiles.GetValueOrDefault(name) ?? "(not pinned)"}");
         AssertNone(violations);
     }
 
@@ -980,13 +1029,14 @@ public sealed class CSharpStaticGateTests
         var gate = new Regex(@"<\s*/?\s*(NoWarn|TreatWarningsAsErrors|WarningsNotAsErrors|WarningsAsErrors|CodeAnalysisTreatWarningsAsErrors|" +
             @"RunAnalyzers\w*|_?SkipAnalyzers|SkipGlobalAnalyzerConfigForPackage|EnforceCodeStyleInBuild|AnalysisLevel\w*|AnalysisMode\w*|" +
             @"WarningLevel|CodeAnalysisRuleSet|EditorConfigFiles|GlobalAnalyzerConfigFiles|Discover\w*ConfigFiles|MSBuildWarningsAs\w+|" +
-            @"ILLinkTreatWarningsAsErrors|SuppressTrimAnalysisWarnings|Analyzer|CscToolPath|CscToolExe|DisableImplicit\w*|" +
+            @"ILLinkTreatWarningsAsErrors|SuppressTrimAnalysisWarnings|TrimAnalysisWarningsAsErrors|Analyzer|CscToolPath|CscToolExe|DisableImplicit\w*|" +
             @"CompilerVisibleProperty|CompilerVisibleItemMetadata|Features|AdditionalFiles|Enable\w*Analyzer)\b|" +
             @"\bNoWarn\s*=|\bCSharpStaticGate\b|\bCustom(Before|After)Microsoft\w*Targets\b|\bImportDirectoryBuild\w*|\bDirectoryBuild\w*Path\b|" +
             @"OutputItemType\s*=\s*""Analyzer""|Name\s*=\s*""CoreCompile""|<Nullable>enable</Nullable>");
         var violations = new List<string>();
+        // The vendored MSBuild files are pinned whole by hash (TheVendoredDirectoryIsExactlyItsPinnedFiles).
         foreach (var path in Files.Where(path => path.EndsWith(".csproj", StringComparison.Ordinal) || path.EndsWith(".props", StringComparison.Ordinal) ||
-                     path.EndsWith(".targets", StringComparison.Ordinal)))
+                     path.EndsWith(".targets", StringComparison.Ordinal)).Where(path => !IsVendored(path)))
         {
             var text = Regex.Replace(Read(path), "<!--.*?-->", "", RegexOptions.Singleline);
             // Every project keeps nullable reference types on: any other value is a violation wherever it appears.
@@ -996,8 +1046,7 @@ public sealed class CSharpStaticGateTests
             var lines = text.Split('\n').Select(line => line.Trim()).Where(line => gate.IsMatch(line))
                 .Select(line => path == "Directory.Build.props" ? line : line.Replace("<Nullable>enable</Nullable>", "", StringComparison.Ordinal).Trim())
                 .Where(line => line.Length > 0 && gate.IsMatch(line)).ToArray();
-            var expected = IsVendored(path) && Path.GetFileName(path) == "Directory.Build.props" ? VendoredOptOutLines
-                : MsBuildGateLines.GetValueOrDefault(path, []);
+            var expected = MsBuildGateLines.GetValueOrDefault(path, []);
             if (!lines.SequenceEqual(expected))
                 violations.Add($"{path}: [{string.Join(" | ", lines)}] expected [{string.Join(" | ", expected)}]");
         }
@@ -1164,8 +1213,20 @@ public sealed class CSharpStaticGateTests
     [InlineData("dotnet build tools/anvil/CheckStagedTests.cs --nologo -bl:$GATE_LOGS/check-staged-tests.binlog")]
     [InlineData("dotnet build tools/anvil/VerifyPolicy.cs --nologo -bl:$GATE_LOGS/verify-policy.binlog")]
     [InlineData("CSHARP_STATIC_GATE_BINLOGS: ${{ runner.temp }}/csharp-gate-binlogs")]
+    // CI backstops a bypassed hook only if it runs on every branch push and every pull request, not only on main.
+    [InlineData("on:\n  push:\n    branches: ['**']\n  pull_request:\n")]
     public void CiKeepsTheSameRestoreAndBuilds(string fragment) =>
         Assert.Contains(fragment, Read(".github/workflows/pages.yml"), StringComparison.Ordinal);
+
+    // Only main deploys: the Pages artifact upload and the deploy job are both conditioned on it.
+    [Fact]
+    public void OnlyMainDeploys()
+    {
+        var workflow = Read(".github/workflows/pages.yml");
+        Assert.Equal(2, Regex.Count(workflow, @"^\s+if: github\.ref == 'refs/heads/main'$", RegexOptions.Multiline));
+        Assert.Contains("      - uses: actions/upload-pages-artifact@v3\n        if: github.ref == 'refs/heads/main'\n", workflow, StringComparison.Ordinal);
+        Assert.Contains("  deploy:\n    needs: build\n    if: github.ref == 'refs/heads/main'\n", workflow, StringComparison.Ordinal);
+    }
 
     // ----- swallowed exceptions -----------------------------------------------------------------------------------
 

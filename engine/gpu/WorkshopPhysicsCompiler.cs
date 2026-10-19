@@ -336,7 +336,8 @@ public static class WorkshopPhysicsCompiler
 
     internal static ulong PartIdentities(GpuBodyId id)
     {
-        if (id.Value == 0 || id.Value >= InternalIdentityBase) throw new ArgumentException("Authored body identity exceeds its domain.");
+        if (id.Value == 0 || id.Value >= InternalIdentityBase)
+            throw new WorkshopEditRejectedException(WorkshopEditRejection.IdentityExhausted, "Authored body identity exceeds its domain.");
         return checked(InternalIdentityBase + PartIdentityStride + id.Value * PartIdentityStride);
     }
 }

@@ -27,8 +27,6 @@
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/BundleElements/BundleElements.csproj" />
-    <Project Path="tools/Coverage/Coverage.csproj" />
-    <Project Path="tools/Coverage.Tests/Coverage.Tests.csproj" />
     <Project Path="tools/LifecycleContract/LifecycleContract.csproj" />
     <Project Path="tools/Ownership/Ownership.csproj" />
     <Project Path="tools/Preview/Preview.csproj" />

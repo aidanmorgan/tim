@@ -17,7 +17,6 @@ public sealed class WorkshopPhysicsLawSensorWorkTests
     private static float DominoHalfY => (float)DominoMaterial.Default.HalfExtents.Y;
     private static Quaternion AboutZ(double degrees) => Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float)(degrees * Math.PI / 180));
     private static OrientationSensorRead Sensor(LawState state) => PhysicsGpuAbi.ReadOrientationSensor(state.World, 0);
-    private static OrientationSensorRead Sensor(byte[] world) => PhysicsGpuAbi.ReadOrientationSensor(world, 0);
 
     // ---- orientation sensors ----
 

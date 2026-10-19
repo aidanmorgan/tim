@@ -1,0 +1,64 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.75]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 10070000000, move: 4000000) [FAIL]
+[xUnit.net 00:00:00.76]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0) [FAIL]
+[xUnit.net 00:00:00.76]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 1000000) [FAIL]
+[xUnit.net 00:00:00.76]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 120070000000, move: 50000000) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 10070000000, move: 4000000) [16 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (1, StallPastMappedWidth, 0, 2)
+Actual:   Tuple (1, MappingLifetime, 0, 2)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Int64 resumed, Int64 move) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 657
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (1, StallPastMappedWidth, 0, 2)
+Actual:   Tuple (1, MappingLifetime, 0, 2)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Int64 resumed, Int64 move) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 657
+   at InvokeStub_WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 1000000) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (1, StallPastMappedWidth, 0, 2)
+Actual:   Tuple (1, MappingLifetime, 0, 2)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Int64 resumed, Int64 move) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 657
+   at InvokeStub_WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 120070000000, move: 50000000) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (1, StallPastMappedWidth, 0, 2)
+Actual:   Tuple (1, MappingLifetime, 0, 2)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Int64 resumed, Int64 move) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 657
+   at InvokeStub_WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.78]     CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 1, renews: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 1, renews: False) [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: StallPastMappedWidth
+Actual:   MappingLifetime
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(Int64 beyond, Boolean renews) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 675
+   at InvokeStub_WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.81]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(age: 1400000000, renews: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(age: 1400000000, renews: False) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: StallPastMappedWidth
+Actual:   MappingLifetime
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(Int64 age, Boolean renews) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 698
+   at InvokeStub_WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     6, Passed:    53, Skipped:     0, Total:    59, Duration: 177 ms - CuriousContraptions.tests.dll (net10.0)

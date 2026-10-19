@@ -1,0 +1,17 @@
+== default
+C.cs(7,83): warning CA2000
+C.cs(8,69): warning CA2000
+== AllPaths
+C.cs(5,92): warning CA2000
+C.cs(7,83): warning CA2000
+C.cs(8,69): warning CA2000
+== AllPathsOnlyNotDisposed
+C.cs(5,92): warning CA2000
+C.cs(7,83): warning CA2000
+C.cs(8,69): warning CA2000
+== NonExceptionalPaths
+C.cs(7,83): warning CA2000
+C.cs(8,69): warning CA2000
+== NonExceptionalPathsOnlyNotDisposed
+C.cs(7,83): warning CA2000
+C.cs(8,69): warning CA2000

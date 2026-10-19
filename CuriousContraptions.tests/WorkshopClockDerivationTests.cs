@@ -82,7 +82,7 @@ public sealed class WorkshopClockDerivationTests
             return 0;
         });
         Assert.True(ahead.IsQualified);
-        var wide = Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries), line => line.StartsWith("CCGPU_CLOCK_OFFSET_WIDE "));
+        var wide = Assert.Single(output.Split('\n', StringSplitOptions.RemoveEmptyEntries), line => line.StartsWith("CCGPU_CLOCK_OFFSET_WIDE ", StringComparison.Ordinal));
         using var json = System.Text.Json.JsonDocument.Parse(wide["CCGPU_CLOCK_OFFSET_WIDE ".Length..]);
         var offset = json.RootElement.GetProperty("offset").GetDouble();
         Assert.InRange(offset, -1 - Bound, -1 + Bound);
@@ -464,8 +464,9 @@ public sealed class WorkshopClockDerivationTests
         Assert.Equal((resumed - 70_000_000).ToString(System.Globalization.CultureInfo.InvariantCulture), root.GetProperty("lapseAge").GetString());
         Assert.Equal("0", root.GetProperty("derivation").GetString());
         Assert.Equal(epoch.ToString(System.Globalization.CultureInfo.InvariantCulture), root.GetProperty("displayEpoch").GetString());
-        var newLower = Int128.Parse(root.GetProperty("newLower").GetString()!); var newUpper = Int128.Parse(root.GetProperty("newUpper").GetString()!);
-        var oldLower = Int128.Parse(root.GetProperty("oldLower").GetString()!); var oldUpper = Int128.Parse(root.GetProperty("oldUpper").GetString()!);
+        static Int128 Exact(System.Text.Json.JsonElement value) => Int128.Parse(value.GetString()!, System.Globalization.CultureInfo.InvariantCulture);
+        var newLower = Exact(root.GetProperty("newLower")); var newUpper = Exact(root.GetProperty("newUpper"));
+        var oldLower = Exact(root.GetProperty("oldLower")); var oldUpper = Exact(root.GetProperty("oldUpper"));
         Assert.Equal(WorkshopClockMapping.Offset(new(probe.Value, new(resumed + 50_000_000), new(resumed + 50_000_000), new(resumed), Initial), Peer.Uncertainty),
             new ClockInterval(newLower, newUpper));
         Assert.True(new ClockInterval(oldLower, oldUpper).Overlaps(new(newLower, newUpper)));
@@ -640,7 +641,8 @@ public sealed class WorkshopClockDerivationTests
     // interval until it would swallow a real move. ----
 
     // Murdoch's probe (review-r4/probes/MurdochR4RenewalTests.cs.txt R4_3), inverted, plus small and zero moves after a
-    // stall past the bound: never a renewal.
+    // stall past the bound: never a renewal. Its cause is the stall itself (StallPastMappedWidth), not MappingLifetime,
+    // which a renewal keeps for a genuine disagreement (TheRenewalBoundaryIsExactlyTheDriftWidenedOverlap).
     [Theory]
     [InlineData(10_070_000_000L, 4_000_000L)]    // 10 s stall, a 4 ms move
     [InlineData(120_070_000_000L, 50_000_000L)]  // 2 min stall, a 50 ms move
@@ -652,9 +654,10 @@ public sealed class WorkshopClockDerivationTests
         var epoch = map.DisplayEpoch;
         var (output, observation) = Renew(map, resumed, 0, 50_000_000 + move);
         Assert.Equal(ClockProbeOutcome.Accepted, observation.Outcome); // it seeds the fresh calibration
-        Assert.Equal((1UL, ClockRecalibrationCause.MappingLifetime, 0UL, epoch + 1),
+        Assert.Equal((1UL, ClockRecalibrationCause.StallPastMappedWidth, 0UL, epoch + 1),
             (map.Recalibrations, map.LastRecalibration!.Value.Cause, map.LateRenewals, map.DisplayEpoch));
         Assert.Contains("\"stateBefore\":6", output);
+        Assert.Contains("\"causeName\":\"StallPastMappedWidth\"", output);
         Assert.DoesNotContain("CCGPU_CLOCK_RENEWED_LATE", output);
     }
 
@@ -669,6 +672,30 @@ public sealed class WorkshopClockDerivationTests
         var map = Stalled(resumed);
         Renew(map, resumed, 0, 50_000_000);
         Assert.Equal((renews ? 1UL : 0UL, renews ? 0UL : 1UL), (map.LateRenewals, map.Recalibrations));
+        if (!renews) Assert.Equal(ClockRecalibrationCause.StallPastMappedWidth, map.LastRecalibration!.Value.Cause);
+    }
+
+    // R5-02: the ceilinged drift widens both sides together, so an even-width slot steps 2 ns at a time and cannot tell
+    // the bound from one 1 ns looser. An odd-width slot can: the newest slot's round trip is 1 ns (400,001 ns wide), so
+    // at an age of 1.4 s it widens to exactly 2,000,001 ns with the sample allowance, one over the bound, and the lapse
+    // recalibrates; 2,000 ns younger (drift 699,999 ns a side) it is 1,999,999 ns and renews.
+    [Theory]
+    [InlineData(1_400_000_000L, false)]
+    [InlineData(1_399_998_000L, true)]
+    public void AnOddWidthOldMappingIsBoundToTheNanosecond(long age, bool renews)
+    {
+        var map = new WorkshopClockMapping(Peer);
+        for (var i = 0; i < WorkshopClockMapping.ProbeCapacity - 1; i++) Accept(map, i * 10_000_000, Initial);
+        var newest = map.BeginProbe(new(70_000_000))!.Value;
+        var answered = map.Receive(new(newest, new(120_000_000), new(120_000_000), new(70_000_001), Initial));
+        Assert.Equal((ClockProbeOutcome.Accepted, 400_001L), (answered.Outcome, (long)answered.Offset.Width));
+        Assert.Equal(ClockMappingState.Ready, map.State);
+        var resumed = 70_000_001 + age;
+        Capture(() => { map.Observe(new(resumed)); return 0; });
+        Assert.Equal(ClockMappingState.Renewing, map.State);
+        Renew(map, resumed, 0, 50_000_000);
+        Assert.Equal((renews ? 1UL : 0UL, renews ? 0UL : 1UL), (map.LateRenewals, map.Recalibrations));
+        if (!renews) Assert.Equal(ClockRecalibrationCause.StallPastMappedWidth, map.LastRecalibration!.Value.Cause);
     }
 
     // R4-F4: a renewal that begins in Recovering starts its own budget; it does not inherit recovery's sends.
@@ -723,6 +750,8 @@ public sealed class WorkshopClockDerivationTests
         var probe = map.BeginProbe(new(resumed))!.Value;
         Capture(() => map.Receive(new(probe, new(resumed + offset), new(resumed + offset), new(resumed), Initial)));
         Assert.Equal((renewed ? 1UL : 0UL, renewed ? 0UL : 1UL), (map.LateRenewals, map.Recalibrations));
+        // A 700 ms stall is within the bound: this is a genuine disagreement, not a stall past the mapped width.
+        if (!renewed) Assert.Equal(ClockRecalibrationCause.MappingLifetime, map.LastRecalibration!.Value.Cause);
     }
 
     [Fact]

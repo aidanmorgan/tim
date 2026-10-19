@@ -510,7 +510,8 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
     }
 
     [Fact]
-    // The measuring loop is fully optimised too, so no on-stack replacement or tier promotion runs on this thread mid-run.
+    // The measuring loop is fully optimised too. Story 9.4b's rare allocation in this window has an open cause (P0-034 /
+    // Story 16.1): tiering was never confirmed, and an ablation without this attribute did not fail either.
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
     public void DurationRetentionHasNoRoutineAllocationInNativeExecution()
     {
@@ -528,9 +529,9 @@ public sealed class WorkshopTraceTests(ITestOutputHelper testOutput)
             {
                 BinaryPrimitives.WriteUInt64LittleEndian(record.AsSpan(24), tick);
                 Append(trace, record);
-                // Only the call itself is inside the allocation window: the timestamps (CoreLib methods that tiered JIT
-                // may promote, with runtime bookkeeping on this thread) are outside it, and RecordTickDuration is fully
-                // optimised from its first call (no call counting or promotion of its own). See Story 9.4b §11.
+                // Only the call itself is inside the allocation window; the timestamps are outside it. This narrows what
+                // the window measures; it does not prove the cause of Story 9.4b's rare failure, which is open (Story 9.4b
+                // spec §12, P0-034 / Story 16.1).
                 var beforeTime = System.Diagnostics.Stopwatch.GetTimestamp();
                 var beforeCollections = GC.CollectionCount(0);
                 var beforeJit = System.Runtime.JitInfo.GetCompiledMethodCount(currentThread: true);

@@ -135,7 +135,7 @@ public partial class MachineWorld
             "clock" => WorkshopInput.Clock(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W,
                 Construction.Instances.FirstOrDefault(instance => instance.Id == bodyId) is WorkshopClock clock ? clock.IntervalSeconds : WorkshopClock.PlacedIntervalSeconds),
             "latch" => WorkshopInput.Latch(bodyId, position.X, position.Y, position.Z, q.X, q.Y, q.Z, q.W),
-            _ => throw new ArgumentException($"Unsupported instance part id '{id}'.")
+            _ => throw new WorkshopEditRejectedException(WorkshopEditRejection.UnsupportedPart, $"Unsupported instance part id '{id}'.")
         };
     }
 

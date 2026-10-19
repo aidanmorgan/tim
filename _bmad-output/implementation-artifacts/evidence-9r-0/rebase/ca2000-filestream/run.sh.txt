@@ -1,0 +1,9 @@
+#!/bin/sh
+# Builds the CA2000 control project once per dispose_analysis_kind (configs/<kind>.editorconfig) and prints which
+# lines CA2000 flags.
+dir="$(cd "$(dirname "$0")" && pwd -P)"
+for kind in default AllPaths AllPathsOnlyNotDisposed NonExceptionalPaths NonExceptionalPathsOnlyNotDisposed; do
+  cp "$dir/configs/$kind.editorconfig" "$dir/.editorconfig"
+  echo "== $kind"
+  dotnet build "$dir/Ctl.csproj" --no-incremental -nologo -v q 2>&1 | grep -o "C.cs([0-9]*,[0-9]*): warning CA2000" | sort -u
+done

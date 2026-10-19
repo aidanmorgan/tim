@@ -668,7 +668,7 @@ public partial class Workshop : Node3D
     private async Task ToggleRunAsync()
     {
         if (_gpuPending) return;
-        if (IsRuntimePhase(World.WorkshopPhase)) { ResetRun(); return; }
+        if (IsRuntimePhase(World.WorkshopPhase)) { await ResetRunAsync(); return; }
         if (!CanEdit) return;
         EndGizmo(false);
         Select(null); _tool = null; ClearPreview(); _dragging = false;

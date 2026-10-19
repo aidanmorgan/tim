@@ -4,9 +4,10 @@ using System;
 
 namespace CuriousContraptions;
 
-/// <summary>Why a bench placement produced no proposed construction. UnsupportedPart covers any failure to capture the part or
-/// to compose it into the current construction, not only an unknown part id (for example a lesson that refuses the part's
-/// identity).</summary>
+/// <summary>Why a bench placement produced no proposed construction. UnsupportedPart covers every declared refusal to capture
+/// the part or to compose it into the current construction (a WorkshopEditRejectedException or a full workbench), not only an
+/// unknown part id (for example a lesson that refuses the part's identity). Any other exception is a defect, not a
+/// rejection.</summary>
 public enum BenchPlacementRejection { None, UnsupportedPart }
 
 /// <summary>One bench placement attempt. A rejection carries the unchanged construction and its player-visible message.</summary>
@@ -23,12 +24,12 @@ public static class WorkshopBenchPlacement
         ArgumentNullException.ThrowIfNull(pushUndo);
         WorkshopConstruction proposed;
         try { proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, rampDimensions, wallDimensions)); }
-        catch (Exception error)
+        catch (Exception error) when (error is WorkshopEditRejectedException or WorkbenchFullException)
         {
-            // A part that cannot be captured or composed is refused here, before any undo entry exists. The warning carries the
-            // exception, so a programming defect reaches the console rather than only the status label.
-            GD.PushWarning($"Bench placement of '{part}' as body {body.Value} was refused: {error}");
-            return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {error.Message}");
+            // A part that a declared rule refuses to capture or compose is refused here, before any undo entry exists, and
+            // logged as a UI rejection on the standard stream. Any other exception is a defect and reaches the handler
+            // boundary, which logs it as a fault.
+            return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {WorkshopUiFailure.Report(error)}");
         }
         pushUndo();
         return new(BenchPlacementRejection.None, proposed, string.Empty);

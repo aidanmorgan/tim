@@ -77,17 +77,23 @@ public sealed record WorkshopClockPeer(RuntimeSessionId Session, ClockGeneration
 }
 
 /// <summary>
-/// Why a mapping recalibrated (discarded every retained slot under a new display epoch). A recovery or renewal episode's
-/// 250 ms bound elapsed, an unanswered renewing probe included (Elapsed), or its eighth reply settled unqualified or
-/// inconclusive (ProbeLimit); no accepted reply arrived within the 500 ms mapping lifetime (MappingLifetime: the master's
-/// context or the reply path failed, the requester kept running without a usable reply, or, after the requester's own
-/// stall, a renewing reply was not accepted, the concluding exchange disagreed with the old mapping, or the old mapping
-/// had widened past the mapped width; a stalled requester's lapse that a consistent exchange renews is not a
-/// recalibration); a fresh interval was
-/// disjoint from the retained ones (Disjoint) or widened their span past the profile (ProfileRange); or the master
-/// context's derivation correction changed (MasterRederived, WorkshopClockDerivation).
+/// Why a mapping recalibrated (discarded every retained slot under a new display epoch). A stalled requester's lapse
+/// that a consistent exchange renews is not a recalibration.
+/// <list type="bullet">
+/// <item>Elapsed: a recovery or renewal episode's 250 ms bound elapsed, an unanswered renewing probe included.</item>
+/// <item>ProbeLimit: the episode's eighth reply settled unqualified or inconclusive.</item>
+/// <item>MappingLifetime: no accepted reply arrived within the 500 ms mapping lifetime. The master's context or the reply
+/// path failed, or the requester kept running without a usable reply; or, after the requester's own stall, a renewing
+/// reply was not accepted or the concluding exchange disagreed with the old mapping.</item>
+/// <item>Disjoint: a fresh interval was disjoint from the retained ones.</item>
+/// <item>ProfileRange: a fresh interval widened the retained span past the profile.</item>
+/// <item>MasterRederived: the master context's derivation correction changed (WorkshopClockDerivation).</item>
+/// <item>StallPastMappedWidth: the requester's stall lasted so long that the old mapping, drift-widened over it, no longer
+/// fits the mapped width, so it can no longer vouch for any concluding exchange (R4-F1). Distinct from MappingLifetime, so
+/// telemetry tells a too-long stall from a genuine disagreement.</item>
+/// </list>
 /// </summary>
-public enum ClockRecalibrationCause : byte { Elapsed, ProbeLimit, MappingLifetime, Disjoint, ProfileRange, MasterRederived }
+public enum ClockRecalibrationCause : byte { Elapsed, ProbeLimit, MappingLifetime, Disjoint, ProfileRange, MasterRederived, StallPastMappedWidth }
 public readonly record struct ClockRecalibration(WorkshopRuntimeRole Role, ClockRecalibrationCause Cause, ulong Count,
     ulong DisplayEpoch, MonotonicNanoseconds At);
 
@@ -199,9 +205,10 @@ public sealed class WorkshopClockMapping
         var retained = default(ClockInterval);
         // R4-F1: the old side is bounded too. Its narrowest retained interval, drift-widened to now, must itself fit the
         // mapped width, or a long stall would widen it until it swallowed a real move; past that the lapse recalibrates.
-        var renewed = renewing && outcome == ClockProbeOutcome.Accepted &&
-            TryRetained(reply.RequesterReceived, out retained) && WithinMappedWidth(retained) &&
-            interval.Overlaps(retained);
+        var vouched = renewing && outcome == ClockProbeOutcome.Accepted && TryRetained(reply.RequesterReceived, out retained);
+        // A stall past that bound is its own cause, distinct from a concluding exchange that disagrees (MappingLifetime).
+        var stalledPastWidth = vouched && !WithinMappedWidth(retained);
+        var renewed = vouched && !stalledPastWidth && interval.Overlaps(retained);
         var exhausted = outcome == ClockProbeOutcome.Inconclusive && _recoverySends == RecoveryProbeLimit;
         var expired = !renewed && outcome != ClockProbeOutcome.Inconclusive && _count != 0 &&
             (Int128)reply.RequesterReceived.Value - NewestReceipt() > MappingLifetime;
@@ -249,8 +256,8 @@ public sealed class WorkshopClockMapping
         _lastRequester = reply.RequesterReceived.Value;
         if (Pending == reply.Probe) _flags &= ~ClockBookkeepingFlags.Pending;
         if (expired || suspect)
-            Recalibrate(!suspect ? ClockRecalibrationCause.MappingLifetime
-                    : outcome == ClockProbeOutcome.Disjoint ? ClockRecalibrationCause.Disjoint : ClockRecalibrationCause.ProfileRange,
+            Recalibrate(suspect ? outcome == ClockProbeOutcome.Disjoint ? ClockRecalibrationCause.Disjoint : ClockRecalibrationCause.ProfileRange
+                    : stalledPastWidth ? ClockRecalibrationCause.StallPastMappedWidth : ClockRecalibrationCause.MappingLifetime,
                 reply.RequesterReceived, reply, suspect ? ClockMappingState.Suspect : ClockMappingState.Expired);
         else if (exhausted)
             Recalibrate(ClockRecalibrationCause.ProbeLimit, reply.RequesterReceived, reply, ClockMappingState.Expired);

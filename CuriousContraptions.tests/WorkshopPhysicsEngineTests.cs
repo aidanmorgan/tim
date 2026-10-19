@@ -18,8 +18,9 @@ public sealed class WorkshopPhysicsEngineTests
 
     private static async Task<List<WorkshopRead>> Run(WorkshopConstruction construction, int ticks)
     {
-        var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
-        await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation());
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
+            GpuDeviceOwnership.Borrowed);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
         Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
@@ -365,7 +366,7 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.Equal(original.Electrical.Sources.ToArray(), unshifted.Electrical.Sources.ToArray());
         Assert.Equal(original.Electrical.Bindings.ToArray(), unshifted.Electrical.Bindings.ToArray());
         Assert.Equal(original.SwitchedSupplies.ToArray(), unshifted.SwitchedSupplies.ToArray());
-        Assert.Throws<ArgumentException>(() => WorkshopPhysicsCompiler.Compile(construction.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2)));
+        EditRefusal.Is(WorkshopEditRejection.FixedPart, () => WorkshopPhysicsCompiler.Compile(construction.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2)));
         var scene = WorkshopPhysicsCompiler.Compile(freePlay.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2));
         var moved = scene.Bodies.ToArray().Single(b => b.Id == receiver.Id);
         Assert.Equal((position.Cell, position.Local), (moved.Cell, moved.Local));

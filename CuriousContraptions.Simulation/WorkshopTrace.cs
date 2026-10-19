@@ -88,8 +88,9 @@ internal sealed class WorkshopTrace
     #endif
     // Host observational milliseconds only. This is the complete critical-path wall span,
     // including awaits and publication, not exclusive CPU time or numerical game state.
-    // Called once per tick on the hot path: fully optimised from its first call, never call-counted or promoted
-    // mid-run (Story 9.4b; WorkshopTraceTests.DurationRetentionHasNoRoutineAllocationInNativeExecution).
+    // Called once per tick on the hot path, so it is fully optimised from its first call. Story 9.4b added this while
+    // chasing a rare allocation in WorkshopTraceTests.DurationRetentionHasNoRoutineAllocationInNativeExecution; tiering
+    // was never confirmed as the cause, which is open (P0-034 / Story 16.1), so this is not a proven mitigation.
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
     internal void RecordTickDuration(SimulationTick tick, double milliseconds)
     {

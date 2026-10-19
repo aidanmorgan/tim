@@ -4,7 +4,7 @@ using Godot;
 
 namespace CuriousContraptions.Tests;
 
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class WorkshopSpringboardTests(NativeSceneFixture godot)
 {
 

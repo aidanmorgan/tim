@@ -35,6 +35,8 @@ public enum WorkshopEditRejection : uint
     InventoryUnsupported,
     /// <summary>The puzzle's authored settings do not admit the change.</summary>
     PuzzleSettings,
+    /// <summary>The Workshop has no bench placement for that part.</summary>
+    UnsupportedPart,
 }
 
 /// <summary>

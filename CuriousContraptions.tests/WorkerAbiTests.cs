@@ -58,6 +58,6 @@ public sealed class WorkerAbiTests(ITestOutputHelper output)
             .ToDictionary(match => match.Groups[1].Value, match => int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture));
         Assert.Equal(Owned(script).OrderBy(entry => entry.Key), declared.OrderBy(entry => entry.Key));
         foreach (var name in declared.Keys)
-            Assert.True(Regex.Matches(source, $@"\b{name}\b").Count > 1, $"{name} is declared but never used in {path}.");
+            Assert.True(Regex.Count(source, $@"\b{name}\b") > 1, $"{name} is declared but never used in {path}.");
     }
 }

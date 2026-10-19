@@ -60,19 +60,27 @@ dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Machine
 [CuriousContraptions.Simulation/Program.cs]
 dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Simulation.Program.WarmupSimulation|M:CuriousContraptions.Simulation.Program.RunLoop(System.UInt64)
 
-# Godot async-void UI handlers: an exception escaping one is lost to the player; each shows the failure in the status line.
+# Godot async-void UI handlers (Story 9R.0c). Each async void X is exactly one catch-all that passes the exception to
+# HandlerFailed, the logged and shown boundary: in the browser an exception escaping an async void handler terminates
+# the .NET runtime. Each XAsync body classifies its own failures: a typed refusal goes to stdout and the status line, and
+# anything else is a fault logged once to stderr (WorkshopUiFailure.Report or WorkshopDiagnostics.Fault).
 [ui/Workshop.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop._Ready|M:CuriousContraptions.Workshop.ToggleRun|M:CuriousContraptions.Workshop.ResetRun|M:CuriousContraptions.Workshop.Save|M:CuriousContraptions.Workshop.LoadSave
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop._Ready|M:CuriousContraptions.Workshop.ReadyAsync|M:CuriousContraptions.Workshop.Click(Godot.Vector2)|M:CuriousContraptions.Workshop.ClickAsync(Godot.Vector2)|M:CuriousContraptions.Workshop.DeleteSelected|M:CuriousContraptions.Workshop.Undo|M:CuriousContraptions.Workshop.ToggleRun|M:CuriousContraptions.Workshop.ToggleRunAsync|M:CuriousContraptions.Workshop.ResetRun|M:CuriousContraptions.Workshop.ResetRunAsync|M:CuriousContraptions.Workshop.Save|M:CuriousContraptions.Workshop.SaveAsync|M:CuriousContraptions.Workshop.LoadSave|M:CuriousContraptions.Workshop.LoadSaveAsync
 [ui/WorkshopBattery.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyBatterySettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalSourceSettings)|M:CuriousContraptions.Workshop.ApplyBatteryEnable(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyBatterySettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalSourceSettings)|M:CuriousContraptions.Workshop.ApplyBatterySettingsAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalSourceSettings)|M:CuriousContraptions.Workshop.ApplyBatteryEnable(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)|M:CuriousContraptions.Workshop.ApplyBatteryEnableAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.ElectricalEnable)
 [ui/WorkshopConfiguration.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyClockInterval(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyDelayDuration(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyBumperStrength(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplySpringboardSettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.SpringboardSettings)
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ApplyClockInterval(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyClockIntervalAsync(CuriousContraptions.Gpu.GpuBodyId,System.Single)|M:CuriousContraptions.Workshop.ApplyDelayDuration(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyDelayDurationAsync(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyBumperStrength(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplyBumperStrengthAsync(CuriousContraptions.Gpu.GpuBodyId,System.Double)|M:CuriousContraptions.Workshop.ApplySpringboardSettings(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.SpringboardSettings)|M:CuriousContraptions.Workshop.ApplySpringboardSettingsAsync(CuriousContraptions.Gpu.GpuBodyId,CuriousContraptions.Gpu.SpringboardSettings)
 [ui/WorkshopConnections.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ChangeConnection(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.ChangeConnection(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)|M:CuriousContraptions.Workshop.ChangeConnectionAsync(CuriousContraptions.Gpu.WorkshopConnection,System.Boolean)
 [ui/WorkshopGpu.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.Playback(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.CommitSelected|M:CuriousContraptions.Workshop.SubmitConstruction(CuriousContraptions.Gpu.WorkshopConstruction)
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.Playback(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.PlaybackAsync(CuriousContraptions.Gpu.WorkshopCommandKind)|M:CuriousContraptions.Workshop.CommitSelected|M:CuriousContraptions.Workshop.CommitSelectedAsync|M:CuriousContraptions.Workshop.SubmitConstruction(CuriousContraptions.Gpu.WorkshopConstruction)|M:CuriousContraptions.Workshop.HandlerFailed(System.String,System.Exception)
 [ui/WorkshopPuzzle.cs]
-dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Workshop.SelectModeFromPicker(System.Int32)|M:CuriousContraptions.Workshop.SelectModeFromPickerAsync(System.Int32)|M:CuriousContraptions.Workshop.ChangePrecision(System.Double)|M:CuriousContraptions.Workshop.ChangePrecisionAsync(System.Double)
+
+# Test synchronization context that records every exception escaping an async void handler under test, so a test can
+# assert none escaped (an escape terminates the browser runtime). Recording all of them is its only purpose.
+[CuriousContraptions.tests/PalettePlacementTests.cs]
+dotnet_code_quality.CA1031.excluded_symbol_names = M:CuriousContraptions.Tests.PalettePlacementTests.EscapeRecorder.Post(System.Threading.SendOrPostCallback,System.Object)
 
 # xUnit test-method names use the established Subject_Condition_Outcome underscore form, and recorded
 # evidence and --filter commands cite them by name; CA1707 still applies to all production code.

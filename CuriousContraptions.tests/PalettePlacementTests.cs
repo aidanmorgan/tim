@@ -8,7 +8,7 @@ namespace CuriousContraptions.Tests;
 /// Story 9R.0c: the Free palette offers only parts with a constructible instance path, undelivered parts never reach it, and a
 /// bench placement captures the part before it records undo, so an uncapturable part is one typed rejection and never a throw.
 /// </summary>
-[Collection<NativeSceneCollection>]
+[Collection<NativeSceneCollectionDefinition>]
 public sealed class PalettePlacementTests(NativeSceneFixture godot)
 {
     private static readonly Vector3 BenchPoint = new(0, 1, 0);
@@ -68,7 +68,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 Assert.True(UndeliveredParts.Contains(id));
                 // Control: the resource still ships (Story 9A.14 deletes it), so the exclusion is admission, not absence.
                 Assert.True(ResourceLoader.Exists($"res://parts/catalog/{id.Value}.tres"), $"{id} resource ships until Story 9A.14.");
-                Assert.Throws<ArgumentException>(() => world.CaptureInstance(id, new(1), BenchPoint, Quaternion.Identity));
+                EditRefusal.Is(WorkshopEditRejection.UnsupportedPart, () => world.CaptureInstance(id, new(1), BenchPoint, Quaternion.Identity));
                 Assert.False(world.Registry.Definitions.ContainsKey(id), $"{id} must not be registered.");
                 Assert.False(WorkshopInventoryPolicy.Free.ContainsKey(id), $"{id} must not be offered by the Free palette.");
             }
@@ -93,10 +93,28 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 null, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, placement.Rejection);
             Assert.Contains(external, placement.Message);
-            godot.Errors.Expect($"Bench placement of '{external}' as body 7 was refused");
+            Assert.Empty(godot.Errors.Drain()); // a refusal is not an error: it is logged as a UI rejection on stdout
             Assert.Equal(0, undo);
             Assert.Equal(before, placement.Construction);
             Assert.Equal(before, world.Construction);
+        }
+        finally { world.Free(); }
+    }
+
+    [Fact]
+    public void ABenchPlacementDefectIsNotARejectionAndReachesTheHandlerBoundary()
+    {
+        // No discovered registry: CaptureBall's lookup guard throws a plain ArgumentException, a defect rather than a declared
+        // refusal, so Propose must not turn it into a placement rejection (the handler boundary logs it as a fault).
+        var world = new MachineWorld();
+        try
+        {
+            var undo = 0;
+            var defect = Assert.Throws<ArgumentException>(() => WorkshopBenchPlacement.Propose(world, PartId.Basketball, new(7),
+                BenchPoint, Quaternion.Identity, null, null, () => undo++));
+            Assert.Equal("Unsupported ball kind.", defect.Message);
+            Assert.Equal(0, undo);
+            Assert.Empty(godot.Errors.Drain());
         }
         finally { world.Free(); }
     }
@@ -135,7 +153,8 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 null, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
             Assert.StartsWith("Placement rejected: ", refused.Message);
-            godot.Errors.Expect("Bench placement of 'basket' as body 4294967296 was refused");
+            Assert.Equal("Placement rejected: Authored body identity exceeds its domain.", refused.Message);
+            Assert.Empty(godot.Errors.Drain());
             Assert.Equal(0, undo);
             Assert.Equal(lesson, refused.Construction);
             // Control: the same lesson composes its Receiver at an authored identity and records one undo.
@@ -236,7 +255,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             var before = scene.World.Construction;
             Assert.Empty(ClickBench(scene));
             Assert.Equal("Placement rejected: Unsupported instance part id 'balloon'.", Field<Label>(scene, "_status").Text);
-            godot.Errors.Expect("Bench placement of 'balloon' as body 1 was refused");
+            Assert.Empty(godot.Errors.Drain());
             Assert.Empty(Field<List<WorkshopConstruction>>(scene, "_undo"));
             Assert.Empty(client.Commands);
             Assert.Equal(before, scene.World.Construction);

@@ -296,7 +296,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     [InlineData(WorkshopTransportState.RecoveryBlocked)]
     public async Task ARetiredTransportStopsUiBindingsWithoutThrowing(WorkshopTransportState retired)
     {
-        var client = new RetiringUiClient();
+        await using var client = new RetiringUiClient();
         var world = new MachineWorld();
         try
         {

@@ -7,9 +7,6 @@
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <IsTrimmable>true</IsTrimmable>
         <VerifyReferenceTrimCompatibility>true</VerifyReferenceTrimCompatibility>
-        <!-- Story 9R.0, expected until the Story 9.4b rebase: IL2125 (Google.FlatBuffers is not trim-annotated) stays a
-             visible warning; Story 9.4b removes its cause. Delete this line in that rebase; nothing else is exempt. -->
-        <WarningsNotAsErrors>$(WarningsNotAsErrors);IL2125</WarningsNotAsErrors>
         <!-- TwoDogWebBoot.cs (web hosts) takes a function pointer to the source-generated plugins initializer;
              harmless on desktop -->
         <DefineConstants>$(DefineConstants);TWODOG_WEB_BOOT</DefineConstants>

@@ -1,0 +1,8 @@
+using System.IO;
+
+internal static class NamedFileStream { public static long M(string path) { var stream = new FileStream(path, FileMode.Open); return stream.Length; } }
+internal static class InlineFileStream { public static long M(string path) => new FileStream(path, FileMode.Open).Length; }
+internal static class FactoryFileStream { public static long M(string path) { var stream = File.OpenRead(path); return stream.Length; } }
+internal static class NamedMemoryStream { public static long M() { var stream = new MemoryStream(); return stream.Length; } }
+internal static class DroppedFileStream { public static void M(string path) { _ = new FileStream(path, FileMode.Open); } }
+internal static class Control { public static int M() { var timer = new System.Threading.Timer(_ => { }); return timer.GetHashCode(); } }

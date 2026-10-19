@@ -1,0 +1,14 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.79]     CuriousContraptions.Tests.WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(age: 1400000000, renews: False) [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(age: 1400000000, renews: False) [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (0, 1)
+Actual:   Tuple (1, 0)
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(Int64 age, Boolean renews) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/WorkshopClockDerivationTests.cs:line 697
+   at InvokeStub_WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     1, Passed:    58, Skipped:     0, Total:    59, Duration: 178 ms - CuriousContraptions.tests.dll (net10.0)

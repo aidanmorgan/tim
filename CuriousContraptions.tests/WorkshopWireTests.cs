@@ -914,7 +914,7 @@ public sealed class WorkshopWireTests
     [Fact]
     public void AuthoredCompilerRejectsWideBodyIdentityWithoutChangingWireIdentityDomain()
     {
-        Assert.Throws<ArgumentException>(() => WorkshopPhysicsCompiler.Compile(Construction, new(101, 206)));
+        EditRefusal.Is(WorkshopEditRejection.IdentityExhausted, () => WorkshopPhysicsCompiler.Compile(Construction, new(101, 206)));
         var command = new WorkshopCommand(new(1), WorkshopCommandKind.Construct, new(1), new(1),
             Construction, Session: Session, Cadence: new(1), Projection: new(1));
         Assert.Equal(OnlyBall(Construction).Id, OnlyBall(WorkshopWire.DecodeCommand(WorkshopWire.Encode(command)).Construction!.Value).Id);

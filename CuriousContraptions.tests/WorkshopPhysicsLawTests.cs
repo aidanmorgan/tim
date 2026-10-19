@@ -621,13 +621,15 @@ public sealed class WorkshopPhysicsLawTests
         return hits;
     }
 
+    private static readonly string[] ShippedSolverFiles = ["WorkshopPhysicsEngine.cs", "WorkshopCollisionKernels.cs",
+        "WorkshopConstraintSolver.cs", "PrismaticConstraintSolver.cs", "WorkshopDynamicBvh.cs"];
+
     [Fact]
     public void TheShippedSolverNamesNoElementBeyondThePinnedOwnedViolations()
     {
         var root = twodog.Engine.ResolveProjectDir();
         var problems = new List<string>();
-        var solverFiles = new[] { "WorkshopPhysicsEngine.cs", "WorkshopCollisionKernels.cs", "WorkshopConstraintSolver.cs",
-            "PrismaticConstraintSolver.cs", "WorkshopDynamicBvh.cs" }.Select(file => "CuriousContraptions.Simulation/" + file).ToArray();
+        var solverFiles = ShippedSolverFiles.Select(file => "CuriousContraptions.Simulation/" + file).ToArray();
         var general = solverFiles.ToDictionary(file => file, file => GeneralHits(CodeOnly(Path.Combine(root, file))));
         var excused = new Dictionary<string, List<(int Start, int End)>>();
         foreach (var known in KnownViolations)

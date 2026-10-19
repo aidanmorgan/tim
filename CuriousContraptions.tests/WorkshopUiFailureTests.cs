@@ -134,15 +134,45 @@ public sealed class WorkshopUiFailureTests
             var root = CSharpSyntaxTree.ParseText(File.ReadAllText(path), cancellationToken: cancellation).GetRoot(cancellation);
             if (Invokes(root, "WorkshopDiagnostics", "Rejection"))
                 violations.Add($"{Path.GetFileName(path)}: logs a rejection without WorkshopUiFailure.Report");
-            foreach (var clause in root.DescendantNodes().OfType<CatchClauseSyntax>())
-            {
-                var reported = Invokes(clause.Block, "WorkshopUiFailure", "Report") || Invokes(clause.Block, "WorkshopDiagnostics", "Fault");
-                var rethrown = clause.Block.DescendantNodes().OfType<ThrowStatementSyntax>().Any(statement => statement.Expression is null);
-                if (!reported && !rethrown)
-                    violations.Add($"{Path.GetFileName(path)}:{clause.GetLocation().GetLineSpan().StartLinePosition.Line + 1}: {clause.CatchKeyword} neither reports nor rethrows");
-            }
+            foreach (var clause in root.DescendantNodes().OfType<CatchClauseSyntax>().Where(clause => !CatchReports(clause)))
+                violations.Add($"{Path.GetFileName(path)}:{clause.GetLocation().GetLineSpan().StartLinePosition.Line + 1}: {clause.CatchKeyword} neither reports nor rethrows");
         }
         // Every violation in full (an assertion on the collection truncates each entry).
         if (violations.Count > 0) Assert.Fail($"{violations.Count} UI catch violation(s):\n" + string.Join('\n', violations));
+    }
+
+    // A catch reports when it classifies (WorkshopUiFailure.Report), records a fault (WorkshopDiagnostics.Fault) or rethrows.
+    // Story 9R.0c's handler boundary also reports: it passes the caught exception to the same-type HandlerFailed, or logs
+    // it whole with GD.PushError. Either one counts only when the caught exception itself is among its arguments.
+    private static bool CatchReports(CatchClauseSyntax clause)
+    {
+        var caught = clause.Declaration?.Identifier.ValueText;
+        bool PassesCaught(InvocationExpressionSyntax invocation) => !string.IsNullOrEmpty(caught) && invocation.ArgumentList.Arguments
+            .Any(argument => argument.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().Any(name => name.Identifier.ValueText == caught));
+        var invocations = clause.Block.DescendantNodes().OfType<InvocationExpressionSyntax>().ToArray();
+        return Invokes(clause.Block, "WorkshopUiFailure", "Report") || Invokes(clause.Block, "WorkshopDiagnostics", "Fault")
+            || clause.Block.DescendantNodes().OfType<ThrowStatementSyntax>().Any(statement => statement.Expression is null)
+            || invocations.Any(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.ValueText: "HandlerFailed" } && PassesCaught(invocation))
+            || invocations.Any(invocation => invocation.Expression is MemberAccessExpressionSyntax { Expression: IdentifierNameSyntax { Identifier.ValueText: "GD" }, Name.Identifier.ValueText: "PushError" }
+                && PassesCaught(invocation));
+    }
+
+    [Theory]
+    [InlineData("try { } catch (Exception error) { HandlerFailed(nameof(M), error); }", true)]
+    [InlineData("try { } catch (Exception error) { GD.PushError($\"failed: {error}\"); }", true)]
+    [InlineData("try { } catch (Exception error) { WorkshopDiagnostics.Fault(FaultSite.UiHandler, error); }", true)]
+    [InlineData("try { } catch (Exception error) { _status.Text = WorkshopUiFailure.Report(error); }", true)]
+    [InlineData("try { } catch (Exception) { throw; }", true)]
+    [InlineData("try { } catch (Exception error) { HandlerFailed(nameof(M), other); }", false)]
+    [InlineData("try { } catch (Exception error) { GD.PushError(\"failed\"); }", false)]
+    [InlineData("try { } catch (Exception) { GD.PushError(\"failed\"); }", false)]
+    [InlineData("try { } catch (Exception error) { GD.PushWarning($\"{error}\"); }", false)]
+    [InlineData("try { } catch (Exception error) { Other.HandlerFailed(nameof(M), error); }", false)]
+    [InlineData("try { } catch (Exception error) { _status.Text = error.Message; }", false)]
+    public void TheCatchRuleAcceptsOnlyAReportOrTheHandlerBoundaryPassingTheCaughtException(string body, bool reports)
+    {
+        var cancellation = TestContext.Current.CancellationToken;
+        var root = CSharpSyntaxTree.ParseText($"class Workshop {{ void M() {{ {body} }} }}", cancellationToken: cancellation).GetRoot(cancellation);
+        Assert.Equal(reports, CatchReports(Assert.Single(root.DescendantNodes().OfType<CatchClauseSyntax>())));
     }
 }

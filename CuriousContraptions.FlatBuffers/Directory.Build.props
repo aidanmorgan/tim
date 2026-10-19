@@ -1,0 +1,9 @@
+<Project>
+    <!-- Vendored Google FlatBuffers runtime (Story 9.4b), kept byte-identical to upstream (THIRD-PARTY-NOTICES.md), so
+         the C# static gate's analyzers do not run on it; compiler diagnostics and trim analysis still apply. This is
+         the gate's one opt-out: CSharpStaticGateTests pins it, the vendored files' hashes and this project path. -->
+    <PropertyGroup>
+        <CSharpStaticGate>false</CSharpStaticGate>
+    </PropertyGroup>
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+</Project>

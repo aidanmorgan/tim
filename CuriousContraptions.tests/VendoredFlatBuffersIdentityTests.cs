@@ -13,7 +13,8 @@ namespace CuriousContraptions.Tests;
 /// </summary>
 public sealed class VendoredFlatBuffersIdentityTests
 {
-    private static readonly IReadOnlyDictionary<string, string> Pinned = new Dictionary<string, string>
+    // CSharpStaticGateTests extends this pin to every file in the directory (the gate's opt-out lives there).
+    internal static readonly IReadOnlyDictionary<string, string> Pinned = new Dictionary<string, string>
     {
         ["ByteBuffer.cs"] = "f54f9f8643a9aea60913671a8df0d374b8d9b602264139b74aced0733d960660",
         ["ByteBufferUtil.cs"] = "b1f712041443cbcf9acda6a1bf8f745c6ee1872ffb7bfb9b91be92ab37e060bd",
