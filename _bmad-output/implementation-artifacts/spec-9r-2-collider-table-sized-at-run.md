@@ -159,7 +159,7 @@ Amelia-7, 20 Oct 2026, on main 8a77f9a9 (9.4b, 9R.0, 9R.0b and 9R.1 landed). Lin
   5. Line references refreshed; the `worker.js` task dropped (already done); named header constants used throughout.
   6. **Reversed by evidence.** The per-tick static BVH cost was filed as performance, but the first capacity-9r Chrome run (scratchpad run `cap2`, 2026-10-19T20:48Z) raised 5 `CCGPU_DEBT_FAULT`s on the 2,305- and 2,234-collider benches after the smoke pair had finished, which breaches AC4 ("no worker fault"; the Risks section makes a capacity-9r fault a Fail). The behaviour-preserving broadphase change above fixed it (run `cap3`: 3/3, 0 debt faults). The remaining cost (re-insertion) stays filed. Needs coordinator confirmation.
 
-## Review Triage Log
+- **20 Oct 2026, coordinator decisions after the candidate:** AC5 is met by the runner full run under the 19 Oct verification tiers; the broadphase reversal is accepted subject to Murdoch-8's hash probe; D2 is accepted as written; `capacity-9r` is SerialAlone (owner-named: a new suite starts SerialAlone until calibration qualifies it), with no Chrome rerun; the static BVH built once, the snapshot helper's body guard and `anvil --changed` in worktrees are filed to Story F.4.
 
 ## Review Triage Log
 
