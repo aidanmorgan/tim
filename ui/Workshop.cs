@@ -57,6 +57,11 @@ public partial class Workshop : Node3D
 
     public override async void _Ready()
     {
+        try { await ReadyAsync(); }
+        catch (Exception error) { HandlerFailed(nameof(_Ready), error); }
+    }
+    private async Task ReadyAsync()
+    {
         World = new MachineWorld { Name = "Machine" };
         AddChild(World);
         MakeStage();
@@ -500,6 +505,11 @@ public partial class Workshop : Node3D
     }
     private async void Click(Vector2 screen)
     {
+        try { await ClickAsync(screen); }
+        catch (Exception error) { HandlerFailed(nameof(Click), error); }
+    }
+    private async Task ClickAsync(Vector2 screen)
+    {
         if (_linkSource is not null) { ChooseConnectionTarget(Pick(screen)); return; }
         if (_tool is null && _rotationGizmo.Begin(_camera, screen))
         {
@@ -540,11 +550,14 @@ public partial class Workshop : Node3D
             }
             catch (Exception error)
             {
-                // Never swallowed: the admitted part stays admitted, and the failure is logged with its context and rethrown.
-                var failure = new InvalidOperationException(
-                    $"Bench placement of '{chosen}' as body {placedId.Value} was admitted, but presenting it failed.", error);
-                GD.PushError(failure.ToString());
-                throw failure;
+                // Logged with its context, never rethrown: an exception escaping an async void handler terminates the browser
+                // .NET runtime. The admitted part stays admitted and the Workshop leaves placement mode for the next placement.
+                GD.PushError($"Bench placement of '{chosen}' as body {placedId.Value} was admitted, but presenting it failed: {error}");
+                _tool = null;
+                _dragging = false;
+                try { ClearPreview(); RefreshPalette(); RefreshLayers(); }
+                catch (Exception recovery) { GD.PushError($"Leaving placement mode after body {placedId.Value} failed to present also failed: {recovery}"); }
+                _status.Text = "The part was placed, but it could not be shown. Choose a part to continue.";
             }
         }
         else
@@ -604,6 +617,11 @@ public partial class Workshop : Node3D
     }
     private async void DeleteSelected()
     {
+        try { await DeleteSelectedAsync(); }
+        catch (Exception error) { HandlerFailed(nameof(DeleteSelected), error); }
+    }
+    private async Task DeleteSelectedAsync()
+    {
         if (!CanEdit || _selected is not { Locked: false }) return;
         var id = _selected.AuthoredId;
         PushUndo(); Select(null);
@@ -621,6 +639,11 @@ public partial class Workshop : Node3D
     }
     private async void Undo()
     {
+        try { await UndoAsync(); }
+        catch (Exception error) { HandlerFailed(nameof(Undo), error); }
+    }
+    private async Task UndoAsync()
+    {
         if (!CanEdit || _undo.Count == 0) return;
         Select(null);
         var accepted = await SubmitConstruction(_undo[^1]);
@@ -632,6 +655,11 @@ public partial class Workshop : Node3D
 
 
     private async void ToggleRun()
+    {
+        try { await ToggleRunAsync(); }
+        catch (Exception error) { HandlerFailed(nameof(ToggleRun), error); }
+    }
+    private async Task ToggleRunAsync()
     {
         if (_gpuPending) return;
         if (IsRuntimePhase(World.WorkshopPhase)) { ResetRun(); return; }
@@ -657,6 +685,11 @@ public partial class Workshop : Node3D
 
     private bool _cancelPending;
     private async void ResetRun()
+    {
+        try { await ResetRunAsync(); }
+        catch (Exception error) { HandlerFailed(nameof(ResetRun), error); }
+    }
+    private async Task ResetRunAsync()
     {
         if (_gpuPending)
         {
@@ -793,6 +826,11 @@ public partial class Workshop : Node3D
     }
     private async void Save()
     {
+        try { await SaveAsync(); }
+        catch (Exception error) { HandlerFailed(nameof(Save), error); }
+    }
+    private async Task SaveAsync()
+    {
         if (!CanEdit) { _status.Text = "Return to building before saving."; return; }
         if (World.WorkshopRead.Revision.Value == ulong.MaxValue)
         { _status.Text = "The session cannot acknowledge another save."; return; }
@@ -820,6 +858,11 @@ public partial class Workshop : Node3D
     }
 
     private async void LoadSave()
+    {
+        try { await LoadSaveAsync(); }
+        catch (Exception error) { HandlerFailed(nameof(LoadSave), error); }
+    }
+    private async Task LoadSaveAsync()
     {
         if (!CanEdit) { _status.Text = "Return to building before loading."; return; }
         var applied = false;

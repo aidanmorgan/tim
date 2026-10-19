@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions;
@@ -93,6 +94,11 @@ public partial class Workshop
             : "Connect the selected sockets.";
     }
     private async void ChangeConnection(WorkshopConnection link, bool add)
+    {
+        try { await ChangeConnectionAsync(link, add); }
+        catch (Exception error) { HandlerFailed(nameof(ChangeConnection), error); }
+    }
+    private async Task ChangeConnectionAsync(WorkshopConnection link, bool add)
     {
         if (!CanEdit) return;
         try

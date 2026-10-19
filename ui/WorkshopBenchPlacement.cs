@@ -25,7 +25,9 @@ public static class WorkshopBenchPlacement
         try { proposed = world.Construction.WithInstance(world.CaptureInstance(part, body, position, rotation, rampDimensions, wallDimensions)); }
         catch (Exception error)
         {
-            // A part that cannot be captured or composed is refused here, before any undo entry exists.
+            // A part that cannot be captured or composed is refused here, before any undo entry exists. The warning carries the
+            // exception, so a programming defect reaches the console rather than only the status label.
+            GD.PushWarning($"Bench placement of '{part}' as body {body.Value} was refused: {error}");
             return new(BenchPlacementRejection.UnsupportedPart, world.Construction, $"Placement rejected: {error.Message}");
         }
         pushUndo();

@@ -93,6 +93,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 null, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, placement.Rejection);
             Assert.Contains(external, placement.Message);
+            godot.Errors.Expect($"Bench placement of '{external}' as body 7 was refused");
             Assert.Equal(0, undo);
             Assert.Equal(before, placement.Construction);
             Assert.Equal(before, world.Construction);
@@ -134,6 +135,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
                 null, null, () => undo++);
             Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
             Assert.StartsWith("Placement rejected: ", refused.Message);
+            godot.Errors.Expect("Bench placement of 'basket' as body 4294967296 was refused");
             Assert.Equal(0, undo);
             Assert.Equal(lesson, refused.Construction);
             // Control: the same lesson composes its Receiver at an authored identity and records one undo.
@@ -188,11 +190,29 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         return (scene, client);
     }
 
-    private static void ClickBench(Workshop scene)
+    /// <summary>Clicks the bench and returns every exception that escaped the async void handler. An escaping exception is posted
+    /// to the captured synchronization context: natively Godot's logs it, but in the browser there is none and the thread pool
+    /// terminates the .NET runtime (Story 9R.0c F1), so the click runs under a context that records instead.</summary>
+    private static List<Exception> ClickBench(Workshop scene)
     {
         var height = (float)Field<Metres>(scene, "_placementHeight").Value;
         var screen = Field<Camera3D>(scene, "_camera").UnprojectPosition(new Vector3(0, height, 0));
-        typeof(Workshop).GetMethod("Click", Private)!.Invoke(scene, [screen]);
+        var recorder = new EscapeRecorder();
+        var previous = SynchronizationContext.Current;
+        SynchronizationContext.SetSynchronizationContext(recorder);
+        try { typeof(Workshop).GetMethod("Click", Private)!.Invoke(scene, [screen]); }
+        finally { SynchronizationContext.SetSynchronizationContext(previous); }
+        return recorder.Escaped;
+    }
+
+    private sealed class EscapeRecorder : SynchronizationContext
+    {
+        public List<Exception> Escaped { get; } = [];
+        public override void Post(SendOrPostCallback callback, object? state)
+        {
+            try { callback(state); }
+            catch (Exception escaped) { Escaped.Add(escaped); }
+        }
     }
 
     private void Release(Workshop scene)
@@ -208,8 +228,9 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var before = scene.World.Construction;
-            ClickBench(scene);
+            Assert.Empty(ClickBench(scene));
             Assert.Equal("Placement rejected: Unsupported instance part id 'balloon'.", Field<Label>(scene, "_status").Text);
+            godot.Errors.Expect("Bench placement of 'balloon' as body 1 was refused");
             Assert.Empty(Field<List<WorkshopConstruction>>(scene, "_undo"));
             Assert.Empty(client.Commands);
             Assert.Equal(before, scene.World.Construction);
@@ -225,7 +246,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         try
         {
             var before = scene.World.Construction;
-            ClickBench(scene);
+            Assert.Empty(ClickBench(scene));
             // Control: the same click reaches capture and the worker; the admission stays pending in this fixture.
             Assert.True(client.Commands.Count == 1, $"One Construct must reach the worker; status: {Field<Label>(scene, "_status").Text}");
             var (kind, construction) = client.Commands[0];
@@ -237,7 +258,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     }
 
     [Fact]
-    public void AnAdmittedPlacementWhosePresentationFailsConsumesItsIdentityAndFailsLoudly()
+    public void AnAdmittedPlacementWhosePresentationFailsIsLoggedOnceNeverEscapesAndLeavesTheWorkshopUsable()
     {
         var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
         var detail = Field<Label>(scene, "_detail");
@@ -245,18 +266,24 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         {
             // Fault injection after admission: only Select, which runs once the worker has applied the part, writes this label.
             SetField<Label?>(scene, "_detail", null);
-            ClickBench(scene);
-            godot.Engine.Iteration(); // the async handler's failure surfaces through Godot's synchronization context
-            godot.Errors.Expect("was admitted, but presenting it failed");
+            Assert.Empty(ClickBench(scene)); // nothing may escape the handler: in the browser that terminates the runtime
+            var logged = godot.Errors.Drain();
+            Assert.Contains("Bench placement of 'ramp' as body 1 was admitted, but presenting it failed", Assert.Single(logged).ToString());
+            Assert.Equal("The part was placed, but it could not be shown. Choose a part to continue.", Field<Label>(scene, "_status").Text);
             Assert.Equal(new GpuBodyId(2), Field<GpuBodyId>(scene, "_nextId"));
             Assert.Single(Field<List<WorkshopConstruction>>(scene, "_undo")); // the admitted placement keeps its undo entry
-            // The next placement takes a fresh identity instead of silently replacing the admitted part.
-            ClickBench(scene);
-            godot.Engine.Iteration();
-            godot.Errors.Expect("was admitted, but presenting it failed");
+            Assert.Null(Field<PartId?>(scene, "_tool")); // placement mode ended: no Escape is needed
+            Assert.False(Field<bool>(scene, "_dragging"));
+            // The next placement works: choose the part from the palette again and place it.
+            SetField(scene, "_detail", detail);
+            typeof(Workshop).GetMethod("ChooseTool", Private)!.Invoke(scene, [PartId.Ramp]);
+            Assert.Empty(ClickBench(scene));
+            Assert.Empty(godot.Errors.Drain());
+            Assert.Equal("Drag to slide. Choose arrows to move or rings to rotate.", Field<Label>(scene, "_status").Text);
             Assert.Equal(2, client.Commands.Count);
-            Assert.Equal([new GpuBodyId(1), new GpuBodyId(2)],
-                Assert.NotNull(client.Commands[1].Construction).Instances.Select(instance => instance.Id));
+            // It takes a fresh identity instead of silently replacing the admitted part: the construction holds both.
+            Assert.Equal([new GpuBodyId(1), new GpuBodyId(2)], scene.World.Construction.Instances.Select(instance => instance.Id));
+            Assert.Equal(new GpuBodyId(3), Field<GpuBodyId>(scene, "_nextId"));
         }
         finally { SetField(scene, "_detail", detail); Release(scene); }
     }
@@ -267,7 +294,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Rejected);
         try
         {
-            ClickBench(scene);
+            Assert.Empty(ClickBench(scene));
             Assert.Single(client.Commands);
             Assert.StartsWith("Placement rejected: ", Field<Label>(scene, "_status").Text);
             Assert.Empty(Field<List<WorkshopConstruction>>(scene, "_undo"));

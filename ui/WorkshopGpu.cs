@@ -25,6 +25,11 @@ public partial class Workshop
     }
     private async void Playback(WorkshopCommandKind kind)
     {
+        try { await PlaybackAsync(kind); }
+        catch (Exception error) { HandlerFailed(nameof(Playback), error); }
+    }
+    private async Task PlaybackAsync(WorkshopCommandKind kind)
+    {
         if (_gpuPending) return;
         _gpuPending = true;
         try
@@ -35,6 +40,16 @@ public partial class Workshop
         }
         catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
         finally { if (!_workshopUiRemoved) _gpuPending = false; }
+    }
+
+    /// <summary>The boundary of every async void Workshop handler. In the browser an exception escaping one is posted to the thread
+    /// pool, where it terminates the .NET runtime (Story 9R.0c F1), so it is logged with its handler and shown, never rethrown.</summary>
+    private void HandlerFailed(string handler, Exception error)
+    {
+        GD.PushError($"Workshop handler '{handler}' failed: {error}");
+        if (_workshopUiRemoved) return;
+        try { _status.Text = $"That action failed and was logged: {error.Message}"; }
+        catch (Exception statusError) { GD.PushError($"Workshop handler '{handler}' could not show its failure: {statusError}"); }
     }
 
     private async Task<bool> SubmitConstruction(WorkshopConstruction construction)
@@ -68,6 +83,11 @@ public partial class Workshop
     }
 
     private async void CommitSelected()
+    {
+        try { await CommitSelectedAsync(); }
+        catch (Exception error) { HandlerFailed(nameof(CommitSelected), error); }
+    }
+    private async Task CommitSelectedAsync()
     {
         if (!CanEdit || _selected is null) return;
         try

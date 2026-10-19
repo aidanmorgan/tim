@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 using CuriousContraptions.Gpu;
 
@@ -102,6 +103,11 @@ public partial class Workshop
 
     private async void ApplyBatterySettings(GpuBodyId owner, ElectricalSourceSettings settings)
     {
+        try { await ApplyBatterySettingsAsync(owner, settings); }
+        catch (Exception error) { HandlerFailed(nameof(ApplyBatterySettings), error); }
+    }
+    private async Task ApplyBatterySettingsAsync(GpuBodyId owner, ElectricalSourceSettings settings)
+    {
         if (!CanEdit) return;
         try
         {
@@ -117,6 +123,11 @@ public partial class Workshop
     }
 
     private async void ApplyBatteryEnable(GpuBodyId owner, ElectricalEnable enabled)
+    {
+        try { await ApplyBatteryEnableAsync(owner, enabled); }
+        catch (Exception error) { HandlerFailed(nameof(ApplyBatteryEnable), error); }
+    }
+    private async Task ApplyBatteryEnableAsync(GpuBodyId owner, ElectricalEnable enabled)
     {
         if (_gpuPending || _batteryCommandSending) return;
         _batteryCommandSending = true;

@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CuriousContraptions.Gpu;
 
 namespace CuriousContraptions;
@@ -10,6 +11,11 @@ public partial class Workshop
     private Label _success = null!;
 
     private async void SelectModeFromPicker(int index)
+    {
+        try { await SelectModeFromPickerAsync(index); }
+        catch (Exception error) { HandlerFailed(nameof(SelectModeFromPicker), error); }
+    }
+    private async Task SelectModeFromPickerAsync(int index)
     {
         if (!CanEdit)
         {
@@ -148,6 +154,11 @@ public partial class Workshop
         if (first) _status.Text = "Place and rotate both ramps. Manual placement; physical nudging is not yet supported.";
     }
     private async void ChangePrecision(double value)
+    {
+        try { await ChangePrecisionAsync(value); }
+        catch (Exception error) { HandlerFailed(nameof(ChangePrecision), error); }
+    }
+    private async Task ChangePrecisionAsync(double value)
     {
         if (World.Construction.Puzzle.Id == WorkshopPuzzleId.Free)
         {

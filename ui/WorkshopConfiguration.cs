@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Godot;
 using CuriousContraptions.Gpu;
 
@@ -44,6 +45,11 @@ public partial class Workshop
     }
     private async void ApplyClockInterval(GpuBodyId owner, float seconds)
     {
+        try { await ApplyClockIntervalAsync(owner, seconds); }
+        catch (Exception error) { HandlerFailed(nameof(ApplyClockInterval), error); }
+    }
+    private async Task ApplyClockIntervalAsync(GpuBodyId owner, float seconds)
+    {
         if (!CanEdit) return;
         try
         {
@@ -59,7 +65,12 @@ public partial class Workshop
         }
         catch (Exception error) { if (!_workshopUiRemoved) _status.Text = error.Message; }
     }
-    private async void ApplyDelayDuration(GpuBodyId owner,double seconds)
+    private async void ApplyDelayDuration(GpuBodyId owner, double seconds)
+    {
+        try { await ApplyDelayDurationAsync(owner, seconds); }
+        catch (Exception error) { HandlerFailed(nameof(ApplyDelayDuration), error); }
+    }
+    private async Task ApplyDelayDurationAsync(GpuBodyId owner,double seconds)
     {
         if (!CanEdit) return;
         try
@@ -93,6 +104,11 @@ public partial class Workshop
         configure.Disabled = !CanEdit || bumper.Locked; _connectionChoices.AddChild(configure);
     }
     private async void ApplyBumperStrength(GpuBodyId owner, double strength)
+    {
+        try { await ApplyBumperStrengthAsync(owner, strength); }
+        catch (Exception error) { HandlerFailed(nameof(ApplyBumperStrength), error); }
+    }
+    private async Task ApplyBumperStrengthAsync(GpuBodyId owner, double strength)
     {
         if (!CanEdit) return;
         try
@@ -141,6 +157,11 @@ public partial class Workshop
         configure.Disabled = !CanEdit || spring.Locked; _connectionChoices.AddChild(configure);
     }
     private async void ApplySpringboardSettings(GpuBodyId owner, SpringboardSettings settings)
+    {
+        try { await ApplySpringboardSettingsAsync(owner, settings); }
+        catch (Exception error) { HandlerFailed(nameof(ApplySpringboardSettings), error); }
+    }
+    private async Task ApplySpringboardSettingsAsync(GpuBodyId owner, SpringboardSettings settings)
     {
         if (!CanEdit) return;
         try
