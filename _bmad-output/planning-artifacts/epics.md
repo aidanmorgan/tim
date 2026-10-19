@@ -1575,6 +1575,63 @@ So that `done` means proven.
 - **And** the re-runs include every story's AC-named suite plus one full serial Chrome run of every `tools/e2e/*.test.ts` suite against the production preview, and `dotnet build` (Story 9R.0 gate) plus `dotnet test`, all passing 100%.
 - **And** `sprint-status.yaml` marks each reopened story `done` only when its addendum records a fresh terminal Pass.
 
+### Visual repair stories 9R.19–9R.22 (owner report and coordinator decision, 19 Oct 2026)
+
+*Origin: the owner reported that the Funnel's glass wall looks inverted and said there are likely other issues. The [visual review of 19 Oct 2026](visual-review-2026-10-19/static-findings.md) covered every Free palette part, in static analysis and in Chrome captures.*
+
+*Delivery order: these run after Story 9R.17 and before Story 9R.18, so 9R.18 re-verifies Stories 6.6, 6.9, 6.10 and 6.11 against art that is now correct. They also precede 9A.8–9A.11 and 9A.25, which move scenes and bindings with exact parity and would otherwise carry these defects into the packages. Coordinator decision under owner delegation: DESIGN.md already requires every item here, so none of it is a new design choice.*
+
+*Review depth: 9R.19, 9R.21 and 9R.22 are art and data, so Murdoch reviews them alone. 9R.20 changes presentation bindings, so it also gets the three lenses. E2e uses Tier 2 with the affected element suites, plus Chrome screenshots that use actual UI controls.*
+
+### Story 9R.19: Tube Glass Art Repair (Funnel, Clear Pipe, Pipe Bends, Gate and Detector Collars)
+*Status: Backlog*
+
+*Repairs the art acceptance of Stories 6.6, 6.9, 6.10 and 6.11 (visual review #1–#4 and #10).*
+
+**Acceptance Criteria:**
+- **Given** the Funnel, **When** it is placed, **Then** its glass narrows from the wide 1.3 inlet collar to the 0.65 outlet collar. The `funnel.tscn` top and bottom radii are swapped, and a native test checks that the visual and collider radii agree at both ends.
+- **And** every open glass mesh (funnel, pipe, `pipe_bend_45`, `pipe_bend_90`, the powered-gate collars, the ball-detector collar) is double-sided (`cull_mode = 2`), so the far wall and inner faces render.
+  - The gate and detector collars get real wall thickness (a torus or walled tube) and no longer render as "C" half-arcs.
+  - Transparency sorting where a funnel outlet meets a pipe is checked in Chrome from outside and inside.
+- **And** the pipe, both bends and the funnel carry the navy rails that DESIGN.md:349, :353 and :354 require.
+- **And** the bends use a swept torus-segment mesh, with no seam bands. The funnel has 48 sides.
+- **And** the Chrome screenshots, taken through actual UI placement, show each part from the front, from 45° and from above, and are kept as evidence. Their suites (cat-030, cat-048a/b, cat-049, cat-050, cat-062b and cat-002) pass.
+
+### Story 9R.20: Live State Cues During Run (Clock Lamp, Counter Dots, Gate Indicator, Pressure Plate Studs)
+*Status: Backlog*
+
+*Visual review #6. Today `UpdateClockLamp` and `UpdateCounterLamps` are called only from tests, and in production only with false or 0 (`MachinePart.cs:220-221`). The gate's `Visual_Indicator` and the plate's `Stud_*` have no binding. Must land before Story 9A.25, whose golden test would otherwise lock in the dead cues.*
+
+**Acceptance Criteria:**
+- **Given** a running machine, **When** the System Clock pulses, the Pulse Counter counts, the Powered Gate is driven or the Pressure Plate is loaded, **Then** the clock lamp flashes, the counter dots show the count, the gate indicator shows its drive state and the plate studs show its activation, all driven from the read model on the animation path (no new per-element update loop).
+- **And** Reset restores every cue exactly to its pre-Run state, and Save/Load preserves the authored state.
+- **And** Chrome screenshots during Run prove each cue changes, with a negative control: an unpowered gate and an unloaded plate show no change. A mutant that removes the binding fails a test.
+
+### Story 9R.21: Lit Palette Fidelity
+*Status: Backlog*
+
+*Visual review #5. Lit ramps and walls look pale yellow, the receiver looks mint and the deck looks near-white, but DESIGN.md requires the approved colours to survive lighting. The cause is unverified: light energy, or a double sRGB conversion in `gl_compatibility`.*
+
+**Acceptance Criteria:**
+- **Given** the approved palette, **When** the Workshop renders each part under the DESIGN.md lighting in Chrome, **Then** each part's lit base colour, sampled in the shaded mid-tone region, stays within ΔE ≤ 10 of its approved colour. The root cause is identified and fixed once, with no per-part colour compensation.
+- **And** a Chrome sampling test that reads pixels from known part regions fails if the colour drifts beyond that bound.
+
+### Story 9R.22: Element Art Polish (Bumper, Counter, Detector, Sockets, Delay, Switch, Spring, Wall)
+*Status: Backlog*
+
+*Visual review #7–#10.*
+
+**Acceptance Criteria:**
+- **Bumper:** the slate pedestal `Visual_Base` is visible below the head.
+- **Counter:** `Mat_Socket` is gold, the `ActivationOut` socket is visible and not buried in the foot, and the side sockets sit on the housing.
+- **Ball Detector:** the chevron points in the forward-crossing direction (+X), matching the palette icon.
+- **Sockets:** every part's socket uses the one approved socket gold.
+- **Delay Box:** it shows its twelve marks.
+- **Impact Switch:** the palette icon shows a push-button that matches the model.
+- **Springboard:** the coil is a helix attached to the base and plate.
+- **Wall:** the stripes are offset enough not to z-fight.
+- **And** Chrome screenshots of each part, through actual UI placement, are kept, and each part's suite passes.
+
 ---
 
 ## Epic 9A: Sole Architecture Conformance (Project-per-Element, Command/Query, Event Disruptor)
@@ -2035,6 +2092,7 @@ So that wiring and placement behave the same for every element.
 - **And** a golden test proves that every element's ports and footprint are unchanged.
 - **And** a wrong-domain or output-to-output link is still refused (negative control).
 - **And** every wiring suite passes (`cat-005`, `cat-017`, `cat-020`, `cat-037`, `cat-051`, `cat-052`, `anim-1b`, `anim-1c`).
+- **And** the existing disagreements between the declaration ports and the scene `Loc_Port_*` locators are resolved, with one source in the bundle (visual review of 19 Oct 2026, #11). For example, the detector's signal port is at (0, 0.4, 0) in its declaration and (0, 1.12, 0) in its scene; the Gate, Counter, Plate, Battery, Bumper, Domino and Lamp also differ. The pipe and bend start-mouth locators face outward, as the Funnel's does. A test fails if a declared port and its visual locator disagree.
 - **And** `dotnet build CuriousContraptions.slnx` reports 0 warnings, `dotnet test CuriousContraptions.slnx` passes 100%, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run against the production preview.
 
 ### Story 9A.18: Element Icons Ship in Their Packages

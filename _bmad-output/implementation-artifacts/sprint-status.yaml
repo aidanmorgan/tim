@@ -160,6 +160,11 @@ development_status:
   9r-15-cat-063-impact-switch-suite: backlog
   9r-16-cat-035-signal-lamp-suite: backlog
   9r-17-cat-022-delay-box-suite: backlog
+  # owner visual report 19 Oct 2026 (Funnel glass inverted); run before 9r-18 (visual-review-2026-10-19)
+  9r-19-tube-glass-art-repair: backlog
+  9r-20-live-state-cues-during-run: backlog
+  9r-21-lit-palette-fidelity: backlog
+  9r-22-element-art-polish: backlog
   9r-18-retro-reverification-review-addenda: backlog
   epic-9r-retrospective: optional
 
