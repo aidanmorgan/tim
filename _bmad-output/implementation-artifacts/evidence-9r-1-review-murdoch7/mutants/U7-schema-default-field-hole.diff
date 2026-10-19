@@ -1,0 +1,10 @@
+--- a/schemas/workshop_wire.fbs
++++ b/schemas/workshop_wire.fbs
+@@ -309,6 +309,7 @@
+     contact_works: [ContactWorkStoreRecord];
+     occurrences: [ContactWorkOccurrenceRecord];
+     electrical: [ElectricalSourceRecord];
++    probe_default: float = 1.0; // MUTANT U7: a field with a default the listing omits
+     activation_memory: [ActivationMemoryRecord];
+ }
+ 

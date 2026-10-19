@@ -1186,7 +1186,13 @@ So that machines run smoothly and stay responsive as I add more parts.
 - **And** published bundle size and first-load time are recorded, and DESIGN.md or the release notes state any change in first-load behaviour.
 
 ### Story 9R.1: Exact Run/Reset Snapshot Assertions in Every Listed Suite
-*Status: Backlog*
+*Status: Done (20 Oct 2026). Murdoch-7 gave a scoped Pass on `b1390cd9` ([review](../implementation-artifacts/review-9r-1-exact-run-reset-snapshot-assertions.md)).*
+- *Reset is now checked against an exact pre-Run snapshot (raw f32 bits) in ten suites.*
+- *The Counter and Clock activation memory is committed and restored on Reset.*
+- *Probes that Reset while Running pass.*
+- *The serial full run passed 166/166.*
+- *cat-020 is SerialAlone under the AOT workers.*
+- *Findings are filed to Story F.3.*
 
 *Depends on: Story 9R.0. Closes report #14 and the §D last row. No suite captures a pre-Run state and compares against it in cat-048a (`:100`), cat-048b (`:88`), cat-049, cat-050, cat-030, cat-051 (`driver.reset()` with no assertion), cat-052, cat-017 (`:278`), cat-002 or cat-020 (`:435`). The pipe suites also reuse state left by the previous test. Re-verifies the lifecycle claims of Stories 6.6, 6.7, 6.8, 6.9, 6.10, 6.11, 8.2, 9.1, 9.2 and 9.3.*
 
@@ -3491,6 +3497,24 @@ So that Curious Contraptions is ready for public release.
 ## Filed Follow-ups (back of the queue)
 
 *Owner decision, 19 Oct 2026, evening: review findings beyond a story's own acceptance criteria are filed here, after every other queued story, unless they are a player-visible crash. See the [verification tiers](autonomous-development-guide.md#verification-tiers).*
+
+### Story F.3: Run/Reset Snapshot Hardening
+*Status: Backlog. Filed from the Story 9R.1 review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-1-exact-run-reset-snapshot-assertions.md)).*
+
+**Acceptance Criteria:**
+- **Snapshot checks:**
+  - cat-051 gets a real closed-pose check (F1);
+  - the listed suites gain one Reset-from-Running cycle (F2);
+  - the schema parser covers fields with defaults (F5; the U7 mutant must be killed);
+  - the memory parameters are required, not defaulted (F7);
+  - TS enums are used instead of string constants (F8);
+  - a stronger post-Reset goal check, and the inserted Saves are justified or removed (F11/F12);
+  - a body mutant with the guard bypassed (F14).
+- **Gating:** the `tools/e2e/unit/*` tests run under a gate, in the hook or CI (F6).
+- **Evidence:** mutant diffs are kept as evidence (F10).
+- **Cleanup:**
+  - the fake hosts quote the current response size;
+  - one cosmetic line (F9).
 
 ### Story F.2: AOT Publish Guard Hardening
 *Status: Backlog. Filed from the Story 9R.0b review on 20 Oct 2026 ([review](../implementation-artifacts/review-9r-0b-aot-compiled-wasm-simd-workers.md)). Amelia-5's partly finished work is on branch `story-f2-aot-guard-hardening`.*

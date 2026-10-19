@@ -1,0 +1,24 @@
+# identity head=042a1de03f7b8d166ec0f89c34862463c5011bdd bundleManifestSha256=5edbe8df89e864a8333212254e4fbbf583e74c081a35c26c0b703c13dde9db17 preview=8297
+TAP version 13
+# Subtest: CAT-048b: Clear Pipe Level E2E (Through the looking tube)
+    # Subtest: 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again
+    ok 1 - 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again
+      ---
+      duration_ms: 12350.113792
+      type: 'test'
+      ...
+    1..1
+ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
+  ---
+  duration_ms: 16562.863583
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16822.849083

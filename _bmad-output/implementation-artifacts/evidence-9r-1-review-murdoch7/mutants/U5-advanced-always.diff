@@ -1,0 +1,10 @@
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -304,6 +304,7 @@
+ 
+ /** A run cycle is not vacuous: its committed read is past tick 0 and differs from S0 in at least one compared physical path. */
+ export function assertRunAdvanced(s0: RunResetSnapshot, during: RunResetSnapshot): void {
++    return; // MUTANT U5
+     if (during.tick === 0n) throw new Error('run-reset snapshot: the mid-run committed read is at tick 0');
+     const values = new Map(s0.entries);
+     const differs = during.entries.some(([path, value]) =>

@@ -1,0 +1,36 @@
+--- a/tools/e2e/cat-020.test.ts
++++ b/tools/e2e/cat-020.test.ts
+@@ -266,6 +266,33 @@
+         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+     });
+ 
++    // Murdoch-7 probe: Reset pressed while Running (no Pause), at two points of the run. Non-vacuity: the pose ring shows the
++    // world advanced (publications and a moved body) before the Reset; the Reset is then the player's Space-while-Running path.
++    async function probeResetFromRunning(s0: RunResetSnapshot, holdMs: number, label: string): Promise<RunResetSnapshot> {
++        await driver.run(); // returns at the first publication of the running world
++        const before = await driver.readLatestPose();
++        assert.ok(before, `${label}: first running pose readable`);
++        await driver.page.waitForTimeout(holdMs);
++        const during = await driver.readLatestPose();
++        assert.ok(during && during.sequence !== before.sequence, `${label}: the pose ring advanced while Running`);
++        const moved = during.bodies.some(body => {
++            const start = before.bodies.find(candidate => candidate.id === body.id);
++            return start !== undefined && Math.hypot(body.px - start.px, body.py - start.py) > 0.01;
++        });
++        console.log(`PROBE ${label}: ids ${before.bodies.map(b => `${b.id}@${b.px.toFixed(3)},${b.py.toFixed(3)}`).join(' ')} -> ${during.bodies.map(b => `${b.id}@${b.px.toFixed(3)},${b.py.toFixed(3)}`).join(' ')}`);
++        assert.ok(moved, `${label}: a body moved before the Reset`);
++        console.log(`PROBE ${label}: Reset from Running after ${holdMs} ms, pose sequence ${before.sequence} -> ${during.sequence}`);
++        await driver.reset();
++        return driver.expectResetMatches(s0);
++    }
++
++    test('PROBE Murdoch-7: Reset from Running mid-count restores S0 exactly, twice', { timeout: 150000 }, async () => {
++        const s0 = await buildCounterBench(TWO_CROSSING_LIFTS);
++        assertCounterCleared(await probeResetFromRunning(s0, 1500, 'probe cycle 1 (1500 ms)'));
++        assertCounterCleared(await probeResetFromRunning(s0, 800, 'probe cycle 2 (800 ms)'));
++        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
++    });
++
+     test('3. Positive trigger: 3rd ball crossing reaches target count 3, illuminates lamp, retracts gate blade, and ball traverses downstream', { timeout: 150000 }, async () => {
+         const s0 = await buildCounterBench(ARMED_LIFTS.slice(0, 3));
+         for (const cycle of ['first run', 'second run']) {

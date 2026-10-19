@@ -1,0 +1,11 @@
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -139,7 +139,7 @@
+         case 'uint16': return String(bb.readUint16(position));
+         case 'uint32': return String(bb.readUint32(position));
+         case 'int32': return String(bb.readInt32(position));
+-        case 'float': return hex32(bb.readUint32(position)); // raw IEEE-754 bits, never a decoded number
++        case "float": return String(bb.readFloat32(position)); // MUTANT U3 // raw IEEE-754 bits, never a decoded number
+         case 'uint64': return bb.readUint64(position).toString();
+         case 'int64': return bb.readInt64(position).toString();
+         default: throw new Error(`run-reset snapshot: unknown scalar ${scalar}`);

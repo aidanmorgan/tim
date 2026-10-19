@@ -1,0 +1,12 @@
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -236,7 +236,8 @@
+ export function snapshotFrom(response: Uint8Array, savedBytes: Uint8Array, bench: { readonly bodies: number }): RunResetSnapshot {
+     const read = readSnapshot(response);
+     if (read.bodies === 0) throw new Error('run-reset snapshot: the committed read has no bodies');
+-    if (read.bodies !== bench.bodies)
++    if (false && read.bodies !== bench.bodies) // MUTANT U6
++   
+         throw new Error(`run-reset snapshot: the committed read has ${read.bodies} bodies, the bench has ${bench.bodies}`);
+     try { decodeSavedConstruction(savedBytes); }
+     catch (error) { throw new Error('run-reset snapshot: the save slot is not a version 13 CCWS construction', { cause: error }); }

@@ -1,0 +1,11 @@
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -172,7 +172,7 @@
+         if (type.kind !== 'table') throw new Error(`run-reset snapshot: ${name} is not a table`);
+         type.fields.forEach(([field, fieldType], index) => {
+             const path = `${prefix}.${field}`;
+-            if (EXCLUDED_PATHS.has(path)) return;
++            if (EXCLUDED_PATHS.has(path) || prefix === "read") return; // MUTANT U1
+             const offset = this.bb.__offset(position, tableSlot(index));
+             if (offset === 0) { this.add(path, ABSENT); return; } // a table scalar equal to its default is not written
+             const at = position + offset;

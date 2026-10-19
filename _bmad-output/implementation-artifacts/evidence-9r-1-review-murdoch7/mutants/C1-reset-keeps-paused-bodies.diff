@@ -1,0 +1,21 @@
+--- a/engine/gpu/WorkshopSimulation.cs
++++ b/engine/gpu/WorkshopSimulation.cs
+@@ -316,6 +316,7 @@
+             var read = CandidateRead(candidate, owner);
+             if (!Owns(owner)) return Superseded(owner);
+             ValidateInitialRead(read, Construction, epoch);
++            read = read with { Bodies = Committed.Bodies }; // MUTANT C1: Reset keeps the paused bodies
+             read = CaptureForCommit(read with { Revision = new(Revision.Value + 1) });
+             await _installation.Prepare(new(owner), read, Construction, Profile, WorkshopSimulationPhase.Building);
+             if (!Owns(owner)) return Superseded(owner);
+--- a/engine/MachineWorld.Gpu.cs
++++ b/engine/MachineWorld.Gpu.cs
+@@ -314,7 +314,7 @@
+             read.Tick.Value > construction.Settings.RunTickLimit)
+             throw new ArgumentException("Read does not own the admitted construction.");
+         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
+-        read.Bodies.ValidateScene(scene, read.Epoch, read.Tick);
++        if (read.Tick.Value != 0) read.Bodies.ValidateScene(scene, read.Epoch, read.Tick); // MUTANT C1: main-thread admission guard bypassed
+     }
+ 
+     public void RestoreConstructionPresentation()

@@ -1,0 +1,209 @@
+TAP version 13
+# Subtest: Run/Reset snapshot: the explicit schema listing
+    # Subtest: every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs
+    ok 1 - every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs
+      ---
+      duration_ms: 0.700166
+      type: 'test'
+      ...
+    # Subtest: every type reachable from WorkshopResponse and SavedConstruction is listed
+    ok 2 - every type reachable from WorkshopResponse and SavedConstruction is listed
+      ---
+      duration_ms: 0.144666
+      type: 'test'
+      ...
+    # Subtest: computed struct offsets and sizes equal the generated accessors
+    ok 3 - computed struct offsets and sizes equal the generated accessors
+      ---
+      duration_ms: 0.567708
+      type: 'test'
+      ...
+    # Subtest: table fields use the generated vtable slots
+    ok 4 - table fields use the generated vtable slots
+      ---
+      duration_ms: 0.237209
+      type: 'test'
+      ...
+    1..4
+ok 1 - Run/Reset snapshot: the explicit schema listing
+  ---
+  duration_ms: 2.086458
+  type: 'suite'
+  ...
+# Subtest: Run/Reset snapshot: bit-exact comparison
+    # Subtest: identical snapshots pass
+    ok 1 - identical snapshots pass
+      ---
+      duration_ms: 1.752625
+      type: 'test'
+      ...
+    # Subtest: a flipped f32 bit fails and names the field path with both bit patterns
+    ok 2 - a flipped f32 bit fails and names the field path with both bit patterns
+      ---
+      duration_ms: 0.536834
+      type: 'test'
+      ...
+    # Subtest: -0 against +0 in a body field fails
+    ok 3 - -0 against +0 in a body field fails
+      ---
+      duration_ms: 0.409708
+      type: 'test'
+      ...
+    # Subtest: two different NaN payloads differ
+    ok 4 - two different NaN payloads differ
+      ---
+      duration_ms: 0.334709
+      type: 'test'
+      ...
+    # Subtest: a differing connection fails
+    ok 5 - a differing connection fails
+      ---
+      duration_ms: 0.375542
+      type: 'test'
+      ...
+    # Subtest: a differing part parameter fails
+    ok 6 - a differing part parameter fails
+      ---
+      duration_ms: 0.307333
+      type: 'test'
+      ...
+    # Subtest: a differing authored goal fails
+    ok 7 - a differing authored goal fails
+      ---
+      duration_ms: 0.231209
+      type: 'test'
+      ...
+    # Subtest: a difference in only the last compared path fails
+    ok 8 - a difference in only the last compared path fails
+      ---
+      duration_ms: 0.335458
+      type: 'test'
+      ...
+    # Subtest: differing path sets fail, in either direction
+    ok 9 - differing path sets fail, in either direction
+      ---
+      duration_ms: 0.277
+      type: 'test'
+      ...
+    # Subtest: only the named top-level identity paths are excluded
+    ok 10 - only the named top-level identity paths are excluded
+      ---
+      duration_ms: 0.285875
+      type: 'test'
+      ...
+    # Subtest: a nested field that shares an excluded name is still compared
+    ok 11 - a nested field that shares an excluded name is still compared
+      ---
+      duration_ms: 0.252958
+      type: 'test'
+      ...
+    # Subtest: a Load comparison ignores only the restarted construction revision
+    ok 12 - a Load comparison ignores only the restarted construction revision
+      ---
+      duration_ms: 0.387875
+      type: 'test'
+      ...
+    # Subtest: committed counter and clock memory is compared
+    ok 13 - committed counter and clock memory is compared
+      ---
+      duration_ms: 0.361667
+      type: 'test'
+      ...
+    # Subtest: the tick is compared
+    ok 14 - the tick is compared
+      ---
+      duration_ms: 0.191708
+      type: 'test'
+      ...
+    1..14
+ok 2 - Run/Reset snapshot: bit-exact comparison
+  ---
+  duration_ms: 6.265125
+  type: 'suite'
+  ...
+# Subtest: Run/Reset snapshot: no vacuous pass
+    # Subtest: empty bodies are rejected
+    ok 1 - empty bodies are rejected
+      ---
+      duration_ms: 0.205791
+      type: 'test'
+      ...
+    # Subtest: a body count other than the bench is rejected
+    ok 2 - a body count other than the bench is rejected
+      ---
+      duration_ms: 0.063375
+      type: 'test'
+      ...
+    # Subtest: a non-Applied acknowledgement is rejected
+    ok 3 - a non-Applied acknowledgement is rejected
+      ---
+      duration_ms: 0.073167
+      type: 'test'
+      ...
+    # Subtest: an advanced read must have tick > 0
+    not ok 4 - an advanced read must have tick > 0
+      ---
+      duration_ms: 1.514042
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch7-9r1/tools/e2e/unit/run-reset-snapshot.test.ts:2:17904'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected exception.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch7-9r1/tools/e2e/unit/run-reset-snapshot.test.ts:303:16)
+        Test.runInAsyncScope (node:async_hooks:226:14)
+        Test.run (node:internal/test_runner/test:1402:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+        Test.postRun (node:internal/test_runner/test:1542:19)
+        Test.run (node:internal/test_runner/test:1467:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+      ...
+    # Subtest: an advanced read must differ from S0 in a physical path
+    not ok 5 - an advanced read must differ from S0 in a physical path
+      ---
+      duration_ms: 0.240667
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch7-9r1/tools/e2e/unit/run-reset-snapshot.test.ts:2:18212'
+      failureType: 'testCodeFailure'
+      error: 'Missing expected exception.'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+      operator: 'throws'
+      stack: |-
+        TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch7-9r1/tools/e2e/unit/run-reset-snapshot.test.ts:308:16)
+        Test.runInAsyncScope (node:async_hooks:226:14)
+        Test.run (node:internal/test_runner/test:1402:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+        Test.postRun (node:internal/test_runner/test:1542:19)
+        Test.run (node:internal/test_runner/test:1467:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
+      ...
+    # Subtest: an advanced read with a moved body passes
+    ok 6 - an advanced read with a moved body passes
+      ---
+      duration_ms: 0.156833
+      type: 'test'
+      ...
+    1..6
+not ok 3 - Run/Reset snapshot: no vacuous pass
+  ---
+  duration_ms: 2.376916
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch7-9r1/tools/e2e/unit/run-reset-snapshot.test.ts:2:17230'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..3
+# tests 24
+# suites 3
+# pass 22
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 129.868792

@@ -1,0 +1,11 @@
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -243,7 +243,7 @@
+     const bb = new flatbuffers.ByteBuffer(savedBytes);
+     const flattener = new Flattener(bb);
+     flattener.table('saved', 'SavedConstruction', rootPosition(bb));
+-    return { entries: [...read.entries, ...flattener.entries], bodies: read.bodies, tick: read.tick };
++    return { entries: [...flattener.entries] /* MUTANT U2 */, bodies: read.bodies, tick: read.tick };
+ }
+ 
+ /** Bit-equality of two snapshots: throws on the first differing path (in S0 order), or when the path sets differ. */

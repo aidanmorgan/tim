@@ -1,0 +1,71 @@
+#!/bin/zsh
+# Murdoch-7, Story 9R.1 runtime phase: the Chrome queue, run one step at a time on the review worktree at 042a1de0.
+set -u
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/murdoch7-9r1
+S=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad
+M=$S/mut
+L=/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+LOCK=/Users/aidan/dev/personal/tim/.git/e2e-runner.lock
+cd $W || exit 9
+
+wait_lock() {
+  local n=0
+  while lsof $LOCK >/dev/null 2>&1; do sleep 15; n=$((n+1)); if [ $n -gt 240 ]; then echo "QUEUE lock still held after 60 min"; exit 3; fi; done
+  echo "QUEUE lock free at $(date -u +%FT%TZ) after $((n*15)) s"
+}
+
+bundle_identity() {
+  (cd $W/CuriousContraptions.web/AppBundle && find . -type f | sed 's|^\./||' | LC_ALL=C sort | while IFS= read -r f; do printf '%s\t%s\n' "$f" "$(shasum -a 256 "$f" | cut -d' ' -f1)"; done | shasum -a 256 | cut -d' ' -f1)
+}
+
+runner() { # out-dir list-file
+  wait_lock
+  dotnet run --project tools/E2eRunner -- run --changed $2 --out $1 > $1.runner.log 2>&1
+  echo "QUEUE runner $1 exit $? :: $(grep -E '^run ' $1/summary.txt 2>/dev/null) :: $(grep -E '^run totals' $1/summary.txt 2>/dev/null)"
+}
+
+step=${1:-all}
+
+if [[ $step == all || $step == tier2 ]]; then
+  [ -z "$(git status --porcelain)" ] || { echo "QUEUE tier2 refused: dirty tree"; exit 4; }
+  runner $S/q-tier2 $S/tier2-changed.txt
+fi
+
+if [[ $step == all || $step == alone ]]; then
+  [ -z "$(git status --porcelain)" ] || { echo "QUEUE alone refused: dirty tree"; exit 4; }
+  mkdir -p $S/q2-run-alone
+  ID=$(bundle_identity)
+  echo "head=$(git rev-parse HEAD) bundleManifestSha256=$ID" > $S/q2-run-alone/identity.txt
+  PORT=8297
+  dotnet run --project tools/Preview -- $W/CuriousContraptions.web/AppBundle $PORT > $S/q2-run-alone/preview.log 2>&1 &
+  PREVIEW=$!
+  for i in $(seq 1 60); do curl -sf http://127.0.0.1:$PORT/ >/dev/null && break; sleep 1; done
+  curl -sf http://127.0.0.1:$PORT/ >/dev/null || { echo "QUEUE alone preview not serving"; kill $PREVIEW; exit 6; }
+  for spec in cat-048a:4 cat-048b:5 cat-049:5 cat-050:5; do
+    suite=${spec%%:*}; count=${spec##*:}
+    for n in $(seq 1 $count); do
+      out=$S/q2-run-alone/$suite-test-$n.tap
+      { echo "# identity head=$(git rev-parse HEAD) bundleManifestSha256=$ID preview=$PORT"; \
+        E2E_PREVIEW_URL=http://127.0.0.1:$PORT/ node --import $L --test --test-reporter=tap --test-name-pattern="^$n\\. " tools/e2e/$suite.test.ts; } > $out 2>&1
+      echo "QUEUE alone $suite test $n exit $? :: $(grep -E '^# (tests|pass|fail) ' $out | tr '\n' ' ')"
+    done
+  done
+  kill $PREVIEW; wait $PREVIEW 2>/dev/null
+  echo "QUEUE alone end bundle=$(bundle_identity)"
+fi
+
+if [[ $step == all || $step == probes ]]; then
+  git apply $M/P1-reset-from-running-cat-020.diff && git apply $M/P2-reset-from-running-cat-017.diff || { echo "QUEUE probes apply failed"; exit 5; }
+  printf 'tools/e2e/cat-017.test.ts\ntools/e2e/cat-020.test.ts\n' > $S/probes-changed.txt
+  runner $S/q3-probes $S/probes-changed.txt
+  git checkout -- tools/e2e/cat-017.test.ts tools/e2e/cat-020.test.ts
+fi
+
+if [[ $step == all || $step == c1 ]]; then
+  git apply $M/C1-reset-keeps-paused-bodies.diff || { echo "QUEUE c1 apply failed"; exit 5; }
+  printf 'tools/e2e/cat-002.test.ts\ntools/e2e/cat-030.test.ts\ntools/e2e/cat-052.test.ts\n' > $S/c1-changed.txt
+  runner $S/q2-c1 $S/c1-changed.txt
+  git checkout -- engine/gpu/WorkshopSimulation.cs engine/MachineWorld.Gpu.cs
+fi
+
+echo "QUEUE done status=$(git status --porcelain | wc -l | tr -d ' ')"

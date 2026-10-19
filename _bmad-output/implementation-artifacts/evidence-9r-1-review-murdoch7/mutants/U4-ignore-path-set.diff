@@ -1,0 +1,16 @@
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -262,11 +262,11 @@
+     const actualValues = new Map(actual.entries);
+     for (const [path, value] of expected.entries) {
+         const other = actualValues.get(path);
+-        if (other === undefined) throw new Error(`${label}: path set differs: ${path} is in S0 only`);
++        if (other === undefined) continue; // MUTANT U4a
+         if (other !== value && !ignored.has(path)) throw new Error(`${label}: ${path} ${value}≠${other}`);
+     }
+     const expectedPaths = new Set(expected.entries.map(([path]) => path));
+-    for (const [path] of actual.entries)
++    for (const [path] of [] as SnapshotEntry[]) // MUTANT U4b
+         if (!expectedPaths.has(path)) throw new Error(`${label}: path set differs: ${path} is after ${label} only`);
+ }
+ 

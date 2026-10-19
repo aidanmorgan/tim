@@ -1,0 +1,170 @@
+Story 9R.1 review (Murdoch-7), round 1: mutants and probes, written as diffs against 042a1de0 (042a1de03f7b8d166ec0f89c34862463c5011bdd), to run after CHROME CLEAR.
+RUNTIME PHASE NOTE: the diffs that were executed are the files in mutants/*.diff, each with its .tap or runner output next to it.
+P1 and P2 below are SUPERSEDED by mutants/P1-*.diff and mutants/P2-*.diff. Those add non-vacuity checks before each Reset: the pose
+sequence must advance and a body must move. They also reset at two points, 1500 ms and 800 ms.
+Each section is one unified diff. Apply one at a time to a clean `git archive 042a1de0` copy, never to the implementer worktree.
+
+Expected outcomes, derived before running:
+- U1 through U6 turn tools/e2e/unit/run-reset-snapshot.test.ts red. Each one makes the snapshot compare vacuous in a different way.
+- U7 is expected to stay GREEN. That would confirm the parser hole: a schema field with a default value is skipped by both the listing and the test's parser.
+- C1 is the engine mutant: Reset keeps the paused bodies, with the main-thread admission guard bypassed. Run it on cat-002, cat-030 and cat-052. It must go red at `Reset: read.bodies[...]`.
+- P1 and P2 are probes, not mutants. A Reset from Running mid-count (cat-020) or mid-interval (cat-017) must pass the exact compare twice. If one goes red, that is a player-visible regression.
+
+#### U1 exclude-all-read (sha256 of the scratch diff 2525a3be...)
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -172,7 +172,7 @@
+         if (type.kind !== 'table') throw new Error(`run-reset snapshot: ${name} is not a table`);
+         type.fields.forEach(([field, fieldType], index) => {
+             const path = `${prefix}.${field}`;
+-            if (EXCLUDED_PATHS.has(path)) return;
++            if (EXCLUDED_PATHS.has(path) || prefix === "read") return; // MUTANT U1
+             const offset = this.bb.__offset(position, tableSlot(index));
+             if (offset === 0) { this.add(path, ABSENT); return; } // a table scalar equal to its default is not written
+             const at = position + offset;
+
+#### U2 drop-read-half (fb0bb0ba...)
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -243,7 +243,7 @@
+     const bb = new flatbuffers.ByteBuffer(savedBytes);
+     const flattener = new Flattener(bb);
+     flattener.table('saved', 'SavedConstruction', rootPosition(bb));
+-    return { entries: [...read.entries, ...flattener.entries], bodies: read.bodies, tick: read.tick };
++    return { entries: [...flattener.entries] /* MUTANT U2 */, bodies: read.bodies, tick: read.tick };
+ }
+
+ /** Bit-equality of two snapshots: throws on the first differing path (in S0 order), or when the path sets differ. */
+
+#### U3 float-decoded (2009f5c4...)
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -139,7 +139,7 @@
+         case 'uint16': return String(bb.readUint16(position));
+         case 'uint32': return String(bb.readUint32(position));
+         case 'int32': return String(bb.readInt32(position));
+-        case 'float': return hex32(bb.readUint32(position)); // raw IEEE-754 bits, never a decoded number
++        case "float": return String(bb.readFloat32(position)); // MUTANT U3 // raw IEEE-754 bits, never a decoded number
+         case 'uint64': return bb.readUint64(position).toString();
+         case 'int64': return bb.readInt64(position).toString();
+         default: throw new Error(`run-reset snapshot: unknown scalar ${scalar}`);
+
+#### U4 ignore-path-set (eeee168c...)
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -262,11 +262,11 @@
+     const actualValues = new Map(actual.entries);
+     for (const [path, value] of expected.entries) {
+         const other = actualValues.get(path);
+-        if (other === undefined) throw new Error(`${label}: path set differs: ${path} is in S0 only`);
++        if (other === undefined) continue; // MUTANT U4a
+         if (other !== value && !ignored.has(path)) throw new Error(`${label}: ${path} ${value}≠${other}`);
+     }
+     const expectedPaths = new Set(expected.entries.map(([path]) => path));
+-    for (const [path] of actual.entries)
++    for (const [path] of [] as SnapshotEntry[]) // MUTANT U4b
+         if (!expectedPaths.has(path)) throw new Error(`${label}: path set differs: ${path} is after ${label} only`);
+ }
+
+
+#### U5 advanced-always (2295aa65...)
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -304,6 +304,7 @@
+
+ /** A run cycle is not vacuous: its committed read is past tick 0 and differs from S0 in at least one compared physical path. */
+ export function assertRunAdvanced(s0: RunResetSnapshot, during: RunResetSnapshot): void {
++    return; // MUTANT U5
+     if (during.tick === 0n) throw new Error('run-reset snapshot: the mid-run committed read is at tick 0');
+     const values = new Map(s0.entries);
+     const differs = during.entries.some(([path, value]) =>
+
+#### U6 no-bench-count (0c3ab422...)
+--- a/tools/e2e/run-reset-snapshot.ts
++++ b/tools/e2e/run-reset-snapshot.ts
+@@ -236,7 +236,8 @@
+ export function snapshotFrom(response: Uint8Array, savedBytes: Uint8Array, bench: { readonly bodies: number }): RunResetSnapshot {
+     const read = readSnapshot(response);
+     if (read.bodies === 0) throw new Error('run-reset snapshot: the committed read has no bodies');
+-    if (read.bodies !== bench.bodies)
++    if (false && read.bodies !== bench.bodies) // MUTANT U6
++
+         throw new Error(`run-reset snapshot: the committed read has ${read.bodies} bodies, the bench has ${bench.bodies}`);
+     try { decodeSavedConstruction(savedBytes); }
+     catch (error) { throw new Error('run-reset snapshot: the save slot is not a version 13 CCWS construction', { cause: error }); }
+
+#### U7 schema-default-field-hole (f6ad8e9e...), expected to SURVIVE
+--- a/schemas/workshop_wire.fbs
++++ b/schemas/workshop_wire.fbs
+@@ -309,6 +309,7 @@
+     contact_works: [ContactWorkStoreRecord];
+     occurrences: [ContactWorkOccurrenceRecord];
+     electrical: [ElectricalSourceRecord];
++    probe_default: float = 1.0; // MUTANT U7: a field with a default the listing omits
+     activation_memory: [ActivationMemoryRecord];
+ }
+
+#### C1 reset-keeps-paused-bodies (7d763bad...); Chrome on cat-002, cat-030, cat-052
+--- a/engine/gpu/WorkshopSimulation.cs
++++ b/engine/gpu/WorkshopSimulation.cs
+@@ -316,6 +316,7 @@
+             var read = CandidateRead(candidate, owner);
+             if (!Owns(owner)) return Superseded(owner);
+             ValidateInitialRead(read, Construction, epoch);
++            read = read with { Bodies = Committed.Bodies }; // MUTANT C1: Reset keeps the paused bodies
+             read = CaptureForCommit(read with { Revision = new(Revision.Value + 1) });
+             await _installation.Prepare(new(owner), read, Construction, Profile, WorkshopSimulationPhase.Building);
+             if (!Owns(owner)) return Superseded(owner);
+--- a/engine/MachineWorld.Gpu.cs
++++ b/engine/MachineWorld.Gpu.cs
+@@ -314,7 +314,7 @@
+             read.Tick.Value > construction.Settings.RunTickLimit)
+             throw new ArgumentException("Read does not own the admitted construction.");
+         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
+-        read.Bodies.ValidateScene(scene, read.Epoch, read.Tick);
++        if (read.Tick.Value != 0) read.Bodies.ValidateScene(scene, read.Epoch, read.Tick); // MUTANT C1: main-thread admission guard bypassed
+     }
+
+     public void RestoreConstructionPresentation()
+
+#### P1 reset-from-running-cat-020 (9cce3eb6...), probe
+--- a/tools/e2e/cat-020.test.ts
++++ b/tools/e2e/cat-020.test.ts
+@@ -266,6 +266,16 @@
+         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+     });
+
++    test('P1. PROBE Murdoch-7: Reset from Running mid-count restores S0 exactly, twice', { timeout: 150000 }, async () => {
++        const s0 = await buildCounterBench(TWO_CROSSING_LIFTS);
++        for (const cycle of ['first', 'second']) {
++            await driver.run(1500);
++            await driver.reset();
++            assertCounterCleared(await driver.expectResetMatches(s0));
++        }
++        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
++    });
++
+     test('3. Positive trigger: 3rd ball crossing reaches target count 3, illuminates lamp, retracts gate blade, and ball traverses downstream', { timeout: 150000 }, async () => {
+         const s0 = await buildCounterBench(ARMED_LIFTS.slice(0, 3));
+         for (const cycle of ['first run', 'second run']) {
+
+#### P2 reset-from-running-cat-017 (6a69a7f8...), probe
+--- a/tools/e2e/cat-017.test.ts
++++ b/tools/e2e/cat-017.test.ts
+@@ -214,6 +214,16 @@
+         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
+     });
+
++    test('P2. PROBE Murdoch-7: Reset from Running mid-interval stops the clock and restores S0 exactly, twice', { timeout: 150000 }, async () => {
++        const s0 = await buildClockBench();
++        for (const cycle of ['first', 'second']) {
++            await driver.run(1500);
++            await driver.reset();
++            await driver.expectResetMatches(s0).then(assertClockStopped);
++        }
++        assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
++    });
++
+     test('2. Sub-threshold control: 2 pulses emitted do not reach target 3; gate remains closed, upstream ball stopped', { timeout: 150000 }, async () => {
+         const s0 = await buildClockBench();
+

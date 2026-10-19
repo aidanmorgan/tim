@@ -1,0 +1,175 @@
+TAP version 13
+# Subtest: Run/Reset snapshot: the explicit schema listing
+    # Subtest: every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs
+    ok 1 - every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs
+      ---
+      duration_ms: 0.787417
+      type: 'test'
+      ...
+    # Subtest: every type reachable from WorkshopResponse and SavedConstruction is listed
+    ok 2 - every type reachable from WorkshopResponse and SavedConstruction is listed
+      ---
+      duration_ms: 0.171417
+      type: 'test'
+      ...
+    # Subtest: computed struct offsets and sizes equal the generated accessors
+    ok 3 - computed struct offsets and sizes equal the generated accessors
+      ---
+      duration_ms: 0.616166
+      type: 'test'
+      ...
+    # Subtest: table fields use the generated vtable slots
+    ok 4 - table fields use the generated vtable slots
+      ---
+      duration_ms: 0.263542
+      type: 'test'
+      ...
+    1..4
+ok 1 - Run/Reset snapshot: the explicit schema listing
+  ---
+  duration_ms: 2.335
+  type: 'suite'
+  ...
+# Subtest: Run/Reset snapshot: bit-exact comparison
+    # Subtest: identical snapshots pass
+    ok 1 - identical snapshots pass
+      ---
+      duration_ms: 2.0125
+      type: 'test'
+      ...
+    # Subtest: a flipped f32 bit fails and names the field path with both bit patterns
+    ok 2 - a flipped f32 bit fails and names the field path with both bit patterns
+      ---
+      duration_ms: 0.61975
+      type: 'test'
+      ...
+    # Subtest: -0 against +0 in a body field fails
+    ok 3 - -0 against +0 in a body field fails
+      ---
+      duration_ms: 0.483
+      type: 'test'
+      ...
+    # Subtest: two different NaN payloads differ
+    ok 4 - two different NaN payloads differ
+      ---
+      duration_ms: 0.586417
+      type: 'test'
+      ...
+    # Subtest: a differing connection fails
+    ok 5 - a differing connection fails
+      ---
+      duration_ms: 0.514833
+      type: 'test'
+      ...
+    # Subtest: a differing part parameter fails
+    ok 6 - a differing part parameter fails
+      ---
+      duration_ms: 0.441958
+      type: 'test'
+      ...
+    # Subtest: a differing authored goal fails
+    ok 7 - a differing authored goal fails
+      ---
+      duration_ms: 0.29175
+      type: 'test'
+      ...
+    # Subtest: a difference in only the last compared path fails
+    ok 8 - a difference in only the last compared path fails
+      ---
+      duration_ms: 0.406208
+      type: 'test'
+      ...
+    # Subtest: differing path sets fail, in either direction
+    ok 9 - differing path sets fail, in either direction
+      ---
+      duration_ms: 0.319875
+      type: 'test'
+      ...
+    # Subtest: only the named top-level identity paths are excluded
+    ok 10 - only the named top-level identity paths are excluded
+      ---
+      duration_ms: 0.348416
+      type: 'test'
+      ...
+    # Subtest: a nested field that shares an excluded name is still compared
+    ok 11 - a nested field that shares an excluded name is still compared
+      ---
+      duration_ms: 0.353708
+      type: 'test'
+      ...
+    # Subtest: a Load comparison ignores only the restarted construction revision
+    ok 12 - a Load comparison ignores only the restarted construction revision
+      ---
+      duration_ms: 0.391791
+      type: 'test'
+      ...
+    # Subtest: committed counter and clock memory is compared
+    ok 13 - committed counter and clock memory is compared
+      ---
+      duration_ms: 0.545833
+      type: 'test'
+      ...
+    # Subtest: the tick is compared
+    ok 14 - the tick is compared
+      ---
+      duration_ms: 0.286875
+      type: 'test'
+      ...
+    1..14
+ok 2 - Run/Reset snapshot: bit-exact comparison
+  ---
+  duration_ms: 7.931875
+  type: 'suite'
+  ...
+# Subtest: Run/Reset snapshot: no vacuous pass
+    # Subtest: empty bodies are rejected
+    ok 1 - empty bodies are rejected
+      ---
+      duration_ms: 0.235167
+      type: 'test'
+      ...
+    # Subtest: a body count other than the bench is rejected
+    ok 2 - a body count other than the bench is rejected
+      ---
+      duration_ms: 0.076458
+      type: 'test'
+      ...
+    # Subtest: a non-Applied acknowledgement is rejected
+    ok 3 - a non-Applied acknowledgement is rejected
+      ---
+      duration_ms: 0.069833
+      type: 'test'
+      ...
+    # Subtest: an advanced read must have tick > 0
+    ok 4 - an advanced read must have tick > 0
+      ---
+      duration_ms: 0.157875
+      type: 'test'
+      ...
+    # Subtest: an advanced read must differ from S0 in a physical path
+    ok 5 - an advanced read must differ from S0 in a physical path
+      ---
+      duration_ms: 0.165667
+      type: 'test'
+      ...
+    # Subtest: an advanced read with a moved body passes
+    ok 6 - an advanced read with a moved body passes
+      ---
+      duration_ms: 0.143875
+      type: 'test'
+      ...
+    1..6
+ok 3 - Run/Reset snapshot: no vacuous pass
+  ---
+  duration_ms: 0.935042
+  type: 'suite'
+  ...
+1..3
+# tests 24
+# suites 3
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 151.208792
