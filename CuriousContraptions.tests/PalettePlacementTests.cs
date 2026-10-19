@@ -29,7 +29,7 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         {
             // The list comes from the palette the player sees, never from a hand-written copy.
             var palette = WorkshopInventoryPolicy.Free.Keys.ToArray();
-            Assert.Equal(world.Registry.Definitions.Count, palette.Length);
+            Assert.Equal(world.Registry.Definitions.Keys.OrderBy(id => id), palette.OrderBy(id => id));
             var body = 1u;
             foreach (var id in palette)
             {
@@ -119,6 +119,52 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { world.Free(); }
     }
 
+    [Fact]
+    public void AProposalWhoseLessonRefusesTheCapturedPartIsATypedRejectionWithoutUndo()
+    {
+        var world = DiscoveredWorld();
+        try
+        {
+            var lesson = SpringboardLessons.Create(WorkshopPuzzleId.ReadyToRebound, new(1), WorkshopCadenceSettings.Default(),
+                new(1), new(2), new(3), new((Half).5));
+            typeof(MachineWorld).GetProperty(nameof(MachineWorld.Construction))!.SetValue(world, lesson);
+            var undo = 0;
+            // The Receiver captures, but the lesson's Receiver composition refuses an identity outside the authored domain.
+            var refused = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(1UL << 32), BenchPoint, Quaternion.Identity,
+                null, null, () => undo++);
+            Assert.Equal(BenchPlacementRejection.UnsupportedPart, refused.Rejection);
+            Assert.StartsWith("Placement rejected: ", refused.Message);
+            Assert.Equal(0, undo);
+            Assert.Equal(lesson, refused.Construction);
+            // Control: the same lesson composes its Receiver at an authored identity and records one undo.
+            var composed = WorkshopBenchPlacement.Propose(world, PartId.Receiver, new(4), BenchPoint, Quaternion.Identity,
+                null, null, () => undo++);
+            Assert.Equal(BenchPlacementRejection.None, composed.Rejection);
+            Assert.Equal(1, undo);
+            Assert.Equal(new GpuBodyId(4), composed.Construction.Puzzle.Goal.Target);
+        }
+        finally { world.Free(); }
+    }
+
+    [Fact]
+    public void ThePaletteIsTheCanonicalOrderFilteredOnlyByTheUndeliveredSetBeforeAndAfterDiscover()
+    {
+        var canonical = WorkshopInventoryPolicy.CanonicalOrder;
+        // Story 12.1 delivers a part by removing it from the set alone: it then appears in its canonical row.
+        var withoutTennis = UndeliveredParts.Ids.Where(id => id != PartId.Tennis).ToHashSet();
+        var delivered = WorkshopInventoryPolicy.FreeRows(canonical, withoutTennis).Keys.ToList();
+        Assert.Equal(delivered.IndexOf(PartId.Springboard) + 1, delivered.IndexOf(PartId.Tennis));
+        Assert.DoesNotContain(PartId.Balloon, delivered);
+        Assert.Equal(canonical.Where(id => !UndeliveredParts.Contains(id)),
+            WorkshopInventoryPolicy.FreeRows(canonical, UndeliveredParts.Ids).Keys);
+        // The shared Free inventory never offers an undelivered part, before any Discover (static reset) or after one.
+        typeof(WorkshopInventoryPolicy).GetField("_free", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
+            .SetValue(null, null);
+        Assert.DoesNotContain(WorkshopInventoryPolicy.Free.Keys, UndeliveredParts.Contains);
+        new PartRegistry().Discover();
+        Assert.DoesNotContain(WorkshopInventoryPolicy.Free.Keys, UndeliveredParts.Contains);
+    }
+
     // The actual Workshop scene and its private bench Click (native-only reflection boundary, as in WorkshopHintTests): the defect's
     // precondition is restored by putting the part in the inventory and choosing it, then the bench is clicked at a point on the
     // placement plane. No production setter or test hook exists.
@@ -126,13 +172,13 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     private static T Field<T>(Workshop scene, string name) => (T)typeof(Workshop).GetField(name, Private)!.GetValue(scene)!;
     private static void SetField<T>(Workshop scene, string name, T value) => typeof(Workshop).GetField(name, Private)!.SetValue(scene, value);
 
-    private (Workshop Scene, PlacementClient Client) BenchScene(PartId tool)
+    private (Workshop Scene, PlacementClient Client) BenchScene(PartId tool, PlacementAnswer answer = PlacementAnswer.Pending)
     {
         var scene = GD.Load<PackedScene>("res://scenes/workshop.tscn").Instantiate<Workshop>();
         godot.Tree.Root.AddChild(scene);
         scene.SetProcess(false);
         scene.SetPhysicsProcess(false);
-        var client = new PlacementClient();
+        var client = new PlacementClient(answer);
         typeof(MachineWorld).GetField("_workshopClient", Private)!.SetValue(scene.World, client);
         typeof(MachineWorld).GetProperty(nameof(MachineWorld.WorkshopPhase))!.SetValue(scene.World, WorkshopSimulationPhase.Building);
         SetField(scene, "_gpuPending", false); // a ready Workshop: natively the browser client never initialises
@@ -190,8 +236,51 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
         finally { Release(scene); }
     }
 
-    /// <summary>Records each command and never answers it: placement admission is outside this fixture.</summary>
-    private sealed class PlacementClient : IWorkshopClient
+    [Fact]
+    public void AnAdmittedPlacementWhosePresentationFailsConsumesItsIdentityAndFailsLoudly()
+    {
+        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Applied);
+        var detail = Field<Label>(scene, "_detail");
+        try
+        {
+            // Fault injection after admission: only Select, which runs once the worker has applied the part, writes this label.
+            SetField<Label?>(scene, "_detail", null);
+            ClickBench(scene);
+            godot.Engine.Iteration(); // the async handler's failure surfaces through Godot's synchronization context
+            godot.Errors.Expect("was admitted, but presenting it failed");
+            Assert.Equal(new GpuBodyId(2), Field<GpuBodyId>(scene, "_nextId"));
+            Assert.Single(Field<List<WorkshopConstruction>>(scene, "_undo")); // the admitted placement keeps its undo entry
+            // The next placement takes a fresh identity instead of silently replacing the admitted part.
+            ClickBench(scene);
+            godot.Engine.Iteration();
+            godot.Errors.Expect("was admitted, but presenting it failed");
+            Assert.Equal(2, client.Commands.Count);
+            Assert.Equal([new GpuBodyId(1), new GpuBodyId(2)],
+                Assert.NotNull(client.Commands[1].Construction).Instances.Select(instance => instance.Id));
+        }
+        finally { SetField(scene, "_detail", detail); Release(scene); }
+    }
+
+    [Fact]
+    public void ARefusedPlacementLeavesNoUndoAndKeepsItsIdentity()
+    {
+        var (scene, client) = BenchScene(PartId.Ramp, PlacementAnswer.Rejected);
+        try
+        {
+            ClickBench(scene);
+            Assert.Single(client.Commands);
+            Assert.StartsWith("Placement rejected: ", Field<Label>(scene, "_status").Text);
+            Assert.Empty(Field<List<WorkshopConstruction>>(scene, "_undo"));
+            Assert.Equal(new GpuBodyId(1), Field<GpuBodyId>(scene, "_nextId"));
+        }
+        finally { Release(scene); }
+    }
+
+    private enum PlacementAnswer { Pending, Applied, Rejected }
+
+    /// <summary>Records each command and answers it as configured: never (pending), Applied with an empty body read (a static
+    /// part has no dynamic bodies), or Rejected.</summary>
+    private sealed class PlacementClient(PlacementAnswer answer) : IWorkshopClient
     {
         public List<(WorkshopCommandKind Kind, WorkshopConstruction? Construction)> Commands { get; } = [];
         public WorkshopCadenceSettings Settings => WorkshopCadenceSettings.Default();
@@ -210,7 +299,15 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null)
         {
             Commands.Add((kind, construction));
-            return new TaskCompletionSource<WorkshopDelivery>().Task;
+            if (answer == PlacementAnswer.Pending) return new TaskCompletionSource<WorkshopDelivery>().Task;
+            var result = answer == PlacementAnswer.Applied
+                ? new WorkshopCommandResult(WorkshopCommandOutcome.Applied, WorkshopRejection.None)
+                : new WorkshopCommandResult(WorkshopCommandOutcome.Rejected, WorkshopRejection.InvalidConstruction);
+            var response = new WorkshopResponse(new((ulong)Commands.Count), WorkshopResponseKind.Acknowledgement, result,
+                WorkshopSimulationPhase.Building, new WorkshopRead(Epoch, new(0), default, Revision,
+                    new(WorkshopClockDomain.SimulationMonotonic, new(1), new(120_000_000), new(100_000))),
+                Session: new(1, 1), Cadence: new(1), MasterGeneration: new(1), Projection: new(1));
+            return Task.FromResult(new WorkshopDelivery(response, true));
         }
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No command is pending in this fixture.");
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;

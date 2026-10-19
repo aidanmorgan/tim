@@ -43,8 +43,9 @@ public sealed class PartInventory : IReadOnlyDictionary<PartId, PartAllowance>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Palette inventory per mode, in palette row order. Free play lists every discovered part without a count; the rows
-/// name delivered parts only, so an undelivered part (the game's UndeliveredParts set) never reaches the palette.</summary>
+/// <summary>Palette inventory per mode, in palette row order. The canonical order names every catalogue part; Free play lists
+/// each available part in that order without a count, filtered only by <see cref="UndeliveredParts"/>, so delivering a part
+/// (Story 12.1) is removing it from that set.</summary>
 public static class WorkshopInventoryPolicy
 {
     private static readonly PartId[] _canonicalOrder =
@@ -61,6 +62,8 @@ public static class WorkshopInventoryPolicy
         PartId.BowlingBall,
         PartId.Battery,
         PartId.Springboard,
+        PartId.Tennis,
+        PartId.Balloon,
         PartId.Pipe,
         PartId.BallDetector,
         PartId.PipeBend45,
@@ -73,17 +76,24 @@ public static class WorkshopInventoryPolicy
         PartId.Latch
     ];
 
+    internal static IReadOnlyList<PartId> CanonicalOrder => _canonicalOrder;
+
     private static IReadOnlyDictionary<PartId, PartAllowance>? _free;
     public static IReadOnlyDictionary<PartId, PartAllowance> Free => _free ??= GenerateFree(_canonicalOrder);
 
     public static IReadOnlyDictionary<PartId, PartAllowance> GenerateFree(IEnumerable<PartId> definitions)
     {
-        var set = definitions.ToHashSet();
-        var ordered = _canonicalOrder.Where(set.Contains);
+        _free = FreeRows(definitions, UndeliveredParts.Ids);
+        return _free;
+    }
+
+    internal static PartInventory FreeRows(IEnumerable<PartId> available, IReadOnlySet<PartId> undelivered)
+    {
+        var set = available.ToHashSet();
+        var ordered = _canonicalOrder.Where(id => set.Contains(id) && !undelivered.Contains(id));
         var list = ordered.Select(id => (id, PartAllowance.Unlimited)).ToArray();
         if (list.Length == 0) throw new ArgumentException("Empty registry cannot populate Free inventory.");
-        _free = new PartInventory(list);
-        return _free;
+        return new PartInventory(list);
     }
 
     public static IReadOnlyDictionary<PartId, PartAllowance> Authored(WorkshopPuzzle puzzle)

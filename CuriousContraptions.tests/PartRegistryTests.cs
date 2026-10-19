@@ -88,6 +88,34 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
     }
 
     [Fact]
+    public void Admit_RefusesUntypedParametersOnEveryPartButTheClock_AndChecksIdentityFirst()
+    {
+        // A private copy of a real catalogue resource, so the shared cached resource is never mutated.
+        var copy = (PartDefinition)ResourceLoader.Load<PartDefinition>("res://parts/catalog/ramp.tres").Duplicate();
+        try
+        {
+            Assert.Equal(PartAdmission.Registered, PartRegistry.Admit(copy, "ramp copy", new HashSet<PartId>()));
+            copy.Parameters = new() { ["mass"] = 1f };
+            Assert.Contains("untyped Parameters",
+                Assert.Throws<ArgumentException>(() => PartRegistry.Admit(copy, "ramp copy", new HashSet<PartId>())).Message);
+            // Control: the Clock alone declares its interval in Parameters.
+            var clock = ResourceLoader.Load<PartDefinition>("res://parts/catalog/clock.tres");
+            Assert.NotEmpty(clock.Parameters);
+            Assert.Equal(PartAdmission.Registered, PartRegistry.Admit(clock, "clock", new HashSet<PartId>()));
+            // An undelivered identity is refused before its content is checked, and still counts as a claimed identity.
+            copy.Id = PartId.Balloon.Value;
+            var seen = new HashSet<PartId>();
+            Assert.Equal(PartAdmission.Undelivered, PartRegistry.Admit(copy, "balloon copy", seen));
+            Assert.Contains("Duplicate part identity",
+                Assert.Throws<ArgumentException>(() => PartRegistry.Admit(copy, "second balloon copy", seen)).Message);
+            copy.Id = "";
+            Assert.Contains("missing or empty Id",
+                Assert.Throws<ArgumentException>(() => PartRegistry.Admit(copy, "anonymous copy", new HashSet<PartId>())).Message);
+        }
+        finally { copy.Dispose(); }
+    }
+
+    [Fact]
     public void Create_ThrowsArgumentException_OnUnknownOrUnregisteredPartId()
     {
         var registry = new PartRegistry();

@@ -517,16 +517,18 @@ public partial class Workshop : Node3D
             var rotation = _preview?.Quaternion ?? Quaternion.Identity;
             var chosen = _tool.Value;
             var placedId = _nextId;
+            // The proposal is the typed rejection path: a part that cannot be captured or composed leaves no undo entry.
+            var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
+                _preview?.RampDimensions, _preview?.WallDimensions, PushUndo);
+            if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
+            var accepted = false;
+            try { accepted = await SubmitConstruction(placement.Construction); }
+            finally { if (!accepted && !_workshopUiRemoved && _undo.Count > 0) _undo.RemoveAt(_undo.Count - 1); }
+            if (!accepted || _workshopUiRemoved) return;
+            // The worker admitted the part: its identity is consumed before any presentation step can fail.
+            _nextId = new(placedId.Value + 1);
             try
             {
-                // Capture precedes undo: an uncapturable part is one typed rejection and leaves no undo entry.
-                var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
-                    _preview?.RampDimensions, _preview?.WallDimensions, PushUndo);
-                if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
-                var accepted = await SubmitConstruction(placement.Construction);
-                if (_workshopUiRemoved) return;
-                if (!accepted) { _undo.RemoveAt(_undo.Count - 1); return; }
-                _nextId = new(_nextId.Value + 1);
                 var part = World.Parts.Single(p => p.AuthoredId == placedId);
                 Select(part);
                 _tool = null;
@@ -536,7 +538,14 @@ public partial class Workshop : Node3D
                 _dragging = false;
                 _status.Text = "Drag to slide. Choose arrows to move or rings to rotate.";
             }
-            catch (Exception error) { if (_workshopUiRemoved) return; World.RestoreConstructionPresentation(); _status.Text = error.Message; }
+            catch (Exception error)
+            {
+                // Never swallowed: the admitted part stays admitted, and the failure is logged with its context and rethrown.
+                var failure = new InvalidOperationException(
+                    $"Bench placement of '{chosen}' as body {placedId.Value} was admitted, but presenting it failed.", error);
+                GD.PushError(failure.ToString());
+                throw failure;
+            }
         }
         else
         {
