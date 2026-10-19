@@ -3,13 +3,13 @@ TAP version 13
     # Subtest: 3. Solved run: pipe_bend_90 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED
     ok 1 - 3. Solved run: pipe_bend_90 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED
       ---
-      duration_ms: 10467.19675
+      duration_ms: 10481.425208
       type: 'test'
       ...
     1..1
 ok 1 - CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2E
   ---
-  duration_ms: 14724.618833
+  duration_ms: 14774.699
   type: 'suite'
   ...
 1..1
@@ -20,4 +20,4 @@ ok 1 - CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 14994.258625
+# duration_ms 15043.161458

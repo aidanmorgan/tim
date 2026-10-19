@@ -3,13 +3,13 @@ TAP version 13
     # Subtest: 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again
     ok 1 - 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again
       ---
-      duration_ms: 12449.174291
+      duration_ms: 12499.686041
       type: 'test'
       ...
     1..1
 ok 1 - CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
   ---
-  duration_ms: 16727.38325
+  duration_ms: 16768.366083
   type: 'suite'
   ...
 1..1
@@ -20,4 +20,4 @@ ok 1 - CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 16993.510709
+# duration_ms 17031.028041

@@ -3,13 +3,13 @@ TAP version 13
     # Subtest: 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again
     ok 1 - 4. Reset restoration: Reset restores the exact pre-Run snapshot; a second Run solves again and Reset restores it again
       ---
-      duration_ms: 12351.012792
+      duration_ms: 12383.109
       type: 'test'
       ...
     1..1
 ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
   ---
-  duration_ms: 16611.600375
+  duration_ms: 16647.446625
   type: 'suite'
   ...
 1..1
@@ -20,4 +20,4 @@ ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 16872.995708
+# duration_ms 16916.20925

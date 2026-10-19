@@ -3,13 +3,13 @@ TAP version 13
     # Subtest: 2. Negative control: without placing the pipe, ball falls straight to floor, missing receiver (goal not solved)
     ok 1 - 2. Negative control: without placing the pipe, ball falls straight to floor, missing receiver (goal not solved)
       ---
-      duration_ms: 9167.631042
+      duration_ms: 9182.717
       type: 'test'
       ...
     1..1
 ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
   ---
-  duration_ms: 13413.594542
+  duration_ms: 13426.415708
   type: 'suite'
   ...
 1..1
@@ -20,4 +20,4 @@ ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 13676.098375
+# duration_ms 13687.179708

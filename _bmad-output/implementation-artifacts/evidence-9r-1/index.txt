@@ -39,6 +39,18 @@ Chrome mutants (each one suite/test, bundle republished per mutant, reverted aft
       M6 cat-049 test 2 reuses the previous bench, run alone -> red: the committed read has no bodies
 
 Runs alone (AC4: each test of cat-048a/048b/049/050 in its own node process)
-  run-alone/<suite>-test-<n>.tap     19/19 exit 0, one test each
+  run-alone/<suite>-test-<n>.tap     19/19 exit 0, one test each. Re-taken after the full run on HEAD 042a1de0
+                                     with a clean tree, against tools/Preview serving the runner's published bundle,
+                                     bundle identity e7797f1b6e629e67c7a911a44ca04fdb8acd0b06f1860ff5b42a68589d1f177a
+                                     (recomputed with the runner's manifest rule before and after the 19 runs).
+
+Full serial Chrome run (Tier 3; AC6 "one serial Chrome run")
+  tier2-selection.txt                select --diff e36467b8: Mode: Full (SharedRuntime / shared driver and wire)
+  full-run-serial/                   full --workers 1 on 042a1de0, clean tree, bundle e7797f1b…: verdict Pass,
+                                     34/34 files, 166/166 tests (clock-master's declared fault only)
+
+Identities: the unit, mutant and first manual suite runs were taken on working-tree builds before the commit; their
+code equals 042a1de0 except the mutant under test (reverted before the commit). Their bundle identities were not
+recorded; the identity-bound proof is full-run-serial/ and run-alone/.
 
 Suites green on the candidate bundle in manual runs: cat-048a, 048b, 049, 050, 030, 051, 052, 017 (alone), 002, 020.

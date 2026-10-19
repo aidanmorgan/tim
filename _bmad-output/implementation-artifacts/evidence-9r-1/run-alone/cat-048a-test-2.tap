@@ -3,13 +3,13 @@ TAP version 13
     # Subtest: 2. Reset restores the exact pre-Run snapshot; a second Run replays the traversal and its Reset restores it again
     ok 1 - 2. Reset restores the exact pre-Run snapshot; a second Run replays the traversal and its Reset restores it again
       ---
-      duration_ms: 14717.495917
+      duration_ms: 14716.9225
       type: 'test'
       ...
     1..1
 ok 1 - CAT-048a: Straight Pipe Compound Cylindrical Collider
   ---
-  duration_ms: 18987.957083
+  duration_ms: 18969.302625
   type: 'suite'
   ...
 1..1
@@ -20,4 +20,4 @@ ok 1 - CAT-048a: Straight Pipe Compound Cylindrical Collider
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 19252.803209
+# duration_ms 19244.789708

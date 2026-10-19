@@ -3,13 +3,13 @@ TAP version 13
     # Subtest: 1. Select level quarter_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_90 in inventory)
     ok 1 - 1. Select level quarter_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_90 in inventory)
       ---
-      duration_ms: 1889.952541
+      duration_ms: 1890.238542
       type: 'test'
       ...
     1..1
 ok 1 - CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2E
   ---
-  duration_ms: 6068.459542
+  duration_ms: 6084.627875
   type: 'suite'
   ...
 1..1
@@ -20,4 +20,4 @@ ok 1 - CAT-050: 90-Degree Pipe Bend Hollow Torus Segment & Level Quarter Bend E2
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6377.277458
+# duration_ms 6355.550875

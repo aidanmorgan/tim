@@ -3,13 +3,13 @@ TAP version 13
     # Subtest: 3. Solved run: pipe placed at (0, 3, 0) tilted -45 deg, ball traverses bore into receiver, achieving CCGOAL_SOLVED
     ok 1 - 3. Solved run: pipe placed at (0, 3, 0) tilted -45 deg, ball traverses bore into receiver, achieving CCGOAL_SOLVED
       ---
-      duration_ms: 9016.96875
+      duration_ms: 9049.773041
       type: 'test'
       ...
     1..1
 ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
   ---
-  duration_ms: 13268.200916
+  duration_ms: 13333.772083
   type: 'suite'
   ...
 1..1
@@ -20,4 +20,4 @@ ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 13532.391208
+# duration_ms 13595.100708

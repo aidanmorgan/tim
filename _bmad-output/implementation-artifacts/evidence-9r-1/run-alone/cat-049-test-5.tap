@@ -3,13 +3,13 @@ TAP version 13
     # Subtest: 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
     ok 1 - 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
       ---
-      duration_ms: 12267.767709
+      duration_ms: 12167.1755
       type: 'test'
       ...
     1..1
 ok 1 - CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
   ---
-  duration_ms: 16514.450167
+  duration_ms: 16441.078291
   type: 'suite'
   ...
 1..1
@@ -20,4 +20,4 @@ ok 1 - CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 16781.396708
+# duration_ms 16702.872541
