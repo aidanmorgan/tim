@@ -1,0 +1,39 @@
+TAP version 13
+# Subtest: CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+    # Subtest: 2. Negative control: without placing pipe_bend_45, ball falls straight to floor, missing receiver (goal not solved)
+    not ok 1 - 2. Negative control: without placing pipe_bend_45, ball falls straight to floor, missing receiver (goal not solved)
+      ---
+      duration_ms: 467.130417
+      type: 'test'
+      location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/cat-049.test.ts:2:3248'
+      failureType: 'testCodeFailure'
+      error: 'run-reset snapshot: the committed read has no bodies'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        snapshotFrom (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/run-reset-snapshot.ts:238:34)
+        WorkshopDriver.captureSnapshot (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/workshop-driver.ts:826:16)
+        async TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/cat-049.test.ts:81:20)
+        async Test.run (node:internal/test_runner/test:1409:7)
+        async Promise.all (index 1)
+        async Suite.run (node:internal/test_runner/test:1905:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+      ...
+    1..1
+not ok 1 - CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+  ---
+  duration_ms: 4792.81675
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/cat-049.test.ts:2:1165'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5069.165959

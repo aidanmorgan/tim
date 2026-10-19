@@ -1,0 +1,5 @@
+  Failed CuriousContraptions.Tests.WorkshopGpuDeviceTests.CommittedReadPublishesClockAndCounterMemory_SupersededCandidateLeavesItUnchanged [5 ms]
+   Assert.Equal() Failure: Values differ
+Expected: Stopped
+Actual:   Running
+Failed!  - Failed:     1, Passed:    42, Skipped:     0, Total:    43, Duration: 367 ms - CuriousContraptions.tests.dll (net10.0)

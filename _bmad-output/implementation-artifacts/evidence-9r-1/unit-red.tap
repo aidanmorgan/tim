@@ -1,0 +1,39 @@
+node:internal/modules/cjs/loader:1603
+  const err = new Error(message);
+              ^
+
+Error: Cannot find module '../run-reset-snapshot.ts'
+Require stack:
+- /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/unit/run-reset-snapshot.test.ts
+    at node:internal/modules/cjs/loader:1603:15
+    at nextResolveSimple (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/register-B1c7OH6V.cjs:23:1010)
+    at /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/register-B1c7OH6V.cjs:22:4512
+    at /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/register-B1c7OH6V.cjs:22:2830
+    at resolveTsPaths (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/register-B1c7OH6V.cjs:23:762)
+    at /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/register-B1c7OH6V.cjs:23:1203
+    at j._resolveFilename (file:///Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:18825)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1145:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1169:10)
+    at defaultResolve (node:internal/modules/cjs/loader:1226:20) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/unit/run-reset-snapshot.test.ts'
+  ]
+}
+
+Node.js v26.12.0
+✖ tools/e2e/unit/run-reset-snapshot.test.ts (114.201625ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 117.960125
+
+✖ failing tests:
+
+test at tools/e2e/unit/run-reset-snapshot.test.ts:1:1
+✖ tools/e2e/unit/run-reset-snapshot.test.ts (114.201625ms)
+  'test failed'

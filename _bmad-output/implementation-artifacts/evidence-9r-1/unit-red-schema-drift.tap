@@ -1,0 +1,83 @@
+▶ Run/Reset snapshot: the explicit schema listing
+  ✖ every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs (2.191084ms)
+  ✖ every type reachable from WorkshopResponse and SavedConstruction is listed (0.233875ms)
+  ✔ computed struct offsets and sizes equal the generated accessors (0.567584ms)
+  ✔ table fields use the generated vtable slots (0.21875ms)
+✖ Run/Reset snapshot: the explicit schema listing (3.696334ms)
+▶ Run/Reset snapshot: bit-exact comparison
+  ✔ identical snapshots pass (1.857542ms)
+  ✔ a flipped f32 bit fails and names the field path with both bit patterns (0.569083ms)
+  ✔ -0 against +0 in a body field fails (0.454083ms)
+  ✔ two different NaN payloads differ (0.330333ms)
+  ✔ a differing connection fails (0.390625ms)
+  ✔ a differing part parameter fails (0.341083ms)
+  ✔ a differing authored goal fails (0.232459ms)
+  ✔ a difference in only the last compared path fails (0.211542ms)
+  ✔ differing path sets fail, in either direction (0.3305ms)
+  ✔ only the named top-level identity paths are excluded (0.618625ms)
+  ✔ a nested field that shares an excluded name is still compared (0.362333ms)
+  ✔ a Load comparison ignores only the restarted construction revision (0.418ms)
+  ✔ the tick is compared (0.172ms)
+✔ Run/Reset snapshot: bit-exact comparison (6.566208ms)
+▶ Run/Reset snapshot: no vacuous pass
+  ✔ empty bodies are rejected (0.240625ms)
+  ✔ a body count other than the bench is rejected (0.091208ms)
+  ✔ a non-Applied acknowledgement is rejected (0.078083ms)
+  ✔ an advanced read must have tick > 0 (0.152917ms)
+  ✔ an advanced read must differ from S0 in a physical path (0.191125ms)
+  ✔ an advanced read with a moved body passes (0.138667ms)
+✔ Run/Reset snapshot: no vacuous pass (0.981625ms)
+ℹ tests 23
+ℹ suites 3
+ℹ pass 21
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 135.228041
+
+✖ failing tests:
+
+test at tools/e2e/unit/run-reset-snapshot.test.ts:2:7432
+✖ every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs (2.191084ms)
+  AssertionError [ERR_ASSERTION]: WorkshopResponse field count
+  
+  22 !== 23
+  
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/unit/run-reset-snapshot.test.ts:141:20)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at node:internal/test_runner/test:1903:71
+      at node:internal/per_context/primordials:505:82
+      at new Promise (<anonymous>)
+      at new SafePromise (node:internal/per_context/primordials:479:3)
+      at node:internal/per_context/primordials:505:9
+      at Array.map (<anonymous>) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 22,
+    expected: 23,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tools/e2e/unit/run-reset-snapshot.test.ts:2:8167
+✖ every type reachable from WorkshopResponse and SavedConstruction is listed (0.233875ms)
+  AssertionError [ERR_ASSERTION]: ActivationMemoryRecord is listed
+      at TestContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a1343ffda731bdce4/tools/e2e/unit/run-reset-snapshot.test.ts:154:20)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

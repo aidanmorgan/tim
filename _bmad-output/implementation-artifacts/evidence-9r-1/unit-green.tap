@@ -1,0 +1,38 @@
+▶ Run/Reset snapshot: the explicit schema listing
+  ✔ every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs (0.777833ms)
+  ✔ every type reachable from WorkshopResponse and SavedConstruction is listed (0.183792ms)
+  ✔ computed struct offsets and sizes equal the generated accessors (0.617416ms)
+  ✔ table fields use the generated vtable slots (0.250875ms)
+✔ Run/Reset snapshot: the explicit schema listing (2.3865ms)
+▶ Run/Reset snapshot: bit-exact comparison
+  ✔ identical snapshots pass (2.125333ms)
+  ✔ a flipped f32 bit fails and names the field path with both bit patterns (0.578084ms)
+  ✔ -0 against +0 in a body field fails (0.483708ms)
+  ✔ two different NaN payloads differ (0.3555ms)
+  ✔ a differing connection fails (0.665375ms)
+  ✔ a differing part parameter fails (0.358167ms)
+  ✔ a differing authored goal fails (0.238875ms)
+  ✔ a difference in only the last compared path fails (0.180875ms)
+  ✔ differing path sets fail, in either direction (0.392917ms)
+  ✔ only the named top-level identity paths are excluded (0.799958ms)
+  ✔ a nested field that shares an excluded name is still compared (0.361542ms)
+  ✔ a Load comparison ignores only the restarted construction revision (0.389791ms)
+  ✔ committed counter and clock memory is compared (0.315333ms)
+  ✔ the tick is compared (0.163959ms)
+✔ Run/Reset snapshot: bit-exact comparison (7.727792ms)
+▶ Run/Reset snapshot: no vacuous pass
+  ✔ empty bodies are rejected (0.198791ms)
+  ✔ a body count other than the bench is rejected (0.061791ms)
+  ✔ a non-Applied acknowledgement is rejected (0.066084ms)
+  ✔ an advanced read must have tick > 0 (0.218667ms)
+  ✔ an advanced read must differ from S0 in a physical path (0.270292ms)
+  ✔ an advanced read with a moved body passes (0.139792ms)
+✔ Run/Reset snapshot: no vacuous pass (1.054209ms)
+ℹ tests 24
+ℹ suites 3
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 108.183583

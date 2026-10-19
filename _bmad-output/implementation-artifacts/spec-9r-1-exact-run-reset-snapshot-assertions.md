@@ -64,30 +64,30 @@ context:
 
 ## Code Map
 
-Line numbers are from the working tree on 18 Oct 2026, before Story 9.4b's commit. The symbol is authoritative.
+Line numbers refreshed against `e36467b8` (design review item 7). The symbol is authoritative. The frozen D1/D3 text above keeps its original 18 Oct references; the current ones are: `Program.cs` Save `:227`, general acknowledgement `:270-271`, early returns `:175-176`, `:183-184`, `:187-188`, `:205-206`; `WorkshopSimulation.Save` `:210-217`; `WorkshopSimulation.Reset` `:303-335`; `workshop-driver.ts` "Build mode publishes nothing" `:894`; `WorkshopPoseRing.BodyCapacity` `:26`; `ActivationNetwork` arrays `:88-94`, counter memory writes in `Consume` `:457-470`.
 
 - `tools/e2e/workshop-driver.ts`
-  - `decodeAcknowledgement` (`:121-134`) keeps only the header. Retain the decoded `WorkshopResponse`.
-  - `save` (`:687`) returns void, and `expectSavedSlot` (`:696-728`) checks only magic and version.
-  - `run` (`:757`) and `reset` (`:768`).
-  - `WorkshopLevel` (`:310`).
+  - `decodeAcknowledgement` (`:144-157`) keeps only the header. Retain the decoded `WorkshopResponse`.
+  - `save` (`:799`) returns void, and `expectSavedSlot` (`:808-840`) checks only magic and version.
+  - `run` (`:869`) and `reset` (`:880`).
+  - `WorkshopLevel` (`:333`).
 - `tools/e2e/workshop-wire.ts`
   - `decodeSavedConstruction` (`:2138`), `WorkshopResponse` (`:1604`), `BodyRead` (`:192`), `ActivationRecord` (`:487`), `TimerRecord` (`:576`).
 - `engine/gpu/ActivationNetwork.cs`
-  - The mutable memory arrays (`:88-113`), `Clear` (`:158-164`), `GetCounterCount` (`:177`), the oscillator getters (`:216-245`), and the counter increment inside `Consume` (`:454-470`).
+  - The mutable memory arrays (`:88-94`, filled `:107-116`), `Clear` (`:158-169`), `GetCounterCount` (`:177`), the oscillator getters (`:216-245`), and the counter increment inside `Consume` (`:454-470`).
 - Read plumbing:
   - `engine/gpu/WorkshopRead.cs`.
-  - `engine/gpu/WorkshopWireFlatBuffers.cs` `EncodeResponse` (`:202`).
+  - `engine/gpu/WorkshopWireFlatBuffers.cs` `EncodeResponse` (`:212`).
   - `schemas/workshop_wire.fbs`.
   - `engine/gpu/WorkshopWire.cs`: the legacy codec, still reached by the B1 fallback.
-- Reset re-admits a fresh world: `engine/gpu/WorkshopSimulation.cs` `Reset` (`:280-308`). Admission recompiles the network (`CuriousContraptions.Simulation/WorkshopGpuDevice.cs:72`).
-- Suites, with Reset lines from the retro-verification inventory:
+- Reset re-admits a fresh world: `engine/gpu/WorkshopSimulation.cs` `Reset` (`:303-335`). Admission recompiles the network (`CuriousContraptions.Simulation/WorkshopGpuDevice.cs:72`).
+- Suites, with Reset lines at `e36467b8`:
   - `cat-048a` `:102,132,180,224`
   - `cat-048b`, `cat-049` and `cat-050` `:56,84,103,135`
   - `cat-030` `:325-336`
   - `cat-051` `:145,202,252,304`
   - `cat-052` `:183,222,272,320`
-  - `cat-017` `:203,244,270,278,321`
+  - `cat-017` `:203,244,270,321` (the range-only blade check after Reset is `:274-279`)
   - `cat-002` `:89,128,167,206,216,265`
   - `cat-020` `:229,295,361,436`
 
@@ -141,9 +141,36 @@ Line numbers are from the working tree on 18 Oct 2026, before Story 9.4b's commi
 
 ## Implementation Notes
 
+- **Snapshot authority.** `tools/e2e/run-reset-snapshot.ts` lists every reachable schema field explicitly (`SNAPSHOT_SCHEMA`), computes FlatBuffers struct offsets from that listing, and flattens raw bits (`bb.readUint32` for every float). `tools/e2e/unit/run-reset-snapshot.test.ts` checks the listing against `schemas/workshop_wire.fbs` (names, types, order, reachability) and the computed offsets/slots against the generated TS accessors, so schema drift turns it red (evidence `unit-red-schema-drift.tap`, taken when `activation_memory` was added).
+- **Bench body count.** The committed read carries the dynamic bodies only (static parts have none): `bodies` is that count (for example 1 for a ball with pipes, 2 for a ball and a gate blade).
+- **Per-cycle proof.** `expectRunAdvanced` pauses through the Workshop menu and uses the Pause acknowledgement's committed read (tick > 0); Reset is then pressed from Paused.
+- **D3 shape.** One `ActivationMemory` row per Counter or Clock node (`engine/gpu/ActivationMemory.cs`): kind, count (counter count / clock pulse count), last counted input time, `OscillatorPhase` (Stopped 0 / Running 1) and due tick (0 = none). `ActivationCheckpoint`, `WorkshopRead`, both codecs (B1 header byte 113 + a 320-byte section; FlatBuffers `activation_memory`) and the TS decoder carry it. `ActivationNetwork` keeps declarations only; the counter's single emission is its Latched activation, and the clock's pulse count also moved into the row, so the network has no mutable fields left.
+
 ## Spec Change Log
 
+- **20 Oct 2026, design review (coordinator), amendments to D1/D2.** The frozen text is unchanged; these amendments govern where they differ:
+  - **D2 amended per design review:** the excluded identity paths are matched by full top-level path, never by field name: `read.sequence`, `read.revision`, `read.publication`, `read.epoch`, `read.capture.*`, `read.session`, `read.master_generation`, `read.cadence`, `read.projection` (`++_nextProjection` advances on every install, Reset included). `read.occurrences[*].sequence` and `saved.construction.revision` stay in.
+  - **D2 amended: `WorkshopRead.Motion` is unobservable** (it is not on the wire) and is not published by this story.
+  - **D1 amended: binding.** S0/S1 come from the acknowledgement that the driver's `command('save', WorkshopCommand.Save)` consumes (Applied, exactly one arrival, newer sequence and revision than the last consumed one), not from "the last decoded acknowledgement". The acknowledgement carries no command kind, so the frozen "`kind == Save`" check is replaced by that binding.
+  - **Goal state:** the authored `goal_*` fields of the saved puzzle compare equal, and no `CCGOAL_SOLVED` appears after the Reset. No new wire field.
+  - **No vacuous pass:** each cycle shows a committed read (the Pause acknowledgement, tick > 0) that differs from S0 in at least one compared path before Reset; `snapshotFrom` rejects empty `bodies` and a body count other than the bench's; `assertSnapshotEqual` fails when the path sets differ; the flattener lists the schema fields explicitly and a unit test checks the listing against `schemas/workshop_wire.fbs`.
+  - **f32 bits:** every float field (struct and table) is read as its raw u32 with `bb.readUint32` at the field's offset; table scalars also record presence. A unit case compares two different NaN payloads.
+- **20 Oct 2026, implementation (Amelia-6).**
+  - **Load leg:** after a reload and Load, the page-local `saved.construction.revision` restarts (observed `21≠3` in the cat-049 spike), so the Load comparison (`assertLoadRestores`) ignores exactly that one path; every other path, the committed read included, is bit-equal. The Reset comparison keeps it.
+  - **Bench body count** is the committed read's dynamic body count; static parts have no body read.
+
 ## Review Triage Log
+
+- **Design review, 20 Oct 2026 (coordinator), 7 items, all accepted:**
+  1. Exclusions add `cadence` and `projection`; matched by full top-level path. Disposition: amended D2 (Spec Change Log).
+  2. No vacuous pass (tick > 0 differing read per cycle, non-empty and bench-sized bodies, path-set equality, explicit schema listing with a field-count unit test). Disposition: accepted; the per-cycle read is the Pause acknowledgement's committed read, because Save is rejected while Running and the Run and Reset acknowledgements both carry tick 0.
+  3. Goal state: equal authored `goal_*` fields and no `CCGOAL_SOLVED` after Reset. Disposition: accepted, no wire change.
+  4. Bind S0/S1 to the consumed Save acknowledgement. Disposition: accepted; `command()` returns the entry it consumed (raw bytes and decoded response).
+  5. Raw u32 bits for every float, with a two-NaN-payload unit case. Disposition: accepted.
+  6. `WorkshopRead.Motion` named unobservable in D2. Disposition: accepted.
+  7. Stale line references refreshed against `e36467b8`. Disposition: done (Code Map).
+- **Implementation, 20 Oct 2026 (Amelia-6), NEEDS OWNER DECISION, not accepted:** the Load-leg comparison (`assertLoadRestores`) ignores `saved.construction.revision`, which a reload restarts (observed `21≠3`). This is an exclusion beyond D2, which the frozen *Never* forbids; it touches no AC (no AC names Load) and the Reset comparison keeps the path. Options: keep it for Load only (current), or compare Load through the authored fields only.
+- **Filed, not in this story's scope:** `tools/e2e/unit/*` runs under no gate (Tier 1 and the runner skip it); M1 (Reset keeps velocities) is caught first by the existing main-thread `ValidateWorkshopRead` guard, so the snapshot proof used a guard-bypassed variant M1b; N1 (held input recounted) survives because the detector latch drops held passages first; the `tools/*.test.mjs` fake hosts still quote the old 26640-byte response ABI (cosmetic); D3 (counter and clock memory in the committed checkpoint) is the owner-flagged scope addition.
 
 ## Design Notes
 

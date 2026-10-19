@@ -1,0 +1,23 @@
+TAP version 13
+# Subtest: CAT-048b: Clear Pipe Level E2E (Through the looking tube)
+    # Subtest: 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+    ok 1 - 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+      ---
+      duration_ms: 11485.081833
+      type: 'test'
+      ...
+    1..1
+ok 1 - CAT-048b: Clear Pipe Level E2E (Through the looking tube)
+  ---
+  duration_ms: 15670.467917
+  type: 'suite'
+  ...
+1..1
+# tests 1
+# suites 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15937.448625

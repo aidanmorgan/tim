@@ -7,6 +7,7 @@ import { appendFileSync } from 'node:fs';
 import { raiseCloseFindings, recordCloseFinding, SessionFault, sessionFaultFindings } from '../workshop-close-findings.mjs';
 import type { Browser, BrowserContext, ConsoleMessage, Page, Worker } from 'playwright';
 import { decodeWorkshopResponse, decodeSavedConstruction, ResponseKind } from './workshop-wire.ts';
+import { assertRunAdvanced, assertSnapshotEqual, readSnapshot, snapshotFrom, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const requireMcp = createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
 const { chromium } = requireMcp('playwright') as typeof import('playwright');
@@ -124,8 +125,13 @@ interface WorkshopAcknowledgement {
     reason: CommandRejection;
     phase: SimulationPhase;
 }
-// One CCGPU line: its decoded acknowledgement, or the reason it could not be decoded (scoped to that line only).
-type AcknowledgementEntry = { ack: WorkshopAcknowledgement } | { error: string };
+// One CCGPU line: its decoded acknowledgement with the exact encoded response (the committed read it carries), or the reason it
+// could not be decoded (scoped to that line only).
+type AcknowledgementEntry = { ack: WorkshopAcknowledgement; bytes: Uint8Array } | { error: string };
+
+/** The bench a Run/Reset snapshot belongs to: the number of bodies its committed read must carry (Story 9R.1, no vacuous pass). */
+export interface SnapshotBench { readonly bodies: number }
+export type { RunResetSnapshot };
 
 function nameOf(table: Readonly<Record<string, string | number>>, value: number): string {
     return Object.keys(table).find(key => table[key] === value) ?? `#${value}`;
@@ -340,6 +346,7 @@ export class WorkshopDriver {
     readonly previewUrl: string;
     currentLevel: WorkshopLevel = 'free_workshop';
     capturedCount: number = 0;
+    private solvedAtReset: number | undefined; // capturedCount when the last Reset was acknowledged on this page
     private fineRotateOpen = false; // the Fine rotate toggle flips; a page reload or level change rebuilds the menu closed
     private paletteScrolled = false;
     private zRingHandleAngle: number = GIZMO_Z_HANDLE_START_RAD;
@@ -417,7 +424,8 @@ export class WorkshopDriver {
         if (text.startsWith('CCGPU_CLOCK_RENEWED_LATE ')) this.clockLateRenewals.push(text);
         if (text.startsWith(ACK_PREFIX)) {
             try {
-                this.acknowledgements.push({ ack: decodeAcknowledgement(text) });
+                this.acknowledgements.push({ ack: decodeAcknowledgement(text),
+                    bytes: new Uint8Array(Buffer.from(text.slice(ACK_PREFIX.length), 'base64')) });
             } catch (error) {
                 this.acknowledgements.push({ error: error instanceof Error ? error.message : String(error) });
             }
@@ -485,6 +493,7 @@ export class WorkshopDriver {
 
     async reload(): Promise<void> {
         this.capturedCount = 0;
+        this.solvedAtReset = undefined;
         this.currentLevel = 'free_workshop';
         this.fineRotateOpen = false;
         this.paletteScrolled = false;
@@ -565,7 +574,8 @@ export class WorkshopDriver {
     // Perform an input that must issue exactly one Workshop command, then wait for its CCGPU acknowledgement: newer than the last
     // consumed one, Applied, in the phase the command's kind implies, and the only acknowledgement the input produced. A missing
     // acknowledgement means the UI ignored the input; a rejection reports its reason.
-    private async command(action: string, kind: WorkshopCommand, operate: () => Promise<void>, settle: boolean = true): Promise<void> {
+    // Returns the exact encoded acknowledgement it consumed: Story 9R.1 binds every snapshot to this entry.
+    private async command(action: string, kind: WorkshopCommand, operate: () => Promise<void>, settle: boolean = true): Promise<Uint8Array> {
         const mark = this.acknowledgements.length;
         await operate();
         const arrived = await this.waitForConsole(() => this.acknowledgements.length > mark, ACK_TIMEOUT_MS);
@@ -586,6 +596,7 @@ export class WorkshopDriver {
         if (settle) await this.frames(UI_SETTLE_FRAMES);
         if (this.acknowledgements.length !== mark + 1)
             throw new Error(`${action}: ${this.acknowledgements.length - mark} acknowledgements arrived; the input should issue exactly one ${nameOf(WorkshopCommand, kind)}`);
+        return entry.bytes;
     }
 
     // A construction edit (placement, gizmo commit, wiring, level selection, Load) is installed once its Construct is acknowledged.
@@ -796,16 +807,52 @@ export class WorkshopDriver {
         await this.frames(UI_SETTLE_FRAMES);
     }
 
-    async save(): Promise<void> {
+    // Returns the Save acknowledgement the command consumed (its committed read is the Build-phase state) and the slot it stored.
+    async save(): Promise<{ acknowledgement: Uint8Array; slot: Uint8Array }> {
         await this.openMenu();
         // Save stores the IndexedDB slot first and only then sends its Save command, so the acknowledgement follows the stored slot.
-        await this.command('save', WorkshopCommand.Save, () => this.press(UI_ANCHORS.menu.save.x, UI_ANCHORS.menu.save.y));
-        await this.expectSavedSlot();
+        const acknowledgement = await this.command('save', WorkshopCommand.Save, () => this.press(UI_ANCHORS.menu.save.x, UI_ANCHORS.menu.save.y));
+        const slot = await this.expectSavedSlot();
         await this.closeMenu();
+        return { acknowledgement, slot };
+    }
+
+    /** Story 9R.1: the exact Run/Reset snapshot, through actual UI (the Workshop menu's Save) in Build mode: the committed read of
+     *  the Save acknowledgement and the authored construction it stored (tools/e2e/run-reset-snapshot.ts). */
+    async captureSnapshot(bench: SnapshotBench): Promise<RunResetSnapshot> {
+        if (this.phase !== SimulationPhase.Building)
+            throw new Error(`captureSnapshot: Save is a Build-mode command, not ${nameOf(SimulationPhase, this.phase)}`);
+        const { acknowledgement, slot } = await this.save();
+        return snapshotFrom(acknowledgement, slot, bench);
+    }
+
+    /** Story 9R.1, no vacuous cycle: pauses the running machine through the Workshop menu and asserts that the Pause
+     *  acknowledgement's committed read is past tick 0 and differs from S0. The next reset() resets from Paused. Returns that
+     *  mid-run committed read (for a suite's boundary assertions). */
+    async expectRunAdvanced(s0: RunResetSnapshot): Promise<RunResetSnapshot> {
+        await this.openMenu();
+        const acknowledgement = await this.command('expectRunAdvanced (pause)', WorkshopCommand.Pause,
+            () => this.press(UI_ANCHORS.menu.pause.x, UI_ANCHORS.menu.pause.y));
+        await this.closeMenu();
+        const paused = readSnapshot(acknowledgement);
+        assertRunAdvanced(s0, paused);
+        return paused;
+    }
+
+    /** Story 9R.1: after a Reset, the snapshot is bit-equal to S0 (first differing path named) and no goal solved since.
+     *  Returns the post-Reset snapshot for a suite's element-specific assertions. */
+    async expectResetMatches(s0: RunResetSnapshot): Promise<RunResetSnapshot> {
+        if (this.solvedAtReset === undefined) throw new Error('expectResetMatches: no Reset was acknowledged on this page');
+        const solvedAtReset = this.solvedAtReset;
+        const s1 = await this.captureSnapshot({ bodies: s0.bodies });
+        assertSnapshotEqual(s0, s1);
+        if (this.capturedCount !== solvedAtReset)
+            throw new Error(`expectResetMatches: ${this.capturedCount - solvedAtReset} CCGOAL_SOLVED after the Reset`);
+        return s1;
     }
 
     // Read-only check of the construction slot written by workshop-client.js saveConstruction; never creates or upgrades the database.
-    private async expectSavedSlot(): Promise<void> {
+    private async expectSavedSlot(): Promise<Uint8Array> {
         const savedBytes = await this.page.evaluate(({ database, store, slot }: { database: string; store: string; slot: number }) =>
             new Promise<number[] | null>((resolve, reject) => {
                 const request = indexedDB.open(database);
@@ -834,9 +881,11 @@ export class WorkshopDriver {
             }), { database: CONSTRUCTION_DATABASE, store: CONSTRUCTION_STORE, slot: CONSTRUCTION_SLOT });
         if (!savedBytes)
             throw new Error('save: the Save command was acknowledged but the IndexedDB slot is empty or invalid');
-        const saved = decodeSavedConstruction(new Uint8Array(savedBytes));
+        const bytes = new Uint8Array(savedBytes);
+        const saved = decodeSavedConstruction(bytes);
         if (saved.magic() !== SAVE_MAGIC || saved.version() !== 13)
             throw new Error(`save: the Save command was acknowledged but the IndexedDB slot has invalid magic 0x${saved.magic().toString(16)} or version ${saved.version()}`);
+        return bytes;
     }
 
     async load(): Promise<void> {
@@ -881,6 +930,7 @@ export class WorkshopDriver {
         await this.frames(UI_SETTLE_FRAMES); // the preceding Run's UI continuation has released the command gate
         const pressed = Date.now();
         await this.command('reset (Space)', WorkshopCommand.Reset, () => this.pressKey('Space'));
+        this.solvedAtReset = this.capturedCount;
         await this.holdUntil(pressed + holdMs);
     }
 

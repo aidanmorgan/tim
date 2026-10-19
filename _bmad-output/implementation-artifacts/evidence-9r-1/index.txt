@@ -1,0 +1,44 @@
+Story 9R.1 evidence (Amelia-6, 20 Oct 2026). Base e36467b8. Manual Chrome runs: production bundle (dotnet publish
+CuriousContraptions.web) on tools/Preview :8197, tsx 4.23.15, one node process per suite or per test. The authoritative
+Chrome gate is the runner's full serial run (full-run/), taken on the committed candidate.
+
+Unit (tools/e2e/unit/run-reset-snapshot.test.ts, node-unit, no Chrome)
+  unit-red.tap                       red: module absent (test written first)
+  unit-red-schema-drift.tap          red: schema gained activation_memory before the listing did (field count 22 != 23)
+  unit-green.tap                     green: 24/24 (flipped bit names path + both hex values, -0/+0, two NaN payloads,
+                                     connection, parameter, goal, last path, path sets, exclusions by full path,
+                                     nested same-name fields compared, memory rows, empty/wrong body count, tick>0)
+  mutant-m5-skip-last-path.tap       M5 assertSnapshotEqual skips the last path -> 3 unit tests red
+
+Tier 1: dotnet build CuriousContraptions.slnx (and -p:PlaytestDiagnostics=true, and the web project) 0 warnings 0 errors;
+  dotnet test 100%; node --test tools/*.test.mjs 82/82; anvil check --changed 0 warnings (new TS files checked
+  explicitly, 0 warnings); tier1/lifecycle.txt, tier1/wire.txt, tier1/ownership.txt (--oracles): all exit 0.
+
+Native (dotnet test)
+  native-red-build.txt               red: new CounterTests/ClockTests/WorkshopGpuDeviceTests reference the committed
+                                     memory API before it existed (compile errors)
+  green: dotnet test CuriousContraptions.slnx 100% (1696 + 156 + 78 + 17)
+  mutant-n2-...-native.txt           N2 device publishes candidate memory before Commit -> device test red
+                                     (N1 "held input recounted" survived: the detector source latch already drops a
+                                     held passage before the counter; the guard is redundant for passages, not a gap
+                                     in this story's ACs)
+
+Chrome mutants (each one suite/test, bundle republished per mutant, reverted afterwards)
+  mutant-m1-reset-keeps-velocity-cat-049.tap
+      M1 Reset keeps previous velocities -> red, caught first by the existing main-thread admission guard
+      (MachineWorld.ValidateWorkshopRead: "Admission changed a canonical body"), so the next Save is never issued.
+  mutant-m1b-...-guard-bypassed-cat-049.tap
+      M1 with that guard bypassed -> red on the snapshot: Reset: read.bodies[id=1].velocity.x 0x00000000≠0x3dcb4903
+  mutant-m4-blade-last-pose-guard-bypassed-cat-051.tap
+      M4 blade re-admitted at its last pose (guard bypassed) -> Reset: read.bodies[id=4294967810].cell.x 0≠6
+  mutant-m2-counter-memory-survives-reset-cat-020.tap
+      M2 counter row copied, not cleared -> Reset: read.activation_memory[0].count 0≠2
+  mutant-m3-oscillator-due-tick-survives-reset-cat-017.tap
+      M3 clock phase/due tick survive -> Reset: read.activation_memory[1].phase 0≠1
+  mutant-m6-cat-049-test-2-shared-bench.tap
+      M6 cat-049 test 2 reuses the previous bench, run alone -> red: the committed read has no bodies
+
+Runs alone (AC4: each test of cat-048a/048b/049/050 in its own node process)
+  run-alone/<suite>-test-<n>.tap     19/19 exit 0, one test each
+
+Suites green on the candidate bundle in manual runs: cat-048a, 048b, 049, 050, 030, 051, 052, 017 (alone), 002, 020.

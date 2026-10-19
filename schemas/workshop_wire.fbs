@@ -150,6 +150,19 @@ struct TimerRecord {
     cause_phase: float;
 }
 
+// Committed Counter / System Clock memory of one activation node (Story 9R.1 D3). kind is the ActivationNodeKind (Counter 6,
+// Oscillator 7); count is the counter's count or the clock's pulse count; last_* is the counter's last counted input time;
+// phase is the clock's OscillatorPhase (Stopped 0, Running 1) and due_tick its next pulse tick (0: none).
+struct ActivationMemoryRecord {
+    node: uint64;
+    kind: uint32;
+    count: uint32;
+    last_ordinal: uint32;
+    last_phase: float;
+    phase: uint32;
+    due_tick: uint64;
+}
+
 struct ClockStamp {
     time: int64;
     uncertainty: uint64;
@@ -296,6 +309,7 @@ table WorkshopResponse {
     contact_works: [ContactWorkStoreRecord];
     occurrences: [ContactWorkOccurrenceRecord];
     electrical: [ElectricalSourceRecord];
+    activation_memory: [ActivationMemoryRecord];
 }
 
 table WorkshopCommand {

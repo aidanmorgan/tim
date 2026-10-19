@@ -484,6 +484,65 @@ static createContactWorkOccurrenceRecord(builder:flatbuffers.Builder, work: numb
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 
+export class ActivationMemoryRecord {
+  bb: flatbuffers.ByteBuffer|null = null;
+  bb_pos = 0;
+  __init(i:number, bb:flatbuffers.ByteBuffer):ActivationMemoryRecord {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+}
+
+node():bigint {
+  return this.bb!.readUint64(this.bb_pos);
+}
+
+kind():number {
+  return this.bb!.readUint32(this.bb_pos + 8);
+}
+
+count():number {
+  return this.bb!.readUint32(this.bb_pos + 12);
+}
+
+lastOrdinal():number {
+  return this.bb!.readUint32(this.bb_pos + 16);
+}
+
+lastPhase():number {
+  return this.bb!.readFloat32(this.bb_pos + 20);
+}
+
+phase():number {
+  return this.bb!.readUint32(this.bb_pos + 24);
+}
+
+dueTick():bigint {
+  return this.bb!.readUint64(this.bb_pos + 32);
+}
+
+static sizeOf():number {
+  return 40;
+}
+
+static createActivationMemoryRecord(builder:flatbuffers.Builder, node: bigint, kind: number, count: number, last_ordinal: number, last_phase: number, phase: number, due_tick: bigint):flatbuffers.Offset {
+  builder.prep(8, 40);
+  builder.writeInt64(BigInt(due_tick ?? 0));
+  builder.pad(4);
+  builder.writeInt32(phase);
+  builder.writeFloat32(last_phase);
+  builder.writeInt32(last_ordinal);
+  builder.writeInt32(count);
+  builder.writeInt32(kind);
+  builder.writeInt64(BigInt(node ?? 0));
+  return builder.offset();
+}
+
+}
+
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
+
+
 export class ActivationRecord {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -1774,8 +1833,18 @@ electricalLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+activationMemory(index: number, obj?:ActivationMemoryRecord):ActivationMemoryRecord|null {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? (obj || new ActivationMemoryRecord()).__init(this.bb!.__vector(this.bb_pos + offset) + index * 40, this.bb!) : null;
+}
+
+activationMemoryLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 48);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startWorkshopResponse(builder:flatbuffers.Builder) {
-  builder.startObject(22);
+  builder.startObject(23);
 }
 
 static addSequence(builder:flatbuffers.Builder, sequence:bigint) {
@@ -1904,6 +1973,14 @@ static addElectrical(builder:flatbuffers.Builder, electricalOffset:flatbuffers.O
 
 static startElectricalVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(32, numElems, 8);
+}
+
+static addActivationMemory(builder:flatbuffers.Builder, activationMemoryOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(22, activationMemoryOffset, 0);
+}
+
+static startActivationMemoryVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(40, numElems, 8);
 }
 
 static endWorkshopResponse(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -2267,6 +2344,7 @@ export interface MockResponseParams {
         eventOrdinal?: number;
         eventPhase?: number;
     }[];
+    activationMemory?: { node?: bigint; kind?: number; count?: number; lastOrdinal?: number; lastPhase?: number; phase?: number; dueTick?: bigint }[];
 }
 
 export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
@@ -2361,6 +2439,16 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
         }
         capturesOffset = builder.endVector();
     }
+    let memoryOffset: flatbuffers.Offset | null = null;
+    if (params.activationMemory && params.activationMemory.length > 0) {
+        WorkshopResponse.startActivationMemoryVector(builder, params.activationMemory.length);
+        for (let i = params.activationMemory.length - 1; i >= 0; i--) {
+            const m = params.activationMemory[i]!;
+            ActivationMemoryRecord.createActivationMemoryRecord(builder, m.node ?? 1n, m.kind ?? 6, m.count ?? 0, m.lastOrdinal ?? 0,
+                m.lastPhase ?? 0, m.phase ?? 0, m.dueTick ?? 0n);
+        }
+        memoryOffset = builder.endVector();
+    }
 
     WorkshopResponse.startWorkshopResponse(builder);
     if (params.sequence !== undefined) WorkshopResponse.addSequence(builder, params.sequence);
@@ -2382,6 +2470,7 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
     if (electricalOffset !== null) WorkshopResponse.addElectrical(builder, electricalOffset);
     if (contactWorksOffset !== null) WorkshopResponse.addContactWorks(builder, contactWorksOffset);
     if (occurrencesOffset !== null) WorkshopResponse.addOccurrences(builder, occurrencesOffset);
+    if (memoryOffset !== null) WorkshopResponse.addActivationMemory(builder, memoryOffset);
     const end = WorkshopResponse.endWorkshopResponse(builder);
     WorkshopResponse.finishWorkshopResponseBuffer(builder, end);
     return Buffer.from(builder.asUint8Array());

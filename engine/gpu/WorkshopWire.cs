@@ -39,7 +39,8 @@ public static class WorkshopWire
     public const int ReadContactWorkOffset = ReadTimersOffset + WorkshopTimerWire.ByteLength;
     public const int ReadMotionOffset = ReadContactWorkOffset + WorkshopContactWorkWire.ByteLength;
     public const int ReadElectricalOffset = ReadMotionOffset + PhysicsMotionRead.ByteLength;
-    public const int ResponseBytes = ReadElectricalOffset + WorkshopElectricalWire.ByteLength;
+    public const int ReadMemoryOffset = ReadElectricalOffset + WorkshopElectricalWire.ByteLength;
+    public const int ResponseBytes = ReadMemoryOffset + WorkshopActivationMemoryWire.ByteLength;
     public static bool Matches(WorkshopCommand command, SimulationEpoch epoch, AuthorityRevision revision,
         RuntimeSessionId session, CadenceRevision cadence, ProjectionEpoch projection) =>
         command.Session == session && command.Epoch == epoch && command.Cadence == cadence && command.Projection == projection &&
@@ -165,8 +166,9 @@ public static class WorkshopWire
         BinaryPrimitives.WriteUInt64LittleEndian(data[96..],response.Projection.Value);
         data[ResponseBodyCountOffset]=response.Read.Bodies.Count; data[105]=response.Read.Captures.Count;
         data[106]=response.Read.Activations.Count; data[107]=response.Read.Timers.Count;
-        data[112]=response.Read.Electrical.Count;
-        WorkshopElectricalWire.Write(response.Read.Electrical,data[ReadElectricalOffset..]);
+        data[112]=response.Read.Electrical.Count; data[113]=response.Read.Memory.Count;
+        WorkshopElectricalWire.Write(response.Read.Electrical,data[ReadElectricalOffset..ReadMemoryOffset]);
+        WorkshopActivationMemoryWire.Write(response.Read.Memory,data[ReadMemoryOffset..]);
         data[108]=response.Read.ContactWorks.Count; data[109]=response.Read.ContactWorks.OccurrenceCount;
         for (var i=0; i<response.Read.Bodies.Count; i++)
             PhysicsBodyWire.Write(response.Read.Bodies[i],data.Slice(ReadBodiesOffset+i*PhysicsBodyWire.ByteLength,PhysicsBodyWire.ByteLength));
@@ -186,7 +188,7 @@ public static class WorkshopWire
 
     public static WorkshopResponse DecodeResponse(ReadOnlySpan<byte> data)
     {
-        if (data.Length != ResponseBytes || !Zero(data[113..128]) ||
+        if (data.Length != ResponseBytes || !Zero(data[114..128]) ||
             BinaryPrimitives.ReadUInt32LittleEndian(data[12..]) != (uint)WorkshopWireVersion.GenericMechanical)
             throw new ArgumentException("Unsupported Workshop response shape.");
         var sequence=new CommandSequence(BinaryPrimitives.ReadUInt64LittleEndian(data));
@@ -229,7 +231,8 @@ public static class WorkshopWire
             WorkshopActivationWire.Read(data[ReadActivationsOffset..ReadTimersOffset],data[106]),
             WorkshopTimerWire.Read(data[ReadTimersOffset..ReadContactWorkOffset],data[107]),
             WorkshopContactWorkWire.Read(data[ReadContactWorkOffset..ReadMotionOffset],data[108],data[109]),
-            WorkshopElectricalWire.Read(data[ReadElectricalOffset..],data[112]));
+            WorkshopElectricalWire.Read(data[ReadElectricalOffset..ReadMemoryOffset],data[112]),
+            WorkshopActivationMemoryWire.Read(data[ReadMemoryOffset..],data[113]));
         ValidatePhysicalRead(read); ValidateCapture(read);
         var response=new WorkshopResponse(sequence,kind,new(outcome,reason),phase,read,session,publication,
             new(BinaryPrimitives.ReadUInt64LittleEndian(data[88..])),master,
@@ -279,7 +282,7 @@ public static class WorkshopWire
             if (capture.Domain != WorkshopClockDomain.SimulationMonotonic || read.Epoch.Value == 0)
                 throw new ArgumentException("Physical read requires its simulation native clock.");
         }
-        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0 || read.Electrical.Count != 0)
+        else if (read.Epoch.Value != 0 || read.Tick.Value != 0 || read.Revision.Value != 0 || read.Bodies.Count != 0 || read.Captures.Count != 0 || read.Activations.Count != 0 || read.Timers.Count != 0 || read.ContactWorks.Count != 0 || read.ContactWorks.OccurrenceCount != 0 || read.Electrical.Count != 0 || read.Memory.Count != 0)
             throw new ArgumentException("An installed physical read requires its original capture.");
     }
 
