@@ -24,6 +24,15 @@ public static class WorkshopDiagnostics
         Console.Error.WriteLine($"CCGPU_{Name(site)}_EXCEPTION {error}");
     }
 
+    /// <summary>A failure caused by a worker transport that has already retired. The transport reported that fault once,
+    /// on the error stream (CCGPU_TRANSPORT_FAILURE); this consequence of it is recorded on the standard stream, so one
+    /// fault is one error line.</summary>
+    public static void AfterRetirement(FaultSite site, Exception error)
+    {
+        ArgumentNullException.ThrowIfNull(error);
+        Console.WriteLine($"CCGPU_{Name(site)}_AFTER_RETIREMENT {error.GetType().FullName}: {error.Message}");
+    }
+
     public static void Rejection(Exception error)
     {
         ArgumentNullException.ThrowIfNull(error);

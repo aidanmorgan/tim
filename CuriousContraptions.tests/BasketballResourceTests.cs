@@ -1,3 +1,4 @@
+using System.Reflection;
 using Godot;
 using CuriousContraptions.Gpu;
 
@@ -313,11 +314,69 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         finally { world.Free(); }
     }
 
-    /// <summary>Mirrors BrowserWorkshopClient: UI calls on a retired transport throw.</summary>
+    // Story 9R.0 (Chrome, clock-master's liveness fault): a retired transport has already reported its fault once, on the
+    // error stream (CCGPU_TRANSPORT_FAILURE). The presentation that then stops, and the disposal that then reports the
+    // indeterminate operations, are that same fault: each is recorded on the standard stream, never as a second stderr fault.
+    [Theory]
+    [InlineData(WorkshopTransportState.Indeterminate)]
+    [InlineData(WorkshopTransportState.RecoveryBlocked)]
+    public async Task ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults(WorkshopTransportState retired)
+    {
+        await using var client = new RetiringUiClient();
+        var (output, errors) = await PresentAndDispose(client, retired,
+            new WorkshopTransportException(new(new(1), new(1), default, default, default), retired, new TimeoutException("unresponsive")));
+        Assert.Equal("", errors);
+        Assert.Contains("CCGPU_PRESENTATION_AFTER_RETIREMENT System.InvalidOperationException: Worker session is unavailable", output, StringComparison.Ordinal);
+        Assert.Contains($"CCGPU_DISPOSAL_AFTER_RETIREMENT {typeof(WorkshopTransportException).FullName}", output, StringComparison.Ordinal);
+    }
+
+    // Control: on a transport that has not retired, the same failures are faults, written whole to the error stream.
+    [Fact]
+    public async Task APresentationOrDisposalFailureOnALiveTransportIsAStderrFault()
+    {
+        await using var client = new RetiringUiClient { ReadFailure = new InvalidOperationException("presentation defect") };
+        var (output, errors) = await PresentAndDispose(client, WorkshopTransportState.Ready,
+            new WorkshopTransportException(new(new(1), new(1), default, default, default), WorkshopTransportState.TimedOut, new TimeoutException("late")));
+        Assert.Contains("CCGPU_PRESENTATION_EXCEPTION System.InvalidOperationException: presentation defect", errors, StringComparison.Ordinal);
+        Assert.Contains($"CCGPU_DISPOSAL_EXCEPTION {typeof(WorkshopTransportException).FullName}", errors, StringComparison.Ordinal);
+        Assert.DoesNotContain("AFTER_RETIREMENT", output, StringComparison.Ordinal);
+    }
+
+    private static async Task<(string Output, string Errors)> PresentAndDispose(RetiringUiClient client, WorkshopTransportState state,
+        Exception disposalFailure)
+    {
+        using var output = new StringWriter(System.Globalization.CultureInfo.InvariantCulture);
+        using var errors = new StringWriter(System.Globalization.CultureInfo.InvariantCulture);
+        var world = new MachineWorld();
+        var (previousOut, previousError) = (Console.Out, Console.Error);
+        try
+        {
+            await world.InitializeWorkshop(() => Task.FromResult<IWorkshopClient>(client));
+            client.TransportState = state;
+            client.DisposalFailure = disposalFailure;
+            Console.SetOut(output);
+            Console.SetError(errors);
+            world._Process(0); // the presentation read
+            Assert.Equal(WorkshopSimulationPhase.Faulted, world.WorkshopPhase);
+            await (Task)typeof(MachineWorld).GetMethod("DisposeWorkshop", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(world, null)!;
+        }
+        finally
+        {
+            Console.SetOut(previousOut);
+            Console.SetError(previousError);
+            client.DisposalFailure = null; // the test's own disposal of the fixture succeeds
+            world.Free();
+        }
+        return (output.ToString(), errors.ToString());
+    }
+
+    /// <summary>Mirrors BrowserWorkshopClient: UI calls and reads on a retired transport throw.</summary>
     private sealed class RetiringUiClient : IWorkshopClient
     {
         public int Frames { get; private set; }
         public int Controls { get; private set; }
+        public Exception? ReadFailure { get; init; }
+        public Exception? DisposalFailure { get; set; }
         public WorkshopTransportState TransportState { get; set; } = WorkshopTransportState.Ready;
         private void Retire()
         {
@@ -337,10 +396,15 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
             WorkshopCommandIdentity? target = null, WorkshopCadenceSettings? settings = null, WorkshopElectricalControl? electrical = null) =>
             throw new InvalidOperationException("Commands are outside this UI binding fixture.");
         public Task<WorkshopDelivery> CancelPending() => throw new InvalidOperationException("No cancellable test transport request.");
-        public bool TryRead(out WorkshopResponse response) { response = default; return false; }
+        public bool TryRead(out WorkshopResponse response)
+        {
+            Retire();
+            if (ReadFailure is not null) throw ReadFailure;
+            response = default; return false;
+        }
         public bool TryPresent(ulong frame, out WorkshopPresentationSample sample) { sample = default; return false; }
         public void RecordPresentation(WorkshopPresentationSample sample, bool selected, PresentationScene scene) { }
-        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+        public ValueTask DisposeAsync() => DisposalFailure is null ? ValueTask.CompletedTask : ValueTask.FromException(DisposalFailure);
     }
 
     private sealed class HeldWorkshopClient : IWorkshopClient

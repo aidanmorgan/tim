@@ -292,7 +292,9 @@ public partial class MachineWorld
         catch (Exception error)
         {
             WorkshopPhase = WorkshopPhase.Faulted; WorkshopFault = error.Message; Running = false;
-            WorkshopDiagnostics.Fault(FaultSite.Presentation, error);
+            // A retired transport already reported its fault; the presentation stopping with it is not a second one.
+            if (TransportRetired) WorkshopDiagnostics.AfterRetirement(FaultSite.Presentation, error);
+            else WorkshopDiagnostics.Fault(FaultSite.Presentation, error);
         }
     }
 
@@ -389,7 +391,13 @@ public partial class MachineWorld
         {
             _workshopClient = null;
             try { await client.DisposeAsync(); }
-            catch (Exception error) { WorkshopDiagnostics.Fault(FaultSite.Disposal, error); }
+            catch (Exception error)
+            {
+                // Disposing a retired transport reports its indeterminate operations: the fault the transport already reported.
+                if (error is WorkshopTransportException { State: WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked })
+                    WorkshopDiagnostics.AfterRetirement(FaultSite.Disposal, error);
+                else WorkshopDiagnostics.Fault(FaultSite.Disposal, error);
+            }
         }
     }
 }

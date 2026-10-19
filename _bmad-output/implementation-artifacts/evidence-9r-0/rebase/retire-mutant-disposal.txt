@@ -1,0 +1,14 @@
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:01.02]     CuriousContraptions.Tests.BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault [FAIL]
+  Failed CuriousContraptions.Tests.BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault [5 ms]
+  Error Message:
+   Assert.Contains() Failure: Sub-string not found
+String:    "CCGPU_PRESENTATION_EXCEPTION System.InvalidOperati"···
+Not found: "CCGPU_DISPOSAL_EXCEPTION CuriousContraptions.Gpu.W"···
+  Stack Trace:
+     at CuriousContraptions.Tests.BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/BasketballResourceTests.cs:line 341
+   at CuriousContraptions.Tests.BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/CuriousContraptions.tests/BasketballResourceTests.cs:line 342
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:    19, Skipped:     0, Total:    20, Duration: 159 ms - CuriousContraptions.tests.dll (net10.0)

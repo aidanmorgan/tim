@@ -1,0 +1,36 @@
+candidate 6c8f7dc3d1980701e11bb7d6e878050ed1e9b8b3 served-wasm 508493f7fce5464205114f2332b66b0f10be87030840e1cb828fd37d54a20f0f started 2026-10-19T10:37:42Z
+anim-1a exit=0 pass=3 fail=0 seconds=26
+anim-1b exit=0 pass=3 fail=0 seconds=33
+anim-1c exit=0 pass=4 fail=0 seconds=34
+cat-002 exit=0 pass=5 fail=0 seconds=61
+cat-005 exit=0 pass=7 fail=0 seconds=143
+cat-014 exit=0 pass=4 fail=0 seconds=55
+cat-015a-sidekick exit=0 pass=3 fail=0 seconds=43
+cat-015a exit=0 pass=2 fail=0 seconds=26
+cat-015b exit=0 pass=4 fail=0 seconds=105
+cat-017 exit=0 pass=5 fail=0 seconds=34
+cat-020 exit=0 pass=5 fail=0 seconds=55
+cat-023a exit=0 pass=4 fail=0 seconds=30
+cat-023b exit=0 pass=4 fail=0 seconds=44
+cat-030 exit=0 pass=7 fail=0 seconds=98
+cat-037 exit=0 pass=6 fail=0 seconds=84
+cat-048a exit=0 pass=4 fail=0 seconds=38
+cat-048b exit=0 pass=5 fail=0 seconds=24
+cat-049 exit=0 pass=5 fail=0 seconds=22
+cat-050 exit=0 pass=5 fail=0 seconds=25
+cat-051 exit=0 pass=5 fail=0 seconds=27
+cat-052 exit=0 pass=5 fail=0 seconds=30
+cat-062 exit=0 pass=7 fail=0 seconds=130
+cat-062b exit=0 pass=7 fail=0 seconds=140
+clock-master exit=1 pass=7 fail=1 seconds=83
+engine-core-2a1 exit=0 pass=5 fail=0 seconds=19
+engine-core-2a2 exit=0 pass=4 fail=0 seconds=30
+engine-core-2a3 exit=0 pass=5 fail=0 seconds=43
+engine-core-2a4 exit=0 pass=2 fail=0 seconds=20
+engine-core-2b1 exit=0 pass=1 fail=0 seconds=9
+engine-core-2b2 exit=0 pass=1 fail=0 seconds=10
+engine-core-2b3 exit=0 pass=1 fail=0 seconds=38
+engine-core-2b4 exit=0 pass=2 fail=0 seconds=17
+engine-core-2c exit=0 pass=2 fail=0 seconds=18
+palette-placement exit=0 pass=25 fail=0 seconds=62
+finished 2026-10-19T11:05:18Z served-wasm 508493f7fce5464205114f2332b66b0f10be87030840e1cb828fd37d54a20f0f
