@@ -43,7 +43,8 @@ public sealed class PartInventory : IReadOnlyDictionary<PartId, PartAllowance>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Palette inventory per mode, in palette row order. Free play lists every discovered part without a count.</summary>
+/// <summary>Palette inventory per mode, in palette row order. Free play lists every discovered part without a count; the rows
+/// name delivered parts only, so an undelivered part (the game's UndeliveredParts set) never reaches the palette.</summary>
 public static class WorkshopInventoryPolicy
 {
     private static readonly PartId[] _canonicalOrder =
@@ -60,8 +61,6 @@ public static class WorkshopInventoryPolicy
         PartId.BowlingBall,
         PartId.Battery,
         PartId.Springboard,
-        PartId.Tennis,
-        PartId.Balloon,
         PartId.Pipe,
         PartId.BallDetector,
         PartId.PipeBend45,

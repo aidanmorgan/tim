@@ -26,21 +26,26 @@ public sealed class PartRegistry
 
             var path = "res://parts/catalog/" + fileName;
 
-            var content = FileAccess.GetFileAsString(path);
-            if (content.Contains("Parameters = {") && !content.Contains("Parameters = {}") && !fileName.Equals("clock.tres", StringComparison.OrdinalIgnoreCase))
-                continue; // Unmigrated legacy resource (e.g. balloon, tennis with legacy parameters)
-
             var definition = ResourceLoader.Load<PartDefinition>(path);
             if (definition is null || definition.Scene is null)
                 throw new ArgumentException($"Canonical resource '{path}' is invalid or malformed.");
-
-            if (definition.Parameters.Count != 0 && definition.PartId != PartId.Clock)
-                continue; // Unmigrated legacy resource (e.g. balloon, tennis)
 
             if (string.IsNullOrWhiteSpace(definition.Id))
                 throw new ArgumentException($"Canonical resource '{path}' has missing or empty Id.");
 
             var id = definition.PartId;
+            // Admission is the checked-in typed set, never the resource's contents (Story 9R.0c). The registry owns the
+            // resource it refuses and releases it here, on the main thread; a dropped wrapper's finalizer would otherwise
+            // release it on the GC thread while a later Load reuses the cached resource.
+            if (UndeliveredParts.Contains(id))
+            {
+                definition.Dispose();
+                continue;
+            }
+
+            if (definition.Parameters.Count != 0 && id != PartId.Clock)
+                throw new ArgumentException($"Canonical resource '{path}' declares untyped Parameters.");
+
             if (_definitions.ContainsKey(id))
                 throw new ArgumentException($"Duplicate part identity '{id}' encountered in '{path}'.");
 

@@ -17,8 +17,9 @@ public sealed record CurrentCatalogue(PlannedCatalogue[] Elements, PlannedFixtur
     public static readonly SourcePath PartIdentityPath = new("engine/PartId.cs");
     private const string DeclarationDirectory = "docs/planning/elements";
     private const string ResourceDirectory = "parts/catalog";
-    // PartRegistry.Discover admits every *.tres resource in parts/catalog; PartId's numeric wire table declares the
-    // closed set of part identities those resources must cover exactly.
+    // Every *.tres resource in parts/catalog declares one part identity, and PartId's numeric wire table declares the closed
+    // set of identities those resources must cover exactly. PartRegistry.Discover registers all of them except the typed
+    // UndeliveredParts set (Story 9R.0c), whose resources still ship until Story 9A.14 deletes them.
     private const string ResourceSearchPattern = "*.tres";
 
     public static CurrentCatalogue Read(DirectoryInfo root)

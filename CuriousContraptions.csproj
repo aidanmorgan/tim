@@ -37,6 +37,7 @@
         <Compile Include="engine/BallMaterialResource.cs" />
         <Compile Include="engine/PartRegistry.cs" />
         <Compile Include="engine/PartId.cs" />
+        <Compile Include="engine/UndeliveredParts.cs" />
         <Compile Include="engine/Workbench.cs" />
         <Compile Include="engine/IResizablePart.cs" />
         <Compile Include="ui/Workshop.cs" />
@@ -51,6 +52,7 @@
         <Compile Include="ui/RotationGizmo.cs" />
         <Compile Include="ui/PlacementShadows.cs" />
         <Compile Include="ui/WorkshopArtwork.cs" />
+        <Compile Include="ui/WorkshopBenchPlacement.cs" />
         <Compile Include="CuriousContraptions.web/TwoDogWebBoot.cs" />
     </ItemGroup>
 </Project>

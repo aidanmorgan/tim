@@ -513,26 +513,30 @@ public partial class Workshop : Node3D
         {
             if (Remaining(_tool.Value).Exhausted || WorkPoint(screen, _buildView ? (float)_depth.Value : (float)_placementHeight.Value) is not { } at || !PlacementInside(at)) return;
             if (_nextId.Value == ulong.MaxValue) { _status.Text = "Part identity is exhausted."; return; }
-            PushUndo();
             var position = at.Snapped(Vector3.One * .1f);
             var rotation = _preview?.Quaternion ?? Quaternion.Identity;
             var chosen = _tool.Value;
             var placedId = _nextId;
-            var proposed = World.Construction.WithInstance(World.CaptureInstance(chosen, placedId, position, rotation,
-                _preview?.RampDimensions,
-                _preview?.WallDimensions));
-            var accepted = await SubmitConstruction(proposed);
-            if (_workshopUiRemoved) return;
-            if (!accepted) { _undo.RemoveAt(_undo.Count - 1); return; }
-            _nextId = new(_nextId.Value + 1);
-            var part = World.Parts.Single(p => p.AuthoredId == placedId);
-            Select(part);
-            _tool = null;
-            ClearPreview();
-            RefreshPalette();
-            RefreshLayers();
-            _dragging = false;
-            _status.Text = "Drag to slide. Choose arrows to move or rings to rotate.";
+            try
+            {
+                // Capture precedes undo: an uncapturable part is one typed rejection and leaves no undo entry.
+                var placement = WorkshopBenchPlacement.Propose(World, chosen, placedId, position, rotation,
+                    _preview?.RampDimensions, _preview?.WallDimensions, PushUndo);
+                if (placement.Rejection != BenchPlacementRejection.None) { _status.Text = placement.Message; return; }
+                var accepted = await SubmitConstruction(placement.Construction);
+                if (_workshopUiRemoved) return;
+                if (!accepted) { _undo.RemoveAt(_undo.Count - 1); return; }
+                _nextId = new(_nextId.Value + 1);
+                var part = World.Parts.Single(p => p.AuthoredId == placedId);
+                Select(part);
+                _tool = null;
+                ClearPreview();
+                RefreshPalette();
+                RefreshLayers();
+                _dragging = false;
+                _status.Text = "Drag to slide. Choose arrows to move or rings to rotate.";
+            }
+            catch (Exception error) { if (_workshopUiRemoved) return; World.RestoreConstructionPresentation(); _status.Text = error.Message; }
         }
         else
         {

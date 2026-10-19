@@ -165,7 +165,7 @@ public sealed class WorkbenchCapacityTests
     public void FreeInventoryListsEveryPlayableKindUnlimitedInPaletteRowOrder()
     {
         PartId[] rows = [PartId.Basketball, PartId.Receiver, PartId.ImpactSwitch, PartId.SignalLamp,
-            PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Tennis, PartId.Balloon, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch];
+            PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Ramp, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch];
         Assert.Equal(rows, WorkshopInventoryPolicy.Free.Keys.ToArray());
         Assert.All(WorkshopInventoryPolicy.Free.Values, allowance => Assert.Equal(PartAllowance.Unlimited, allowance));
         Assert.Equal(rows.Length, WorkshopInventoryPolicy.Free.Count);

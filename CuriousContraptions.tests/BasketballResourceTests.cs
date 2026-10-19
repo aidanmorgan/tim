@@ -31,7 +31,7 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
     {
         var registry = new PartRegistry();
         registry.Discover();
-        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Tennis, PartId.Balloon, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch }.OrderBy(id => id),
+        Assert.Equal(new[] { PartId.Basketball, PartId.Receiver, PartId.Ramp, PartId.ImpactSwitch, PartId.SignalLamp, PartId.Wall, PartId.Delay, PartId.PinballBumper, PartId.Domino, PartId.BowlingBall, PartId.Battery, PartId.Springboard, PartId.Pipe, PartId.BallDetector, PartId.PipeBend45, PartId.PipeBend90, PartId.Funnel, PartId.PoweredGate, PartId.PressurePlate, PartId.Counter, PartId.Clock, PartId.Latch }.OrderBy(id => id),
             registry.Definitions.Keys.OrderBy(id => id));
         var definition = registry.Definitions[PartId.Basketball];
         Assert.Empty(definition.Parameters);

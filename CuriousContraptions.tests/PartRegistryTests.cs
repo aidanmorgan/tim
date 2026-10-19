@@ -9,19 +9,17 @@ namespace CuriousContraptions.Tests;
 public sealed class PartRegistryTests(NativeSceneFixture godot)
 {
     [Fact]
-    public void Discover_LoadsAllCanonicalParts_AndExcludesLegacyParameters()
+    public void Discover_LoadsEveryDeliveredPart_AndExcludesUndeliveredParts()
     {
         var registry = new PartRegistry();
         registry.Discover();
 
-        Assert.Equal(24, registry.Definitions.Count);
+        Assert.Equal(22, registry.Definitions.Count);
 
         PartId[] expected =
         [
             PartId.Basketball,
             PartId.BowlingBall,
-            PartId.Tennis,
-            PartId.Balloon,
             PartId.Receiver,
             PartId.Ramp,
             PartId.ImpactSwitch,
@@ -60,6 +58,9 @@ public sealed class PartRegistryTests(NativeSceneFixture godot)
                 Assert.Empty(definition.Parameters);
             }
         }
+
+        foreach (var part in UndeliveredParts.All)
+            Assert.False(registry.Definitions.ContainsKey(UndeliveredParts.Id(part)), $"Undelivered part '{part}' must not be registered.");
     }
 
     [Fact]

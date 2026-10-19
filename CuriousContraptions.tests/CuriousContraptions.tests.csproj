@@ -73,6 +73,7 @@
         <Compile Include="NativeSceneFixture.cs" />
         <Compile Include="BasketballResourceTests.cs" />
         <Compile Include="PartRegistryTests.cs" />
+        <Compile Include="PalettePlacementTests.cs" />
         <Compile Include="GltfColliderExtractionTests.cs" />
         <Compile Include="StraightPipeTests.cs" />
         <Compile Include="ClearPipeLevelTests.cs" />
