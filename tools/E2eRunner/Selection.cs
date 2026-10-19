@@ -123,6 +123,26 @@ internal sealed partial class ImpactContext
     }
 
     /// <summary>The levels of content/puzzles.json by id (their raw JSON), or null when it does not parse.</summary>
+    private Dictionary<LevelId, IReadOnlySet<PartId>>? _levelParts;
+
+    /// <summary>The parts a level pre-places (the `kind` of each of its `parts` in the head content/puzzles.json; none when the level
+    /// or the file is absent).</summary>
+    public IReadOnlySet<PartId> LevelParts(LevelId level)
+    {
+        _levelParts ??= ReadLevelParts(ReadHead(LevelsPath));
+        return _levelParts.TryGetValue(level, out var parts) ? parts : new HashSet<PartId>();
+    }
+
+    private static Dictionary<LevelId, IReadOnlySet<PartId>> ReadLevelParts(string? json)
+    {
+        if (json is null) return [];
+        using var document = JsonDocument.Parse(json);
+        return document.RootElement.EnumerateArray().ToDictionary(level => new LevelId(level.GetProperty("id").GetString()!),
+            level => (IReadOnlySet<PartId>)(level.TryGetProperty("parts", out var parts)
+                ? parts.EnumerateArray().Select(entry => new PartId(entry.GetProperty("kind").GetString()!)).ToHashSet()
+                : []));
+    }
+
     public static IReadOnlyDictionary<LevelId, string>? Levels(string json)
     {
         try
@@ -193,7 +213,7 @@ internal static class Selector
             case ImpactKind.Element:
                 var parts = ElementParts(path, context);
                 if (parts.Count == 0) return Full(FullReason.Unknown, "no part resolves from this element path");
-                foreach (var part in parts) SelectElement(part, path, headBundle, add);
+                foreach (var part in parts) SelectElement(part, path, headBundle, context.LevelParts, add);
                 return new(path, rule.Kind, rule.Name, null, string.Join(",", parts));
             case ImpactKind.ElementBundle:
                 var before = context.ReadBase(path) is { } baseText ? ImpactContext.BundleElements(baseText) : [];
@@ -203,7 +223,7 @@ internal static class Selector
                 difference.SymmetricExceptWith(after.Select(element => (element.Part, element.Json)));
                 var changed = difference.Select(entry => entry.Part).Distinct().Order().ToArray();
                 if (changed.Length == 0) return new(path, ImpactKind.NoBrowserImpact, rule.Name, null, "no element changed (GeneratedAt only)");
-                foreach (var part in changed) SelectElement(part, path, headBundle, add);
+                foreach (var part in changed) SelectElement(part, path, headBundle, context.LevelParts, add);
                 return new(path, rule.Kind, rule.Name, null, string.Join(",", changed));
             case ImpactKind.Level:
                 var baseLevels = context.ReadBase(path) is { } baseLevelText ? ImpactContext.Levels(baseLevelText) : new Dictionary<LevelId, string>();
@@ -242,7 +262,8 @@ internal static class Selector
     }
 
     // own, integration and connected suites of one changed part (spec D6).
-    private static void SelectElement(PartId part, string path, IReadOnlyList<ImpactContext.BundleElement> bundle, Action<SuiteId, string> add)
+    private static void SelectElement(PartId part, string path, IReadOnlyList<ImpactContext.BundleElement> bundle,
+        Func<LevelId, IReadOnlySet<PartId>> levelParts, Action<SuiteId, string> add)
     {
         // A changed element must have its own suite: without one, Tier 2 cannot prove the change (coordinator, 19 Oct 2026).
         if (!SuiteCatalogue.All.Any(declaration => declaration.Primary == part))
@@ -253,6 +274,9 @@ internal static class Selector
             if (declaration.Primary == part) add(declaration.Id, $"own: {path} changes {part}");
             if (declaration.Places.Contains(part)) add(declaration.Id, $"integration: places {part}");
             else if (declaration.Scope == PlacementScope.EveryPalettePart) add(declaration.Id, $"integration: places every palette part ({part})");
+            // Spec D6: a suite's effective parts also include the parts its declared levels pre-place (domino_effect's locked bowling ball).
+            foreach (var level in declaration.Levels.Where(level => levelParts(level).Contains(part)).OrderBy(level => level.Value, StringComparer.Ordinal))
+                add(declaration.Id, $"integration: level {level} places {part}");
         }
         if (bundle.FirstOrDefault(element => element.Part == part) is not { } changed) return;
         foreach (var partner in bundle.Where(element => element.Part != part))

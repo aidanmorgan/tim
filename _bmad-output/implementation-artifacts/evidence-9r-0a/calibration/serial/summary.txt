@@ -1,0 +1,36 @@
+run 20261019T131203Z-47647 verb=calibrate serial verdict=Pass
+started=2026-10-19T13:12:03.0626310+00:00 finished=2026-10-19T13:19:15.3865390+00:00 wallSeconds=432.3
+runnerSourceDigest: 3f502e5f51e8627667cf9397f3730aba549ca16b2676010ed8c2eae7b0b00318
+sourceHead: c854b4d55e36e76679997361ce4bba5993544059
+sourceStatusDigest: 6c7c36542ade49c805f8e89917206519eab626e114310b500600ddf6d0109a46
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.82
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: uncalibrated
+workersUsed: 1
+runId: 20261019T131203Z-47647
+workers: 1
+slotPolicy: HeldByRun
+lockDirectory: /Users/aidan/dev/personal/tim/.git/e2e-runner
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/.anvil/e2e-runs/20261019T131203Z-47647
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: not judged
+suiteSourceDigest.start: e18ca005f3cdb908c915133b08bbd7b1234cb1f96bf4c06d494014abba6657cd
+bundleIdentity.start: e84c225bc8e659cfe9cbb71a0c4e75d8333786ad95a7607a2f5713b1fb086bc7
+bundleFiles: 285 (3 NotServed dot-files)
+preview: http://127.0.0.1:55265/
+servedCheck.start: pass (282 files)
+bundleIdentity.end: e84c225bc8e659cfe9cbb71a0c4e75d8333786ad95a7607a2f5713b1fb086bc7
+servedCheck.end: pass
+suiteSourceDigest.end: e18ca005f3cdb908c915133b08bbd7b1234cb1f96bf4c06d494014abba6657cd
+peakRssBytes: 3265052672
+selection: calibration serial
+clock-master outcome=Pass exit=0 tests=9 pass=9 fail=0 cancelled=0 notok=0 closeFindings=1 unresponsive=1 rejected=0 recal=4 renewedLate=1 lateRenewalsReported=1 wideOffset=0 debtFaults=1 durationMs=88541 phase=SerialAlone slot=- start=2026-10-19T13:12:04.5467830+00:00 end=2026-10-19T13:13:33.0880710+00:00 observation=Clean
+cat-017 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=34499 phase=SerialAlone slot=- start=2026-10-19T13:13:33.2442690+00:00 end=2026-10-19T13:14:07.7431420+00:00 observation=Clean
+cat-023b outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=43978 phase=SerialAlone slot=- start=2026-10-19T13:14:07.8858320+00:00 end=2026-10-19T13:14:51.8635230+00:00 observation=Clean
+cat-037 outcome=Pass exit=0 tests=6 pass=6 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=84357 phase=SerialAlone slot=- start=2026-10-19T13:14:52.0060720+00:00 end=2026-10-19T13:16:16.3627810+00:00 observation=Clean
+cat-014 outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=55044 phase=SerialAlone slot=- start=2026-10-19T13:16:16.5143140+00:00 end=2026-10-19T13:17:11.5586970+00:00 observation=Clean
+anim-1a outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=26425 phase=SerialAlone slot=- start=2026-10-19T13:17:11.6999940+00:00 end=2026-10-19T13:17:38.1249920+00:00 observation=Clean
+anim-1b outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=33104 phase=SerialAlone slot=- start=2026-10-19T13:17:38.2694040+00:00 end=2026-10-19T13:18:11.3734560+00:00 observation=Clean
+anim-1c outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=34251 phase=SerialAlone slot=- start=2026-10-19T13:18:11.5189150+00:00 end=2026-10-19T13:18:45.7695320+00:00 observation=Clean
+cat-023a outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=29225 phase=SerialAlone slot=- start=2026-10-19T13:18:45.9110530+00:00 end=2026-10-19T13:19:15.1360170+00:00 observation=Clean
+run totals: files=9 pass=9 nonzeroExit=0 tests=42 testsPassed=42 fail=0 notok=0 closeFindings=1 recal=4 renewedLate=1 lateRenewalsReported=1 wideOffset=0 debtFaults=1

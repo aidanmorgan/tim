@@ -1,0 +1,47 @@
+TAP version 13
+# Subtest: CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+    # Subtest: 1. Select level gentle_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_45 in inventory)
+    ok 1 - 1. Select level gentle_bend: verify initial layout (locked ball, locked receiver, 1 pipe_bend_45 in inventory)
+      ---
+      duration_ms: 2755.744709
+      type: 'test'
+      ...
+    # Subtest: 2. Negative control: without placing pipe_bend_45, ball falls straight to floor, missing receiver (goal not solved)
+    ok 2 - 2. Negative control: without placing pipe_bend_45, ball falls straight to floor, missing receiver (goal not solved)
+      ---
+      duration_ms: 2659.36575
+      type: 'test'
+      ...
+    # Subtest: 3. Solved run: pipe_bend_45 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED
+    ok 3 - 3. Solved run: pipe_bend_45 placed at (0, 4, 0) tilted -90 deg, ball traverses bend into receiver, achieving CCGOAL_SOLVED
+      ---
+      duration_ms: 6834.382833
+      type: 'test'
+      ...
+    # Subtest: 4. Reset restoration: Reset restores ball and pipe bend; second Run replays bit-for-bit and solves again
+    ok 4 - 4. Reset restoration: Reset restores ball and pipe bend; second Run replays bit-for-bit and solves again
+      ---
+      duration_ms: 1832.58225
+      type: 'test'
+      ...
+    # Subtest: 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+    ok 5 - 5. Save & Load persistence roundtrip: Save, reload, Load restores construction, and Run solves again
+      ---
+      duration_ms: 5016.371917
+      type: 'test'
+      ...
+    1..5
+ok 1 - CAT-049: 45-Degree Pipe Bend Hollow Torus Segment & Level Gentle Bend E2E
+  ---
+  duration_ms: 24660.335791
+  type: 'suite'
+  ...
+1..1
+# tests 5
+# suites 1
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25036.826208

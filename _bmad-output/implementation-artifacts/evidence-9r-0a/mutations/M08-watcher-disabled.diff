@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/BundleIdentity.cs
++++ b/tools/E2eRunner/BundleIdentity.cs
+@@ -89 +89 @@
+-        _watcher.EnableRaisingEvents = true;
++        _watcher.EnableRaisingEvents = false;

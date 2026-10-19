@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/Selection.cs
++++ b/tools/E2eRunner/Selection.cs
+@@ -278 +278 @@
+-            foreach (var level in declaration.Levels.Where(level => levelParts(level).Contains(part)).OrderBy(level => level.Value, StringComparer.Ordinal))
++            foreach (var level in declaration.Levels.Where(level => levelParts(level).Contains(part) && part.Value.Length < 0).OrderBy(level => level.Value, StringComparer.Ordinal))

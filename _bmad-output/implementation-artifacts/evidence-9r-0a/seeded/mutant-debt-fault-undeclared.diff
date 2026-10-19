@@ -1,0 +1,5 @@
+--- a/tools/e2e/clock-master.test.ts
++++ b/tools/e2e/clock-master.test.ts
+@@ -267 +267 @@
+-        await driver.closeExpecting(SessionFault.DebtFault);
++        await driver.closeAfterSuite(); // MUTANT: the debt stop is not declared (SessionFault.DebtFault stays imported)

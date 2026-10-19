@@ -1,0 +1,2 @@
+dotnet publish CuriousContraptions.web -nologo -v q  10.79s user 2.08s system 18% cpu 1:09.38 total
+exit=0

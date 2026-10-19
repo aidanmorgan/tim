@@ -1,0 +1,4 @@
+mutant-debt-fault-undeclared exit=1 clock-master outcome=Fail exit=1 tests=9 pass=8 fail=1 cancelled=0 skipped=0 todo=0 notok=1 closeFindings=2 unresponsive=1 rejected=0 recal=4 renewedLate=1 late
+  error: 'The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: committedTick=5 reliableStalled=False'
+mutant-debt-fault-absent exit=1 clock-master outcome=Fail exit=1 tests=9 pass=8 fail=1 cancelled=0 skipped=0 todo=0 notok=1 closeFindings=2 unresponsive=1 rejected=0 recal=4 renewedLate=1 late
+  error: 'The session was expected to raise DebtFault, but it did not'

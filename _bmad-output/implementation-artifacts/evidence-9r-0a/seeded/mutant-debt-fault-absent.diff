@@ -1,0 +1,7 @@
+--- a/tools/e2e/clock-master.test.ts
++++ b/tools/e2e/clock-master.test.ts
+@@ -261 +261 @@
+-        await blockSimulation(simulationWorker(driver), 600);
++        await blockSimulation(simulationWorker(driver), 20); // MUTANT: a 20 ms block stays inside the 100 ms debt bound
+@@ -265 +264,0 @@
+-        assert.equal(driver.debtFaults.length, 1, 'exactly one debt stop');

@@ -1,0 +1,18 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.43]     CuriousContraptions.E2eRunner.Tests.CalibrationTests.UncalibratedOrDifferentMachineRefusesParallel [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.CalibrationTests.UncalibratedOrDifferentMachineRefusesParallel [2 ms]
+  Error Message:
+   CuriousContraptions.E2eRunner.RunnerException : Uncalibrated: No calibrated worker count is recorded (run `calibrate`); runs are serial.
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.MeasuredWorkers.Resolve(MeasuredWorkers measured, Nullable`1 requested, Int32 cpus, Int64 memory) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/MeasuredWorkers.cs:line 34
+   at CuriousContraptions.E2eRunner.Tests.CalibrationTests.UncalibratedOrDifferentMachineRefusesParallel() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/CalibrationTests.cs:line 67
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     1, Passed:     8, Skipped:     0, Total:     9, Duration: 36 ms - E2eRunner.Tests.dll (net10.0)

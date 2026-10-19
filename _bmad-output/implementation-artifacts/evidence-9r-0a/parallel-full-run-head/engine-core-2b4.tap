@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarative Spatial Force Regions)
+    # Subtest: 1. First principles receiver assistance knots evaluated as declared spatial acceleration fields (smooth entrance without moving collider walls)
+    ok 1 - 1. First principles receiver assistance knots evaluated as declared spatial acceleration fields (smooth entrance without moving collider walls)
+      ---
+      duration_ms: 5537.3805
+      type: 'test'
+      ...
+    # Subtest: 2. Multi-body ramp rolling and assistance knot interaction under pure spatial force regions
+    ok 2 - 2. Multi-body ramp rolling and assistance knot interaction under pure spatial force regions
+      ---
+      duration_ms: 6512.272292
+      type: 'test'
+      ...
+    1..2
+ok 1 - ENGINE-CORE-2b4: Guide Horizon & Departure Ownership Removal (Declarative Spatial Force Regions)
+  ---
+  duration_ms: 16387.242042
+  type: 'suite'
+  ...
+1..1
+# tests 2
+# suites 1
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16643.967125

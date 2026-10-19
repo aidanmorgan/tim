@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/RunEngine.cs
++++ b/tools/E2eRunner/RunEngine.cs
+@@ -128 +128 @@
+-        if (identityDetails.Count > 0) { verdict = Verdict.IdentityChanged; detail = string.Join("; ", identityDetails); }
++        if (identityDetails.Count < 0) { verdict = Verdict.IdentityChanged; detail = string.Join("; ", identityDetails); }

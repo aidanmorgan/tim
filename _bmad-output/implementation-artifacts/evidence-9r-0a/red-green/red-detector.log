@@ -1,0 +1,318 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.85]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.HitCarriesLineAndExcerpt [FAIL]
+[xUnit.net 00:00:00.86]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.SharedModuleHitIsAttributedToEveryImportingSuite [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "await driver.context.clock.fastForward(1000);") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.HitCarriesLineAndExcerpt [9 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.HitCarriesLineAndExcerpt() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 102
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.SharedModuleHitIsAttributedToEveryImportingSuite [5 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.SharedModuleHitIsAttributedToEveryImportingSuite() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 120
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "await driver.context.clock.fastForward(1000);") [1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ClockTampering
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 46
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "globalThis.Date = FakeDate;") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "Date.now = () => 0;") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "Object.defineProperty(performance, 'now', { value:"···) [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "performance.now = () => original() + 5;") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "await page.clock.install();") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "Object.defineProperty(globalThis, 'Date', { value:"···) [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "globalThis.Date = FakeDate;") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ClockTampering
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 46
+   at InvokeStub_TimingDetectorTests.ClockTamperingIsDetected(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "Date.now = () => 0;") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ClockTampering
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 46
+   at InvokeStub_TimingDetectorTests.ClockTamperingIsDetected(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "Object.defineProperty(performance, 'now', { value:"···) [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ClockTampering
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 46
+   at InvokeStub_TimingDetectorTests.ClockTamperingIsDetected(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "performance.now = () => original() + 5;") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ClockTampering
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 46
+   at InvokeStub_TimingDetectorTests.ClockTamperingIsDetected(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "await page.clock.install();") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ClockTampering
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 46
+   at InvokeStub_TimingDetectorTests.ClockTamperingIsDetected(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(code: "Object.defineProperty(globalThis, 'Date', { value:"···) [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ClockTampering
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ClockTamperingIsDetected(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 46
+   at InvokeStub_TimingDetectorTests.ClockTamperingIsDetected(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "await page.evaluate('document.title');") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "const f = new Function('return 1');") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "await worker.evaluate(`while (true) {}`);") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "await page.addInitScript(\"window.x = 1\");") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "eval('1 + 1');") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "await page.waitForFunction('globalThis.ready');") [FAIL]
+[xUnit.net 00:00:00.87]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(code: "const worker = new Worker(url);") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "await page.evaluate('document.title');") [4 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [UnscannableCode]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 17
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "const f = new Function('return 1');") [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [UnscannableCode]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 17
+   at InvokeStub_TimingDetectorTests.StringPageCodeIsUnscannable(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "await worker.evaluate(`while (true) {}`);") [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [UnscannableCode]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 17
+   at InvokeStub_TimingDetectorTests.StringPageCodeIsUnscannable(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "await page.addInitScript(\"window.x = 1\");") [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [UnscannableCode]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 17
+   at InvokeStub_TimingDetectorTests.StringPageCodeIsUnscannable(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "eval('1 + 1');") [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [UnscannableCode]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 17
+   at InvokeStub_TimingDetectorTests.StringPageCodeIsUnscannable(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(code: "await page.waitForFunction('globalThis.ready');") [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [UnscannableCode]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.StringPageCodeIsUnscannable(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 17
+   at InvokeStub_TimingDetectorTests.StringPageCodeIsUnscannable(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(code: "const worker = new Worker(url);") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ProcessOrThreadSpawn
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 59
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(code: "import { exec } from \"child_process\";") [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(code: "import { spawn } from 'node:child_process';") [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(code: "const threads = await import('node:worker_threads'"···) [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "let n = 0; do { n++; } while (performance.now() < "···) [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "const end = performance.now() + 20; while (perform"···) [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "while (Date.now() < end) n++;") [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "for (const end = Date.now() + 5; Date.now() < end;"···) [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(code: "import { exec } from \"child_process\";") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ProcessOrThreadSpawn
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 59
+   at InvokeStub_TimingDetectorTests.ProcessesAndThreadsInjectLoad(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(code: "import { spawn } from 'node:child_process';") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ProcessOrThreadSpawn
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 59
+   at InvokeStub_TimingDetectorTests.ProcessesAndThreadsInjectLoad(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(code: "const threads = await import('node:worker_threads'"···) [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  ProcessOrThreadSpawn
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.ProcessesAndThreadsInjectLoad(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 59
+   at InvokeStub_TimingDetectorTests.ProcessesAndThreadsInjectLoad(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "let n = 0; do { n++; } while (performance.now() < "···) [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  BusyWaitLoop
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 28
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "const end = performance.now() + 20; while (perform"···) [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  BusyWaitLoop
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 28
+   at InvokeStub_TimingDetectorTests.BusyWaitLoopIsAStall(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "while (Date.now() < end) n++;") [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  BusyWaitLoop
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 28
+   at InvokeStub_TimingDetectorTests.BusyWaitLoopIsAStall(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(code: "for (const end = Date.now() + 5; Date.now() < end;"···) [< 1 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: []
+Not found:  BusyWaitLoop
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.BusyWaitLoopIsAStall(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 28
+   at InvokeStub_TimingDetectorTests.BusyWaitLoopIsAStall(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.NestedTemplateSubstitutionIsScannedAsCode [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(code: "samples.push({ t: performance.now() - started, py "···) [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(code: "console.log(Date.now() - a - b);") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.NestedTemplateSubstitutionIsScannedAsCode [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [WallClockDifference]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.NestedTemplateSubstitutionIsScannedAsCode() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 90
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(code: "samples.push({ t: performance.now() - started, py "···) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [WallClockDifference]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 66
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(code: "console.log(Date.now() - a - b);") [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [WallClockDifference]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 66
+   at InvokeStub_TimingDetectorTests.WallClockDifferenceIsMeasured(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(code: "const elapsed = Date.now() - start;") [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(code: "await wait(Math.max(0, REST - (Date.now() - runSta"···) [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.TemplateSubstitutionIsScannedAsCode [FAIL]
+[xUnit.net 00:00:00.88]     CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.DivisionIsNotARegexLiteral [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(code: "const elapsed = Date.now() - start;") [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [WallClockDifference]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 66
+   at InvokeStub_TimingDetectorTests.WallClockDifferenceIsMeasured(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(code: "await wait(Math.max(0, REST - (Date.now() - runSta"···) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [WallClockDifference]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.WallClockDifferenceIsMeasured(String code) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 66
+   at InvokeStub_TimingDetectorTests.WallClockDifferenceIsMeasured(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.TemplateSubstitutionIsScannedAsCode [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [WallClockDifference]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.TemplateSubstitutionIsScannedAsCode() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 86
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.DivisionIsNotARegexLiteral [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           ↓ (pos 0)
+Expected: [WallClockDifference]
+Actual:   []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDetectorTests.DivisionIsNotARegexLiteral() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDetectorTests.cs:line 94
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    30, Passed:    21, Skipped:     0, Total:    51, Duration: 47 ms - E2eRunner.Tests.dll (net10.0)

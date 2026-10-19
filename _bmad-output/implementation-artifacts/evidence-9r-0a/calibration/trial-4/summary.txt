@@ -1,0 +1,52 @@
+run 20261019T135012Z-47647 verb=calibrate trial-4 verdict=Fail
+started=2026-10-19T13:50:12.3700040+00:00 finished=2026-10-19T13:55:35.0270060+00:00 wallSeconds=322.7
+runnerSourceDigest: 3f502e5f51e8627667cf9397f3730aba549ca16b2676010ed8c2eae7b0b00318
+sourceHead: c854b4d55e36e76679997361ce4bba5993544059
+sourceStatusDigest: 6c7c36542ade49c805f8e89917206519eab626e114310b500600ddf6d0109a46
+toolchain: tsx 4.23.15 (/Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs); playwright 1.64.0-alpha-1790635538000; node v26.12.0; Google Chrome 155.0.8059.82
+machine: 16 logical CPUs, 68719476736 bytes
+measuredWorkers: uncalibrated
+workersUsed: 1
+runId: 20261019T135012Z-47647
+workers: 4
+slotPolicy: HeldByRun
+lockDirectory: /Users/aidan/dev/personal/tim/.git/e2e-runner
+evidenceRoot: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/.anvil/e2e-runs/20261019T135012Z-47647
+tsxLoader: /Users/aidan/.npm/_npx/e6b261a129b06bcc/node_modules/tsx/dist/loader.mjs
+contentionThreshold: not judged
+suiteSourceDigest.start: e18ca005f3cdb908c915133b08bbd7b1234cb1f96bf4c06d494014abba6657cd
+bundleIdentity.start: e84c225bc8e659cfe9cbb71a0c4e75d8333786ad95a7607a2f5713b1fb086bc7
+bundleFiles: 285 (3 NotServed dot-files)
+preview: http://127.0.0.1:59811/
+servedCheck.start: pass (282 files)
+bundleIdentity.end: e84c225bc8e659cfe9cbb71a0c4e75d8333786ad95a7607a2f5713b1fb086bc7
+servedCheck.end: pass
+suiteSourceDigest.end: e18ca005f3cdb908c915133b08bbd7b1234cb1f96bf4c06d494014abba6657cd
+peakRssBytes: 12440813568
+selection: calibration trial-4
+cat-005 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=144877 phase=Parallel slot=0 start=2026-10-19T13:50:14.0138130+00:00 end=2026-10-19T13:52:38.8909160+00:00 observation=Clean
+cat-062b outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=141318 phase=Parallel slot=1 start=2026-10-19T13:50:14.0680850+00:00 end=2026-10-19T13:52:35.3863560+00:00 observation=Clean
+cat-062 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=132594 phase=Parallel slot=2 start=2026-10-19T13:50:14.1196900+00:00 end=2026-10-19T13:52:26.7138200+00:00 observation=Clean
+cat-015b outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=104587 phase=Parallel slot=3 start=2026-10-19T13:50:14.1729390+00:00 end=2026-10-19T13:51:58.7595430+00:00 observation=Clean
+cat-030 outcome=Pass exit=0 tests=7 pass=7 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=102495 phase=Parallel slot=3 start=2026-10-19T13:51:58.8513520+00:00 end=2026-10-19T13:53:41.3465210+00:00 observation=Clean
+palette-placement outcome=Pass exit=0 tests=25 pass=25 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=72885 phase=Parallel slot=2 start=2026-10-19T13:52:26.8112880+00:00 end=2026-10-19T13:53:39.6967560+00:00 observation=Clean
+cat-002 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=66439 phase=Parallel slot=1 start=2026-10-19T13:52:35.6964400+00:00 end=2026-10-19T13:53:42.1352070+00:00 observation=Clean
+cat-020 outcome=Fail exit=1 tests=5 pass=5 fail=0 cancelled=0 notok=1 closeFindings=1 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=1 durationMs=57572 phase=Parallel slot=0 start=2026-10-19T13:52:38.9879080+00:00 end=2026-10-19T13:53:36.5599760+00:00 observation=Clean failures=NonZeroExit,NotOkLine
+cat-015a-sidekick outcome=Pass exit=0 tests=3 pass=3 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=2 debtFaults=0 durationMs=45534 phase=Parallel slot=0 start=2026-10-19T13:53:36.7255930+00:00 end=2026-10-19T13:54:22.2599780+00:00 observation=Clean
+engine-core-2a3 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=1 debtFaults=0 durationMs=45108 phase=Parallel slot=2 start=2026-10-19T13:53:39.8000390+00:00 end=2026-10-19T13:54:24.9080560+00:00 observation=Clean
+engine-core-2b3 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=1 debtFaults=0 durationMs=39027 phase=Parallel slot=3 start=2026-10-19T13:53:41.4680710+00:00 end=2026-10-19T13:54:20.4950630+00:00 observation=Clean
+cat-048a outcome=Fail exit=1 tests=4 pass=4 fail=0 cancelled=0 notok=1 closeFindings=1 unresponsive=0 rejected=0 recal=1 renewedLate=0 lateRenewalsReported=0 wideOffset=1 debtFaults=0 durationMs=39359 phase=Parallel slot=1 start=2026-10-19T13:53:42.2460540+00:00 end=2026-10-19T13:54:21.6054930+00:00 observation=Clean failures=NonZeroExit,NotOkLine
+cat-052 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=30774 phase=Parallel slot=3 start=2026-10-19T13:54:20.5941770+00:00 end=2026-10-19T13:54:51.3678190+00:00 observation=Clean
+engine-core-2a2 outcome=Pass exit=0 tests=4 pass=4 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=30856 phase=Parallel slot=1 start=2026-10-19T13:54:21.7044630+00:00 end=2026-10-19T13:54:52.5601910+00:00 observation=Clean
+cat-051 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=28234 phase=Parallel slot=0 start=2026-10-19T13:54:22.3635760+00:00 end=2026-10-19T13:54:50.5973580+00:00 observation=Clean
+cat-015a outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=26964 phase=Parallel slot=2 start=2026-10-19T13:54:25.0083160+00:00 end=2026-10-19T13:54:51.9723920+00:00 observation=Clean
+cat-050 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=25419 phase=Parallel slot=0 start=2026-10-19T13:54:50.6894660+00:00 end=2026-10-19T13:55:16.1084280+00:00 observation=Clean
+cat-048b outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=23927 phase=Parallel slot=3 start=2026-10-19T13:54:51.4678230+00:00 end=2026-10-19T13:55:15.3945610+00:00 observation=Clean
+cat-049 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=23686 phase=Parallel slot=2 start=2026-10-19T13:54:52.0716040+00:00 end=2026-10-19T13:55:15.7572780+00:00 observation=Clean
+engine-core-2a4 outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=20988 phase=Parallel slot=1 start=2026-10-19T13:54:52.6604700+00:00 end=2026-10-19T13:55:13.6481230+00:00 observation=Clean
+engine-core-2a1 outcome=Pass exit=0 tests=5 pass=5 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=20167 phase=Parallel slot=1 start=2026-10-19T13:55:13.7400000+00:00 end=2026-10-19T13:55:33.9069000+00:00 observation=Clean
+engine-core-2c outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=18832 phase=Parallel slot=3 start=2026-10-19T13:55:15.4833240+00:00 end=2026-10-19T13:55:34.3153470+00:00 observation=Clean
+engine-core-2b4 outcome=Pass exit=0 tests=2 pass=2 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=17411 phase=Parallel slot=2 start=2026-10-19T13:55:15.8464330+00:00 end=2026-10-19T13:55:33.2575850+00:00 observation=Clean
+engine-core-2b2 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=9400 phase=Parallel slot=0 start=2026-10-19T13:55:16.1981290+00:00 end=2026-10-19T13:55:25.5978790+00:00 observation=Clean
+engine-core-2b1 outcome=Pass exit=0 tests=1 pass=1 fail=0 cancelled=0 notok=0 closeFindings=0 unresponsive=0 rejected=0 recal=0 renewedLate=0 lateRenewalsReported=0 wideOffset=0 debtFaults=0 durationMs=9107 phase=Parallel slot=0 start=2026-10-19T13:55:25.6881830+00:00 end=2026-10-19T13:55:34.7952230+00:00 observation=Clean
+run totals: files=25 pass=23 nonzeroExit=2 tests=124 testsPassed=124 fail=0 notok=2 closeFindings=2 recal=1 renewedLate=0 lateRenewalsReported=0 wideOffset=5 debtFaults=1

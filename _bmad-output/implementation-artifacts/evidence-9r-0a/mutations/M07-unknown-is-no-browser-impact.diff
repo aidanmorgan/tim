@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/ImpactRules.cs
++++ b/tools/E2eRunner/ImpactRules.cs
+@@ -122 +122 @@
+-    public static readonly PathRule UnknownRule = new("unmatched path", ImpactKind.Full, _ => true, FullReason.Unknown);
++    public static readonly PathRule UnknownRule = new("unmatched path", ImpactKind.NoBrowserImpact, _ => true, null);

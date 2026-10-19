@@ -1,0 +1,4 @@
+--- a/tools/E2eRunner/TapResult.cs
++++ b/tools/E2eRunner/TapResult.cs
+@@ -66 +65,0 @@
+-        if (tap.Tests <= 0) failures.Add(FileFailure.NoTests);

@@ -1,0 +1,5 @@
+--- a/tools/E2eRunner/SuiteProcess.cs
++++ b/tools/E2eRunner/SuiteProcess.cs
+@@ -81 +81 @@
+-                process.Kill(entireProcessTree: true);
++                process.Kill();

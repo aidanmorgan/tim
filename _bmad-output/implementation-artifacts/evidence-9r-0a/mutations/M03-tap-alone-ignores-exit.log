@@ -1,0 +1,62 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.68]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests [FAIL]
+[xUnit.net 00:00:00.93]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile [FAIL]
+[xUnit.net 00:00:01.20]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests [287 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: [NoTests, FailedTests, NotOkLine]
+Not found:  NonZeroExit
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 69
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile [247 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: [NoTests, FailedTests, NotOkLine]
+Not found:  NonZeroExit
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 78
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile [263 ms]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: [NotOkLine]
+Not found:  NonZeroExit
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 51
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:02.22]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile [257 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                             ↓ (pos 0)
+Expected: <generated>       [NonZeroExit, FailedTests, NotOkLine]
+Actual:   List<FileFailure> [FailedTests, NotOkLine]
+                             ↑ (pos 0)
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 41
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:06.47]     CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CleanTapWithNonZeroExitIsAFailure [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CleanTapWithNonZeroExitIsAFailure [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                             ↓ (pos 0)
+Expected: <generated>       [NonZeroExit]
+Actual:   List<FileFailure> []
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CleanTapWithNonZeroExitIsAFailure() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/SuiteProcessTests.cs:line 108
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     5, Passed:     8, Skipped:     0, Total:    13, Duration: 6 s - E2eRunner.Tests.dll (net10.0)

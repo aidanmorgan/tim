@@ -42,6 +42,18 @@ public sealed class SelectionTests
     }
 
     [Fact]
+    public void PartPreplacedByADeclaredLevelSelectsThatLevelsSuites()
+    {
+        // domino_effect's locked ball is a Bowling ball: changing it must select the suites that declare that level (B1, spec D6).
+        var selection = Select(["parts/catalog/bowling.tres"]);
+        Assert.Equal(SelectionMode.Selected, selection.Mode);
+        var lines = selection.Suites.Select(suite => suite.ReasonLine).ToArray();
+        Assert.Contains("cat-023b\tintegration: level domino_effect places bowling", lines);
+        Assert.Contains("clock-master\tintegration: level domino_effect places bowling", lines);
+        Assert.Contains("cat-014\town: parts/catalog/bowling.tres changes bowling; integration: places bowling", lines);
+    }
+
+    [Fact]
     public void SharedSceneMapsToEveryReferencingPart()
     {
         var context = new ImpactContext(TestRepository.Root, Head);

@@ -1,0 +1,4 @@
+--- a/tools/E2eRunner/RunEngine.cs
++++ b/tools/E2eRunner/RunEngine.cs
+@@ -120 +119,0 @@
+-        if (endManifest.Identity != manifest.Identity) identityDetails.Add("the bundle re-hash differs from the start identity");

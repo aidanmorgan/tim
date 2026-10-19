@@ -1,0 +1,94 @@
+✔ a close finding fails a test that otherwise passed (111.13725ms)
+✔ a close finding never replaces the test's own failure, and is still reported (116.241625ms)
+✔ several findings of one test are aggregated, not dropped (117.079708ms)
+✔ a recorded finding with no test to fail still fails the file (catch-all) (114.463666ms)
+✔ a finding raised in a suite's after hook is reported against that suite (118.964625ms)
+✔ closeAfterSuite with no findings passes (control) (113.635084ms)
+✔ no Chrome suite closes its driver with close() in a suite after hook (1.789167ms)
+✔ a clean close passes (control), and a finding is raised once, not again for later tests (226.906625ms)
+✖ a declared session fault that occurred is not a finding (0.726041ms)
+✔ a declared session fault that did not occur is a finding (0.125292ms)
+✔ a different fault than the declared one is a finding, and the declared one is still required (0.083958ms)
+✖ a declared fault does not excuse another fault that also occurred (0.202917ms)
+✔ an undeclared debt fault is a finding (0.052834ms)
+✔ unknown session faults are rejected (0.169542ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 12
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 984.633625
+
+✖ failing tests:
+
+test at tools/workshop-close-findings.test.mjs:108:1
+✖ a declared session fault that occurred is not a finding (0.726041ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   Error: The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: committedTick=9
+  +       at faultFinding (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:19:45)
+  +       at sessionFaultFindings (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:34:47)
+  +       at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.test.mjs:109:22)
+  +       at Test.runInAsyncScope (node:async_hooks:226:14)
+  +       at Test.run (node:internal/test_runner/test:1402:25)
+  +       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+  +       at Test.postRun (node:internal/test_runner/test:1542:19)
+  +       at Test.run (node:internal/test_runner/test:1467:12)
+  +       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.test.mjs:109:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [
+      Error: The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: committedTick=9
+          at faultFinding (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:19:45)
+          at sessionFaultFindings (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:34:47)
+          at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.test.mjs:109:22)
+          at Test.runInAsyncScope (node:async_hooks:226:14)
+          at Test.run (node:internal/test_runner/test:1402:25)
+          at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+          at Test.postRun (node:internal/test_runner/test:1542:19)
+          at Test.run (node:internal/test_runner/test:1467:12)
+          at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+    ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tools/workshop-close-findings.test.mjs:121:1
+✖ a declared fault does not excuse another fault that also occurred (0.202917ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: x',
+      'The session rejected 1 malformed clock reply(ies); first: CCGPU_CLOCK_REPLY_REJECTED {}'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.test.mjs:123:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'The simulation stopped on 1 debt fault(s); first: CCGPU_DEBT_FAULT: x', 'The session rejected 1 malformed clock reply(ies); first: CCGPU_CLOCK_REPLY_REJECTED {}' ],
+    expected: [ 'The session rejected 1 malformed clock reply(ies); first: CCGPU_CLOCK_REPLY_REJECTED {}' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

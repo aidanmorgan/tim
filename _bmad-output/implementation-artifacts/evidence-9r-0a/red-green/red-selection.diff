@@ -1,0 +1,4 @@
+--- a/tools/E2eRunner/Selection.cs
++++ b/tools/E2eRunner/Selection.cs
+@@ -146,0 +147 @@
++        if (Environment.ProcessorCount > 0) return new Selection(SelectionMode.Selected, [], []);

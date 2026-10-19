@@ -1,0 +1,128 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.46]     CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.CatalogueAndSuiteFilesAreABijection [FAIL]
+[xUnit.net 00:00:00.47]     CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/cat-017.test.ts") [FAIL]
+[xUnit.net 00:00:00.47]     CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/clock-master.test.ts") [FAIL]
+[xUnit.net 00:00:00.47]     CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/cat-023b.test.ts") [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.CatalogueAndSuiteFilesAreABijection [36 ms]
+  Error Message:
+   68 timing declaration violation(s):
+tools/e2e/anim-1a.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/anim-1b.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/anim-1c.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-002.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-005.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-014.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-015a-sidekick.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-015a.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-015b.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-017.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-020.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-023a.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-023b.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-030.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-037.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-048a.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-048b.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-049.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-050.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-051.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-052.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-062.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/cat-062b.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/clock-master.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2a1.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2a2.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2a3.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2a4.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2b1.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2b2.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2b3.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2b4.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/engine-core-2c.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+tools/e2e/palette-placement.test.ts: undeclared suite (add a SuiteId and a catalogue entry)
+Anim1a: declared 0 times
+Anim1b: declared 0 times
+Anim1c: declared 0 times
+Cat002: declared 0 times
+Cat005: declared 0 times
+Cat014: declared 0 times
+Cat015a: declared 0 times
+Cat015aSidekick: declared 0 times
+Cat015b: declared 0 times
+Cat017: declared 0 times
+Cat020: declared 0 times
+Cat023a: declared 0 times
+Cat023b: declared 0 times
+Cat030: declared 0 times
+Cat037: declared 0 times
+Cat048a: declared 0 times
+Cat048b: declared 0 times
+Cat049: declared 0 times
+Cat050: declared 0 times
+Cat051: declared 0 times
+Cat052: declared 0 times
+Cat062: declared 0 times
+Cat062b: declared 0 times
+ClockMaster: declared 0 times
+EngineCore2a1: declared 0 times
+EngineCore2a2: declared 0 times
+EngineCore2a3: declared 0 times
+EngineCore2a4: declared 0 times
+EngineCore2b1: declared 0 times
+EngineCore2b2: declared 0 times
+EngineCore2b3: declared 0 times
+EngineCore2b4: declared 0 times
+EngineCore2c: declared 0 times
+PalettePlacement: declared 0 times
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.AssertNone(IEnumerable`1 violations) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDeclarationTests.cs:line 16
+   at CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.CatalogueAndSuiteFilesAreABijection() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDeclarationTests.cs:line 24
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/cat-017.test.ts") [< 1 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : Suite Cat017 is not declared.
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.SuiteCatalogue.Get(SuiteId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/SuiteCatalogue.cs:line 211
+   at CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDeclarationTests.cs:line 47
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/clock-master.test.ts") [< 1 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : Suite ClockMaster is not declared.
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.SuiteCatalogue.Get(SuiteId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/SuiteCatalogue.cs:line 211
+   at CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDeclarationTests.cs:line 47
+   at InvokeStub_TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(path: "tools/e2e/cat-023b.test.ts") [< 1 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : Suite Cat023b is not declared.
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.SuiteCatalogue.Get(SuiteId id) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner/SuiteCatalogue.cs:line 211
+   at CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(String path) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDeclarationTests.cs:line 47
+   at InvokeStub_TimingDeclarationTests.OwnerNamedSuitesAreSerialAlone(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:00.48]     CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.AuditTableCoversEverySuite [FAIL]
+  Failed CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.AuditTableCoversEverySuite [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 34
+Actual:   0
+  Stack Trace:
+     at CuriousContraptions.E2eRunner.Tests.TimingDeclarationTests.AuditTableCoversEverySuite() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/E2eRunner.Tests/TimingDeclarationTests.cs:line 158
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Standard Output Messages:
+ | Suite | Timing | Rule hits (file:line) | Declared reasons (:line) | Primary | Places | Levels | Wires | Areas |
+ |---|---|---|---|---|---|---|---|---|
+
+
+
+Failed!  - Failed:     5, Passed:     6, Skipped:     0, Total:    11, Duration: 77 ms - E2eRunner.Tests.dll (net10.0)

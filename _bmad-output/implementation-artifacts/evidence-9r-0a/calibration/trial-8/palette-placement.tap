@@ -1,0 +1,185 @@
+TAP version 13
+# Subtest: Story 9R.0c: every Free palette part places on the bench; undelivered parts are absent
+    # Subtest: Basketball places on the bench with no console or worker error
+    ok 1 - Basketball places on the bench with no console or worker error
+      ---
+      duration_ms: 3121.120375
+      type: 'test'
+      ...
+    # Subtest: Receiver places on the bench with no console or worker error
+    ok 2 - Receiver places on the bench with no console or worker error
+      ---
+      duration_ms: 3810.926292
+      type: 'test'
+      ...
+    # Subtest: Impact switch places on the bench with no console or worker error
+    ok 3 - Impact switch places on the bench with no console or worker error
+      ---
+      duration_ms: 3602.451292
+      type: 'test'
+      ...
+    # Subtest: Signal lamp places on the bench with no console or worker error
+    ok 4 - Signal lamp places on the bench with no console or worker error
+      ---
+      duration_ms: 3683.248416
+      type: 'test'
+      ...
+    # Subtest: Wall places on the bench with no console or worker error
+    ok 5 - Wall places on the bench with no console or worker error
+      ---
+      duration_ms: 4101.349833
+      type: 'test'
+      ...
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"16908484908418984977","sessionHigh":"81787676656542704","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"167925000","derivation":"0","uncertainty":"100000","displayEpoch":"1",
+    # Subtest: Delay places on the bench with no console or worker error
+    ok 6 - Delay places on the bench with no console or worker error
+      ---
+      duration_ms: 4550.316959
+      type: 'test'
+      ...
+    # Subtest: Pinball bumper places on the bench with no console or worker error
+    ok 7 - Pinball bumper places on the bench with no console or worker error
+      ---
+      duration_ms: 4314.74475
+      type: 'test'
+      ...
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"5607109974967771706","sessionHigh":"16334182334936261946","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"254980000","derivation":"0","uncertainty":"100000","displayEpoch":"1
+    # Subtest: Ramp places on the bench with no console or worker error
+    ok 8 - Ramp places on the bench with no console or worker error
+      ---
+      duration_ms: 4898.598167
+      type: 'test'
+      ...
+    # Subtest: Domino places on the bench with no console or worker error
+    ok 9 - Domino places on the bench with no console or worker error
+      ---
+      duration_ms: 4181.937333
+      type: 'test'
+      ...
+    # Subtest: Bowling ball places on the bench with no console or worker error
+    ok 10 - Bowling ball places on the bench with no console or worker error
+      ---
+      duration_ms: 5185.713917
+      type: 'test'
+      ...
+    # Subtest: Battery places on the bench with no console or worker error
+    ok 11 - Battery places on the bench with no console or worker error
+      ---
+      duration_ms: 4719.733917
+      type: 'test'
+      ...
+    # Subtest: Springboard places on the bench with no console or worker error
+    ok 12 - Springboard places on the bench with no console or worker error
+      ---
+      duration_ms: 3594.98975
+      type: 'test'
+      ...
+    # Subtest: Pipe places on the bench with no console or worker error
+    ok 13 - Pipe places on the bench with no console or worker error
+      ---
+      duration_ms: 3914.145458
+      type: 'test'
+      ...
+    # Subtest: Ball detector places on the bench with no console or worker error
+    ok 14 - Ball detector places on the bench with no console or worker error
+      ---
+      duration_ms: 3686.22975
+      type: 'test'
+      ...
+# E2E_OBSERVED ClockRecalibrated CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"16816750871127639391","sessionHigh":"8693886072126901177","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"248640000","derivation":"0","uncertainty":"100000","displayEpoch":"1
+    # Subtest: Pipe bend 45 places on the bench with no console or worker error
+    ok 15 - Pipe bend 45 places on the bench with no console or worker error
+      ---
+      duration_ms: 4781.462167
+      type: 'test'
+      ...
+    # Subtest: Pipe bend 90 places on the bench with no console or worker error
+    ok 16 - Pipe bend 90 places on the bench with no console or worker error
+      ---
+      duration_ms: 3981.606375
+      type: 'test'
+      ...
+    # Subtest: Funnel places on the bench with no console or worker error
+    ok 17 - Funnel places on the bench with no console or worker error
+      ---
+      duration_ms: 3434.835542
+      type: 'test'
+      ...
+    # Subtest: Powered gate places on the bench with no console or worker error
+    ok 18 - Powered gate places on the bench with no console or worker error
+      ---
+      duration_ms: 4021.389417
+      type: 'test'
+      ...
+    # Subtest: Pressure plate places on the bench with no console or worker error
+    ok 19 - Pressure plate places on the bench with no console or worker error
+      ---
+      duration_ms: 3191.016416
+      type: 'test'
+      ...
+    # Subtest: Counter places on the bench with no console or worker error
+    ok 20 - Counter places on the bench with no console or worker error
+      ---
+      duration_ms: 3033.463209
+      type: 'test'
+      ...
+    # Subtest: Clock places on the bench with no console or worker error
+    ok 21 - Clock places on the bench with no console or worker error
+      ---
+      duration_ms: 2883.304417
+      type: 'test'
+      ...
+    # Subtest: State latch places on the bench with no console or worker error
+    ok 22 - State latch places on the bench with no console or worker error
+      ---
+      duration_ms: 3116.801209
+      type: 'test'
+      ...
+    # Subtest: Tennis ball and Balloon are absent: the row after Springboard is Pipe
+    ok 23 - Tennis ball and Balloon are absent: the row after Springboard is Pipe
+      ---
+      duration_ms: 2499.279084
+      type: 'test'
+      ...
+    # Subtest: Tennis ball and Balloon are absent: the row before Pipe is Springboard
+    ok 24 - Tennis ball and Balloon are absent: the row before Pipe is Springboard
+      ---
+      duration_ms: 3482.68225
+      type: 'test'
+      ...
+    # Subtest: the whole run logged no console or worker error
+    ok 25 - the whole run logged no console or worker error
+      ---
+      duration_ms: 0.194667
+      type: 'test'
+      ...
+# Session close finding (after the suite): The session recalibrated a clock mapping 3 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"16908484908418984977","sessionHigh":"81787676656542704","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"167925000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"3939080000","recoveryStarted":"3662170000","recoverySends":1,"pending":null,"reply":null,"slo
+    1..25
+not ok 1 - Story 9R.0c: every Free palette part places on the bench; undelivered parts are absent
+  ---
+  duration_ms: 97872.246917
+  type: 'suite'
+  location: '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/palette-placement.test.ts:2:3852'
+  failureType: 'hookFailed'
+  error: 'The session recalibrated a clock mapping 3 time(s); first: CCGPU_CLOCK_RECALIBRATED {"role":1,"cause":0,"causeName":"Elapsed","count":"1","stateBefore":5,"sessionLow":"16908484908418984977","sessionHigh":"81787676656542704","masterGeneration":"1","requesterGeneration":"1","masterOrigin":"167925000","derivation":"0","uncertainty":"100000","displayEpoch":"1","now":"3939080000","recoveryStarted":"3662170000","recoverySends":1,"pending":null,"reply":null,"slo'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    faultFinding (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:20:54)
+    sessionFaultFindings (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/workshop-close-findings.mjs:34:69)
+    WorkshopDriver.shutdown (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:478:26)
+    async WorkshopDriver.closeAfterSuite (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/workshop-driver.ts:456:28)
+    async SuiteContext.<anonymous> (/Users/aidan/dev/personal/tim/.claude/worktrees/agent-aed6d01a8351a96b9/tools/e2e/palette-placement.test.ts:102:21)
+    async TestHook.run (node:internal/test_runner/test:1409:7)
+    async Suite.runHook (node:internal/test_runner/test:1289:9)
+    async Suite.run (node:internal/test_runner/test:1906:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+1..1
+# tests 25
+# suites 1
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 98165.806834

@@ -1,0 +1,9 @@
+--- a/tools/E2eRunner/SuiteCatalogue.cs
++++ b/tools/E2eRunner/SuiteCatalogue.cs
+@@ -144,4 +144,2 @@
+-        Serial(SuiteId.Cat037,
+-            [new(TimingReason.MeasuresWallTime, "Stamps samples with Date.now() - started and asserts s.t < 2200 and s.t < 400.", 180)],
+-            PartId.Latch, Set(PartId.Basketball, PartId.Battery, PartId.Delay, PartId.SignalLamp, PartId.Latch, PartId.PoweredGate,
+-                PartId.ImpactSwitch), [], Set(Signal, Electrical), Set(Gizmo, Wire, Config, Present)),
++        Parallel(SuiteId.Cat037, PartId.Latch, Set(PartId.Basketball, PartId.Battery, PartId.Delay, PartId.SignalLamp, PartId.Latch,
++            PartId.PoweredGate, PartId.ImpactSwitch), [], Set(Signal, Electrical), Set(Gizmo, Wire, Config, Present)),
