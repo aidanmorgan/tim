@@ -1,0 +1,3 @@
+head=7a8a48e44ea3696604544719c4ab66d570aa0e73 status=1 changed paths
+simulation detailed publish exit 0
+animation detailed publish exit 0

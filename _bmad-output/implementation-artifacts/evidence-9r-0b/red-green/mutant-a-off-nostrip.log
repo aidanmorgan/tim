@@ -1,0 +1,39 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 18 assemblies
+  [1/18] CuriousContraptions.Animation.dll -> CuriousContraptions.Animation.dll.bc
+  [2/18] CuriousContraptions.FlatBuffers.dll -> CuriousContraptions.FlatBuffers.dll.bc
+  [3/18] System.Collections.dll -> System.Collections.dll.bc
+  [4/18] System.Numerics.Vectors.dll -> System.Numerics.Vectors.dll.bc
+  [5/18] System.Console.dll -> System.Console.dll.bc
+  [6/18] System.Runtime.Intrinsics.dll -> System.Runtime.Intrinsics.dll.bc
+  [7/18] System.Memory.dll -> System.Memory.dll.bc
+  [8/18] System.Collections.Immutable.dll -> System.Collections.Immutable.dll.bc
+  [9/18] CuriousContraptions.Abstractions.dll -> CuriousContraptions.Abstractions.dll.bc
+  [10/18] System.Text.Json.dll -> System.Text.Json.dll.bc
+  [11/18] System.Text.Encodings.Web.dll -> System.Text.Encodings.Web.dll.bc
+  [12/18] System.Linq.dll -> System.Linq.dll.bc
+  [13/18] System.Runtime.dll -> System.Runtime.dll.bc
+  [14/18] System.Runtime.InteropServices.JavaScript.dll -> System.Runtime.InteropServices.JavaScript.dll.bc
+  [15/18] System.Threading.dll -> System.Threading.dll.bc
+  [16/18] CuriousContraptions.Simulation.dll -> CuriousContraptions.Simulation.dll.bc
+  [17/18] System.Private.CoreLib.dll -> System.Private.CoreLib.dll.bc
+  [18/18] aot-instances.dll -> aot-instances.dll.bc
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(66,5): error : WorkerAot (c): /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/CuriousContraptions.Abstractions.dll still carries its IL (identical to /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/aot-in/CuriousContraptions.Abstractions.dll). [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(66,5): error : WorkerAot (c): /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/CuriousContraptions.Animation.dll still carries its IL (identical to /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/aot-in/CuriousContraptions.Animation.dll). [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(66,5): error : WorkerAot (c): /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/CuriousContraptions.FlatBuffers.dll still carries its IL (identical to /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/aot-in/CuriousContraptions.FlatBuffers.dll). [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(66,5): error : WorkerAot (c): /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/CuriousContraptions.Simulation.dll still carries its IL (identical to /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/aot-in/CuriousContraptions.Simulation.dll). [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(66,5): error MSB3073: The command ""/opt/homebrew/Cellar/dotnet/10.0.401_1/libexec/dotnet" "/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll" il-stripped "/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/worker-aot-stripped.txt"" exited with code 1. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]

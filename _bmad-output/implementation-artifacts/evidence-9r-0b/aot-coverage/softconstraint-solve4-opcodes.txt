@@ -1,0 +1,21 @@
+Opcode histogram of SoftConstraint.Solve4 (Vector128 Min/Max lower to compare + bitselect, not f32x4.pmin/pmax):
+   4 f32x4.add
+   1 f32x4.div
+   2 f32x4.eq
+   4 f32x4.extract_lane
+   1 f32x4.gt
+   2 f32x4.lt
+   2 f32x4.mul
+   2 f32x4.ne
+   1 f32x4.neg
+   7 f32x4.replace_lane
+   1 f32x4.splat
+   1 f32x4.sub
+   3 v128.and
+   2 v128.bitselect
+   4 v128.const
+  10 v128.load
+   1 v128.not
+   4 v128.or
+   4 v128.store
+f32x4.pmin/pmax in Solve4: 0

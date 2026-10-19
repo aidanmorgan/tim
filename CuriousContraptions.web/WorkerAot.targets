@@ -1,0 +1,117 @@
+<Project>
+  <!-- Story 9R.0b: the Workshop workers ship as Mono full AOT (AOTMode=LLVMOnly) wasm-simd128 code with stripped IL. The
+       LLVMOnly runtime has no interpreter mode, so no engine method can fall back to interpretation; an uncompiled method
+       throws when called. These checks fail the publish unless that build actually happened and is what ships:
+       (a) the AOT properties, before the nested publish;
+       (b) AOT-only evidence: driver-gen.c registers every CuriousContraptions.* AOT module, each module's object is a
+           native link input, and the shipped dotnet.native.wasm is that link's output and carries every module;
+       (c) the runtime mode is LLVMOnly, no assembly is forced to the interpreter, and the engine IL is the stripped IL;
+       (d) every worker compiles with mattr=simd, and the Simulation's AOT object has f32x4 arithmetic in each physics
+           type named by WorkerAotSimdTypes.
+       The web host (WorkerAotRole=Host) checks that its final simulation/ and animation/ folders, and every .br/.gz
+       sibling there, are exactly the verified worker bundles. A misspelled role runs the worker checks, which fail.
+       The byte, disassembly and copy inspections are tools/WorkerAotGuard (C#, under the static gate, unit-tested). -->
+
+  <!-- Mono's per-method skip report (print-skipped) goes to the detailed publish log: the shared-generic canonical forms it
+       lists are not failures under LLVMOnly, where each concrete instance is compiled or the call throws. -->
+  <ItemGroup Condition="'$(WorkerAotRole)' != 'Host'">
+    <MonoAOTCompilerDefaultAotArguments Include="print-skipped" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <_WorkerAotGuardProject>$(MSBuildThisFileDirectory)../tools/WorkerAotGuard/WorkerAotGuard.csproj</_WorkerAotGuardProject>
+    <!-- The publish context and the AOT switches must not reach the guard tool's own build. -->
+    <_WorkerAotGuardGlobals>_IsPublishing;_WasmIsPublishing;DeployOnBuild;WasmBuildingForNestedPublish;_WasmInNestedPublish_UniqueProperty_XYZ;WasmBuildOnlyAfterPublish;WasmAppDir;PublishDir;_CommandLineDefinedOutputPath;ResolveAssemblyReferencesFindRelatedSatellites;RuntimeIdentifier;RunAOTCompilation;AOTMode;WasmEnableSIMD;WasmStripILAfterAOT;EmscriptenSdkToolsPath;EmscriptenUpstreamBinPath;PlaytestDiagnostics</_WorkerAotGuardGlobals>
+  </PropertyGroup>
+
+  <Target Name="BuildWorkerAotGuard" Returns="$(_WorkerAotGuard)">
+    <Error Condition="'$(DOTNET_HOST_PATH)' == ''" Text="WorkerAot: DOTNET_HOST_PATH is not set, so the guard tool cannot run." />
+    <MSBuild Projects="$(_WorkerAotGuardProject)" Targets="Restore" Properties="Configuration=Release" RemoveProperties="$(_WorkerAotGuardGlobals)" />
+    <MSBuild Projects="$(_WorkerAotGuardProject)" Targets="Build" Properties="Configuration=Release" RemoveProperties="$(_WorkerAotGuardGlobals)">
+      <Output TaskParameter="TargetOutputs" PropertyName="_WorkerAotGuard" />
+    </MSBuild>
+    <Error Condition="!Exists('$(_WorkerAotGuard)')" Text="WorkerAot: the guard tool did not build ($(_WorkerAotGuard))." />
+  </Target>
+
+  <!-- Outer publish, before the nested publish: (a). -->
+  <Target Name="VerifyWorkerAotProperties" BeforeTargets="WasmTriggerPublishApp" Condition="'$(WorkerAotRole)' != 'Host'">
+    <Error Condition="'$(WorkerAotRole)' != 'Worker'" Text="WorkerAot: WorkerAotRole must be Worker or Host, not '$(WorkerAotRole)'." />
+    <Error Condition="'$(RunAOTCompilation)' != 'true' or '$(WasmEnableSIMD)' != 'true' or '$(WasmStripILAfterAOT)' != 'true' or '$(AOTMode)' != 'LLVMOnly'"
+           Text="WorkerAot (a): the worker must publish with RunAOTCompilation, WasmEnableSIMD and WasmStripILAfterAOT true and AOTMode LLVMOnly (got $(RunAOTCompilation), $(WasmEnableSIMD), $(WasmStripILAfterAOT), $(AOTMode))." />
+  </Target>
+
+  <!-- Nested publish (the instance that AOT-compiles): (b) registration, (c) runtime mode, no forced interpretation and
+       stripped IL. AfterTargets also runs when _WasmAotCompileApp is skipped by its condition (RunAOTCompilation=false). -->
+  <Target Name="VerifyWorkerAotCompile" AfterTargets="_WasmAotCompileApp" DependsOnTargets="BuildWorkerAotGuard"
+          Condition="'$(WorkerAotRole)' != 'Host' and '$(WasmBuildingForNestedPublish)' == 'true'">
+    <Error Condition="'$(_WasmShouldAOT)' != 'true'" Text="WorkerAot (b): this publish did not AOT-compile the worker (RunAOTCompilation=$(RunAOTCompilation))." />
+    <Error Condition="'$(AOTMode)' != 'LLVMOnly'" Text="WorkerAot (c): AOTMode is '$(AOTMode)'; only LLVMOnly (no interpreter) is allowed." />
+    <Error Condition="'@(_AOT_InternalForceInterpretAssemblies)' != ''" Text="WorkerAot (c): assemblies are forced to the interpreter: @(_AOT_InternalForceInterpretAssemblies)." />
+    <ItemGroup>
+      <_WorkerAotForcedInterpret Include="@(_AotInputAssemblies->WithMetadataValue('AOT_InternalForceToInterpret', 'true'))" />
+      <_WorkerAotEngine Include="@(_WasmAssembliesInternal)" Condition="$([System.String]::Copy('%(Filename)').StartsWith('CuriousContraptions.'))">
+        <ModuleSymbol>$([System.String]::Copy('%(Filename)').Replace('.', '_'))</ModuleSymbol>
+        <AotInput>$(_WasmIntermediateOutputPath)aot-in/%(Filename)%(Extension)</AotInput>
+      </_WorkerAotEngine>
+    </ItemGroup>
+    <Error Condition="'@(_WorkerAotForcedInterpret)' != ''" Text="WorkerAot (c): AOT inputs are forced to the interpreter: @(_WorkerAotForcedInterpret)." />
+    <Error Condition="'@(_WorkerAotEngine->WithMetadataValue('Filename', '$(AssemblyName)'))' == ''" Text="WorkerAot (b): $(AssemblyName) is not among the AOT-compiled assemblies." />
+    <Error Condition="!Exists('$(_DriverGenCPath)')" Text="WorkerAot (b): $(_DriverGenCPath) is missing." />
+    <PropertyGroup>
+      <_WorkerAotDriverGen>$([System.IO.File]::ReadAllText('$(_DriverGenCPath)'))</_WorkerAotDriverGen>
+    </PropertyGroup>
+    <Error Condition="!$(_WorkerAotDriverGen.Contains('#define EE_MODE_LLVMONLY 1'))" Text="WorkerAot (c): $(_DriverGenCPath) does not select the LLVMOnly (no interpreter) runtime mode." />
+    <Error Condition="!$(_WorkerAotDriverGen.Contains('mono_aot_register_module (mono_aot_module_%(_WorkerAotEngine.ModuleSymbol)_info);'))" Text="WorkerAot (b): $(_DriverGenCPath) does not register the AOT module of %(_WorkerAotEngine.Filename)." />
+    <WriteLinesToFile File="$(_WasmIntermediateOutputPath)worker-aot-stripped.txt" Lines="@(_WorkerAotEngine->'%(FullPath)|%(AotInput)')" Overwrite="true" />
+    <Exec Command="&quot;$(DOTNET_HOST_PATH)&quot; &quot;$(_WorkerAotGuard)&quot; il-stripped &quot;$(_WasmIntermediateOutputPath)worker-aot-stripped.txt&quot;"
+          CustomErrorRegularExpression="^WorkerAot \(" StandardOutputImportance="High" />
+    <Message Importance="High" Text="WORKER_AOT_COMPILE=$(AssemblyName) AOTMode=$(AOTMode) arguments=@(MonoAOTCompilerDefaultAotArguments) engine=@(_WorkerAotEngine->'%(Filename)')" />
+  </Target>
+
+  <!-- Nested publish, after the native link: (b) every engine AOT object is a link input; (d) SIMD. -->
+  <Target Name="VerifyWorkerAotLink" AfterTargets="_BrowserWasmLinkDotNet" DependsOnTargets="BuildWorkerAotGuard"
+          Condition="'$(WorkerAotRole)' != 'Host' and '$(WasmBuildingForNestedPublish)' == 'true'">
+    <Error Condition="'@(_WorkerAotEngine)' == ''" Text="WorkerAot (b): no engine assembly was AOT-compiled before the native link." />
+    <PropertyGroup>
+      <_WorkerAotLinkInputs>;@(_WasmNativeFileForLinking);</_WorkerAotLinkInputs>
+      <_WorkerAotArguments>;@(MonoAOTCompilerDefaultAotArguments);</_WorkerAotArguments>
+    </PropertyGroup>
+    <Error Condition="!$(_WorkerAotLinkInputs.Contains(';$(_WasmIntermediateOutputPath)%(_WorkerAotEngine.Filename)%(_WorkerAotEngine.Extension).o;'))" Text="WorkerAot (b): %(_WorkerAotEngine.Filename)%(_WorkerAotEngine.Extension).o is not linked into dotnet.native.wasm." />
+    <Exec Condition="'$(WorkerAotSimdTypes)' != ''"
+          Command="&quot;$(DOTNET_HOST_PATH)&quot; &quot;$(_WorkerAotGuard)&quot; simd &quot;$(EmscriptenUpstreamBinPath)llvm-objdump$(_ExeExt)&quot; &quot;$(_WasmIntermediateOutputPath)$(AssemblyName).dll.o&quot; $(AssemblyName.Replace('.', '_'))_ &quot;$(_WasmIntermediateOutputPath)worker-aot-simd.txt&quot; $(WorkerAotSimdTypes.Replace(';', ' '))"
+          CustomErrorRegularExpression="^WorkerAot \(" StandardOutputImportance="High" />
+    <!-- Every worker's AOT compile targets wasm-simd128 (the Animation worker's SIMD proof is this argument). -->
+    <Error Condition="!$(_WorkerAotArguments.Contains(';mattr=simd;'))" Text="WorkerAot (d): the AOT compile of $(AssemblyName) is not given mattr=simd (arguments $(_WorkerAotArguments))." />
+  </Target>
+
+  <!-- Outer publish, after the nested publish: (b) the shipped native module is this publish's AOT link output and
+       carries every engine AOT module. -->
+  <Target Name="VerifyWorkerAot" AfterTargets="WasmTriggerPublishApp" DependsOnTargets="BuildWorkerAotGuard" Condition="'$(WorkerAotRole)' != 'Host'">
+    <PropertyGroup>
+      <_WorkerAotBundleDir>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(OutputPath)', 'AppBundle', '_framework'))</_WorkerAotBundleDir>
+      <_WorkerAotLinked>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'wasm', 'for-publish'))dotnet.native.wasm</_WorkerAotLinked>
+    </PropertyGroup>
+    <ItemGroup>
+      <_WorkerAotBundleAssembly Include="$(_WorkerAotBundleDir)CuriousContraptions.*.wasm" />
+    </ItemGroup>
+    <Error Condition="!Exists('$(_WorkerAotBundleDir)$(AssemblyName).wasm')" Text="WorkerAot (b): the worker bundle has no $(AssemblyName).wasm." />
+    <GetFileHash Files="$(_WorkerAotBundleDir)dotnet.native.wasm;$(_WorkerAotLinked)">
+      <Output TaskParameter="Items" ItemName="_WorkerAotNativeHash" />
+    </GetFileHash>
+    <Error Condition="'@(_WorkerAotNativeHash->Metadata('FileHash')->Distinct()->Count())' != '1'" Text="WorkerAot (b): the shipped dotnet.native.wasm is not this publish's AOT link output $(_WorkerAotLinked)." />
+    <Exec Command="&quot;$(DOTNET_HOST_PATH)&quot; &quot;$(_WorkerAotGuard)&quot; native-modules &quot;$(_WorkerAotBundleDir)dotnet.native.wasm&quot; @(_WorkerAotBundleAssembly->'%(Filename)', ' ')"
+          CustomErrorRegularExpression="^WorkerAot \(" StandardOutputImportance="High" />
+  </Target>
+
+  <!-- Web host, after its bundle is final and precompressed: its simulation/ and animation/ folders are the verified bundles. -->
+  <Target Name="VerifyWorkerAotHostBundle" AfterTargets="TwoDogWebPrecompressBundle" DependsOnTargets="BuildWorkerAotGuard" Condition="'$(WorkerAotRole)' == 'Host'">
+    <Error Condition="'@(_WorkshopWorkerBundle)' == '' or '@(_WorkshopAnimationBundle)' == ''" Text="WorkerAot (host): the host has no verified worker bundle to check." />
+    <ItemGroup>
+      <_WorkerAotHostFile Include="@(_WorkshopWorkerBundle)" Copy="$(WasmAppDir)/simulation/%(_WorkshopWorkerBundle.BundleRelativePath)" />
+      <_WorkerAotHostFile Include="@(_WorkshopAnimationBundle)" Copy="$(WasmAppDir)/animation/%(_WorkshopAnimationBundle.BundleRelativePath)" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(IntermediateOutputPath)worker-aot-host-files.txt" Lines="@(_WorkerAotHostFile->'%(FullPath)|%(Copy)')" Overwrite="true" />
+    <Exec Command="&quot;$(DOTNET_HOST_PATH)&quot; &quot;$(_WorkerAotGuard)&quot; host-copies &quot;$(IntermediateOutputPath)worker-aot-host-files.txt&quot;"
+          CustomErrorRegularExpression="^WorkerAot \(" StandardOutputImportance="High" />
+  </Target>
+</Project>

@@ -20,6 +20,8 @@ This is the required design, not a claim that the current implementation or brow
 
 The contexts must execute concurrently with rates ordered physics (120 Hz with 480 Hz substeps) > animation (60 Hz) ≥ renderer (30–60 FPS). Data flows strictly one-way: physics → animation → renderer and physics → renderer; nothing flows back into physics. Rendering never influences either worker. Browser rendering remaining on the main thread is the selected design; a fourth render worker is not required. Separate methods, tasks or asynchronous APIs on one thread do not satisfy the worker requirement. Independent .NET worker runtimes exchange bounded typed messages and owned transferable buffers; zero-copy atomic pose sharing via `SharedArrayBuffer` provides direct presentation updates without thread stalls.
 
+Both workers ship as Mono full-AOT (LLVMOnly, no interpreter) wasm-simd128 code (Story 9R.0b, 20 Oct 2026). First-load change: each worker's `dotnet.native.wasm` grows from 1.49 MB (0.56 MB brotli) to 10.4 MB / 10.0 MB (2.98 / 2.85 MB brotli), so a first visit downloads about 4.7 MB more when served compressed; local time to `ready` is unchanged at about 4.2 s, and physics ticks fall from about 3.9 ms to 0.54 ms p50 in the wired domino chain.
+
 <a id="zero-element-assumptions-design"></a>
 ### Zero Element Assumptions & Generic Combination Support
 

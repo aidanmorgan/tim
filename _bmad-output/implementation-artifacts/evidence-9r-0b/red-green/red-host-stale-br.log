@@ -1,0 +1,50 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 18 assemblies
+  Everything is up-to-date, nothing to precompile
+  IL stripping assemblies
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 1309 of 9728 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 2461 of 14336 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3648 of 19456 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Simulation.dll: 265304 of 874496 bytes rewritten
+  WORKER_AOT_COMPILE=CuriousContraptions.Simulation AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;mattr=simd engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.FlatBuffers;CuriousContraptions.Simulation
+  WORKER_AOT_SIMD_INSTRUCTIONS[WorkshopPhysicsEngine]=3
+  WORKER_AOT_SIMD_INSTRUCTIONS[PrismaticConstraintSolver]=55
+  WORKER_AOT_SIMD_INSTRUCTIONS[SoftConstraint]=8
+  WORKER_AOT_SIMD_INSTRUCTIONS=66 (per function: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/worker-aot-simd.txt)
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.FlatBuffers,CuriousContraptions.Simulation in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 17 assemblies
+  Everything is up-to-date, nothing to precompile
+  IL stripping assemblies
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 1309 of 9728 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 11449 of 43520 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.Worker.dll: 246470 of 750080 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3648 of 19456 bytes rewritten
+  WORKER_AOT_COMPILE=CuriousContraptions.Animation.Worker AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;mattr=simd engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.Animation.Worker;CuriousContraptions.FlatBuffers
+  [1/4] skipped unchanged files
+  Compiling native assets with /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/Sdk/../tools/emscripten/emcc with -Oz. This may take a while ...
+  [2/4] driver.c -> driver.o [took 0.151s]
+  [3/4] pinvoke.c -> pinvoke.o [took 0.153s]
+  [4/4] corebindings.c -> corebindings.o [took 0.167s]
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.Animation.Worker,CuriousContraptions.FlatBuffers in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation.Worker/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(114,5): error : WorkerAot (host): /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/AppBundle/simulation/_framework/dotnet.native.wasm.br is stale: it does not decompress to /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/CuriousContraptions.web.csproj]
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(114,5): error MSB3073: The command ""/opt/homebrew/Cellar/dotnet/10.0.401_1/libexec/dotnet" "/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll" host-copies "obj/Release/net10.0/browser-wasm/worker-aot-host-files.txt"" exited with code 1. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/CuriousContraptions.web.csproj]

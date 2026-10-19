@@ -1,0 +1,11 @@
+label=green-sim-clean-2 args= exit=0 seconds=29 head=385c3802 targets_sha256=4c91373b93294055
+  WORKER_AOT_COMPILE=CuriousContraptions.Simulation AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;mattr=simd engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.FlatBuffers;CuriousContraptions.Simulation
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 1309 of 9728 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 2461 of 14336 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3648 of 19456 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Simulation.dll: 265304 of 874496 bytes rewritten
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.FlatBuffers,CuriousContraptions.Simulation in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
+  WORKER_AOT_SIMD_INSTRUCTIONS[PrismaticConstraintSolver]=55
+  WORKER_AOT_SIMD_INSTRUCTIONS[SoftConstraint]=8
+  WORKER_AOT_SIMD_INSTRUCTIONS[WorkshopPhysicsEngine]=3
+  WORKER_AOT_SIMD_INSTRUCTIONS=66 (per function: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/worker-aot-simd.txt)

@@ -1,0 +1,17 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  Optimizing assemblies for size. This process might take a while.
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(59,5): error : WorkerAot (b): /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/driver-gen.c is missing. [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]

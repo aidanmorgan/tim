@@ -1,0 +1,145 @@
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/Coverage/Coverage.csproj (in 41 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/WorkerAotGuard.csproj (in 17 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WireContract/WireContract.csproj (in 0.6 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/E2eRunner/E2eRunner.csproj (in 8 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Battery/Battery.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Ball/Ball.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/SystemClock/SystemClock.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/PoweredGate/PoweredGate.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Counter/Counter.csproj (in 61 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/PressurePlate/PressurePlate.csproj (in 19 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Bumper/Bumper.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Wall/Wall.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/BallDetector/BallDetector.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/StateLatch/StateLatch.csproj (in 85 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Domino/Domino.csproj (in 61 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions.Mechanical/CuriousContraptions.Abstractions.Mechanical.csproj (in 0.9 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions.Fluid/CuriousContraptions.Abstractions.Fluid.csproj (in 0.7 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/LifecycleContract/LifecycleContract.csproj (in 0.6 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/Ownership/Ownership.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Ramp/Ramp.csproj (in 0.9 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions.Signal/CuriousContraptions.Abstractions.Signal.csproj (in 0.7 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj (in 73 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/SignalLamp/SignalLamp.csproj (in 1 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.2dog/CuriousContraptions.2dog.csproj (in 97 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/BundleElements/BundleElements.csproj (in 10 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/Coverage.Tests/Coverage.Tests.csproj (in 117 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/E2eRunner.Tests/E2eRunner.Tests.csproj (in 60 ms).
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/TraceAllocations/TraceAllocations.csproj (in 22 ms).
+  8 of 37 projects are up-to-date for restore.
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/Preview/bin/Debug/net10.0/Preview.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Ball/bin/Debug/net10.0/Ball.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Domino/bin/Debug/net10.0/Domino.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Wall/bin/Debug/net10.0/Wall.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Counter/bin/Debug/net10.0/Counter.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Battery/bin/Debug/net10.0/Battery.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (34 steps)[39m[0m
+  [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  48% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  71% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+  [92m[ DONE ][39m [1mupdate_scripts_classes[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+  [   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+  [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+  [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+  [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+  [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+  [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+  [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+  [0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+  [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+  [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+  [92m[ DONE ][39m [1mloading_editor_layout[22m
+  [0m
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:08.68

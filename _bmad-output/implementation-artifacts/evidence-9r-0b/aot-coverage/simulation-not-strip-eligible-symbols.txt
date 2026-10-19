@@ -1,0 +1,11 @@
+Compiled symbols for sampled non-strip-eligible methods (count of symbol-table lines naming each):
+WorkbenchCapacity_Validate 4
+WorkshopCommandRouter_Dispatch 2
+WorkshopGpuDevice__EnsureInitializedd__26_MoveNext 3
+ActivationRecord_CreateActivationRecord 2
+PhysicsSceneDeclaration__ctor 2
+WorkshopClockMapping_RecordLateRenewal 2
+ContactLoadSensorTracker_Measure 2
+WorkshopMemoryWire_Capture 2
+BumperAdvanced_Validate 2
+WorkshopConnections_Validate 2

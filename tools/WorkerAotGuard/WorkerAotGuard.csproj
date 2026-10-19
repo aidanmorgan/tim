@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Story 9R.0b: the byte, disassembly and bundle-copy inspections of CuriousContraptions.web/WorkerAot.targets. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>CuriousContraptions.WorkerAotGuard</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="WorkerAotGuard.Tests" />
+  </ItemGroup>
+</Project>

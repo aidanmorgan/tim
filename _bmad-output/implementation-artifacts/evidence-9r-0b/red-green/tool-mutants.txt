@@ -1,0 +1,7 @@
+  Failed CuriousContraptions.WorkerAotGuard.Tests.ChecksTests.AnAssemblyIdenticalToItsAotInputIsACheckCFinding
+  Failed CuriousContraptions.WorkerAotGuard.Tests.ChecksTests.AStaleGzipSiblingIsAFinding
+  Failed CuriousContraptions.WorkerAotGuard.Tests.ChecksTests.ANameOnlyPresentAsASuffixOfAnotherStringIsNotFound [< 1 ms]
+  Failed CuriousContraptions.WorkerAotGuard.Tests.ChecksTests.AnIdenticalHostCopyWithFreshSiblingsPasses
+  Failed CuriousContraptions.WorkerAotGuard.Tests.ChecksTests.AStaleBrotliSiblingIsAFinding
+  Failed CuriousContraptions.WorkerAotGuard.Tests.ChecksTests.SimdIsCountedPerExactNamedTypeOnly
+Failed!  - Failed:     6, Passed:    11, Skipped:     0, Total:    17, Duration: 57 ms - WorkerAotGuard.Tests.dll (net10.0)

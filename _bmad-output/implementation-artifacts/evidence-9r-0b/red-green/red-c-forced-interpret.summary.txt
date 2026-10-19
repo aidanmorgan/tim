@@ -1,0 +1,2 @@
+label=red-c-forced-interpret args= exit=1 seconds=7 head=385c3802 targets_sha256=4c91373b93294055
+/Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.WebAssembly.Sdk/10.0.12/Sdk/WasmApp.Common.targets(672,5): error : Building in AOTMode=LLVMonly is not compatible with excluding any assemblies for AOT. Excluded assembly: bin/Release/net10.0/browser-wasm/publish/CuriousContraptions.FlatBuffers.dll

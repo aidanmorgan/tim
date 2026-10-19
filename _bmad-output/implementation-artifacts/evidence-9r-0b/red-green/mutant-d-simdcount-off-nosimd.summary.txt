@@ -1,0 +1,7 @@
+label=mutant-d-simdcount-off-nosimd args=-p:WasmEnableSIMD=false exit=1 seconds=27 head=385c3802 targets_sha256=be6c5788bf6676cb
+  WORKER_AOT_COMPILE=CuriousContraptions.Simulation AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.FlatBuffers;CuriousContraptions.Simulation
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 1309 of 9728 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 2461 of 14336 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3648 of 19456 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Simulation.dll: 265304 of 874496 bytes rewritten
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(84,5): error : WorkerAot (d): the AOT compile of CuriousContraptions.Simulation is not given mattr=simd (arguments ;print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;).

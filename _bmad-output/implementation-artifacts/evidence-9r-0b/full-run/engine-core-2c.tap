@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupled Sensor Evaluation)
+    # Subtest: 1. Qualified Receiver Capture with Dwell at <= 1.5 m/s: ball settles in Receiver and triggers capture with visual halo
+    ok 1 - 1. Qualified Receiver Capture with Dwell at <= 1.5 m/s: ball settles in Receiver and triggers capture with visual halo
+      ---
+      duration_ms: 5636.5845
+      type: 'test'
+      ...
+    # Subtest: 2. Fast Through-Pass Rejection (> 1.5 m/s): high-speed transit through receiver region without dwell does NOT trigger capture
+    ok 2 - 2. Fast Through-Pass Rejection (> 1.5 m/s): high-speed transit through receiver region without dwell does NOT trigger capture
+      ---
+      duration_ms: 7979.142625
+      type: 'test'
+      ...
+    1..2
+ok 1 - ENGINE-CORE-2c: Endpoint-Sampled Sensors & Dwell Tick Counter (Decoupled Sensor Evaluation)
+  ---
+  duration_ms: 17886.878792
+  type: 'suite'
+  ...
+1..1
+# tests 2
+# suites 1
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 18166.13775

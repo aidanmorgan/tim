@@ -1,0 +1,41 @@
+Determinism greps (main-thread sources and web JS): bit-level float comparisons
+--- engine/*.cs (top level) and ui/*.cs: F32Bits / HalfBits / HasSameBits / SingleTo*Bits / BitConverter
+engine/BallMaterialResource.cs:29:        ? BitConverter.UInt16BitsToHalf((ushort)bits) : throw new ArgumentException("Invalid binary16 resource bits.");
+engine/WorkshopVisualBinding.cs:36:        var value = (float)BitConverter.UInt16BitsToHalf(AnimationValue.Blend(_neutral, _active, progress).CanonicalBits);
+--- ui/*.cs: == / != on float, Vector3 or Quaternion operands (lines mentioning those types)
+ui/PlacementShadows.cs:110:                var b = axis == 2 ? new Vector3(a.X, c.Y, a.Z) : new Vector3(c.X, a.Y, a.Z);
+ui/PlacementShadows.cs:111:                var d = axis == 2 ? new Vector3(a.X, a.Y, c.Z) : new Vector3(a.X, c.Y, c.Z);
+ui/RotationGizmo.cs:21:    private Vector3 Direction(int axis) => ResizeMode && _target != null ? _target.GlobalBasis * Axes[axis] : Axes[axis];
+ui/Workshop.cs:349:            children.Where(c => c != _paletteScroll).Sum(c => c.GetCombinedMinimumSize().Y) +
+ui/Workshop.cs:484:                if (key.Keycode == Key.Z && (key.CtrlPressed || key.MetaPressed)) Undo();
+--- CuriousContraptions.web/wwwroot/*.js: === / !== on Float32Array or getFloat32 reads
+--- tools/e2e/*.test.ts: pinned bit literals or exact float equality
+tools/e2e/anim-1a.test.ts:103:        const brightened = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 3000);
+tools/e2e/anim-1a.test.ts:109:        assert.equal(haloSample.valBits, HALF_ONE, 'Sample value must reach full blend (Half 1.0 = 15360)');
+tools/e2e/anim-1a.test.ts:193:        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 3000),
+tools/e2e/anim-1a.test.ts:229:        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 3000),
+tools/e2e/anim-1a.test.ts:234:        assert.equal(reHaloSample.valBits, HALF_ONE, 'Re-activated halo sample must reach full blend');
+tools/e2e/anim-1b.test.ts:66:        const pressed = await waitFor(async () => (await driver.readLastAnimationSample(SWITCH_TARGET))?.valBits === 15360, 8000);
+tools/e2e/anim-1b.test.ts:95:        const lit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === 15360, 10000);
+tools/e2e/anim-1b.test.ts:125:        const relit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === 15360, 10000);
+tools/e2e/anim-1c.test.ts:78:        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
+tools/e2e/anim-1c.test.ts:87:        const solved = await waitFor(async () => (await driver.readLastAnimationSample(GOAL_TARGET))?.valBits === HALF_ONE, 5000);
+tools/e2e/anim-1c.test.ts:110:        const recaptured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
+tools/e2e/anim-1c.test.ts:137:            return fresh.some((s: AnimationSampleRecord) => s.value < 1) && fresh[fresh.length - 1]?.valBits === HALF_ONE;
+tools/e2e/anim-1c.test.ts:152:        assert.ok((await driver.readLastAnimationSample(SWITCH_TARGET))?.valBits === HALF_ONE, 'Switch depression already reached 1');
+tools/e2e/anim-1c.test.ts:173:            return fresh.some((s: AnimationSampleRecord) => s.value < 1) && fresh[fresh.length - 1]?.valBits === HALF_ONE;
+tools/e2e/anim-1c.test.ts:197:        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
+tools/e2e/cat-002.test.ts:81:            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
+tools/e2e/cat-002.test.ts:201:            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
+tools/e2e/cat-002.test.ts:212:            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
+tools/e2e/cat-002.test.ts:260:            return all.length >= 2 && all.some((s: AnimationSampleRecord) => s.valBits === 15360 || s.value >= 0.5);
+tools/e2e/cat-014.test.ts:270:        const captured = await waitFor(async () => (await driver.readLastAnimationSample(RECEIVER_HALO_TARGET))?.valBits === HALF_ONE, 12000);
+tools/e2e/cat-023b.test.ts:195:        const lit = await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000);
+tools/e2e/cat-023b.test.ts:279:        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The loaded lamp lights');
+tools/e2e/cat-023b.test.ts:290:        assert.ok(await waitFor(async () => (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE, 3000), 'The lamp reaches full glow again');
+tools/e2e/cat-062b.test.ts:149:    assert.equal(savedFb.magic(),0x53574343);
+tools/e2e/clock-master.test.ts:180:            lit = (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE;
+tools/e2e/clock-master.test.ts:339:            lit = (await driver.readLastAnimationSample(LAMP_TARGET))?.valBits === HALF_ONE;
+tools/e2e/clock-master.test.ts:341:        const rising = lamp.find(sample => sample.valBits !== 0);
+tools/e2e/clock-master.test.ts:342:        const full = lamp.find(sample => sample.valBits === HALF_ONE);
+tools/e2e/clock-master.test.ts:347:        assert.ok(rising.valBits !== HALF_ONE, 'the first lit lamp sample is partial');

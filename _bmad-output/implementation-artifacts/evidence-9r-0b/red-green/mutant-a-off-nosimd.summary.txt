@@ -1,0 +1,14 @@
+label=mutant-a-off-nosimd args=-p:WasmEnableSIMD=false exit=1 seconds=28 head=385c3802 targets_sha256=4875a69dcc609ae2
+  WORKER_AOT_COMPILE=CuriousContraptions.Simulation AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.FlatBuffers;CuriousContraptions.Simulation
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 1309 of 9728 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 2461 of 14336 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3648 of 19456 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Simulation.dll: 265304 of 874496 bytes rewritten
+  WORKER_AOT_SIMD_INSTRUCTIONS[PrismaticConstraintSolver]=0
+  WORKER_AOT_SIMD_INSTRUCTIONS[SoftConstraint]=0
+  WORKER_AOT_SIMD_INSTRUCTIONS[WorkshopPhysicsEngine]=0
+  WORKER_AOT_SIMD_INSTRUCTIONS=0 (per function: /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/worker-aot-simd.txt)
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(80,5): error : WorkerAot (d): no f32x4 arithmetic in any PrismaticConstraintSolver function of /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/CuriousContraptions.Simulation.dll.o.
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(80,5): error : WorkerAot (d): no f32x4 arithmetic in any SoftConstraint function of /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/CuriousContraptions.Simulation.dll.o.
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(80,5): error : WorkerAot (d): no f32x4 arithmetic in any WorkshopPhysicsEngine function of /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/CuriousContraptions.Simulation.dll.o.
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(80,5): error MSB3073: The command ""/opt/homebrew/Cellar/dotnet/10.0.401_1/libexec/dotnet" "/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll" simd "/Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscri

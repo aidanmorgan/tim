@@ -1,0 +1,15 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  Optimizing assemblies for size. This process might take a while.
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 18 assemblies
+/Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.WebAssembly.Sdk/10.0.12/Sdk/WasmApp.Common.targets(672,5): error : Building in AOTMode=LLVMonly is not compatible with excluding any assemblies for AOT. Excluded assembly: bin/Release/net10.0/browser-wasm/publish/CuriousContraptions.FlatBuffers.dll [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]

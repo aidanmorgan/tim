@@ -1,0 +1,3 @@
+label=mutant-c-allmode-off-aotmode-interp args=-p:AOTMode=LLVMOnlyInterp exit=0 seconds=28 head=385c3802 targets_sha256=573c45a9240feb3c
+  WORKER_AOT_COMPILE=CuriousContraptions.Simulation AOTMode=LLVMOnlyInterp arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;mattr=simd engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.FlatBuffers;CuriousContraptions.Simulation
+  WORKER_AOT_MODULES=CuriousContraptions.Abstractions,CuriousContraptions.Animation,CuriousContraptions.FlatBuffers,CuriousContraptions.Simulation in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/AppBundle/_framework/dotnet.native.wasm
