@@ -194,29 +194,106 @@ public sealed class PoweredGateTests(NativeSceneFixture godot)
         Assert.Empty(scene.Electrical.Bindings.ToArray());
     }
 
-    [Fact]
-    public void PhysicsCompiler_WiredToBattery_SetsBladeLinearDragAndExcludesFromElectricalBindings()
+    private static WorkshopConnection Supply(GpuBodyId source, GpuBodyId target) =>
+        new(source, WorkshopSocket.Supply, target, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+    private static WorkshopGenericInstance Gate(ulong id, double z = 0) =>
+        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, 0, z, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+    private static WorkshopBattery Battery(ulong id, ElectricalEnable enabled, double z = 0) =>
+        WorkshopInput.Battery(new(id), 2, 0, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = enabled });
+
+    // Story 9R.3: a battery wired straight to the gate compiles one Direct route row whatever its authored enable; the blade
+    // carries no mode-encoding drag and the gate (an actuator, not a contact work store) has no electrical binding.
+    [Theory]
+    [InlineData(ElectricalEnable.Disabled)]
+    [InlineData(ElectricalEnable.Enabled)]
+    public void PhysicsCompiler_DirectBatteryCompilesOneDirectRouteWhateverItsAuthoredEnable(ElectricalEnable authored)
     {
-        var gate = WorkshopInput.Generic(PartId.PoweredGate, new(1), 0, 0, 0, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
-        var battery = WorkshopInput.Battery(new(2), 2, 0, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default);
-        var link = new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
-
-        var construction = new WorkshopConstruction(
-            new(1),
-            WorkshopCadenceSettings.Default(),
-            new([gate, battery]),
-            Connections: new([link]));
-
+        var gate = Gate(1); var battery = Battery(2, authored);
+        var construction = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([gate, battery]),
+            Connections: new([Supply(battery.Id, gate.Id)]));
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 1));
 
-        var bladeId = WorkshopPhysicsCompiler.GateBlade(gate.Id);
-        var gateBlade = scene.Bodies.ToArray().Single(b => b.Id == bladeId);
-        Assert.Equal((Half)0.0625f, gateBlade.LinearDrag.Value); // Wired to enabled battery -> 0.0625
-
-        // Electrical source exists (battery)
-        Assert.Single(scene.Electrical.Sources.ToArray());
-        // But Electrical bindings must NOT include gate (gate is an actuator, not a contact work store)
+        var route = Assert.Single(scene.SupplyRoutes.ToArray());
+        Assert.Equal((SupplyRouteKind.Direct, default(GpuBodyId)), (route.Kind, route.Switch));
+        Assert.Equal(gate.Id, scene.Prismatics[route.Prismatic].BodyA);
+        Assert.Equal(battery.Id, scene.Electrical.Sources[route.Source].Owner);
+        Assert.Equal((Half)0f, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
         Assert.Empty(scene.Electrical.Bindings.ToArray());
+    }
+
+    // A direct route closes only while its own source's player control is Enabled, and never consults a switch contact.
+    [Fact]
+    public void Compose_ClosesADirectRouteOnlyWhileItsOwnSourceIsEnabled()
+    {
+        var gate = Gate(1); var battery = Battery(2, ElectricalEnable.Disabled);
+        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([gate, battery]),
+            Connections: new([Supply(battery.Id, gate.Id)])), new(1, 1));
+        var route = Assert.Single(scene.SupplyRoutes.ToArray());
+        bool NoContact(GpuBodyId owner) => throw new InvalidOperationException($"A direct route asked for the contact of {owner.Value}.");
+        Assert.True(PhysicsTickInputs.Compose(scene.SupplyRoutes, scene.Prismatics.Length, new([ElectricalEnable.Enabled]), NoContact)
+            .SupplyClosed[route.Prismatic]);
+        Assert.False(PhysicsTickInputs.Compose(scene.SupplyRoutes, scene.Prismatics.Length, new([ElectricalEnable.Disabled]), NoContact)
+            .SupplyClosed[route.Prismatic]);
+    }
+
+    // Two batteries each wired to their own gate compile two Direct rows with distinct sources; each closes from its own enable.
+    [Fact]
+    public void PhysicsCompiler_TwoCircuitsCompileTwoDirectRoutesWithDistinctSources()
+    {
+        var gate1 = Gate(1, -3); var gate2 = Gate(2, 3);
+        var battery1 = Battery(3, ElectricalEnable.Enabled, -3); var battery2 = Battery(4, ElectricalEnable.Enabled, 3);
+        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(),
+            new([gate1, gate2, battery1, battery2]), Connections: new([Supply(battery1.Id, gate1.Id), Supply(battery2.Id, gate2.Id)])), new(1, 1));
+        var routes = scene.SupplyRoutes.ToArray();
+        Assert.Equal(2, routes.Length);
+        Assert.All(routes, route => Assert.Equal(SupplyRouteKind.Direct, route.Kind));
+        var route1 = Assert.Single(routes, route => scene.Prismatics[route.Prismatic].BodyA == gate1.Id);
+        var route2 = Assert.Single(routes, route => scene.Prismatics[route.Prismatic].BodyA == gate2.Id);
+        Assert.Equal(battery1.Id, scene.Electrical.Sources[route1.Source].Owner);
+        Assert.Equal(battery2.Id, scene.Electrical.Sources[route2.Source].Owner);
+
+        var enables = new ElectricalEnable[2];
+        enables[route1.Source] = ElectricalEnable.Disabled; enables[route2.Source] = ElectricalEnable.Enabled;
+        var closed = PhysicsTickInputs.Compose(scene.SupplyRoutes, scene.Prismatics.Length, new(enables), _ => true).SupplyClosed;
+        Assert.False(closed[route1.Prismatic]);
+        Assert.True(closed[route2.Prismatic]);
+    }
+
+    // Story 9R.3 D3 interim (until Story 9R.4): a Battery → Plate → Gate chain compiles a Direct row from the plate's battery and
+    // the plate band's blade drag, whatever the battery's authored enable.
+    [Theory]
+    [InlineData(ElectricalEnable.Disabled)]
+    [InlineData(ElectricalEnable.Enabled)]
+    public void PhysicsCompiler_PlateChainCompilesADirectRowFromThePlatesBattery(ElectricalEnable authored)
+    {
+        var gate = Gate(1); var battery = Battery(2, authored);
+        var plate = WorkshopInput.PressurePlate(new(3), -2, 0, 0, 0, 0, 0, 1, WorkshopPressurePlate.PlacedMinimumMass);
+        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([gate, battery, plate]),
+            Connections: new([Supply(battery.Id, plate.Id), Supply(plate.Id, gate.Id)])), new(1, 1));
+        var route = Assert.Single(scene.SupplyRoutes.ToArray());
+        Assert.Equal((SupplyRouteKind.Direct, default(GpuBodyId)), (route.Kind, route.Switch));
+        Assert.Equal(battery.Id, scene.Electrical.Sources[route.Source].Owner);
+        Assert.Equal((Half)0.09375f, scene.Bodies.ToArray().Single(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id)).LinearDrag.Value);
+    }
+
+    // Per-kind admission: a Direct row names no switch, a Switched row names a static switch, an undefined kind is rejected.
+    [Fact]
+    public void SceneAdmission_RejectsASupplyRouteThatDoesNotMatchItsKind()
+    {
+        var gate = Gate(1); var battery = Battery(2, ElectricalEnable.Enabled);
+        var scene = WorkshopPhysicsCompiler.Compile(new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new([gate, battery]),
+            Connections: new([Supply(battery.Id, gate.Id)])), new(1, 1));
+        var prismatic = scene.Prismatics[0].Id;
+        var source = scene.Electrical.Sources[0].Id;
+        PhysicsSceneDeclaration Admit(SupplyRouteDeclaration route) => new(scene.Document, scene.NextIdentity, scene.Bodies, scene.Colliders,
+            scene.Materials, scene.Sensors, scene.Guides, scene.Triggers, scene.ContactWorks, scene.OrientationSensors,
+            scene.Electrical.Sources, scene.Electrical.Bindings, scene.Prismatics, [route]);
+        Assert.Equal(SupplyRouteKind.Direct, Assert.Single(Admit(new(prismatic, source, SupplyRouteKind.Direct, default)).SupplyRoutes.ToArray()).Kind);
+        Assert.Throws<ArgumentException>(() => Admit(new(prismatic, source, SupplyRouteKind.Direct, gate.Id)));
+        Assert.Throws<ArgumentException>(() => Admit(new(prismatic, source, SupplyRouteKind.Switched, default)));
+        Assert.Throws<ArgumentException>(() => Admit(new(prismatic, source, SupplyRouteKind.Switched, WorkshopPhysicsCompiler.GateBlade(gate.Id))));
+        Assert.Equal(gate.Id, Assert.Single(Admit(new(prismatic, source, SupplyRouteKind.Switched, gate.Id)).SupplyRoutes.ToArray()).Switch);
+        Assert.Throws<ArgumentException>(() => Admit(new(prismatic, source, (SupplyRouteKind)3, default)));
     }
 
     [Fact]

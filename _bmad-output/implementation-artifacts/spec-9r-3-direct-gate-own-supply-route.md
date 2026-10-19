@@ -133,9 +133,65 @@ Line numbers are from the working tree on 18 Oct 2026, before Story 9.4b's commi
 
 ## Implementation Notes
 
+Refreshed against main `9b9d26e5` (9.4b, 9R.0, 9R.0b, 9R.1, 9R.2 landed); symbols are authoritative.
+
+- **D1.** `engine/gpu/SwitchedSupply.cs` → `engine/gpu/SupplyRoute.cs` (`SupplyRouteKind`, `SupplyRouteDeclaration`, `SupplyRoute`,
+  `PhysicsTickInputs.SupplyClosed`); `PhysicsSceneDeclaration.SupplyRoutes`; `SimJoint.SupplyClosed`. No `Switched*` type,
+  member or alias remains. `Compose` is `enabled && (Kind == Direct || contactClosed(Switch))`, so a Direct row never calls
+  `ActivationNetwork.ContactClosed` (which throws for non-switch owners).
+- **Admission** (`PhysicsSceneDeclaration`): one row per prismatic; Direct ⇒ `Switch == default`; Switched ⇒ admitted static switch;
+  an undefined kind is rejected.
+- **Compiler.** One `SupplyFeed` resolves the single supplier of a gate's PowerIn (a PowerIn takes one supplier,
+  `WorkshopConnections.Validate`): Battery → Direct; Latch/Counter ← Battery → Switched; Plate ← Battery → Direct (D3). The route is
+  added inside the gate's own compile; `isDirectlyPowered`, the 0.0625 literal and every authored-enable test are gone. The plate
+  band's 0.09375 drag is compiled from the chain alone, whatever the battery's authored enable.
+- **Solver/engine (D2, D3).** `ActuatorSliderDrive(joints, plateLoaded, dt)` drives exactly the joints whose `SupplyClosed` is
+  true, targets `joint.Upper`, and keeps the plate interim as `!(plate band) || plateLoaded`. `batteryPowered` is deleted; the
+  warm-up joint sets `SupplyClosed = true` so the drive path still warms.
+- **D4.** `WorkshopSimulation.Reset` clears `_electricalControls` immediately after `_device.Commit`.
+- **Ratchet** (`WorkshopPhysicsLawTests`): deleted the two 9R3 rows (0.0625 encoding, 0.03–0.08 band), the engine `batteryPowered`
+  row and the `joint.Upper - 1.55f` recognition row (code gone); re-counted the drive literals (`2.8f|14f`, 5 → 4, the
+  `1.55f - pos` alternative removed with its code) and the drive identifiers (`gatePowered|plateLoaded`, 7 → 4); removed the unused
+  `ViolationOwner.Story9R3` and the `SwitchedSupplyClosed` generic identifier; lowered the frozen totals to 10 entries / 40 matches;
+  `KnownViolationsSha256` recomputed from the test's own failure message.
+- **Chrome suite** `tools/e2e/cat-051-own-supply.test.ts`, declared in `tools/E2eRunner/SuiteCatalogue.cs`: `SerialAlone`
+  (owner-named, coordinator decision after Murdoch-9: a new suite starts SerialAlone until calibration qualifies it; it samples
+  over wall-clock windows), with no primary element so cat-051 stays the Powered Gate's primary suite (a gate change still selects
+  it as a placer). The first full run (`bcc83118`) ran it on a Parallel worker.
+
 ## Spec Change Log
 
+- **20 Oct 2026, design review (coordinator-forwarded), dispositions:**
+  1. Ratchet rows: applied as above; `WorkshopPhysicsLawTests` added to the impacted native suites.
+  2. Mutation #4 changed to "drop the `SupplyClosed` check, with no detection"; a native unpowered-gate test added
+     (`WorkshopPhysicsEngineTests.AnUnpoweredGateStaysClosed`). See the Triage Log for the `WorkshopSpringboardTests` outcome.
+  3. D4 native Reset test added (`WorkshopSimulationTests.ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem`):
+     a cancelled Reset keeps the in-run control, a committed one restores the authored enable.
+  4. No hand-set inputs: every engine test drives `WorkshopSimulation.ConfigureElectrical` between `Advance`s; pre-asserts added
+     (closed before Enable; both open before B1 is disabled, G2 open throughout afterwards), and the same in Chrome.
+  5. D3 interim: the plate-fed gate's 0.09375 drag-band recognition stays as a named interim exception owned by Story 9R.4 and
+     9A.19. It is recorded here and in code comments, not in Boundaries, because Boundaries is inside the frozen block.
+  6. Battery charge: "enable only". The zero-charge boundary is dropped from the Design Notes; supply from remaining charge is a
+     follow-up, not this story.
+  7. Stale line references: superseded by the symbol-based Implementation Notes above; `Compose` evaluates the kind first.
+
 ## Review Triage Log
+
+- **Full run 1 (`bcc83118`, run `20261019T222832Z-84166`): Fail, 35/36 files.** The one failure is cat-062 "Springboard authored
+  configuration SoftUndamped": a 120 s `testTimeoutFailure` with no assertion, on Parallel worker slot 1; the suite's other six
+  tests pass (`evidence-9r-3/full-run-1/`). The diff does not change Springboard physics: its prismatic (`Upper = 0`) was never
+  matched by the deleted 1.55 m recognition and has no supply route now, so it is undriven before and after. Not retried into
+  green; a 5× repeat of cat-062 needs the coordinator's go-ahead.
+
+- **Mutation #4 cannot fail `WorkshopSpringboardTests` as written.** That suite never steps the engine, and the engine's
+  Springboard test (`ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine`) survives the mutant: driving the springboard
+  prismatic toward its `Upper = 0` is within its tolerances. The mutant is killed by `AnUnpoweredGateStaysClosed` and three other
+  engine tests (`evidence-9r-3/mutant-4-no-route-check.log`). No springboard test was added for the letter of the plan.
+- **Filed, needs a coordinator decision on the frozen matrix row "Authored Disabled, enabled in run → the ball passes".** On the
+  cat-051 bench (gate tilted −15°) a ball resting against the closed blade is ejected back out of the entry mouth when the blade
+  rises: the blade's prismatic axis leans upstream and the stroke law shoves the ball. The drive law and contact code are unchanged
+  by this story; the case is newly reachable because in-run Enable now works. Chrome asserts what the epics AC requires (the gate
+  opens on in-run Enable and releases the held ball). Proposed owner: Story 9.4c (mid-stroke blade/ball law) with 9A.19 (drive).
 
 ## Design Notes
 
@@ -158,18 +214,19 @@ Line numbers are from the working tree on 18 Oct 2026, before Story 9.4b's commi
    - Save/Load.
 3. Boundaries:
    - Enable pressed at Paused, then Resume;
-   - Disable mid-stroke (the blade falls closed under the existing spring; full CAT-051 mid-stroke law is Story 9.4c);
-   - a battery with zero remaining charge is not "Enabled" power. Assert existing `ElectricalSupply` behaviour is unchanged.
+   - Disable mid-stroke (the blade falls closed under the existing spring; full CAT-051 mid-stroke law is Story 9.4c).
+   - Gate power is the enable only (coordinator decision, 20 Oct); supply from remaining charge is a follow-up.
 
 **Mutation plan:**
 1. `Compose` uses "any source enabled", so the two-circuit test fails.
 2. Compile a `Direct` row only when authored `Enabled`, so the in-run Enable test fails.
 3. `Compose` ignores the enable for `Direct`, so the Disable test fails.
-4. Re-add the 1.55 joint detection while dropping the route check, so a Springboard prismatic is driven and `WorkshopSpringboardTests` fails.
-5. Skip D4, so a native Reset test that reads `ElectricalState` in Build fails.
+4. Drop the `SupplyClosed` check, with no detection (design review); see the Triage Log.
+5. Skip D4, so a native Reset test that reads `ElectricalState` in Build fails; also clear before `_device.Commit`.
+6. `Compose` consults the contact before the kind, so a Direct row asks a non-switch for its contact.
 
 **Impacted suites:**
-- Native: `PoweredGateTests`, `StateLatchTests`, `CounterTests`, `ClockTests`, `PressurePlateTests`, `WorkshopPhysicsEngineTests`, `WorkshopGpuDeviceTests`, `ElectricalSupplyTests`, `WorkshopSpringboardTests`.
+- Native: `PoweredGateTests`, `StateLatchTests`, `CounterTests`, `ClockTests`, `PressurePlateTests`, `WorkshopPhysicsEngineTests`, `WorkshopGpuDeviceTests`, `ElectricalSupplyTests`, `WorkshopSpringboardTests`, `WorkshopPhysicsLawTests`, `WorkshopSimulationTests`.
 - Chrome: cat-051, cat-051-own-supply, cat-052, cat-037, cat-017, cat-020, cat-005, then the full serial run.
 
 **Risks.**

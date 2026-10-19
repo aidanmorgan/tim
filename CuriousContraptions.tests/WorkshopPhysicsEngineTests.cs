@@ -365,7 +365,7 @@ public sealed class WorkshopPhysicsEngineTests
         Assert.Equal(original.OrientationSensors.ToArray(), unshifted.OrientationSensors.ToArray());
         Assert.Equal(original.Electrical.Sources.ToArray(), unshifted.Electrical.Sources.ToArray());
         Assert.Equal(original.Electrical.Bindings.ToArray(), unshifted.Electrical.Bindings.ToArray());
-        Assert.Equal(original.SwitchedSupplies.ToArray(), unshifted.SwitchedSupplies.ToArray());
+        Assert.Equal(original.SupplyRoutes.ToArray(), unshifted.SupplyRoutes.ToArray());
         EditRefusal.Is(WorkshopEditRejection.FixedPart, () => WorkshopPhysicsCompiler.Compile(construction.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2)));
         var scene = WorkshopPhysicsCompiler.Compile(freePlay.WithInstance(receiver with { Cell = position.Cell, Local = position.Local }), new(1, 2));
         var moved = scene.Bodies.ToArray().Single(b => b.Id == receiver.Id);
@@ -530,6 +530,90 @@ public sealed class WorkshopPhysicsEngineTests
         });
         if (topples) Assert.True(maximumTilt > 60, $"{mass} kg {ballKind} topples the tile (max {maximumTilt:F1} deg)");
         else Assert.True(maximumTilt is > 1 and < 20, $"{mass} kg {ballKind} strikes but only rocks the tile (max {maximumTilt:F1} deg)");
+    }
+
+    // Story 9R.3: each directly wired Powered Gate follows its own battery's committed player enable during a run. Every bench runs
+    // the production WorkshopSimulation; the only player input is the typed in-run ConfigureElectrical command between Advances.
+    private const float GateHeight = 3f;
+    private static WorkshopGenericInstance Gate(ulong id, double z) =>
+        WorkshopInput.Generic(PartId.PoweredGate, new(id), 0, GateHeight, z, 0, 0, 0, 1, WorkshopCanonicalColliders.PoweredGateColliders);
+    private static WorkshopBattery Battery(ulong id, double z, ElectricalEnable enabled) =>
+        WorkshopInput.Battery(new(id), 3, GateHeight, z, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = enabled });
+    private static WorkshopConnection Wire(GpuBodyId battery, GpuBodyId gate) =>
+        new(battery, WorkshopSocket.Supply, gate, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical);
+    /// <summary>The blade's travel along its prismatic above the gate frame (closed ≈ 0, fully open ≈ 1.55 m).</summary>
+    private static float Travel(WorkshopRead read, WorkshopGenericInstance gate) =>
+        Height(Find(read.Bodies, WorkshopPhysicsCompiler.GateBlade(gate.Id))) - GateHeight;
+    private const float ClosedTravel = .2f, OpenTravel = 1.3f;
+
+    /// <summary>Runs the construction through the production simulation in phases: each phase first applies its in-run supply
+    /// controls through ConfigureElectrical, then advances its ticks. Returns every phase's committed reads.</summary>
+    private static async Task<List<List<WorkshopRead>>> RunPhases(WorkshopConstruction construction,
+        params (WorkshopElectricalControl[] Controls, int Ticks)[] phases)
+    {
+        await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
+        await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
+            GpuDeviceOwnership.Borrowed);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Initialize()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Construct(construction)).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        var result = new List<List<WorkshopRead>>();
+        foreach (var (controls, ticks) in phases)
+        {
+            foreach (var control in controls) Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(control).Outcome);
+            var reads = new List<WorkshopRead>(ticks);
+            for (var tick = 0; tick < ticks; tick++)
+            {
+                Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Advance()).Outcome);
+                reads.Add(simulation.Committed);
+            }
+            result.Add(reads);
+        }
+        return result;
+    }
+
+    [Fact]
+    public async Task AnAuthoredDisabledBatteryOpensItsGateWhenEnabledInRun()
+    {
+        var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Disabled);
+        var phases = await RunPhases(Free(gate, battery) with { Connections = new(Wire(battery.Id, gate.Id)) },
+            ([], TicksPerSecond), ([new(battery.Id, ElectricalEnable.Enabled)], 2 * TicksPerSecond));
+        Assert.All(phases[0], read => Assert.True(Travel(read, gate) < ClosedTravel, $"closed before Enable, travel {Travel(read, gate)}"));
+        Assert.True(Travel(phases[1][^1], gate) > OpenTravel, $"open after in-run Enable, travel {Travel(phases[1][^1], gate)}");
+    }
+
+    [Fact]
+    public async Task AnEnabledBatteryClosesItsGateWhenDisabledInRun()
+    {
+        var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Enabled);
+        var phases = await RunPhases(Free(gate, battery) with { Connections = new(Wire(battery.Id, gate.Id)) },
+            ([], 2 * TicksPerSecond), ([new(battery.Id, ElectricalEnable.Disabled)], 2 * TicksPerSecond));
+        Assert.True(Travel(phases[0][^1], gate) > OpenTravel, $"open before Disable, travel {Travel(phases[0][^1], gate)}");
+        Assert.True(Travel(phases[1][^1], gate) < ClosedTravel, $"closed after in-run Disable, travel {Travel(phases[1][^1], gate)}");
+    }
+
+    // Negative control for the deleted global battery flag: disabling one circuit leaves the other gate open throughout.
+    [Fact]
+    public async Task TwoCircuitsAreIndependent()
+    {
+        var gate1 = Gate(1, -3); var gate2 = Gate(2, 3);
+        var battery1 = Battery(3, -3, ElectricalEnable.Enabled); var battery2 = Battery(4, 3, ElectricalEnable.Enabled);
+        var phases = await RunPhases(Free(gate1, gate2, battery1, battery2) with
+            { Connections = new(Wire(battery1.Id, gate1.Id), Wire(battery2.Id, gate2.Id)) },
+            ([], 2 * TicksPerSecond), ([new(battery1.Id, ElectricalEnable.Disabled)], 2 * TicksPerSecond));
+        Assert.True(Travel(phases[0][^1], gate1) > OpenTravel && Travel(phases[0][^1], gate2) > OpenTravel, "both gates open before B1 is disabled");
+        Assert.True(Travel(phases[1][^1], gate1) < ClosedTravel, $"G1 closes, travel {Travel(phases[1][^1], gate1)}");
+        Assert.All(phases[1], read => Assert.True(Travel(read, gate2) > OpenTravel, $"G2 stays open, travel {Travel(read, gate2)}"));
+    }
+
+    // Control: a gate with no supply stays closed even while an unwired battery on the bench is enabled in run.
+    [Fact]
+    public async Task AnUnpoweredGateStaysClosed()
+    {
+        var gate = Gate(1, 0); var battery = Battery(2, 0, ElectricalEnable.Disabled);
+        var phases = await RunPhases(Free(gate, battery),
+            ([], TicksPerSecond), ([new(battery.Id, ElectricalEnable.Enabled)], 2 * TicksPerSecond));
+        Assert.All(phases.SelectMany(reads => reads), read => Assert.True(Travel(read, gate) < ClosedTravel, $"travel {Travel(read, gate)}"));
     }
 
     internal sealed class StepClock : IWorkshopCaptureClock

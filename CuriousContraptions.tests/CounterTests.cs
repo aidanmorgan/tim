@@ -230,7 +230,7 @@ public sealed class CounterTests(NativeSceneFixture godot)
         var scenePowered = WorkshopPhysicsCompiler.Compile(constructionPowered, new(1, 1));
         var bladePowered = scenePowered.Bodies.ToArray().First(b => b.Id == WorkshopPhysicsCompiler.GateBlade(gate.Id));
         Assert.Equal((Half)0f, bladePowered.LinearDrag.Value);
-        var route = Assert.Single(scenePowered.SwitchedSupplies.ToArray());
+        var route = Assert.Single(scenePowered.SupplyRoutes.ToArray());
         Assert.Equal(counter.Id, route.Switch);
         Assert.Equal(battery.Id, scenePowered.Electrical.Sources[route.Source].Owner);
     }

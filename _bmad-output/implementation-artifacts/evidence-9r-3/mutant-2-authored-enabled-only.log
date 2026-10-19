@@ -1,0 +1,58 @@
+195:                if (feed is { } supplied && construction.Instances.OfType<WorkshopBattery>().Single(b => b.Id == supplied.Battery).Settings.Enabled == ElectricalEnable.Enabled)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `FullyQualifiedName~PoweredGateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~WorkshopPhysicsEngineTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+
+No test matches the given testcase filter `FullyQualifiedName~PoweredGateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~WorkshopPhysicsEngineTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+No test matches the given testcase filter `FullyQualifiedName~PoweredGateTests|FullyQualifiedName~StateLatchTests|FullyQualifiedName~WorkshopPhysicsEngineTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+
+
+[xUnit.net 00:00:02.07]     CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnAuthoredDisabledBatteryOpensItsGateWhenEnabledInRun [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnAuthoredDisabledBatteryOpensItsGateWhenEnabledInRun [35 ms]
+  Error Message:
+   open after in-run Enable, travel 0
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopPhysicsEngineTests.AnAuthoredDisabledBatteryOpensItsGateWhenEnabledInRun() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/WorkshopPhysicsEngineTests.cs:line 582
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:03.00]     CuriousContraptions.Tests.PoweredGateTests.PhysicsCompiler_DirectBatteryCompilesOneDirectRouteWhateverItsAuthoredEnable(authored: Disabled) [FAIL]
+[xUnit.net 00:00:03.01]     CuriousContraptions.Tests.PoweredGateTests.PhysicsCompiler_PlateChainCompilesADirectRowFromThePlatesBattery(authored: Disabled) [FAIL]
+  Failed CuriousContraptions.Tests.PoweredGateTests.PhysicsCompiler_DirectBatteryCompilesOneDirectRouteWhateverItsAuthoredEnable(authored: Disabled) [< 1 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.PoweredGateTests.PhysicsCompiler_DirectBatteryCompilesOneDirectRouteWhateverItsAuthoredEnable(ElectricalEnable authored) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/PoweredGateTests.cs:line 216
+   at InvokeStub_PoweredGateTests.PhysicsCompiler_DirectBatteryCompilesOneDirectRouteWhateverItsAuthoredEnable(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed CuriousContraptions.Tests.PoweredGateTests.PhysicsCompiler_PlateChainCompilesADirectRowFromThePlatesBattery(authored: Disabled) [1 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.PoweredGateTests.PhysicsCompiler_PlateChainCompilesADirectRowFromThePlatesBattery(ElectricalEnable authored) in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/PoweredGateTests.cs:line 273
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.03]     CuriousContraptions.Tests.PoweredGateTests.Compose_ClosesADirectRouteOnlyWhileItsOwnSourceIsEnabled [FAIL]
+  Failed CuriousContraptions.Tests.PoweredGateTests.Compose_ClosesADirectRouteOnlyWhileItsOwnSourceIsEnabled [< 1 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at CuriousContraptions.Tests.PoweredGateTests.Compose_ClosesADirectRouteOnlyWhileItsOwnSourceIsEnabled() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/PoweredGateTests.cs:line 231
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+[xUnit.net 00:00:03.06]     CuriousContraptions.Tests.StateLatchTests.Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute [FAIL]
+  Failed CuriousContraptions.Tests.StateLatchTests.Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute [2 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   1
+  Stack Trace:
+     at CuriousContraptions.Tests.StateLatchTests.Compiler_TwoSwitchedGatesEachFollowOnlyTheirOwnRoute() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/StateLatchTests.cs:line 410
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     5, Passed:    76, Skipped:     0, Total:    81, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)

@@ -31,8 +31,9 @@ internal sealed class SimJoint
     public float Upper;
     public SoftConstraintCoefficients Soft;
     public uint Collision;
-    /// <summary>Refreshed each tick from the committed switched route (State Latch or Counter contact) feeding the frame owner's PowerIn.</summary>
-    public bool SwitchedSupplyClosed;
+    /// <summary>Refreshed each tick from the compiled supply route feeding the frame owner's PowerIn: closed while its battery is
+    /// enabled and, for a switched route, its State Latch or Counter contact is closed.</summary>
+    public bool SupplyClosed;
     public float[] Impulses = new float[8];
     public ConstraintRowData[] Rows = new ConstraintRowData[8];
 }
@@ -234,19 +235,21 @@ internal static class PrismaticConstraintSolver
         }
     }
 
-    public static void ActuatorSliderDrive(List<SimJoint> joints, bool batteryPowered, bool plateLoaded, float dt)
+    /// <summary>Drives exactly the prismatics whose compiled supply route is closed this tick (SimJoint.SupplyClosed) toward their
+    /// upper limit. Only Powered Gates compile routes, so no joint is recognised by its geometry.</summary>
+    public static void ActuatorSliderDrive(List<SimJoint> joints, bool plateLoaded, float dt)
     {
         foreach (var joint in joints)
         {
-            if (joint.Lower == 0f && MathF.Abs(joint.Upper - 1.55f) < 0.01f)
+            if (joint.SupplyClosed)
             {
                 var b = joint.B;
                 var frame = joint.A;
                 if (b == null || frame == null) continue;
 
-                var gatePowered = (b.Drag > 0.03f && b.Drag < 0.08f && batteryPowered) ||
-                                  (b.Drag >= 0.08f && b.Drag < 0.11f && batteryPowered && plateLoaded) ||
-                                  joint.SwitchedSupplyClosed;
+                // Story 9R.3 D3 interim (Story 9R.4 replaces it with a per-plate switched row): a plate-fed gate's supplied route
+                // drives only while the plate is loaded.
+                var gatePowered = !(b.Drag >= 0.08f && b.Drag < 0.11f) || plateLoaded;
 
                 if (gatePowered)
                 {
@@ -254,7 +257,7 @@ internal static class PrismaticConstraintSolver
                     var rel = b.Position - frame.Position;
                     var pos = Vector3.Dot(rel, frameUp);
                     var currentSpeed = Vector3.Dot(b.LinearVelocity, frameUp);
-                    var d = 1.55f - pos;
+                    var d = joint.Upper - pos;
                     var targetSpeed = MathF.Sign(d) * MathF.Min(2.8f, MathF.Sqrt(2f * 14f * MathF.Abs(d)));
                     var desiredDeltaV = targetSpeed - currentSpeed;
                     var maxDeltaV = 14f * dt;

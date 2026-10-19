@@ -434,6 +434,34 @@ public sealed class WorkshopSimulationTests
         Assert.Equal(new ConstructionRevision(1), simulation.Construction.Revision);
     }
 
+    // Story 9R.3 D4: Reset alone restores the authored enable. The in-run control survives a Reset that never commits (cancelled),
+    // and is cleared only once a Reset commits, so the Build-phase ElectricalState is the authored one again.
+    [Fact]
+    public async Task ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem()
+    {
+        await using var harness = Create(); var (simulation, device) = (harness.Simulation, harness.Device);
+        await simulation.Initialize();
+        var battery = WorkshopInput.Battery(new(7), 0, 3, 0, 0, 0, 0, 1, ElectricalSourceSettings.Default with { Enabled = ElectricalEnable.Disabled });
+        var admission = simulation.Construct(new(new(2), Settings, new(battery))).AsTask();
+        device.CompleteAdmission(0);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await admission).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await simulation.Run()).Outcome);
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.ConfigureElectrical(new(battery.Id, ElectricalEnable.Enabled)).Outcome);
+        Assert.Equal(ElectricalEnable.Enabled, simulation.ElectricalState(battery.Id, ElectricalEnable.Disabled));
+
+        var cancelled = simulation.Reset().AsTask();
+        Assert.Equal(WorkshopCommandOutcome.Applied, simulation.CancelPending().Outcome);
+        device.CompleteAdmission(1);
+        Assert.Equal(WorkshopCommandOutcome.Cancelled, (await cancelled).Outcome);
+        Assert.Equal(ElectricalEnable.Enabled, simulation.ElectricalState(battery.Id, ElectricalEnable.Disabled));
+
+        var reset = simulation.Reset().AsTask();
+        device.CompleteAdmission(2);
+        Assert.Equal(WorkshopCommandOutcome.Applied, (await reset).Outcome);
+        Assert.Equal(WorkshopSimulationPhase.Building, simulation.Phase);
+        Assert.Equal(ElectricalEnable.Disabled, simulation.ElectricalState(battery.Id, ElectricalEnable.Disabled));
+    }
+
     [Fact]
     public async Task AuthorityExhaustionFaultsBeforeGpuMutation()
     {
@@ -758,7 +786,7 @@ public sealed class WorkshopSimulationTests
             var network = WorkshopActivationCompiler.Compile(construction);
             return new(epoch, new(0), PhysicsGpuAbi.ReadDynamicBodies(bytes),
                 Activations: network.Clear(), Timers: network.ClearTimers(),
-                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes));
+                ContactWorks: PhysicsGpuAbi.ReadContactWorks(bytes), Electrical: PhysicsGpuAbi.ReadElectrical(bytes));
         }
         public void FailAdvance(int index) => _advances[index].Completion.SetException(new InvalidOperationException("Injected old transport failure."));
         public void CompleteAdvance(int index, Func<WorkshopRead, WorkshopRead>? transform = null)

@@ -173,9 +173,9 @@ public sealed class PhysicsSceneDeclaration
     public const int OrientationSensorCapacity = PhysicsBodyReadSet.Capacity;
     private readonly PrismaticConstraintDeclaration[] _prismatics;
     public ReadOnlySpan<PrismaticConstraintDeclaration> Prismatics => _prismatics;
-    private readonly SwitchedSupplyRoute[] _switchedSupplies;
-    /// <summary>Compiled once: each switched supply as indices into the sorted prismatic and electrical-source tables.</summary>
-    public ReadOnlySpan<SwitchedSupplyRoute> SwitchedSupplies => _switchedSupplies;
+    private readonly SupplyRoute[] _supplyRoutes;
+    /// <summary>Compiled once: each supply route as indices into the sorted prismatic and electrical-source tables.</summary>
+    public ReadOnlySpan<SupplyRoute> SupplyRoutes => _supplyRoutes;
     private readonly RigidBodyDeclaration[] _bodies;
     private readonly ColliderDeclaration[] _colliders;
     private readonly ContactMaterialDeclaration[] _materials;
@@ -204,7 +204,7 @@ public sealed class PhysicsSceneDeclaration
         ReadOnlySpan<ContactWorkDeclaration> contactWorks = default, ReadOnlySpan<OrientationSensorDeclaration> orientationSensors = default,
         ReadOnlySpan<ElectricalSourceDeclaration> electricalSources = default, ReadOnlySpan<ElectricalStorageBinding> electricalBindings = default,
         ReadOnlySpan<PrismaticConstraintDeclaration> prismatics = default,
-        ReadOnlySpan<SwitchedSupplyRouteDeclaration> switchedSupplies = default)
+        ReadOnlySpan<SupplyRouteDeclaration> supplyRoutes = default)
     {
         if ((document.Low == 0 && document.High == 0) || nextIdentity == 0 ||
             prismatics.Length > PrismaticCapacity || bodies.Length > BodyCapacity ||
@@ -308,17 +308,24 @@ public sealed class PhysicsSceneDeclaration
         foreach (var source in electricalSources) Identity(source.Id.Value, nextIdentity, ids);
         Electrical = new(electricalSources, electricalBindings, bodies, contactWorks);
         var routed = new HashSet<int>();
-        _switchedSupplies = new SwitchedSupplyRoute[switchedSupplies.Length];
-        for (var i = 0; i < switchedSupplies.Length; i++)
+        // Per kind: a direct route names no switch; a switched route names a static switch. Still one route per prismatic.
+        bool SwitchAdmitted(SupplyRouteDeclaration route) => route.Kind switch
         {
-            var route = switchedSupplies[i];
+            SupplyRouteKind.Direct => route.Switch == default,
+            SupplyRouteKind.Switched => bodyMap.TryGetValue(route.Switch, out var body) && body.Motion == RigidMotionKind.Static,
+            _ => false,
+        };
+        _supplyRoutes = new SupplyRoute[supplyRoutes.Length];
+        for (var i = 0; i < supplyRoutes.Length; i++)
+        {
+            var route = supplyRoutes[i];
             var prismatic = Array.FindIndex(_prismatics, joint => joint.Id == route.Prismatic);
             var source = -1;
             for (var s = 0; s < Electrical.Sources.Length; s++) if (Electrical.Sources[s].Id == route.Source) source = s;
-            if (prismatic < 0 || source < 0 || !routed.Add(prismatic) ||
-                !bodyMap.TryGetValue(route.Switch, out var switchBody) || switchBody.Motion != RigidMotionKind.Static)
-                throw new ArgumentException("A switched supply requires an admitted prismatic, source and static switch, once per prismatic.");
-            _switchedSupplies[i] = new(prismatic, source, route.Switch);
+            if (prismatic < 0 || source < 0 || !routed.Add(prismatic) || !SwitchAdmitted(route))
+                throw new ArgumentException("A supply route requires an admitted prismatic and source, a defined kind, no switch when " +
+                    "direct and a static switch when switched, once per prismatic.");
+            _supplyRoutes[i] = new(prismatic, source, route.Kind, route.Switch);
         }
         Document = document; NextIdentity = nextIdentity;
         _bodies = bodies.ToArray(); _colliders = colliders.ToArray();

@@ -199,7 +199,8 @@ internal sealed class WorkshopPhysicsEngine
             B = dummyBodyA,
             Lower = 0f,
             Upper = 1.55f,
-            Soft = SoftConstraintCoefficients.FromSpring(14f, 1f, WorkshopConstraintSolver.SubstepSeconds)
+            Soft = SoftConstraintCoefficients.FromSpring(14f, 1f, WorkshopConstraintSolver.SubstepSeconds),
+            SupplyClosed = true
         };
         var dummyJoints = new List<SimJoint> { dummyJoint };
         for (var i = 0; i < 20; i++)
@@ -207,7 +208,7 @@ internal sealed class WorkshopPhysicsEngine
             PrismaticConstraintSolver.PrepareJointRows(dummyJoint, WorkshopConstraintSolver.SubstepSeconds);
             PrismaticConstraintSolver.SweepConstraints(dummyJoints, true);
             PrismaticConstraintSolver.SweepConstraints(dummyJoints, false);
-            PrismaticConstraintSolver.ActuatorSliderDrive(dummyJoints, true, true, WorkshopConstraintSolver.SubstepSeconds);
+            PrismaticConstraintSolver.ActuatorSliderDrive(dummyJoints, true, WorkshopConstraintSolver.SubstepSeconds);
         }
 
         const int mockColliders = 2;
@@ -274,7 +275,7 @@ internal sealed class WorkshopPhysicsEngine
         BinaryPrimitives.WriteSingleLittleEndian(mSpan.Slice(j0 + 84, 4), 1f);
         BinaryPrimitives.WriteUInt32LittleEndian(mSpan.Slice(j0 + 88, 4), 1);
 
-        // Warm-up inputs match the mock document's own tables: every source disabled, no switched supply closed.
+        // Warm-up inputs match the mock document's own tables: every source disabled, no supply route closed.
         var warmupInputs = new PhysicsTickInputs(
             new ElectricalEnable[BinaryPrimitives.ReadUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.HeaderElectricalSourceCountOffset, 4))],
             new bool[BinaryPrimitives.ReadUInt32LittleEndian(mSpan.Slice(PhysicsGpuAbi.PrismaticsOffset, 4))]);
@@ -629,7 +630,7 @@ internal sealed class WorkshopPhysicsEngine
             joint.Lower = lower; joint.Upper = upper;
             joint.Soft = soft;
             joint.Collision = collision;
-            joint.SwitchedSupplyClosed = inputs.SwitchedSupplyClosed[index];
+            joint.SupplyClosed = inputs.SupplyClosed[index];
 
             for (var imp = 0; imp < 8; imp++)
                 joint.Impulses[imp] = BinaryPrimitives.ReadSingleLittleEndian(span.Slice(offset + 96 + imp * 4, 4));
@@ -785,19 +786,8 @@ internal sealed class WorkshopPhysicsEngine
                 }
             }
 
-            var batteryPowered = false;
-            for (var supply = 0; supply < supplyCount; supply++)
-            {
-                var record = PhysicsGpuAbi.ElectricalSourcesOffset + supply * PhysicsGpuAbi.ElectricalSourceBytes;
-                if (BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(record + 36, 4)) == 1)
-                {
-                    batteryPowered = true;
-                    break;
-                }
-            }
-
-            // Latch- and Counter-switched gates follow committed contact state (SimJoint.SwitchedSupplyClosed), never a timer.
-            PrismaticConstraintSolver.ActuatorSliderDrive(_joints, batteryPowered, _plateLoaded, dt);
+            // Each supplied gate follows its own compiled route (SimJoint.SupplyClosed), closed from committed state, never a timer.
+            PrismaticConstraintSolver.ActuatorSliderDrive(_joints, _plateLoaded, dt);
 
             foreach (var b in _dynamicBodies)
             {

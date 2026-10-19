@@ -1,0 +1,27 @@
+315:            _electricalControls.Clear(); // MUTANT-5b
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `FullyQualifiedName~WorkshopSimulationTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+
+No test matches the given testcase filter `FullyQualifiedName~WorkshopSimulationTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+No test matches the given testcase filter `FullyQualifiedName~WorkshopSimulationTests` in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+
+
+[xUnit.net 00:00:00.80]     CuriousContraptions.Tests.WorkshopSimulationTests.ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem [FAIL]
+  Failed CuriousContraptions.Tests.WorkshopSimulationTests.ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem [63 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Enabled
+Actual:   Disabled
+  Stack Trace:
+     at CuriousContraptions.Tests.WorkshopSimulationTests.ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/WorkshopSimulationTests.cs:line 456
+   at CuriousContraptions.Tests.WorkshopSimulationTests.ACommittedResetClearsInRunSupplyControlsAndACancelledOneKeepsThem() in /Users/aidan/dev/personal/tim/.claude/worktrees/agent-a734866ee24107381/CuriousContraptions.tests/WorkshopSimulationTests.cs:line 462
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:    38, Skipped:     0, Total:    39, Duration: 385 ms - CuriousContraptions.tests.dll (net10.0)

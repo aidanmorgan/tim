@@ -9,7 +9,7 @@ internal enum SuiteId
     Anim1a = 1, Anim1b, Anim1c, Cat002, Cat005, Cat014, Cat015a, Cat015aSidekick, Cat015b, Cat017, Cat020, Cat023a, Cat023b,
     Cat030, Cat037, Cat048a, Cat048b, Cat049, Cat050, Cat051, Cat052, Cat062, Cat062b, ClockMaster, EngineCore2a1, EngineCore2a2,
     EngineCore2a3, EngineCore2a4, EngineCore2b1, EngineCore2b2, EngineCore2b3, EngineCore2b4, EngineCore2c, PalettePlacement,
-    Capacity9r,
+    Capacity9r, Cat051OwnSupply,
 }
 
 /// <summary>Parallel suites share the machine with N-1 other Chromes; SerialAlone suites run with no other runner Chrome or build.</summary>
@@ -76,7 +76,7 @@ internal static class SuiteCatalogue
         SuiteId.EngineCore2b1 => "engine-core-2b1", SuiteId.EngineCore2b2 => "engine-core-2b2",
         SuiteId.EngineCore2b3 => "engine-core-2b3", SuiteId.EngineCore2b4 => "engine-core-2b4",
         SuiteId.EngineCore2c => "engine-core-2c", SuiteId.PalettePlacement => "palette-placement",
-        SuiteId.Capacity9r => "capacity-9r",
+        SuiteId.Capacity9r => "capacity-9r", SuiteId.Cat051OwnSupply => "cat-051-own-supply",
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, "Undefined suite."),
     };
 
@@ -174,6 +174,16 @@ internal static class SuiteCatalogue
             [Owner("Coordinator decision, 20 Oct 2026: a new suite starts SerialAlone until calibration qualifies it; the heaviest " +
                 "collider scene (2,305 colliders) debt-faulted before Story 9R.2's broadphase fix.", 1)],
             null, Set(PartId.Basketball, PartId.PipeBend90), [], [], Set(Gizmo, Guide)),
+        Serial(SuiteId.Cat062,
+            [Owner("Coordinator decision, 20 Oct 2026: test 4 timed out with no failed assertion on a Parallel worker under N=2 AOT " +
+                "workers (evidence-9r-3/full-run-1); Parallel is unearned until Story F.1 recalibrates.", 1)],
+            PartId.Springboard, Set(PartId.Basketball, PartId.Springboard), [], [], Set(Gizmo, Guide, Config)),
+        Serial(SuiteId.Cat051OwnSupply,
+            [Owner("Coordinator decision, 20 Oct 2026 (Murdoch-9, Story 9R.3): a new suite starts SerialAlone until calibration " +
+                "qualifies it; it samples blade and ball poses over wall-clock windows after each in-run supply toggle.", 1)],
+            // No primary: cat-051 stays the Powered Gate's primary suite; a gate change still selects this suite as a placer.
+            null, Set(PartId.Basketball, PartId.Battery, PartId.PoweredGate), [], Set(Electrical),
+            Set(Gizmo, Guide, Wire, Config)),
 
         Parallel(SuiteId.Cat002, PartId.BallDetector, Set(PartId.BallDetector, PartId.Basketball, PartId.SignalLamp), [], Set(Signal),
             Set(Gizmo, Guide, Wire, Present)),
@@ -197,8 +207,6 @@ internal static class SuiteCatalogue
             Set(Gizmo, Guide, Wire)),
         Parallel(SuiteId.Cat052, PartId.PressurePlate, Set(PartId.Basketball, PartId.Battery, PartId.BowlingBall, PartId.Domino,
             PartId.PoweredGate, PartId.PressurePlate), [], Set(Signal, Electrical), Set(Gizmo, Guide, Wire, Config)),
-        Parallel(SuiteId.Cat062, PartId.Springboard, Set(PartId.Basketball, PartId.Springboard), [], [],
-            Set(Gizmo, Guide, Config)),
         Parallel(SuiteId.Cat062b, PartId.Springboard, Set(PartId.Springboard, PartId.Receiver),
             Set(new LevelId("spring_forward"), new LevelId("ready_to_rebound")), [], Set(Gizmo, Guide, Config, Levels)),
         Parallel(SuiteId.EngineCore2a1, null, Set(PartId.Basketball), [], [], [], smoke: true),

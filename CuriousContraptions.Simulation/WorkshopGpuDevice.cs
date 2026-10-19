@@ -30,8 +30,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     private PhysicsTimerRead _committedTimers, _candidateTimers;
     private PhysicsMemoryRead _committedMemory, _candidateMemory;
     private ActivationNetwork? _committedNetwork, _candidateNetwork;
-    // Switched supplies compiled once at Admit: routes as indices into the admitted prismatic and source tables.
-    private sealed record CompiledSupply(SwitchedSupplyRoute[] Routes, int Prismatics, int Sources);
+    // Supply routes compiled once at Admit: routes as indices into the admitted prismatic and source tables.
+    private sealed record CompiledSupply(SupplyRoute[] Routes, int Prismatics, int Sources);
     private CompiledSupply? _committedSupply, _candidateSupply;
     private PassageSensorTracker _committedPassageTracker = PassageSensorTracker.Empty;
     private PassageSensorTracker _candidatePassageTracker = PassageSensorTracker.Empty;
@@ -71,7 +71,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             throw new ArgumentException("Construction and physical profile differ.");
         var scene = WorkshopPhysicsCompiler.Compile(construction, document);
         return Stage(PhysicsGpuAbi.Admission(scene, epoch, profile), WorkshopGpuOperation.Admit, profile, new(0), sequence, WorkshopActivationCompiler.Compile(construction),
-            new(scene.SwitchedSupplies.ToArray(), scene.Prismatics.Length, scene.Electrical.Sources.Length), PhysicsTickInputs.Admission, scene.Colliders.ToArray());
+            new(scene.SupplyRoutes.ToArray(), scene.Prismatics.Length, scene.Electrical.Sources.Length), PhysicsTickInputs.Admission, scene.Colliders.ToArray());
     }
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
@@ -81,9 +81,9 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(PhysicsGpuAbi.HeaderTickOffset)) != committed.Tick.Value)
             throw new ArgumentException("Advance does not own the committed physical world.");
         var network = _committedNetwork ?? throw new InvalidOperationException("No committed activation declarations.");
-        var supply = _committedSupply ?? throw new InvalidOperationException("No committed switched-supply table.");
+        var supply = _committedSupply ?? throw new InvalidOperationException("No committed supply-route table.");
         controls.Validate(supply.Sources);
-        // One-way: committed discrete switch state and the player's source enables decide this step's switched supplies.
+        // One-way: committed discrete switch state and the player's source enables decide this step's supply routes.
         var activations = _committedActivations;
         var inputs = PhysicsTickInputs.Compose(supply.Routes, supply.Prismatics, controls, owner => network.ContactClosed(activations, owner));
         return Stage([], WorkshopGpuOperation.Advance, _committedProfile, new(checked(committed.Tick.Value + 1)), sequence,
