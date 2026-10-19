@@ -170,6 +170,10 @@ internal static class SuiteCatalogue
                 "(evidence-9r-1/full-run-parallel); Parallel is unearned until Story F.1 recalibrates.", 1)],
             PartId.Counter, Set(PartId.BallDetector, PartId.Basketball, PartId.Battery, PartId.Counter,
             PartId.SignalLamp, PartId.PoweredGate), [], Set(Signal, Electrical), Set(Gizmo, Guide, Wire, Config, Present)),
+        Serial(SuiteId.Capacity9r,
+            [Owner("Coordinator decision, 20 Oct 2026: a new suite starts SerialAlone until calibration qualifies it; the heaviest " +
+                "collider scene (2,305 colliders) debt-faulted before Story 9R.2's broadphase fix.", 1)],
+            null, Set(PartId.Basketball, PartId.PipeBend90), [], [], Set(Gizmo, Guide)),
 
         Parallel(SuiteId.Cat002, PartId.BallDetector, Set(PartId.BallDetector, PartId.Basketball, PartId.SignalLamp), [], Set(Signal),
             Set(Gizmo, Guide, Wire, Present)),
@@ -208,7 +212,6 @@ internal static class SuiteCatalogue
         Parallel(SuiteId.EngineCore2b4, null, Set(PartId.Ramp), Set(FirstPrinciples), [], Set(Gizmo, Levels)),
         Parallel(SuiteId.EngineCore2c, null, Set(PartId.Ramp), Set(FirstPrinciples), [], Set(Gizmo, Levels)),
         Parallel(SuiteId.PalettePlacement, null, None, [], [], Set(Pal, Bench), scope: PlacementScope.EveryPalettePart),
-        Parallel(SuiteId.Capacity9r, null, Set(PartId.Basketball, PartId.PipeBend90), [], [], Set(Gizmo, Guide)),
     ];
 
     private static readonly Dictionary<SuiteId, SuiteDeclaration> ById = All.ToDictionary(declaration => declaration.Id);
