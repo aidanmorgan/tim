@@ -499,7 +499,7 @@ public sealed class WorkshopPhysicsLawTests
     // ---- element-free solver ratchet (Story 9.4b coordinator decision, 18 Oct 2026; hardened for Murdoch-2 F2) ----
 
     /// <summary>The scheduled stories that own the element-specific solver code 8f682f8 introduced.</summary>
-    public enum ViolationOwner { Story9R3, Story9R4, Story9A19 }
+    public enum ViolationOwner { Story9R4, Story9A19 }
 
     /// <summary>Whether the general scan can see a pinned violation (so deleting its entry fails as unowned code), or only
     /// its pin can (the frozen list hash below then guards the entry).</summary>
@@ -507,7 +507,6 @@ public sealed class WorkshopPhysicsLawTests
 
     private static string SprintKey(ViolationOwner owner) => owner switch
     {
-        ViolationOwner.Story9R3 => "9r-3-direct-gate-own-supply-route",
         ViolationOwner.Story9R4 => "9r-4-pressure-plate-per-instance-load-rows",
         ViolationOwner.Story9A19 => "9a-19-declared-prismatic-drive",
         _ => throw new ArgumentOutOfRangeException(nameof(owner), owner, "Undefined violation owner."),
@@ -530,23 +529,15 @@ public sealed class WorkshopPhysicsLawTests
             ViolationOwner.Story9R4, ScanVisibility.General, "pressure plate 0.5 kg threshold"),
         new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"\b(?:_plateLoaded|currentPlateLoad|plateCol)\b", 12,
             ViolationOwner.Story9R4, ScanVisibility.General, "plate-load state named for the element"),
-        new("CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs", @"\bbatteryPowered\b", 3,
-            ViolationOwner.Story9A19, ScanVisibility.General, "the gate drive's battery input named for the element"),
         new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\(Half\)0\.09375f", 1,
             ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "plate-powered gate drag encoding (compiler, not scanned)"),
         new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\bContactLoadSensorDeclaration\b", 0,
             ViolationOwner.Story9R4, ScanVisibility.PinnedOnly, "ContactLoadSensorDeclaration never compiled (zero references)"),
-        new("engine/gpu/WorkshopPhysicsCompiler.cs", @"\(Half\)0\.0625f", 1,
-            ViolationOwner.Story9R3, ScanVisibility.PinnedOnly, "direct-powered gate drag encoding (compiler, not scanned)"),
-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"b\.Drag > 0\.03f && b\.Drag < 0\.08f", 1,
-            ViolationOwner.Story9R3, ScanVisibility.General, "direct-mode gate drag band"),
         new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"b\.Drag >= 0\.08f && b\.Drag < 0\.11f", 1,
             ViolationOwner.Story9A19, ScanVisibility.General, "plate-mode gate drag band"),
-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"MathF\.Abs\(joint\.Upper - 1\.55f\) < 0\.01f", 1,
-            ViolationOwner.Story9A19, ScanVisibility.General, "gate recognised by its travel limit"),
-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\b1\.55f - pos\b|\b2\.8f\b|\b14f\b", 5,
-            ViolationOwner.Story9A19, ScanVisibility.PinnedOnly, "gate drive travel, speed and acceleration literals (numbers only)"),
-        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\b(?:batteryPowered|gatePowered|plateLoaded)\b", 7,
+        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\b2\.8f\b|\b14f\b", 4,
+            ViolationOwner.Story9A19, ScanVisibility.PinnedOnly, "gate drive speed and acceleration literals (numbers only)"),
+        new("CuriousContraptions.Simulation/PrismaticConstraintSolver.cs", @"\b(?:gatePowered|plateLoaded)\b", 4,
             ViolationOwner.Story9A19, ScanVisibility.General, "gate drive parameters named for elements"),
         // Murdoch-2 R2-F5: found once the scanned names came from the catalogue (the gate drive's return force, named for
         // the spring family); the drive itself is 9A.19's, like its literals above.
@@ -555,14 +546,15 @@ public sealed class WorkshopPhysicsLawTests
     ];
 
     // Frozen: these change only when an owning story deletes entries (both totals may only fall). Raised once, by the
-    // coordinator's R2-F5 instruction, for the catalogue-derived scan's one new finding (fSpring, 9A.19).
-    private const int MaximumKnownViolations = 14;
-    private const int MaximumPinnedMatches = 50;
-    private const string KnownViolationsSha256 = "4052541aee4596c76b8ba603204f630e9425f81a2ea66e2a00352ffd2c96be90";
+    // coordinator's R2-F5 instruction, for the catalogue-derived scan's one new finding (fSpring, 9A.19). Lowered by Story 9R.3,
+    // which deleted the direct drag encoding and band, the global battery flag and the travel-limit gate recognition.
+    private const int MaximumKnownViolations = 10;
+    private const int MaximumPinnedMatches = 40;
+    private const string KnownViolationsSha256 = "ea7190371cf07346ec88b326fa38456f553392879c990a0a67c32fd0f716b9d4";
 
     // Reviewed identifiers that contain an element name but name no element: "clamp" contains "lamp", "conjugate" contains
-    // "gate", and a switched supply is the generic declared supply contract every element can use (PhysicsTickInputs).
-    private static readonly string[] GenericIdentifiers = ["Clamp", "ClampVelocity", "SpeedClamp", "SpinClamp", "Conjugate", "SwitchedSupplyClosed"];
+    // "gate".
+    private static readonly string[] GenericIdentifiers = ["Clamp", "ClampVelocity", "SpeedClamp", "SpinClamp", "Conjugate"];
 
     // Reviewed qualified names: the prismatic constraint's soft spring row is the generic declared stiffness/damping law of
     // every prismatic, not the Springboard part. Only these exact qualified forms are set aside, so a bare "Spring" token

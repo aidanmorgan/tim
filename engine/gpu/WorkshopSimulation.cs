@@ -320,6 +320,8 @@ public sealed class WorkshopSimulation : IAsyncDisposable
             await _installation.Prepare(new(owner), read, Construction, Profile, WorkshopSimulationPhase.Building);
             if (!Owns(owner)) return Superseded(owner);
             _device.Commit(new(owner));
+            // Reset alone restores the authored enable: in-run supply controls end with the run they changed.
+            _electricalControls.Clear();
             Committed = read;
             _epoch = epoch.Value;
             Phase = WorkshopSimulationPhase.Building;

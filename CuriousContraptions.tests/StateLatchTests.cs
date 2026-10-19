@@ -353,7 +353,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
             Connections: new(Power(battery.Id, latch.Id), new(latch.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         routed.Validate();
         var scene = WorkshopPhysicsCompiler.Compile(routed, new(1, 2));
-        var route = Assert.Single(scene.SwitchedSupplies.ToArray());
+        var route = Assert.Single(scene.SupplyRoutes.ToArray());
         Assert.Equal(latch.Id, route.Switch);
         Assert.Equal(gate.Id, scene.Prismatics[route.Prismatic].BodyA);
         Assert.Equal(battery.Id, scene.Electrical.Sources[route.Source].Owner);
@@ -361,24 +361,31 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         var on = new WorkshopTickControls([ElectricalEnable.Enabled]);
         var off = new WorkshopTickControls([ElectricalEnable.Disabled]);
         var prismatics = scene.Prismatics.Length;
-        Assert.True(PhysicsTickInputs.Compose(scene.SwitchedSupplies, prismatics, on, _ => true).SwitchedSupplyClosed[route.Prismatic]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SwitchedSupplies, prismatics, on, _ => false).SwitchedSupplyClosed[route.Prismatic]);
-        Assert.False(PhysicsTickInputs.Compose(scene.SwitchedSupplies, prismatics, off, _ => true).SwitchedSupplyClosed[route.Prismatic]);
+        Assert.True(PhysicsTickInputs.Compose(scene.SupplyRoutes, prismatics, on, _ => true).SupplyClosed[route.Prismatic]);
+        Assert.False(PhysicsTickInputs.Compose(scene.SupplyRoutes, prismatics, on, _ => false).SupplyClosed[route.Prismatic]);
+        Assert.False(PhysicsTickInputs.Compose(scene.SupplyRoutes, prismatics, off, _ => true).SupplyClosed[route.Prismatic]);
         Assert.Throws<ArgumentException>(() => new PhysicsTickInputs([ElectricalEnable.Enabled], []).Validate(1, prismatics));
         Assert.Throws<ArgumentException>(() => new WorkshopTickControls([(ElectricalEnable)9]).Validate(1));
 
-        // Memory without a supply, or a battery wired straight to the gate, compiles no switched route.
+        Assert.Equal(SupplyRouteKind.Switched, route.Kind);
+
+        // Memory without a supply compiles no route; a battery wired straight to the gate compiles one Direct route (Story 9R.3).
         var unsupplied = routed with { Connections = new(new WorkshopConnection(latch.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) };
-        Assert.Empty(WorkshopPhysicsCompiler.Compile(unsupplied, new(1, 2)).SwitchedSupplies.ToArray());
+        Assert.Empty(WorkshopPhysicsCompiler.Compile(unsupplied, new(1, 2)).SupplyRoutes.ToArray());
         var direct = routed with { Connections = new(new WorkshopConnection(battery.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)) };
-        Assert.Empty(WorkshopPhysicsCompiler.Compile(direct, new(1, 2)).SwitchedSupplies.ToArray());
+        var directScene = WorkshopPhysicsCompiler.Compile(direct, new(1, 2));
+        var directRoute = Assert.Single(directScene.SupplyRoutes.ToArray());
+        Assert.Equal((SupplyRouteKind.Direct, default(GpuBodyId)), (directRoute.Kind, directRoute.Switch));
+        Assert.Equal(gate.Id, directScene.Prismatics[directRoute.Prismatic].BodyA);
+        Assert.Equal(battery.Id, directScene.Electrical.Sources[directRoute.Source].Owner);
 
         // A Counter's supply contact compiles the same route kind: closed only while its committed value is reached.
         var counter = WorkshopInput.Counter(new(4), 0, 3, 0, 0, 0, 0, 1, 3);
         var counted = new WorkshopConstruction(new(1), WorkshopCadenceSettings.Default(), new(battery, counter, gate),
             Connections: new(Power(battery.Id, counter.Id), new(counter.Id, WorkshopSocket.Supply, gate.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         counted.Validate();
-        Assert.Equal(counter.Id, Assert.Single(WorkshopPhysicsCompiler.Compile(counted, new(1, 2)).SwitchedSupplies.ToArray()).Switch);
+        var countedRoute = Assert.Single(WorkshopPhysicsCompiler.Compile(counted, new(1, 2)).SupplyRoutes.ToArray());
+        Assert.Equal((SupplyRouteKind.Switched, counter.Id), (countedRoute.Kind, countedRoute.Switch));
     }
 
     [Fact]
@@ -399,7 +406,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
                 new(latchB.Id, WorkshopSocket.Supply, gateB.Id, WorkshopSocket.PowerIn, WorkshopConnectionDomain.Electrical)));
         construction.Validate();
         var scene = WorkshopPhysicsCompiler.Compile(construction, new(1, 2));
-        var routes = scene.SwitchedSupplies.ToArray();
+        var routes = scene.SupplyRoutes.ToArray();
         Assert.Equal(2, routes.Length);
         int PrismaticOf(GpuBodyId gate) => Array.FindIndex(scene.Prismatics.ToArray(), joint => joint.BodyA == gate);
         int SourceOf(GpuBodyId battery) => Array.FindIndex(scene.Electrical.Sources.ToArray(), source => source.Owner == battery);
@@ -415,7 +422,7 @@ public sealed class StateLatchTests(NativeSceneFixture godot)
         {
             var enables = new ElectricalEnable[scene.Electrical.Sources.Length];
             enables[SourceOf(batteryA.Id)] = a; enables[SourceOf(batteryB.Id)] = b;
-            return PhysicsTickInputs.Compose(scene.SwitchedSupplies, scene.Prismatics.Length, new(enables), contact).SwitchedSupplyClosed;
+            return PhysicsTickInputs.Compose(scene.SupplyRoutes, scene.Prismatics.Length, new(enables), contact).SupplyClosed;
         }
         // Both latches On, battery A enabled and battery B disabled (its authored state): only gate A is supplied; the plain gate never is.
         var both = Closed(ElectricalEnable.Enabled, ElectricalEnable.Disabled, _ => true);

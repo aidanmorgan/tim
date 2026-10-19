@@ -28,6 +28,7 @@ public static class WorkshopPhysicsCompiler
         var triggers = new List<ContactTriggerDeclaration>();
         var contactWorks = new List<ContactWorkDeclaration>();
         var prismatics = new List<PrismaticConstraintDeclaration>();
+        var supplyRoutes = new List<SupplyRouteDeclaration>();
         var electricalSources = new List<ElectricalSourceDeclaration>();
         var orientationSensors = new List<OrientationSensorDeclaration>();
         var plane = new GpuBodyId(InternalIdentityBase);
@@ -188,22 +189,14 @@ public static class WorkshopPhysicsCompiler
                 var bladeMaterial = new GpuMaterialId(first + 3);
                 materials.Add(new(bladeMaterial, new((Half).1), new((Half).1), new((Half).3), new((Half)0)));
                 var blade = GateBlade(instance.Id);
-                var isDirectlyPowered = construction.Connections.Any(link =>
-                    link.Domain == WorkshopConnectionDomain.Electrical &&
-                    link.Target == instance.Id &&
-                    construction.Instances.OfType<WorkshopBattery>().Any(b => b.Id == link.Source && b.Settings.Enabled == ElectricalEnable.Enabled));
-                var isPlatePowered = construction.Connections.Any(link =>
-                    link.Domain == WorkshopConnectionDomain.Electrical &&
-                    link.Target == instance.Id &&
-                    construction.Instances.OfType<WorkshopPressurePlate>().Any(p => p.Id == link.Source &&
-                        construction.Connections.Any(bLink =>
-                            bLink.Domain == WorkshopConnectionDomain.Electrical &&
-                            bLink.Target == p.Id &&
-                            bLink.Input == WorkshopSocket.PowerIn &&
-                            construction.Instances.OfType<WorkshopBattery>().Any(b => b.Id == bLink.Source && b.Settings.Enabled == ElectricalEnable.Enabled))));
-                // Latch- and Counter-switched supplies compile once below into PhysicsSceneDeclaration.SwitchedSupplies; each tick closes
-                // them from committed contact state via PhysicsTickInputs, so their blades carry no mode-encoding drag.
-                var bladeDrag = isDirectlyPowered ? (Half)0.0625f : isPlatePowered ? (Half)0.09375f : (Half)0f;
+                // Every supplied gate compiles one supply route (authoring → compile → physics); each tick closes it from its own
+                // battery's committed enable (and a switch's committed contact) via PhysicsTickInputs, never from the authored enable.
+                var feed = SupplyFeed(construction, instance.Id);
+                if (feed is { } supplied)
+                    supplyRoutes.Add(new(new(checked(first + 5)), ElectricalSource(supplied.Battery), supplied.Kind,
+                        supplied.Kind == SupplyRouteKind.Switched ? supplied.Via : default));
+                // Story 9R.3 D3 interim, deleted by Story 9R.4: a plate-fed gate's blade drag still marks the plate-load band.
+                var bladeDrag = feed is { Kind: SupplyRouteKind.Direct } plateFed && plateFed.Via != default ? (Half)0.09375f : (Half)0f;
                 bodies.Add(new(blade, RigidMotionKind.Dynamic, instance.Cell, instance.Local, instance.Rotation,
                     default, default, new((Half)1f),
                     new((Half)0, (Half)(-WorkshopConstruction.Gravity.Value), (Half)0), new InverseSeconds(bladeDrag)));
@@ -283,18 +276,19 @@ public static class WorkshopPhysicsCompiler
                 colliders.Add(new(new(first + 1 + (ulong)i), latch.Id, material, declared[i].ShapeKind,
                     declared[i].LocalPose, new Metres(declared[i].Radius), declared[i].HalfExtents));
         }
-        // Switched supplies compile once here (authoring → compile → physics); the tick reads only these indices and committed switch state.
-        var switchedSupplies = new List<SwitchedSupplyRouteDeclaration>();
-        foreach (var gate in construction.Instances.OfType<IWorkshopDeclaredColliders>().Where(i => i.PartId == PartId.PoweredGate).OrderBy(i => i.Id.Value))
-            if (SwitchedSupplyFeed(construction, gate.Id) is { } feed)
-                switchedSupplies.Add(new(new(checked(PartIdentities(gate.Id) + 5)), ElectricalSource(feed.Battery), feed.Switch));
         return new(document, next, bodies.ToArray(), colliders.ToArray(), materials.ToArray(), sensors.ToArray(), guides.ToArray(), triggers.ToArray(), contactWorks.ToArray(), orientationSensors.ToArray(), electricalSources.OrderBy(source => source.Id.Value).ToArray(),
             construction.Connections.Where(link => link.Domain == WorkshopConnectionDomain.Electrical && contactWorkOwners.Contains(link.Target))
                 .Select(link => new ElectricalStorageBinding(ElectricalSource(link.Source), ContactWork(link.Target))).ToArray(), prismatics.ToArray(),
-            switchedSupplies.ToArray());
+            supplyRoutes.ToArray());
     }
-    /// <summary>Consumer PowerIn ← State Latch or Counter Supply, whose PowerIn ← a Battery. Null when either link is absent.</summary>
-    private static (GpuBodyId Switch, GpuBodyId Battery)? SwitchedSupplyFeed(WorkshopConstruction construction, GpuBodyId consumer)
+    /// <summary>The one supply feeding a consumer's PowerIn (a PowerIn has at most one supplier):
+    /// <list type="bullet">
+    /// <item>a Battery → <see cref="SupplyRouteKind.Direct"/>, no intermediate;</item>
+    /// <item>a State Latch or Counter whose PowerIn ← a Battery → <see cref="SupplyRouteKind.Switched"/> via that switch;</item>
+    /// <item>a Pressure Plate whose PowerIn ← a Battery → <see cref="SupplyRouteKind.Direct"/> via that plate (Story 9R.3 D3
+    /// interim; Story 9R.4 makes it a per-plate row).</item>
+    /// </list>Null when the consumer, or its intermediate, has no battery supply.</summary>
+    private static (SupplyRouteKind Kind, GpuBodyId Battery, GpuBodyId Via)? SupplyFeed(WorkshopConstruction construction, GpuBodyId consumer)
     {
         GpuBodyId Source(GpuBodyId target, Func<IWorkshopInstance, bool> admitted)
         {
@@ -304,10 +298,16 @@ public static class WorkshopPhysicsCompiler
                     return link.Source;
             return default;
         }
-        var contact = Source(consumer, instance => instance is WorkshopLatch or WorkshopCounter);
-        if (contact.Value == 0) return null;
-        var battery = Source(contact, instance => instance is WorkshopBattery);
-        return battery.Value == 0 ? null : (contact, battery);
+        static bool IsBattery(IWorkshopInstance instance) => instance is WorkshopBattery;
+        var supplier = Source(consumer, instance => instance is WorkshopBattery or WorkshopLatch or WorkshopCounter or WorkshopPressurePlate);
+        if (supplier == default) return null;
+        if (construction.Instances.Any(instance => instance.Id == supplier && IsBattery(instance)))
+            return (SupplyRouteKind.Direct, supplier, default);
+        var battery = Source(supplier, IsBattery);
+        if (battery == default) return null;
+        var kind = construction.Instances.Any(instance => instance.Id == supplier && instance is WorkshopPressurePlate)
+            ? SupplyRouteKind.Direct : SupplyRouteKind.Switched;
+        return (kind, battery, supplier);
     }
     public static bool IsSecondaryBodyIdentity(GpuBodyId owner, GpuBodyId body)
     {
