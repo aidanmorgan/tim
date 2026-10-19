@@ -197,10 +197,16 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
     {
         var height = (float)Field<Metres>(scene, "_placementHeight").Value;
         var screen = Field<Camera3D>(scene, "_camera").UnprojectPosition(new Vector3(0, height, 0));
+        return InvokeHandler(scene, "Click", screen);
+    }
+
+    /// <summary>Invokes one private async void Workshop handler and returns every exception that escaped it.</summary>
+    private static List<Exception> InvokeHandler(Workshop scene, string handler, params object[] arguments)
+    {
         var recorder = new EscapeRecorder();
         var previous = SynchronizationContext.Current;
         SynchronizationContext.SetSynchronizationContext(recorder);
-        try { typeof(Workshop).GetMethod("Click", Private)!.Invoke(scene, [screen]); }
+        try { typeof(Workshop).GetMethod(handler, Private)!.Invoke(scene, arguments); }
         finally { SynchronizationContext.SetSynchronizationContext(previous); }
         return recorder.Escaped;
     }
@@ -284,6 +290,25 @@ public sealed class PalettePlacementTests(NativeSceneFixture godot)
             // It takes a fresh identity instead of silently replacing the admitted part: the construction holds both.
             Assert.Equal([new GpuBodyId(1), new GpuBodyId(2)], scene.World.Construction.Instances.Select(instance => instance.Id));
             Assert.Equal(new GpuBodyId(3), Field<GpuBodyId>(scene, "_nextId"));
+        }
+        finally { SetField(scene, "_detail", detail); Release(scene); }
+    }
+
+    [Fact]
+    public void AFailingHandlerIsCaughtAtItsBoundaryLoggedOnceByNameAndShown()
+    {
+        // Undo is a real async void handler; its first step, Select(null), writes the detail label, so a missing label is a
+        // genuine failure inside UndoAsync that only the handler boundary (HandlerFailed) can catch.
+        var (scene, client) = BenchScene(PartId.Ramp);
+        var detail = Field<Label>(scene, "_detail");
+        try
+        {
+            Field<List<WorkshopConstruction>>(scene, "_undo").Add(scene.World.Construction);
+            SetField<Label?>(scene, "_detail", null);
+            Assert.Empty(InvokeHandler(scene, "Undo")); // nothing may escape: in the browser that terminates the runtime
+            Assert.Contains("Workshop handler 'Undo' failed", Assert.Single(godot.Errors.Drain()).ToString());
+            Assert.StartsWith("That action failed and was logged: ", Field<Label>(scene, "_status").Text);
+            Assert.Empty(client.Commands);
         }
         finally { SetField(scene, "_detail", detail); Release(scene); }
     }
