@@ -1,0 +1,73 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Abstractions/bin/Release/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Animation/bin/Release/net10.0/CuriousContraptions.Animation.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.FlatBuffers/bin/Release/net10.0/CuriousContraptions.FlatBuffers.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/bin/Release/net10.0/browser-wasm/publish/
+  AOT'ing 18 assemblies
+  [1/18] CuriousContraptions.FlatBuffers.dll -> CuriousContraptions.FlatBuffers.dll.bc
+  [2/18] System.Collections.dll -> System.Collections.dll.bc
+  [3/18] System.Console.dll -> System.Console.dll.bc
+  [4/18] CuriousContraptions.Animation.dll -> CuriousContraptions.Animation.dll.bc
+  [5/18] System.Numerics.Vectors.dll -> System.Numerics.Vectors.dll.bc
+  [6/18] System.Memory.dll -> System.Memory.dll.bc
+  [7/18] System.Runtime.dll -> System.Runtime.dll.bc
+  [8/18] System.Runtime.InteropServices.JavaScript.dll -> System.Runtime.InteropServices.JavaScript.dll.bc
+  [9/18] CuriousContraptions.Abstractions.dll -> CuriousContraptions.Abstractions.dll.bc
+  [10/18] System.Linq.dll -> System.Linq.dll.bc
+  [11/18] System.Text.Encodings.Web.dll -> System.Text.Encodings.Web.dll.bc
+  [12/18] System.Collections.Immutable.dll -> System.Collections.Immutable.dll.bc
+  [13/18] System.Runtime.Intrinsics.dll -> System.Runtime.Intrinsics.dll.bc
+  [14/18] System.Text.Json.dll -> System.Text.Json.dll.bc
+  [15/18] System.Threading.dll -> System.Threading.dll.bc
+  [16/18] CuriousContraptions.Simulation.dll -> CuriousContraptions.Simulation.dll.bc
+  [17/18] System.Private.CoreLib.dll -> System.Private.CoreLib.dll.bc
+  [18/18] aot-instances.dll -> aot-instances.dll.bc
+  IL stripping assemblies
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/tools/WorkerAotGuard/bin/Release/net10.0/WorkerAotGuard.dll
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Abstractions.dll: 1309 of 9728 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Animation.dll: 2461 of 14336 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.FlatBuffers.dll: 3648 of 19456 bytes rewritten
+  WORKER_AOT_IL_STRIPPED CuriousContraptions.Simulation.dll: 265304 of 874496 bytes rewritten
+  WORKER_AOT_COMPILE=CuriousContraptions.Simulation AOTMode=LLVMOnly arguments=print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child engine=CuriousContraptions.Abstractions;CuriousContraptions.Animation;CuriousContraptions.FlatBuffers;CuriousContraptions.Simulation
+  Compiling assembly bitcode files with -O2 ...
+  [1/18] System.Memory.dll.bc -> System.Memory.dll.o [took 0.183s]
+  [2/18] System.Runtime.dll.bc -> System.Runtime.dll.o [took 0.199s]
+  [3/18] CuriousContraptions.Animation.dll.bc -> CuriousContraptions.Animation.dll.o [took 0.231s]
+  [4/18] System.Numerics.Vectors.dll.bc -> System.Numerics.Vectors.dll.o [took 0.286s]
+  [5/18] System.Runtime.Intrinsics.dll.bc -> System.Runtime.Intrinsics.dll.o [took 0.300s]
+  [6/18] System.Collections.dll.bc -> System.Collections.dll.o [took 0.320s]
+  [7/18] System.Text.Encodings.Web.dll.bc -> System.Text.Encodings.Web.dll.o [took 0.338s]
+  [8/18] CuriousContraptions.FlatBuffers.dll.bc -> CuriousContraptions.FlatBuffers.dll.o [took 0.352s]
+  [9/18] System.Threading.dll.bc -> System.Threading.dll.o [took 0.189s]
+  [10/18] CuriousContraptions.Abstractions.dll.bc -> CuriousContraptions.Abstractions.dll.o [took 0.376s]
+  [11/18] System.Console.dll.bc -> System.Console.dll.o [took 0.384s]
+  [12/18] System.Linq.dll.bc -> System.Linq.dll.o [took 0.474s]
+  [13/18] System.Runtime.InteropServices.JavaScript.dll.bc -> System.Runtime.InteropServices.JavaScript.dll.o [took 0.535s]
+  [14/18] System.Text.Json.dll.bc -> System.Text.Json.dll.o [took 0.580s]
+  [15/18] System.Collections.Immutable.dll.bc -> System.Collections.Immutable.dll.o [took 0.582s]
+  [16/18] System.Private.CoreLib.dll.bc -> System.Private.CoreLib.dll.o [took 6.490s]
+  [17/18] CuriousContraptions.Simulation.dll.bc -> CuriousContraptions.Simulation.dll.o [took 11.757s]
+  [18/18] aot-instances.dll.bc -> aot-instances.dll.o [took 12.305s]
+  Compiling native assets with /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/Sdk/../tools/emscripten/emcc with -Oz. This may take a while ...
+  [1/4] corebindings.c -> corebindings.o [took 0.137s]
+  [2/4] driver.c -> driver.o [took 0.138s]
+  [3/4] pinvoke.c -> pinvoke.o [took 0.146s]
+  [4/4] runtime.c -> runtime.o [took 0.167s]
+  Linking for initial memory $(WasmInitialHeapSize)=33554432 bytes. Set this msbuild property to change the value.
+  Linking with emcc with -O2. This may take a while ...
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/clang --version
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Node.osx-arm64/10.0.12/tools/bin/node /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/emscripten/src/compiler.mjs /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmprv6p62a5.json --symbols-only
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-ld @/var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/emscripten_zayh2ul2.rsp.utf-8
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/llvm-objcopy /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm --remove-section=producers
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Node.osx-arm64/10.0.12/tools/bin/node /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/emscripten/src/compiler.mjs /var/folders/bg/f_3jxb251pnfck7qpwb9xmxc0000gn/T/tmpeyh3id3p.json
+   /Users/aidan/.dotnet/packs/Microsoft.NET.Runtime.Emscripten.3.1.56.Sdk.osx-arm64/10.0.12/tools/bin/wasm-opt --strip-target-features --post-emscripten -O2 --low-memory-unused --zero-filled-memory --pass-arg=directize-initial-contents-immutable /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -o /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/dotnet.native.wasm -g --mvp-features --enable-bulk-memory --enable-exception-handling --enable-multivalue --enable-mutable-globals --enable-reference-types --enable-sign-ext
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(84,5): error : WorkerAot (d): the AOT compile of CuriousContraptions.Simulation is not given mattr=simd (arguments ;print-skipped;no-opt;static;direct-icalls;deterministic;compile-in-child;). [/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj]

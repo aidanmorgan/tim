@@ -173,6 +173,19 @@ context:
 
 All under `_bmad-output/implementation-artifacts/evidence-9r-0b/`: `before/` (385c3802 publish log and tick captures), `red-green/` (every red, mutant and green publish log with its summary), `simd/` (per-function counts, both `driver-gen.c`), `telemetry/` (capture and summary scripts, OD2: manual, advisory), `after/`, `tier1/` and `full-run/`.
 
+**Tick telemetry (advisory, production bundles, `tools/Preview` + `node --test` with `telemetry/tick-capture.mjs`; ms per physics tick from `CCGPU_TICK_TIMES`, first Run of each suite).** The largest Free-workshop fixture is cat-020's wired construction (Counter, Powered Gate, Ball Detector, Basketball, Battery and Lamp, with activation and electrical wiring): the most placed parts of any Free-workshop suite (18 placements), and the slowest interpreter ticks among the Free-workshop suites measured (cat-030, cat-020, cat-002, cat-005; `before/ticks-candidates.jsonl`). Every capture shares one fixed-size construction encoding (5,768 B), so that field does not rank scene size.
+
+| Scene | Before 385c3802 (interpreter) p50 / p95 / max | After 5397956e (LLVMOnly AOT) p50 / p95 / max |
+|---|---|---|
+| cat-023b wired domino chain (355–361 ticks) | 3.910 / 6.520 / 22.240 | 0.540 / 0.740 / 0.985 |
+| cat-020 Free-workshop fixture (434–436 ticks) | 2.435 / 5.845 / 30.750 | 0.455 / 0.630 / 1.010 |
+
+**Bundle and first load.** Worker `dotnet.native.wasm`: Simulation 1,486,004 B → 10,406,654 B (brotli 561,356 → 2,976,935), Animation 1,486,038 B → 9,989,386 B (brotli 2,847,936 after). Whole AppBundle including `.br`/`.gz` siblings: 120,944 KB → 146,744 KB. Driver launch to `ready` (local Preview, uncompressed): 4,133–4,367 ms before, 4,239–4,273 ms after.
+
+**Publish time.** Clean host publish 67 s before (fresh worktree) and 117 s after (worker and host `obj`/`bin` moved aside); runner publish 33.7 s (9R.0a full run) and 78.1 s (this full run). Below the 10-minute OD1 threshold.
+
+**Full run.** `full-run/summary.json`: verdict Pass on `5397956e`, 34 files, 166/166, 0 skipped or todo, bundle identity unchanged start to end, 1,060.6 s. clock-master's single debt fault is its injected-load proof (identical counts to the 9R.0a baseline run).
+
 ## Open decisions
 
 - **OD1. Publish time.** If one runner publish exceeds 10 min, the owner chooses whether the runner may reuse an identical-source publish. Recommendation: decide only if it is measured above the threshold.

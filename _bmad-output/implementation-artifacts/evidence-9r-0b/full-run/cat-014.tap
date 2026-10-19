@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: CAT-014: Bowling ball dynamic sphere by material declaration
+    # Subtest: 1. Two lanes in one Run: the Bowling ball topples its Domino past 60 deg, the identically released Basketball leaves its Domino below 20 deg, and both balls come to rest
+    ok 1 - 1. Two lanes in one Run: the Bowling ball topples its Domino past 60 deg, the identically released Basketball leaves its Domino below 20 deg, and both balls come to rest
+      ---
+      duration_ms: 13616.065625
+      type: 'test'
+      ...
+    # Subtest: 2. Dropped from the placement plane the Bowling ball barely rebounds and rests at its 0.28 m radius; the Basketball rebounds high; Reset replays both worlds bit-for-bit
+    ok 2 - 2. Dropped from the placement plane the Bowling ball barely rebounds and rests at its 0.28 m radius; the Basketball rebounds high; Reset replays both worlds bit-for-bit
+      ---
+      duration_ms: 9718.876709
+      type: 'test'
+      ...
+    # Subtest: 3. A Bowling ball dropped into a placed Receiver is captured and the declared capture halo animates
+    ok 3 - 3. A Bowling ball dropped into a placed Receiver is captured and the declared capture halo animates
+      ---
+      duration_ms: 5530.835709
+      type: 'test'
+      ...
+    # Subtest: 4. Save / reload / Load restores both kinds; after Reset the second Run topples the Bowling lane again and leaves the Basketball lane standing
+    ok 4 - 4. Save / reload / Load restores both kinds; after Reset the second Run topples the Bowling lane again and leaves the Basketball lane standing
+      ---
+      duration_ms: 20701.561667
+      type: 'test'
+      ...
+    1..4
+ok 1 - CAT-014: Bowling ball dynamic sphere by material declaration
+  ---
+  duration_ms: 53952.871875
+  type: 'suite'
+  ...
+1..1
+# tests 4
+# suites 1
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 54232.17225

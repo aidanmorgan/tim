@@ -1,0 +1,2 @@
+label=mutant-a-off-aotmode-interp args=-p:AOTMode=LLVMOnlyInterp exit=1 seconds=6 head=385c3802 targets_sha256=4875a69dcc609ae2
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(48,5): error : WorkerAot (c): AOTMode is 'LLVMOnlyInterp'; only LLVMOnly (no interpreter) is allowed.

@@ -1,0 +1,2 @@
+label=red-a-runaot-false args=-p:RunAOTCompilation=false exit=1 seconds=1 head=385c3802 targets_sha256=4c91373b93294055
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(39,5): error : WorkerAot (a): the worker must publish with RunAOTCompilation, WasmEnableSIMD and WasmStripILAfterAOT true and AOTMode LLVMOnly (got false, true, true, LLVMOnly).

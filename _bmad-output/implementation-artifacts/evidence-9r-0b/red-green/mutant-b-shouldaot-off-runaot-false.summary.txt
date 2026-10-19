@@ -1,0 +1,2 @@
+label=mutant-b-shouldaot-off-runaot-false args=-p:RunAOTCompilation=false exit=1 seconds=6 head=385c3802 targets_sha256=be6c5788bf6676cb
+/Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.web/WorkerAot.targets(59,5): error : WorkerAot (b): /Users/aidan/dev/personal/tim/.claude/worktrees/agent-ac38d5d5435e6a458/CuriousContraptions.Simulation/obj/Release/net10.0/browser-wasm/wasm/for-publish/driver-gen.c is missing.

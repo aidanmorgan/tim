@@ -1,0 +1,2 @@
+WorkerAot (b): /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/dotnet.native.wasm carries no AOT module for CuriousContraptions.Simulation.
+WorkerAot (b): /Users/aidan/.dotnet/packs/Microsoft.NETCore.App.Runtime.Mono.browser-wasm/10.0.12/runtimes/browser-wasm/native/dotnet.native.wasm carries no AOT module for CuriousContraptions.FlatBuffers.
