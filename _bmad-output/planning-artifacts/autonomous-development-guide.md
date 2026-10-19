@@ -107,6 +107,16 @@ Owner decision, 19 Oct 2026. This section replaces the earlier rule that every s
   - **Review depth matches risk:** engine, clock, solver, wire and decision-logic stories get the three BMAD lenses plus the reviewer. Stories that add only declaration data or art, or only a test suite, get the reviewer alone.
   - The three BMAD lenses, where they apply, run on the first candidate only. Later rounds re-review the fixes and their impact.
   - **Owner decision, 19 Oct 2026:** keep the current story order (all of Epic 9R and Epic 9A before new elements), and run one story at a time.
+  - **Owner decision, 19 Oct 2026, evening: at most 2 review rounds per story.** After round 2, only two kinds of finding block:
+    - a breach of the story's own acceptance criteria;
+    - a player-visible regression that the story introduced.
+  - **Everything else is filed as a new story at the back of the queue**, after the last queued story, and doesn't block. This covers:
+    - defect-class expansion beyond the story's ACs;
+    - Lows carried over from earlier stories;
+    - test gaps outside the story's ACs;
+    - tooling hardening.
+  - **Exception:** a player-visible crash goes straight to the front.
+  - **No story absorbs another story's findings.** The rounds cap and the back-of-queue rule exist to stop the queue growing faster than it shrinks. On 19 Oct, 3 stories were done and 6 were added.
   - Only High and Medium findings block. A Low finding is fixed in the same round if trivial; otherwise it is recorded against an owning story and does not trigger a new round.
   - Mutation proof is required for new decision logic, not for declaration data or binding changes.
   - The reviewer begins static review while the implementer's Chrome gates run, and reuses the implementer's identity-verified runs.

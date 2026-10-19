@@ -3475,3 +3475,29 @@ So that Curious Contraptions is ready for public release.
 - **When** executed,
 - **Then** production WASM modules, scripts, and content packs build cleanly with 0 warnings.
 - **And** all 72 puzzle elements, 150 campaign levels, and Free Workshop sandbox are 100% verified in the final distribution bundle.
+
+---
+
+## Filed Follow-ups (back of the queue)
+
+*Owner decision, 19 Oct 2026, evening: review findings beyond a story's own acceptance criteria are filed here, after every other queued story, unless they are a player-visible crash. See the [verification tiers](autonomous-development-guide.md#verification-tiers).*
+
+### Story F.1: E2E Runner Hardening
+*Status: Backlog. Cut from Story 9R.0a on 19 Oct 2026.*
+
+**Acceptance Criteria:**
+- A second consecutive parallel full-run proof, and the 2N oversubscription trial.
+- The background checkpoint runs against a committed HEAD in a separate worktree and preview port.
+- A per-run PID ledger, with SIGINT/SIGTERM handling and stale-ledger reaping.
+- A cross-worktree global runner lock.
+- A seeded failure in one parallel suite is reported against that suite, and the other suites are unaffected.
+- Story 9R.0a review findings F1–F9 (Murdoch-5, 19 Oct 2026; [review](../implementation-artifacts/review-9r-0a-tiered-parallel-e2e-runner.md)):
+  - a Parallel qualification pinned to the suite digest;
+  - the spec's "no lexical timing detector" rule;
+  - a runner pass rule that counts debt faults;
+  - `closeExpecting` excusing exactly one declared fault;
+  - product source identity;
+  - committed level and bundle edits under `--changed`;
+  - silent partners that have no Primary suite;
+  - `tools/e2e/unit/**` selection;
+  - live skip and todo fixtures.

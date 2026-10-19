@@ -310,4 +310,7 @@ development_status:
   16-4-production-build-packaging-release-manifest: backlog
   epic-16-retrospective: optional
 
+  # Filed follow-ups (owner 19 Oct 2026: findings beyond a story's ACs go to the back of the queue)
+  f-1-e2e-runner-hardening: backlog
+
 action_items: []
