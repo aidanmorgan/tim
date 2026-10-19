@@ -1,0 +1,44 @@
+// Murdoch-3 round-6 probe (review-only): after a forced SimulationUnresponsive retirement, count every console line the
+// page writes per stream for 5 s, to see whether the stopped presentation logs once or on every frame.
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import type { Worker } from 'playwright';
+import { WorkshopDriver } from '/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b/tools/e2e/workshop-driver.ts';
+
+function simulationWorker(driver: WorkshopDriver): Worker {
+    const worker = driver.page.workers().find(candidate => candidate.url().includes('/simulation/worker.js'));
+    assert.ok(worker, 'The Simulation worker is running');
+    return worker;
+}
+async function blockSimulation(worker: Worker, milliseconds: number): Promise<void> {
+    await worker.evaluate(block => {
+        setTimeout(() => { const end = performance.now() + block; while (performance.now() < end) { /* spin */ } }, 0);
+    }, milliseconds);
+}
+
+test('retired session console lines per stream', { timeout: 150000 }, async () => {
+    const driver = await WorkshopDriver.launch({ baseUrl: 'http://127.0.0.1:8060/' });
+    const lines: { at: number; type: string; text: string }[] = [];
+    let spunAt = 0;
+    driver.page.on('console', message => { if (spunAt) lines.push({ at: Date.now() - spunAt, type: message.type(), text: message.text().slice(0, 140) }); });
+    try {
+        await driver.selectTool('basketball');
+        await driver.placeOnCanvas(720, 485);
+        await driver.run(0);
+        spunAt = Date.now();
+        await blockSimulation(simulationWorker(driver), 4000);
+        await driver.page.waitForTimeout(8000);
+        const after = lines.filter(line => line.text.includes('AFTER_RETIREMENT'));
+        const errors = lines.filter(line => line.type === 'error');
+        const summary = {
+            errorLines: errors.map(line => `${line.at}ms ${line.text.slice(0, 90)}`),
+            afterRetirementCount: after.length,
+            afterRetirementKinds: [...new Set(after.map(line => line.text.split(' ')[0]))],
+            afterRetirementFirstLast: after.length ? [after[0].at, after.at(-1)!.at] : [],
+            ccgpuOtherCounts: Object.entries(lines.filter(l => l.text.startsWith('CCGPU_') && !l.text.includes('AFTER_RETIREMENT'))
+                .reduce((map, l) => { const k = l.text.split(' ')[0]; map[k] = (map[k] ?? 0) + 1; return map; }, {} as Record<string, number>)),
+            totalLines: lines.length,
+        };
+        console.log(JSON.stringify(summary));
+    } finally { await driver.close(); }
+});

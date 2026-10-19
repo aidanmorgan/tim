@@ -330,13 +330,17 @@ public sealed class BasketballResourceTests(NativeSceneFixture godot)
         Assert.Contains($"CCGPU_DISPOSAL_AFTER_RETIREMENT {typeof(WorkshopTransportException).FullName}", output, StringComparison.Ordinal);
     }
 
-    // Control: on a transport that has not retired, the same failures are faults, written whole to the error stream.
-    [Fact]
-    public async Task APresentationOrDisposalFailureOnALiveTransportIsAStderrFault()
+    // Control: on a transport that has not retired (every live state, a timed-out or backpressured one included), the same
+    // failures are faults, written whole to the error stream.
+    [Theory]
+    [InlineData(WorkshopTransportState.Ready)]
+    [InlineData(WorkshopTransportState.Backpressure)]
+    [InlineData(WorkshopTransportState.TimedOut)]
+    public async Task APresentationOrDisposalFailureOnALiveTransportIsAStderrFault(WorkshopTransportState live)
     {
         await using var client = new RetiringUiClient { ReadFailure = new InvalidOperationException("presentation defect") };
-        var (output, errors) = await PresentAndDispose(client, WorkshopTransportState.Ready,
-            new WorkshopTransportException(new(new(1), new(1), default, default, default), WorkshopTransportState.TimedOut, new TimeoutException("late")));
+        var (output, errors) = await PresentAndDispose(client, live,
+            new WorkshopTransportException(new(new(1), new(1), default, default, default), live, new TimeoutException("late")));
         Assert.Contains("CCGPU_PRESENTATION_EXCEPTION System.InvalidOperationException: presentation defect", errors, StringComparison.Ordinal);
         Assert.Contains($"CCGPU_DISPOSAL_EXCEPTION {typeof(WorkshopTransportException).FullName}", errors, StringComparison.Ordinal);
         Assert.DoesNotContain("AFTER_RETIREMENT", output, StringComparison.Ordinal);

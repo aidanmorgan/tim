@@ -1,0 +1,50 @@
+#!/bin/zsh
+# Round-6 mutants on the clean ca6dcb68 copy (never the deliverable): each mutant is applied with sed, the targeted
+# tests are run, and the file is restored from git archive bytes kept alongside.
+C=/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/clean-ca6dcb68
+cd $C
+cp engine/MachineWorld.Gpu.cs /tmp/mw.orig 2>/dev/null || cp engine/MachineWorld.Gpu.cs $C.mw.orig
+cp engine/MachineWorld.Gpu.cs $C.mw.orig; cp engine/gpu/WorkshopDiagnostics.cs $C.wd.orig; cp engine/gpu/WorkshopClockMapping.cs $C.cm.orig
+RET='FullyQualifiedName~BasketballResourceTests.ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults|FullyQualifiedName~BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault|FullyQualifiedName~BasketballResourceTests'
+CLK='FullyQualifiedName~WorkshopClockDerivationTests|FullyQualifiedName~WorkshopClockMappingTests|FullyQualifiedName~ClockTests'
+run() { # $1 label, $2 filter
+  dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -nologo --filter "$2" > $C.m.raw 2>&1; rc=$?
+  local res=$(grep -E "Passed!|Failed!|error CS|error CA|error IDE" $C.m.raw | head -2 | tr '\n' ' ')
+  if [ $rc -ne 0 ]; then echo "KILLED   $1 :: $res"; else echo "SURVIVED $1 :: $res"; fi
+  grep -E "^\s+Failed CuriousContraptions" $C.m.raw | sed -E 's/\[.*//' | sort -u | head -3
+}
+restore() { cp $C.mw.orig engine/MachineWorld.Gpu.cs; cp $C.wd.orig engine/gpu/WorkshopDiagnostics.cs; cp $C.cm.orig engine/gpu/WorkshopClockMapping.cs; }
+
+echo "## baseline"; run baseline-retirement "$RET"; run baseline-clock "$CLK"
+
+sed -i '' 's#if (TransportRetired) WorkshopDiagnostics.AfterRetirement(FaultSite.Presentation, error);#if (true) WorkshopDiagnostics.AfterRetirement(FaultSite.Presentation, error);#' engine/MachineWorld.Gpu.cs
+run "R1 presentation: always after-retirement" "$RET"; restore
+sed -i '' 's#if (TransportRetired) WorkshopDiagnostics.AfterRetirement(FaultSite.Presentation, error);#if (false) WorkshopDiagnostics.AfterRetirement(FaultSite.Presentation, error);#' engine/MachineWorld.Gpu.cs
+run "R2 presentation: never after-retirement" "$RET"; restore
+sed -i '' 's#State: WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked }#State: WorkshopTransportState.Indeterminate }#' engine/MachineWorld.Gpu.cs
+run "R3 disposal: RecoveryBlocked dropped" "$RET"; restore
+sed -i '' 's#State: WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked }#State: WorkshopTransportState.RecoveryBlocked }#' engine/MachineWorld.Gpu.cs
+run "R4 disposal: Indeterminate dropped" "$RET"; restore
+sed -i '' 's#if (error is WorkshopTransportException { State: WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked })#if (error is WorkshopTransportException)#' engine/MachineWorld.Gpu.cs
+run "R5 disposal: any transport exception (state-blind)" "$RET"; restore
+sed -i '' 's#private bool TransportRetired => TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked;#private bool TransportRetired => TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked or WorkshopTransportState.TimedOut;#' engine/MachineWorld.Gpu.cs
+run "R6 TransportRetired widened to TimedOut (live, never logged)" "$RET"; restore
+sed -i '' 's#private bool TransportRetired => TransportState is WorkshopTransportState.Indeterminate or WorkshopTransportState.RecoveryBlocked;#private bool TransportRetired => TransportState is not WorkshopTransportState.Ready;#' engine/MachineWorld.Gpu.cs
+run "R7 TransportRetired = any non-Ready state (Backpressure, TimedOut)" "$RET"; restore
+sed -i '' 's#Console.WriteLine(\$"CCGPU_{Name(site)}_AFTER_RETIREMENT#Console.Error.WriteLine($"CCGPU_{Name(site)}_AFTER_RETIREMENT#' engine/gpu/WorkshopDiagnostics.cs
+run "R8 AfterRetirement written to stderr" "$RET"; restore
+
+sed -i '' 's#: stalledPastWidth ? ClockRecalibrationCause.StallPastMappedWidth : ClockRecalibrationCause.MappingLifetime,#: ClockRecalibrationCause.MappingLifetime,#' engine/gpu/WorkshopClockMapping.cs
+run "K1 cause: always MappingLifetime" "$CLK"; restore
+sed -i '' 's#: stalledPastWidth ? ClockRecalibrationCause.StallPastMappedWidth : ClockRecalibrationCause.MappingLifetime,#: ClockRecalibrationCause.StallPastMappedWidth,#' engine/gpu/WorkshopClockMapping.cs
+run "K2 cause: always StallPastMappedWidth" "$CLK"; restore
+sed -i '' 's#widened.Width + 2 \* TimestampUncertainty.Maximum <= MaximumMappedWidth;#widened.Width + 2 * TimestampUncertainty.Maximum < MaximumMappedWidth;#' engine/gpu/WorkshopClockMapping.cs
+run "K3 width bound: <= to <" "$CLK"; restore
+sed -i '' 's#widened.Width + 2 \* TimestampUncertainty.Maximum <= MaximumMappedWidth;#widened.Width + 2 * TimestampUncertainty.Maximum <= MaximumMappedWidth + 1;#' engine/gpu/WorkshopClockMapping.cs
+run "K4 width bound: one nanosecond looser" "$CLK"; restore
+sed -i '' 's#var stalledPastWidth = vouched \&\& !WithinMappedWidth(retained);#var stalledPastWidth = false;#' engine/gpu/WorkshopClockMapping.cs
+run "K5 stalledPastWidth never true (old R4-F1 bound removed)" "$CLK"; restore
+sed -i '' 's#var renewed = vouched \&\& !stalledPastWidth \&\& interval.Overlaps(retained);#var renewed = vouched \&\& interval.Overlaps(retained);#' engine/gpu/WorkshopClockMapping.cs
+run "K6 renewal ignores the stall bound" "$CLK"; restore
+cmp -s $C.mw.orig engine/MachineWorld.Gpu.cs && cmp -s $C.cm.orig engine/gpu/WorkshopClockMapping.cs && cmp -s $C.wd.orig engine/gpu/WorkshopDiagnostics.cs && echo "sources restored"
+echo DONE

@@ -247,5 +247,11 @@ rebase/chrome-ca6dcb68/bundle-manifest.sha256): the failed suite, the smoke pair
   PLAYTEST suites: no tools/e2e suite reads CCGPU_TRACE_*, CCGPU_TICK_TIMES_* or needs a PlaytestDiagnostics
     bundle (tools/e2e/README.md: that variant "is never a gate"); every file in both runs skipped 0 tests (38 TAP
     files). The PLAYTEST code is gated by the hook's and CI's playtest.binlog build (4 projects with the PLAYTEST define).
-  Not re-run on ca6dcb68: the other 33 files of the full run (passed on 6c8f7dc3). The fix changes only the two
+  Not re-run on ca6dcb68: the other 33 files of the full run (passed on 6c8f7dc3).
+
+Murdoch-3 round 6 (Medium test gap, test-only fix): the live-transport control is a theory over Ready, Backpressure
+  and TimedOut. Mutants over the whole suite: TransportRetired widened with TimedOut, 1 failure (live: TimedOut);
+  with Backpressure, 1 failure (live: Backpressure) (rebase/r6-mutant-retired-*.txt). Tier 1 native (rebase/tier1-r6/):
+  slnx build 0 warnings; 1692/1692 and Coverage 78/78; node 76/76; LifecycleContract 510/0, WireContract 109/0,
+  Ownership exit 0; anvil 0 warnings on the changed test. Bundle unchanged (test-only), so no Chrome. The fix changes only the two
   boundaries' logging when the transport has already retired, which only the fault suites reach.

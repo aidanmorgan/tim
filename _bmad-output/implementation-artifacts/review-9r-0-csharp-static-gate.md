@@ -426,3 +426,87 @@ The round-3 list, run after the 9.4b rebase and its native re-check:
 8. The full serial `tools/e2e/*.test.ts` run against the production preview, with `dotnet build` at 0 warnings.
 
 Final state: HEAD `5c0a6232`; the working tree is unchanged apart from this appendix and `evidence-9r-0/review5/`.
+
+---
+
+## Re-review (round 6, after the rebase onto main `0673bb92`)
+
+*Reviewer: Murdoch-3. Date: 19 Oct 2026.*
+
+*Candidate: HEAD `2ea65ed5`; verified code is `ca6dcb68`. Raw logs are in `evidence-9r-0/review6/`.*
+
+### Verdict: **Incomplete** (one blocking Medium, a proof gap; no known violation)
+
+### Identity
+
+- `0673bb92` is an ancestor of HEAD.
+- `ca6dcb68..2ea65ed5` changes only `_bmad-output` documents and evidence.
+- The worktree's code equals `ca6dcb68` (`git diff --quiet ca6dcb68 -- . ':(exclude)_bmad-output'`).
+- The history branch `story-9r-0-history-5c0a6232` resolves to `5c0a6232`.
+- **The publish is not byte-reproducible.** My clean-copy publish and my same-path republish of the worktree each differ from the recorded `chrome-ca6dcb68/bundle-manifest.sha256` in 51 of 285 files: every assembly, `dotnet.boot.js` and `godot.pck`. The manifest therefore cannot bind the served bundle to source. So I republished the worktree, which is verified identical to `ca6dcb68` code, and ran Chrome on that build. The served `CuriousContraptions.wasm` hash was `94cddf9b…` before and after the run (`C2-served.txt`, `C2-bundle-manifest.sha256`).
+
+### Tier 1 on a clean `git archive` copy of `ca6dcb68` (`T-tier1-clean-ca6dcb68.log`)
+
+- **Builds:** the gate builds (restore, solution, PLAYTEST, web, both file-based apps, `-noAutoResponse`, binary logs) all exit 0 with **0 warnings**. IL2125 is gone.
+- **`dotnet test CuriousContraptions.slnx`:**
+  - with `CSHARP_STATIC_GATE_BINLOGS` set to my logs: `CuriousContraptions.tests` 1690/1690, `Coverage.Tests` 78/78;
+  - PLAYTEST: 1704/1704 and 78/78.
+- **Node:** `node --experimental-vm-modules --test tools/*.test.mjs` passes 76/76. The control without the flag on Node 26.12.0 fails 6 files.
+- **Contract tools:** LifecycleContract, WireContract and `Ownership --oracles` all exit 0.
+
+### Chrome
+
+- **clock-master on my republished build:** 8/8, exit 0 (`C2-clock-master.tap`). Test 4 recorded exactly 2 error lines, `CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: …` and the page notice `SimulationUnresponsive: …`, with the first at 937 ms.
+- **clock-master on the implementer's bundle** (`757e9bf3…`, matching her manifest): also 8/8 (`C-clock-master.tap`).
+- **Review probe** (`P-retired-console.test.ts.txt`): a forced retirement, then 8 s of console capture. It recorded 2 stderr lines (the transport failure and the page notice), one `CCGPU_PRESENTATION_AFTER_RETIREMENT` and one `CCGPU_DISPOSAL_AFTER_RETIREMENT` on stdout, and 5 lines in total. There is **no per-frame flood**: the scene disposes the client and presentation stops.
+- **"Two error lines, identical to main": verified.** Both lines come from `workshop-client.js:67` and `index.html`, which are unchanged between `0673bb92` and `ca6dcb68`; the only browser-script change in that range is the two `worker.js` export lines. This is a pre-existing Low owned by Story 9A.24.
+
+### Attack: can a live-transport failure be classified as after-retirement and hidden from stderr?
+
+**In the shipped code: no.**
+- **Presentation.** `TransportRetired` is exactly `Indeterminate or RecoveryBlocked`.
+  - JS sets `indeterminate` only in `fail()`. Every `fail()` call except `dispose(id)` logs `CCGPU_TRANSPORT_FAILURE` to stderr first, so a retired state always has its stderr line.
+  - `dispose` retires silently, but `MachineWorld.DisposeWorkshop` clears `_workshopClient` before awaiting the disposal, so presentation never runs on it.
+  - Once retired, `TryRead` throws first (`ThrowIfTransportFailed`), so no other presentation code, and no defect in it, can run inside that catch.
+  - A JS import that calls `fail()` synchronously and then throws still leaves its own stderr line.
+- **Disposal.** It is classified by exception type: `WorkshopTransportException` with state `Indeterminate` or `RecoveryBlocked`. That state is read from `TransportState` at a send failure, so it is retired only after a logged `fail()`. A `TimedOut` or any other exception stays a stderr fault.
+
+**But the tests do not pin that boundary.** Mutants on the clean copy (`M-mutants.log`):
+
+| Mutant | Result |
+| :-- | :-- |
+| Presentation always after-retirement | Killed |
+| Presentation never after-retirement | Killed |
+| Disposal without `RecoveryBlocked` | Killed |
+| Disposal without `Indeterminate` | Killed |
+| Disposal state-blind | Killed |
+| `AfterRetirement` written to stderr | Killed |
+| Cause always `MappingLifetime` | Killed |
+| Cause always `StallPastMappedWidth` | Killed |
+| Width bound `<=` → `<` | Killed |
+| Width bound 1 ns looser | Killed |
+| `stalledPastWidth` never true | Killed |
+| Renewal ignores the stall bound | Killed |
+| **`TransportRetired` widened with `TimedOut`** | **Survived the whole slnx** (1690/1690, 78/78) |
+| **`TransportRetired` widened with `Backpressure`** | **Survived the whole slnx** (1690/1690, 78/78) |
+
+(The two constant presentation mutants were first stopped by the compiler, CS0162, then rewritten as non-constant, analyzer-clean forms and killed.)
+
+### Findings
+
+**M1 (Medium, blocking: missing proof).** The live-transport control `APresentationOrDisposalFailureOnALiveTransportIsAStderrFault` covers only `Ready`. A `TimedOut` transport is live and reachable under load, and JS never logs a `TRANSPORT_FAILURE` for it. A future widening of `TransportRetired` to it would move a genuine presentation fault to stdout, with no other stderr line, and neither the native suite nor any Chrome suite would notice.
+
+**Fix:** make the control a theory over `Ready`, `Backpressure` and `TimedOut` (expect a stderr `CCGPU_PRESENTATION_EXCEPTION` and no `AFTER_RETIREMENT`). Optionally pin `TransportRetired` for the 9.4b UI bindings the same way. That kills both survivors.
+
+### Lows (recorded, non-blocking)
+
+1. The forced fault gives 2 stderr lines (the transport failure and the page notice), identical to main. Owned by Story 9A.24.
+2. CA2000 at its default cannot flag undisposed `FileStream`/`MemoryStream`; `AllPaths` would add 32 unrelated findings. Accepted by the coordinator.
+3. The publish is not byte-reproducible, so a bundle manifest identifies a served build but not its source. Bind Chrome evidence by publishing from the verified tree immediately before the run, as done here.
+4. Carried over: the working-tree hook bypass is equivalent to `--no-verify` (CI now runs the gate on every push and PR, which narrows it), and the save-decode ruling is now a 9A.2 AC.
+
+### Chrome checklist
+
+After M1, the native re-run is the theory above plus the mutation check (both survivors killed). No further Chrome run is needed: the change is test-only.
+
+Final state: HEAD `2ea65ed5`. The worktree is unchanged apart from this appendix, `evidence-9r-0/review6/` and the republished, git-ignored `AppBundle`, which is still served on :8060 and was built from code identical to `ca6dcb68`.

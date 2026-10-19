@@ -1,0 +1,10 @@
+{"errorLines":["914ms CCGPU_TRANSPORT_FAILURE 3 SimulationUnresponsive: The Simulation worker's event loop has n","914ms SimulationUnresponsive: The Simulation worker's event loop has not run for 1000 ms.\n    at"],"afterRetirementCount":2,"afterRetirementKinds":["CCGPU_PRESENTATION_AFTER_RETIREMENT","CCGPU_DISPOSAL_AFTER_RETIREMENT"],"afterRetirementFirstLast":[926,1003],"ccgpuOtherCounts":[["CCGPU_TRANSPORT_FAILURE",1]],"totalLines":5}
+✔ retired session console lines per stream (13522.980333ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13801.343166

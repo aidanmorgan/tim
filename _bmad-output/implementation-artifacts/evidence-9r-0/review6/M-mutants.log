@@ -1,0 +1,48 @@
+## baseline
+SURVIVED baseline-retirement :: Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 144 ms - CuriousContraptions.tests.dll (net10.0) 
+SURVIVED baseline-clock :: Passed!  - Failed:     0, Passed:    69, Skipped:     0, Total:    69, Duration: 276 ms - CuriousContraptions.tests.dll (net10.0) 
+KILLED   R1 presentation: always after-retirement :: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/clean-ca6dcb68/engine/MachineWorld.Gpu.cs(297,18): error CS0162: Unreachable code detected [/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/clean-ca6dcb68/CuriousContraptions.csproj] 
+KILLED   R2 presentation: never after-retirement :: /private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/clean-ca6dcb68/engine/MachineWorld.Gpu.cs(296,24): error CS0162: Unreachable code detected [/private/tmp/claude-501/-Users-aidan-dev-personal-tim/49d80295-44c4-4940-bc16-8455cdf5d09d/scratchpad/clean-ca6dcb68/CuriousContraptions.csproj] 
+KILLED   R3 disposal: RecoveryBlocked dropped :: Failed!  - Failed:     1, Passed:    19, Skipped:     0, Total:    20, Duration: 145 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults(retired: RecoveryBlocked) 
+KILLED   R4 disposal: Indeterminate dropped :: Failed!  - Failed:     1, Passed:    19, Skipped:     0, Total:    20, Duration: 153 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults(retired: Indeterminate) 
+KILLED   R5 disposal: any transport exception (state-blind) :: Failed!  - Failed:     1, Passed:    19, Skipped:     0, Total:    20, Duration: 147 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault 
+SURVIVED R6 TransportRetired widened to TimedOut (live, never logged) :: Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 139 ms - CuriousContraptions.tests.dll (net10.0) 
+SURVIVED R7 TransportRetired = any non-Ready state (Backpressure, TimedOut) :: Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 140 ms - CuriousContraptions.tests.dll (net10.0) 
+KILLED   R8 AfterRetirement written to stderr :: Failed!  - Failed:     2, Passed:    18, Skipped:     0, Total:    20, Duration: 150 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults(retired: Indeterminate) 
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults(retired: RecoveryBlocked) 
+KILLED   K1 cause: always MappingLifetime :: Failed!  - Failed:     6, Passed:    63, Skipped:     0, Total:    69, Duration: 517 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 10070000000, move: 4000000) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 120070000000, move: 50000000) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0) 
+KILLED   K2 cause: always StallPastMappedWidth :: Failed!  - Failed:     4, Passed:    65, Skipped:     0, Total:    69, Duration: 515 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AFreshExchangeThatIsNotAcceptedOrNeverAnsweredEndsTheRenewalAsARecalibration 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AStalledRequestersLapseThatDisagreesWithTheOldMappingIsACountedRecalibration 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AWideRenewingExchangeCannotConfirmAMovedClock 
+KILLED   K3 width bound: <= to < :: Failed!  - Failed:     2, Passed:    67, Skipped:     0, Total:    69, Duration: 522 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.TheOldMappingWidthBoundIsExactlyTheMappedWidth(beyond: 0, renews: True) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.TheRenewalWidthBoundIsTheRefreshHorizonQualification(wider: 0, renews: True) 
+KILLED   K4 width bound: one nanosecond looser :: Failed!  - Failed:     1, Passed:    68, Skipped:     0, Total:    69, Duration: 515 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AnOddWidthOldMappingIsBoundToTheNanosecond(age: 1400000000, renews: False) 
+KILLED   K5 stalledPastWidth never true (old R4-F1 bound removed) :: Failed!  - Failed:     6, Passed:    63, Skipped:     0, Total:    69, Duration: 520 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 10070000000, move: 4000000) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 120070000000, move: 50000000) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0) 
+KILLED   K6 renewal ignores the stall bound :: Failed!  - Failed:     6, Passed:    63, Skipped:     0, Total:    69, Duration: 535 ms - CuriousContraptions.tests.dll (net10.0) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 10070000000, move: 4000000) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 120070000000, move: 50000000) 
+  Failed CuriousContraptions.Tests.WorkshopClockDerivationTests.AfterAStallPastTheBoundAConcludingExchangeRecalibratesNeverRenews(resumed: 1570000000, move: 0) 
+sources restored
+DONE
+KILLED   R1' presentation: always after-retirement (non-constant) :: 
+KILLED   R2' presentation: never after-retirement (non-constant) :: Failed!  - Failed:     2, Passed:    18, Skipped:     0, Total:    20, Duration: 147 ms - CuriousContraptions.tests.dll (net10.0)
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults(retired: Indeterminate) 
+  Failed CuriousContraptions.Tests.BasketballResourceTests.ARetiredTransportsStoppedPresentationAndDisposalAreNotSecondFaults(retired: RecoveryBlocked) 
+restored
+R1'' presentation: always after-retirement (HResult filter) =>   Failed CuriousContraptions.Tests.BasketballResourceTests.APresentationOrDisposalFailureOnALiveTransportIsAStderrFault 
+Failed!  - Failed:     1, Passed:    19, Skipped:     0, Total:    20, Duration: 143 ms - CuriousContraptions.tests.dll (net10.0)
+R6-full TransportRetired 'or WorkshopTransportState.TimedOut' (whole slnx) => Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 907 ms - Coverage.Tests.dll (net10.0) Passed!  - Failed:     0, Passed:  1690, Skipped:     0, Total:  1690, Duration: 18 s - CuriousContraptions.tests.dll (net10.0) 
+R6-full TransportRetired 'or WorkshopTransportState.Backpressure' (whole slnx) => Passed!  - Failed:     0, Passed:    78, Skipped:     0, Total:    78, Duration: 929 ms - Coverage.Tests.dll (net10.0) Passed!  - Failed:     0, Passed:  1690, Skipped:     0, Total:  1690, Duration: 15 s - CuriousContraptions.tests.dll (net10.0) 
