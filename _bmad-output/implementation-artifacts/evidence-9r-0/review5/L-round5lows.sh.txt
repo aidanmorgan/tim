@@ -1,0 +1,32 @@
+#!/bin/zsh
+# Round-5 review: the round-4 Lows.
+setopt NULL_GLOB
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+BASE=$(git rev-parse HEAD); echo "HEAD before: $BASE"
+undo() {
+  if [ "$(git rev-parse HEAD)" != "$BASE" ]; then git reset -q --soft $BASE; fi
+  git reset -q; git checkout -- .; rm -f elements/Ball/Review*.cs elements/Ball/Review*.cs.uid $W/.c.raw
+  echo "  undone: HEAD=$(git rev-parse HEAD) status=[$(git status --short | grep -v 'evidence-9r-0/review5' | tr '\n' ' ')]"
+}
+commit() {
+  git commit -m "review probe $1 (to be reset)" > $W/.c.raw 2>&1; rc=$?
+  echo "  git commit exit=$rc  HEAD after: $(git rev-parse --short HEAD)"
+  grep -E "(error|warning) [A-Z]+[0-9]+|violation|unpinned analyzer|Failed!|Passed!" $W/.c.raw | grep -v -E "IL2125|^\s+at " |
+    sed -E 's#^/[^ ]*/(csharp-gate\.[A-Za-z0-9]+|agent-a08aebc94d551b53b)/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -5
+}
+echo "### L2 xunit.analyzers (with its diagnostic suppressors) added to a production project, elements/Ball"
+sed -i '' 's#  <ItemGroup>#  <ItemGroup>\
+    <PackageReference Include="xunit.analyzers" Version="1.27.0" PrivateAssets="all" />#' elements/Ball/Ball.csproj
+grep -n xunit elements/Ball/Ball.csproj
+git add elements/Ball/Ball.csproj; commit L2; undo
+
+echo "### L3 unstaged working-tree hook edit (exit 0 inserted before the staged-copy redirect) + a staged warning"
+printf '%s\n' 'namespace CuriousContraptions.Elements.Ball;' 'internal static class ReviewLocal { public static int M() { var unused = 0; return 1; } }' > elements/Ball/ReviewLocal.cs
+git add elements/Ball/ReviewLocal.cs
+sed -i '' '2a\
+exit 0
+' .githooks/pre-commit
+head -4 .githooks/pre-commit
+commit L3; undo
+echo DONE

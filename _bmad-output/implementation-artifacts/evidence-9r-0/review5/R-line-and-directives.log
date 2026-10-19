@@ -1,0 +1,65 @@
+HEAD before: 5c0a6232716ee209f5b0245cbeff9efb8bde4a5f
+### V #line hidden / #line default
+  guard exit=1
+elements/Ball/ReviewLine.cs:4: #line hidden
+elements/Ball/ReviewLine.cs:6: #line default
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### V #   line hidden (spaces), tab-separated default
+  guard exit=1
+elements/Ball/ReviewLine.cs:4: #   line hidden
+elements/Ball/ReviewLine.cs:6: #	line	default
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### V #line 1 "elsewhere.g.cs"
+  guard exit=1
+elements/Ball/ReviewLine.cs:4: #line 1 "elsewhere.g.cs"
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### V #line span directive
+  guard exit=1
+elements/Ball/ReviewLine.cs:4: #line (1, 1) - (1, 80) 5 "elsewhere.cs"
+elements/Ball/ReviewLine.cs:6: #line default
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### V #line hidden inside an active #if DEBUG spanning the member
+  guard exit=1
+elements/Ball/ReviewLine.cs:5: #line hidden
+elements/Ball/ReviewLine.cs:9: #line default
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### V #line hidden inside an inactive #if (never defined)
+  guard exit=1
+elements/Ball/ReviewLine.cs:5: #line hidden
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### V #line hidden inside #else of #if !DEBUG (active in Debug)
+  guard exit=1
+elements/Ball/ReviewLine.cs:6: #line hidden
+elements/Ball/ReviewLine.cs:9: #line default
+Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+### C1 real commit: #line hidden toggled through active #if DEBUG blocks around an undisposed Timer
+  git commit exit=1  HEAD after: 5c0a6232
+   2 C# static gate violation(s):
+elements/Ball/ReviewLine.cs:5: #line hidden
+elements/Ball/ReviewLine.cs:9: #line default
+Failed!  - Failed:     1, Passed:   109, Skipped:     0, Total:   110, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+  undone: HEAD=5c0a6232716ee209f5b0245cbeff9efb8bde4a5f status=[]
+### C2 real commit: file-based app directive '#:property NoWarn=CS0219%3BIDE0059' + unused local in tools/anvil/VerifyPolicy.cs
+#:property TargetFramework=net10.0
+#:property NoWarn=CS0219%3BIDE0059
+using System.Diagnostics;
+
+  git commit exit=1  HEAD after: 5c0a6232
+   2 C# static gate violation(s):
+Failed!  - Failed:     1, Passed:   109, Skipped:     0, Total:   110, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+verify-policy.binlog: tools/anvil/VerifyPolicy.cs.csproj: /nowarn:CS0219
+verify-policy.binlog: tools/anvil/VerifyPolicy.cs.csproj: /nowarn:IDE0059
+  undone: HEAD=5c0a6232716ee209f5b0245cbeff9efb8bde4a5f status=[]
+### C3 real commit: '#:property TreatWarningsAsErrors=false' + unused local in tools/anvil/VerifyPolicy.cs
+#:property TargetFramework=net10.0
+#:property TreatWarningsAsErrors=false
+using System.Diagnostics;
+
+  git commit exit=1  HEAD after: 5c0a6232
+   2 C# static gate violation(s):
+Failed!  - Failed:     1, Passed:   109, Skipped:     0, Total:   110, Duration: 2 s - CuriousContraptions.tests.dll (net10.0)
+tools/anvil/VerifyPolicy.cs(5,5): warning CS0219: The variable 'reviewUnused' is assigned but its value is never used
+verify-policy.binlog: tools/anvil/VerifyPolicy.cs.csproj: /warnaserror-
+verify-policy.binlog: tools/anvil/VerifyPolicy.cs.csproj: compiled without /warnaserror+
+  undone: HEAD=5c0a6232716ee209f5b0245cbeff9efb8bde4a5f status=[]
+DONE

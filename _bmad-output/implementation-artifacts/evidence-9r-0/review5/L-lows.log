@@ -1,0 +1,18 @@
+HEAD before: 5c0a6232716ee209f5b0245cbeff9efb8bde4a5f
+### L2 xunit.analyzers (with its diagnostic suppressors) added to a production project, elements/Ball
+9:    <PackageReference Include="xunit.analyzers" Version="1.27.0" PrivateAssets="all" />
+  git commit exit=1  HEAD after: 5c0a6232
+   4 C# static gate violation(s):
+Failed!  - Failed:     1, Passed:   109, Skipped:     0, Total:   110, Duration: 3 s - CuriousContraptions.tests.dll (net10.0)
+playtest.binlog: elements/Ball/Ball.csproj: unpinned analyzer /Users/aidan/.nuget/packages/xunit.analyzers/1.27.0/analyzers/dotnet/cs/xunit.analyzers.dll (package xunit.analyzers, project elements/Ball/Ball.csproj)
+playtest.binlog: elements/Ball/Ball.csproj: unpinned analyzer /Users/aidan/.nuget/packages/xunit.analyzers/1.27.0/analyzers/dotnet/cs/xunit.analyzers.fixes.dll (package xunit.analyzers, project elements/Ball/Ball.csproj)
+solution.binlog: elements/Ball/Ball.csproj: unpinned analyzer /Users/aidan/.nuget/packages/xunit.analyzers/1.27.0/analyzers/dotnet/cs/xunit.analyzers.dll (package xunit.analyzers, project elements/Ball/Ball.csproj)
+  undone: HEAD=5c0a6232716ee209f5b0245cbeff9efb8bde4a5f status=[]
+### L3 unstaged working-tree hook edit (exit 0 inserted before the staged-copy redirect) + a staged warning
+#!/bin/sh
+set -eu
+exit 0
+# Run the staged copy of this hook, not the working-tree one, so an unstaged hook edit does not take effect.
+  git commit exit=0  HEAD after: 7adc444c
+  undone: HEAD=5c0a6232716ee209f5b0245cbeff9efb8bde4a5f status=[]
+DONE

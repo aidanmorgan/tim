@@ -1,0 +1,59 @@
+#!/bin/zsh
+# Round-5 review: #line variants against the guard, then real commits through the hook.
+setopt NULL_GLOB
+W=/Users/aidan/dev/personal/tim/.claude/worktrees/agent-a08aebc94d551b53b
+cd $W
+BASE=$(git rev-parse HEAD); echo "HEAD before: $BASE"
+P=elements/Ball/ReviewLine.cs
+guard() {
+  dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -nologo \
+    --filter "FullyQualifiedName~NoCompiledSourceSuppressesADiagnosticOrHidesFromTheAnalyzers" > $W/.g.raw 2>&1
+  echo "  guard exit=$?"; grep -E "Passed!|Failed!|#line|line" $W/.g.raw | grep -v "^\s*at " | head -3
+}
+body='    public static int Leak() { var timer = new System.Threading.Timer(_ => { }); return timer.GetHashCode(); }'
+variant() { # $1 label, $2 before, $3 after
+  echo "### V $1"
+  { echo 'namespace CuriousContraptions.Elements.Ball;'; echo 'internal static class ReviewLine'; echo '{'; printf '%b\n' "$2"; echo "$body"; printf '%b\n' "$3"; echo '}'; } > $P
+  guard; rm -f $P $P.uid
+}
+variant "#line hidden / #line default" "#line hidden" "#line default"
+variant "#   line hidden (spaces), tab-separated default" "#   line hidden" "#\tline\tdefault"
+variant "#line 1 \"elsewhere.g.cs\"" "#line 1 \"elsewhere.g.cs\"" ""
+variant "#line span directive" "#line (1, 1) - (1, 80) 5 \"elsewhere.cs\"" "#line default"
+variant "#line hidden inside an active #if DEBUG spanning the member" "#if DEBUG\n#line hidden\n#endif" "#if DEBUG\n#line default\n#endif"
+variant "#line hidden inside an inactive #if (never defined)" "#if REVIEW_NEVER\n#line hidden\n#endif" ""
+variant "#line hidden inside #else of #if !DEBUG (active in Debug)" "#if !DEBUG\n#else\n#line hidden\n#endif" "#line default"
+
+undo() {
+  if [ "$(git rev-parse HEAD)" != "$BASE" ]; then git reset -q --soft $BASE; fi
+  git reset -q; git checkout -- .; rm -f $P $P.uid $W/.c.raw $W/.g.raw
+  echo "  undone: HEAD=$(git rev-parse HEAD) status=[$(git status --short | grep -v 'evidence-9r-0/review5' | tr '\n' ' ')]"
+}
+commit() {
+  git commit -m "review probe $1 (to be reset)" > $W/.c.raw 2>&1; rc=$?
+  echo "  git commit exit=$rc  HEAD after: $(git rev-parse --short HEAD)"
+  grep -E "(error|warning) [A-Z]+[0-9]+|violation|line|nowarn|warnaserror|Failed!|Passed!" $W/.c.raw | grep -v -E "IL2125|^\s+at " |
+    sed -E 's#^/[^ ]*/(csharp-gate\.[A-Za-z0-9]+|agent-a08aebc94d551b53b)/##; s# \(https[^)]*\)##; s# \[/.*\]##' | sort -u | head -5
+}
+echo "### C1 real commit: #line hidden toggled through active #if DEBUG blocks around an undisposed Timer"
+{ echo 'namespace CuriousContraptions.Elements.Ball;'; echo 'internal static class ReviewLine'; echo '{'; printf '%b\n' "#if DEBUG\n#line hidden\n#endif"; echo "$body"; printf '%b\n' "#if DEBUG\n#line default\n#endif"; echo '}'; } > $P
+git add $P; commit C1; undo
+
+echo "### C2 real commit: file-based app directive '#:property NoWarn=CS0219%3BIDE0059' + unused local in tools/anvil/VerifyPolicy.cs"
+sed -i '' '1a\
+#:property NoWarn=CS0219%3BIDE0059
+' tools/anvil/VerifyPolicy.cs
+sed -i '' 's#^var sourceRoot = Directory.GetCurrentDirectory();#var reviewUnused = 0;\
+&#' tools/anvil/VerifyPolicy.cs
+head -4 tools/anvil/VerifyPolicy.cs
+git add tools/anvil/VerifyPolicy.cs; commit C2; undo
+
+echo "### C3 real commit: '#:property TreatWarningsAsErrors=false' + unused local in tools/anvil/VerifyPolicy.cs"
+sed -i '' '1a\
+#:property TreatWarningsAsErrors=false
+' tools/anvil/VerifyPolicy.cs
+sed -i '' 's#^var sourceRoot = Directory.GetCurrentDirectory();#var reviewUnused = 0;\
+&#' tools/anvil/VerifyPolicy.cs
+head -4 tools/anvil/VerifyPolicy.cs
+git add tools/anvil/VerifyPolicy.cs; commit C3; undo
+echo DONE
