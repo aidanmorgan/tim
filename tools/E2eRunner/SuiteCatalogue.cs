@@ -163,6 +163,11 @@ internal static class SuiteCatalogue
         Serial(SuiteId.Cat023a,
             [new(TimingReason.AssertsWallClockRate, "Asserts >= 10 pose reads during one settled wall-clock second.", 133)],
             PartId.Domino, Set(PartId.Basketball, PartId.Domino), [], [], Set(Gizmo)),
+        Serial(SuiteId.Cat020,
+            [Owner("Coordinator decision, 20 Oct 2026: recalibrated a clock at boot under N=2 AOT workers " +
+                "(evidence-9r-1/full-run-parallel); Parallel is unearned until Story F.1 recalibrates.", 1)],
+            PartId.Counter, Set(PartId.BallDetector, PartId.Basketball, PartId.Battery, PartId.Counter,
+            PartId.SignalLamp, PartId.PoweredGate), [], Set(Signal, Electrical), Set(Gizmo, Guide, Wire, Config, Present)),
 
         Parallel(SuiteId.Cat002, PartId.BallDetector, Set(PartId.BallDetector, PartId.Basketball, PartId.SignalLamp), [], Set(Signal),
             Set(Gizmo, Guide, Wire, Present)),
@@ -174,8 +179,6 @@ internal static class SuiteCatalogue
             Set(Gizmo, Levels, Present)),
         Parallel(SuiteId.Cat015b, PartId.PinballBumper, Set(PartId.PinballBumper, PartId.Wall),
             Set(new LevelId("bumper_depth"), new LevelId("wall_and_bumper")), [], Set(Gizmo, Levels, Present)),
-        Parallel(SuiteId.Cat020, PartId.Counter, Set(PartId.BallDetector, PartId.Basketball, PartId.Battery, PartId.Counter,
-            PartId.SignalLamp, PartId.PoweredGate), [], Set(Signal, Electrical), Set(Gizmo, Guide, Wire, Config, Present)),
         Parallel(SuiteId.Cat030, PartId.Funnel, Set(PartId.Basketball, PartId.Funnel, PartId.Pipe, PartId.Receiver), [], [],
             Set(Gizmo, Guide)),
         Parallel(SuiteId.Cat048a, PartId.Pipe, Set(PartId.Basketball, PartId.Pipe), [], [], Set(Gizmo, Guide)),
