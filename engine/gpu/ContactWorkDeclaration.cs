@@ -87,7 +87,8 @@ public readonly record struct ContactWorkOccurrence(ContactWorkSlot Work, Collid
 {
     public void Validate()
     {
-        if (Work.Value >= PhysicsSceneDeclaration.ContactWorkCapacity || Collider.Value >= PhysicsSceneDeclaration.ColliderCapacity ||
+        // The collider slot is bound to the installed scene's own collider count where the world is read (ReadContactWorks).
+        if (Work.Value >= PhysicsSceneDeclaration.ContactWorkCapacity ||
             Target.Value == 0 || Sequence > ContactWorkRead.MaximumOccurrences || !Enum.IsDefined(Effect))
             throw new ArgumentException("Invalid contact-work occurrence identity.");
         ApproachSpeed.Validate(4096f);

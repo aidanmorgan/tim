@@ -31,7 +31,9 @@ public static partial class PhysicsGpuAbi
     public const int HeaderTriggerCountOffset = 100;
     public const int HeaderContactWorkCountOffset = 104;
     public const int HeaderWorkOccurrenceCountOffset = 108;
-    public const int HeaderCachePairCountOffset = 112;
+    /// <summary>Reserved header word, always zero: it counted the ABI contact-cache slots Story 9R.2 deleted (the engine's warm-start
+    /// cache is its own dictionary).</summary>
+    public const int HeaderReservedOffset = 112;
     public const int HeaderOrientationSensorCountOffset = 116;
     public const int HeaderElectricalSourceCountOffset = 120;
     public const int HeaderElectricalBindingCountOffset = 124;

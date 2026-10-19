@@ -101,7 +101,7 @@ public sealed class SelectionTests
     public void SharedConsoleModuleSelectsItsImporters()
     {
         var selection = Select(["tools/workshop-console.mjs"]);
-        Assert.Equal(["anim-1a", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
+        Assert.Equal(["anim-1a", "capacity-9r", "cat-002", "cat-014", "cat-017", "cat-020", "cat-023a", "cat-023b", "cat-030", "cat-037", "cat-048a",
             "cat-048b", "cat-049", "cat-050", "cat-051", "cat-052", "engine-core-2a1", "engine-core-2b1", "engine-core-2b2", "engine-core-2b3",
             "engine-core-2b4", "engine-core-2c"], Names(selection));
     }

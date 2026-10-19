@@ -207,7 +207,7 @@ public sealed class PipeBend45Tests(NativeSceneFixture godot)
         var profile = new WorkshopGpuProfile(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1));
         var bytes = PhysicsGpuAbi.Admission(scene, new(1), profile);
 
-        Assert.Equal(PhysicsGpuAbi.ByteLength, bytes.Length);
+        Assert.Equal(PhysicsGpuAbi.ByteLength(scene.Colliders.Length), bytes.Length);
         Assert.Equal(profile, PhysicsGpuAbi.ReadProfile(bytes));
         Assert.Equal(PhysicsFailure.None, PhysicsGpuAbi.ReadFailure(bytes));
     }

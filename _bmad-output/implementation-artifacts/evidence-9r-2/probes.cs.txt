@@ -1,0 +1,50 @@
+// Story 9R.2 temporary native probes (run on 8a77f9a9 before the ABI change, then deleted from WorkbenchCapacityTests).
+
+// Probe 1: where does a Basketball come to rest on one pipe_bend_90? 3 s (360 ticks) through WorkshopPhysicsEngineTests.Run.
+[Theory]
+[InlineData(-1.5)] [InlineData(-1.25)] [InlineData(-1)] [InlineData(-.75)] [InlineData(-.5)] [InlineData(-.25)] [InlineData(0)]
+[InlineData(.25)] [InlineData(.5)] [InlineData(.75)] [InlineData(1)] [InlineData(1.25)] [InlineData(1.5)]
+public async Task ProbeBallOnBend(double dx)
+{
+    var reads = await WorkshopPhysicsEngineTests.Run(new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(), new WorkshopInstances(
+        WorkshopInput.PipeBend90(new(1), 6, 1.2, 0, 0, 0, -0.9238795, 0.3826834),   // first attempt: identity rotation at (6, 1, 0)
+        WorkshopInput.Basketball(new(2), 6 + dx, 3.5, 0, 0, 0, 0, 1))), 360);
+    var b = reads[^1].Bodies[0].Body;
+    var b2 = reads[^60].Bodies[0].Body;
+    throw new InvalidOperationException($"dx={dx} final=(...) v=(...) y-60=...");
+}
+// Identity rotation: every drop rolled off (final heights -0.12 .. 0.44, x drifting to 9..15 m).
+// Cradle (-135 deg about Z, both mouths up, inner wall concave upward), bend at (6, 1.2, 0), ball from y 3.5:
+//   dx=-0.25 final=(6.000,2.233,0.000) v=(0.000,-0.000)     dx=0.25 final=(6.000,2.233,0.000) v=(-0.000,0.000)
+//   dx=-0.5/0.5 final x 5.607/6.393 y 2.298 still rocking    dx=0 final=(6.062,2.239) v=(-0.184,-0.018)
+//   dx=+-1.25, +-1.5: misses the cradle and falls to the bench (y -0.11 .. -0.12)
+// Chosen: ball at x 6.25 (dx 0.25), resting height 2.233 m.
+
+// Probe 2: why do N powered gates fault at Construct (InvalidRead) before any collider ceiling?
+[Theory]
+[InlineData(1)] [InlineData(2)] [InlineData(8)] [InlineData(16)]
+public async Task ProbeGates(int n)
+{
+    var scene = WorkshopPhysicsCompiler.Compile(Bench(Grid(PartId.PoweredGate, n)), new(101, 206));
+    var bytes = PhysicsGpuAbi.Admission(scene, new(1), new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1)));
+    // ... then Construct / Run / 30 x Advance through WorkshopSimulation, recording each outcome
+}
+// n=1 construct=Applied run=Applied; n=2 construct=Applied run=Applied
+// n=8:  System.ArgumentException : Contact cache capacity exceeded.  (PhysicsGpuAbi.Admission, PhysicsGpuAbi.cs:188)
+// n=16: System.ArgumentException : Contact cache capacity exceeded.
+// Probe 3 (after the ABI change): the ball placed inside a cradle on the Chrome placement plane (bend and ball both at y 3).
+//   WorkshopInput.PipeBend90(new(1), 6, 3, 0, 0, 0, sign * 0.9238795, 0.3826834) + Basketball(new(2), 6 + dx, 3, 0), 360 ticks
+//   dx=0   sign=-1 final=(6.000,2.677) v=(-0.000,0.000)   <- chosen (ball and bend at the same placement point)
+//   dx=0.2 sign=-1 final=(5.983,2.678) v=(0.014,-0.001)
+//   dx=0.5 sign=-1 final=(5.940,2.682) v=(0.384,-0.038)
+//   dx=0.2 sign=+1 final=(13.347,-0.120): the mirrored rotation does not cradle (the rotation sign matters)
+//
+// Probe 4 (after the ABI change, Release, native JIT): admission and per-tick cost through WorkshopPhysicsEngineTests.Run, 240 ticks.
+//   ball only (2 colliders):            admission 28.02 ms (first, JIT)  per tick 0.34 ms
+//   31 bends + ball (2,234 colliders):  admission  3.92 ms               per tick 4.55 ms
+//   32 bends, no ball (2,305 colliders): admission 4.32 ms               per tick 5.37 ms
+//   The per-tick cost is the static-collider BVH clear/re-insert and self-overlap traversal (WorkshopPhysicsEngine.Advance), filed
+//   by the coordinator as performance owned by its named qualification gate.
+
+// => 8 or more Powered Gates (each a dynamic blade, 161+ colliders) already exceed the retired 888-pair ABI contact cache on main:
+//    the second hidden ceiling, removed with the dead cache region (coordinator design-review decision 1).

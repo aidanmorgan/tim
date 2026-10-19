@@ -1,0 +1,17 @@
+Story 9R.2 red run: the new WorkbenchCapacityTests on main 8a77f9a9 (engine unchanged; only the test file and the
+WorkshopPhysicsEngineTests harness visibility changed).
+Command: dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj --filter "FullyQualifiedName~WorkbenchCapacityTests"
+
+Failed CuriousContraptions.Tests.WorkbenchCapacityTests.BendBenchesAcrossTheRetiredColliderCeilingCompileAndStep(bends: 32)   System.ArgumentException : Invalid physics document or capacity.
+Failed CuriousContraptions.Tests.WorkbenchCapacityTests.BendBenchesAcrossTheRetiredColliderCeilingCompileAndStep(bends: 29)   System.ArgumentException : Invalid physics document or capacity.
+Failed CuriousContraptions.Tests.WorkbenchCapacityTests.ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(withLastBend: True)   System.ArgumentException : Invalid physics document or capacity.
+Failed CuriousContraptions.Tests.WorkbenchCapacityTests.ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(withLastBend: False)  System.ArgumentException : Invalid physics document or capacity.
+Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "powered_gate")   Assert.Equal() Failure: Expected Applied, Actual Faulted (Construct: "Contact cache capacity exceeded.", see probes.cs.txt)
+Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "funnel")   System.ArgumentException : Invalid physics document or capacity.
+Failed CuriousContraptions.Tests.WorkbenchCapacityTests.EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(kindId: "pipe_bend_90")   System.ArgumentException : Invalid physics document or capacity.
+Failed CuriousContraptions.Tests.WorkbenchCapacityTests.OneTransportAdmitsBenchesOfChangingColliderCount   Assert.Equal() Failure: Expected Applied, Actual Faulted (32-bend Construct)
+Failed!  - Failed:     8, Passed:    51, Skipped:     0, Total:    59, Duration: 3 s
+
+Passing on main (controls): 28 bends (2,017 colliders), the plane-only bench, the 30-instance mixed bench (now stepped), every
+other Free kind at its largest admitted count, the 33-bend Build rejection ("Workbench is full: part table"), the budget table
+coverage and the u16 slot fit.

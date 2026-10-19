@@ -92,7 +92,6 @@ public sealed class WorkshopDelayTests
         var construction = new WorkshopConstruction(new(1),WorkshopCadenceSettings.Default(),instances);
         var scene = WorkshopPhysicsCompiler.Compile(construction,new(1,2));
         Assert.Equal(9,scene.Bodies.Length);
-        Assert.True(scene.Colliders.Length <= PhysicsSceneDeclaration.ColliderCapacity);
         // Free play has no per-kind count: a third switch is admitted within the compiled tables.
         new WorkshopInstances(instances[4],instances[5],
             WorkshopInput.Switch(new(9),3,1,0,0,0,0,1,ContactTriggerSettings.Default)).Validate();

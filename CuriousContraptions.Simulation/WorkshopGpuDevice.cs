@@ -76,7 +76,7 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
     public ValueTask<WorkshopGpuCandidate> Advance(WorkshopRead committed, CommandSequence sequence, WorkshopTickControls controls)
     {
         ArgumentNullException.ThrowIfNull(controls);
-        if (_committedWorld.Length != PhysicsGpuAbi.ByteLength ||
+        if (_committedWorld.Length < PhysicsGpuAbi.HeaderBytes || _committedWorld.Length != PhysicsGpuAbi.ByteLength(_committedWorld) ||
             BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(PhysicsGpuAbi.HeaderEpochOffset)) != committed.Epoch.Value ||
             BinaryPrimitives.ReadUInt64LittleEndian(_committedWorld.AsSpan(PhysicsGpuAbi.HeaderTickOffset)) != committed.Tick.Value)
             throw new ArgumentException("Advance does not own the committed physical world.");
@@ -104,7 +104,8 @@ internal sealed class WorkshopGpuDevice(IWorkshopGpuTransport transport, Physics
             await transport.Stage(input, operation, inputs);
             ObjectDisposedException.ThrowIf(_disposed, this);
             var bytes = transport.Read();
-            if (bytes.Length != PhysicsGpuAbi.ByteLength) throw new ArgumentException("Invalid GPU candidate length.");
+            if (bytes.Length < PhysicsGpuAbi.HeaderBytes || bytes.Length != PhysicsGpuAbi.ByteLength(bytes))
+                throw new ArgumentException("Invalid GPU candidate length.");
             var failure = PhysicsGpuAbi.ReadFailure(bytes);
             if (failure != PhysicsFailure.None)
             {

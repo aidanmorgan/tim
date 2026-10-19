@@ -16,7 +16,7 @@ public sealed class WorkshopPhysicsEngineTests
     private static readonly WorkshopCadenceSettings Settings = WorkshopCadenceSettings.Default();
     private static readonly float BenchY = (float)WorkshopConstruction.WorkbenchSurface.Value;
 
-    private static async Task<List<WorkshopRead>> Run(WorkshopConstruction construction, int ticks)
+    internal static async Task<List<WorkshopRead>> Run(WorkshopConstruction construction, int ticks)
     {
         await using var device = new WorkshopGpuDevice(new BrowserGpuTransport(), new(101, 206));
         await using var simulation = new WorkshopSimulation(device, new StepClock(), Settings, new(1), new NoInstallation(),
@@ -532,14 +532,14 @@ public sealed class WorkshopPhysicsEngineTests
         else Assert.True(maximumTilt is > 1 and < 20, $"{mass} kg {ballKind} strikes but only rocks the tile (max {maximumTilt:F1} deg)");
     }
 
-    private sealed class StepClock : IWorkshopCaptureClock
+    internal sealed class StepClock : IWorkshopCaptureClock
     {
         private long _time = 100_000_000;
         public ClockGeneration Generation => new(1);
         public WorkshopClockStamp Capture() => new(WorkshopClockDomain.SimulationMonotonic, Generation, new(_time += 8_333_333), new(100_000));
     }
 
-    private sealed class NoInstallation : IWorkshopInstallation
+    internal sealed class NoInstallation : IWorkshopInstallation
     {
         public void Abort(CommandSequence owner) { }
         public void Retire() { }

@@ -1,0 +1,34 @@
+Story 9R.2 green and mutation record (Amelia-7, 20 Oct 2026, worktree on main 8a77f9a9 plus the candidate diff).
+
+Green (candidate, before commit):
+  dotnet build CuriousContraptions.slnx                  0 Warning(s), 0 Error(s)
+  dotnet test CuriousContraptions.slnx                   WorkerAotGuard 17/17, Coverage 78/78, E2eRunner 156/156, CuriousContraptions.tests 1729/1729
+  anvil check (every changed file, explicit list)        No warnings found ("--changed" reports no files in a worktree with unstaged edits)
+  Chrome, tools/E2eRunner run --changed capacity-9r     Pass: capacity-9r 3/3 debtFaults=0 closeFindings=0; engine-core-2a1 5/5; engine-core-2b1 1/1 (evidence: chrome-capacity-9r/)
+
+Each mutant was applied alone to the candidate, the native suite run (dotnet test CuriousContraptions.tests), then reverted.
+
+M1 (AC1/AC2) re-add a 2,048 collider ceiling: PhysicsSceneDeclaration ctor `colliders.Length > 2048 ||`
+  Failed 7 / 1729: BendBenchesAcrossTheRetiredColliderCeilingCompileAndStep(32, 29), ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(True, False),
+  EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(funnel, pipe_bend_90), OneTransportAdmitsBenchesOfChangingColliderCount. KILLED.
+
+M2 (AC2) restore the 888-pair contact-cache ceiling at admission (count pairs with a dynamic collider, throw "Contact cache capacity exceeded." past 888)
+  Failed 3 / 1729: ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(True, False), EveryFreePaletteKindCompilesAndStepsAtTheLargestCountBuildAdmits(powered_gate). KILLED.
+
+M3 (AC1, transport) size the transport buffers from the first admission only (allocate when empty; copy min length)
+  Failed 49 / 1729, including OneTransportAdmitsBenchesOfChangingColliderCount and every multi-scene native Run. KILLED.
+M3b (sharper) grow-only candidate buffers (`Length < length` reallocates)
+  Failed 1 / 1729: OneTransportAdmitsBenchesOfChangingColliderCount (32 -> 1 bend admission keeps a longer buffer). KILLED.
+
+M4 (AC1, immutability) drop the collider tail from ValidateCandidate's immutability check
+  Failed 2 / 1729: WorkshopWireTests.GenericCandidateBindsImmutableDeclarationsAndVectorDomain, GenericCandidateRejectsAChangeAnywhereInTheColliderTail. KILLED.
+
+M5 (AC3 negative control) remove the instance-count check from WorkbenchCapacity.Validate
+  Failed 2 / 1729: ExceedingOneCompiledTableRejectsWithThatTypedReason(Instances, wall 33), ThirtyThreeBendsAreRejectedAtBuildWithThePartTableMessage. KILLED.
+
+M6 (AC1, sizing) admit one collider record too long: `new byte[ByteLength(scene.Colliders.Length + 1)]`
+  Failed 279 / 1729 (every admitted world fails its own header length), including GenericWorldLengthIsDerivedFromItsOwnColliderCount and the
+  five element ByteLength assertions (Funnel, PipeBend45, PipeBend90, StraightPipe, Springboard). KILLED.
+
+M7 (broadphase pruning, new decision logic) prune a subtree pair when either side is static-only (|| for &&)
+  Failed 64 / 1721 (probe-free run), including ABallRestsInTheLastOfThirtyOneBendsAndFallsWithoutIt(True) and the WorkshopPhysicsLawTests rolling-ball laws. KILLED.
