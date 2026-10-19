@@ -174,6 +174,12 @@ internal static class SuiteCatalogue
             [Owner("Coordinator decision, 20 Oct 2026: a new suite starts SerialAlone until calibration qualifies it; the heaviest " +
                 "collider scene (2,305 colliders) debt-faulted before Story 9R.2's broadphase fix.", 1)],
             null, Set(PartId.Basketball, PartId.PipeBend90), [], [], Set(Gizmo, Guide)),
+        Serial(SuiteId.Cat051OwnSupply,
+            [Owner("Coordinator decision, 20 Oct 2026 (Murdoch-9, Story 9R.3): a new suite starts SerialAlone until calibration " +
+                "qualifies it; it samples blade and ball poses over wall-clock windows after each in-run supply toggle.", 1)],
+            // No primary: cat-051 stays the Powered Gate's primary suite; a gate change still selects this suite as a placer.
+            null, Set(PartId.Basketball, PartId.Battery, PartId.PoweredGate), [], Set(Electrical),
+            Set(Gizmo, Guide, Wire, Config)),
 
         Parallel(SuiteId.Cat002, PartId.BallDetector, Set(PartId.BallDetector, PartId.Basketball, PartId.SignalLamp), [], Set(Signal),
             Set(Gizmo, Guide, Wire, Present)),
@@ -195,8 +201,6 @@ internal static class SuiteCatalogue
             Set(Gizmo, Guide, Levels)),
         Parallel(SuiteId.Cat051, PartId.PoweredGate, Set(PartId.Basketball, PartId.Battery, PartId.PoweredGate), [], Set(Electrical),
             Set(Gizmo, Guide, Wire)),
-        Parallel(SuiteId.Cat051OwnSupply, PartId.PoweredGate, Set(PartId.Basketball, PartId.Battery, PartId.PoweredGate), [],
-            Set(Electrical), Set(Gizmo, Guide, Wire, Config)),
         Parallel(SuiteId.Cat052, PartId.PressurePlate, Set(PartId.Basketball, PartId.Battery, PartId.BowlingBall, PartId.Domino,
             PartId.PoweredGate, PartId.PressurePlate), [], Set(Signal, Electrical), Set(Gizmo, Guide, Wire, Config)),
         Parallel(SuiteId.Cat062, PartId.Springboard, Set(PartId.Basketball, PartId.Springboard), [], [],

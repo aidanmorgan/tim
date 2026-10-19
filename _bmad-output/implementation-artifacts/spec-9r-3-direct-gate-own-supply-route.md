@@ -154,7 +154,10 @@ Refreshed against main `9b9d26e5` (9.4b, 9R.0, 9R.0b, 9R.1, 9R.2 landed); symbol
   `1.55f - pos` alternative removed with its code) and the drive identifiers (`gatePowered|plateLoaded`, 7 → 4); removed the unused
   `ViolationOwner.Story9R3` and the `SwitchedSupplyClosed` generic identifier; lowered the frozen totals to 10 entries / 40 matches;
   `KnownViolationsSha256` recomputed from the test's own failure message.
-- **Chrome suite** `tools/e2e/cat-051-own-supply.test.ts`, declared `Parallel` in `tools/E2eRunner/SuiteCatalogue.cs`.
+- **Chrome suite** `tools/e2e/cat-051-own-supply.test.ts`, declared in `tools/E2eRunner/SuiteCatalogue.cs`: `SerialAlone`
+  (owner-named, coordinator decision after Murdoch-9: a new suite starts SerialAlone until calibration qualifies it; it samples
+  over wall-clock windows), with no primary element so cat-051 stays the Powered Gate's primary suite (a gate change still selects
+  it as a placer). The first full run (`bcc83118`) ran it on a Parallel worker.
 
 ## Spec Change Log
 
@@ -173,6 +176,12 @@ Refreshed against main `9b9d26e5` (9.4b, 9R.0, 9R.0b, 9R.1, 9R.2 landed); symbol
   7. Stale line references: superseded by the symbol-based Implementation Notes above; `Compose` evaluates the kind first.
 
 ## Review Triage Log
+
+- **Full run 1 (`bcc83118`, run `20261019T222832Z-84166`): Fail, 35/36 files.** The one failure is cat-062 "Springboard authored
+  configuration SoftUndamped": a 120 s `testTimeoutFailure` with no assertion, on Parallel worker slot 1; the suite's other six
+  tests pass (`evidence-9r-3/full-run-1/`). The diff does not change Springboard physics: its prismatic (`Upper = 0`) was never
+  matched by the deleted 1.55 m recognition and has no supply route now, so it is undriven before and after. Not retried into
+  green; a 5× repeat of cat-062 needs the coordinator's go-ahead.
 
 - **Mutation #4 cannot fail `WorkshopSpringboardTests` as written.** That suite never steps the engine, and the engine's
   Springboard test (`ForgivingSpringForwardReceiverOffsetsCaptureInTheShippedEngine`) survives the mutant: driving the springboard
